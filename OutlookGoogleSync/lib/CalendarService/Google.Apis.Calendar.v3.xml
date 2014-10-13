@@ -1,0 +1,1238 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Apis.Calendar.v3</name>
+    </assembly>
+    <members>
+        <member name="P:Google.Apis.Calendar.v3.Data.Acl.ETag">
+            <summary>ETag of the collection.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Acl.Items">
+            <summary>List of rules on the access control list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Acl.Kind">
+            <summary>Type of the collection (&quot;calendar#acl&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Acl.NextPageToken">
+            <summary>Token used to access the next page of this result. Omitted if no further results are available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.ETag">
+            <summary>ETag of the resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.Id">
+            <summary>Identifier of the ACL rule.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.Kind">
+            <summary>Type of the resource (&quot;calendar#aclRule&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.Role">
+             <summary>The role assigned to the scope. Possible values are:  
+            - &quot;none&quot; - Provides no access. 
+            - &quot;freeBusyReader&quot; - Provides read access to free/busy information. 
+            - &quot;reader&quot; - Provides read access to the calendar. Private events will appear to users with reader access, but event details will be hidden. 
+            - &quot;writer&quot; - Provides read and write access to the calendar. Private events will appear to users with writer access, and event details will be visible. 
+            - &quot;owner&quot; - Provides ownership of the calendar. This role has all of the permissions of the writer role with the additional ability to see and manipulate ACLs.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.Scope">
+            <summary>The scope of the rule.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.AclRule.ScopeData">
+            <summary>The scope of the rule.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.ScopeData.Type">
+             <summary>The type of the scope. Possible values are:  
+            - &quot;default&quot; - The public scope. This is the default value. 
+            - &quot;user&quot; - Limits the scope to a single user. 
+            - &quot;group&quot; - Limits the scope to a group. 
+            - &quot;domain&quot; - Limits the scope to a domain.  Note: The permissions granted to the &quot;default&quot;, or public, scope apply to any user, authenticated or not.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.AclRule.ScopeData.Value">
+            <summary>The email address of a user or group, or the name of a domain, depending on the scope type. Omitted for type &quot;default&quot;.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Description">
+            <summary>Description of the calendar. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.ETag">
+            <summary>ETag of the resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Id">
+            <summary>Identifier of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Kind">
+            <summary>Type of the resource (&quot;calendar#calendar&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Location">
+            <summary>Geographic location of the calendar as free-form text. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Summary">
+            <summary>Title of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.TimeZone">
+            <summary>The time zone of the calendar. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.ETag">
+            <summary>ETag of the collection.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.Items">
+            <summary>Calendars that are present on the user&apos;s calendar list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.Kind">
+            <summary>Type of the collection (&quot;calendar#calendarList&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.NextPageToken">
+            <summary>Token used to access the next page of this result.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.AccessRole">
+             <summary>The effective access role that the authenticated user has on the calendar. Read-only. Possible values are:  
+            - &quot;freeBusyReader&quot; - Provides read access to free/busy information. 
+            - &quot;reader&quot; - Provides read access to the calendar. Private events will appear to users with reader access, but event details will be hidden. 
+            - &quot;writer&quot; - Provides read and write access to the calendar. Private events will appear to users with writer access, and event details will be visible. 
+            - &quot;owner&quot; - Provides ownership of the calendar. This role has all of the permissions of the writer role with the additional ability to see and manipulate ACLs.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.ColorId">
+            <summary>The color of the calendar. This is an ID referring to an entry in the &quot;calendar&quot; section of the colors definition (see the &quot;colors&quot; endpoint). Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.DefaultReminders">
+            <summary>The default reminders that the authenticated user has for this calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Description">
+            <summary>Description of the calendar. Optional. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.ETag">
+            <summary>ETag of the resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Hidden">
+            <summary>Whether the calendar has been hidden from the list. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Id">
+            <summary>Identifier of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Kind">
+            <summary>Type of the resource (&quot;calendar#calendarListEntry&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Location">
+            <summary>Geographic location of the calendar as free-form text. Optional. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Selected">
+            <summary>Whether the calendar content shows up in the calendar UI. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Summary">
+            <summary>Title of the calendar. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.SummaryOverride">
+            <summary>The summary that the authenticated user has set for this calendar. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.TimeZone">
+            <summary>The time zone of the calendar. Optional. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ColorDefinition.Background">
+            <summary>The background color associated with this color definition.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ColorDefinition.Foreground">
+            <summary>The foreground color that can be used to write on top of a background with &apos;background&apos; color.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Calendar">
+            <summary>Palette of calendar colors, mapping from the color ID to its definition. An &apos;calendarListEntry&apos; resource refers to one of these color IDs in its &apos;color&apos; field. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Event">
+            <summary>Palette of event colors, mapping from the color ID to its definition. An &apos;event&apos; resource may refer to one of these color IDs in its &apos;color&apos; field. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Kind">
+            <summary>Type of the resource (&quot;calendar#colors&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Updated">
+            <summary>Last modification time of the color palette (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Colors.CalendarData">
+            <summary>Palette of calendar colors, mapping from the color ID to its definition. An &apos;calendarListEntry&apos; resource refers to one of these color IDs in its &apos;color&apos; field. Read-only.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Colors.EventData">
+            <summary>Palette of event colors, mapping from the color ID to its definition. An &apos;event&apos; resource may refer to one of these color IDs in its &apos;color&apos; field. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Error.Domain">
+            <summary>Domain, or broad category, of the error.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Error.Reason">
+             <summary>Specific reason for the error. Some of the possible values are:  
+            - &quot;groupTooBig&quot; - The group of users requested is too large for a single query. 
+            - &quot;tooManyCalendarsRequested&quot; - The number of calendars requested is too large for a single query. 
+            - &quot;notFound&quot; - The requested resource was not found. 
+            - &quot;internalError&quot; - The API service has encountered an internal error.  Additional error types may be added in the future, so clients should gracefully handle additional error statuses not included in this list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.AnyoneCanAddSelf">
+            <summary>Whether anyone can invite themselves to the event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Attendees">
+            <summary>The attendees of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.AttendeesOmitted">
+            <summary>Whether attendees have been omitted from the event&apos;s representation. When retrieving an event, this is due to a restriction specified by the &apos;maxAttendee&apos; query parameter. When updating an event, this can be used to only update the participant&apos;s response. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ColorId">
+            <summary>The color of the event. This is an ID referring to an entry in the &quot;event&quot; section of the colors definition (see the &quot;colors&quot; endpoint). Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Created">
+            <summary>Creation time of the event (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Creator">
+            <summary>The creator of the event. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Description">
+            <summary>Description of the event. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ETag">
+            <summary>ETag of the resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ExtendedProperties">
+            <summary>Extended properties of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Gadget">
+            <summary>A gadget that extends this event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GuestsCanInviteOthers">
+            <summary>Whether attendees other than the organizer can invite others to the event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GuestsCanModify">
+            <summary>Whether attendees other than the organizer can modify the event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GuestsCanSeeOtherGuests">
+            <summary>Whether attendees other than the organizer can see who the event&apos;s attendees are. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.HtmlLink">
+            <summary>An absolute link to this event in the Google Calendar Web UI. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ICalUID">
+            <summary>Event ID in the iCalendar format.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Id">
+            <summary>Identifier of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Kind">
+            <summary>Type of the resource (&quot;calendar#event&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Location">
+            <summary>Geographic location of the event as free-form text. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Locked">
+            <summary>Whether this is a locked event copy where no changes can be made to the main event fields &quot;summary&quot;, &quot;description&quot;, &quot;location&quot;, &quot;start&quot;, &quot;end&quot; or &quot;recurrence&quot;. The default is False. Read-Only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Organizer">
+            <summary>The organizer of the event. If the organizer is also an attendee, this is indicated with a separate entry in &apos;attendees&apos; with the &apos;organizer&apos; field set to True. To change the organizer, use the &quot;move&quot; operation. Read-only, except when importing an event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.PrivateCopy">
+            <summary>Whether this is a private event copy where changes are not shared with other copies on other calendars. Optional. Immutable.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Recurrence">
+            <summary>List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event. This field is omitted for single events or instances of recurring events.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.RecurringEventId">
+            <summary>For an instance of a recurring event, this is the event ID of the recurring event itself. Immutable.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Reminders">
+            <summary>Information about the event&apos;s reminders for the authenticated user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Sequence">
+            <summary>Sequence number as per iCalendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Status">
+             <summary>Status of the event. Optional. Possible values are:  
+            - &quot;confirmed&quot; - The event is confirmed. This is the default status. 
+            - &quot;tentative&quot; - The event is tentatively confirmed. 
+            - &quot;cancelled&quot; - The event is cancelled.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Summary">
+            <summary>Title of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Transparency">
+             <summary>Whether the event blocks time on the calendar. Optional. Possible values are:  
+            - &quot;opaque&quot; - The event blocks time on the calendar. This is the default value. 
+            - &quot;transparent&quot; - The event does not block time on the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Updated">
+            <summary>Last modification time of the event (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Visibility">
+             <summary>Visibility of the event. Optional. Possible values are:  
+            - &quot;default&quot; - Uses the default visibility for events on the calendar. This is the default value. 
+            - &quot;public&quot; - The event is public and event details are visible to all readers of the calendar. 
+            - &quot;private&quot; - The event is private and only event attendees may view event details. 
+            - &quot;confidential&quot; - The event is private. This value is provided for compatibility reasons.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.CreatorData">
+            <summary>The creator of the event. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.DisplayName">
+            <summary>The creator&apos;s name, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.Email">
+            <summary>The creator&apos;s email address, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.Id">
+            <summary>The creator&apos;s Profile ID, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.Self">
+            <summary>Whether the creator corresponds to the calendar on which this copy of the event appears. Read-only. The default is False.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.ExtendedPropertiesData">
+            <summary>Extended properties of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ExtendedPropertiesData.Private">
+            <summary>Properties that are private to the copy of the event that appears on this calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.ExtendedPropertiesData.Shared">
+            <summary>Properties that are shared between copies of the event on other attendees&apos; calendars.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.ExtendedPropertiesData.PrivateData">
+            <summary>Properties that are private to the copy of the event that appears on this calendar.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.ExtendedPropertiesData.SharedData">
+            <summary>Properties that are shared between copies of the event on other attendees&apos; calendars.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.GadgetData">
+            <summary>A gadget that extends this event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Display">
+             <summary>The gadget&apos;s display mode. Optional. Possible values are:  
+            - &quot;icon&quot; - The gadget displays next to the event&apos;s title in the calendar view. 
+            - &quot;chip&quot; - The gadget displays when the event is clicked.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Height">
+            <summary>The gadget&apos;s height in pixels. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.IconLink">
+            <summary>The gadget&apos;s icon URL.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Link">
+            <summary>The gadget&apos;s URL.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Preferences">
+            <summary>Preferences.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Title">
+            <summary>The gadget&apos;s title.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Type">
+            <summary>The gadget&apos;s type.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.GadgetData.Width">
+            <summary>The gadget&apos;s width in pixels. Optional.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.GadgetData.PreferencesData">
+            <summary>Preferences.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.OrganizerData">
+            <summary>The organizer of the event. If the organizer is also an attendee, this is indicated with a separate entry in &apos;attendees&apos; with the &apos;organizer&apos; field set to True. To change the organizer, use the &quot;move&quot; operation. Read-only, except when importing an event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.DisplayName">
+            <summary>The organizer&apos;s name, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.Email">
+            <summary>The organizer&apos;s email address, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.Id">
+            <summary>The organizer&apos;s Profile ID, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.Self">
+            <summary>Whether the organizer corresponds to the calendar on which this copy of the event appears. Read-only. The default is False.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.Event.RemindersData">
+            <summary>Information about the event&apos;s reminders for the authenticated user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.RemindersData.Overrides">
+            <summary>If the event doesn&apos;t use the default reminders, this lists the reminders specific to the event, or, if not set, indicates that no reminders are set for this event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.RemindersData.UseDefault">
+            <summary>Whether the default reminders of the calendar apply to the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.AdditionalGuests">
+            <summary>Number of additional guests. Optional. The default is 0.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Comment">
+            <summary>The attendee&apos;s response comment. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.DisplayName">
+            <summary>The attendee&apos;s name, if available. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Email">
+            <summary>The attendee&apos;s email address, if available. This field must be present when adding an attendee.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Id">
+            <summary>The attendee&apos;s Profile ID, if available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Optional">
+            <summary>Whether this is an optional attendee. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Organizer">
+            <summary>Whether the attendee is the organizer of the event. Read-only. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Resource">
+            <summary>Whether the attendee is a resource. Read-only. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.ResponseStatus">
+             <summary>The attendee&apos;s response status. Possible values are:  
+            - &quot;needsAction&quot; - The attendee has not responded to the invitation. 
+            - &quot;declined&quot; - The attendee has declined the invitation. 
+            - &quot;tentative&quot; - The attendee has tentatively accepted the invitation. 
+            - &quot;accepted&quot; - The attendee has accepted the invitation.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Self">
+            <summary>Whether this entry represents the calendar on which this copy of the event appears. Read-only. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.Date">
+            <summary>The date, in the format &quot;yyyy-mm-dd&quot;, if this is an all-day event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTime">
+            <summary>The time, as a combined date-time value (formatted according to RFC 3339). A time zone offset is required unless a time zone is explicitly specified in &apos;timeZone&apos;.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.TimeZone">
+            <summary>The name of the time zone in which the time is specified (e.g. &quot;Europe/Zurich&quot;). Optional. The default is the time zone of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.Method">
+             <summary>The method used by this reminder. Possible values are:  
+            - &quot;email&quot; - Reminders are sent via email. 
+            - &quot;sms&quot; - Reminders are sent via SMS. 
+            - &quot;popup&quot; - Reminders are sent via a UI popup.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.Minutes">
+            <summary>Number of minutes before the start of the event when the reminder should trigger.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.AccessRole">
+             <summary>The user&apos;s access role for this calendar. Read-only. Possible values are:  
+            - &quot;none&quot; - The user has no access. 
+            - &quot;freeBusyReader&quot; - The user has read access to free/busy information. 
+            - &quot;reader&quot; - The user has read access to the calendar. Private events will appear to users with reader access, but event details will be hidden. 
+            - &quot;writer&quot; - The user has read and write access to the calendar. Private events will appear to users with writer access, and event details will be visible. 
+            - &quot;owner&quot; - The user has ownership of the calendar. This role has all of the permissions of the writer role with the additional ability to see and manipulate ACLs.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.DefaultReminders">
+            <summary>The default reminders on the calendar for the authenticated user. These reminders apply to all events on this calendar that do not explicitly override them (i.e. do not have &apos;reminders.useDefault&apos; set to &apos;true&apos;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Description">
+            <summary>Description of the calendar. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.ETag">
+            <summary>ETag of the collection.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Items">
+            <summary>List of events on the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Kind">
+            <summary>Type of the collection (&quot;calendar#events&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.NextPageToken">
+            <summary>Token used to access the next page of this result. Omitted if no further results are available.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Summary">
+            <summary>Title of the calendar. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.TimeZone">
+            <summary>The time zone of the calendar. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Updated">
+            <summary>Last modification time of the calendar (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyCalendar.Busy">
+            <summary>List of time ranges during which this calendar should be regarded as busy.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyCalendar.Errors">
+            <summary>Optional error(s) (if computation for the calendar failed).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyGroup.Calendars">
+            <summary>List of calendars&apos; identifiers within a group.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyGroup.Errors">
+            <summary>Optional error(s) (if computation for the group failed).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.CalendarExpansionMax">
+            <summary>Maximal number of calendars for which FreeBusy information is to be provided. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.GroupExpansionMax">
+            <summary>Maximal number of calendar identifiers to be provided for a single group. Optional. An error will be returned for a group with more members than this value.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.Items">
+            <summary>List of calendars and/or groups to query.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMax">
+            <summary>The end of the interval for the query.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMin">
+            <summary>The start of the interval for the query.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeZone">
+            <summary>Time zone used in the response. Optional. The default is UTC.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequestItem.Id">
+            <summary>The identifier of a calendar or a group.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.Calendars">
+            <summary>List of free/busy information for calendars.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.Groups">
+            <summary>Expansion of groups.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.Kind">
+            <summary>Type of the resource (&quot;calendar#freeBusy&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMax">
+            <summary>The end of the interval.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMin">
+            <summary>The start of the interval.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.FreeBusyResponse.CalendarsData">
+            <summary>List of free/busy information for calendars.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.FreeBusyResponse.GroupsData">
+            <summary>Expansion of groups.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Setting.ETag">
+            <summary>ETag of the resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Setting.Id">
+            <summary>Name of the user setting.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Setting.Kind">
+            <summary>Type of the resource (&quot;calendar#setting&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Setting.Value">
+            <summary>Value of the user setting. The format of the value depends on the ID of the setting.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Settings.ETag">
+            <summary>Etag of the collection.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Settings.Items">
+            <summary>List of user settings.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Settings.Kind">
+            <summary>Type of the collection (&quot;calendar#settings&quot;).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.End">
+            <summary>The (exclusive) end of the time period.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.Start">
+            <summary>The (inclusive) start of the time period.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarService.Key">
+            <summary>Sets the API-Key (or DeveloperKey) which this service uses for all requests</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.CalendarService.Scopes">
+            <summary>A list of all OAuth2.0 scopes. Each of these scopes relates to a permission or group of permissions that different methods of this API may need.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scopes.Calendar">
+            <summary>Manage your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scopes.CalendarReadonly">
+            <summary>View your calendars</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Delete(System.String,System.String)">
+            <summary>Deletes an access control rule.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="ruleId">Required - ACL rule identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Get(System.String,System.String)">
+            <summary>Returns an access control rule.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="ruleId">Required - ACL rule identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Insert(Google.Apis.Calendar.v3.Data.AclRule,System.String)">
+            <summary>Creates an access control rule.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.List(System.String)">
+            <summary>Returns the rules in the access control list for the calendar.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Patch(Google.Apis.Calendar.v3.Data.AclRule,System.String,System.String)">
+            <summary>Updates an access control rule. This method supports patch semantics.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="ruleId">Required - ACL rule identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Update(Google.Apis.Calendar.v3.Data.AclRule,System.String,System.String)">
+            <summary>Updates an access control rule.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="ruleId">Required - ACL rule identifier.</param>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.DeleteRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.DeleteRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.DeleteRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.DeleteRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.DeleteRequest.RuleId">
+            <summary>ACL rule identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.GetRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.GetRequest.RuleId">
+            <summary>ACL rule identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.InsertRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.InsertRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.InsertRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.InsertRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.InsertRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.RuleId">
+            <summary>ACL rule identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.PatchRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.RuleId">
+            <summary>ACL rule identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Delete(System.String)">
+            <summary>Deletes an entry on the user&apos;s calendar list.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Get(System.String)">
+            <summary>Returns an entry on the user&apos;s calendar list.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Insert(Google.Apis.Calendar.v3.Data.CalendarListEntry)">
+            <summary>Adds an entry to the user&apos;s calendar list.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.List">
+            <summary>Returns entries on the user&apos;s calendar list.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Patch(Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
+            <summary>Updates an entry on the user&apos;s calendar list. This method supports patch semantics.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Update(Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
+            <summary>Updates an entry on the user&apos;s calendar list.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.CalendarListResource.MinAccessRole">
+            <summary>The minimum access role for the user in the returned entires. Optional. The default is no restriction.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.MinAccessRole.FreeBusyReader">
+            <summary>The user can read free/busy information.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.MinAccessRole.Owner">
+            <summary>The user can read and modify events and access control lists.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.MinAccessRole.Reader">
+            <summary>The user can read events that are not private.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.MinAccessRole.Writer">
+            <summary>The user can read and modify events.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.GetRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MinAccessRole">
+            <summary>The minimum access role for the user in the returned entires. Optional. The default is no restriction.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.ShowHidden">
+            <summary>Whether to show hidden entries. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Clear(System.String)">
+            <summary>Clears a primary calendar. This operation deletes all data associated with the primary calendar of an account and cannot be undone.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Delete(System.String)">
+            <summary>Deletes a secondary calendar.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Get(System.String)">
+            <summary>Returns metadata for a calendar.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Insert(Google.Apis.Calendar.v3.Data.Calendar)">
+            <summary>Creates a secondary calendar.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Patch(Google.Apis.Calendar.v3.Data.Calendar,System.String)">
+            <summary>Updates metadata for a calendar. This method supports patch semantics.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Update(Google.Apis.Calendar.v3.Data.Calendar,System.String)">
+            <summary>Updates metadata for a calendar.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.ClearRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.ClearRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.ClearRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.ClearRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.DeleteRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.DeleteRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.DeleteRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.DeleteRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.GetRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.PatchRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.PatchRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.PatchRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.PatchRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.PatchRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.UpdateRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.UpdateRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.UpdateRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.UpdateRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarsResource.UpdateRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.ColorsResource.Get">
+            <summary>Returns the color definitions for calendars and events.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.ColorsResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.ColorsResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.ColorsResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Delete(System.String,System.String)">
+            <summary>Deletes an event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="eventId">Required - Event identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Get(System.String,System.String)">
+            <summary>Returns an event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="eventId">Required - Event identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Import(Google.Apis.Calendar.v3.Data.Event,System.String)">
+            <summary>Imports an event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Insert(Google.Apis.Calendar.v3.Data.Event,System.String)">
+            <summary>Creates an event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Instances(System.String,System.String)">
+            <summary>Returns instances of the specified recurring event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="eventId">Required - Recurring event identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.List(System.String)">
+            <summary>Returns events on the specified calendar.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Move(System.String,System.String,System.String)">
+            <summary>Moves an event to another calendar, i.e. changes an event&apos;s organizer.</summary>
+            <param name="calendarId">Required - Calendar identifier of the source calendar where the event currently is on.</param>
+            <param name="eventId">Required - Event identifier.</param>
+            <param name="destination">Required - Calendar identifier of the target calendar where the event is to be moved to.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Patch(Google.Apis.Calendar.v3.Data.Event,System.String,System.String)">
+            <summary>Updates an event. This method supports patch semantics.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="eventId">Required - Event identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.QuickAdd(System.String,System.String)">
+            <summary>Creates an event based on a simple text string.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="text">Required - The text describing the event to be created.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.EventsResource.Update(Google.Apis.Calendar.v3.Data.Event,System.String,System.String)">
+            <summary>Updates an event.</summary>
+            <param name="calendarId">Required - Calendar identifier.</param>
+            <param name="eventId">Required - Event identifier.</param>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.OrderBy">
+            <summary>The order of the events returned in the result. Optional. The default is an unspecified, stable order.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.OrderBy.StartTime">
+            <summary>Order by the start date/time (ascending). This is only available when querying single events (i.e. the parameter &quot;singleEvents&quot; is True)</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.OrderBy.Updated">
+            <summary>Order by last modification time (ascending).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.EventId">
+            <summary>Event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendNotifications">
+            <summary>Whether to send notifications about the deletion of the event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.AlwaysIncludeEmail">
+            <summary>Whether to always include a value in the "email" field for the organizer, creator and attendees, even if no real email is available (i.e. a generated, non-working value will be provided). The use of this option is discouraged and should only be used by clients which cannot handle the absence of an email address value in the mentioned places. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.EventId">
+            <summary>Event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.MaxAttendees">
+            <summary>The maximum number of attendees to include in the response. If there are more than the specified number of attendees, only the participant is returned. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.TimeZone">
+            <summary>Time zone used in the response. Optional. The default is the time zone of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ImportRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ImportRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ImportRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ImportRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ImportRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendNotifications">
+            <summary>Whether to send notifications about the creation of the new event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.AlwaysIncludeEmail">
+            <summary>Whether to always include a value in the "email" field for the organizer, creator and attendees, even if no real email is available (i.e. a generated, non-working value will be provided). The use of this option is discouraged and should only be used by clients which cannot handle the absence of an email address value in the mentioned places. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.EventId">
+            <summary>Recurring event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.MaxAttendees">
+            <summary>The maximum number of attendees to include in the response. If there are more than the specified number of attendees, only the participant is returned. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.MaxResults">
+            <summary>Maximum number of events returned on one result page. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.OriginalStart">
+            <summary>The original start time of the instance in the result. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.ShowDeleted">
+            <summary>Whether to include deleted events (with 'eventStatus' equals 'cancelled') in the result. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeZone">
+            <summary>Time zone used in the response. Optional. The default is the time zone of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.AlwaysIncludeEmail">
+            <summary>Whether to always include a value in the "email" field for the organizer, creator and attendees, even if no real email is available (i.e. a generated, non-working value will be provided). The use of this option is discouraged and should only be used by clients which cannot handle the absence of an email address value in the mentioned places. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ICalUID">
+            <summary>Specifies iCalendar UID (iCalUID) of events to be included in the response. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxAttendees">
+            <summary>The maximum number of attendees to include in the response. If there are more than the specified number of attendees, only the participant is returned. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxResults">
+            <summary>Maximum number of events returned on one result page. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.OrderBy">
+            <summary>The order of the events returned in the result. Optional. The default is an unspecified, stable order.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.Q">
+            <summary>Free text search terms to find events that match these terms in any field, except for extended properties. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ShowDeleted">
+            <summary>Whether to include deleted events (with 'eventStatus' equals 'cancelled') in the result. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ShowHiddenInvitations">
+            <summary>Whether to include hidden invitations in the result. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.SingleEvents">
+            <summary>Whether to expand recurring events into instances and only return single one-off events and instances of recurring events, but not the underlying recurring events themselves. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
+            <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMin">
+            <summary>Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to filter by end time.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeZone">
+            <summary>Time zone used in the response. Optional. The default is the time zone of the calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMin">
+            <summary>Lower bound for an event's last modification time (as a RFC 3339 timestamp) to filter by. Optional. The default is not to filter by last modification time.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.CalendarId">
+            <summary>Calendar identifier of the source calendar where the event currently is on.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.Destination">
+            <summary>Calendar identifier of the target calendar where the event is to be moved to.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.EventId">
+            <summary>Event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendNotifications">
+            <summary>Whether to send notifications about the change of the event's organizer. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.AlwaysIncludeEmail">
+            <summary>Whether to always include a value in the "email" field for the organizer, creator and attendees, even if no real email is available (i.e. a generated, non-working value will be provided). The use of this option is discouraged and should only be used by clients which cannot handle the absence of an email address value in the mentioned places. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.EventId">
+            <summary>Event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendNotifications">
+            <summary>Whether to send notifications about the event update (e.g. attendee's responses, title changes, etc.). Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendNotifications">
+            <summary>Whether to send notifications about the creation of the event. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.Text">
+            <summary>The text describing the event to be created.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.AlwaysIncludeEmail">
+            <summary>Whether to always include a value in the "email" field for the organizer, creator and attendees, even if no real email is available (i.e. a generated, non-working value will be provided). The use of this option is discouraged and should only be used by clients which cannot handle the absence of an email address value in the mentioned places. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.EventId">
+            <summary>Event identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendNotifications">
+            <summary>Whether to send notifications about the event update (e.g. attendee's responses, title changes, etc.). Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.FreebusyResource.Query(Google.Apis.Calendar.v3.Data.FreeBusyRequest)">
+            <summary>Returns free/busy information for a set of calendars.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.FreebusyResource.QueryRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.FreebusyResource.QueryRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.FreebusyResource.QueryRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.FreebusyResource.QueryRequest.Body">
+            <summary>Gets/Sets the Body of this Request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.Get(System.String)">
+            <summary>Returns a single user setting.</summary>
+            <param name="setting">Required - Name of the user setting.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.List">
+            <summary>Returns all user settings for the authenticated user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.Setting">
+            <summary>Name of the user setting.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+    </members>
+</doc>

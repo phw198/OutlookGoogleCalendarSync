@@ -1,0 +1,18 @@
+﻿1.8:
+- fixed date range locale bug (THANKS TO WolverineFan!!!)
+- additional options (start in tray, minimize to tray, show bubble tooltip when syncing)
+- attendees more readable: one attendee per line
+- Changes in "Location" are now considered when comparing calendar entries
+- Outlook Reminders can be carried over to Google (new setting)
+
+1.7 (only in Fork):
+- several improvements by WolverineFan (THANK YOU!!!)
+
+1.6:
+- compiled with .Net 3.5
+
+1.5:
+- changed Outlook Primary Interop Assembly to V11 (Ofice 2003) to support older Office versions
+- more info about start/end/needed time
+- got rid of app.config
+- changed double click to single click on tray icon

@@ -1,0 +1,533 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ServiceGenerator</name>
+    </assembly>
+    <members>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.DiscoveryRepository">
+            <summary>
+            Describes a discovery service repository.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.DiscoveryRepository.RetrieveDiscovery(System.Uri)">
+            <summary>
+            Retrieves the list of APIs of the specified discovery reposistory.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.DiscoveryRepository.RetrieveGoogleDiscovery">
+            <summary>
+            Retrieves the list of apis in the Google Discovery repository.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.Generator">
+            <summary>
+            The Generator used to generate strongly typed services.
+            </summary>
+        </member>
+        <member name="F:GoogleApis.Tools.ServiceGenerator.Generator.GooglePrefix">
+            <summary>
+            The prefix which is used when a Google service is being generated.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.#ctor(GoogleApis.Tools.ServiceGenerator.GeneratorFlags)">
+            <summary>
+            Creates a new instance of the generator.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.GenerateGoogleService(System.String,System.String)">
+            <summary>
+            Generates a Google service based upon its name and version.
+            </summary>
+            <param name="serviceName">Name of the service.</param>
+            <param name="serviceVersion">Version of the service.</param>
+            <param name="outputDir">The directory in which the generated services are put.</param>
+            <param name="flags">The flags describing the generator settings.</param>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.GenerateService(Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData)">
+            <summary>
+            Generates the service described by the specified API object.
+            </summary>
+            <param name="api">The API to generate.</param>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.GenerateServices(System.Collections.Generic.IEnumerable{Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData})">
+            <summary>
+            Generates all services in the specified discovery repository.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.GenerateService(System.Uri)">
+            <summary>
+            Generates a service from the specified discovery uri.
+            </summary>
+            <param name="url">The URL or file where the discovery document can be found.</param>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.WriteCodeToFile(System.CodeDom.CodeCompileUnit,System.String)">
+            <summary>
+            Writes the specified code unit to a .cs source file.
+            </summary>
+            <param name="generatedCode"></param>
+            <param name="targetFile"></param>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.CompileIntoLibrary(Google.Apis.Discovery.IService,System.CodeDom.CodeCompileUnit,System.String)">
+            <summary>
+            Compiles the specified code unit into a .dll.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Generator.AddAssemblyInfo``1(System.CodeDom.CodeCompileUnit,System.String)">
+            <summary>
+            Adds the specified AssemblyInfo attribute to the code unit.
+            </summary>
+            <typeparam name="T">Attribute to add.</typeparam>
+            <param name="code">Where to add the attribute.</param>
+            <param name="value">The string value of the attribute.</param>
+        </member>
+        <member name="P:GoogleApis.Tools.ServiceGenerator.Generator.CodeDomProviderLanguage">
+            <summary>
+            Set the language of the CodeDomProvider
+            </summary>
+        </member>
+        <member name="P:GoogleApis.Tools.ServiceGenerator.Generator.OutputDir">
+            <summary>
+            The directory where the generated files will be put.
+            </summary>
+        </member>
+        <member name="P:GoogleApis.Tools.ServiceGenerator.Generator.Flags">
+            <summary>
+            The flags with which this generator was created.
+            </summary>
+        </member>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.GeneratorFlags">
+            <summary>
+            Flags for the service-generator.
+            </summary>
+        </member>
+        <member name="F:GoogleApis.Tools.ServiceGenerator.GeneratorFlags.None">
+            <summary>
+            No special generator flags.
+            </summary>
+        </member>
+        <member name="F:GoogleApis.Tools.ServiceGenerator.GeneratorFlags.CompileLibrary">
+            <summary>
+            Compiles a .dll file after the source code has been generated.
+            </summary>
+        </member>
+        <member name="F:GoogleApis.Tools.ServiceGenerator.GeneratorFlags.GoogleService">
+            <summary>
+            Adds a "Google" prefix to the generated files.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.DiscoveryVersion">
+            <summary>Indicate the version of the Discovery API used to generate this doc.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.Items">
+            <summary>The individual directory entries. One entry per api/version pair.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.Kind">
+            <summary>The kind for this response.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Description">
+            <summary>The description of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.DiscoveryLink">
+            <summary>A link to the discovery document.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.DiscoveryRestUrl">
+            <summary>The url for the discovery REST document.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.DocumentationLink">
+            <summary>A link to human readable documentation for the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Icons">
+            <summary>Links to 16x16 and 32x32 icons representing the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Id">
+            <summary>The id of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Kind">
+            <summary>The kind for this response.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Labels">
+            <summary>Labels for the status of this API, such as labs or deprecated.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Name">
+            <summary>The name of the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Preferred">
+            <summary>True if this version is the preferred version to use.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Title">
+            <summary>The title of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.Version">
+            <summary>The version of the API.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.IconsData">
+            <summary>Links to 16x16 and 32x32 icons representing the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.IconsData.X16">
+            <summary>The url of the 16x16 icon.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.DirectoryList.ItemsData.IconsData.X32">
+            <summary>The url of the 32x32 icon.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Ref">
+            <summary>A reference to another schema. The value of this property is the &quot;id&quot; of another schema.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Annotations">
+            <summary>Additional information about this property.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Default">
+            <summary>The default value of this property (if one exists).</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Description">
+            <summary>A description of this object.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Enum">
+            <summary>Values this parameter may take (if it is an enum).</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.EnumDescriptions">
+            <summary>The descriptions for the enums. Each position maps to the corresponding value in the &quot;enum&quot; array.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Format">
+            <summary>An additional regular expression or key that helps constrain the value. For more details see: http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.23</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Id">
+            <summary>Unique identifier for this schema.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Location">
+            <summary>Whether this parameter goes in the query or the path for REST requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Maximum">
+            <summary>The maximum value of this parameter.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Minimum">
+            <summary>The minimum value of this parameter.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Pattern">
+            <summary>The regular expression this parameter must conform to.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Properties">
+            <summary>If this is a schema for an object, list the schema for each property of this object.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Repeated">
+            <summary>Whether this parameter may appear multiple times.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Required">
+            <summary>Whether the parameter is required.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.Type">
+            <summary>The value type for this schema. A list of values can be found here: http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.JsonSchema.AnnotationsData">
+            <summary>Additional information about this property.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.JsonSchema.AnnotationsData.Required">
+            <summary>A list of methods for which this property is required on requests.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.JsonSchema.PropertiesData">
+            <summary>If this is a schema for an object, list the schema for each property of this object.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Auth">
+            <summary>Authentication information.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.BasePath">
+            <summary>[DEPRECATED] The base path for REST requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.BaseUrl">
+            <summary>[DEPRECATED] The base URL for REST requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.BatchPath">
+            <summary>The path for REST batch requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Description">
+            <summary>The description of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.DiscoveryVersion">
+            <summary>Indicate the version of the Discovery API used to generate this doc.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.DocumentationLink">
+            <summary>A link to human readable documentation for the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Features">
+            <summary>A list of supported features for this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Icons">
+            <summary>Links to 16x16 and 32x32 icons representing the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Id">
+            <summary>The id of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Kind">
+            <summary>The kind for this response.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Labels">
+            <summary>Labels for the status of this API, such as labs or deprecated.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Methods">
+            <summary>API-level methods for this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Name">
+            <summary>The name of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Parameters">
+            <summary>Common parameters that apply across all apis.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Protocol">
+            <summary>The protocol described by this document.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Resources">
+            <summary>The resources in this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Revision">
+            <summary>The version of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.RootUrl">
+            <summary>The root url under which all API services live.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Schemas">
+            <summary>The schemas for this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.ServicePath">
+            <summary>The base path for all REST requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Title">
+            <summary>The title of this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.Version">
+            <summary>The version of this API.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.AuthData">
+            <summary>Authentication information.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2">
+            <summary>OAuth 2.0 authentication information.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2Data">
+            <summary>OAuth 2.0 authentication information.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2Data.Scopes">
+            <summary>Available OAuth 2.0 scopes.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2Data.ScopesData">
+            <summary>Available OAuth 2.0 scopes.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2Data.ScopesData.ScopesDataSchema">
+            <summary>The scope value.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.AuthData.Oauth2Data.ScopesData.ScopesDataSchema.Description">
+            <summary>Description of scope.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.IconsData">
+            <summary>Links to 16x16 and 32x32 icons representing the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.IconsData.X16">
+            <summary>The url of the 16x16 icon.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestDescription.IconsData.X32">
+            <summary>The url of the 32x32 icon.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.MethodsData">
+            <summary>API-level methods for this API.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.ParametersData">
+            <summary>Common parameters that apply across all apis.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.ResourcesData">
+            <summary>The resources in this API.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestDescription.SchemasData">
+            <summary>The schemas for this API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Description">
+            <summary>Description of this method.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.HttpMethod">
+            <summary>HTTP method used by this method.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Id">
+            <summary>A unique ID for this method. This property can be used to match methods between different versions of Discovery.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUpload">
+            <summary>Media upload parameters.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.ParameterOrder">
+            <summary>Ordered list of required parameters, serves as a hint to clients on how to structure their method signatures. The array is ordered such that the &quot;most-significant&quot; parameter appears first.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Parameters">
+            <summary>Details for all parameters in this method.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Path">
+            <summary>The URI path of this REST method. Should be used in conjunction with the basePath property at the api-level.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Request">
+            <summary>The schema for the request.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Response">
+            <summary>The schema for the response.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.Scopes">
+            <summary>OAuth 2.0 scopes applicable to this method.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData">
+            <summary>Media upload parameters.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.Accept">
+            <summary>MIME Media Ranges for acceptable media uploads to this method.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.MaxSize">
+            <summary>Maximum size of a media upload, such as &quot;1MB&quot;, &quot;2GB&quot; or &quot;3TB&quot;.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.Protocols">
+            <summary>Supported upload protocols.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData">
+            <summary>Supported upload protocols.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.Resumable">
+            <summary>Supports the Resumable Media Upload protocol.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.Simple">
+            <summary>Supports uploading as a single HTTP request.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.ResumableData">
+            <summary>Supports the Resumable Media Upload protocol.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.ResumableData.Multipart">
+            <summary>True if this endpoint supports uploading multipart media.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.ResumableData.Path">
+            <summary>The URI path to be used for upload. Should be used in conjunction with the basePath property at the api-level.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.SimpleData">
+            <summary>Supports uploading as a single HTTP request.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.SimpleData.Multipart">
+            <summary>True if this endpoint supports upload multipart media.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.MediaUploadData.ProtocolsData.SimpleData.Path">
+            <summary>The URI path to be used for upload. Should be used in conjunction with the basePath property at the api-level.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.ParametersData">
+            <summary>Details for all parameters in this method.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.RequestData">
+            <summary>The schema for the request.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.RequestData.Ref">
+            <summary>Schema ID for the request schema.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestMethod.ResponseData">
+            <summary>The schema for the response.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestMethod.ResponseData.Ref">
+            <summary>Schema ID for the response schema.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestResource.Methods">
+            <summary>Methods on this resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.Data.RestResource.Resources">
+            <summary>Sub-resources on this resource.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestResource.MethodsData">
+            <summary>Methods on this resource.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.Data.RestResource.ResourcesData">
+            <summary>Sub-resources on this resource.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.DiscoveryService.Key">
+            <summary>Sets the API-Key (or DeveloperKey) which this service uses for all requests</summary>
+        </member>
+        <member name="M:Google.Apis.Discovery.v1.ApisResource.GetRest(System.String,System.String)">
+            <summary>Retrieve the description of a particular version of an api.</summary>
+            <param name="api">Required - The name of the API.</param>
+            <param name="version">Required - The version of the API.</param>
+        </member>
+        <member name="M:Google.Apis.Discovery.v1.ApisResource.List">
+            <summary>Retrieve the list of APIs supported at this endpoint.</summary>
+        </member>
+        <member name="T:Google.Apis.Discovery.v1.ApisResource.Label">
+            <summary>Only include APIs with a matching label, such as &apos;graduated&apos; or &apos;labs&apos;.</summary>
+        </member>
+        <member name="F:Google.Apis.Discovery.v1.ApisResource.Label.Deprecated">
+            <summary>APIs that have been deprecated.</summary>
+        </member>
+        <member name="F:Google.Apis.Discovery.v1.ApisResource.Label.Graduated">
+            <summary>Supported APIs that have graduated from labs.</summary>
+        </member>
+        <member name="F:Google.Apis.Discovery.v1.ApisResource.Label.Labs">
+            <summary>APIs that are experimental</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.GetRestRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.GetRestRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.GetRestRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.GetRestRequest.Api">
+            <summary>The name of the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.GetRestRequest.Version">
+            <summary>The version of the API.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.Oauth_token">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.Label">
+            <summary>Only include APIs with a matching label, such as 'graduated' or 'labs'.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.Name">
+            <summary>Only include APIs with the given name.</summary>
+        </member>
+        <member name="P:Google.Apis.Discovery.v1.ApisResource.ListRequest.Preferred">
+            <summary>Return only the preferred version of an API.</summary>
+        </member>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.ArgumentEnumerator">
+            <summary>
+            Helper class to read command line arguments.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.ArgumentEnumerator.GetMandatory(System.String)">
+            <summary>
+            Returns current value if set, or throws an exception otherwise.
+            </summary>
+            <param name="parameterName">The name of the parameter to show to the user (if not set).</param>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.ArgumentEnumerator.GetParameterValue(System.String)">
+            <summary>
+            Returns current value if set, or throws an exception otherwise.
+            Throws an exception if the current value is not a value of a parameter.
+            </summary>
+            <param name="parameterName">The name of the parameter to show to the user (if not set).</param>
+        </member>
+        <member name="P:GoogleApis.Tools.ServiceGenerator.ArgumentEnumerator.IsParameter">
+            <summary>
+            Returns true if this is a command line parameter.
+            </summary>
+        </member>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.Program">
+            <summary>
+            The ServiceGenerator can be used to generate strongly typed source code and libraries for any discovery-based
+            service.
+            </summary>
+        </member>
+        <member name="T:GoogleApis.Tools.ServiceGenerator.Utils">
+            <summary>
+            Utility class.
+            </summary>
+        </member>
+        <member name="M:GoogleApis.Tools.ServiceGenerator.Utils.FetchDocument(System.Uri)">
+            <summary>
+            Downloads the specified document, and returns the content as a string.
+            </summary>
+        </member>
+    </members>
+</doc>
