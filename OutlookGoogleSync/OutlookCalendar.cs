@@ -11,7 +11,9 @@ namespace OutlookGoogleSync
     /// </summary>
     public class OutlookCalendar
     {
-	    private static OutlookCalendar instance;
+        public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+                            
+	      private static OutlookCalendar instance;
 
         public static OutlookCalendar Instance
         {
@@ -23,6 +25,7 @@ namespace OutlookGoogleSync
         }
         
         public MAPIFolder UseOutlookCalendar;
+        public String YourName;
         
         
         public OutlookCalendar()
@@ -37,6 +40,8 @@ namespace OutlookGoogleSync
 
             //Log on by using a dialog box to choose the profile.
             oNS.Logon("","", true, true);
+
+            YourName = oNS.CurrentUser.Name;
 
             //Alternate logon method that uses a specific profile.
             // If you use this logon method, 

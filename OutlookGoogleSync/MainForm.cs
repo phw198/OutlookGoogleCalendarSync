@@ -35,6 +35,8 @@ namespace OutlookGoogleSync
             
             //set system proxy
             WebProxy wp = (WebProxy)System.Net.GlobalProxySelection.Select;
+            //http://www.dreamincode.net/forums/topic/160555-working-with-proxy-servers/
+            //WebProxy wp = (WebProxy)WebRequest.DefaultWebProxy;
             wp.UseDefaultCredentials = true;
             System.Net.WebRequest.DefaultWebProxy = wp;
             
@@ -247,6 +249,24 @@ namespace OutlookGoogleSync
                     if (cbAddDescription.Checked) ev.Description = ai.Body;
                     ev.Location = ai.Location;
                     
+                    if (cbAddAttendees.Checked) {
+                        ev.Attendees = new List<EventAttendee>();
+                        foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
+                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
+                            EventAttendee ea = new EventAttendee();
+                            ea.DisplayName = recipient.Name;
+                            ea.Email = pa.GetProperty(OutlookCalendar.PR_SMTP_ADDRESS).ToString();
+                            ea.Optional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
+                            ea.Organizer = (ai.Organizer == recipient.Name);
+                            ea.Self = (OutlookCalendar.Instance.YourName == recipient.Name);
+                            switch (recipient.MeetingResponseStatus) {
+                                case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;
+                                case OlResponseStatus.olResponseDeclined: ea.ResponseStatus = "declined"; break;
+                                case OlResponseStatus.olResponseTentative: ea.ResponseStatus = "tentative"; break;
+                            }
+                            ev.Attendees.Add(ea);
+                        }
+                    }
                     
                     //consider the reminder set in Outlook
                     if (cbAddReminders.Checked && ai.ReminderSet)
@@ -258,18 +278,6 @@ namespace OutlookGoogleSync
                         reminder.Minutes = ai.ReminderMinutesBeforeStart;
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(reminder);
-                    }
-                    
-                    
-                    if (cbAddAttendees.Checked)
-                    {
-                        ev.Description += Environment.NewLine;
-                        ev.Description += Environment.NewLine + "==============================================";
-                        ev.Description += Environment.NewLine + "Added by OutlookGoogleSync:" + Environment.NewLine;
-                        ev.Description += Environment.NewLine + "ORGANIZER: " + Environment.NewLine + ai.Organizer + Environment.NewLine;
-                        ev.Description += Environment.NewLine + "REQUIRED: " + Environment.NewLine + splitAttendees(ai.RequiredAttendees) + Environment.NewLine;
-                        ev.Description += Environment.NewLine + "OPTIONAL: " + Environment.NewLine + splitAttendees(ai.OptionalAttendees);
-                        ev.Description += Environment.NewLine + "==============================================";
                     }
                     
                     GoogleCalendar.Instance.addEntry(ev);
@@ -360,7 +368,11 @@ namespace OutlookGoogleSync
         
         void TbDaysInTheFutureTextChanged(object sender, EventArgs e)
         {
-            Settings.Instance.DaysInTheFuture = int.Parse(tbDaysInTheFuture.Text);
+            try {
+                Settings.Instance.DaysInTheFuture = int.Parse(tbDaysInTheFuture.Text);
+            } catch {
+                Settings.Instance.DaysInTheFuture = 1;
+            }
         }
 
         void TbMinuteOffsetsTextChanged(object sender, EventArgs e)
