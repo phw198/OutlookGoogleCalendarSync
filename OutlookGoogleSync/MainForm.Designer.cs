@@ -376,7 +376,7 @@ namespace OutlookGoogleSync
             this.linkLabel1.Size = new System.Drawing.Size(475, 23);
             this.linkLabel1.TabIndex = 2;
             this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "http://outlookgooglesync.codeplex.com/";
+            this.linkLabel1.Text = "http://ougocalsync.codeplex.com/";
             this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
             // 
@@ -386,8 +386,8 @@ namespace OutlookGoogleSync
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(481, 96);
             this.label4.TabIndex = 1;
-            this.label4.Text = "OutlookGoogleSync\r\n\r\nVersion {version}\r\n\r\nprogrammed 2012-2013 by\r\nZissis Siantid" +
-                "is\r\n";
+            this.label4.Text = "OutlookGoogleSync\r\n\r\nVersion {version}\r\n\r\nOriginally developed by Zissis Siantidi" +
+                "s (2012-2013)\r\nContinued by Paul Woolcock (2014)\r\n";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // notifyIcon1

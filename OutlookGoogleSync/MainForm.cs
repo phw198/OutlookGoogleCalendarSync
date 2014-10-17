@@ -18,7 +18,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        public const string VERSION = "1.0.8";
+        public string VERSION = "1.0.10";
 
         public Timer ogstimer;
         public DateTime oldtime;
@@ -210,6 +210,12 @@ namespace OutlookGoogleSync {
                 foreach (AppointmentItem ai in OutlookEntriesToBeCreated) {
                     Event ev = new Event();
 
+                    //Add the Outlook appointment ID into Google event.
+                    //This will make comparison more efficient and set the scene for 2-way sync.
+                    ev.ExtendedProperties = new Event.ExtendedPropertiesData();
+                    ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
+                    ev.ExtendedProperties.Private.Add("outlook_EntryID", ai.EntryID.ToString());
+
                     ev.Start = new EventDateTime();
                     ev.End = new EventDateTime();
 
@@ -224,6 +230,9 @@ namespace OutlookGoogleSync {
                     if (cbAddDescription.Checked) ev.Description = ai.Body;
                     ev.Location = ai.Location;
 
+                    ev.Organizer = new Event.OrganizerData();
+                    ev.Organizer.Self = (ai.Recipients.Count == 0);
+
                     if (cbAddAttendees.Checked) {
                         ev.Attendees = new List<EventAttendee>();
                         foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
@@ -232,9 +241,15 @@ namespace OutlookGoogleSync {
                             ea.DisplayName = recipient.Name;
                             ea.Email = pa.GetProperty(OutlookCalendar.PR_SMTP_ADDRESS).ToString();
                             ea.Optional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
-                            ea.Organizer = (ai.Organizer == recipient.Name);
+                            if (ai.Organizer == recipient.Name) {
+                                ea.Organizer = true;
+                                ev.Organizer.Self = false;
+                                ev.Organizer.DisplayName = ea.DisplayName;
+                                ev.Organizer.Email = ea.Email;
+                            }
                             ea.Self = (OutlookCalendar.Instance.YourName == recipient.Name);
                             switch (recipient.MeetingResponseStatus) {
+                                case OlResponseStatus.olResponseNone: ea.ResponseStatus = "needsAction"; break;
                                 case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;
                                 case OlResponseStatus.olResponseDeclined: ea.ResponseStatus = "declined"; break;
                                 case OlResponseStatus.olResponseTentative: ea.ResponseStatus = "tentative"; break;
@@ -268,21 +283,16 @@ namespace OutlookGoogleSync {
             bSyncNow.Enabled = true;
         }
 
-        //one attendee per line
-        public string splitAttendees(string attendees) {
-            if (attendees == null) return "";
-            string[] tmp1 = attendees.Split(';');
-            for (int i = 0; i < tmp1.Length; i++) tmp1[i] = tmp1[i].Trim();
-            return String.Join(Environment.NewLine, tmp1);
-        }
-
-
         public List<Event> IdentifyGoogleEntriesToBeDeleted(List<AppointmentItem> outlook, List<Event> google) {
             List<Event> result = new List<Event>();
             foreach (Event g in google) {
                 bool found = false;
                 foreach (AppointmentItem o in outlook) {
-                    if (signature(g) == signature(o)) found = true;
+                    if (g.ExtendedProperties != null &&
+                        g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
+                        o.EntryID == g.ExtendedProperties.Private["outlook_EntryID"]) {
+                        found = true;
+                    }
                 }
                 if (!found) result.Add(g);
             }
@@ -294,7 +304,11 @@ namespace OutlookGoogleSync {
             foreach (AppointmentItem o in outlook) {
                 bool found = false;
                 foreach (Event g in google) {
-                    if (signature(g) == signature(o)) found = true;
+                    if (g.ExtendedProperties != null &&
+                        g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
+                        g.ExtendedProperties.Private.ContainsValue(o.EntryID)) {
+                        found = true;
+                    }
                 }
                 if (!found) result.Add(o);
             }
@@ -408,15 +422,9 @@ namespace OutlookGoogleSync {
             System.Windows.Forms.Application.Exit();
         }
 
-
-
         void LinkLabel1LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             System.Diagnostics.Process.Start(linkLabel1.Text);
         }
-
-
-
-
 
     }
 }
