@@ -40,11 +40,16 @@ namespace OutlookGoogleSync
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.lNextSyncVal = new System.Windows.Forms.Label();
+            this.lLastSyncVal = new System.Windows.Forms.Label();
             this.lNextSync = new System.Windows.Forms.Label();
             this.lLastSync = new System.Windows.Forms.Label();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cbAlternateMailbox = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.cbAddReminders = new System.Windows.Forms.CheckBox();
             this.cbAddAttendees = new System.Windows.Forms.CheckBox();
@@ -71,11 +76,11 @@ namespace OutlookGoogleSync
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label4 = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.lLastSyncVal = new System.Windows.Forms.Label();
-            this.lNextSyncVal = new System.Windows.Forms.Label();
+            this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -110,6 +115,22 @@ namespace OutlookGoogleSync
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Sync";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // lNextSyncVal
+            // 
+            this.lNextSyncVal.Location = new System.Drawing.Point(271, 28);
+            this.lNextSyncVal.Name = "lNextSyncVal";
+            this.lNextSyncVal.Size = new System.Drawing.Size(216, 26);
+            this.lNextSyncVal.TabIndex = 4;
+            this.lNextSyncVal.Text = "Unknown";
+            // 
+            // lLastSyncVal
+            // 
+            this.lLastSyncVal.Location = new System.Drawing.Point(22, 28);
+            this.lLastSyncVal.Name = "lLastSyncVal";
+            this.lLastSyncVal.Size = new System.Drawing.Size(224, 26);
+            this.lLastSyncVal.TabIndex = 3;
+            this.lLastSyncVal.Text = "N/A";
             // 
             // lNextSync
             // 
@@ -150,11 +171,12 @@ namespace OutlookGoogleSync
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.groupBox6);
             this.tabPage2.Controls.Add(this.groupBox5);
             this.tabPage2.Controls.Add(this.groupBox4);
+            this.tabPage2.Controls.Add(this.bSave);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.groupBox2);
-            this.tabPage2.Controls.Add(this.bSave);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -163,6 +185,38 @@ namespace OutlookGoogleSync
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.ddMailboxName);
+            this.groupBox6.Controls.Add(this.label5);
+            this.groupBox6.Controls.Add(this.cbAlternateMailbox);
+            this.groupBox6.Location = new System.Drawing.Point(6, 412);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(376, 61);
+            this.groupBox6.TabIndex = 15;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Outlook Calendar";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(9, 39);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(153, 13);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "Enter Name of Mailbox to Sync";
+            // 
+            // cbAlternateMailbox
+            // 
+            this.cbAlternateMailbox.AutoSize = true;
+            this.cbAlternateMailbox.Location = new System.Drawing.Point(12, 19);
+            this.cbAlternateMailbox.Name = "cbAlternateMailbox";
+            this.cbAlternateMailbox.Size = new System.Drawing.Size(135, 17);
+            this.cbAlternateMailbox.TabIndex = 13;
+            this.cbAlternateMailbox.Text = "Use Alternate Mailbox?";
+            this.cbAlternateMailbox.UseVisualStyleBackColor = true;
+            this.cbAlternateMailbox.CheckedChanged += new System.EventHandler(this.cbAlternateMailbox_CheckedChanged);
             // 
             // groupBox5
             // 
@@ -331,7 +385,7 @@ namespace OutlookGoogleSync
             // 
             // bSave
             // 
-            this.bSave.Location = new System.Drawing.Point(6, 442);
+            this.bSave.Location = new System.Drawing.Point(400, 433);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(75, 31);
             this.bSave.TabIndex = 8;
@@ -398,7 +452,7 @@ namespace OutlookGoogleSync
             // 
             // linkLabel1
             // 
-            this.linkLabel1.Location = new System.Drawing.Point(6, 172);
+            this.linkLabel1.Location = new System.Drawing.Point(6, 238);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(475, 23);
             this.linkLabel1.TabIndex = 2;
@@ -411,7 +465,7 @@ namespace OutlookGoogleSync
             // 
             this.label4.Location = new System.Drawing.Point(3, 32);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(481, 127);
+            this.label4.Size = new System.Drawing.Size(481, 193);
             this.label4.TabIndex = 1;
             this.label4.Text = resources.GetString("label4.Text");
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -422,21 +476,14 @@ namespace OutlookGoogleSync
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1Click);
             // 
-            // lLastSyncVal
+            // ddMailboxName
             // 
-            this.lLastSyncVal.Location = new System.Drawing.Point(22, 28);
-            this.lLastSyncVal.Name = "lLastSyncVal";
-            this.lLastSyncVal.Size = new System.Drawing.Size(224, 26);
-            this.lLastSyncVal.TabIndex = 3;
-            this.lLastSyncVal.Text = "N/A";
-            // 
-            // lNextSyncVal
-            // 
-            this.lNextSyncVal.Location = new System.Drawing.Point(271, 28);
-            this.lNextSyncVal.Name = "lNextSyncVal";
-            this.lNextSyncVal.Size = new System.Drawing.Size(216, 26);
-            this.lNextSyncVal.TabIndex = 4;
-            this.lNextSyncVal.Text = "Unknown";
+            this.ddMailboxName.FormattingEnabled = true;
+            this.ddMailboxName.Location = new System.Drawing.Point(168, 36);
+            this.ddMailboxName.Name = "ddMailboxName";
+            this.ddMailboxName.Size = new System.Drawing.Size(202, 21);
+            this.ddMailboxName.TabIndex = 16;
+            this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
             // 
             // MainForm
             // 
@@ -453,6 +500,8 @@ namespace OutlookGoogleSync
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
@@ -490,15 +539,19 @@ namespace OutlookGoogleSync
 		private System.Windows.Forms.TextBox tbDaysInTheFuture;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Button bSave;
-		private System.Windows.Forms.Button bGetMyCalendars;
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.Button bSyncNow;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabControl tabControl1;
+    private System.Windows.Forms.CheckBox cbAlternateMailbox;
+    private System.Windows.Forms.Button bGetMyCalendars;
+    private System.Windows.Forms.GroupBox groupBox6;
+    private System.Windows.Forms.Label label5;
     private System.Windows.Forms.Label lLastSync;
     private System.Windows.Forms.Label lNextSync;
     private System.Windows.Forms.Label lNextSyncVal;
     private System.Windows.Forms.Label lLastSyncVal;
+    private System.Windows.Forms.ComboBox ddMailboxName;
 		
 	
 

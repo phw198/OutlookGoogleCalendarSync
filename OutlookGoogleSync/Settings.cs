@@ -42,7 +42,8 @@ namespace OutlookGoogleSync
         public bool AddReminders = false;
         public bool AddAttendeesToDescription = true;
         public bool CreateTextFiles = true;
-
+        public bool AlternateMailbox = false;
+        public string MailboxName = "";        
         
 
         public Settings()

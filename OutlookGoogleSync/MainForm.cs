@@ -66,6 +66,27 @@ namespace OutlookGoogleSync {
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
 
+            //Mailboxes the user has access to
+            this.ddMailboxName.SelectedIndexChanged -= ddMailboxName_SelectedIndexChanged;
+            if (OutlookCalendar.Instance.Accounts.Count == 1) {
+                cbAlternateMailbox.Enabled = false;
+                cbAlternateMailbox.Checked = false;
+                this.ddMailboxName.Enabled = false;
+            } else {
+                cbAlternateMailbox.Checked = Settings.Instance.AlternateMailbox;
+            }
+
+            for (int acc=2; acc<=OutlookCalendar.Instance.Accounts.Count; acc++) {
+                String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
+                this.ddMailboxName.Items.Add(mailbox);
+                if (Settings.Instance.MailboxName == mailbox) { this.ddMailboxName.SelectedIndex = acc; }
+            }
+            if (!Settings.Instance.AlternateMailbox) { 
+                this.ddMailboxName.SelectedIndex = 0;
+                this.ddMailboxName.Enabled = false;
+            }
+            this.ddMailboxName.SelectedIndexChanged += ddMailboxName_SelectedIndexChanged;
+
             //Start in tray?
             if (cbStartInTray.Checked) {
                 this.WindowState = FormWindowState.Minimized;
@@ -82,9 +103,6 @@ namespace OutlookGoogleSync {
             toolTip1.ShowAlways = true;
             toolTip1.SetToolTip(cbCalendars,
                 "The Google Calendar to synchonize with.");
-            toolTip1.SetToolTip(tbMinuteOffsets,
-                "One ore more Minute Offsets at which the sync is automatically started each hour. \n" +
-                "Separate by comma (e.g. 5,15,25).");
             toolTip1.SetToolTip(cbAddAttendees,
                 "While Outlook has fields for Organizer, RequiredAttendees and OptionalAttendees, Google has not.\n" +
                 "If checked, this data is added at the end of the description as text.");
@@ -97,6 +115,8 @@ namespace OutlookGoogleSync {
             toolTip1.SetToolTip(cbAddDescription,
                 "The description may contain email addresses, which Outlook may complain about (PopUp-Message: \"Allow Access?\" etc.). \n" +
                 "Turning this off allows OutlookGoogleSync to run without intervention in this case.");
+            toolTip1.SetToolTip(cbAlternateMailbox,
+                "Only change this if you need to use an Outlook Calendar that is not in the default mailbox");
 
             //Refresh synchronizations (last and next)
             lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
@@ -315,7 +335,7 @@ namespace OutlookGoogleSync {
                                 ev.Organizer.DisplayName = ea.DisplayName;
                                 ev.Organizer.Email = ea.Email;
                             }
-                            ea.Self = (OutlookCalendar.Instance.YourName == recipient.Name);
+                            ea.Self = (OutlookCalendar.Instance.CalendarUserName == recipient.Name);
                             switch (recipient.MeetingResponseStatus) {
                                 case OlResponseStatus.olResponseNone: ea.ResponseStatus = "needsAction"; break;
                                 case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;
@@ -487,5 +507,16 @@ namespace OutlookGoogleSync {
             System.Diagnostics.Process.Start(linkLabel1.Text);
         }
 
+        private void cbAlternateMailbox_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AlternateMailbox = cbAlternateMailbox.Checked;
+            Settings.Instance.MailboxName = (cbAlternateMailbox.Checked ? ddMailboxName.Text : "");
+            this.ddMailboxName.Enabled = cbAlternateMailbox.Checked;
+            OutlookCalendar.Instance.Reset();
+        }
+
+        private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Instance.MailboxName = ddMailboxName.Text;
+            OutlookCalendar.Instance.Reset();
+        }
     }
 }

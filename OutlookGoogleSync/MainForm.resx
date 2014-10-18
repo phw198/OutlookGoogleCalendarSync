@@ -126,6 +126,7 @@ Originally developed by Zissis Siantidis (2012-2013)
 
 Thanks also go to contributors of the original project:
 - bycrobe/allinclusive
+- kyledykstra/alternateAccount
 
 Continued by Paul Woolcock (2014)
 </value>
@@ -163,7 +164,7 @@ Continued by Paul Woolcock (2014)
 </value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>26</value>
+    <value>27</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

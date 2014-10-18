@@ -12,6 +12,9 @@ namespace OutlookGoogleSync {
         public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
 
         private static OutlookCalendar instance;
+        private MAPIFolder useOutlookCalendar;
+        private String calendarUserName;
+        private Accounts accounts;
 
         public static OutlookCalendar Instance {
             get {
@@ -19,10 +22,15 @@ namespace OutlookGoogleSync {
                 return instance;
             }
         }
-
-        public MAPIFolder UseOutlookCalendar;
-        public String YourName;
-
+        public MAPIFolder UseOutlookCalendar {
+            get { return useOutlookCalendar; }
+        }
+        public String CalendarUserName {
+            get { return calendarUserName; }
+        }
+        public Accounts Accounts {
+            get { return accounts; }
+        }
 
         public OutlookCalendar() {
 
@@ -30,26 +38,32 @@ namespace OutlookGoogleSync {
             Application oApp = new Application();
 
             // Get the NameSpace and Logon information.
-            // Outlook.NameSpace oNS = (Outlook.NameSpace)oApp.GetNamespace("mapi");
             NameSpace oNS = oApp.GetNamespace("mapi");
 
             //Log on by using a dialog box to choose the profile.
             oNS.Logon("", "", true, true);
-
-            YourName = oNS.CurrentUser.Name;
 
             //Alternate logon method that uses a specific profile.
             // If you use this logon method, 
             // change the profile name to an appropriate value.
             //oNS.Logon("YourValidProfile", Missing.Value, false, true); 
 
-            // Get the Calendar folder.
-            UseOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+            //Get the accounts configured in Outlook
+            accounts = oNS.Accounts;
 
-
-            //Show the item to pause.
-            //oAppt.Display(true);
-
+            // Get the Calendar folder and user's name.
+            if (Settings.Instance.AlternateMailbox && Settings.Instance.MailboxName!="") {
+                useOutlookCalendar = oNS.Folders[Settings.Instance.MailboxName].Folders["Calendar"];
+                foreach (Account acc in oNS.Accounts) {
+                    if (acc.SmtpAddress.ToLower() == Settings.Instance.MailboxName) {
+                        calendarUserName = acc.CurrentUser.Name;
+                    }
+                }
+            } else {
+                // Get the Default Calendar folder.
+                useOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+                calendarUserName = oNS.CurrentUser.Name;
+            }
             // Done. Log off.
             oNS.Logoff();
         }
