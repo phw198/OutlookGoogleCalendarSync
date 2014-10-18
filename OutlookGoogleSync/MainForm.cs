@@ -18,7 +18,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        public string VERSION = "1.0.11";
+        public string VERSION = "1.0.12";
 
         public Timer ogstimer;
         public DateTime oldtime;
@@ -65,6 +65,9 @@ namespace OutlookGoogleSync {
             cbAddAttendees.Checked = Settings.Instance.AddAttendeesToDescription;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
+ 	          cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
+            cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
+ 	          cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
 
             //Mailboxes the user has access to
             this.ddMailboxName.SelectedIndexChanged -= ddMailboxName_SelectedIndexChanged;
@@ -258,15 +261,18 @@ namespace OutlookGoogleSync {
             logboxout("--------------------------------------------------");
 
 
-            List<Event> GoogleEntriesToBeDeleted = IdentifyGoogleEntriesToBeDeleted(OutlookEntries, GoogleEntries);
-            if (cbCreateFiles.Checked) {
-                TextWriter tw = new StreamWriter("export_to_be_deleted.txt");
-                foreach (Event ev in GoogleEntriesToBeDeleted) {
-                    tw.WriteLine(signature(ev));
+            List<Event> GoogleEntriesToBeDeleted = new List<Event>();
+            if (!Settings.Instance.DisableDelete) {
+                GoogleEntriesToBeDeleted = IdentifyGoogleEntriesToBeDeleted(OutlookEntries, GoogleEntries);
+                if (cbCreateFiles.Checked) {
+                    TextWriter tw = new StreamWriter("export_to_be_deleted.txt");
+                    foreach (Event ev in GoogleEntriesToBeDeleted) {
+                        tw.WriteLine(signature(ev));
+                    }
+                    tw.Close();
                 }
-                tw.Close();
+                logboxout(GoogleEntriesToBeDeleted.Count + " Google Calendar Entries to be deleted.");
             }
-            logboxout(GoogleEntriesToBeDeleted.Count + " Google Calendar Entries to be deleted.");
 
             //OutlookEntriesToBeCreated ...in Google!
             List<AppointmentItem> OutlookEntriesToBeCreated = IdentifyOutlookEntriesToBeCreated(OutlookEntries, GoogleEntries);
@@ -282,12 +288,30 @@ namespace OutlookGoogleSync {
             if (GoogleEntriesToBeDeleted.Count > 0) {
                 logboxout("--------------------------------------------------");
                 logboxout("Deleting " + GoogleEntriesToBeDeleted.Count + " Google Calendar Entries...");
-                try {
-                    foreach (Event ev in GoogleEntriesToBeDeleted) GoogleCalendar.Instance.deleteCalendarEntry(ev);
-                } catch (System.Exception ex) {
-                    logboxout("Unable to delete obsolete entries out to the Google Calendar. The following error occurred:");
-                    logboxout(ex.Message + "\r\n => Check your network connection.");
-                    return false;
+                foreach (Event ev in GoogleEntriesToBeDeleted) {
+                    String eventSummary = "";
+                    Boolean delete = true;
+                    
+                    if (Settings.Instance.ConfirmOnDelete) {
+                        eventSummary = DateTime.Parse(ev.Start.DateTime.ToString()).ToString("dd/MM/yyyy hh:mm") +" => ";
+                        eventSummary += '"'+ ev.Summary +'"';
+                        if (MessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation", 
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                        {
+                            delete = false;
+                            logboxout("Not deleted: " + eventSummary.ToString());
+                        }
+                    }
+                    if (delete) {
+                        try {
+                            GoogleCalendar.Instance.deleteCalendarEntry(ev);
+                            if (Settings.Instance.ConfirmOnDelete) logboxout("Deleted: " + eventSummary);
+                        } catch (System.Exception ex) {
+                            logboxout("Unable to delete obsolete entries out to the Google Calendar. The following error occurred:");
+                            logboxout(ex.Message + "\r\n => Check your network connection.");
+                            return false;
+                        }
+                    }
                 }
                 logboxout("Done.");
             }
@@ -473,6 +497,15 @@ namespace OutlookGoogleSync {
 
         void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CreateTextFiles = cbCreateFiles.Checked;
+        }
+
+        void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
+        }
+
+        void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
+            cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
         }
 
         void NotifyIcon1Click(object sender, EventArgs e) {
