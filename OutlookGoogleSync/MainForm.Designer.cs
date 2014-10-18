@@ -37,8 +37,11 @@ namespace OutlookGoogleSync
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.lNextSync = new System.Windows.Forms.Label();
+            this.lLastSync = new System.Windows.Forms.Label();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -68,6 +71,8 @@ namespace OutlookGoogleSync
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label4 = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.lLastSyncVal = new System.Windows.Forms.Label();
+            this.lNextSyncVal = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -92,6 +97,10 @@ namespace OutlookGoogleSync
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.lNextSyncVal);
+            this.tabPage1.Controls.Add(this.lLastSyncVal);
+            this.tabPage1.Controls.Add(this.lNextSync);
+            this.tabPage1.Controls.Add(this.lLastSync);
             this.tabPage1.Controls.Add(this.LogBox);
             this.tabPage1.Controls.Add(this.bSyncNow);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
@@ -102,13 +111,31 @@ namespace OutlookGoogleSync
             this.tabPage1.Text = "Sync";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // lNextSync
+            // 
+            this.lNextSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lNextSync.Location = new System.Drawing.Point(252, 14);
+            this.lNextSync.Name = "lNextSync";
+            this.lNextSync.Size = new System.Drawing.Size(232, 14);
+            this.lNextSync.TabIndex = 2;
+            this.lNextSync.Text = "Next scheduled:-";
+            // 
+            // lLastSync
+            // 
+            this.lLastSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lLastSync.Location = new System.Drawing.Point(5, 14);
+            this.lLastSync.Name = "lLastSync";
+            this.lLastSync.Size = new System.Drawing.Size(251, 14);
+            this.lLastSync.TabIndex = 2;
+            this.lLastSync.Text = "Last successful:-";
+            // 
             // LogBox
             // 
             this.LogBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LogBox.Location = new System.Drawing.Point(7, 6);
+            this.LogBox.Location = new System.Drawing.Point(3, 57);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
-            this.LogBox.Size = new System.Drawing.Size(477, 430);
+            this.LogBox.Size = new System.Drawing.Size(481, 379);
             this.LogBox.TabIndex = 1;
             // 
             // bSyncNow
@@ -247,17 +274,17 @@ namespace OutlookGoogleSync
             // 
             this.cbSyncEveryHour.Location = new System.Drawing.Point(6, 19);
             this.cbSyncEveryHour.Name = "cbSyncEveryHour";
-            this.cbSyncEveryHour.Size = new System.Drawing.Size(221, 24);
+            this.cbSyncEveryHour.Size = new System.Drawing.Size(180, 24);
             this.cbSyncEveryHour.TabIndex = 6;
-            this.cbSyncEveryHour.Text = "Sync every hour at these Minute Offset(s)";
+            this.cbSyncEveryHour.Text = "Delay between sync (in minutes)";
             this.cbSyncEveryHour.UseVisualStyleBackColor = true;
             this.cbSyncEveryHour.CheckedChanged += new System.EventHandler(this.CbSyncEveryHourCheckedChanged);
             // 
             // tbMinuteOffsets
             // 
-            this.tbMinuteOffsets.Location = new System.Drawing.Point(231, 21);
+            this.tbMinuteOffsets.Location = new System.Drawing.Point(192, 21);
             this.tbMinuteOffsets.Name = "tbMinuteOffsets";
-            this.tbMinuteOffsets.Size = new System.Drawing.Size(67, 20);
+            this.tbMinuteOffsets.Size = new System.Drawing.Size(106, 20);
             this.tbMinuteOffsets.TabIndex = 5;
             this.tbMinuteOffsets.TextChanged += new System.EventHandler(this.TbMinuteOffsetsTextChanged);
             // 
@@ -284,9 +311,9 @@ namespace OutlookGoogleSync
             // bGetMyCalendars
             // 
             this.bGetMyCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bGetMyCalendars.Location = new System.Drawing.Point(355, 19);
+            this.bGetMyCalendars.Location = new System.Drawing.Point(363, 19);
             this.bGetMyCalendars.Name = "bGetMyCalendars";
-            this.bGetMyCalendars.Size = new System.Drawing.Size(114, 40);
+            this.bGetMyCalendars.Size = new System.Drawing.Size(106, 40);
             this.bGetMyCalendars.TabIndex = 2;
             this.bGetMyCalendars.Text = "Get My\r\nGoogle Calendars";
             this.bGetMyCalendars.UseVisualStyleBackColor = true;
@@ -371,7 +398,7 @@ namespace OutlookGoogleSync
             // 
             // linkLabel1
             // 
-            this.linkLabel1.Location = new System.Drawing.Point(6, 138);
+            this.linkLabel1.Location = new System.Drawing.Point(6, 172);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(475, 23);
             this.linkLabel1.TabIndex = 2;
@@ -384,16 +411,32 @@ namespace OutlookGoogleSync
             // 
             this.label4.Location = new System.Drawing.Point(3, 32);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(481, 96);
+            this.label4.Size = new System.Drawing.Size(481, 127);
             this.label4.TabIndex = 1;
-            this.label4.Text = "OutlookGoogleSync\r\n\r\nVersion {version}\r\n\r\nOriginally developed by Zissis Siantidi" +
-                "s (2012-2013)\r\nContinued by Paul Woolcock (2014)\r\n";
+            this.label4.Text = resources.GetString("label4.Text");
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // notifyIcon1
             // 
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1Click);
+            // 
+            // lLastSyncVal
+            // 
+            this.lLastSyncVal.Location = new System.Drawing.Point(22, 28);
+            this.lLastSyncVal.Name = "lLastSyncVal";
+            this.lLastSyncVal.Size = new System.Drawing.Size(224, 26);
+            this.lLastSyncVal.TabIndex = 3;
+            this.lLastSyncVal.Text = "N/A";
+            // 
+            // lNextSyncVal
+            // 
+            this.lNextSyncVal.Location = new System.Drawing.Point(271, 28);
+            this.lNextSyncVal.Name = "lNextSyncVal";
+            this.lNextSyncVal.Size = new System.Drawing.Size(216, 26);
+            this.lNextSyncVal.TabIndex = 4;
+            this.lNextSyncVal.Text = "Unknown";
             // 
             // MainForm
             // 
@@ -402,6 +445,7 @@ namespace OutlookGoogleSync
             this.ClientSize = new System.Drawing.Size(519, 529);
             this.Controls.Add(this.tabControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "OutlookGoogleSync";
             this.Resize += new System.EventHandler(this.MainFormResize);
@@ -451,6 +495,10 @@ namespace OutlookGoogleSync
 		private System.Windows.Forms.Button bSyncNow;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabControl tabControl1;
+    private System.Windows.Forms.Label lLastSync;
+    private System.Windows.Forms.Label lNextSync;
+    private System.Windows.Forms.Label lNextSyncVal;
+    private System.Windows.Forms.Label lLastSyncVal;
 		
 	
 

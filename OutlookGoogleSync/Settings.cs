@@ -28,6 +28,7 @@ namespace OutlookGoogleSync
         
         public string RefreshToken = "";
         public string MinuteOffsets = "";
+        public DateTime LastSyncDate = new DateTime(0);
         public int DaysInThePast = 1;
         public int DaysInTheFuture = 60;
         public MyCalendarListEntry UseGoogleCalendar = new MyCalendarListEntry();

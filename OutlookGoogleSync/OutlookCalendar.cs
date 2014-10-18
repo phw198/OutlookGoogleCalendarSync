@@ -54,6 +54,9 @@ namespace OutlookGoogleSync {
             oNS.Logoff();
         }
 
+        public void Reset() {
+            instance = new OutlookCalendar();
+        }
 
         public List<AppointmentItem> getCalendarEntries() {
             Items OutlookItems = UseOutlookCalendar.Items;

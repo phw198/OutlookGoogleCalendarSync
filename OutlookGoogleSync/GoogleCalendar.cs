@@ -73,12 +73,8 @@ namespace OutlookGoogleSync {
 
         public List<MyCalendarListEntry> getCalendars() {
             CalendarList request = null;
-            try {
-                request = service.CalendarList.List().Fetch();
-            } catch (Exception ex) {
-                MainForm.Instance.HandleException(ex);
-            }
-
+            request = service.CalendarList.List().Fetch();
+            
             if (request != null) {
 
                 List<MyCalendarListEntry> result = new List<MyCalendarListEntry>();
@@ -96,16 +92,12 @@ namespace OutlookGoogleSync {
             List<Event> result = new List<Event>();
             Events request = null;
 
-            try {
-                EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
+            EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
-                lr.TimeMin = GoogleTimeFrom(DateTime.Now.AddDays(-Settings.Instance.DaysInThePast));
-                lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1));
+            lr.TimeMin = GoogleTimeFrom(DateTime.Now.AddDays(-Settings.Instance.DaysInThePast));
+            lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1));
 
-                request = lr.Fetch();
-            } catch (Exception ex) {
-                MainForm.Instance.HandleException(ex);
-            }
+            request = lr.Fetch();
 
             if (request != null) {
                 if (request.Items != null) result.AddRange(request.Items);
@@ -116,19 +108,11 @@ namespace OutlookGoogleSync {
         public void deleteCalendarEntry(Event e) {
             string request;
 
-            try {
-                request = service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, e.Id).Fetch();
-            } catch (Exception ex) {
-                MainForm.Instance.HandleException(ex);
-            }
+            request = service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, e.Id).Fetch();
         }
 
         public void addEntry(Event e) {
-            try {
-                var result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
-            } catch (Exception ex) {
-                MainForm.Instance.HandleException(ex);
-            }
+            var result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
         }
 
 
