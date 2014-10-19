@@ -575,7 +575,7 @@ namespace OutlookGoogleSync
             // 
             // linkLabel1
             // 
-            this.linkLabel1.Location = new System.Drawing.Point(6, 238);
+            this.linkLabel1.Location = new System.Drawing.Point(6, 302);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(475, 23);
             this.linkLabel1.TabIndex = 2;
@@ -588,7 +588,7 @@ namespace OutlookGoogleSync
             // 
             this.label4.Location = new System.Drawing.Point(3, 32);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(481, 193);
+            this.label4.Size = new System.Drawing.Size(481, 254);
             this.label4.TabIndex = 1;
             this.label4.Text = resources.GetString("label4.Text");
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;

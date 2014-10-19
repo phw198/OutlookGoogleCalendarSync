@@ -190,20 +190,31 @@ namespace OutlookGoogleSync {
         }
 
         void SyncNow_Click(object sender, EventArgs e) {
+            LogBox.Clear();
+            //Check network availability
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
+                logboxout("There does not appear to be any network available! Sync aborted.");
+                return;
+            }
             bSyncNow.Enabled = false;
-
             lNextSyncVal.Text = "In progress...";
 
-            LogBox.Clear();
-
             DateTime SyncStarted = DateTime.Now;
-
             logboxout("Sync started at " + SyncStarted.ToString());
             logboxout("--------------------------------------------------");
 
-            Boolean syncOk = synchronize();
+            Boolean syncOk = false;
+            int failedAttempts = 0;
+            while (!syncOk) {
+                if (failedAttempts > 0 &&
+                    MessageBox.Show("The synchronisation failed. Do you want to try again?", "Sync Failed",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) { break; }
+                syncOk = synchronize();
+                failedAttempts += !syncOk ? 1 : 0;
+            }
+
             logboxout("--------------------------------------------------");
-            logboxout(syncOk ? "Sync finished with success!" : "Operation aborted!");
+            logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
 
             if (syncOk) {
                 lastSyncDate = SyncStarted;
@@ -211,6 +222,7 @@ namespace OutlookGoogleSync {
                 lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
                 setNextSync(getResyncInterval());
             } else {
+                logboxout("Next sync has been rescheduled to run in 5 minutes time.");
                 setNextSync(5);
             }
             bSyncNow.Enabled = true;
