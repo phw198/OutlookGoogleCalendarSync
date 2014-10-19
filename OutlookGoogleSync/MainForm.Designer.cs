@@ -47,6 +47,20 @@ namespace OutlookGoogleSync
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.txtEWSServerURL = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtEWSPass = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtEWSUser = new System.Windows.Forms.TextBox();
+            this.chkUseEWS = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
+            this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
+            this.cbStartInTray = new System.Windows.Forms.CheckBox();
+            this.cbCreateFiles = new System.Windows.Forms.CheckBox();
+            this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -55,12 +69,6 @@ namespace OutlookGoogleSync
             this.cbAddReminders = new System.Windows.Forms.CheckBox();
             this.cbAddAttendees = new System.Windows.Forms.CheckBox();
             this.cbAddDescription = new System.Windows.Forms.CheckBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
-            this.cbStartInTray = new System.Windows.Forms.CheckBox();
-            this.cbCreateFiles = new System.Windows.Forms.CheckBox();
-            this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
-            this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.bSave = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
@@ -82,9 +90,10 @@ namespace OutlookGoogleSync
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.groupBox7.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -173,6 +182,7 @@ namespace OutlookGoogleSync
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.groupBox7);
             this.tabPage2.Controls.Add(this.groupBox4);
             this.tabPage2.Controls.Add(this.groupBox6);
             this.tabPage2.Controls.Add(this.groupBox5);
@@ -187,6 +197,150 @@ namespace OutlookGoogleSync
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox7.Controls.Add(this.txtEWSServerURL);
+            this.groupBox7.Controls.Add(this.label8);
+            this.groupBox7.Controls.Add(this.txtEWSPass);
+            this.groupBox7.Controls.Add(this.label7);
+            this.groupBox7.Controls.Add(this.txtEWSUser);
+            this.groupBox7.Controls.Add(this.chkUseEWS);
+            this.groupBox7.Controls.Add(this.label6);
+            this.groupBox7.Enabled = false;
+            this.groupBox7.Location = new System.Drawing.Point(230, 178);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(251, 109);
+            this.groupBox7.TabIndex = 13;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "EWS Settings";
+            // 
+            // txtEWSServerURL
+            // 
+            this.txtEWSServerURL.Enabled = false;
+            this.txtEWSServerURL.Location = new System.Drawing.Point(70, 84);
+            this.txtEWSServerURL.Name = "txtEWSServerURL";
+            this.txtEWSServerURL.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSServerURL.TabIndex = 13;
+            this.txtEWSServerURL.TextChanged += new System.EventHandler(this.txtEWSServerURL_TextChanged);
+            // 
+            // label8
+            // 
+            this.label8.Location = new System.Drawing.Point(3, 87);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(58, 23);
+            this.label8.TabIndex = 12;
+            this.label8.Text = "Server:";
+            // 
+            // txtEWSPass
+            // 
+            this.txtEWSPass.Enabled = false;
+            this.txtEWSPass.Location = new System.Drawing.Point(70, 61);
+            this.txtEWSPass.Name = "txtEWSPass";
+            this.txtEWSPass.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSPass.TabIndex = 11;
+            this.txtEWSPass.TextChanged += new System.EventHandler(this.txtEWSPass_TextChanged);
+            // 
+            // label7
+            // 
+            this.label7.Location = new System.Drawing.Point(3, 63);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(58, 23);
+            this.label7.TabIndex = 10;
+            this.label7.Text = "Password:";
+            // 
+            // txtEWSUser
+            // 
+            this.txtEWSUser.Enabled = false;
+            this.txtEWSUser.Location = new System.Drawing.Point(70, 38);
+            this.txtEWSUser.Name = "txtEWSUser";
+            this.txtEWSUser.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSUser.TabIndex = 9;
+            this.txtEWSUser.TextChanged += new System.EventHandler(this.txtEWSUser_TextChanged);
+            // 
+            // chkUseEWS
+            // 
+            this.chkUseEWS.Location = new System.Drawing.Point(6, 16);
+            this.chkUseEWS.Name = "chkUseEWS";
+            this.chkUseEWS.Size = new System.Drawing.Size(230, 24);
+            this.chkUseEWS.TabIndex = 8;
+            this.chkUseEWS.Text = "Use Exchange";
+            this.chkUseEWS.UseVisualStyleBackColor = true;
+            this.chkUseEWS.CheckedChanged += new System.EventHandler(this.chkUseEWS_CheckedChanged);
+            // 
+            // label6
+            // 
+            this.label6.Location = new System.Drawing.Point(3, 41);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 23);
+            this.label6.TabIndex = 8;
+            this.label6.Text = "Email:";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.cbConfirmOnDelete);
+            this.groupBox4.Controls.Add(this.cbMinimizeToTray);
+            this.groupBox4.Controls.Add(this.cbStartInTray);
+            this.groupBox4.Controls.Add(this.cbCreateFiles);
+            this.groupBox4.Controls.Add(this.cbDisableDeletion);
+            this.groupBox4.Location = new System.Drawing.Point(6, 290);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(475, 109);
+            this.groupBox4.TabIndex = 11;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Options";
+            // 
+            // cbConfirmOnDelete
+            // 
+            this.cbConfirmOnDelete.Location = new System.Drawing.Point(112, 76);
+            this.cbConfirmOnDelete.Name = "cbConfirmOnDelete";
+            this.cbConfirmOnDelete.Size = new System.Drawing.Size(121, 24);
+            this.cbConfirmOnDelete.TabIndex = 9;
+            this.cbConfirmOnDelete.Text = "Confirm on Delete";
+            this.cbConfirmOnDelete.UseVisualStyleBackColor = true;
+            this.cbConfirmOnDelete.CheckedChanged += new System.EventHandler(this.cbConfirmOnDelete_CheckedChanged);
+            // 
+            // cbMinimizeToTray
+            // 
+            this.cbMinimizeToTray.Location = new System.Drawing.Point(12, 38);
+            this.cbMinimizeToTray.Name = "cbMinimizeToTray";
+            this.cbMinimizeToTray.Size = new System.Drawing.Size(104, 24);
+            this.cbMinimizeToTray.TabIndex = 0;
+            this.cbMinimizeToTray.Text = "Minimize to Tray";
+            this.cbMinimizeToTray.UseVisualStyleBackColor = true;
+            this.cbMinimizeToTray.CheckedChanged += new System.EventHandler(this.CbMinimizeToTrayCheckedChanged);
+            // 
+            // cbStartInTray
+            // 
+            this.cbStartInTray.Location = new System.Drawing.Point(12, 19);
+            this.cbStartInTray.Name = "cbStartInTray";
+            this.cbStartInTray.Size = new System.Drawing.Size(104, 24);
+            this.cbStartInTray.TabIndex = 1;
+            this.cbStartInTray.Text = "Start in Tray";
+            this.cbStartInTray.UseVisualStyleBackColor = true;
+            this.cbStartInTray.CheckedChanged += new System.EventHandler(this.CbStartInTrayCheckedChanged);
+            // 
+            // cbCreateFiles
+            // 
+            this.cbCreateFiles.Location = new System.Drawing.Point(12, 57);
+            this.cbCreateFiles.Name = "cbCreateFiles";
+            this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
+            this.cbCreateFiles.TabIndex = 7;
+            this.cbCreateFiles.Text = "Create text files with found/identified entries";
+            this.cbCreateFiles.UseVisualStyleBackColor = true;
+            this.cbCreateFiles.CheckedChanged += new System.EventHandler(this.cbCreateFiles_CheckedChanged);
+            // 
+            // cbDisableDeletion
+            // 
+            this.cbDisableDeletion.Location = new System.Drawing.Point(12, 76);
+            this.cbDisableDeletion.Name = "cbDisableDeletion";
+            this.cbDisableDeletion.Size = new System.Drawing.Size(106, 24);
+            this.cbDisableDeletion.TabIndex = 8;
+            this.cbDisableDeletion.Text = "Disable Delete";
+            this.cbDisableDeletion.UseVisualStyleBackColor = true;
+            this.cbDisableDeletion.CheckedChanged += new System.EventHandler(this.cbDisableDeletion_CheckedChanged);
             // 
             // groupBox6
             // 
@@ -234,16 +388,16 @@ namespace OutlookGoogleSync
             this.groupBox5.Controls.Add(this.cbAddReminders);
             this.groupBox5.Controls.Add(this.cbAddAttendees);
             this.groupBox5.Controls.Add(this.cbAddDescription);
-            this.groupBox5.Location = new System.Drawing.Point(6, 186);
+            this.groupBox5.Location = new System.Drawing.Point(6, 178);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(475, 88);
+            this.groupBox5.Size = new System.Drawing.Size(218, 109);
             this.groupBox5.TabIndex = 12;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "When creating Google Calendar Entries...   ";
             // 
             // cbAddReminders
             // 
-            this.cbAddReminders.Location = new System.Drawing.Point(12, 59);
+            this.cbAddReminders.Location = new System.Drawing.Point(12, 71);
             this.cbAddReminders.Name = "cbAddReminders";
             this.cbAddReminders.Size = new System.Drawing.Size(139, 24);
             this.cbAddReminders.TabIndex = 8;
@@ -253,7 +407,7 @@ namespace OutlookGoogleSync
             // 
             // cbAddAttendees
             // 
-            this.cbAddAttendees.Location = new System.Drawing.Point(12, 39);
+            this.cbAddAttendees.Location = new System.Drawing.Point(12, 45);
             this.cbAddAttendees.Name = "cbAddAttendees";
             this.cbAddAttendees.Size = new System.Drawing.Size(235, 24);
             this.cbAddAttendees.TabIndex = 6;
@@ -270,70 +424,6 @@ namespace OutlookGoogleSync
             this.cbAddDescription.Text = "Add Description";
             this.cbAddDescription.UseVisualStyleBackColor = true;
             this.cbAddDescription.CheckedChanged += new System.EventHandler(this.CbAddDescriptionCheckedChanged);
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.cbConfirmOnDelete);
-            this.groupBox4.Controls.Add(this.cbMinimizeToTray);
-            this.groupBox4.Controls.Add(this.cbStartInTray);
-            this.groupBox4.Controls.Add(this.cbCreateFiles);
-            this.groupBox4.Controls.Add(this.cbDisableDeletion);
-            this.groupBox4.Location = new System.Drawing.Point(6, 286);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(475, 109);
-            this.groupBox4.TabIndex = 11;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Options";
-            // 
-            // cbMinimizeToTray
-            // 
-            this.cbMinimizeToTray.Location = new System.Drawing.Point(12, 38);
-            this.cbMinimizeToTray.Name = "cbMinimizeToTray";
-            this.cbMinimizeToTray.Size = new System.Drawing.Size(104, 24);
-            this.cbMinimizeToTray.TabIndex = 0;
-            this.cbMinimizeToTray.Text = "Minimize to Tray";
-            this.cbMinimizeToTray.UseVisualStyleBackColor = true;
-            this.cbMinimizeToTray.CheckedChanged += new System.EventHandler(this.CbMinimizeToTrayCheckedChanged);
-            // 
-            // cbStartInTray
-            // 
-            this.cbStartInTray.Location = new System.Drawing.Point(12, 19);
-            this.cbStartInTray.Name = "cbStartInTray";
-            this.cbStartInTray.Size = new System.Drawing.Size(104, 24);
-            this.cbStartInTray.TabIndex = 1;
-            this.cbStartInTray.Text = "Start in Tray";
-            this.cbStartInTray.UseVisualStyleBackColor = true;
-            this.cbStartInTray.CheckedChanged += new System.EventHandler(this.CbStartInTrayCheckedChanged);
-            // 
-            // cbCreateFiles
-            // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(12, 57);
-            this.cbCreateFiles.Name = "cbCreateFiles";
-            this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
-            this.cbCreateFiles.TabIndex = 7;
-            this.cbCreateFiles.Text = "Create text files with found/identified entries";
-            this.cbCreateFiles.UseVisualStyleBackColor = true;
-            this.cbCreateFiles.CheckedChanged += new System.EventHandler(this.cbCreateFiles_CheckedChanged);
-            // 
-            // cbDisableDeletion
-            // 
-            this.cbDisableDeletion.Location = new System.Drawing.Point(12, 76);
-            this.cbDisableDeletion.Name = "cbDisableDeletion";
-            this.cbDisableDeletion.Size = new System.Drawing.Size(106, 24);
-            this.cbDisableDeletion.TabIndex = 8;
-            this.cbDisableDeletion.Text = "Disable Delete";
-            this.cbDisableDeletion.UseVisualStyleBackColor = true;
-            this.cbDisableDeletion.CheckedChanged += new System.EventHandler(this.cbDisableDeletion_CheckedChanged);
-            // 
-            // cbConfirmOnDelete
-            // 
-            this.cbConfirmOnDelete.Location = new System.Drawing.Point(112, 76);
-            this.cbConfirmOnDelete.Name = "cbConfirmOnDelete";
-            this.cbConfirmOnDelete.Size = new System.Drawing.Size(121, 24);
-            this.cbConfirmOnDelete.TabIndex = 9;
-            this.cbConfirmOnDelete.Text = "Confirm on Delete";
-            this.cbConfirmOnDelete.UseVisualStyleBackColor = true;
-            this.cbConfirmOnDelete.CheckedChanged += new System.EventHandler(this.cbConfirmOnDelete_CheckedChanged);
             // 
             // bSave
             // 
@@ -524,10 +614,12 @@ namespace OutlookGoogleSync
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             this.groupBox5.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -572,12 +664,20 @@ namespace OutlookGoogleSync
     private System.Windows.Forms.CheckBox cbAlternateMailbox;
     private System.Windows.Forms.Button bGetMyCalendars;
     private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.TextBox txtEWSPass;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox txtEWSUser;
+        private System.Windows.Forms.CheckBox chkUseEWS;
     private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.Label label6;
     private System.Windows.Forms.Label lLastSync;
     private System.Windows.Forms.Label lNextSync;
     private System.Windows.Forms.Label lNextSyncVal;
     private System.Windows.Forms.Label lLastSyncVal;
     private System.Windows.Forms.ComboBox ddMailboxName;
+        private System.Windows.Forms.TextBox txtEWSServerURL;
+        private System.Windows.Forms.Label label8;
 		
 	
 

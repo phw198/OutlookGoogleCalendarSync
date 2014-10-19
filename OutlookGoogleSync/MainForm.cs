@@ -65,6 +65,10 @@ namespace OutlookGoogleSync {
             cbAddAttendees.Checked = Settings.Instance.AddAttendeesToDescription;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
+ 	          txtEWSPass.Text = Settings.Instance.ExchangePassword;
+            txtEWSUser.Text = Settings.Instance.ExchangeUser;
+            txtEWSServerURL.Text = Settings.Instance.ExchangeServerAddress;
+            chkUseEWS.Checked = Settings.Instance.UseExchange;
  	          cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
  	          cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
@@ -261,9 +265,14 @@ namespace OutlookGoogleSync {
             logboxout("--------------------------------------------------");
 
 
-            List<Event> GoogleEntriesToBeDeleted = new List<Event>();
-            if (!Settings.Instance.DisableDelete) {
-                GoogleEntriesToBeDeleted = IdentifyGoogleEntriesToBeDeleted(OutlookEntries, GoogleEntries);
+            //  Make copies of each list of events (Not strictly needed)
+            List<AppointmentItem> OutlookEntriesToBeCreated = new List<AppointmentItem>(OutlookEntries);
+            List<Event> GoogleEntriesToBeDeleted = new List<Event>(GoogleEntries);
+            IdentifyGoogleAddDeletes(OutlookEntriesToBeCreated, GoogleEntriesToBeDeleted);
+
+            if (Settings.Instance.DisableDelete) {
+                GoogleEntriesToBeDeleted = new List<Event>();
+            } else {
                 if (cbCreateFiles.Checked) {
                     TextWriter tw = new StreamWriter("export_to_be_deleted.txt");
                     foreach (Event ev in GoogleEntriesToBeDeleted) {
@@ -275,7 +284,6 @@ namespace OutlookGoogleSync {
             }
 
             //OutlookEntriesToBeCreated ...in Google!
-            List<AppointmentItem> OutlookEntriesToBeCreated = IdentifyOutlookEntriesToBeCreated(OutlookEntries, GoogleEntries);
             if (cbCreateFiles.Checked) {
                 TextWriter tw = new StreamWriter("export_to_be_created.txt");
                 foreach (AppointmentItem ai in OutlookEntriesToBeCreated) {
@@ -395,37 +403,59 @@ namespace OutlookGoogleSync {
             return true;
         }
 
-        public List<Event> IdentifyGoogleEntriesToBeDeleted(List<AppointmentItem> outlook, List<Event> google) {
-            List<Event> result = new List<Event>();
-            foreach (Event g in google) {
-                bool found = false;
-                foreach (AppointmentItem o in outlook) {
-                    if (g.ExtendedProperties != null &&
-                        g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
-                        o.EntryID == g.ExtendedProperties.Private["outlook_EntryID"]) {
-                        found = true;
+        //<summary>New logic for comparing Outlook and Google events works as follows:
+  	    //      1.  Scan through both lists looking for duplicates
+  	    //      2.  Remove found duplicates from both lists
+  	    //      3.  Items remaining in Outlook list are new and need to be created
+  	    //      4.  Items remaining in Google list need to be deleted
+  	    //</summary>
+        public void IdentifyGoogleAddDeletes(List<AppointmentItem> outlook, List<Event> google) {
+            // Count backwards so that we can remove found items without affecting the order of remaining items
+            for (int o = outlook.Count - 1; o >= 0; o--) {
+                for (int g = google.Count - 1; g >= 0; g--) {
+                    if (google[g].ExtendedProperties != null &&
+                        google[g].ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
+                        outlook[o].EntryID == google[g].ExtendedProperties.Private["outlook_EntryID"])
+                    {
+                        outlook.Remove(outlook[o]);
+                        google.Remove(google[g]);
+                        break;
                     }
                 }
-                if (!found) result.Add(g);
             }
-            return result;
         }
 
-        public List<AppointmentItem> IdentifyOutlookEntriesToBeCreated(List<AppointmentItem> outlook, List<Event> google) {
-            List<AppointmentItem> result = new List<AppointmentItem>();
-            foreach (AppointmentItem o in outlook) {
-                bool found = false;
-                foreach (Event g in google) {
-                    if (g.ExtendedProperties != null &&
-                        g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
-                        g.ExtendedProperties.Private.ContainsValue(o.EntryID)) {
-                        found = true;
-                    }
-                }
-                if (!found) result.Add(o);
-            }
-            return result;
-        }
+        //public List<Event> IdentifyGoogleEntriesToBeDeleted(List<AppointmentItem> outlook, List<Event> google) {
+        //    List<Event> result = new List<Event>();
+        //    foreach (Event g in google) {
+        //        bool found = false;
+        //        foreach (AppointmentItem o in outlook) {
+        //            if (g.ExtendedProperties != null &&
+        //                g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
+        //                o.EntryID == g.ExtendedProperties.Private["outlook_EntryID"]) {
+        //                found = true;
+        //            }
+        //        }
+        //        if (!found) result.Add(g);
+        //    }
+        //    return result;
+        //}
+
+        //public List<AppointmentItem> IdentifyOutlookEntriesToBeCreated(List<AppointmentItem> outlook, List<Event> google) {
+        //    List<AppointmentItem> result = new List<AppointmentItem>();
+        //    foreach (AppointmentItem o in outlook) {
+        //        bool found = false;
+        //        foreach (Event g in google) {
+        //            if (g.ExtendedProperties != null &&
+        //                g.ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
+        //                g.ExtendedProperties.Private.ContainsValue(o.EntryID)) {
+        //                found = true;
+        //            }
+        //        }
+        //        if (!found) result.Add(o);
+        //    }
+        //    return result;
+        //}
 
         //creates a standardized summary string with the key attributes of a calendar entry for comparison
         public string signature(AppointmentItem ai) {
@@ -550,6 +580,25 @@ namespace OutlookGoogleSync {
         private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.MailboxName = ddMailboxName.Text;
             OutlookCalendar.Instance.Reset();
+        }
+
+        private void chkUseEWS_CheckedChanged(object sender, EventArgs e) {
+            txtEWSPass.Enabled = chkUseEWS.Checked;
+            txtEWSUser.Enabled = chkUseEWS.Checked;
+            txtEWSServerURL.Enabled = chkUseEWS.Checked;
+            Settings.Instance.UseExchange = chkUseEWS.Checked;
+        }
+
+        private void txtEWSUser_TextChanged(object sender, EventArgs e) {
+            Settings.Instance.ExchangeUser = txtEWSUser.Text;
+        }
+
+        private void txtEWSPass_TextChanged(object sender, EventArgs e) {
+            Settings.Instance.ExchangePassword = txtEWSPass.Text;
+        }
+
+        private void txtEWSServerURL_TextChanged(object sender, EventArgs e) {
+            Settings.Instance.ExchangeServerAddress = txtEWSServerURL.Text;
         }
     }
 }

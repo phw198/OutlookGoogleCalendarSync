@@ -91,17 +91,24 @@ namespace OutlookGoogleSync {
         public List<Event> getCalendarEntriesInRange() {
             List<Event> result = new List<Event>();
             Events request = null;
+            String pageToken = null;
 
-            EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
+            do {
+                EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
-            lr.TimeMin = GoogleTimeFrom(DateTime.Now.AddDays(-Settings.Instance.DaysInThePast));
-            lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1));
+                lr.TimeMin = GoogleTimeFrom(DateTime.Now.AddDays(-Settings.Instance.DaysInThePast));
+                lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1));
+                //lr.OrderBy = EventsResource.OrderBy.StartTime;
+                lr.PageToken = pageToken;
 
-            request = lr.Fetch();
+                request = lr.Fetch();
+                pageToken = request.NextPageToken;
 
-            if (request != null) {
-                if (request.Items != null) result.AddRange(request.Items);
-            }
+                if (request != null) {
+                    if (request.Items != null) result.AddRange(request.Items);
+                }
+            } while (pageToken != null);
+
             return result;
         }
 

@@ -25,6 +25,10 @@ namespace OutlookGoogleSync
           
         }
         
+        public bool UseExchange = false;
+        public string ExchangeUser = "";
+        public string ExchangePassword = "";
+        public string ExchangeServerAddress = "";
         
         public string RefreshToken = "";
         public string MinuteOffsets = "";
