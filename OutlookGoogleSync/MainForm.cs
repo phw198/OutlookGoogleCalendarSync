@@ -18,7 +18,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        public string VERSION = "1.0.12";
+        public string VERSION = "1.1.0";
 
         public Timer ogstimer;
         public DateTime oldtime;
@@ -222,7 +222,7 @@ namespace OutlookGoogleSync {
                 lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
                 setNextSync(getResyncInterval());
             } else {
-                logboxout("Next sync has been rescheduled to run in 5 minutes time.");
+                logboxout("Another sync has been scheduled to automatically run in 5 minutes time.");
                 setNextSync(5);
             }
             bSyncNow.Enabled = true;
