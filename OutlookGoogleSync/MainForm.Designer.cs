@@ -38,7 +38,7 @@ namespace OutlookGoogleSync
 		{
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.lNextSyncVal = new System.Windows.Forms.Label();
             this.lLastSyncVal = new System.Windows.Forms.Label();
@@ -47,24 +47,29 @@ namespace OutlookGoogleSync
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.bGetGoogleCalendars = new System.Windows.Forms.Button();
+            this.cbCalendars = new System.Windows.Forms.ComboBox();
+            this.gbOutlook = new System.Windows.Forms.GroupBox();
+            this.cbOutlookCalendar = new System.Windows.Forms.ComboBox();
+            this.rbOutlookEWS = new System.Windows.Forms.RadioButton();
+            this.rbOutlookDefaultMB = new System.Windows.Forms.RadioButton();
+            this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
+            this.gbEWS = new System.Windows.Forms.GroupBox();
             this.txtEWSServerURL = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txtEWSPass = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.txtEWSUser = new System.Windows.Forms.TextBox();
-            this.chkUseEWS = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.ddMailboxName = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.cbAlternateMailbox = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.cbAddReminders = new System.Windows.Forms.CheckBox();
             this.cbAddAttendees = new System.Windows.Forms.CheckBox();
@@ -74,42 +79,42 @@ namespace OutlookGoogleSync
             this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
             this.cbSyncEveryHour = new System.Windows.Forms.CheckBox();
             this.tbMinuteOffsets = new System.Windows.Forms.TextBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.bGetMyCalendars = new System.Windows.Forms.Button();
-            this.cbCalendars = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tbDaysInTheFuture = new System.Windows.Forms.TextBox();
             this.tbDaysInThePast = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.label4 = new System.Windows.Forms.Label();
+            this.lAboutURL = new System.Windows.Forms.LinkLabel();
+            this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.tabControl1.SuspendLayout();
+            this.lOutlookCalendar = new System.Windows.Forms.Label();
+            this.tabSettings.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.groupBox7.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.gbOutlook.SuspendLayout();
+            this.gbEWS.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // tabSettings
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Location = new System.Drawing.Point(12, 12);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(495, 505);
-            this.tabControl1.TabIndex = 0;
+            this.tabSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabSettings.Controls.Add(this.tabPage1);
+            this.tabSettings.Controls.Add(this.tabPage2);
+            this.tabSettings.Controls.Add(this.tabPage3);
+            this.tabSettings.Location = new System.Drawing.Point(12, 12);
+            this.tabSettings.Name = "tabSettings";
+            this.tabSettings.SelectedIndex = 0;
+            this.tabSettings.Size = new System.Drawing.Size(495, 505);
+            this.tabSettings.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -163,6 +168,9 @@ namespace OutlookGoogleSync
             // 
             // LogBox
             // 
+            this.LogBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.LogBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LogBox.Location = new System.Drawing.Point(3, 57);
             this.LogBox.Multiline = true;
@@ -172,6 +180,7 @@ namespace OutlookGoogleSync
             // 
             // bSyncNow
             // 
+            this.bSyncNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bSyncNow.Location = new System.Drawing.Point(4, 442);
             this.bSyncNow.Name = "bSyncNow";
             this.bSyncNow.Size = new System.Drawing.Size(98, 31);
@@ -182,13 +191,12 @@ namespace OutlookGoogleSync
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.groupBox7);
+            this.tabPage2.Controls.Add(this.groupBox2);
+            this.tabPage2.Controls.Add(this.gbOutlook);
             this.tabPage2.Controls.Add(this.groupBox4);
-            this.tabPage2.Controls.Add(this.groupBox6);
             this.tabPage2.Controls.Add(this.groupBox5);
             this.tabPage2.Controls.Add(this.bSave);
             this.tabPage2.Controls.Add(this.groupBox3);
-            this.tabPage2.Controls.Add(this.groupBox2);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -198,85 +206,186 @@ namespace OutlookGoogleSync
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // groupBox7
+            // groupBox2
             // 
-            this.groupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.bGetGoogleCalendars);
+            this.groupBox2.Controls.Add(this.cbCalendars);
+            this.groupBox2.Location = new System.Drawing.Point(175, 228);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(245, 75);
+            this.groupBox2.TabIndex = 5;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Google Calendar";
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(6, 19);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(81, 14);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "Pick Calendar:";
+            // 
+            // bGetGoogleCalendars
+            // 
+            this.bGetGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bGetGoogleCalendars.Location = new System.Drawing.Point(93, 15);
+            this.bGetGoogleCalendars.Name = "bGetGoogleCalendars";
+            this.bGetGoogleCalendars.Size = new System.Drawing.Size(97, 20);
+            this.bGetGoogleCalendars.TabIndex = 2;
+            this.bGetGoogleCalendars.Text = "Get Calendars";
+            this.bGetGoogleCalendars.UseVisualStyleBackColor = true;
+            this.bGetGoogleCalendars.Click += new System.EventHandler(this.GetMyGoogleCalendars_Click);
+            // 
+            // cbCalendars
+            // 
+            this.cbCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCalendars.FormattingEnabled = true;
+            this.cbCalendars.Location = new System.Drawing.Point(9, 36);
+            this.cbCalendars.Name = "cbCalendars";
+            this.cbCalendars.Size = new System.Drawing.Size(225, 21);
+            this.cbCalendars.TabIndex = 1;
+            this.cbCalendars.SelectedIndexChanged += new System.EventHandler(this.ComboBox1SelectedIndexChanged);
+            // 
+            // gbOutlook
+            // 
+            this.gbOutlook.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox7.Controls.Add(this.txtEWSServerURL);
-            this.groupBox7.Controls.Add(this.label8);
-            this.groupBox7.Controls.Add(this.txtEWSPass);
-            this.groupBox7.Controls.Add(this.label7);
-            this.groupBox7.Controls.Add(this.txtEWSUser);
-            this.groupBox7.Controls.Add(this.chkUseEWS);
-            this.groupBox7.Controls.Add(this.label6);
-            this.groupBox7.Enabled = false;
-            this.groupBox7.Location = new System.Drawing.Point(230, 178);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(251, 109);
-            this.groupBox7.TabIndex = 13;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "EWS Settings";
+            this.gbOutlook.Controls.Add(this.lOutlookCalendar);
+            this.gbOutlook.Controls.Add(this.cbOutlookCalendar);
+            this.gbOutlook.Controls.Add(this.rbOutlookEWS);
+            this.gbOutlook.Controls.Add(this.rbOutlookDefaultMB);
+            this.gbOutlook.Controls.Add(this.rbOutlookAltMB);
+            this.gbOutlook.Controls.Add(this.gbEWS);
+            this.gbOutlook.Controls.Add(this.ddMailboxName);
+            this.gbOutlook.Location = new System.Drawing.Point(6, 6);
+            this.gbOutlook.Name = "gbOutlook";
+            this.gbOutlook.Size = new System.Drawing.Size(475, 149);
+            this.gbOutlook.TabIndex = 15;
+            this.gbOutlook.TabStop = false;
+            this.gbOutlook.Text = "Outlook";
+            // 
+            // cbOutlookCalendar
+            // 
+            this.cbOutlookCalendar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbOutlookCalendar.FormattingEnabled = true;
+            this.cbOutlookCalendar.Location = new System.Drawing.Point(96, 119);
+            this.cbOutlookCalendar.Name = "cbOutlookCalendar";
+            this.cbOutlookCalendar.Size = new System.Drawing.Size(364, 21);
+            this.cbOutlookCalendar.TabIndex = 21;
+            this.cbOutlookCalendar.SelectedIndexChanged += new System.EventHandler(this.cbOutlookCalendar_SelectedIndexChanged);
+            // 
+            // rbOutlookEWS
+            // 
+            this.rbOutlookEWS.AutoSize = true;
+            this.rbOutlookEWS.Enabled = false;
+            this.rbOutlookEWS.Location = new System.Drawing.Point(12, 92);
+            this.rbOutlookEWS.Name = "rbOutlookEWS";
+            this.rbOutlookEWS.Size = new System.Drawing.Size(143, 17);
+            this.rbOutlookEWS.TabIndex = 19;
+            this.rbOutlookEWS.Text = "Exchange Web Services";
+            this.rbOutlookEWS.UseVisualStyleBackColor = true;
+            this.rbOutlookEWS.CheckedChanged += new System.EventHandler(this.rbOutlookEWS_CheckedChanged);
+            // 
+            // rbOutlookDefaultMB
+            // 
+            this.rbOutlookDefaultMB.AutoSize = true;
+            this.rbOutlookDefaultMB.Checked = true;
+            this.rbOutlookDefaultMB.Location = new System.Drawing.Point(12, 19);
+            this.rbOutlookDefaultMB.Name = "rbOutlookDefaultMB";
+            this.rbOutlookDefaultMB.Size = new System.Drawing.Size(98, 17);
+            this.rbOutlookDefaultMB.TabIndex = 18;
+            this.rbOutlookDefaultMB.TabStop = true;
+            this.rbOutlookDefaultMB.Text = "Default Mailbox";
+            this.rbOutlookDefaultMB.UseVisualStyleBackColor = true;
+            this.rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
+            // 
+            // rbOutlookAltMB
+            // 
+            this.rbOutlookAltMB.AutoSize = true;
+            this.rbOutlookAltMB.Location = new System.Drawing.Point(12, 42);
+            this.rbOutlookAltMB.Name = "rbOutlookAltMB";
+            this.rbOutlookAltMB.Size = new System.Drawing.Size(114, 17);
+            this.rbOutlookAltMB.TabIndex = 17;
+            this.rbOutlookAltMB.Text = "Alternative Mailbox";
+            this.rbOutlookAltMB.UseVisualStyleBackColor = true;
+            this.rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+            // 
+            // gbEWS
+            // 
+            this.gbEWS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbEWS.Controls.Add(this.txtEWSServerURL);
+            this.gbEWS.Controls.Add(this.label8);
+            this.gbEWS.Controls.Add(this.txtEWSPass);
+            this.gbEWS.Controls.Add(this.label7);
+            this.gbEWS.Controls.Add(this.txtEWSUser);
+            this.gbEWS.Controls.Add(this.label6);
+            this.gbEWS.Location = new System.Drawing.Point(221, 13);
+            this.gbEWS.Name = "gbEWS";
+            this.gbEWS.Size = new System.Drawing.Size(248, 96);
+            this.gbEWS.TabIndex = 13;
+            this.gbEWS.TabStop = false;
+            this.gbEWS.Text = "EWS Settings";
             // 
             // txtEWSServerURL
             // 
-            this.txtEWSServerURL.Enabled = false;
-            this.txtEWSServerURL.Location = new System.Drawing.Point(70, 84);
+            this.txtEWSServerURL.Location = new System.Drawing.Point(63, 67);
             this.txtEWSServerURL.Name = "txtEWSServerURL";
-            this.txtEWSServerURL.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSServerURL.Size = new System.Drawing.Size(176, 20);
             this.txtEWSServerURL.TabIndex = 13;
             this.txtEWSServerURL.TextChanged += new System.EventHandler(this.txtEWSServerURL_TextChanged);
             // 
             // label8
             // 
-            this.label8.Location = new System.Drawing.Point(3, 87);
+            this.label8.Location = new System.Drawing.Point(6, 70);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(58, 23);
+            this.label8.Size = new System.Drawing.Size(58, 17);
             this.label8.TabIndex = 12;
             this.label8.Text = "Server:";
             // 
             // txtEWSPass
             // 
-            this.txtEWSPass.Enabled = false;
-            this.txtEWSPass.Location = new System.Drawing.Point(70, 61);
+            this.txtEWSPass.Location = new System.Drawing.Point(63, 41);
             this.txtEWSPass.Name = "txtEWSPass";
-            this.txtEWSPass.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSPass.Size = new System.Drawing.Size(176, 20);
             this.txtEWSPass.TabIndex = 11;
             this.txtEWSPass.TextChanged += new System.EventHandler(this.txtEWSPass_TextChanged);
             // 
             // label7
             // 
-            this.label7.Location = new System.Drawing.Point(3, 63);
+            this.label7.Location = new System.Drawing.Point(6, 44);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(58, 23);
+            this.label7.Size = new System.Drawing.Size(58, 18);
             this.label7.TabIndex = 10;
             this.label7.Text = "Password:";
             // 
             // txtEWSUser
             // 
-            this.txtEWSUser.Enabled = false;
-            this.txtEWSUser.Location = new System.Drawing.Point(70, 38);
+            this.txtEWSUser.Location = new System.Drawing.Point(63, 15);
             this.txtEWSUser.Name = "txtEWSUser";
-            this.txtEWSUser.Size = new System.Drawing.Size(166, 20);
+            this.txtEWSUser.Size = new System.Drawing.Size(176, 20);
             this.txtEWSUser.TabIndex = 9;
             this.txtEWSUser.TextChanged += new System.EventHandler(this.txtEWSUser_TextChanged);
             // 
-            // chkUseEWS
-            // 
-            this.chkUseEWS.Location = new System.Drawing.Point(6, 16);
-            this.chkUseEWS.Name = "chkUseEWS";
-            this.chkUseEWS.Size = new System.Drawing.Size(230, 24);
-            this.chkUseEWS.TabIndex = 8;
-            this.chkUseEWS.Text = "Use Exchange";
-            this.chkUseEWS.UseVisualStyleBackColor = true;
-            this.chkUseEWS.CheckedChanged += new System.EventHandler(this.chkUseEWS_CheckedChanged);
-            // 
             // label6
             // 
-            this.label6.Location = new System.Drawing.Point(3, 41);
+            this.label6.Location = new System.Drawing.Point(6, 18);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 23);
+            this.label6.Size = new System.Drawing.Size(35, 17);
             this.label6.TabIndex = 8;
             this.label6.Text = "Email:";
+            // 
+            // ddMailboxName
+            // 
+            this.ddMailboxName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.ddMailboxName.FormattingEnabled = true;
+            this.ddMailboxName.Location = new System.Drawing.Point(31, 65);
+            this.ddMailboxName.Name = "ddMailboxName";
+            this.ddMailboxName.Size = new System.Drawing.Size(184, 21);
+            this.ddMailboxName.TabIndex = 16;
+            this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
             // 
             // groupBox4
             // 
@@ -287,7 +396,7 @@ namespace OutlookGoogleSync
             this.groupBox4.Controls.Add(this.cbDisableDeletion);
             this.groupBox4.Location = new System.Drawing.Point(6, 290);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(475, 109);
+            this.groupBox4.Size = new System.Drawing.Size(247, 109);
             this.groupBox4.TabIndex = 11;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Options";
@@ -342,53 +451,12 @@ namespace OutlookGoogleSync
             this.cbDisableDeletion.UseVisualStyleBackColor = true;
             this.cbDisableDeletion.CheckedChanged += new System.EventHandler(this.cbDisableDeletion_CheckedChanged);
             // 
-            // groupBox6
-            // 
-            this.groupBox6.Controls.Add(this.ddMailboxName);
-            this.groupBox6.Controls.Add(this.label5);
-            this.groupBox6.Controls.Add(this.cbAlternateMailbox);
-            this.groupBox6.Location = new System.Drawing.Point(6, 409);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(376, 61);
-            this.groupBox6.TabIndex = 15;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Outlook Calendar";
-            // 
-            // ddMailboxName
-            // 
-            this.ddMailboxName.FormattingEnabled = true;
-            this.ddMailboxName.Location = new System.Drawing.Point(168, 36);
-            this.ddMailboxName.Name = "ddMailboxName";
-            this.ddMailboxName.Size = new System.Drawing.Size(202, 21);
-            this.ddMailboxName.TabIndex = 16;
-            this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(9, 39);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(153, 13);
-            this.label5.TabIndex = 15;
-            this.label5.Text = "Enter Name of Mailbox to Sync";
-            // 
-            // cbAlternateMailbox
-            // 
-            this.cbAlternateMailbox.AutoSize = true;
-            this.cbAlternateMailbox.Location = new System.Drawing.Point(12, 19);
-            this.cbAlternateMailbox.Name = "cbAlternateMailbox";
-            this.cbAlternateMailbox.Size = new System.Drawing.Size(135, 17);
-            this.cbAlternateMailbox.TabIndex = 13;
-            this.cbAlternateMailbox.Text = "Use Alternate Mailbox?";
-            this.cbAlternateMailbox.UseVisualStyleBackColor = true;
-            this.cbAlternateMailbox.CheckedChanged += new System.EventHandler(this.cbAlternateMailbox_CheckedChanged);
-            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.cbAddReminders);
             this.groupBox5.Controls.Add(this.cbAddAttendees);
             this.groupBox5.Controls.Add(this.cbAddDescription);
-            this.groupBox5.Location = new System.Drawing.Point(6, 178);
+            this.groupBox5.Location = new System.Drawing.Point(269, 290);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(218, 109);
             this.groupBox5.TabIndex = 12;
@@ -440,7 +508,7 @@ namespace OutlookGoogleSync
             this.groupBox3.Controls.Add(this.cbShowBubbleTooltips);
             this.groupBox3.Controls.Add(this.cbSyncEveryHour);
             this.groupBox3.Controls.Add(this.tbMinuteOffsets);
-            this.groupBox3.Location = new System.Drawing.Point(177, 87);
+            this.groupBox3.Location = new System.Drawing.Point(177, 159);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(304, 85);
             this.groupBox3.TabIndex = 10;
@@ -475,54 +543,13 @@ namespace OutlookGoogleSync
             this.tbMinuteOffsets.TabIndex = 5;
             this.tbMinuteOffsets.TextChanged += new System.EventHandler(this.TbMinuteOffsetsTextChanged);
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.bGetMyCalendars);
-            this.groupBox2.Controls.Add(this.cbCalendars);
-            this.groupBox2.Location = new System.Drawing.Point(6, 6);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(475, 68);
-            this.groupBox2.TabIndex = 5;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Google Calendar";
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(6, 33);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(112, 23);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Use Google Calendar:";
-            // 
-            // bGetMyCalendars
-            // 
-            this.bGetMyCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bGetMyCalendars.Location = new System.Drawing.Point(363, 19);
-            this.bGetMyCalendars.Name = "bGetMyCalendars";
-            this.bGetMyCalendars.Size = new System.Drawing.Size(106, 40);
-            this.bGetMyCalendars.TabIndex = 2;
-            this.bGetMyCalendars.Text = "Get My\r\nGoogle Calendars";
-            this.bGetMyCalendars.UseVisualStyleBackColor = true;
-            this.bGetMyCalendars.Click += new System.EventHandler(this.GetMyGoogleCalendars_Click);
-            // 
-            // cbCalendars
-            // 
-            this.cbCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbCalendars.FormattingEnabled = true;
-            this.cbCalendars.Location = new System.Drawing.Point(124, 30);
-            this.cbCalendars.Name = "cbCalendars";
-            this.cbCalendars.Size = new System.Drawing.Size(225, 21);
-            this.cbCalendars.TabIndex = 1;
-            this.cbCalendars.SelectedIndexChanged += new System.EventHandler(this.ComboBox1SelectedIndexChanged);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.tbDaysInTheFuture);
             this.groupBox1.Controls.Add(this.tbDaysInThePast);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(6, 87);
+            this.groupBox1.Location = new System.Drawing.Point(6, 161);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(165, 85);
             this.groupBox1.TabIndex = 0;
@@ -563,8 +590,8 @@ namespace OutlookGoogleSync
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.linkLabel1);
-            this.tabPage3.Controls.Add(this.label4);
+            this.tabPage3.Controls.Add(this.lAboutURL);
+            this.tabPage3.Controls.Add(this.lAboutMain);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
@@ -573,25 +600,27 @@ namespace OutlookGoogleSync
             this.tabPage3.Text = "About";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // linkLabel1
+            // lAboutURL
             // 
-            this.linkLabel1.Location = new System.Drawing.Point(6, 302);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(475, 23);
-            this.linkLabel1.TabIndex = 2;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "http://ougocalsync.codeplex.com/";
-            this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
+            this.lAboutURL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lAboutURL.Location = new System.Drawing.Point(6, 302);
+            this.lAboutURL.Name = "lAboutURL";
+            this.lAboutURL.Size = new System.Drawing.Size(475, 23);
+            this.lAboutURL.TabIndex = 2;
+            this.lAboutURL.TabStop = true;
+            this.lAboutURL.Text = "http://outlookgooglecalendarsync.codeplex.com/";
+            this.lAboutURL.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lAboutURL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
             // 
-            // label4
+            // lAboutMain
             // 
-            this.label4.Location = new System.Drawing.Point(3, 32);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(481, 254);
-            this.label4.TabIndex = 1;
-            this.label4.Text = resources.GetString("label4.Text");
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lAboutMain.Location = new System.Drawing.Point(3, 32);
+            this.lAboutMain.Name = "lAboutMain";
+            this.lAboutMain.Size = new System.Drawing.Size(481, 254);
+            this.lAboutMain.TabIndex = 1;
+            this.lAboutMain.Text = resources.GetString("lAboutMain.Text");
+            this.lAboutMain.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // notifyIcon1
             // 
@@ -599,30 +628,41 @@ namespace OutlookGoogleSync
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1Click);
             // 
+            // lOutlookCalendar
+            // 
+            this.lOutlookCalendar.AutoSize = true;
+            this.lOutlookCalendar.Location = new System.Drawing.Point(9, 122);
+            this.lOutlookCalendar.Name = "lOutlookCalendar";
+            this.lOutlookCalendar.Size = new System.Drawing.Size(81, 13);
+            this.lOutlookCalendar.TabIndex = 22;
+            this.lOutlookCalendar.Text = "Select calendar";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(519, 529);
-            this.Controls.Add(this.tabControl1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Controls.Add(this.tabSettings);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(535, 567);
             this.Name = "MainForm";
-            this.Text = "OutlookGoogleSync";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Outlook Google Calendar Sync";
             this.Resize += new System.EventHandler(this.MainFormResize);
-            this.tabControl1.ResumeLayout(false);
+            this.tabSettings.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.gbOutlook.ResumeLayout(false);
+            this.gbOutlook.PerformLayout();
+            this.gbEWS.ResumeLayout(false);
+            this.gbEWS.PerformLayout();
             this.groupBox4.ResumeLayout(false);
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox6.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabPage3.ResumeLayout(false);
@@ -639,12 +679,12 @@ namespace OutlookGoogleSync
     private System.Windows.Forms.CheckBox cbConfirmOnDelete;
 		private System.Windows.Forms.GroupBox groupBox4;
 		private System.Windows.Forms.GroupBox groupBox5;
-		private System.Windows.Forms.LinkLabel linkLabel1;
+		private System.Windows.Forms.LinkLabel lAboutURL;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.TextBox tbMinuteOffsets;
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.NotifyIcon notifyIcon1;
-		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label lAboutMain;
 		private System.Windows.Forms.CheckBox cbAddAttendees;
 		private System.Windows.Forms.CheckBox cbCreateFiles;
 		private System.Windows.Forms.TextBox LogBox;
@@ -660,16 +700,13 @@ namespace OutlookGoogleSync
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.Button bSyncNow;
 		private System.Windows.Forms.TabPage tabPage1;
-		private System.Windows.Forms.TabControl tabControl1;
-    private System.Windows.Forms.CheckBox cbAlternateMailbox;
-    private System.Windows.Forms.Button bGetMyCalendars;
-    private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.TabControl tabSettings;
+    private System.Windows.Forms.Button bGetGoogleCalendars;
+    private System.Windows.Forms.GroupBox gbOutlook;
+        private System.Windows.Forms.GroupBox gbEWS;
         private System.Windows.Forms.TextBox txtEWSPass;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox txtEWSUser;
-        private System.Windows.Forms.CheckBox chkUseEWS;
-    private System.Windows.Forms.Label label5;
     private System.Windows.Forms.Label label6;
     private System.Windows.Forms.Label lLastSync;
     private System.Windows.Forms.Label lNextSync;
@@ -678,6 +715,11 @@ namespace OutlookGoogleSync
     private System.Windows.Forms.ComboBox ddMailboxName;
         private System.Windows.Forms.TextBox txtEWSServerURL;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.RadioButton rbOutlookDefaultMB;
+        private System.Windows.Forms.RadioButton rbOutlookAltMB;
+        private System.Windows.Forms.RadioButton rbOutlookEWS;
+        private System.Windows.Forms.ComboBox cbOutlookCalendar;
+        private System.Windows.Forms.Label lOutlookCalendar;
 		
 	
 

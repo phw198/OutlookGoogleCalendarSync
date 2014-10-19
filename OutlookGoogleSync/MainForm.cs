@@ -28,7 +28,7 @@ namespace OutlookGoogleSync {
 
         public MainForm() {
             InitializeComponent();
-            label4.Text = label4.Text.Replace("{version}", VERSION);
+            lAboutMain.Text = lAboutMain.Text.Replace("{version}", VERSION);
 
             Instance = this;
 
@@ -50,7 +50,43 @@ namespace OutlookGoogleSync {
             ogstimer = new Timer();
             ogstimer.Tick += new EventHandler(ogstimer_Tick);
 
-            //update GUI from Settings
+            #region Update GUI from Settings
+            this.SuspendLayout();
+            #region Outlook box
+            this.gbOutlook.SuspendLayout();
+            gbEWS.Enabled = false;
+            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
+                rbOutlookAltMB.Checked = true;
+            } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.EWS) {
+                rbOutlookEWS.Checked = true;
+                gbEWS.Enabled = true;
+            } else {
+                rbOutlookDefaultMB.Checked = true;
+            }
+            txtEWSPass.Text = Settings.Instance.EWSpassword;
+            txtEWSUser.Text = Settings.Instance.EWSuser;
+            txtEWSServerURL.Text = Settings.Instance.EWSserver;
+
+            //Mailboxes the user has access to
+            if (OutlookCalendar.Instance.Accounts.Count == 1) {
+                rbOutlookAltMB.Enabled = false;
+                rbOutlookAltMB.Checked = false;
+                ddMailboxName.Enabled = false;
+            }
+            for (int acc = 2; acc <= OutlookCalendar.Instance.Accounts.Count; acc++) {
+                String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
+                ddMailboxName.Items.Add(mailbox);
+                if (Settings.Instance.MailboxName == mailbox) { ddMailboxName.SelectedIndex = acc; }
+            }
+            if (ddMailboxName.SelectedIndex==-1 && ddMailboxName.Items.Count>0) { ddMailboxName.SelectedIndex = 0; }
+
+            cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+            cbOutlookCalendar.DisplayMember = "Key";
+            cbOutlookCalendar.ValueMember = "Value";
+
+            this.gbOutlook.ResumeLayout();
+            #endregion
+
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
             tbMinuteOffsets.Text = Settings.Instance.MinuteOffsets;
@@ -65,34 +101,14 @@ namespace OutlookGoogleSync {
             cbAddAttendees.Checked = Settings.Instance.AddAttendeesToDescription;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
- 	          txtEWSPass.Text = Settings.Instance.ExchangePassword;
-            txtEWSUser.Text = Settings.Instance.ExchangeUser;
-            txtEWSServerURL.Text = Settings.Instance.ExchangeServerAddress;
-            chkUseEWS.Checked = Settings.Instance.UseExchange;
- 	          cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
+            
+            
+            cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
- 	          cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+ 	        cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
 
-            //Mailboxes the user has access to
-            this.ddMailboxName.SelectedIndexChanged -= ddMailboxName_SelectedIndexChanged;
-            if (OutlookCalendar.Instance.Accounts.Count == 1) {
-                cbAlternateMailbox.Enabled = false;
-                cbAlternateMailbox.Checked = false;
-                this.ddMailboxName.Enabled = false;
-            } else {
-                cbAlternateMailbox.Checked = Settings.Instance.AlternateMailbox;
-            }
-
-            for (int acc=2; acc<=OutlookCalendar.Instance.Accounts.Count; acc++) {
-                String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
-                this.ddMailboxName.Items.Add(mailbox);
-                if (Settings.Instance.MailboxName == mailbox) { this.ddMailboxName.SelectedIndex = acc; }
-            }
-            if (!Settings.Instance.AlternateMailbox) { 
-                this.ddMailboxName.SelectedIndex = 0;
-                this.ddMailboxName.Enabled = false;
-            }
-            this.ddMailboxName.SelectedIndexChanged += ddMailboxName_SelectedIndexChanged;
+            this.ResumeLayout();
+            #endregion
 
             //Start in tray?
             if (cbStartInTray.Checked) {
@@ -108,8 +124,10 @@ namespace OutlookGoogleSync {
             toolTip1.InitialDelay = 500;
             toolTip1.ReshowDelay = 200;
             toolTip1.ShowAlways = true;
+            toolTip1.SetToolTip(cbOutlookCalendar,
+                "The Outlook calendar to synchonize with. List includes subfolders of default calendar.");
             toolTip1.SetToolTip(cbCalendars,
-                "The Google Calendar to synchonize with.");
+                "The Google calendar to synchonize with.");
             toolTip1.SetToolTip(cbAddAttendees,
                 "While Outlook has fields for Organizer, RequiredAttendees and OptionalAttendees, Google has not.\n" +
                 "If checked, this data is added at the end of the description as text.");
@@ -122,8 +140,8 @@ namespace OutlookGoogleSync {
             toolTip1.SetToolTip(cbAddDescription,
                 "The description may contain email addresses, which Outlook may complain about (PopUp-Message: \"Allow Access?\" etc.). \n" +
                 "Turning this off allows OutlookGoogleSync to run without intervention in this case.");
-            toolTip1.SetToolTip(cbAlternateMailbox,
-                "Only change this if you need to use an Outlook Calendar that is not in the default mailbox");
+            toolTip1.SetToolTip(rbOutlookAltMB,
+                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
 
             //Refresh synchronizations (last and next)
             lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
@@ -168,7 +186,7 @@ namespace OutlookGoogleSync {
         }
 
         void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
-            bGetMyCalendars.Enabled = false;
+            bGetGoogleCalendars.Enabled = false;
             cbCalendars.Enabled = false;
             List<MyCalendarListEntry> calendars = null;
             try {
@@ -185,7 +203,7 @@ namespace OutlookGoogleSync {
                 MainForm.Instance.cbCalendars.SelectedIndex = 0;
             }
 
-            bGetMyCalendars.Enabled = true;
+            bGetGoogleCalendars.Enabled = true;
             cbCalendars.Enabled = true;
         }
 
@@ -379,7 +397,7 @@ namespace OutlookGoogleSync {
                                 ev.Organizer.DisplayName = ea.DisplayName;
                                 ev.Organizer.Email = ea.Email;
                             }
-                            ea.Self = (OutlookCalendar.Instance.CalendarUserName == recipient.Name);
+                            ea.Self = (OutlookCalendar.Instance.CurrentUserName == recipient.Name);
                             switch (recipient.MeetingResponseStatus) {
                                 case OlResponseStatus.olResponseNone: ea.ResponseStatus = "needsAction"; break;
                                 case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;
@@ -579,14 +597,42 @@ namespace OutlookGoogleSync {
         }
 
         void LinkLabel1LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start(linkLabel1.Text);
+            System.Diagnostics.Process.Start(lAboutURL.Text);
         }
 
-        private void cbAlternateMailbox_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.AlternateMailbox = cbAlternateMailbox.Checked;
-            Settings.Instance.MailboxName = (cbAlternateMailbox.Checked ? ddMailboxName.Text : "");
-            this.ddMailboxName.Enabled = cbAlternateMailbox.Checked;
-            OutlookCalendar.Instance.Reset();
+        #region EVENTS
+        #region Outlook settings
+        private void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookDefaultMB.Checked) {
+                Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
+                OutlookCalendar.Instance.Reset();
+                gbEWS.Enabled = false;
+                //Update available calendars
+                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+            }
+        }
+
+        private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookAltMB.Checked) {
+                Settings.Instance.OutlookService = OutlookCalendar.Service.AlternativeMailbox;
+                Settings.Instance.MailboxName = ddMailboxName.Text;
+                OutlookCalendar.Instance.Reset();
+                gbEWS.Enabled = false;
+                //Update available calendars
+                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+            }
+            Settings.Instance.MailboxName = (rbOutlookAltMB.Checked ? ddMailboxName.Text : "");
+            ddMailboxName.Enabled = rbOutlookAltMB.Checked;
+        }
+
+        private void rbOutlookEWS_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookEWS.Checked) {
+                Settings.Instance.OutlookService = OutlookCalendar.Service.EWS;
+                OutlookCalendar.Instance.Reset();
+                gbEWS.Enabled = true;
+                //Update available calendars
+                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+            }
         }
 
         private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
@@ -594,23 +640,24 @@ namespace OutlookGoogleSync {
             OutlookCalendar.Instance.Reset();
         }
 
-        private void chkUseEWS_CheckedChanged(object sender, EventArgs e) {
-            txtEWSPass.Enabled = chkUseEWS.Checked;
-            txtEWSUser.Enabled = chkUseEWS.Checked;
-            txtEWSServerURL.Enabled = chkUseEWS.Checked;
-            Settings.Instance.UseExchange = chkUseEWS.Checked;
-        }
-
         private void txtEWSUser_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.ExchangeUser = txtEWSUser.Text;
+            Settings.Instance.EWSuser = txtEWSUser.Text;
         }
 
         private void txtEWSPass_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.ExchangePassword = txtEWSPass.Text;
+            Settings.Instance.EWSpassword = txtEWSPass.Text;
         }
 
         private void txtEWSServerURL_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.ExchangeServerAddress = txtEWSServerURL.Text;
+            Settings.Instance.EWSserver = txtEWSServerURL.Text;
         }
+
+        private void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
+            KeyValuePair<String,MAPIFolder>calendar = (KeyValuePair<String,MAPIFolder>)cbOutlookCalendar.SelectedItem;
+            OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
+        }
+        #endregion
+
+        #endregion
     }
 }

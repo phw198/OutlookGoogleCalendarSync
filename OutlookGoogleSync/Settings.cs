@@ -2,34 +2,30 @@
 using System;
 using System.Drawing;
 
-namespace OutlookGoogleSync
-{
+namespace OutlookGoogleSync {
     /// <summary>
     /// Description of Settings.
     /// </summary>
-    public class Settings
-    {
+    public class Settings {
         private static Settings instance;
 
-        public static Settings Instance
-        {
-            get 
-            {
+        public static Settings Instance {
+            get {
                 if (instance == null) instance = new Settings();
                 return instance;
             }
-            set
-            {
-                instance = value;            
+            set {
+                instance = value;
             }
-          
+
         }
+        public OutlookCalendar.Service OutlookService = OutlookCalendar.Service.DefaultMailbox;
         
-        public bool UseExchange = false;
-        public string ExchangeUser = "";
-        public string ExchangePassword = "";
-        public string ExchangeServerAddress = "";
-        
+        public string MailboxName = "";
+        public string EWSuser = "";
+        public string EWSpassword = "";
+        public string EWSserver = "";
+
         public string RefreshToken = "";
         public string MinuteOffsets = "";
         public DateTime LastSyncDate = new DateTime(0);
@@ -41,20 +37,16 @@ namespace OutlookGoogleSync
         public bool ShowBubbleTooltipWhenSyncing = false;
         public bool StartInTray = false;
         public bool MinimizeToTray = false;
-        
+
         public bool AddDescription = true;
         public bool AddReminders = false;
         public bool AddAttendeesToDescription = true;
         public bool CreateTextFiles = true;
-        public bool AlternateMailbox = false;
-        public string MailboxName = "";
         public bool DisableDelete = false;
         public bool ConfirmOnDelete = false;
-        
 
-        public Settings()
-        {
 
+        public Settings() {
         }
     }
 }
