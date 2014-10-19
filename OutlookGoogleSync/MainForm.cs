@@ -1,6 +1,4 @@
-﻿//TODO: consider description updates?
-//TODO: optimize comparison algorithms
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,13 +16,12 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        public string VERSION = "1.1.0";
+        private string VERSION = "1.1.1";
 
-        public Timer ogstimer;
-        public DateTime oldtime;
-        public List<int> MinuteOffsets = new List<int>();
-        DateTime lastSyncDate;
-        int currentTimerInterval = 0;
+        private Timer ogstimer;
+        private List<int> MinuteOffsets = new List<int>();
+        private DateTime lastSyncDate;
+        private int currentTimerInterval = 0;
 
         public MainForm() {
             InitializeComponent();
@@ -62,6 +59,7 @@ namespace OutlookGoogleSync {
                 gbEWS.Enabled = true;
             } else {
                 rbOutlookDefaultMB.Checked = true;
+                ddMailboxName.Enabled = false;
             }
             txtEWSPass.Text = Settings.Instance.EWSpassword;
             txtEWSUser.Text = Settings.Instance.EWSuser;
@@ -76,47 +74,47 @@ namespace OutlookGoogleSync {
             for (int acc = 2; acc <= OutlookCalendar.Instance.Accounts.Count; acc++) {
                 String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
                 ddMailboxName.Items.Add(mailbox);
-                if (Settings.Instance.MailboxName == mailbox) { ddMailboxName.SelectedIndex = acc; }
+                if (Settings.Instance.MailboxName == mailbox) { ddMailboxName.SelectedIndex = acc-2; }
             }
             if (ddMailboxName.SelectedIndex==-1 && ddMailboxName.Items.Count>0) { ddMailboxName.SelectedIndex = 0; }
 
-            cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
-            cbOutlookCalendar.DisplayMember = "Key";
-            cbOutlookCalendar.ValueMember = "Value";
+            cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+            cbOutlookCalendars.DisplayMember = "Key";
+            cbOutlookCalendars.ValueMember = "Value";
 
             this.gbOutlook.ResumeLayout();
             #endregion
-
+            #region Google box
+            this.gbGoogle.SuspendLayout();
+            cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
+            cbGoogleCalendars.SelectedIndex = 0;
+            this.gbGoogle.ResumeLayout();
+            #endregion
+            #region Sync Options box
+            this.gbSyncOptions.SuspendLayout();
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
-            tbMinuteOffsets.Text = Settings.Instance.MinuteOffsets;
-            lastSyncDate = Settings.Instance.LastSyncDate;
-            cbCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
-            cbCalendars.SelectedIndex = 0;
-            cbSyncEveryHour.Checked = Settings.Instance.SyncEveryHour;
-            cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
-            cbStartInTray.Checked = Settings.Instance.StartInTray;
-            cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
+            tbInterval.Value = Settings.Instance.SyncInterval;
+            cbIntervalUnit.Text = Settings.Instance.SyncIntervalUnit;
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddAttendees.Checked = Settings.Instance.AddAttendeesToDescription;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
-            cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
-            
-            
             cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
- 	        cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
-
+            cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+            this.gbSyncOptions.ResumeLayout();
+            #endregion
+            #region Application behaviour
+            this.gbAppBehaviour.SuspendLayout();
+            cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
+            cbStartInTray.Checked = Settings.Instance.StartInTray;
+            cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
+            cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
+            this.gbAppBehaviour.ResumeLayout();
+            #endregion
+            lastSyncDate = Settings.Instance.LastSyncDate;
             this.ResumeLayout();
             #endregion
-
-            //Start in tray?
-            if (cbStartInTray.Checked) {
-                this.WindowState = FormWindowState.Minimized;
-                notifyIcon1.Visible = true;
-                this.Hide();
-                this.ShowInTaskbar = false;
-            }
 
             //set up tooltips for some controls
             ToolTip toolTip1 = new ToolTip();
@@ -124,10 +122,12 @@ namespace OutlookGoogleSync {
             toolTip1.InitialDelay = 500;
             toolTip1.ReshowDelay = 200;
             toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(cbOutlookCalendar,
+            toolTip1.SetToolTip(cbOutlookCalendars,
                 "The Outlook calendar to synchonize with. List includes subfolders of default calendar.");
-            toolTip1.SetToolTip(cbCalendars,
+            toolTip1.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
+            toolTip1.SetToolTip(tbInterval,
+                "Set to zero to disable");
             toolTip1.SetToolTip(cbAddAttendees,
                 "While Outlook has fields for Organizer, RequiredAttendees and OptionalAttendees, Google has not.\n" +
                 "If checked, this data is added at the end of the description as text.");
@@ -146,12 +146,22 @@ namespace OutlookGoogleSync {
             //Refresh synchronizations (last and next)
             lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
             setNextSync(getResyncInterval());
+
+            //Start in tray?
+            if (cbStartInTray.Checked) {
+                this.WindowState = FormWindowState.Minimized;
+                notifyIcon1.Visible = true;
+                this.Hide();
+                this.ShowInTaskbar = false;
+            }
         }
 
+        #region Autosync functions
         int getResyncInterval() {
-            int min = 0;
-            int.TryParse(tbMinuteOffsets.Text, out min);
-            if (min < 1) { min = 60; }
+            int min = (int)tbInterval.Value;
+            if (cbIntervalUnit.Text == "Hours") {
+                min *= 60;
+            }
             return min;
         }
 
@@ -168,7 +178,7 @@ namespace OutlookGoogleSync {
         }
 
         void setNextSync(int delay) {
-            if (cbSyncEveryHour.Checked) {
+            if (tbInterval.Value != 0) {
                 DateTime nextSyncDate = lastSyncDate.AddMinutes(delay);
                 if (currentTimerInterval != delay) {
                     ogstimer.Stop();
@@ -184,31 +194,15 @@ namespace OutlookGoogleSync {
                 lNextSyncVal.Text = "Inactive";
             }
         }
-
-        void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
-            bGetGoogleCalendars.Enabled = false;
-            cbCalendars.Enabled = false;
-            List<MyCalendarListEntry> calendars = null;
-            try {
-                calendars = GoogleCalendar.Instance.getCalendars();
-            } catch (System.Exception ex) {
-                logboxout("Unable to get the list of Google Calendars. The following error occurred:");
-                logboxout(ex.Message + "\r\n => Check your network connection.");
-            }
-            if (calendars != null) {
-                cbCalendars.Items.Clear();
-                foreach (MyCalendarListEntry mcle in calendars) {
-                    cbCalendars.Items.Add(mcle);
-                }
-                MainForm.Instance.cbCalendars.SelectedIndex = 0;
-            }
-
-            bGetGoogleCalendars.Enabled = true;
-            cbCalendars.Enabled = true;
-        }
+        #endregion
 
         void SyncNow_Click(object sender, EventArgs e) {
             LogBox.Clear();
+            
+            if (Settings.Instance.UseGoogleCalendar.Id == "") {
+                MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
+                return;
+            }
             //Check network availability
             if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
                 logboxout("There does not appear to be any network available! Sync aborted.");
@@ -247,11 +241,6 @@ namespace OutlookGoogleSync {
         }
 
         Boolean synchronize() {
-            if (Settings.Instance.UseGoogleCalendar.Id == "") {
-                MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
-                return false;
-            }
-
             logboxout("Reading Outlook Calendar Entries...");
             List<AppointmentItem> OutlookEntries = null;
             try {
@@ -505,69 +494,6 @@ namespace OutlookGoogleSync {
             XMLManager.export(Settings.Instance, FILENAME);
         }
 
-        void ComboBox1SelectedIndexChanged(object sender, EventArgs e) {
-            Settings.Instance.UseGoogleCalendar = (MyCalendarListEntry)cbCalendars.SelectedItem;
-        }
-
-        void TbDaysInThePastTextChanged(object sender, EventArgs e) {
-            Settings.Instance.DaysInThePast = int.Parse(tbDaysInThePast.Text);
-        }
-
-        void TbDaysInTheFutureTextChanged(object sender, EventArgs e) {
-            try {
-                Settings.Instance.DaysInTheFuture = int.Parse(tbDaysInTheFuture.Text);
-            } catch {
-                Settings.Instance.DaysInTheFuture = 1;
-            }
-        }
-
-        void TbMinuteOffsetsTextChanged(object sender, EventArgs e) {
-            Settings.Instance.MinuteOffsets = tbMinuteOffsets.Text;
-            setNextSync(getResyncInterval());
-        }
-
-        void CbSyncEveryHourCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.SyncEveryHour = cbSyncEveryHour.Checked;
-            setNextSync(getResyncInterval());
-        }
-
-        void CbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.ShowBubbleTooltipWhenSyncing = cbShowBubbleTooltips.Checked;
-        }
-
-        void CbStartInTrayCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.StartInTray = cbStartInTray.Checked;
-        }
-
-        void CbMinimizeToTrayCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.MinimizeToTray = cbMinimizeToTray.Checked;
-        }
-
-        void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.AddDescription = cbAddDescription.Checked;
-        }
-
-        void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.AddReminders = cbAddReminders.Checked;
-        }
-
-        void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.AddAttendeesToDescription = cbAddAttendees.Checked;
-        }
-
-        void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.CreateTextFiles = cbCreateFiles.Checked;
-        }
-
-        void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
-        }
-
-        void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
-            cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
-        }
-
         void NotifyIcon1Click(object sender, EventArgs e) {
             this.WindowState = FormWindowState.Normal;
             this.Show();
@@ -608,7 +534,7 @@ namespace OutlookGoogleSync {
                 OutlookCalendar.Instance.Reset();
                 gbEWS.Enabled = false;
                 //Update available calendars
-                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+                cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
         }
 
@@ -619,7 +545,7 @@ namespace OutlookGoogleSync {
                 OutlookCalendar.Instance.Reset();
                 gbEWS.Enabled = false;
                 //Update available calendars
-                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+                cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
             Settings.Instance.MailboxName = (rbOutlookAltMB.Checked ? ddMailboxName.Text : "");
             ddMailboxName.Enabled = rbOutlookAltMB.Checked;
@@ -631,7 +557,7 @@ namespace OutlookGoogleSync {
                 OutlookCalendar.Instance.Reset();
                 gbEWS.Enabled = true;
                 //Update available calendars
-                cbOutlookCalendar.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+                cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
         }
 
@@ -653,11 +579,95 @@ namespace OutlookGoogleSync {
         }
 
         private void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
-            KeyValuePair<String,MAPIFolder>calendar = (KeyValuePair<String,MAPIFolder>)cbOutlookCalendar.SelectedItem;
+            KeyValuePair<String,MAPIFolder>calendar = (KeyValuePair<String,MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
         #endregion
+        #region Google settings
+        void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
+            bGetGoogleCalendars.Enabled = false;
+            cbGoogleCalendars.Enabled = false;
+            List<MyCalendarListEntry> calendars = null;
+            try {
+                calendars = GoogleCalendar.Instance.getCalendars();
+            } catch (System.Exception ex) {
+                logboxout("Unable to get the list of Google Calendars. The following error occurred:");
+                logboxout(ex.Message + "\r\n => Check your network connection.");
+            }
+            if (calendars != null) {
+                cbGoogleCalendars.Items.Clear();
+                foreach (MyCalendarListEntry mcle in calendars) {
+                    cbGoogleCalendars.Items.Add(mcle);
+                }
+                MainForm.Instance.cbGoogleCalendars.SelectedIndex = 0;
+            }
 
+            bGetGoogleCalendars.Enabled = true;
+            cbGoogleCalendars.Enabled = true;
+        }
+
+        void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Instance.UseGoogleCalendar = (MyCalendarListEntry)cbGoogleCalendars.SelectedItem;
+        }
         #endregion
+        #region Sync options
+        private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.DaysInThePast = int.Parse(tbDaysInThePast.Text);
+        }
+
+        private void tbDaysInTheFuture_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.DaysInTheFuture = int.Parse(tbDaysInTheFuture.Text);
+        }
+
+        private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.SyncInterval = (int)tbInterval.Value;
+            setNextSync(getResyncInterval());
+        }
+
+        private void cbIntervalUnit_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Instance.SyncIntervalUnit = cbIntervalUnit.Text;
+            setNextSync(getResyncInterval());
+        }
+
+        void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddDescription = cbAddDescription.Checked;
+        }
+
+        void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddReminders = cbAddReminders.Checked;
+        }
+
+        void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddAttendeesToDescription = cbAddAttendees.Checked;
+        }
+
+        void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
+        }
+
+        void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
+            cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
+        }
+        #endregion
+        #region Application settings
+        void CbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.ShowBubbleTooltipWhenSyncing = cbShowBubbleTooltips.Checked;
+        }
+
+        void CbStartInTrayCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.StartInTray = cbStartInTray.Checked;
+        }
+
+        void CbMinimizeToTrayCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.MinimizeToTray = cbMinimizeToTray.Checked;
+        }
+
+        void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.CreateTextFiles = cbCreateFiles.Checked;
+        }
+        #endregion
+        #endregion
+
     }
 }

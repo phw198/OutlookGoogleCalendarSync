@@ -19,32 +19,35 @@ namespace OutlookGoogleSync {
             }
 
         }
+        //Outlook
         public OutlookCalendar.Service OutlookService = OutlookCalendar.Service.DefaultMailbox;
-        
         public string MailboxName = "";
         public string EWSuser = "";
         public string EWSpassword = "";
         public string EWSserver = "";
 
+        //Google
+        public MyCalendarListEntry UseGoogleCalendar = new MyCalendarListEntry();
         public string RefreshToken = "";
-        public string MinuteOffsets = "";
-        public DateTime LastSyncDate = new DateTime(0);
+        
+        //Sync Options
         public int DaysInThePast = 1;
         public int DaysInTheFuture = 60;
-        public MyCalendarListEntry UseGoogleCalendar = new MyCalendarListEntry();
-
-        public bool SyncEveryHour = false;
-        public bool ShowBubbleTooltipWhenSyncing = false;
-        public bool StartInTray = false;
-        public bool MinimizeToTray = false;
-
+        public int SyncInterval = 1;
+        public String SyncIntervalUnit = "Hours";
         public bool AddDescription = true;
         public bool AddReminders = false;
         public bool AddAttendeesToDescription = true;
-        public bool CreateTextFiles = true;
         public bool DisableDelete = false;
-        public bool ConfirmOnDelete = false;
+        public bool ConfirmOnDelete = false;        
+        
+        //App behaviour
+        public bool ShowBubbleTooltipWhenSyncing = false;
+        public bool StartInTray = false;
+        public bool MinimizeToTray = false;
+        public bool CreateTextFiles = true;
 
+        public DateTime LastSyncDate = new DateTime(0);
 
         public Settings() {
         }
