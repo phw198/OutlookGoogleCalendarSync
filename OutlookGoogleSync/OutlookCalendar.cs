@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Office.Interop.Outlook;
-
+using System.IO;
 
 namespace OutlookGoogleSync {
     /// <summary>
@@ -64,7 +64,7 @@ namespace OutlookGoogleSync {
             accounts = oNS.Accounts;
 
             // Get the Default Calendar folder
-            if (Settings.Instance.OutlookService == Service.AlternativeMailbox && Settings.Instance.MailboxName!="") {
+            if (Settings.Instance.OutlookService == Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
                 useOutlookCalendar = oNS.Folders[Settings.Instance.MailboxName].Folders["Calendar"];
             } else {
                 // Use the logged in user's Calendar folder.
@@ -86,17 +86,17 @@ namespace OutlookGoogleSync {
             instance = new OutlookCalendar();
         }
 
-        public List<AppointmentItem> getCalendarEntries() {
-            Items OutlookItems = UseOutlookCalendar.Items;
-            if (OutlookItems != null) {
-                List<AppointmentItem> result = new List<AppointmentItem>();
-                foreach (AppointmentItem ai in OutlookItems) {
-                    result.Add(ai);
-                }
-                return result;
-            }
-            return null;
-        }
+        //public List<AppointmentItem> getCalendarEntries() {
+        //    Items OutlookItems = UseOutlookCalendar.Items;
+        //    if (OutlookItems != null) {
+        //        List<AppointmentItem> result = new List<AppointmentItem>();
+        //        foreach (AppointmentItem ai in OutlookItems) {
+        //            result.Add(ai);
+        //        }
+        //        return result;
+        //    }
+        //    return null;
+        //}
 
         public List<AppointmentItem> getCalendarEntriesInRange() {
             List<AppointmentItem> result = new List<AppointmentItem>();
@@ -114,7 +114,22 @@ namespace OutlookGoogleSync {
                     result.Add(ai);
                 }
             }
+
+            if (Settings.Instance.CreateTextFiles) {
+                TextWriter tw = new StreamWriter("export_found_in_outlook.txt");
+                foreach (AppointmentItem ai in result) {
+                    tw.WriteLine(signature(ai));
+                }
+                tw.Close();
+            }
+
             return result;
         }
+
+        #region STATIC functions
+        public static string signature(AppointmentItem ai) {
+            return (GoogleCalendar.GoogleTimeFrom(ai.Start) + ";" + GoogleCalendar.GoogleTimeFrom(ai.End) + ";" + ai.Subject + ";" + ai.Location).Trim();
+        }
+        #endregion
     }
 }
