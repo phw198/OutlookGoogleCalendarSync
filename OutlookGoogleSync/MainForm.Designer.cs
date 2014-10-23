@@ -47,7 +47,6 @@ namespace OutlookGoogleSync
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
             this.gbGoogle = new System.Windows.Forms.GroupBox();
             this.lGoogleHelp = new System.Windows.Forms.Label();
             this.lGoogleCalendar = new System.Windows.Forms.Label();
@@ -68,6 +67,7 @@ namespace OutlookGoogleSync
             this.label6 = new System.Windows.Forms.Label();
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.gbAppBehaviour = new System.Windows.Forms.GroupBox();
+            this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
             this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
@@ -92,6 +92,7 @@ namespace OutlookGoogleSync
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.cbVerboseOutput = new System.Windows.Forms.CheckBox();
             this.tabSettings.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -122,6 +123,7 @@ namespace OutlookGoogleSync
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.cbVerboseOutput);
             this.tabPage1.Controls.Add(this.lNextSyncVal);
             this.tabPage1.Controls.Add(this.lLastSyncVal);
             this.tabPage1.Controls.Add(this.lNextSync);
@@ -131,7 +133,7 @@ namespace OutlookGoogleSync
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(487, 479);
+            this.tabPage1.Size = new System.Drawing.Size(487, 457);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Sync";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -179,13 +181,14 @@ namespace OutlookGoogleSync
             this.LogBox.Location = new System.Drawing.Point(3, 57);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
-            this.LogBox.Size = new System.Drawing.Size(481, 379);
+            this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.LogBox.Size = new System.Drawing.Size(481, 357);
             this.LogBox.TabIndex = 1;
             // 
             // bSyncNow
             // 
             this.bSyncNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bSyncNow.Location = new System.Drawing.Point(4, 442);
+            this.bSyncNow.Location = new System.Drawing.Point(3, 420);
             this.bSyncNow.Name = "bSyncNow";
             this.bSyncNow.Size = new System.Drawing.Size(98, 31);
             this.bSyncNow.TabIndex = 0;
@@ -207,16 +210,6 @@ namespace OutlookGoogleSync
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // cbShowBubbleTooltips
-            // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(12, 76);
-            this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
-            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 24);
-            this.cbShowBubbleTooltips.TabIndex = 7;
-            this.cbShowBubbleTooltips.Text = "Show Bubble Tooltip in Taskbar when Syncing";
-            this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
-            this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.CbShowBubbleTooltipsCheckedChanged);
             // 
             // gbGoogle
             // 
@@ -436,6 +429,16 @@ namespace OutlookGoogleSync
             this.gbAppBehaviour.TabIndex = 11;
             this.gbAppBehaviour.TabStop = false;
             this.gbAppBehaviour.Text = "Application Behaviour";
+            // 
+            // cbShowBubbleTooltips
+            // 
+            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(12, 76);
+            this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
+            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 24);
+            this.cbShowBubbleTooltips.TabIndex = 7;
+            this.cbShowBubbleTooltips.Text = "Show Bubble Tooltip in Taskbar when Syncing";
+            this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
+            this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.CbShowBubbleTooltipsCheckedChanged);
             // 
             // cbMinimizeToTray
             // 
@@ -681,7 +684,7 @@ namespace OutlookGoogleSync
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(487, 479);
+            this.tabPage3.Size = new System.Drawing.Size(487, 457);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "About";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -696,7 +699,7 @@ namespace OutlookGoogleSync
             this.lAboutURL.TabStop = true;
             this.lAboutURL.Text = "http://outlookgooglecalendarsync.codeplex.com/";
             this.lAboutURL.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lAboutURL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
+            this.lAboutURL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lAboutURL_LinkClicked);
             // 
             // lAboutMain
             // 
@@ -714,6 +717,17 @@ namespace OutlookGoogleSync
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1Click);
             // 
+            // cbVerboseOutput
+            // 
+            this.cbVerboseOutput.AutoSize = true;
+            this.cbVerboseOutput.Location = new System.Drawing.Point(383, 420);
+            this.cbVerboseOutput.Name = "cbVerboseOutput";
+            this.cbVerboseOutput.Size = new System.Drawing.Size(98, 17);
+            this.cbVerboseOutput.TabIndex = 5;
+            this.cbVerboseOutput.Text = "Verbose output";
+            this.cbVerboseOutput.UseVisualStyleBackColor = true;
+            this.cbVerboseOutput.CheckedChanged += new System.EventHandler(this.cbVerboseOutput_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -721,7 +735,7 @@ namespace OutlookGoogleSync
             this.ClientSize = new System.Drawing.Size(519, 507);
             this.Controls.Add(this.tabSettings);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(535, 500);
+            this.MinimumSize = new System.Drawing.Size(535, 545);
             this.Name = "MainForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -758,12 +772,10 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.NotifyIcon notifyIcon1;
 		private System.Windows.Forms.Label lAboutMain;
-		private System.Windows.Forms.CheckBox cbAddAttendees;
-		private System.Windows.Forms.CheckBox cbCreateFiles;
+        private System.Windows.Forms.CheckBox cbAddAttendees;
 		private System.Windows.Forms.TextBox LogBox;
 		private System.Windows.Forms.GroupBox gbGoogle;
-		private System.Windows.Forms.Label lGoogleCalendar;
-		public System.Windows.Forms.ComboBox cbGoogleCalendars;
+        private System.Windows.Forms.Label lGoogleCalendar;
 		private System.Windows.Forms.Label lDaysInPast;
         private System.Windows.Forms.Label lDaysInFuture;
 		private System.Windows.Forms.GroupBox gbSyncOptions;
@@ -800,6 +812,9 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.ComboBox cbIntervalUnit;
         private System.Windows.Forms.Label lAttributes;
         private System.Windows.Forms.Label lMiscOptions;
+        private System.Windows.Forms.ComboBox cbGoogleCalendars;
+        private System.Windows.Forms.CheckBox cbVerboseOutput;
+        private System.Windows.Forms.CheckBox cbCreateFiles;
 		
 	
 

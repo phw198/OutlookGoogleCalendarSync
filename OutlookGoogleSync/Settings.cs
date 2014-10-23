@@ -49,6 +49,8 @@ namespace OutlookGoogleSync {
 
         public DateTime LastSyncDate = new DateTime(0);
 
+        public bool VerboseOutput = false;
+
         public Settings() {
         }
     }
