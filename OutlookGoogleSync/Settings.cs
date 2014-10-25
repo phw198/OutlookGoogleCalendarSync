@@ -37,7 +37,7 @@ namespace OutlookGoogleSync {
         public String SyncIntervalUnit = "Hours";
         public bool AddDescription = true;
         public bool AddReminders = false;
-        public bool AddAttendeesToDescription = true;
+        public bool AddAttendees = true;
         public bool DisableDelete = true;
         public bool ConfirmOnDelete = true;        
         
