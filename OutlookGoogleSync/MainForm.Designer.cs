@@ -719,6 +719,7 @@ namespace OutlookGoogleSync
             // 
             // cbVerboseOutput
             // 
+            this.cbVerboseOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cbVerboseOutput.AutoSize = true;
             this.cbVerboseOutput.Location = new System.Drawing.Point(383, 420);
             this.cbVerboseOutput.Name = "cbVerboseOutput";

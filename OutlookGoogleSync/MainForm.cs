@@ -16,7 +16,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        private string VERSION = "1.1.1";
+        private string VERSION = "1.1.2";
 
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
@@ -193,6 +193,7 @@ namespace OutlookGoogleSync {
                 lNextSyncVal.Text = nextSyncDate.ToLongDateString() + " - " + nextSyncDate.ToLongTimeString();
             } else {
                 lNextSyncVal.Text = "Inactive";
+                ogstimer.Stop();
             }
         }
         #endregion
@@ -368,6 +369,8 @@ namespace OutlookGoogleSync {
                     ev.Summary = ai.Subject;
                     if (cbAddDescription.Checked) ev.Description = ai.Body;
                     ev.Location = ai.Location;
+                    ev.Visibility = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                    ev.Transparency = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
                     //This always reverts to the Google Calendar! So this code doesn't work :(
                     //Will leave it in anyway - doesn't do any harm...
@@ -395,7 +398,7 @@ namespace OutlookGoogleSync {
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(reminder);
                     }
-
+                    
                     try {
                         GoogleCalendar.Instance.addEntry(ev);
                     } catch (System.Exception ex) {
@@ -416,6 +419,8 @@ namespace OutlookGoogleSync {
                 
         #region Compare Event Attributes 
         private Boolean compareAttribute(String attrDesc, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+            if (googleAttr == null) googleAttr = "";
+            if (outlookAttr == null) outlookAttr = "";
             if (googleAttr != outlookAttr) {
                 //Truncate long strings
                 sb.AppendLine(attrDesc + ": " + 
@@ -477,6 +482,15 @@ namespace OutlookGoogleSync {
                     if (compareAttribute("Description", ev.Description, ai.Body, sb, ref itemModified)) ev.Description = ai.Body;
                 }
                 if (compareAttribute("Location", ev.Location, ai.Location, sb, ref itemModified)) ev.Location = ai.Location;
+                
+                String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                if (compareAttribute("Private", ev.Visibility, oPrivacy, sb, ref itemModified)) {
+                    ev.Visibility = oPrivacy;
+                } 
+                String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                if (compareAttribute("Free/Busy", ev.Transparency, oFreeBusy, sb, ref itemModified)) {
+                    ev.Transparency = oFreeBusy;
+                }
 
                 /*Organiser always reverts to the Google Calendar! So this doesn't work :(
                 if (compareAttribute("Organiser", ev.Organizer.DisplayName, ai.Organizer, sb, ref itemModified)) {

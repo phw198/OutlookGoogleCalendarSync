@@ -38,8 +38,8 @@ namespace OutlookGoogleSync {
         public bool AddDescription = true;
         public bool AddReminders = false;
         public bool AddAttendeesToDescription = true;
-        public bool DisableDelete = false;
-        public bool ConfirmOnDelete = false;        
+        public bool DisableDelete = true;
+        public bool ConfirmOnDelete = true;        
         
         //App behaviour
         public bool ShowBubbleTooltipWhenSyncing = false;
