@@ -1,16 +1,17 @@
-﻿using System;
-using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
-
+﻿using Google.Apis.Calendar.v3.Data;
+using System.Runtime.Serialization;
 
 namespace OutlookGoogleSync {
     /// <summary>
     /// Description of MyCalendarListEntry.
     /// </summary>
+    
+    [DataContract]
     public class MyCalendarListEntry {
-        public string Id = "";
-        public string Name = "";
-
+        [DataMember]
+        public string Name { get; internal set; }
+        [DataMember]
+        public string Id { get; internal set; }
 
         public MyCalendarListEntry() {
         }
@@ -23,7 +24,5 @@ namespace OutlookGoogleSync {
         public override string ToString() {
             return Name;
         }
-
-
     }
 }

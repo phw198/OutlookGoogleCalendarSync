@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,16 +18,18 @@ namespace OutlookGoogleSync {
 
         public const string FILENAME = "settings.xml";
         private string VERSION = "1.1.2";
-
+        
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
         private DateTime lastSyncDate;
         private int currentTimerInterval = 0;
 
+        private BackgroundWorker bwSync;
+
         public MainForm() {
             InitializeComponent();
             lAboutMain.Text = lAboutMain.Text.Replace("{version}", VERSION);
-
+            
             Instance = this;
 
             //set system proxy
@@ -91,6 +94,10 @@ namespace OutlookGoogleSync {
             this.gbGoogle.ResumeLayout();
             #endregion
             #region Sync Options box
+            syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
+            //syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
+            //syncDirection.Items.Add(SyncDirection.Bidirectional);
+            syncDirection.SelectedIndex = 0;
             this.gbSyncOptions.SuspendLayout();
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
@@ -99,6 +106,7 @@ namespace OutlookGoogleSync {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
+            cbMergeItems.Checked = Settings.Instance.MergeItems;
             cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
@@ -124,25 +132,19 @@ namespace OutlookGoogleSync {
             toolTip1.ReshowDelay = 200;
             toolTip1.ShowAlways = true;
             toolTip1.SetToolTip(cbOutlookCalendars,
-                "The Outlook calendar to synchonize with. List includes subfolders of default calendar.");
+                "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
             toolTip1.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
             toolTip1.SetToolTip(tbInterval,
                 "Set to zero to disable");
-            toolTip1.SetToolTip(cbAddAttendees,
-                "While Outlook has fields for Organizer, RequiredAttendees and OptionalAttendees, Google has not.\n" +
-                "If checked, this data is added at the end of the description as text.");
-            toolTip1.SetToolTip(cbAddReminders,
-                "If checked, the reminder set in outlook will be carried over to the Google Calendar entry (as a popup reminder).");
             toolTip1.SetToolTip(cbCreateFiles,
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to 4 separate text files in the application's directory (named \"export_*.txt\"). \n" +
                 "Only for debug/diagnostic purposes.");
-            toolTip1.SetToolTip(cbAddDescription,
-                "The description may contain email addresses, which Outlook may complain about (PopUp-Message: \"Allow Access?\" etc.). \n" +
-                "Turning this off allows OutlookGoogleSync to run without intervention in this case.");
             toolTip1.SetToolTip(rbOutlookAltMB,
                 "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
+            toolTip1.SetToolTip(cbMergeItems,
+                "If the destination calendar has pre-existing items, don't delete them");
 
             //Refresh synchronizations (last and next)
             lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
@@ -175,7 +177,7 @@ namespace OutlookGoogleSync {
                     ToolTipIcon.Info
                 );
             }
-            SyncNow_Click(null, null);
+            Sync_Click(null, null);
         }
 
         void setNextSync(int delay) {
@@ -198,7 +200,16 @@ namespace OutlookGoogleSync {
         }
         #endregion
 
-        private void SyncNow_Click(object sender, EventArgs e) {
+        private void Sync_Click(object sender, EventArgs e) {
+            if (bSyncNow.Text == "Start Sync") {
+                Sync_Start();
+            } else if (bSyncNow.Text == "Stop Sync") {
+                if (!bwSync.CancellationPending) bwSync.CancelAsync();
+                else bwSync = null; // if we've already cancelled by clicked again, just abort the Thread!
+            }
+        } 
+
+        private void Sync_Start() {
             LogBox.Clear();
             
             if (Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -210,7 +221,7 @@ namespace OutlookGoogleSync {
                 Logboxout("There does not appear to be any network available! Sync aborted.");
                 return;
             }
-            bSyncNow.Enabled = false;
+            bSyncNow.Text = "Stop Sync";
             lNextSyncVal.Text = "In progress...";
 
             DateTime SyncStarted = DateTime.Now;
@@ -222,10 +233,33 @@ namespace OutlookGoogleSync {
             while (!syncOk) {
                 if (failedAttempts > 0 &&
                     MessageBox.Show("The synchronisation failed. Do you want to try again?", "Sync Failed",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) { break; }
-                syncOk = synchronize();
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
+                {
+                    bSyncNow.Text = "Start Sync"; 
+                    break;
+                }
+                
+                //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
+                bwSync = new BackgroundWorker();
+                //Don't need thread to report back. The logbox is updated from the thread anyway.
+                bwSync.WorkerReportsProgress = false;
+                bwSync.WorkerSupportsCancellation = true;
+
+                //Kick off the sync in the background thread
+                bwSync.DoWork += new DoWorkEventHandler(
+                delegate(object o, DoWorkEventArgs args) {
+                    BackgroundWorker b = o as BackgroundWorker;
+                    syncOk = synchronize();
+                });
+
+                bwSync.RunWorkerAsync();
+                while (bwSync != null && (bwSync.IsBusy || bwSync.CancellationPending)) {
+                    System.Windows.Forms.Application.DoEvents();
+                    System.Threading.Thread.Sleep(100);
+                }
                 failedAttempts += !syncOk ? 1 : 0;
             }
+            bSyncNow.Text = "Start Sync";
 
             Logboxout("--------------------------------------------------");
             Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
@@ -262,7 +296,7 @@ namespace OutlookGoogleSync {
             Logboxout("Reading Google Calendar Entries...");
             List<Event> googleEntries = null;
             try {
-                googleEntries = GoogleCalendar.Instance.getCalendarEntriesInRange();
+                googleEntries = GoogleCalendar.Instance.GetCalendarEntriesInRange();
             } catch (System.Exception ex) {
                 Logboxout("Unable to connect to the Google calendar. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Check your network connection.");
@@ -277,13 +311,9 @@ namespace OutlookGoogleSync {
             List<Event> googleEntriesToBeDeleted = new List<Event>(googleEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
-            //GoogleCalendar.Instance.ReclaimOrphanEntries(googleEntriesToBeCreated);
+            GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref OutlookEntries);
+            GoogleCalendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
 
-            GoogleCalendar.IdentifyEventDifferences(googleEntriesToBeCreated, googleEntriesToBeDeleted, entriesToBeCompared);
-
-            if (Settings.Instance.DisableDelete) {
-                googleEntriesToBeDeleted = new List<Event>();
-            }
             Logboxout(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.");
             Logboxout(googleEntriesToBeCreated.Count + " Google calendar entries to be created.");
             
@@ -303,7 +333,7 @@ namespace OutlookGoogleSync {
                 Logboxout("--------------------------------------------------");
                 Logboxout("Deleting " + googleEntriesToBeDeleted.Count + " Google calendar entries...");
                 try {
-                    GoogleCalendar.Instance.deleteCalendarEntries(googleEntriesToBeDeleted);
+                    GoogleCalendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
                 } catch (System.Exception ex) {
                     MainForm.Instance.Logboxout("Unable to delete obsolete entries out to the Google calendar. The following error occurred:");
                     MainForm.Instance.Logboxout(ex.Message + "\r\n => Check your network connection.");
@@ -318,7 +348,7 @@ namespace OutlookGoogleSync {
                 Logboxout("--------------------------------------------------");
                 Logboxout("Creating " + googleEntriesToBeCreated.Count + " Google calendar entries...");
                 try {
-                    GoogleCalendar.Instance.createCalendarEntries(googleEntriesToBeCreated);
+                    GoogleCalendar.Instance.CreateCalendarEntries(googleEntriesToBeCreated);
                 } catch (System.Exception ex) {
                     Logboxout("Unable to add new entries into the Google Calendar. The following error occurred:");
                     Logboxout(ex.Message + "\r\n => Check your network connection.");
@@ -334,7 +364,7 @@ namespace OutlookGoogleSync {
                 Logboxout("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries...");
                 int entriesUpdated = 0;
                 try {
-                    GoogleCalendar.Instance.updateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                    GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                 } catch (System.Exception ex) {
                     Logboxout("Unable to update new entries into the Google calendar. The following error occurred:");
                     Logboxout(ex.Message + "\r\n => Check your network connection.");
@@ -375,7 +405,8 @@ namespace OutlookGoogleSync {
         #endregion
 
         public void Logboxout(string s, bool newLine=true) {
-            LogBox.Text += s + (newLine ? Environment.NewLine : "");
+            String existingText = getControlPropertyThreadSafe(LogBox, "Text");
+            setControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
         }
 
         public void HandleException(System.Exception ex) {
@@ -396,7 +427,7 @@ namespace OutlookGoogleSync {
             XMLManager.export(Settings.Instance, FILENAME);
         }
 
-        void NotifyIcon1Click(object sender, EventArgs e) {
+        private void NotifyIcon1_Click(object sender, EventArgs e) {
             this.WindowState = FormWindowState.Normal;
             this.Show();
         }
@@ -479,7 +510,7 @@ namespace OutlookGoogleSync {
             cbGoogleCalendars.Enabled = false;
             List<MyCalendarListEntry> calendars = null;
             try {
-                calendars = GoogleCalendar.Instance.getCalendars();
+                calendars = GoogleCalendar.Instance.GetCalendars();
             } catch (System.Exception ex) {
                 Logboxout("Unable to get the list of Google Calendars. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Check your network connection.");
@@ -501,6 +532,20 @@ namespace OutlookGoogleSync {
         }
         #endregion
         #region Sync options
+        private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Instance.SyncDirection = (SyncDirection)syncDirection.SelectedItem;
+            if (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle) {
+                tbHelp.Text = "It's advisable to create a dedicated calendar in Google for synchronising to from Outlook. \r\n" +
+                    "Otherwise you may end up with duplicates or non-Outlook entries deleted.";
+            } else if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook &&
+                cbOutlookCalendars.Text == "Default Calendar") {
+                tbHelp.Text = "It's advisable to create a dedicated calendar in Outlook for synchronising to from Google. \r\n" +
+                    "Otherwise you may end up with duplicates or non-Google entries deleted.";
+            } else if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                tbHelp.Text = "It's advisable to run a one-way sync first before configuring bi-directional. Have you done this?"; 
+            }
+        }
+
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInThePast = int.Parse(tbDaysInThePast.Text);
         }
@@ -519,23 +564,27 @@ namespace OutlookGoogleSync {
             setNextSync(getResyncInterval());
         }
 
-        void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
+        private void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription = cbAddDescription.Checked;
         }
 
-        void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
+        private void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddReminders = cbAddReminders.Checked;
         }
 
-        void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
+        private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddAttendees = cbAddAttendees.Checked;
         }
 
-        void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
+        private void cbMergeItems_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.MergeItems = cbMergeItems.Checked;
+        }
+
+        private void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
         }
 
-        void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
+        private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
             cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
         }
@@ -560,6 +609,27 @@ namespace OutlookGoogleSync {
 
         private void cbVerboseOutput_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.VerboseOutput = cbVerboseOutput.Checked;
+        }
+        #endregion
+
+        #region Thread safe access to form components
+        //Used to update the logbox from the Sync() thread
+        private delegate void setControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
+        private delegate String getControlPropertyThreadSafeDelegate(Control control, string propertyName);
+
+        private static String getControlPropertyThreadSafe(Control control, string propertyName) {
+            if (control.InvokeRequired) {
+                return (String)control.Invoke(new getControlPropertyThreadSafeDelegate(getControlPropertyThreadSafe), new object[] { control, propertyName });
+            } else {
+                return (String)control.GetType().InvokeMember(propertyName, System.Reflection.BindingFlags.GetProperty, null, control, null);
+            }
+        }
+        private static void setControlPropertyThreadSafe(Control control, string propertyName, object propertyValue) {
+            if (control.InvokeRequired) {
+                control.Invoke(new setControlPropertyThreadSafeDelegate(setControlPropertyThreadSafe), new object[] { control, propertyName, propertyValue });
+            } else {
+                control.GetType().InvokeMember(propertyName, System.Reflection.BindingFlags.SetProperty, null, control, new object[] { propertyValue });
+            }
         }
         #endregion
 

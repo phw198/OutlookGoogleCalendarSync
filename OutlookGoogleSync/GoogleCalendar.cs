@@ -26,18 +26,18 @@ namespace OutlookGoogleSync {
             }
         }
 
-        CalendarService service;
+        private CalendarService service;
+        private const String oEntryID = "outlook_EntryID";
 
         public GoogleCalendar() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
             provider.ClientIdentifier = "662204240419.apps.googleusercontent.com";
             provider.ClientSecret = "4nJPnk5fE8yJM_HNUNQEEvjU";
-            service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, GetAuthentication));
+            service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, getAuthentication));
             service.Key = "AIzaSyDRGFSAyMGondZKR8fww1RtRARYtCbBC4k";
         }
 
-
-        private static IAuthorizationState GetAuthentication(NativeApplicationClient arg) {
+        private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
             // Get the auth URL:
             IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
@@ -71,7 +71,7 @@ namespace OutlookGoogleSync {
 
         }
 
-        public List<MyCalendarListEntry> getCalendars() {
+        public List<MyCalendarListEntry> GetCalendars() {
             CalendarList request = null;
             request = service.CalendarList.List().Fetch();
             
@@ -86,9 +86,7 @@ namespace OutlookGoogleSync {
             return null;
         }
 
-
-
-        public List<Event> getCalendarEntriesInRange() {
+        public List<Event> GetCalendarEntriesInRange() {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -120,19 +118,19 @@ namespace OutlookGoogleSync {
             return result;
         }
 
-        public void addCalendarEntry(Event e) {
+        private void addCalendarEntry(Event e) {
             var result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
         }
 
-        public void updateCalendarEntry(Event e) {
+        private void updateCalendarEntry(Event e) {
             var request = service.Events.Update(e, Settings.Instance.UseGoogleCalendar.Id, e.Id).Fetch();
         }
 
-        public void deleteCalendarEntry(Event e) {
+        private void deleteCalendarEntry(Event e) {
             string request = service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, e.Id).Fetch();
         }
 
-        public void createCalendarEntries(List<AppointmentItem> appointments) {
+        public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
                 Event ev = new Event();
 
@@ -140,7 +138,7 @@ namespace OutlookGoogleSync {
                 //This will make comparison more efficient and set the scene for 2-way sync.
                 ev.ExtendedProperties = new Event.ExtendedPropertiesData();
                 ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
-                ev.ExtendedProperties.Private.Add("outlook_EntryID", ai.EntryID.ToString());
+                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
 
                 ev.Start = new EventDateTime();
                 ev.End = new EventDateTime();
@@ -189,7 +187,7 @@ namespace OutlookGoogleSync {
             }
         }
 
-        public void updateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
+        public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 AppointmentItem ai = compare.Key;
@@ -358,7 +356,7 @@ namespace OutlookGoogleSync {
             }
         }
 
-        public void deleteCalendarEntries(List<Event> events) {
+        public void DeleteCalendarEntries(List<Event> events) {
             foreach (Event ev in events) {
                 String eventSummary = "";
                 Boolean delete = true;
@@ -380,6 +378,50 @@ namespace OutlookGoogleSync {
                 
         }
 
+        public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments) {
+            //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
+            int unclaimed = 0;
+            List<Event> unclaimedEvents = new List<Event>();
+
+            foreach (Event ev in gEvents) {
+                //Find entries with no Outlook ID
+                if (ev.ExtendedProperties == null ||
+                    ev.ExtendedProperties.Private == null ||
+                    !ev.ExtendedProperties.Private.ContainsKey(oEntryID))
+                {
+                    unclaimedEvents.Add(ev);
+                    foreach (AppointmentItem ai in oAppointments) {
+                        //Use simple matching on start,end,subject,location to pair events
+                        String a = signature(ev);
+                        String b = OutlookCalendar.signature(ai);
+                        if (signature(ev) == OutlookCalendar.signature(ai)) {
+                            if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
+                            if (ev.ExtendedProperties.Private == null) ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
+                            ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
+                            updateCalendarEntry(ev);
+                            unclaimedEvents.Remove(ev);
+                            break;
+                        }
+                    }
+                }
+            }
+            if ((Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle ||
+                    Settings.Instance.SyncDirection == SyncDirection.Bidirectional ) &&
+                unclaimedEvents.Count > 0 &&
+                !Settings.Instance.MergeItems && !Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete) {
+                    
+                if (MessageBox.Show(unclaimed + " Google calendar events can't be matched to Outlook.\r\n" +
+                    "Remember, it's recommended to have a dedicated Google calendar to sync with, "+
+                    "or you may wish to merge with unmatched events. Continue with deletions?",
+                    "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+                        
+                    foreach (Event e in unclaimedEvents) {
+                        gEvents.Remove(e);
+                    }
+                } 
+            }
+        }
+
         #region STATIC FUNCTIONS
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"
@@ -393,8 +435,14 @@ namespace OutlookGoogleSync {
         }
         
         public static string signature(Event ev) {
-            if (ev.Start.DateTime == null) ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.Start.Date));
-            if (ev.End.DateTime == null) ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.End.Date));
+            String foo = DateTime.Parse(ev.Start.DateTime).ToString("g");
+            ev.Start.DateTime = (ev.Start.DateTime == null) ? 
+                GoogleTimeFrom(DateTime.Parse(ev.Start.Date)) :
+                GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime));
+            ev.End.DateTime = (ev.End.DateTime == null) ?
+                GoogleTimeFrom(DateTime.Parse(ev.End.Date)) :
+                GoogleTimeFrom(DateTime.Parse(ev.End.DateTime));
+
             return (ev.Start.DateTime + ";" + ev.End.DateTime + ";" + ev.Summary + ";" + ev.Location).Trim();
         }
 
@@ -422,21 +470,30 @@ namespace OutlookGoogleSync {
         //      4.  Items remaining in Google list need to be deleted
         //</summary>
         public static void IdentifyEventDifferences(
-            List<AppointmentItem> outlook,
-            List<Event> google,
+            ref List<AppointmentItem> outlook,
+            ref List<Event> google,
             Dictionary<AppointmentItem, Event> compare) {
             // Count backwards so that we can remove found items without affecting the order of remaining items
             for (int o = outlook.Count - 1; o >= 0; o--) {
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (google[g].ExtendedProperties != null &&
-                        google[g].ExtendedProperties.Private.ContainsKey("outlook_EntryID") &&
-                        outlook[o].EntryID == google[g].ExtendedProperties.Private["outlook_EntryID"]) {
-                        compare.Add(outlook[o], google[g]);
-                        outlook.Remove(outlook[o]);
+                        google[g].ExtendedProperties.Private != null &&
+                        google[g].ExtendedProperties.Private.ContainsKey(oEntryID)) {
+                        
+                        if (outlook[o].EntryID == google[g].ExtendedProperties.Private[oEntryID]) {
+                            compare.Add(outlook[o], google[g]);
+                            outlook.Remove(outlook[o]);
+                            google.Remove(google[g]);
+                            break;
+                        }
+                    } else if (Settings.Instance.MergeItems && !Settings.Instance.DisableDelete) {
+                        //Remove the non-Outlook item so it doesn't get deleted
                         google.Remove(google[g]);
-                        break;
                     }
                 }
+            }
+            if (Settings.Instance.DisableDelete) {
+                google = new List<Event>();
             }
             if (Settings.Instance.CreateTextFiles) {
                 //Google Deletions

@@ -31,6 +31,7 @@ namespace OutlookGoogleSync {
         public string RefreshToken = "";
         
         //Sync Options
+        public SyncDirection SyncDirection = new SyncDirection();
         public int DaysInThePast = 1;
         public int DaysInTheFuture = 60;
         public int SyncInterval = 1;
@@ -38,6 +39,7 @@ namespace OutlookGoogleSync {
         public bool AddDescription = true;
         public bool AddReminders = false;
         public bool AddAttendees = true;
+        public bool MergeItems = true;
         public bool DisableDelete = true;
         public bool ConfirmOnDelete = true;        
         
