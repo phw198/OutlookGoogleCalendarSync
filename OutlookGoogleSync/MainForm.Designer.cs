@@ -39,7 +39,7 @@ namespace OutlookGoogleSync
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabSettings = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.cbVerboseOutput = new System.Windows.Forms.CheckBox();
             this.lNextSyncVal = new System.Windows.Forms.Label();
             this.lLastSyncVal = new System.Windows.Forms.Label();
@@ -47,7 +47,7 @@ namespace OutlookGoogleSync
             this.lLastSync = new System.Windows.Forms.Label();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage_Settings = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tbHelp = new System.Windows.Forms.TextBox();
             this.gbGoogle = new System.Windows.Forms.GroupBox();
@@ -93,13 +93,13 @@ namespace OutlookGoogleSync
             this.lDaysInFuture = new System.Windows.Forms.Label();
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tabPage_About = new System.Windows.Forms.TabPage();
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabSettings.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.tabPage_Sync.SuspendLayout();
+            this.tabPage_Settings.SuspendLayout();
             this.panel1.SuspendLayout();
             this.gbGoogle.SuspendLayout();
             this.gbOutlook.SuspendLayout();
@@ -109,7 +109,7 @@ namespace OutlookGoogleSync
             ((System.ComponentModel.ISupportInitialize)(this.tbInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).BeginInit();
-            this.tabPage3.SuspendLayout();
+            this.tabPage_About.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabSettings
@@ -117,31 +117,31 @@ namespace OutlookGoogleSync
             this.tabSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabSettings.Controls.Add(this.tabPage1);
-            this.tabSettings.Controls.Add(this.tabPage2);
-            this.tabSettings.Controls.Add(this.tabPage3);
+            this.tabSettings.Controls.Add(this.tabPage_Sync);
+            this.tabSettings.Controls.Add(this.tabPage_Settings);
+            this.tabSettings.Controls.Add(this.tabPage_About);
             this.tabSettings.Location = new System.Drawing.Point(12, 12);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.SelectedIndex = 0;
             this.tabSettings.Size = new System.Drawing.Size(495, 547);
             this.tabSettings.TabIndex = 0;
             // 
-            // tabPage1
+            // tabPage_Sync
             // 
-            this.tabPage1.Controls.Add(this.cbVerboseOutput);
-            this.tabPage1.Controls.Add(this.lNextSyncVal);
-            this.tabPage1.Controls.Add(this.lLastSyncVal);
-            this.tabPage1.Controls.Add(this.lNextSync);
-            this.tabPage1.Controls.Add(this.lLastSync);
-            this.tabPage1.Controls.Add(this.LogBox);
-            this.tabPage1.Controls.Add(this.bSyncNow);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(487, 521);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Sync";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage_Sync.Controls.Add(this.cbVerboseOutput);
+            this.tabPage_Sync.Controls.Add(this.lNextSyncVal);
+            this.tabPage_Sync.Controls.Add(this.lLastSyncVal);
+            this.tabPage_Sync.Controls.Add(this.lNextSync);
+            this.tabPage_Sync.Controls.Add(this.lLastSync);
+            this.tabPage_Sync.Controls.Add(this.LogBox);
+            this.tabPage_Sync.Controls.Add(this.bSyncNow);
+            this.tabPage_Sync.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_Sync.Name = "tabPage_Sync";
+            this.tabPage_Sync.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_Sync.Size = new System.Drawing.Size(487, 521);
+            this.tabPage_Sync.TabIndex = 0;
+            this.tabPage_Sync.Text = "Sync";
+            this.tabPage_Sync.UseVisualStyleBackColor = true;
             // 
             // cbVerboseOutput
             // 
@@ -213,21 +213,21 @@ namespace OutlookGoogleSync
             this.bSyncNow.UseVisualStyleBackColor = true;
             this.bSyncNow.Click += new System.EventHandler(this.Sync_Click);
             // 
-            // tabPage2
+            // tabPage_Settings
             // 
-            this.tabPage2.Controls.Add(this.panel1);
-            this.tabPage2.Controls.Add(this.gbGoogle);
-            this.tabPage2.Controls.Add(this.gbOutlook);
-            this.tabPage2.Controls.Add(this.gbAppBehaviour);
-            this.tabPage2.Controls.Add(this.bSave);
-            this.tabPage2.Controls.Add(this.gbSyncOptions);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(487, 521);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Settings";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage_Settings.Controls.Add(this.panel1);
+            this.tabPage_Settings.Controls.Add(this.gbGoogle);
+            this.tabPage_Settings.Controls.Add(this.gbOutlook);
+            this.tabPage_Settings.Controls.Add(this.gbAppBehaviour);
+            this.tabPage_Settings.Controls.Add(this.bSave);
+            this.tabPage_Settings.Controls.Add(this.gbSyncOptions);
+            this.tabPage_Settings.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_Settings.Name = "tabPage_Settings";
+            this.tabPage_Settings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_Settings.Size = new System.Drawing.Size(487, 521);
+            this.tabPage_Settings.TabIndex = 1;
+            this.tabPage_Settings.Text = "Settings";
+            this.tabPage_Settings.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 
@@ -744,17 +744,17 @@ namespace OutlookGoogleSync
             this.lDateRange.Text = "Date range:";
             this.lDateRange.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // tabPage3
+            // tabPage_About
             // 
-            this.tabPage3.Controls.Add(this.lAboutURL);
-            this.tabPage3.Controls.Add(this.lAboutMain);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(487, 521);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "About";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            this.tabPage_About.Controls.Add(this.lAboutURL);
+            this.tabPage_About.Controls.Add(this.lAboutMain);
+            this.tabPage_About.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_About.Name = "tabPage_About";
+            this.tabPage_About.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_About.Size = new System.Drawing.Size(487, 521);
+            this.tabPage_About.TabIndex = 2;
+            this.tabPage_About.Text = "About";
+            this.tabPage_About.UseVisualStyleBackColor = true;
             // 
             // lAboutURL
             // 
@@ -798,9 +798,9 @@ namespace OutlookGoogleSync
             this.Text = "Outlook Google Calendar Sync";
             this.Resize += new System.EventHandler(this.MainFormResize);
             this.tabSettings.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
+            this.tabPage_Sync.ResumeLayout(false);
+            this.tabPage_Sync.PerformLayout();
+            this.tabPage_Settings.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.gbGoogle.ResumeLayout(false);
@@ -814,7 +814,7 @@ namespace OutlookGoogleSync
             ((System.ComponentModel.ISupportInitialize)(this.tbInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).EndInit();
-            this.tabPage3.ResumeLayout(false);
+            this.tabPage_About.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -827,7 +827,7 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
         private System.Windows.Forms.GroupBox gbAppBehaviour;
         private System.Windows.Forms.LinkLabel lAboutURL;
-        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TabPage tabPage_About;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.Label lAboutMain;
         private System.Windows.Forms.CheckBox cbAddAttendees;
@@ -838,10 +838,8 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.Label lDaysInFuture;
         private System.Windows.Forms.GroupBox gbSyncOptions;
         private System.Windows.Forms.Button bSave;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Button bSyncNow;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabControl tabSettings;
+        private System.Windows.Forms.TabPage tabPage_Sync;
         private System.Windows.Forms.Button bGetGoogleCalendars;
         private System.Windows.Forms.GroupBox gbOutlook;
         private System.Windows.Forms.GroupBox gbEWS;
@@ -877,5 +875,7 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.TextBox tbHelp;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox cbMergeItems;
+        public System.Windows.Forms.TabControl tabSettings;
+        public System.Windows.Forms.TabPage tabPage_Settings;
 	}
 }

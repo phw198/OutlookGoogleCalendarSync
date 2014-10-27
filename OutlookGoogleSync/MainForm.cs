@@ -17,7 +17,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        private string VERSION = "1.1.2";
+        private string VERSION = "1.1.3";
         
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
@@ -27,136 +27,138 @@ namespace OutlookGoogleSync {
         private BackgroundWorker bwSync;
 
         public MainForm() {
-            InitializeComponent();
-            lAboutMain.Text = lAboutMain.Text.Replace("{version}", VERSION);
+                InitializeComponent();
+                lAboutMain.Text = lAboutMain.Text.Replace("{version}", VERSION);
+
+                Instance = this;
+
+                //set system proxy
+                WebProxy wp = (WebProxy)System.Net.GlobalProxySelection.Select;
+                //http://www.dreamincode.net/forums/topic/160555-working-with-proxy-servers/
+                //WebProxy wp = (WebProxy)WebRequest.DefaultWebProxy;
+                wp.UseDefaultCredentials = true;
+                System.Net.WebRequest.DefaultWebProxy = wp;
+
+                //load settings/create settings file
+                if (File.Exists(FILENAME)) {
+                    Settings.Instance = XMLManager.import<Settings>(FILENAME);
+                } else {
+                    XMLManager.export(Settings.Instance, FILENAME);
+                }
+
+                //create the timer for the autosynchro 
+                ogstimer = new Timer();
+                ogstimer.Tick += new EventHandler(ogstimer_Tick);
+
+                #region Update GUI from Settings
+                this.SuspendLayout();
+                #region Outlook box
+                this.gbOutlook.SuspendLayout();
+                gbEWS.Enabled = false;
+                if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
+                    rbOutlookAltMB.Checked = true;
+                } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.EWS) {
+                    rbOutlookEWS.Checked = true;
+                    gbEWS.Enabled = true;
+                } else {
+                    rbOutlookDefaultMB.Checked = true;
+                    ddMailboxName.Enabled = false;
+                }
+                txtEWSPass.Text = Settings.Instance.EWSpassword;
+                txtEWSUser.Text = Settings.Instance.EWSuser;
+                txtEWSServerURL.Text = Settings.Instance.EWSserver;
+
+                //Mailboxes the user has access to
+                if (OutlookCalendar.Instance.Accounts.Count == 1) {
+                    rbOutlookAltMB.Enabled = false;
+                    rbOutlookAltMB.Checked = false;
+                    ddMailboxName.Enabled = false;
+                }
+                for (int acc = 2; acc <= OutlookCalendar.Instance.Accounts.Count; acc++) {
+                    String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
+                    ddMailboxName.Items.Add(mailbox);
+                    if (Settings.Instance.MailboxName == mailbox) { ddMailboxName.SelectedIndex = acc - 2; }
+                }
+                if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) { ddMailboxName.SelectedIndex = 0; }
+
+                cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
+                cbOutlookCalendars.DisplayMember = "Key";
+                cbOutlookCalendars.ValueMember = "Value";
+
+                this.gbOutlook.ResumeLayout();
+                #endregion
+                #region Google box
+                this.gbGoogle.SuspendLayout();
+                if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
+                    cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
+                    cbGoogleCalendars.SelectedIndex = 0;
+                }
+                this.gbGoogle.ResumeLayout();
+                #endregion
+                #region Sync Options box
+                syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
+                //syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
+                //syncDirection.Items.Add(SyncDirection.Bidirectional);
+                syncDirection.SelectedIndex = 0;
+                this.gbSyncOptions.SuspendLayout();
+                tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
+                tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
+                tbInterval.Value = Settings.Instance.SyncInterval;
+                cbIntervalUnit.Text = Settings.Instance.SyncIntervalUnit;
+                cbAddDescription.Checked = Settings.Instance.AddDescription;
+                cbAddAttendees.Checked = Settings.Instance.AddAttendees;
+                cbAddReminders.Checked = Settings.Instance.AddReminders;
+                cbMergeItems.Checked = Settings.Instance.MergeItems;
+                cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
+                cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
+                cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+                this.gbSyncOptions.ResumeLayout();
+                #endregion
+                #region Application behaviour
+                this.gbAppBehaviour.SuspendLayout();
+                cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
+                cbStartInTray.Checked = Settings.Instance.StartInTray;
+                cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
+                cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
+                this.gbAppBehaviour.ResumeLayout();
+                #endregion
+                lastSyncDate = Settings.Instance.LastSyncDate;
+                cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
+                this.ResumeLayout();
+                #endregion
             
-            Instance = this;
+                //set up tooltips for some controls
+                ToolTip toolTip1 = new ToolTip();
+                toolTip1.AutoPopDelay = 10000;
+                toolTip1.InitialDelay = 500;
+                toolTip1.ReshowDelay = 200;
+                toolTip1.ShowAlways = true;
+                toolTip1.SetToolTip(cbOutlookCalendars,
+                    "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
+                toolTip1.SetToolTip(cbGoogleCalendars,
+                    "The Google calendar to synchonize with.");
+                toolTip1.SetToolTip(tbInterval,
+                    "Set to zero to disable");
+                toolTip1.SetToolTip(cbCreateFiles,
+                    "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
+                    "to 4 separate text files in the application's directory (named \"export_*.txt\"). \n" +
+                    "Only for debug/diagnostic purposes.");
+                toolTip1.SetToolTip(rbOutlookAltMB,
+                    "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
+                toolTip1.SetToolTip(cbMergeItems,
+                    "If the destination calendar has pre-existing items, don't delete them");
 
-            //set system proxy
-            WebProxy wp = (WebProxy)System.Net.GlobalProxySelection.Select;
-            //http://www.dreamincode.net/forums/topic/160555-working-with-proxy-servers/
-            //WebProxy wp = (WebProxy)WebRequest.DefaultWebProxy;
-            wp.UseDefaultCredentials = true;
-            System.Net.WebRequest.DefaultWebProxy = wp;
+                //Refresh synchronizations (last and next)
+                lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
+                setNextSync(getResyncInterval());
 
-            //load settings/create settings file
-            if (File.Exists(FILENAME)) {
-                Settings.Instance = XMLManager.import<Settings>(FILENAME);
-            } else {
-                XMLManager.export(Settings.Instance, FILENAME);
-            }
-
-            //create the timer for the autosynchro 
-            ogstimer = new Timer();
-            ogstimer.Tick += new EventHandler(ogstimer_Tick);
-
-            #region Update GUI from Settings
-            this.SuspendLayout();
-            #region Outlook box
-            this.gbOutlook.SuspendLayout();
-            gbEWS.Enabled = false;
-            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
-                rbOutlookAltMB.Checked = true;
-            } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.EWS) {
-                rbOutlookEWS.Checked = true;
-                gbEWS.Enabled = true;
-            } else {
-                rbOutlookDefaultMB.Checked = true;
-                ddMailboxName.Enabled = false;
-            }
-            txtEWSPass.Text = Settings.Instance.EWSpassword;
-            txtEWSUser.Text = Settings.Instance.EWSuser;
-            txtEWSServerURL.Text = Settings.Instance.EWSserver;
-
-            //Mailboxes the user has access to
-            if (OutlookCalendar.Instance.Accounts.Count == 1) {
-                rbOutlookAltMB.Enabled = false;
-                rbOutlookAltMB.Checked = false;
-                ddMailboxName.Enabled = false;
-            }
-            for (int acc = 2; acc <= OutlookCalendar.Instance.Accounts.Count; acc++) {
-                String mailbox = OutlookCalendar.Instance.Accounts[acc].SmtpAddress.ToLower();
-                ddMailboxName.Items.Add(mailbox);
-                if (Settings.Instance.MailboxName == mailbox) { ddMailboxName.SelectedIndex = acc-2; }
-            }
-            if (ddMailboxName.SelectedIndex==-1 && ddMailboxName.Items.Count>0) { ddMailboxName.SelectedIndex = 0; }
-
-            cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
-            cbOutlookCalendars.DisplayMember = "Key";
-            cbOutlookCalendars.ValueMember = "Value";
-
-            this.gbOutlook.ResumeLayout();
-            #endregion
-            #region Google box
-            this.gbGoogle.SuspendLayout();
-            cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
-            cbGoogleCalendars.SelectedIndex = 0;
-            this.gbGoogle.ResumeLayout();
-            #endregion
-            #region Sync Options box
-            syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
-            //syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
-            //syncDirection.Items.Add(SyncDirection.Bidirectional);
-            syncDirection.SelectedIndex = 0;
-            this.gbSyncOptions.SuspendLayout();
-            tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
-            tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
-            tbInterval.Value = Settings.Instance.SyncInterval;
-            cbIntervalUnit.Text = Settings.Instance.SyncIntervalUnit;
-            cbAddDescription.Checked = Settings.Instance.AddDescription;
-            cbAddAttendees.Checked = Settings.Instance.AddAttendees;
-            cbAddReminders.Checked = Settings.Instance.AddReminders;
-            cbMergeItems.Checked = Settings.Instance.MergeItems;
-            cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
-            cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
-            cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
-            this.gbSyncOptions.ResumeLayout();
-            #endregion
-            #region Application behaviour
-            this.gbAppBehaviour.SuspendLayout();
-            cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
-            cbStartInTray.Checked = Settings.Instance.StartInTray;
-            cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
-            cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
-            this.gbAppBehaviour.ResumeLayout();
-            #endregion
-            lastSyncDate = Settings.Instance.LastSyncDate;
-            cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
-            this.ResumeLayout();
-            #endregion
-
-            //set up tooltips for some controls
-            ToolTip toolTip1 = new ToolTip();
-            toolTip1.AutoPopDelay = 10000;
-            toolTip1.InitialDelay = 500;
-            toolTip1.ReshowDelay = 200;
-            toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(cbOutlookCalendars,
-                "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
-            toolTip1.SetToolTip(cbGoogleCalendars,
-                "The Google calendar to synchonize with.");
-            toolTip1.SetToolTip(tbInterval,
-                "Set to zero to disable");
-            toolTip1.SetToolTip(cbCreateFiles,
-                "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
-                "to 4 separate text files in the application's directory (named \"export_*.txt\"). \n" +
-                "Only for debug/diagnostic purposes.");
-            toolTip1.SetToolTip(rbOutlookAltMB,
-                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
-            toolTip1.SetToolTip(cbMergeItems,
-                "If the destination calendar has pre-existing items, don't delete them");
-
-            //Refresh synchronizations (last and next)
-            lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
-            setNextSync(getResyncInterval());
-
-            //Start in tray?
-            if (cbStartInTray.Checked) {
-                this.WindowState = FormWindowState.Minimized;
-                notifyIcon1.Visible = true;
-                this.Hide();
-                this.ShowInTaskbar = false;
-            }
+                //Start in tray?
+                if (cbStartInTray.Checked) {
+                    this.WindowState = FormWindowState.Minimized;
+                    notifyIcon1.Visible = true;
+                    this.Hide();
+                    this.ShowInTaskbar = false;
+                }
         }
 
         #region Autosync functions
@@ -212,7 +214,7 @@ namespace OutlookGoogleSync {
         private void Sync_Start() {
             LogBox.Clear();
             
-            if (Settings.Instance.UseGoogleCalendar.Id == "") {
+            if (Settings.Instance.UseGoogleCalendar == null || Settings.Instance.UseGoogleCalendar.Id == "") {
                 MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                 return;
             }
@@ -404,9 +406,11 @@ namespace OutlookGoogleSync {
         }
         #endregion
 
-        public void Logboxout(string s, bool newLine=true) {
-            String existingText = getControlPropertyThreadSafe(LogBox, "Text");
-            setControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
+        public void Logboxout(string s, bool newLine=true, bool verbose=false) {
+            if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
+                String existingText = getControlPropertyThreadSafe(LogBox, "Text");
+                setControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
+            }
         }
 
         public void HandleException(System.Exception ex) {

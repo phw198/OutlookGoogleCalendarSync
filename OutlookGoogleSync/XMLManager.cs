@@ -37,7 +37,12 @@ namespace OutlookGoogleSync
         public static T import<T>(string filename)
         {
             FileStream fs = new FileStream(filename, FileMode.Open);
-            T result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
+            T result = default(T);
+            try {
+                result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
+            } catch {
+                MainForm.Instance.tabSettings.SelectedTab = MainForm.Instance.tabPage_Settings;
+            }
             fs.Close();
             return result;
         }
