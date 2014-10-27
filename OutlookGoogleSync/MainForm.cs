@@ -89,8 +89,10 @@ namespace OutlookGoogleSync {
             #endregion
             #region Google box
             this.gbGoogle.SuspendLayout();
-            cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
-            cbGoogleCalendars.SelectedIndex = 0;
+            if (Settings.Instance.UseGoogleCalendar != null) {
+                cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
+                cbGoogleCalendars.SelectedIndex = 0;
+            }
             this.gbGoogle.ResumeLayout();
             #endregion
             #region Sync Options box
@@ -212,7 +214,7 @@ namespace OutlookGoogleSync {
         private void Sync_Start() {
             LogBox.Clear();
             
-            if (Settings.Instance.UseGoogleCalendar.Id == "") {
+            if (Settings.Instance.UseGoogleCalendar == null || Settings.Instance.UseGoogleCalendar.Id == "") {
                 MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                 return;
             }
@@ -404,9 +406,11 @@ namespace OutlookGoogleSync {
         }
         #endregion
 
-        public void Logboxout(string s, bool newLine=true) {
-            String existingText = getControlPropertyThreadSafe(LogBox, "Text");
-            setControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
+        public void Logboxout(string s, bool newLine=true, bool verbose=false) {
+            if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
+                String existingText = getControlPropertyThreadSafe(LogBox, "Text");
+                setControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
+            }
         }
 
         public void HandleException(System.Exception ex) {

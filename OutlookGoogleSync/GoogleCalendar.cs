@@ -183,6 +183,7 @@ namespace OutlookGoogleSync {
                     ev.Reminders.Overrides.Add(reminder);
                 }
 
+                MainForm.Instance.Logboxout(getEventSummary(ev), verbose: true);
                 GoogleCalendar.Instance.addCalendarEntry(ev);
             }
         }
@@ -225,11 +226,11 @@ namespace OutlookGoogleSync {
                 if (MainForm.CompareAttribute("Location", ev.Location, ai.Location, sb, ref itemModified)) ev.Location = ai.Location;
 
                 String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
-                if (MainForm.CompareAttribute("Private", ev.Visibility, oPrivacy, sb, ref itemModified)) {
+                if (MainForm.CompareAttribute("Private", (ev.Visibility==null?"default":ev.Visibility), oPrivacy, sb, ref itemModified)) {
                     ev.Visibility = oPrivacy;
                 }
                 String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
-                if (MainForm.CompareAttribute("Free/Busy", ev.Transparency, oFreeBusy, sb, ref itemModified)) {
+                if (MainForm.CompareAttribute("Free/Busy", (ev.Transparency==null?"opaque":ev.Transparency), oFreeBusy, sb, ref itemModified)) {
                     ev.Transparency = oFreeBusy;
                 }
 
@@ -345,11 +346,10 @@ namespace OutlookGoogleSync {
                     }
                 }
                 if (itemModified > 0) {
-                    if (Settings.Instance.VerboseOutput) {
-                        MainForm.Instance.Logboxout(sb.ToString(), false);
-                        MainForm.Instance.Logboxout(itemModified + " attributes updated.");
-                        System.Windows.Forms.Application.DoEvents();
-                    }
+                    MainForm.Instance.Logboxout(sb.ToString(), false, verbose:true);
+                    MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose:true);
+                    System.Windows.Forms.Application.DoEvents();
+                
                     GoogleCalendar.Instance.updateCalendarEntry(ev);
                     entriesUpdated++;
                 }
@@ -358,17 +358,17 @@ namespace OutlookGoogleSync {
 
         public void DeleteCalendarEntries(List<Event> events) {
             foreach (Event ev in events) {
-                String eventSummary = "";
+                String eventSummary = getEventSummary(ev);
                 Boolean delete = true;
 
                 if (Settings.Instance.ConfirmOnDelete) {
-                    eventSummary = DateTime.Parse(ev.Start.DateTime.ToString()).ToString("dd/MM/yyyy hh:mm") + " => ";
-                    eventSummary += '"' + ev.Summary + '"';
                     if (MessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
                         delete = false;
-                        MainForm.Instance.Logboxout("Not deleted: " + eventSummary.ToString());
+                        MainForm.Instance.Logboxout("Not deleted: " + eventSummary);
                     }
+                } else {
+                    MainForm.Instance.Logboxout(eventSummary, verbose:true);
                 }
                 if (delete) {
                     GoogleCalendar.Instance.deleteCalendarEntry(ev);
@@ -400,6 +400,7 @@ namespace OutlookGoogleSync {
                             ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
                             updateCalendarEntry(ev);
                             unclaimedEvents.Remove(ev);
+                            MainForm.Instance.Logboxout("Reclaimed: " + getEventSummary(ev), verbose: true);
                             break;
                         }
                     }
@@ -435,7 +436,6 @@ namespace OutlookGoogleSync {
         }
         
         public static string signature(Event ev) {
-            String foo = DateTime.Parse(ev.Start.DateTime).ToString("g");
             ev.Start.DateTime = (ev.Start.DateTime == null) ? 
                 GoogleTimeFrom(DateTime.Parse(ev.Start.Date)) :
                 GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime));
@@ -444,6 +444,17 @@ namespace OutlookGoogleSync {
                 GoogleTimeFrom(DateTime.Parse(ev.End.DateTime));
 
             return (ev.Start.DateTime + ";" + ev.End.DateTime + ";" + ev.Summary + ";" + ev.Location).Trim();
+        }
+
+        public static string getEventSummary(Event ev) {
+            String eventSummary = "";
+            if (ev.Start.DateTime != null)
+                eventSummary += DateTime.Parse(ev.Start.DateTime.ToString()).ToString("dd/MM/yyyy hh:mm");
+            else
+                eventSummary += DateTime.Parse(ev.Start.Date.ToString()).ToString("dd/MM/yyyy");
+            eventSummary += " => ";
+            eventSummary += '"' + ev.Summary + '"';
+            return eventSummary;
         }
 
         public static EventAttendee AddAttendee(Recipient recipient, AppointmentItem ai) {
