@@ -97,6 +97,8 @@ namespace OutlookGoogleSync
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.pbDonate = new System.Windows.Forms.PictureBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.tabSettings.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -110,6 +112,7 @@ namespace OutlookGoogleSync
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).BeginInit();
             this.tabPage_About.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             this.SuspendLayout();
             // 
             // tabSettings
@@ -746,6 +749,8 @@ namespace OutlookGoogleSync
             // 
             // tabPage_About
             // 
+            this.tabPage_About.Controls.Add(this.label2);
+            this.tabPage_About.Controls.Add(this.pbDonate);
             this.tabPage_About.Controls.Add(this.lAboutURL);
             this.tabPage_About.Controls.Add(this.lAboutMain);
             this.tabPage_About.Location = new System.Drawing.Point(4, 22);
@@ -759,7 +764,7 @@ namespace OutlookGoogleSync
             // lAboutURL
             // 
             this.lAboutURL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.lAboutURL.Location = new System.Drawing.Point(6, 302);
+            this.lAboutURL.Location = new System.Drawing.Point(6, 396);
             this.lAboutURL.Name = "lAboutURL";
             this.lAboutURL.Size = new System.Drawing.Size(475, 23);
             this.lAboutURL.TabIndex = 2;
@@ -771,9 +776,11 @@ namespace OutlookGoogleSync
             // lAboutMain
             // 
             this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.lAboutMain.Location = new System.Drawing.Point(3, 32);
+            this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lAboutMain.Location = new System.Drawing.Point(30, 32);
             this.lAboutMain.Name = "lAboutMain";
-            this.lAboutMain.Size = new System.Drawing.Size(481, 254);
+            this.lAboutMain.Padding = new System.Windows.Forms.Padding(15);
+            this.lAboutMain.Size = new System.Drawing.Size(426, 318);
             this.lAboutMain.TabIndex = 1;
             this.lAboutMain.Text = resources.GetString("lAboutMain.Text");
             this.lAboutMain.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -783,6 +790,30 @@ namespace OutlookGoogleSync
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
+            // 
+            // pbDonate
+            // 
+            this.pbDonate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
+            this.pbDonate.Location = new System.Drawing.Point(206, 311);
+            this.pbDonate.Name = "pbDonate";
+            this.pbDonate.Size = new System.Drawing.Size(75, 23);
+            this.pbDonate.TabIndex = 3;
+            this.pbDonate.TabStop = false;
+            this.pbDonate.Click += new System.EventHandler(this.pbDonate_Click);
+            // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(153, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(181, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Outlook Google Calendar Sync";
             // 
             // MainForm
             // 
@@ -815,6 +846,8 @@ namespace OutlookGoogleSync
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).EndInit();
             this.tabPage_About.ResumeLayout(false);
+            this.tabPage_About.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -877,5 +910,7 @@ namespace OutlookGoogleSync
         private System.Windows.Forms.CheckBox cbMergeItems;
         public System.Windows.Forms.TabControl tabSettings;
         public System.Windows.Forms.TabPage tabPage_Settings;
+        private System.Windows.Forms.PictureBox pbDonate;
+        private System.Windows.Forms.Label label2;
 	}
 }

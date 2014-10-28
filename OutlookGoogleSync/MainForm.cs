@@ -17,7 +17,7 @@ namespace OutlookGoogleSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        private string VERSION = "1.1.3";
+        private string VERSION = "1.1.4";
         
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
@@ -613,6 +613,10 @@ namespace OutlookGoogleSync {
 
         private void cbVerboseOutput_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.VerboseOutput = cbVerboseOutput.Checked;
+        }
+
+        private void pbDonate_Click(object sender, EventArgs e) {
+            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ");
         }
         #endregion
 

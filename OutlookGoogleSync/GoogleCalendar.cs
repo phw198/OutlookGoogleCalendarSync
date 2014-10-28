@@ -31,10 +31,9 @@ namespace OutlookGoogleSync {
 
         public GoogleCalendar() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
-            provider.ClientIdentifier = "662204240419.apps.googleusercontent.com";
-            provider.ClientSecret = "4nJPnk5fE8yJM_HNUNQEEvjU";
+            provider.ClientIdentifier = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
+            provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
             service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, getAuthentication));
-            service.Key = "AIzaSyDRGFSAyMGondZKR8fww1RtRARYtCbBC4k";
         }
 
         private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
@@ -50,7 +49,7 @@ namespace OutlookGoogleSync {
                 // Request authorization from the user (by opening a browser window):
                 Process.Start(authUri.ToString());
 
-                EnterAuthorizationCode eac = new EnterAuthorizationCode();
+                frmGoogleAuthorizationCode eac = new frmGoogleAuthorizationCode();
                 if (eac.ShowDialog() == DialogResult.OK) {
                     // Retrieve the access/refresh tokens by using the authorization code:
                     result = arg.ProcessUserAuthorization(eac.authcode, state);
@@ -61,7 +60,9 @@ namespace OutlookGoogleSync {
 
                     return result;
                 } else {
-                    return null;
+                    String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
+                    MessageBox.Show(noAuth, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    throw new System.Exception(noAuth);
                 }
             } else {
                 arg.RefreshToken(state, null);
@@ -95,7 +96,7 @@ namespace OutlookGoogleSync {
                 EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
                 lr.TimeMin = GoogleTimeFrom(DateTime.Now.AddDays(-Settings.Instance.DaysInThePast));
-                lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1));
+                lr.TimeMax = GoogleTimeFrom(DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture));
                 //lr.OrderBy = EventsResource.OrderBy.StartTime;
                 lr.PageToken = pageToken;
 
@@ -193,7 +194,7 @@ namespace OutlookGoogleSync {
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 AppointmentItem ai = compare.Key;
                 Event ev = compare.Value;
-                if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) break;
+                if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
 
                 int itemModified = 0;
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();

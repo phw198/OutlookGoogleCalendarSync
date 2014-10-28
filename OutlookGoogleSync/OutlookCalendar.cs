@@ -107,7 +107,7 @@ namespace OutlookGoogleSync {
 
             if (OutlookItems != null) {
                 DateTime min = DateTime.Now.AddDays(-Settings.Instance.DaysInThePast);
-                DateTime max = DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture + 1);
+                DateTime max = DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture);
                 string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
 
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {

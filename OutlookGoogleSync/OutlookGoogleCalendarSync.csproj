@@ -5,14 +5,15 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>OutlookGoogleSync</RootNamespace>
-    <AssemblyName>OutlookGoogleSync</AssemblyName>
+    <RootNamespace>OutlookGoogleCalendarSync</RootNamespace>
+    <AssemblyName>OutlookGoogleCalendarSync</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SourceAnalysisOverrideSettingsFile>C:\Users\ZSIANTI\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
@@ -34,11 +35,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>http://outlookgooglecalendarsync.codeplex.com/releases/clickonce/</InstallUrl>
+    <ProductName>Outlook Google Calendar Sync</ProductName>
     <PublisherName>Paul Woolcock</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.1.3.0</ApplicationVersion>
+    <ApplicationVersion>1.1.4.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -110,11 +112,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EnterAuthorizationCode.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="EnterAuthorizationCode.Designer.cs">
-      <DependentUpon>EnterAuthorizationCode.cs</DependentUpon>
+    <Compile Include="GoogleAuthorizationCode.cs" />
+    <Compile Include="GoogleAuthorizationCode.Designer.cs">
+      <DependentUpon>GoogleAuthorizationCode.cs</DependentUpon>
     </Compile>
     <Compile Include="GoogleCalendar.cs" />
     <Compile Include="MainForm.cs">
@@ -127,21 +127,26 @@
     <Compile Include="OutlookCalendar.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="SyncDirection.cs" />
     <Compile Include="XMLManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="OutlookGoogleSync_TemporaryKey.pfx" />
-    <None Include="release_notes.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="EnterAuthorizationCode.resx">
-      <DependentUpon>EnterAuthorizationCode.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="GoogleAuthorizationCode.resx">
+      <DependentUpon>GoogleAuthorizationCode.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +196,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="icon.ico" />
+    <Content Include="Resources\paypalDonate.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
