@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Office.Interop.Outlook;
 using System.IO;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of OutlookCalendar.
     /// </summary>

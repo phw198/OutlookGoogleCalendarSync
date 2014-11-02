@@ -11,7 +11,7 @@ using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Util;
 using Microsoft.Office.Interop.Outlook;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of GoogleCalendar.
     /// </summary>
@@ -450,7 +450,7 @@ namespace OutlookGoogleSync {
         public static string getEventSummary(Event ev) {
             String eventSummary = "";
             if (ev.Start.DateTime != null)
-                eventSummary += DateTime.Parse(ev.Start.DateTime.ToString()).ToString("dd/MM/yyyy hh:mm");
+                eventSummary += DateTime.Parse(ev.Start.DateTime.ToString()).ToString("dd/MM/yyyy HH:mm");
             else
                 eventSummary += DateTime.Parse(ev.Start.Date.ToString()).ToString("dd/MM/yyyy");
             eventSummary += " => ";

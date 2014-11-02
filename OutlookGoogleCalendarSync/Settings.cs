@@ -1,8 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Drawing;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of Settings.
     /// </summary>

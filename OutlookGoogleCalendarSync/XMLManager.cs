@@ -1,10 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace OutlookGoogleSync
+namespace OutlookGoogleCalendarSync
 {
     /// <summary>
     /// Exports or imports any object to/from XML.

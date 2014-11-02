@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of GoogleAuthorizationCode.
     /// </summary>

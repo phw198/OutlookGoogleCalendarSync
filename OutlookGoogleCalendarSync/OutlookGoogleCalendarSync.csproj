@@ -12,8 +12,7 @@
     </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SourceAnalysisOverrideSettingsFile>C:\Users\ZSIANTI\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
@@ -112,7 +111,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GoogleAuthorizationCode.cs" />
+    <Compile Include="GoogleAuthorizationCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="GoogleAuthorizationCode.Designer.cs">
       <DependentUpon>GoogleAuthorizationCode.cs</DependentUpon>
     </Compile>
@@ -196,6 +197,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="icon.ico" />
     <Content Include="Resources\paypalDonate.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

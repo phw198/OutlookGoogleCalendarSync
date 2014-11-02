@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using System.Runtime.Serialization;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of MyCalendarListEntry.
     /// </summary>

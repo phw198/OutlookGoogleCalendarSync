@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace OutlookGoogleSync {
+namespace OutlookGoogleCalendarSync {
 
     [DataContract]
     public sealed class SyncDirection {
