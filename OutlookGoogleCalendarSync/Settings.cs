@@ -24,9 +24,10 @@ namespace OutlookGoogleCalendarSync {
         public string EWSuser = "";
         public string EWSpassword = "";
         public string EWSserver = "";
+        public MyOutlookCalendarListEntry UseOutlookCalendar = new MyOutlookCalendarListEntry();
 
         //Google
-        public MyCalendarListEntry UseGoogleCalendar = new MyCalendarListEntry();
+        public MyGoogleCalendarListEntry UseGoogleCalendar = new MyGoogleCalendarListEntry();
         public string RefreshToken = "";
         
         //Sync Options
@@ -46,7 +47,7 @@ namespace OutlookGoogleCalendarSync {
         public bool ShowBubbleTooltipWhenSyncing = false;
         public bool StartInTray = false;
         public bool MinimizeToTray = false;
-        public bool CreateTextFiles = true;
+        public bool CreateCSVFiles = true;
 
         public DateTime LastSyncDate = new DateTime(0);
 

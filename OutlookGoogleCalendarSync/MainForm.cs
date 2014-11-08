@@ -81,10 +81,19 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) { ddMailboxName.SelectedIndex = 0; }
 
+                cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
                 cbOutlookCalendars.DisplayMember = "Key";
                 cbOutlookCalendars.ValueMember = "Value";
-
+                cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                //Select the right calendar
+                int c = 0;
+                foreach (KeyValuePair<String, MAPIFolder> calendarFolder in OutlookCalendar.Instance.CalendarFolders) {
+                    if (calendarFolder.Value.EntryID == Settings.Instance.UseOutlookCalendar.Id) {
+                        cbOutlookCalendars.SelectedIndex = c;
+                    }
+                    c++;
+                }
                 this.gbOutlook.ResumeLayout();
                 #endregion
                 #region Google box
@@ -97,9 +106,14 @@ namespace OutlookGoogleCalendarSync {
                 #endregion
                 #region Sync Options box
                 syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
-                //syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
+                syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
                 //syncDirection.Items.Add(SyncDirection.Bidirectional);
-                syncDirection.SelectedIndex = 0;
+                for (int i = 0; i < syncDirection.Items.Count; i++) {
+                    SyncDirection sd = (syncDirection.Items[i] as SyncDirection);
+                    if (sd.Id == Settings.Instance.SyncDirection.Id) {
+                        syncDirection.SelectedIndex = i;
+                    }
+                }
                 this.gbSyncOptions.SuspendLayout();
                 tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
                 tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
@@ -119,7 +133,7 @@ namespace OutlookGoogleCalendarSync {
                 cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
                 cbStartInTray.Checked = Settings.Instance.StartInTray;
                 cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
-                cbCreateFiles.Checked = Settings.Instance.CreateTextFiles;
+                cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
                 this.gbAppBehaviour.ResumeLayout();
                 #endregion
                 lastSyncDate = Settings.Instance.LastSyncDate;
@@ -141,7 +155,7 @@ namespace OutlookGoogleCalendarSync {
                     "Set to zero to disable");
                 toolTip1.SetToolTip(cbCreateFiles,
                     "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
-                    "to 4 separate text files in the application's directory (named \"export_*.txt\"). \n" +
+                    "to CSV files in the application's directory (named \"*.csv\"). \n" +
                     "Only for debug/diagnostic purposes.");
                 toolTip1.SetToolTip(rbOutlookAltMB,
                     "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
@@ -308,17 +322,26 @@ namespace OutlookGoogleCalendarSync {
             Logboxout("--------------------------------------------------");
             #endregion
 
+            if (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle) {
+                return sync_outlookToGoogle(OutlookEntries, googleEntries);
+            } else if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) {
+                return sync_googleToOutlook(googleEntries, OutlookEntries);
+            }
+            return false;
+        }
+
+        private Boolean sync_outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries) {
             //  Make copies of each list of events (Not strictly needed)
-            List<AppointmentItem> googleEntriesToBeCreated = new List<AppointmentItem>(OutlookEntries);
+            List<AppointmentItem> googleEntriesToBeCreated = new List<AppointmentItem>(outlookEntries);
             List<Event> googleEntriesToBeDeleted = new List<Event>(googleEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
-            GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref OutlookEntries);
+            GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
             GoogleCalendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
 
             Logboxout(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.");
             Logboxout(googleEntriesToBeCreated.Count + " Google calendar entries to be created.");
-            
+
             //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
                 googleEntriesToBeDeleted.Count == googleEntries.Count) {
@@ -337,7 +360,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     GoogleCalendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
                 } catch (System.Exception ex) {
-                    MainForm.Instance.Logboxout("Unable to delete obsolete entries out to the Google calendar. The following error occurred:");
+                    MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
                     MainForm.Instance.Logboxout(ex.Message + "\r\n => Check your network connection.");
                     return false;
                 }
@@ -375,10 +398,82 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout(entriesUpdated + " entries updated.");
             }
             #endregion
-            
+
             return true;
         }
-                
+
+        private Boolean sync_googleToOutlook(List<Event> googleEntries, List<AppointmentItem> outlookEntries) {
+            //  Make copies of each list of events (Not strictly needed)
+            List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
+            List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);
+            Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
+            
+            OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
+            OutlookCalendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
+            
+            Logboxout(outlookEntriesToBeDeleted.Count + " Outlook calendar entries to be deleted.");
+            Logboxout(outlookEntriesToBeCreated.Count + " Outlook calendar entries to be created.");
+
+            //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
+            if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
+                outlookEntriesToBeDeleted.Count == outlookEntries.Count) {
+                if (MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
+                    "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+                    outlookEntriesToBeDeleted = new List<AppointmentItem>();
+                }
+            }
+            
+            #region Delete Outlook Entries
+            if (outlookEntriesToBeDeleted.Count > 0) {
+                Logboxout("--------------------------------------------------");
+                Logboxout("Deleting " + outlookEntriesToBeDeleted.Count + " Outlook calendar entries...");
+                try {
+                    OutlookCalendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
+                } catch (System.Exception ex) {
+                    MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
+                    MainForm.Instance.Logboxout(ex.Message);
+                    return false;
+                }
+                Logboxout("Done.");
+            }
+            #endregion
+            
+            #region Create Outlook Entries
+            if (outlookEntriesToBeCreated.Count > 0) {
+                Logboxout("--------------------------------------------------");
+                Logboxout("Creating " + outlookEntriesToBeCreated.Count + " Outlook calendar entries...");
+                try {
+                    OutlookCalendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
+                } catch (System.Exception ex) {
+                    Logboxout("Unable to add new entries into the Outlook Calendar. The following error occurred:");
+                    Logboxout(ex.Message);
+                    return false;
+                }
+                Logboxout("Done.");
+            }
+            #endregion
+            /***
+            
+            #region Update Google Entries
+            if (entriesToBeCompared.Count > 0) {
+                Logboxout("--------------------------------------------------");
+                Logboxout("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries...");
+                int entriesUpdated = 0;
+                try {
+                    GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                } catch (System.Exception ex) {
+                    Logboxout("Unable to update new entries into the Google calendar. The following error occurred:");
+                    Logboxout(ex.Message + "\r\n => Check your network connection.");
+                    return false;
+                }
+                Logboxout(entriesUpdated + " entries updated.");
+            }
+            #endregion
+            */
+            return true;
+        }
+
         #region Compare Event Attributes 
         public static Boolean CompareAttribute(String attrDesc, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
             if (googleAttr == null) googleAttr = "";
@@ -504,7 +599,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
-            KeyValuePair<String,MAPIFolder>calendar = (KeyValuePair<String,MAPIFolder>)cbOutlookCalendars.SelectedItem;
+            KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
         #endregion
@@ -512,7 +607,7 @@ namespace OutlookGoogleCalendarSync {
         void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
             bGetGoogleCalendars.Enabled = false;
             cbGoogleCalendars.Enabled = false;
-            List<MyCalendarListEntry> calendars = null;
+            List<MyGoogleCalendarListEntry> calendars = null;
             try {
                 calendars = GoogleCalendar.Instance.GetCalendars();
             } catch (System.Exception ex) {
@@ -521,7 +616,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (calendars != null) {
                 cbGoogleCalendars.Items.Clear();
-                foreach (MyCalendarListEntry mcle in calendars) {
+                foreach (MyGoogleCalendarListEntry mcle in calendars) {
                     cbGoogleCalendars.Items.Add(mcle);
                 }
                 cbGoogleCalendars.SelectedIndex = 0;
@@ -532,7 +627,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
-            Settings.Instance.UseGoogleCalendar = (MyCalendarListEntry)cbGoogleCalendars.SelectedItem;
+            Settings.Instance.UseGoogleCalendar = (MyGoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
         }
         #endregion
         #region Sync options
@@ -551,11 +646,11 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
-            Settings.Instance.DaysInThePast = int.Parse(tbDaysInThePast.Text);
+            Settings.Instance.DaysInThePast = (int)tbDaysInThePast.Value;
         }
 
         private void tbDaysInTheFuture_ValueChanged(object sender, EventArgs e) {
-            Settings.Instance.DaysInTheFuture = int.Parse(tbDaysInTheFuture.Text);
+            Settings.Instance.DaysInTheFuture = (int)tbDaysInTheFuture.Value;
         }
 
         private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
@@ -607,7 +702,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.CreateTextFiles = cbCreateFiles.Checked;
+            Settings.Instance.CreateCSVFiles = cbCreateFiles.Checked;
         }
         #endregion
 

@@ -94,11 +94,11 @@ namespace OutlookGoogleCalendarSync
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.tabPage_About = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.pbDonate = new System.Windows.Forms.PictureBox();
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.pbDonate = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.tabSettings.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -516,7 +516,7 @@ namespace OutlookGoogleCalendarSync
             this.cbCreateFiles.Name = "cbCreateFiles";
             this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
             this.cbCreateFiles.TabIndex = 7;
-            this.cbCreateFiles.Text = "Create text files with found/identified entries";
+            this.cbCreateFiles.Text = "Create CSV files of calendar entries";
             this.cbCreateFiles.UseVisualStyleBackColor = true;
             this.cbCreateFiles.CheckedChanged += new System.EventHandler(this.cbCreateFiles_CheckedChanged);
             // 
@@ -761,6 +761,29 @@ namespace OutlookGoogleCalendarSync
             this.tabPage_About.Text = "About";
             this.tabPage_About.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(153, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(181, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Outlook Google Calendar Sync";
+            // 
+            // pbDonate
+            // 
+            this.pbDonate.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
+            this.pbDonate.Location = new System.Drawing.Point(206, 311);
+            this.pbDonate.Name = "pbDonate";
+            this.pbDonate.Size = new System.Drawing.Size(75, 23);
+            this.pbDonate.TabIndex = 3;
+            this.pbDonate.TabStop = false;
+            this.pbDonate.Click += new System.EventHandler(this.pbDonate_Click);
+            // 
             // lAboutURL
             // 
             this.lAboutURL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -775,7 +798,8 @@ namespace OutlookGoogleCalendarSync
             // 
             // lAboutMain
             // 
-            this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lAboutMain.Location = new System.Drawing.Point(30, 32);
             this.lAboutMain.Name = "lAboutMain";
@@ -790,30 +814,6 @@ namespace OutlookGoogleCalendarSync
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "OutlookGoogleSync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
-            // 
-            // pbDonate
-            // 
-            this.pbDonate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
-            this.pbDonate.Location = new System.Drawing.Point(206, 311);
-            this.pbDonate.Name = "pbDonate";
-            this.pbDonate.Size = new System.Drawing.Size(75, 23);
-            this.pbDonate.TabIndex = 3;
-            this.pbDonate.TabStop = false;
-            this.pbDonate.Click += new System.EventHandler(this.pbDonate_Click);
-            // 
-            // label2
-            // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(153, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(181, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Outlook Google Calendar Sync";
             // 
             // MainForm
             // 

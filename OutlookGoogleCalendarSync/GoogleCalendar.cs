@@ -72,15 +72,15 @@ namespace OutlookGoogleCalendarSync {
 
         }
 
-        public List<MyCalendarListEntry> GetCalendars() {
+        public List<MyGoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
             request = service.CalendarList.List().Fetch();
             
             if (request != null) {
 
-                List<MyCalendarListEntry> result = new List<MyCalendarListEntry>();
+                List<MyGoogleCalendarListEntry> result = new List<MyGoogleCalendarListEntry>();
                 foreach (CalendarListEntry cle in request.Items) {
-                    result.Add(new MyCalendarListEntry(cle));
+                    result.Add(new MyGoogleCalendarListEntry(cle));
                 }
                 return result;
             }
@@ -108,10 +108,18 @@ namespace OutlookGoogleCalendarSync {
                 }
             } while (pageToken != null);
 
-            if (Settings.Instance.CreateTextFiles) {
-                TextWriter tw = new StreamWriter("export_found_in_google.txt");
+            if (Settings.Instance.CreateCSVFiles) {
+                TextWriter tw = new StreamWriter("google_events.csv");
+                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Google ID,Outlook ID";
+                tw.WriteLine(CSVheader);
                 foreach (Event ev in result) {
-                    tw.WriteLine(signature(ev));
+                    try {
+                        tw.WriteLine(exportToCSV(ev));
+                    } catch {
+                        MainForm.Instance.Logboxout("Failed to output following Google event to CSV:-");
+                        MainForm.Instance.Logboxout(getEventSummary(ev));
+                    }
                 }
                 tw.Close();
             }
@@ -195,27 +203,27 @@ namespace OutlookGoogleCalendarSync {
                 AppointmentItem ai = compare.Key;
                 Event ev = compare.Value;
                 if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
-
+                
                 int itemModified = 0;
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
                 sb.AppendLine(ai.Subject);
                 if (ai.AllDayEvent) {
+                    ev.Start.DateTime = null;
+                    ev.End.DateTime = null;
                     if (MainForm.CompareAttribute("Start time", ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
                         ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                        ev.Start.DateTime = null;
                     }
                     if (MainForm.CompareAttribute("End time", ev.End.Date, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
                         ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-                        ev.End.DateTime = null;
                     }
                 } else {
+                    ev.Start.Date = null;
+                    ev.End.Date = null;
                     if (MainForm.CompareAttribute("Start time", ev.Start.DateTime, GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
                         ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(ai.Start);
-                        ev.Start.Date = null;
                     }
                     if (MainForm.CompareAttribute("End time", ev.End.DateTime, GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
                         ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
-                        ev.End.Date = null;
                     }
                 }
                 if (MainForm.CompareAttribute("Subject", ev.Summary, ai.Subject, sb, ref itemModified)) {
@@ -447,6 +455,64 @@ namespace OutlookGoogleCalendarSync {
             return (ev.Start.DateTime + ";" + ev.End.DateTime + ";" + ev.Summary + ";" + ev.Location).Trim();
         }
 
+        private static string exportToCSV(Event ev) {
+            System.Text.StringBuilder csv = new System.Text.StringBuilder();
+
+            if (ev.Start.Date == null) {
+                csv.Append(ev.Start.DateTime + ",");
+            } else {
+                csv.Append(ev.Start.Date + ",");
+            }
+            if (ev.End.Date == null) {
+                csv.Append(ev.End.DateTime + ",");
+            } else {
+                csv.Append(ev.End.Date + ",");
+            }
+            csv.Append("\"" + ev.Summary + "\",");
+            
+            if (ev.Location == null) csv.Append(",");
+            else csv.Append("\"" + ev.Location + "\",");
+            
+            if (ev.Description == null) csv.Append(",");
+            else {
+                ev.Description = ev.Description.Replace("\"", "");
+                ev.Description = ev.Description.Replace("\r\n", " ");
+                csv.Append("\"" + ev.Description.Substring(0, System.Math.Min(ev.Description.Length, 100)) + "\",");
+            }
+            csv.Append("\"" + ev.Visibility + "\",");
+            csv.Append("\"" + ev.Transparency + "\",");
+            System.Text.StringBuilder required = new System.Text.StringBuilder();
+            System.Text.StringBuilder optional = new System.Text.StringBuilder();
+            if (ev.Attendees != null) {
+                foreach (EventAttendee ea in ev.Attendees) {
+                    if (ea.Optional != null && (bool)ea.Optional) { optional.Append(ea.DisplayName + ";"); }
+                    else { required.Append(ea.DisplayName + ";"); }
+                }
+                csv.Append("\"" + required + "\",");
+                csv.Append("\"" + optional + "\",");
+            } else
+                csv.Append(",,");
+
+            bool foundReminder = false;
+            if (ev.Reminders != null && ev.Reminders.Overrides != null) {
+                foreach (EventReminder er in ev.Reminders.Overrides) {
+                    if (er.Method == "popup") {
+                        csv.Append("true," + er.Minutes +",");
+                        foundReminder = true;
+                    }
+                    break;
+                }
+            }
+            if (!foundReminder) csv.Append(",,");
+
+            csv.Append(ev.Id + ",");
+            if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private != null && ev.ExtendedProperties.Private.ContainsKey(oEntryID)) {
+                csv.Append(ev.ExtendedProperties.Private[oEntryID]);
+            }
+
+            return csv.ToString();
+        }
+
         public static string getEventSummary(Event ev) {
             String eventSummary = "";
             if (ev.Start.DateTime != null)
@@ -507,16 +573,16 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.DisableDelete) {
                 google = new List<Event>();
             }
-            if (Settings.Instance.CreateTextFiles) {
+            if (Settings.Instance.CreateCSVFiles) {
                 //Google Deletions
-                TextWriter tw = new StreamWriter("export_to_be_deleted.txt");
+                TextWriter tw = new StreamWriter("google_delete.csv");
                 foreach (Event ev in google) {
                     tw.WriteLine(signature(ev));
                 }
                 tw.Close();
 
                 //Google Creations
-                tw = new StreamWriter("export_to_be_created.txt");
+                tw = new StreamWriter("google_create.csv");
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(OutlookCalendar.signature(ai));
                 }
