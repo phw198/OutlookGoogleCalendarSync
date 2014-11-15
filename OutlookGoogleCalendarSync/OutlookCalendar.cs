@@ -104,11 +104,12 @@ namespace OutlookGoogleCalendarSync {
             OutlookItems.IncludeRecurrences = true;
 
             if (OutlookItems != null) {
-                DateTime min = DateTime.Now.AddDays(-Settings.Instance.DaysInThePast);
-                DateTime max = DateTime.Now.AddDays(+Settings.Instance.DaysInTheFuture);
+                DateTime min = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
+                DateTime max = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
                 string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
 
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
+                    if (ai.End == min) continue; //Required for midnight to midnight events 
                     result.Add(ai);
                 }
             }
@@ -165,18 +166,25 @@ namespace OutlookGoogleCalendarSync {
                     ai.End = DateTime.Parse(ev.End.DateTime);
                 }
                 ai.Subject = ev.Summary;
-                if (Settings.Instance.AddDescription) ai.Body = ev.Description;
+                if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description; 
                 ai.Location = ev.Location;
                 ai.Sensitivity = (ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                 ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                 
+                Boolean foundCurrentUser = false;
                 if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                     foreach (EventAttendee ea in ev.Attendees) {
+                        if (ea.DisplayName == CurrentUserName) foundCurrentUser = true;
                         ai.Recipients.Add(ea.Email);
-                        
+                        bool gOptional = (ea.Optional == null) ? false : (bool)ea.Optional;
+                        if (gOptional) {
+                            ai.OptionalAttendees += "; "+ ea.Email ;
+                            ai.RequiredAttendees = ai.RequiredAttendees.Replace(ea.Email, "");
+                        } 
                     }
-                    ai.Recipients.ResolveAll();
                 }
+                if (!foundCurrentUser) ai.Recipients.Add(CurrentUserSMTP);
+                ai.Recipients.ResolveAll();
                 
                 //Reminder alert
                 if (Settings.Instance.AddReminders && ev.Reminders != null && ev.Reminders.Overrides != null) {
@@ -190,6 +198,162 @@ namespace OutlookGoogleCalendarSync {
                 
                 MainForm.Instance.Logboxout(getEventSummary(ai), verbose: true);
                 addCalendarEntry(ai);
+            }
+        }
+
+        public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
+            entriesUpdated = 0;
+            foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
+                AppointmentItem ai = compare.Key;
+                Event ev = compare.Value;
+                if (DateTime.Parse(ev.Updated) < DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
+
+                int itemModified = 0;
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                sb.AppendLine(GoogleCalendar.getEventSummary(ev));
+                
+                if (ev.Start.Date != null) {
+                    ai.AllDayEvent = true;
+                    if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook, ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                        ai.Start = DateTime.Parse(ev.Start.Date);
+                    }
+                    if (MainForm.CompareAttribute("End time", SyncDirection.GoogleToOutlook, ev.End.Date, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                        ai.End = DateTime.Parse(ev.End.Date);
+                    }
+                } else {
+                    ai.AllDayEvent = false;
+                    if (MainForm.CompareAttribute("Start time",
+                        SyncDirection.GoogleToOutlook, 
+                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime)), 
+                        GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
+                        ai.Start = DateTime.Parse(ev.Start.DateTime);
+                    }
+                    if (MainForm.CompareAttribute("End time",
+                        SyncDirection.GoogleToOutlook, 
+                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)), 
+                        GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
+                        ai.End = DateTime.Parse(ev.End.DateTime);
+                    }
+                }
+                if (MainForm.CompareAttribute("Subject", SyncDirection.GoogleToOutlook, ev.Summary, ai.Subject, sb, ref itemModified)) {
+                    ai.Subject = ev.Summary;
+                }
+                if (Settings.Instance.AddDescription) {
+                    if (MainForm.CompareAttribute("Description", SyncDirection.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified)) 
+                        ai.Body = ev.Description;
+                }
+                if (MainForm.CompareAttribute("Location", SyncDirection.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified)) 
+                    ai.Location = ev.Location;
+
+                String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                String gPrivacy = (ev.Visibility == null ? "default" : ev.Visibility);
+                if (MainForm.CompareAttribute("Private", SyncDirection.GoogleToOutlook, gPrivacy, oPrivacy, sb, ref itemModified)) {
+                    ai.Sensitivity = (ev.Visibility != null && ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                }
+                String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                String gFreeBusy = (ev.Transparency == null ? "opaque" : ev.Transparency);
+                if (MainForm.CompareAttribute("Free/Busy", SyncDirection.GoogleToOutlook, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
+                    ai.BusyStatus = (ev.Transparency != null && ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                }
+                
+                if (Settings.Instance.AddAttendees) {
+                    //Build a list of Outlook attendees. Any remaining at the end of the diff must be deleted.
+                    List<Recipient> removeRecipient = new List<Recipient>();
+                    if (ai.Recipients != null) {
+                        foreach (Recipient recipient in ai.Recipients) {
+                            removeRecipient.Add(recipient);
+                        }
+                    }
+                    if (ev.Attendees != null && ev.Attendees.Count > 1) {
+                        for (int g = ev.Attendees.Count - 1; g >= 0; g--) {
+                            bool foundRecipient = false;
+                            EventAttendee attendee = ev.Attendees[g];
+
+                            if (ai.Recipients == null) break;
+                            for (int o = removeRecipient.Count - 1; o >= 0; o--) {
+                                Recipient recipient = removeRecipient[o];
+                                recipient.Resolve();
+                                Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
+                                String recipientSMTP = pa.GetProperty(PR_SMTP_ADDRESS).ToString();
+                                if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
+                                    foundRecipient = true;
+                                    removeRecipient.RemoveAt(o);
+
+                                    //Optional attendee
+                                    bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
+                                    bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
+                                    if (MainForm.CompareAttribute("Recipient " + recipient.Name + " - Optional",
+                                        SyncDirection.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
+                                        if (gOptional) {
+                                            ai.OptionalAttendees += "; " + recipient.Name;
+                                            ai.RequiredAttendees = ai.RequiredAttendees.Replace(recipient.Name, "");
+                                        } else {
+                                            ai.RequiredAttendees += "; " + recipient.Name;
+                                            ai.OptionalAttendees = ai.OptionalAttendees.Replace(recipient.Name, "");
+                                        }
+                                    }
+                                    //Response is readonly in Outlook :(
+                                    break;
+                                }
+                            }
+                            if (!foundRecipient) {
+                                sb.AppendLine("Recipient added: " + attendee.DisplayName);
+                                ai.Recipients.Add(attendee.Email).Resolve();
+                                if (attendee.Optional != null && (bool)attendee.Optional) {
+                                    ai.OptionalAttendees += ";" + attendee.Email;
+                                } else {
+                                    ai.RequiredAttendees += ";" + attendee.Email;
+                                }
+                                itemModified++;
+                            }
+                        }
+                    } //more than just 1 (me) recipients
+                    
+                    foreach (Recipient recipient in removeRecipient) {
+                        if (recipient.Name != this.CurrentUserName) { 
+                            //Outlook must have current user as recipient, Google doesn't (organiser doesn't have to be an attendee)
+                            sb.AppendLine("Recipient removed: " + recipient.Name);
+                            recipient.Delete();
+                            itemModified++;
+                        }
+                    }
+                    //Reminders
+                    if (Settings.Instance.AddReminders) {
+                        if (ev.Reminders.Overrides != null) {
+                            //Find the popup reminder in Google
+                            for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
+                                EventReminder reminder = ev.Reminders.Overrides[r];
+                                if (reminder.Method == "popup") {
+                                    if (ai.ReminderSet) {
+                                        if (MainForm.CompareAttribute("Reminder", SyncDirection.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
+                                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                                        }
+                                    } else {
+                                        sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
+                                        ai.ReminderSet = true;
+                                        ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                                        itemModified++;
+                                    } //if Outlook reminders set
+                                } //if google reminder found
+                            } //foreach reminder
+
+                        } else { //no google reminders set
+                            if (ai.ReminderSet) {
+                                sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                                ai.ReminderSet = false;
+                                itemModified++;
+                            }
+                        }
+                    }
+                }
+                if (itemModified > 0) {
+                    MainForm.Instance.Logboxout(sb.ToString(), false, verbose: true);
+                    MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose: true);
+                    System.Windows.Forms.Application.DoEvents();
+
+                    OutlookCalendar.Instance.updateCalendarEntry(ai);
+                    entriesUpdated++;
+                }
             }
         }
 
@@ -269,19 +433,20 @@ namespace OutlookGoogleCalendarSync {
 
             if (ai.Body == null) csv.Append(",");
             else {
-                ai.Body = ai.Body.Replace("\"", "");
-                ai.Body = ai.Body.Replace("\r\n", " ");
-                csv.Append("\"" + ai.Body.Substring(0, System.Math.Min(ai.Body.Length, 100)) + "\",");
+                String csvBody = ai.Body.Replace("\"", "");
+                csvBody = csvBody.Replace("\r\n", " ");
+                csv.Append("\"" + csvBody.Substring(0, System.Math.Min(csvBody.Length, 100)) + "\",");
             }
             
             csv.Append("\"" + ai.Sensitivity.ToString() + "\",");
             csv.Append("\"" + ai.BusyStatus.ToString() + "\",");
-            csv.Append("\"" + ai.RequiredAttendees + "\",");
-            csv.Append("\"" + ai.OptionalAttendees + "\",");
+            csv.Append("\"" + (ai.RequiredAttendees==null?"":ai.RequiredAttendees) + "\",");
+            csv.Append("\"" + (ai.OptionalAttendees==null?"":ai.OptionalAttendees) + "\",");
             csv.Append(ai.ReminderSet + ",");
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
             csv.Append(ai.EntryID + ",");
-            csv.Append(ai.UserProperties[gEventID].Value.ToString());
+            if (ai.UserProperties[gEventID] != null)
+                csv.Append(ai.UserProperties[gEventID].Value.ToString());
 
             return csv.ToString();
         }

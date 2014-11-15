@@ -17,7 +17,7 @@ namespace OutlookGoogleCalendarSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        private string VERSION = "1.1.4";
+        private string VERSION = "1.2.0";
         
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
@@ -242,6 +242,9 @@ namespace OutlookGoogleCalendarSync {
 
             DateTime SyncStarted = DateTime.Now;
             Logboxout("Sync started at " + SyncStarted.ToString());
+            Logboxout("Syncing from "+ DateTime.Today.AddDays(-Settings.Instance.DaysInThePast).ToShortDateString() +
+                " to "+ DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1).ToShortDateString());
+            Logboxout(Settings.Instance.SyncDirection.Name);
             Logboxout("--------------------------------------------------");
 
             Boolean syncOk = false;
@@ -453,46 +456,50 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout("Done.");
             }
             #endregion
-            /***
             
             #region Update Google Entries
             if (entriesToBeCompared.Count > 0) {
                 Logboxout("--------------------------------------------------");
-                Logboxout("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries...");
+                Logboxout("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries...");
                 int entriesUpdated = 0;
                 try {
-                    GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                    OutlookCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                 } catch (System.Exception ex) {
-                    Logboxout("Unable to update new entries into the Google calendar. The following error occurred:");
-                    Logboxout(ex.Message + "\r\n => Check your network connection.");
+                    Logboxout("Unable to update new entries into the Outlook calendar. The following error occurred:");
+                    Logboxout(ex.Message);
                     return false;
                 }
                 Logboxout(entriesUpdated + " entries updated.");
             }
             #endregion
-            */
             return true;
         }
 
         #region Compare Event Attributes 
-        public static Boolean CompareAttribute(String attrDesc, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
             if (googleAttr == null) googleAttr = "";
             if (outlookAttr == null) outlookAttr = "";
+            //Truncate long strings
+            String googleAttr_stub = (googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr;
+            String outlookAttr_stub = (outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr;
             if (googleAttr != outlookAttr) {
-                //Truncate long strings
-                sb.AppendLine(attrDesc + ": " + 
-                    ((googleAttr.Length>50)?googleAttr.Substring(0, 47)+"...":googleAttr) + " => " + 
-                    ((outlookAttr.Length>50)?outlookAttr.Substring(0, 47)+"...":outlookAttr)
-                    );
+                if (fromTo == SyncDirection.GoogleToOutlook) {
+                    sb.AppendLine(attrDesc + ": " + outlookAttr_stub + " => " + googleAttr_stub);
+                } else {
+                    sb.AppendLine(attrDesc + ": " + googleAttr_stub + " => " + outlookAttr_stub);
+                }
                 itemModified++;
                 return true;
-            } else {
-                return false;
-            }
+            } 
+            return false;
         }
-        public static Boolean CompareAttribute(String attrDesc, Boolean googleAttr, Boolean outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, Boolean googleAttr, Boolean outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
             if (googleAttr != outlookAttr) {
-                sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
+                if (fromTo == SyncDirection.GoogleToOutlook) {
+                    sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
+                } else {
+                    sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
+                }
                 itemModified++;
                 return true;
             } else {
