@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Office.Interop.Outlook;
 using System.IO;
 using Google.Apis.Calendar.v3.Data;
+using log4net;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -19,6 +20,8 @@ namespace OutlookGoogleCalendarSync {
         private MAPIFolder useOutlookCalendar;
         private Accounts accounts;
         private Dictionary<string, MAPIFolder> calendarFolders = new Dictionary<string, MAPIFolder>();
+        private Dictionary<string, AppointmentItem> changeQueue = new Dictionary<string, AppointmentItem>();
+        private static readonly ILog log = LogManager.GetLogger(typeof(OutlookCalendar));
 
         public static OutlookCalendar Instance {
             get {
@@ -53,7 +56,6 @@ namespace OutlookGoogleCalendarSync {
         private const String gEventID = "googleEventID";
 
         public OutlookCalendar() {
-
             // Create the Outlook application.
             oApp = new Microsoft.Office.Interop.Outlook.Application();
 
@@ -96,10 +98,62 @@ namespace OutlookGoogleCalendarSync {
             instance = new OutlookCalendar();
         }
 
+        #region Push Sync
+        public void RegisterForAutoSync() {
+            log.Info("Registering for Outlook appointment change events...");
+            useOutlookCalendar.Items.ItemAdd += new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
+            useOutlookCalendar.Items.ItemChange += new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
+            //useOutlookCalendar.Items.ItemRemove += new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+        }
+
+        public void DeregisterForAutoSync() {
+            log.Info("Deregistering from Outlook appointment change events...");
+            useOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
+            useOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
+            //Can't do removes easily as the event doesn't tell us which item was removed.
+            //useOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+        }
+
+        private void appointmentItem_Add(object Item) {
+            //We could deregister the event when syncing, but then we'd have to handle 
+            //turning it back on if there's an exception. Also, no need to turn off if only going from Outlook to Google
+            if (MainForm.Instance.SyncingNow && Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) return;
+            log.Debug("Outlook item added.");
+            changeQueue_Add(Item as AppointmentItem);
+        }
+        private void appointmentItem_Change(object Item) {
+            if (MainForm.Instance.SyncingNow && Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) return;
+            log.Debug("Outlook item changed.");
+            changeQueue_Add(Item as AppointmentItem);
+        }
+        //void appointmentItem_Remove() {
+        //    log.Debug("Outlook item removed.");
+        //}
+        private void changeQueue_Add(AppointmentItem ai) {
+            if (changeQueue.ContainsKey(ai.EntryID)) 
+                changeQueue.Remove(ai.EntryID);
+            changeQueue.Add(ai.EntryID, ai);
+            //***Is this item in the right date range?
+            //***Trigger another thread in 30secs.
+            //That thread also needs to check if already syncing and maybe retry
+        }
+        #endregion
+
         public List<AppointmentItem> getCalendarEntriesInRange() {
+            return filterCalendarEntries(UseOutlookCalendar.Items);
+        }
+
+        public List<AppointmentItem> getCalendarEntriesInRange(Dictionary<String, AppointmentItem> changeQueue) {
+            Items OutlookItems = new Items();
+            foreach (KeyValuePair<String,AppointmentItem> qItem in changeQueue) {
+                OutlookItems.Add(qItem.Value);
+            }
+            return filterCalendarEntries(OutlookItems);
+        }
+
+        public List<AppointmentItem> filterCalendarEntries(Items OutlookItems) {
             List<AppointmentItem> result = new List<AppointmentItem>();
 
-            Items OutlookItems = UseOutlookCalendar.Items;
             OutlookItems.Sort("[Start]", Type.Missing);
             OutlookItems.IncludeRecurrences = true;
 
@@ -115,6 +169,7 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (Settings.Instance.CreateCSVFiles) {
+                log.Debug("Outputting CSV files...");
                 TextWriter tw = new StreamWriter("outlook_appointments.csv");
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
@@ -128,6 +183,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 tw.Close();
+                log.Debug("Done.");
             }
 
             return result;
@@ -379,6 +435,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void ReclaimOrphanCalendarEntries(ref List<AppointmentItem> oAppointments, ref List<Event> gEvents) {
+            log.Debug("Looking for orphaned items to reclaim...");
+
             //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
             int unclaimed = 0;
             List<AppointmentItem> unclaimedAi = new List<AppointmentItem>();
@@ -466,6 +524,8 @@ namespace OutlookGoogleCalendarSync {
             ref List<Event> google,
             ref List<AppointmentItem> outlook,
             Dictionary<AppointmentItem, Event> compare) {
+            log.Debug("Comparing Google events to Outlook items...");
+
             // Count backwards so that we can remove found items without affecting the order of remaining items
             for (int g = google.Count - 1; g >= 0; g--) {
                 for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -489,6 +549,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (Settings.Instance.CreateCSVFiles) {
                 //Outlook Deletions
+                log.Debug("Outputting items for deletion to CSV...");
                 TextWriter tw = new StreamWriter("outlook_delete.csv");
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(exportToCSV(ai));
@@ -496,11 +557,13 @@ namespace OutlookGoogleCalendarSync {
                 tw.Close();
 
                 //Outlook Creations
+                log.Debug("Outputting items for creation to CSV...");
                 tw = new StreamWriter("outlook_create.csv");
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(OutlookCalendar.signature(ai));
                 }
                 tw.Close();
+                log.Debug("Done.");
             }
         }
         #endregion

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Drawing;
+using log4net;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of Settings.
     /// </summary>
     public class Settings {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Settings));
         private static Settings instance;
 
         public static Settings Instance {
@@ -36,6 +38,7 @@ namespace OutlookGoogleCalendarSync {
         public int DaysInTheFuture = 60;
         public int SyncInterval = 1;
         public String SyncIntervalUnit = "Hours";
+        public bool OutlookPush = false;
         public bool AddDescription = true;
         public bool AddReminders = false;
         public bool AddAttendees = true;
@@ -45,6 +48,7 @@ namespace OutlookGoogleCalendarSync {
         
         //App behaviour
         public bool ShowBubbleTooltipWhenSyncing = false;
+        public bool StartOnStartup = true;
         public bool StartInTray = false;
         public bool MinimizeToTray = false;
         public bool CreateCSVFiles = true;
@@ -54,6 +58,38 @@ namespace OutlookGoogleCalendarSync {
         public bool VerboseOutput = false;
 
         public Settings() {
+        }
+
+        public void LogSettings() {
+            log.Info("OUTLOOK SETTINGS:-");
+            log.Info("  Service: "+ OutlookService.ToString());
+            log.Info("  Calendar: "+ UseOutlookCalendar.Name);
+            
+            log.Info("GOOGLE SETTINGS:-");
+            log.Info("  Calendar: "+ UseGoogleCalendar.Name);
+        
+            log.Info("SYNC OPTIONS:-");
+            log.Info("  SyncDirection: "+ SyncDirection.Name);
+            log.Info("  DaysInThePast: "+ DaysInThePast);
+            log.Info("  DaysInTheFuture:" + DaysInTheFuture);
+            log.Info("  SyncInterval: " + SyncInterval);
+            log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
+            log.Info("  Push Changes: " + OutlookPush);
+            log.Info("  AddDescription: " + AddDescription);
+            log.Info("  AddReminders: " + AddReminders);
+            log.Info("  AddAttendees: " + AddAttendees);
+            log.Info("  MergeItems: " + MergeItems);
+            log.Info("  DisableDelete: " + DisableDelete);
+            log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);        
+        
+            log.Info("APPLICATION BEHAVIOUR:-");
+            log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
+            log.Info("  StartOnStartup: " + StartOnStartup);
+            log.Info("  StartInTray: " + StartInTray);
+            log.Info("  MinimizeToTray: " + MinimizeToTray);
+            log.Info("  CreateCSVFiles: " + CreateCSVFiles);
+
+            log.Info("  VerboseOutput: " + VerboseOutput);
         }
     }
 }

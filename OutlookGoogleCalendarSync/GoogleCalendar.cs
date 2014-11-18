@@ -10,12 +10,14 @@ using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Util;
 using Microsoft.Office.Interop.Outlook;
+using log4net;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of GoogleCalendar.
     /// </summary>
     public class GoogleCalendar {
+        private static readonly ILog log = LogManager.GetLogger(typeof(GoogleCalendar));
 
         private static GoogleCalendar instance;
 
@@ -109,6 +111,7 @@ namespace OutlookGoogleCalendarSync {
             } while (pageToken != null);
 
             if (Settings.Instance.CreateCSVFiles) {
+                log.Debug("Outputting CSV files...");
                 TextWriter tw = new StreamWriter("google_events.csv");
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Google ID,Outlook ID";
@@ -122,6 +125,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 tw.Close();
+                log.Debug("Done.");
             }
 
             return result;
@@ -401,6 +405,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments) {
+            log.Debug("Looking for orphaned events to reclaim...");
+
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             int unclaimed = 0;
             List<Event> unclaimedEvents = new List<Event>();
@@ -564,6 +570,8 @@ namespace OutlookGoogleCalendarSync {
             ref List<AppointmentItem> outlook,
             ref List<Event> google,
             Dictionary<AppointmentItem, Event> compare) {
+            log.Debug("Comparing Outlook items to Google events...");
+
             // Count backwards so that we can remove found items without affecting the order of remaining items
             for (int o = outlook.Count - 1; o >= 0; o--) {
                 for (int g = google.Count - 1; g >= 0; g--) {
@@ -588,6 +596,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (Settings.Instance.CreateCSVFiles) {
                 //Google Deletions
+                log.Debug("Outputting items for deletion to CSV...");
                 TextWriter tw = new StreamWriter("google_delete.csv");
                 foreach (Event ev in google) {
                     tw.WriteLine(signature(ev));
@@ -595,11 +604,13 @@ namespace OutlookGoogleCalendarSync {
                 tw.Close();
 
                 //Google Creations
+                log.Debug("Outputting items for creation to CSV...");
                 tw = new StreamWriter("google_create.csv");
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(OutlookCalendar.signature(ai));
                 }
                 tw.Close();
+                log.Debug("Done.");
             }
         }
         #endregion
