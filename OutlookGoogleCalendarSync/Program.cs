@@ -26,7 +26,7 @@ namespace OutlookGoogleCalendarSync {
 
         #region Application Behaviour
         public static void AddShortcut(Environment.SpecialFolder directory, String subdir = "") {
-            log.Debug("directory: " + directory.ToString() + "; subdir: " + subdir);
+            log.Debug("AddShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
             String appPath = Application.ExecutablePath;
             if (subdir != "") subdir = "\\" + subdir;
             String shortcutDir = Environment.GetFolderPath(directory) + subdir;
@@ -49,7 +49,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static Boolean CheckShortcut(Environment.SpecialFolder directory, String subdir = "") {
-            log.Debug("directory: " + directory.ToString() + "; subdir: " + subdir);
+            log.Debug("CheckShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
             Boolean foundShortcut = false;
             if (subdir != "") subdir = "\\" + subdir;
             String shortcutDir = Environment.GetFolderPath(directory) + subdir;
@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void RemoveShortcut(Environment.SpecialFolder directory, String subdir = "") {
-            log.Debug("directory: " + directory.ToString() + "; subdir: " + subdir);
+            log.Debug("RemoveShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
             if (subdir != "") subdir = "\\" + subdir;
             String shortcutDir = Environment.GetFolderPath(directory) + subdir;
 

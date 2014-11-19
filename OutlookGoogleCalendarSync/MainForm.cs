@@ -18,7 +18,6 @@ namespace OutlookGoogleCalendarSync {
         public static MainForm Instance;
 
         public const string FILENAME = "settings.xml";
-        private string VERSION = "1.2.0";
         
         private Timer ogstimer;
         private List<int> MinuteOffsets = new List<int>();
@@ -27,13 +26,16 @@ namespace OutlookGoogleCalendarSync {
 
         private BackgroundWorker bwSync;
         public Boolean SyncingNow {
-            get { return bwSync.IsBusy; }
+            get {
+                if (bwSync == null) return false;
+                else return bwSync.IsBusy; 
+            }
         }
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
 
         public MainForm() {
                 InitializeComponent();
-                lAboutMain.Text = lAboutMain.Text.Replace("{version}", VERSION);
+                lAboutMain.Text = lAboutMain.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
 
                 Instance = this;
 
@@ -577,9 +579,10 @@ namespace OutlookGoogleCalendarSync {
             XMLManager.export(Settings.Instance, FILENAME);
 
             //Shortcut
-            if (Settings.Instance.StartOnStartup && !Program.CheckShortcut(Environment.SpecialFolder.Startup))
+            Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
+            if (Settings.Instance.StartOnStartup && !startupShortcutExists)
                 Program.AddShortcut(Environment.SpecialFolder.Startup);
-            else if (!Settings.Instance.StartOnStartup && Program.CheckShortcut(Environment.SpecialFolder.Startup))
+            else if (!Settings.Instance.StartOnStartup && startupShortcutExists)
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
             //Push Sync

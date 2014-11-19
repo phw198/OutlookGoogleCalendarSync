@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync {
         public SyncDirection SyncDirection = new SyncDirection();
         public int DaysInThePast = 1;
         public int DaysInTheFuture = 60;
-        public int SyncInterval = 1;
+        public int SyncInterval = 0;
         public String SyncIntervalUnit = "Hours";
         public bool OutlookPush = false;
         public bool AddDescription = true;
