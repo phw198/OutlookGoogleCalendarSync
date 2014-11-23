@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("OutlookGoogleCalendarSync")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("-")]
+[assembly: AssemblyCompany("Paul Woolcock")]
 [assembly: AssemblyProduct("OutlookGoogleCalendarSync")]
 [assembly: AssemblyCopyright("Copyright 2014")]
 [assembly: AssemblyTrademark("")]
@@ -29,4 +29,4 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can use the default the Revision and 
 // Build Numbers by using the '*' as shown below:
 [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyFileVersionAttribute("1.2.1")]
+[assembly: AssemblyFileVersionAttribute("1.2.1.1")]

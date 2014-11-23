@@ -6,7 +6,7 @@
         <maxSizeRollBackups value="2" />
 
         <layout type="log4net.Layout.PatternLayout">
-            <conversionPattern value="%date	%level	%thread	%logger	-	%message%newline" />
+            <conversionPattern value="%date	%level	%thread	%logger	[%L] -	%message%newline" />
         </layout>
     </appender>
     

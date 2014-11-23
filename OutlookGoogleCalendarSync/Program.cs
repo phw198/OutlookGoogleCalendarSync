@@ -17,7 +17,7 @@ namespace OutlookGoogleCalendarSync {
         [STAThread]
         private static void Main(string[] args) {
             XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
-            log.Info("Program started.");
+            log.Info("Program started: v"+ Application.ProductVersion);
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -56,8 +56,11 @@ namespace OutlookGoogleCalendarSync {
 
             if (!System.IO.Directory.Exists(shortcutDir)) return false;
 
-            foreach (String file in System.IO.Directory.EnumerateFiles(shortcutDir)) {
-                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk")) foundShortcut = true;
+            foreach (String file in System.IO.Directory.GetFiles(shortcutDir)) {
+                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk")) {
+                    foundShortcut = true;
+                    break;
+                }
             }
             return foundShortcut;
         }
@@ -71,10 +74,11 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("Failed to delete shortcut in \"" + shortcutDir + "\" - directory does not exist.");
                 return;
             }
-            foreach (String file in System.IO.Directory.EnumerateFiles(shortcutDir)) {
+            foreach (String file in System.IO.Directory.GetFiles(shortcutDir)) {
                 if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk")) {
                     System.IO.File.Delete(file);
                     log.Info("Deleted shortcut in \"" + shortcutDir + "\"");
+                    break;
                 }
             }
         }

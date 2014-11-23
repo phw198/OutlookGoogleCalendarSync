@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync {
         public void LogSettings() {
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
-            log.Info("  Calendar: "+ UseOutlookCalendar.Name);
+            log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: "+ UseGoogleCalendar.Name);
