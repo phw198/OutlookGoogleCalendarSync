@@ -263,7 +263,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void Sync_Start() {
             LogBox.Clear();
-            
+
             if (Settings.Instance.UseGoogleCalendar == null || Settings.Instance.UseGoogleCalendar.Id == "") {
                 MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                 return;
@@ -343,7 +343,7 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout("Unable to access the Outlook calendar. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Retry later.");
                 log.Error(ex.StackTrace);
-                OutlookCalendar.Instance.Reset(); 
+                try { OutlookCalendar.Instance.Reset(); } catch { }
                 return false;
             }
             Logboxout(OutlookEntries.Count + " Outlook calendar entries found.");

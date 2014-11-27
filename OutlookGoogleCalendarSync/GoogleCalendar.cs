@@ -101,6 +101,7 @@ namespace OutlookGoogleCalendarSync {
                 lr.TimeMax = GoogleTimeFrom(DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1));
                 //lr.OrderBy = EventsResource.OrderBy.StartTime;
                 lr.PageToken = pageToken;
+                lr.SingleEvents = true;
 
                 request = lr.Fetch();
                 pageToken = request.NextPageToken;
@@ -151,7 +152,11 @@ namespace OutlookGoogleCalendarSync {
                 //This will make comparison more efficient and set the scene for 2-way sync.
                 ev.ExtendedProperties = new Event.ExtendedPropertiesData();
                 ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
-                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
+                //Need to make recurring appointment IDs unique - append the item's date
+                if (ai.IsRecurring)
+                    ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
+                else
+                    ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
 
                 ev.Start = new EventDateTime();
                 ev.End = new EventDateTime();
@@ -497,12 +502,15 @@ namespace OutlookGoogleCalendarSync {
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
             for (int o = outlook.Count - 1; o >= 0; o--) {
+                String compare_oEntryID = outlook[o].EntryID;
+                //Need to make recurring appointment IDs unique - append the item's date
+                if (outlook[o].IsRecurring) compare_oEntryID += "_"+ outlook[o].Start.ToString("yyyyMMdd");
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (google[g].ExtendedProperties != null &&
                         google[g].ExtendedProperties.Private != null &&
                         google[g].ExtendedProperties.Private.ContainsKey(oEntryID)) {
                         
-                        if (outlook[o].EntryID == google[g].ExtendedProperties.Private[oEntryID]) {
+                        if (compare_oEntryID == google[g].ExtendedProperties.Private[oEntryID]) {
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
                             google.Remove(google[g]);
