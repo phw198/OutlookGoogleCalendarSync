@@ -337,7 +337,6 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Looking for orphaned events to reclaim...");
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
-            int unclaimed = 0;
             List<Event> unclaimedEvents = new List<Event>();
 
             foreach (Event ev in gEvents) {
@@ -354,7 +353,11 @@ namespace OutlookGoogleCalendarSync {
                         if (signature(ev) == OutlookCalendar.signature(ai)) {
                             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
                             if (ev.ExtendedProperties.Private == null) ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
-                            ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
+                            
+                            if (ai.IsRecurring)
+                                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
+                            else
+                                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
                             updateCalendarEntry(ev);
                             unclaimedEvents.Remove(ev);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
@@ -365,18 +368,25 @@ namespace OutlookGoogleCalendarSync {
             }
             if ((Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle ||
                     Settings.Instance.SyncDirection == SyncDirection.Bidirectional ) &&
-                unclaimedEvents.Count > 0 &&
-                !Settings.Instance.MergeItems && !Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete) {
-                    
-                if (MessageBox.Show(unclaimed + " Google calendar events can't be matched to Outlook.\r\n" +
-                    "Remember, it's recommended to have a dedicated Google calendar to sync with, "+
-                    "or you may wish to merge with unmatched events. Continue with deletions?",
-                    "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
-                        
-                    foreach (Event e in unclaimedEvents) {
-                        gEvents.Remove(e);
+                unclaimedEvents.Count > 0) 
+            {
+                log.Info(unclaimedEvents.Count +" unclaimed orphan events found.");
+                if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
+                    log.Info("These will be kept due to configuration settings.");
+                } else {
+                    if (MessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
+                        "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
+                        "or you may wish to merge with unmatched events. Continue with deletions?",
+                        "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+
+                        log.Info("User has requested to keep them.");
+                        foreach (Event e in unclaimedEvents) {
+                            gEvents.Remove(e);
+                        }
+                    } else {
+                        log.Info("User has opted to delete them.");
                     }
-                } 
+                }
             }
         }
 
@@ -393,14 +403,16 @@ namespace OutlookGoogleCalendarSync {
         }
         
         public static string signature(Event ev) {
-            ev.Start.DateTime = (ev.Start.DateTime == null) ? 
+            String signature = "";
+            signature += (ev.Start.DateTime == null) ? 
                 GoogleTimeFrom(DateTime.Parse(ev.Start.Date)) :
                 GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime));
-            ev.End.DateTime = (ev.End.DateTime == null) ?
+            signature += ";" + ((ev.End.DateTime == null) ?
                 GoogleTimeFrom(DateTime.Parse(ev.End.Date)) :
-                GoogleTimeFrom(DateTime.Parse(ev.End.DateTime));
-
-            return (ev.Start.DateTime + ";" + ev.End.DateTime + ";" + ev.Summary + ";" + ev.Location).Trim();
+                GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)));
+            signature += ";" + ev.Summary + ";" + ev.Location;
+            
+            return signature.Trim();
         }
 
         private static string exportToCSV(Event ev) {

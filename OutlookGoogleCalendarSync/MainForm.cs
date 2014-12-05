@@ -118,7 +118,8 @@ namespace OutlookGoogleCalendarSync {
             #endregion
             #region Sync Options box
             syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
-            syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
+            if (OutlookFactory.outlookVersion >= 14) 
+                syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
             //syncDirection.Items.Add(SyncDirection.Bidirectional);
             for (int i = 0; i < syncDirection.Items.Count; i++) {
                 SyncDirection sd = (syncDirection.Items[i] as SyncDirection);
@@ -251,7 +252,7 @@ namespace OutlookGoogleCalendarSync {
             if (bSyncNow.Text == "Start Sync") {
                 Sync_Start();
             } else if (bSyncNow.Text == "Stop Sync") {
-                if (!bwSync.CancellationPending) {
+                if (bwSync != null && !bwSync.CancellationPending) {
                     log.Warn("Sync cancellation requested.");
                     bwSync.CancelAsync();
                 } else {
@@ -357,7 +358,7 @@ namespace OutlookGoogleCalendarSync {
                 googleEntries = GoogleCalendar.Instance.GetCalendarEntriesInRange();
             } catch (System.Exception ex) {
                 Logboxout("Unable to connect to the Google calendar. The following error occurred:");
-                Logboxout(ex.Message + "\r\n => Check your network connection.");
+                Logboxout(ex.Message);
                 log.Error(ex.StackTrace);
                 return false;
             }
@@ -381,7 +382,14 @@ namespace OutlookGoogleCalendarSync {
             List<Event> googleEntriesToBeDeleted = new List<Event>(googleEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
-            GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
+            try {
+                GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Google calendar. The following error occurred:");
+                MainForm.Instance.Logboxout(ex.Message);
+                log.Error(ex.StackTrace);
+                return false;
+            }
             GoogleCalendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
 
             Logboxout(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.");
@@ -389,7 +397,7 @@ namespace OutlookGoogleCalendarSync {
 
             //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
-                googleEntriesToBeDeleted.Count == googleEntries.Count) {
+                googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 0) {
                 if (MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) 
@@ -438,8 +446,8 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                 } catch (System.Exception ex) {
-                    Logboxout("Unable to update new entries into the Google calendar. The following error occurred:");
-                    Logboxout(ex.Message + "\r\n => Check your network connection.");
+                    Logboxout("Unable to update existing entries in the Google calendar. The following error occurred:");
+                    Logboxout(ex.Message);
                     log.Error(ex.StackTrace);
                     return false;
                 }
@@ -466,7 +474,7 @@ namespace OutlookGoogleCalendarSync {
 
             //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
-                outlookEntriesToBeDeleted.Count == outlookEntries.Count) {
+                outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 0) {
                 if (MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
@@ -812,7 +820,12 @@ namespace OutlookGoogleCalendarSync {
             if (control.InvokeRequired) {
                 control.Invoke(new setControlPropertyThreadSafeDelegate(setControlPropertyThreadSafe), new object[] { control, propertyName, propertyValue });
             } else {
-                control.GetType().InvokeMember(propertyName, System.Reflection.BindingFlags.SetProperty, null, control, new object[] { propertyValue });
+                var theObject = control.GetType().InvokeMember(propertyName, System.Reflection.BindingFlags.SetProperty, null, control, new object[] { propertyValue });
+                if (control.GetType().Name == "TextBox") {
+                    TextBox tb = control as TextBox;
+                    tb.SelectionStart = tb.Text.Length;
+                    tb.ScrollToCaret();
+                }
             }
         }
         #endregion
