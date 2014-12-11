@@ -274,6 +274,12 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout("There does not appear to be any network available! Sync aborted.");
                 return;
             }
+            //Check if Outlook is Online
+            if (OutlookCalendar.Instance.IOutlook.Offline() && Settings.Instance.AddAttendees) {
+                Logboxout("You have selected to sync attendees but Outlook is currently offline.");
+                Logboxout("Either put Outlook online or do not sync attendees.");
+                return;
+            }
             bSyncNow.Text = "Stop Sync";
             lNextSyncVal.Text = "In progress...";
 

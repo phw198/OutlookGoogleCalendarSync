@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync {
 
             //Log on by using a dialog box to choose the profile.
             oNS.Logon("", "", true, true);
-            currentUserSMTP = ((oNS.CurrentUser as Recipient).PropertyAccessor as PropertyAccessor).GetProperty(PR_SMTP_ADDRESS).ToString().ToLower();
+            currentUserSMTP = GetRecipientEmail(oNS.CurrentUser);
             currentUserName = oNS.CurrentUser.Name;
 
             //Alternate logon method that uses a specific profile.
@@ -81,6 +81,9 @@ namespace OutlookGoogleCalendarSync {
         }
         public String CurrentUserName() {
             return currentUserName;
+        }
+        public Boolean Offline() {
+            return oApp.GetNamespace("mapi").Offline;
         }
 
         private const String gEventID = "googleEventID";
@@ -213,8 +216,7 @@ namespace OutlookGoogleCalendarSync {
                             for (int o = removeRecipient.Count - 1; o >= 0; o--) {
                                 Recipient recipient = removeRecipient[o];
                                 recipient.Resolve();
-                                Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
-                                String recipientSMTP = pa.GetProperty(PR_SMTP_ADDRESS).ToString();
+                                String recipientSMTP = GetRecipientEmail(recipient);
                                 if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
                                     foundRecipient = true;
                                     removeRecipient.RemoveAt(o);
@@ -302,8 +304,36 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public String GetRecipientEmail(Recipient recipient) {
-            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
-            return pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+            String retEmail = "";
+            if (recipient.AddressEntry.Type == "EX") { //Exchange
+                if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
+                    recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
+                    ExchangeUser eu = recipient.AddressEntry.GetExchangeUser();
+                    if (eu != null && eu.PrimarySmtpAddress != null)
+                        retEmail = eu.PrimarySmtpAddress;
+                    else {
+                        log.Error("Exchange does not have an email for this recipient's account!");
+                        try {
+                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
+                            retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                            log.Debug("Retrieved from PropertyAccessor instead.");
+                        } catch {
+                            log.Error("Also failed to retrieve email from PropertyAccessor.");
+                            String buildFakeEmail = recipient.Name.Replace(",", "");
+                            buildFakeEmail = buildFakeEmail.Replace(" ", "");
+                            buildFakeEmail += "@unknownemail.com";
+                            log.Debug("Built a fake email for them: " + buildFakeEmail);
+                            retEmail = buildFakeEmail;
+                        }
+                    }
+                } else {
+                    Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
+                    retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                }
+            } else {
+                retEmail = recipient.AddressEntry.Address;
+            }
+            return retEmail;
         }
 
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, Dictionary<String, Boolean> attendeesFromDescription, StringBuilder sb, ref int itemModified) {
@@ -318,23 +348,24 @@ namespace OutlookGoogleCalendarSync {
                 for (int o = ai.Recipients.Count; o > 0; o--) {
                     bool foundAttendee = false;
                     Recipient recipient = ai.Recipients[o];
+                    log.Debug("Comparing Outlook recipient: " + recipient.Name);
+                    String recipientSMTP = GetRecipientEmail(recipient);
+                    if (recipientSMTP.IndexOf("<") > 0) {
+                        recipientSMTP = recipientSMTP.Substring(recipientSMTP.IndexOf("<") + 1);
+                        recipientSMTP = recipientSMTP.TrimEnd(Convert.ToChar(">"));
+                    }
 
                     if (ev.Attendees == null) break;
                     for (int g = removeAttendee.Count - 1; g >= 0; g--) {
                         EventAttendee attendee = removeAttendee[g];
-                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
-                        String recipientSMTP = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
-                        if (recipientSMTP.IndexOf("<") > 0) {
-                            recipientSMTP = recipientSMTP.Substring(recipientSMTP.IndexOf("<") + 1);
-                            recipientSMTP = recipientSMTP.TrimEnd(Convert.ToChar(">"));
-                        }
                         if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
                             foundAttendee = true;
                             removeAttendee.RemoveAt(g);
 
                             //Optional attendee
                             bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
-                            bool gOptional = (attendee.Optional == null) ? false : (bool)ev.Attendees[g].Optional;
+                            bool gOptional = (attendee.Optional == null) ? false :
+                                (ev.Attendees[g].Optional == null ? false : (bool)ev.Attendees[g].Optional);
                             if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Optional",
                                 SyncDirection.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
                                 attendee.Optional = oOptional;

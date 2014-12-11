@@ -74,6 +74,9 @@ namespace OutlookGoogleCalendarSync {
         public String CurrentUserName() {
             return currentUserName;
         }
+        public Boolean Offline() {
+            return oApp.GetNamespace("mapi").Offline;
+        }
 
         private const String gEventID = "googleEventID";
         private const String attendeeSeparator = "\r\n===--- Attendees ---===";

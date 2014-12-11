@@ -14,6 +14,7 @@ namespace OutlookGoogleCalendarSync {
         void UseOutlookCalendar(MAPIFolder set);
         String CurrentUserSMTP();
         String CurrentUserName();
+        Boolean Offline();
 
         void CreateCalendarEntries(List<Event> events);
         void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated);
