@@ -211,8 +211,7 @@ namespace OutlookGoogleCalendarSync {
                             for (int o = removeRecipient.Count - 1; o >= 0; o--) {
                                 Recipient recipient = removeRecipient[o];
                                 recipient.Resolve();
-                                Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
-                                String recipientSMTP = ""; // pa.GetProperty(PR_SMTP_ADDRESS).ToString();
+                                String recipientSMTP = "";
                                 if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
                                     foundRecipient = true;
                                     removeRecipient.RemoveAt(o);

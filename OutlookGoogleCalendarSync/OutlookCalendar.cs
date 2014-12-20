@@ -61,54 +61,99 @@ namespace OutlookGoogleCalendarSync {
         #region Push Sync
         public void RegisterForAutoSync() {
             log.Info("Registering for Outlook appointment change events...");
+            UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
             UseOutlookCalendar.Items.ItemAdd += new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
+            UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
             UseOutlookCalendar.Items.ItemChange += new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
-            //useOutlookCalendar.Items.ItemRemove += new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+            UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+            UseOutlookCalendar.Items.ItemRemove += new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+
+            log.Debug("Create the timer for the push synchronisation");
+            MainForm.Instance.OgcsPushTimer = new Timer();
+            MainForm.Instance.OgcsPushTimer.Tick += new EventHandler(MainForm.Instance.OgcsPushTimer_Tick);
+            if (!MainForm.Instance.OgcsPushTimer.Enabled) {
+                MainForm.Instance.OgcsPushTimer.Interval = 2 * 60000;
+                MainForm.Instance.OgcsPushTimer.Tag = "PushTimer";
+                MainForm.Instance.OgcsPushTimer.Start();
+            }
         }
 
         public void DeregisterForAutoSync() {
             log.Info("Deregistering from Outlook appointment change events...");
             UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
             UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
-            //Can't do removes easily as the event doesn't tell us which item was removed.
-            //useOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+            UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+            if (MainForm.Instance.OgcsPushTimer.Enabled) 
+                MainForm.Instance.OgcsPushTimer.Stop();
         }
 
         private void appointmentItem_Add(object Item) {
-            //We could deregister the event when syncing, but then we'd have to handle 
-            //turning it back on if there's an exception. Also, no need to turn off if only going from Outlook to Google
-            if (MainForm.Instance.SyncingNow && Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) return;
-            log.Debug("Outlook item added.");
-            changeQueue_Add(Item as AppointmentItem);
+            if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) return;
+
+            log.Debug("Detected Outlook item added.");
+            AppointmentItem ai = Item as AppointmentItem;
+            
+            DateTime syncMin = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
+            DateTime syncMax = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
+            if (ai.Start >= syncMin && ai.End <= syncMax) {
+                log.Debug(GetEventSummary(ai));
+                log.Debug("Item is in sync range, so push sync flagged for Go.");
+                int pushFlag = Convert.ToInt16(MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag"));
+                pushFlag++;
+                log.Info(pushFlag + " items changed since last sync.");
+                MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag", pushFlag);
+            }
         }
         private void appointmentItem_Change(object Item) {
-            if (MainForm.Instance.SyncingNow && Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) return;
-            log.Debug("Outlook item changed.");
-            changeQueue_Add(Item as AppointmentItem);
+            if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) return;
+
+            log.Debug("Detected Outlook item changed.");
+            AppointmentItem ai = Item as AppointmentItem;
+            
+            DateTime syncMin = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
+            DateTime syncMax = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
+            if (ai.Start >= syncMin && ai.End <= syncMax) {
+                log.Debug(GetEventSummary(ai));
+                log.Debug("Item is in sync range, so push sync flagged for Go.");
+                int pushFlag = Convert.ToInt16(MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag"));
+                pushFlag++;
+                log.Info(pushFlag + " items changed since last sync.");
+                MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag", pushFlag);
+            }
         }
-        //void appointmentItem_Remove() {
-        //    log.Debug("Outlook item removed.");
-        //}
-        private void changeQueue_Add(AppointmentItem ai) {
-            if (changeQueue.ContainsKey(ai.EntryID)) 
-                changeQueue.Remove(ai.EntryID);
-            changeQueue.Add(ai.EntryID, ai);
-            //***Is this item in the right date range?
-            //***Trigger another thread in 30secs.
-            //That thread also needs to check if already syncing and maybe retry
+        private void appointmentItem_Remove() {
+            if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) return;
+
+            log.Debug("Detected Outlook item removed, so push sync flagged for Go.");
+            int pushFlag = Convert.ToInt16(MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag"));
+            pushFlag++;
+            log.Info(pushFlag + " items changed since last sync.");
+            MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.bSyncNow, "Tag", pushFlag);
         }
         #endregion
 
         public List<AppointmentItem> getCalendarEntriesInRange() {
-            return filterCalendarEntries(UseOutlookCalendar.Items);
-        }
+            List<AppointmentItem> filtered = new List<AppointmentItem>();
+            filtered = filterCalendarEntries(UseOutlookCalendar.Items);
 
-        public List<AppointmentItem> getCalendarEntriesInRange(Dictionary<String, AppointmentItem> changeQueue) {
-            Items OutlookItems = null;
-            foreach (KeyValuePair<String,AppointmentItem> qItem in changeQueue) {
-                OutlookItems.Add(qItem.Value);
+            if (Settings.Instance.CreateCSVFiles) {
+                log.Debug("Outputting CSV files...");
+                TextWriter tw = new StreamWriter("outlook_appointments.csv");
+                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
+                tw.WriteLine(CSVheader);
+                foreach (AppointmentItem ai in filtered) {
+                    try {
+                        tw.WriteLine(exportToCSV(ai));
+                    } catch {
+                        MainForm.Instance.Logboxout("Failed to output following Outlook appointment to CSV:-");
+                        MainForm.Instance.Logboxout(GetEventSummary(ai));
+                    }
+                }
+                tw.Close();
+                log.Debug("Done.");
             }
-            return filterCalendarEntries(OutlookItems);
+            return filtered;
         }
 
         public List<AppointmentItem> filterCalendarEntries(Items OutlookItems) {
@@ -120,32 +165,14 @@ namespace OutlookGoogleCalendarSync {
             if (OutlookItems != null) {
                 DateTime min = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
                 DateTime max = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
-                string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
+                string filter = "[End] >= '" + min.ToString("dd MMM yyyy HH:mm") + "' AND [Start] < '" + max.ToString("dd MMM yyyy HH:mm") + "'";
+                log.Fine("Filter string: " + filter);
 
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
                     if (ai.End == min) continue; //Required for midnight to midnight events 
                     result.Add(ai);
                 }
             }
-
-            if (Settings.Instance.CreateCSVFiles) {
-                log.Debug("Outputting CSV files...");
-                TextWriter tw = new StreamWriter("outlook_appointments.csv");
-                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
-                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
-                tw.WriteLine(CSVheader);
-                foreach (AppointmentItem ai in result) {
-                    try {
-                        tw.WriteLine(exportToCSV(ai));
-                    } catch {
-                        MainForm.Instance.Logboxout("Failed to output following Outlook appointment to CSV:-");
-                        MainForm.Instance.Logboxout(GetEventSummary(ai));
-                    }
-                }
-                tw.Close();
-                log.Debug("Done.");
-            }
-
             return result;
         }
 

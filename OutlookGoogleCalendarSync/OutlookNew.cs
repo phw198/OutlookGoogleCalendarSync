@@ -63,7 +63,8 @@ namespace OutlookGoogleCalendarSync {
         public List<String> Accounts() {
             List<String> accs = new List<String>();
             foreach (Account acc in accounts) {
-                accs.Add(acc.SmtpAddress.ToLower());
+                if (acc.SmtpAddress != null)
+                    accs.Add(acc.SmtpAddress.ToLower());
             }
             return accs;
         }
@@ -83,7 +84,12 @@ namespace OutlookGoogleCalendarSync {
             return currentUserName;
         }
         public Boolean Offline() {
-            return oApp.GetNamespace("mapi").Offline;
+            try {
+                return oApp.GetNamespace("mapi").Offline;
+            } catch {
+                OutlookCalendar.Instance.Reset();
+                return oApp.GetNamespace("mapi").Offline;
+            }
         }
 
         private const String gEventID = "googleEventID";
@@ -305,7 +311,14 @@ namespace OutlookGoogleCalendarSync {
 
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
+            log.Fine("Determining email of recipient: " + recipient.Name);
+            if (recipient.AddressEntry == null) {
+                log.Debug("No AddressEntry exists!");
+                return retEmail;
+            }
+            log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
             if (recipient.AddressEntry.Type == "EX") { //Exchange
+                log.Fine("Address is from Exchange");
                 if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
                     recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
                     ExchangeUser eu = recipient.AddressEntry.GetExchangeUser();
@@ -327,12 +340,16 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                 } else {
+                    log.Fine("Exchange type: " + recipient.AddressEntry.AddressEntryUserType.ToString());
+                    log.Fine("Using PropertyAccessor to get email address.");
                     Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
                     retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
                 }
             } else {
+                log.Fine("Not from Exchange");
                 retEmail = recipient.AddressEntry.Address;
             }
+            log.Fine("Email address: " + retEmail);
             return retEmail;
         }
 
@@ -364,8 +381,7 @@ namespace OutlookGoogleCalendarSync {
 
                             //Optional attendee
                             bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
-                            bool gOptional = (attendee.Optional == null) ? false :
-                                (ev.Attendees[g].Optional == null ? false : (bool)ev.Attendees[g].Optional);
+                            bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
                             if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Optional",
                                 SyncDirection.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
                                 attendee.Optional = oOptional;

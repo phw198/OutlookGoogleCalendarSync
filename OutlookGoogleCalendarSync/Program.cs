@@ -13,9 +13,12 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
         private static string logFile = "logger.xml";
-
+        //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
+        public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
+            
         [STAThread]
         private static void Main(string[] args) {
+            log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
             log.Info("Program started: v"+ Application.ProductVersion);
             

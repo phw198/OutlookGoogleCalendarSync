@@ -102,7 +102,7 @@ namespace OutlookGoogleCalendarSync {
                 //lr.OrderBy = EventsResource.OrderBy.StartTime;
                 lr.PageToken = pageToken;
                 lr.SingleEvents = true;
-
+                
                 request = lr.Fetch();
                 pageToken = request.NextPageToken;
 
@@ -281,7 +281,9 @@ namespace OutlookGoogleCalendarSync {
                                 } else {
                                     sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                     ev.Reminders.Overrides.Remove(reminder);
-                                    ev.Reminders.UseDefault = true;
+                                    if (ev.Reminders.Overrides == null || ev.Reminders.Overrides.Count == 0) {
+                                        ev.Reminders.UseDefault = true;
+                                    }
                                     itemModified++;
                                 } //if Outlook reminders set
                             } //if google reminder found
@@ -394,12 +396,7 @@ namespace OutlookGoogleCalendarSync {
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"
         public static string GoogleTimeFrom(DateTime dt) {
-            string timezone = TimeZoneInfo.Local.GetUtcOffset(dt).ToString();
-            if (timezone[0] != '-') timezone = '+' + timezone;
-            timezone = timezone.Substring(0, 6);
-
-            string result = dt.GetDateTimeFormats('s')[0] + timezone;
-            return result;
+            return dt.ToString("yyyy-MM-ddTHH:mm:sszzz");
         }
         
         public static string signature(Event ev) {

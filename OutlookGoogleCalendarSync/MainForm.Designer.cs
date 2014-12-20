@@ -206,9 +206,10 @@
             this.bSyncNow.Name = "bSyncNow";
             this.bSyncNow.Size = new System.Drawing.Size(98, 31);
             this.bSyncNow.TabIndex = 0;
+            this.bSyncNow.Tag = "0";
             this.bSyncNow.Text = "Start Sync";
             this.bSyncNow.UseVisualStyleBackColor = true;
-            this.bSyncNow.Click += new System.EventHandler(this.Sync_Click);
+            this.bSyncNow.Click += new System.EventHandler(this.sync_Click);
             // 
             // tabPage_Settings
             // 
@@ -567,7 +568,6 @@
             // cbOutlookPush
             // 
             this.cbOutlookPush.AutoSize = true;
-            this.cbOutlookPush.Enabled = false;
             this.cbOutlookPush.Location = new System.Drawing.Point(15, 119);
             this.cbOutlookPush.Name = "cbOutlookPush";
             this.cbOutlookPush.Size = new System.Drawing.Size(191, 17);
@@ -892,7 +892,6 @@
         private System.Windows.Forms.Label lDaysInFuture;
         private System.Windows.Forms.GroupBox gbSyncOptions;
         private System.Windows.Forms.Button bSave;
-        private System.Windows.Forms.Button bSyncNow;
         private System.Windows.Forms.TabPage tabPage_Sync;
         private System.Windows.Forms.Button bGetGoogleCalendars;
         private System.Windows.Forms.GroupBox gbOutlook;
@@ -935,5 +934,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.CheckBox cbOutlookPush;
+        public System.Windows.Forms.Button bSyncNow;
 	}
 }
