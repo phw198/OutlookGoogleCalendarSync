@@ -52,6 +52,7 @@ namespace OutlookGoogleCalendarSync {
         public bool StartInTray = false;
         public bool MinimizeToTray = false;
         public bool CreateCSVFiles = true;
+        public String LoggingLevel = "DEBUG";
 
         public DateTime LastSyncDate = new DateTime(0);
 
@@ -90,6 +91,9 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  CreateCSVFiles: " + CreateCSVFiles);
 
             log.Info("  VerboseOutput: " + VerboseOutput);
+            //To pick up from settings.xml file:
+            //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
+            log.Info("Logging Level: "+ LoggingLevel); 
         }
     }
 }

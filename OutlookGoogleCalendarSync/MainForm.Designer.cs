@@ -62,6 +62,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.gbAppBehaviour = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbLoggingLevel = new System.Windows.Forms.ComboBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
             this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
@@ -230,7 +232,7 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.tbHelp);
-            this.panel1.Location = new System.Drawing.Point(218, 375);
+            this.panel1.Location = new System.Drawing.Point(218, 395);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(263, 90);
             this.panel1.TabIndex = 19;
@@ -464,6 +466,8 @@
             // 
             this.gbAppBehaviour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbAppBehaviour.Controls.Add(this.label3);
+            this.gbAppBehaviour.Controls.Add(this.cbLoggingLevel);
             this.gbAppBehaviour.Controls.Add(this.cbStartOnStartup);
             this.gbAppBehaviour.Controls.Add(this.cbShowBubbleTooltips);
             this.gbAppBehaviour.Controls.Add(this.cbMinimizeToTray);
@@ -471,10 +475,41 @@
             this.gbAppBehaviour.Controls.Add(this.cbCreateFiles);
             this.gbAppBehaviour.Location = new System.Drawing.Point(218, 238);
             this.gbAppBehaviour.Name = "gbAppBehaviour";
-            this.gbAppBehaviour.Size = new System.Drawing.Size(263, 122);
+            this.gbAppBehaviour.Size = new System.Drawing.Size(263, 146);
             this.gbAppBehaviour.TabIndex = 11;
             this.gbAppBehaviour.TabStop = false;
             this.gbAppBehaviour.Text = "Application Behaviour";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 120);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(70, 13);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Logging level";
+            // 
+            // cbLoggingLevel
+            // 
+            this.cbLoggingLevel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbLoggingLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbLoggingLevel.FormattingEnabled = true;
+            this.cbLoggingLevel.Items.AddRange(new object[] {
+            "Off",
+            "Fatal",
+            "Error",
+            "Warn",
+            "Info",
+            "Debug",
+            "Fine",
+            "All"});
+            this.cbLoggingLevel.Location = new System.Drawing.Point(79, 116);
+            this.cbLoggingLevel.Name = "cbLoggingLevel";
+            this.cbLoggingLevel.Size = new System.Drawing.Size(174, 21);
+            this.cbLoggingLevel.TabIndex = 9;
+            this.cbLoggingLevel.Tag = "l";
+            this.cbLoggingLevel.SelectedIndexChanged += new System.EventHandler(this.cbLoggingLevel_SelectedIndexChanged);
             // 
             // cbStartOnStartup
             // 
@@ -489,7 +524,7 @@
             // 
             // cbShowBubbleTooltips
             // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(9, 95);
+            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(9, 76);
             this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
             this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 24);
             this.cbShowBubbleTooltips.TabIndex = 7;
@@ -519,7 +554,7 @@
             // 
             // cbCreateFiles
             // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(9, 76);
+            this.cbCreateFiles.Location = new System.Drawing.Point(9, 95);
             this.cbCreateFiles.Name = "cbCreateFiles";
             this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
             this.cbCreateFiles.TabIndex = 7;
@@ -935,5 +970,7 @@
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.CheckBox cbOutlookPush;
         public System.Windows.Forms.Button bSyncNow;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cbLoggingLevel;
 	}
 }

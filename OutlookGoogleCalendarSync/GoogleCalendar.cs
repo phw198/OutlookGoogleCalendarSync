@@ -146,6 +146,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
+                log.Fine("Processing >> " + OutlookCalendar.GetEventSummary(ai));
                 Event ev = new Event();
 
                 //Add the Outlook appointment ID into Google event.
@@ -206,8 +207,11 @@ namespace OutlookGoogleCalendarSync {
                 if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
                 
                 int itemModified = 0;
+                String aiSummary = OutlookCalendar.GetEventSummary(ai);
+                log.Fine("Processing >> " + aiSummary);
+
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                sb.AppendLine(OutlookCalendar.GetEventSummary(ai));
+                sb.AppendLine(aiSummary);
                 if (ai.AllDayEvent) {
                     ev.Start.DateTime = null;
                     ev.End.DateTime = null;

@@ -150,13 +150,18 @@ namespace OutlookGoogleCalendarSync {
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
+            for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
+                if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
+                    cbLoggingLevel.SelectedIndex = i;
+                    break;
+                }
+            }
             this.gbAppBehaviour.ResumeLayout();
             #endregion
             lastSyncDate = Settings.Instance.LastSyncDate;
             cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             this.ResumeLayout();
             #endregion
-
             Settings.Instance.LogSettings();
 
             log.Debug("Create the timer for the auto synchronisation");
@@ -334,7 +339,7 @@ namespace OutlookGoogleCalendarSync {
             Logboxout(Settings.Instance.SyncDirection.Name);
             Logboxout("--------------------------------------------------");
 
-            OutlookCalendar.Instance.DeregisterForAutoSync();
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.DeregisterForAutoSync();
 
             Boolean syncOk = false;
             int failedAttempts = 0;
@@ -372,7 +377,7 @@ namespace OutlookGoogleCalendarSync {
             Logboxout("--------------------------------------------------");
             Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
 
-            OutlookCalendar.Instance.RegisterForAutoSync();
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
 
             if (!updateSyncSchedule) {
                 lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
@@ -607,6 +612,7 @@ namespace OutlookGoogleCalendarSync {
             //Truncate long strings
             String googleAttr_stub = (googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr;
             String outlookAttr_stub = (outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr;
+            log.Fine("Comparing " + attrDesc);
             if (googleAttr != outlookAttr) {
                 if (fromTo == SyncDirection.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr_stub + " => " + googleAttr_stub);
@@ -619,6 +625,7 @@ namespace OutlookGoogleCalendarSync {
             return false;
         }
         public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, Boolean googleAttr, Boolean outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+            log.Fine("Comparing " + attrDesc);
             if (googleAttr != outlookAttr) {
                 if (fromTo == SyncDirection.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
@@ -637,10 +644,9 @@ namespace OutlookGoogleCalendarSync {
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
                 String existingText = GetControlPropertyThreadSafe(LogBox, "Text") as String;
                 SetControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
-                
-                if (verbose) log.Debug(s);
-                else log.Info(s);
             }
+            if (verbose) log.Debug(s);
+            else log.Info(s);
         }
 
         public void HandleException(System.Exception ex) {
@@ -859,6 +865,11 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CreateCSVFiles = cbCreateFiles.Checked;
+        }
+        
+        private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
+            ((log4net.Repository.Hierarchy.Logger)log.Logger).Level = log.Logger.Repository.LevelMap[MainForm.Instance.cbLoggingLevel.Text]; 
+            Settings.Instance.LoggingLevel = MainForm.Instance.cbLoggingLevel.Text.ToUpper();
         }
         #endregion
 

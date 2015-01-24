@@ -170,7 +170,7 @@ namespace OutlookGoogleCalendarSync
             // 
             this.label12.Location = new System.Drawing.Point(38, 175);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(468, 30);
+            this.label12.Size = new System.Drawing.Size(468, 26);
             this.label12.TabIndex = 13;
             this.label12.Text = "Once you click OK, Outlook Google Calendar Sync will store this code and use it t" +
                 "o gain a Google access token whenever it syncs.";

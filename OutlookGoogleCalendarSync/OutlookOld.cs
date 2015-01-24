@@ -83,6 +83,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void CreateCalendarEntries(List<Event> events) {
             foreach (Event ev in events) {
+                log.Fine("Processing >> " + GoogleCalendar.GetEventSummary(ev));
                 AppointmentItem ai = useOutlookCalendar.Items.Add() as AppointmentItem;
 
                 //Add the Google event ID into Outlook appointment.
@@ -144,8 +145,11 @@ namespace OutlookGoogleCalendarSync {
                 if (DateTime.Parse(ev.Updated) < DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
 
                 int itemModified = 0;
+                String evSummary = GoogleCalendar.GetEventSummary(ev);
+                log.Fine("Processing >> " + evSummary);
+
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                sb.AppendLine(GoogleCalendar.GetEventSummary(ev));
+                sb.AppendLine(evSummary);
 
                 if (ev.Start.Date != null) {
                     ai.AllDayEvent = true;
@@ -211,7 +215,7 @@ namespace OutlookGoogleCalendarSync {
                             for (int o = removeRecipient.Count - 1; o >= 0; o--) {
                                 Recipient recipient = removeRecipient[o];
                                 recipient.Resolve();
-                                String recipientSMTP = "";
+                                String recipientSMTP = GetRecipientEmail(recipient);
                                 if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
                                     foundRecipient = true;
                                     removeRecipient.RemoveAt(o);
@@ -382,6 +386,6 @@ namespace OutlookGoogleCalendarSync {
             }
             return (itemModified > 0);
         }
-
+        
     }
 }

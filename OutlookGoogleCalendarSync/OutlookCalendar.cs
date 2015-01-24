@@ -83,7 +83,7 @@ namespace OutlookGoogleCalendarSync {
             UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
             UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
             UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
-            if (MainForm.Instance.OgcsPushTimer.Enabled) 
+            if (MainForm.Instance.OgcsPushTimer != null && MainForm.Instance.OgcsPushTimer.Enabled) 
                 MainForm.Instance.OgcsPushTimer.Stop();
         }
 
@@ -295,10 +295,13 @@ namespace OutlookGoogleCalendarSync {
 
         public static string GetEventSummary(AppointmentItem ai) {
             String eventSummary = "";
-            if (ai.AllDayEvent)
+            if (ai.AllDayEvent) {
+                log.Fine("GetSummary - all day event");
                 eventSummary += DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.Start)).ToString("dd/MM/yyyy");
-            else
+            } else {
+                log.Fine("GetSummary - not all day event");
                 eventSummary += DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.Start)).ToString("dd/MM/yyyy HH:mm");
+            }
             eventSummary += " => ";
             eventSummary += '"' + ai.Subject + '"';
             return eventSummary;
