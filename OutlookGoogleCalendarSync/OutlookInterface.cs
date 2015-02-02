@@ -16,12 +16,7 @@ namespace OutlookGoogleCalendarSync {
         String CurrentUserName();
         Boolean Offline();
 
-        void CreateCalendarEntries(List<Event> events);
-        void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated);
-
         String GetRecipientEmail(Recipient recipient);
-        Event AddGoogleAttendee(EventAttendee ea, Event ev);
-        Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, Dictionary<String,Boolean> attendeesFromDescription, StringBuilder sb, ref int itemModified);
-        
+
     }
 }

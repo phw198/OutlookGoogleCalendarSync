@@ -17,10 +17,10 @@ namespace OutlookGoogleCalendarSync {
             getOutlookVersion();
             outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
             if (testing2003) outlookVersion = 11;
-            if (outlookVersion >= 14) { //2010 or newer
+            if (outlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {
-                if (MessageBox.Show("Support for Outlook 2007 and earlier is not properly supported yet.\r\n" +
+                if (MessageBox.Show("Sync for Outlook 2007 and earlier is undergoing development.\r\n" +
                     "Click OK to continue...but please be patient with bugs!", "Under construction",
                     MessageBoxButtons.OKCancel) == DialogResult.OK) {
                     return new OutlookOld();

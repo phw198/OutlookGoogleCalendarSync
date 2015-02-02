@@ -9,8 +9,8 @@ using Google.Apis.Authentication.OAuth2.DotNetOpenAuth;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Util;
-using Microsoft.Office.Interop.Outlook;
 using log4net;
+using Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -179,7 +179,7 @@ namespace OutlookGoogleCalendarSync {
                 if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1) { //Don't add attendees if there's only 1 (me)
                     foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
                         EventAttendee ea = GoogleCalendar.CreateAttendee(recipient, ai);
-                        ev = OutlookCalendar.Instance.IOutlook.AddGoogleAttendee(ea, ev);
+                        ev.Attendees.Add(ea);
                     }
                 }
 
@@ -236,15 +236,7 @@ namespace OutlookGoogleCalendarSync {
                 if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, ai.Subject, sb, ref itemModified)) {
                     ev.Summary = ai.Subject;
                 }
-                Boolean bodyChanged = false;
-                Dictionary<String,Boolean> attendeesFromDescription = new Dictionary<String,Boolean>();
-                if (!Settings.Instance.AddDescription) ai.Body = "";
-                if (OutlookFactory.outlookVersion < 14 && ev.Description != null) {
-                    attendeesFromDescription = OutlookOld.GetAttendeesFromDescription(ev.Description);
-                    ev.Description = OutlookOld.GetDescription(ev.Description);
-                }
-                if (MainForm.CompareAttribute("Description", SyncDirection.OutlookToGoogle, ev.Description, ai.Body, sb, ref itemModified)) {
-                    bodyChanged = true;
+                if (Settings.Instance.AddDescription && MainForm.CompareAttribute("Description", SyncDirection.OutlookToGoogle, ev.Description, ai.Body, sb, ref itemModified)) {
                     ev.Description = ai.Body;
                 }
                 if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified)) ev.Location = ai.Location;
@@ -260,15 +252,8 @@ namespace OutlookGoogleCalendarSync {
                     ev.Transparency = oFreeBusy;
                 }
                 
-                Boolean recipientsChanged = false;
                 if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1) {
-                    recipientsChanged = OutlookCalendar.Instance.IOutlook.CompareRecipientsToAttendees(ai, ev, attendeesFromDescription, sb, ref itemModified);
-                }
-                if (OutlookFactory.outlookVersion < 14 && (bodyChanged || recipientsChanged)) {
-                    foreach (Recipient recipient in ai.Recipients) {
-                        EventAttendee ea = CreateAttendee(recipient, ai);
-                        ev = OutlookCalendar.Instance.IOutlook.AddGoogleAttendee(ea, ev);
-                    }
+                    OutlookCalendar.Instance.CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
                 }
                         
                 //Reminders
@@ -489,7 +474,7 @@ namespace OutlookGoogleCalendarSync {
             EventAttendee ea = new EventAttendee();
             ea.DisplayName = recipient.Name;
             ea.Email = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);
-            ea.Optional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
+            ea.Optional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
             ea.Organizer = (ai.Organizer == recipient.Name);
             ea.Self = (OutlookCalendar.Instance.CurrentUserName == recipient.Name);
             switch (recipient.MeetingResponseStatus) {

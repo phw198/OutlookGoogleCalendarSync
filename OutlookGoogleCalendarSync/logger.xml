@@ -14,4 +14,7 @@
         <level value="DEBUG" />
         <appender-ref ref="RollingFile" />
     </root>
+    <logger name="DotNetOpenAuth">
+      <level value="WARN" />
+    </logger>
 </log4net>

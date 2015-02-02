@@ -114,8 +114,7 @@ namespace OutlookGoogleCalendarSync {
             #endregion
             #region Sync Options box
             syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
-            if (OutlookFactory.outlookVersion >= 14) 
-                syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
+            syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
             //syncDirection.Items.Add(SyncDirection.Bidirectional);
             for (int i = 0; i < syncDirection.Items.Count; i++) {
                 SyncDirection sd = (syncDirection.Items[i] as SyncDirection);
@@ -868,8 +867,10 @@ namespace OutlookGoogleCalendarSync {
         }
         
         private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
-            ((log4net.Repository.Hierarchy.Logger)log.Logger).Level = log.Logger.Repository.LevelMap[MainForm.Instance.cbLoggingLevel.Text]; 
+            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level = log.Logger.Repository.LevelMap[MainForm.Instance.cbLoggingLevel.Text];
+            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
             Settings.Instance.LoggingLevel = MainForm.Instance.cbLoggingLevel.Text.ToUpper();
+            log.Info("Logging level changing to " + Settings.Instance.LoggingLevel);
         }
         #endregion
 

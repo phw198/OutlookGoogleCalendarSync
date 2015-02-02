@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
-using Google.Apis.Calendar.v3.Data;
+using System.Runtime.InteropServices;
 
 namespace OutlookGoogleCalendarSync {
     class OutlookOld : OutlookInterface {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookOld));
-
+        
         private Application oApp;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
@@ -79,313 +77,292 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private const String gEventID = "googleEventID";
-        private const String attendeeSeparator = "\r\n===--- Attendees ---===";
-
-        public void CreateCalendarEntries(List<Event> events) {
-            foreach (Event ev in events) {
-                log.Fine("Processing >> " + GoogleCalendar.GetEventSummary(ev));
-                AppointmentItem ai = useOutlookCalendar.Items.Add() as AppointmentItem;
-
-                //Add the Google event ID into Outlook appointment.
-                ai.UserProperties.Add(gEventID, OlUserPropertyType.olText);
-                ai.UserProperties[gEventID].Value = ev.Id;
-
-                ai.Start = new DateTime();
-                ai.End = new DateTime();
-
-                if (ev.Start.Date != null) {
-                    ai.AllDayEvent = true;
-                    ai.Start = DateTime.Parse(ev.Start.Date);
-                    ai.End = DateTime.Parse(ev.End.Date);
-                } else {
-                    ai.AllDayEvent = false;
-                    ai.Start = DateTime.Parse(ev.Start.DateTime);
-                    ai.End = DateTime.Parse(ev.End.DateTime);
-                }
-                ai.Subject = ev.Summary;
-                if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
-                ai.Location = ev.Location;
-                ai.Sensitivity = (ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
-
-                Boolean foundCurrentUser = false;
-                if (Settings.Instance.AddAttendees && ev.Attendees != null) {
-                    foreach (EventAttendee ea in ev.Attendees) {
-                        if (ea.DisplayName == currentUserName) foundCurrentUser = true;
-                        ai.Recipients.Add(ea.DisplayName);
-                        bool gOptional = (ea.Optional == null) ? false : (bool)ea.Optional;
-                        if (gOptional) {
-                            ai.OptionalAttendees += "; " + ea.Email;
-                            ai.RequiredAttendees = ai.RequiredAttendees.Replace(ea.Email, "");
-                        }
-                    }
-                }
-                if (!foundCurrentUser) ai.Recipients.Add(currentUserSMTP);
-                ai.Recipients.ResolveAll();
-                
-                //Reminder alert
-                if (Settings.Instance.AddReminders && ev.Reminders != null && ev.Reminders.Overrides != null) {
-                    foreach (EventReminder reminder in ev.Reminders.Overrides) {
-                        if (reminder.Method == "popup") {
-                            ai.ReminderSet = true;
-                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                        }
-                    }
-                }
-
-                MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai), verbose: true);
-                OutlookCalendar.AddCalendarEntry(ai);
-            }
-        }
-
-        public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
-            foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
-                AppointmentItem ai = compare.Key;
-                Event ev = compare.Value;
-                if (DateTime.Parse(ev.Updated) < DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
-
-                int itemModified = 0;
-                String evSummary = GoogleCalendar.GetEventSummary(ev);
-                log.Fine("Processing >> " + evSummary);
-
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                sb.AppendLine(evSummary);
-
-                if (ev.Start.Date != null) {
-                    ai.AllDayEvent = true;
-                    if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook, ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
-                        ai.Start = DateTime.Parse(ev.Start.Date);
-                    }
-                    if (MainForm.CompareAttribute("End time", SyncDirection.GoogleToOutlook, ev.End.Date, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
-                        ai.End = DateTime.Parse(ev.End.Date);
-                    }
-                } else {
-                    ai.AllDayEvent = false;
-                    if (MainForm.CompareAttribute("Start time",
-                        SyncDirection.GoogleToOutlook,
-                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime)),
-                        GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
-                        ai.Start = DateTime.Parse(ev.Start.DateTime);
-                    }
-                    if (MainForm.CompareAttribute("End time",
-                        SyncDirection.GoogleToOutlook,
-                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)),
-                        GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
-                        ai.End = DateTime.Parse(ev.End.DateTime);
-                    }
-                }
-                if (MainForm.CompareAttribute("Subject", SyncDirection.GoogleToOutlook, ev.Summary, ai.Subject, sb, ref itemModified)) {
-                    ai.Subject = ev.Summary;
-                }
-
-                Dictionary<String, Boolean> attendees = GetAttendeesFromDescription(ev.Description);
-                ev.Description = GetDescription(ev.Description);
-                if (!Settings.Instance.AddDescription) ev.Description = "";
-                if (MainForm.CompareAttribute("Description", SyncDirection.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified))
-                    ai.Body = ev.Description;
-                
-                if (MainForm.CompareAttribute("Location", SyncDirection.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
-                    ai.Location = ev.Location;
-
-                String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
-                String gPrivacy = (ev.Visibility == null ? "default" : ev.Visibility);
-                if (MainForm.CompareAttribute("Private", SyncDirection.GoogleToOutlook, gPrivacy, oPrivacy, sb, ref itemModified)) {
-                    ai.Sensitivity = (ev.Visibility != null && ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                }
-                String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
-                String gFreeBusy = (ev.Transparency == null ? "opaque" : ev.Transparency);
-                if (MainForm.CompareAttribute("Free/Busy", SyncDirection.GoogleToOutlook, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
-                    ai.BusyStatus = (ev.Transparency != null && ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
-                }
-
-                if (Settings.Instance.AddAttendees) {
-                    //Build a list of Outlook attendees. Any remaining at the end of the diff must be deleted.
-                    List<Recipient> removeRecipient = new List<Recipient>();
-                    if (ai.Recipients != null) {
-                        foreach (Recipient recipient in ai.Recipients) {
-                            removeRecipient.Add(recipient);
-                        }
-                    }
-                    if (ev.Attendees != null && ev.Attendees.Count > 1) {
-                        for (int g = ev.Attendees.Count - 1; g >= 0; g--) {
-                            bool foundRecipient = false;
-                            EventAttendee attendee = ev.Attendees[g];
-
-                            if (ai.Recipients == null) break;
-                            for (int o = removeRecipient.Count - 1; o >= 0; o--) {
-                                Recipient recipient = removeRecipient[o];
-                                recipient.Resolve();
-                                String recipientSMTP = GetRecipientEmail(recipient);
-                                if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
-                                    foundRecipient = true;
-                                    removeRecipient.RemoveAt(o);
-
-                                    //Optional attendee
-                                    bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
-                                    bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
-                                    if (MainForm.CompareAttribute("Recipient " + recipient.Name + " - Optional",
-                                        SyncDirection.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
-                                        if (gOptional) {
-                                            ai.OptionalAttendees += "; " + recipient.Name;
-                                            ai.RequiredAttendees = ai.RequiredAttendees.Replace(recipient.Name, "");
-                                        } else {
-                                            ai.RequiredAttendees += "; " + recipient.Name;
-                                            ai.OptionalAttendees = ai.OptionalAttendees.Replace(recipient.Name, "");
-                                        }
-                                    }
-                                    //Response is readonly in Outlook :(
-                                    break;
-                                }
-                            }
-                            if (!foundRecipient) {
-                                sb.AppendLine("Recipient added: " + attendee.DisplayName);
-                                ai.Recipients.Add(attendee.Email).Resolve();
-                                if (attendee.Optional != null && (bool)attendee.Optional) {
-                                    ai.OptionalAttendees += ";" + attendee.Email;
-                                } else {
-                                    ai.RequiredAttendees += ";" + attendee.Email;
-                                }
-                                itemModified++;
-                            }
-                        }
-                    } //more than just 1 (me) recipients
-
-                    foreach (Recipient recipient in removeRecipient) {
-                        if (recipient.Name != currentUserName) {
-                            //Outlook must have current user as recipient, Google doesn't (organiser doesn't have to be an attendee)
-                            sb.AppendLine("Recipient removed: " + recipient.Name);
-                            recipient.Delete();
-                            itemModified++;
-                        }
-                    }
-                    //Reminders
-                    if (Settings.Instance.AddReminders) {
-                        if (ev.Reminders.Overrides != null) {
-                            //Find the popup reminder in Google
-                            for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
-                                EventReminder reminder = ev.Reminders.Overrides[r];
-                                if (reminder.Method == "popup") {
-                                    if (ai.ReminderSet) {
-                                        if (MainForm.CompareAttribute("Reminder", SyncDirection.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                        }
-                                    } else {
-                                        sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
-                                        ai.ReminderSet = true;
-                                        ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                        itemModified++;
-                                    } //if Outlook reminders set
-                                } //if google reminder found
-                            } //foreach reminder
-
-                        } else { //no google reminders set
-                            if (ai.ReminderSet) {
-                                sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
-                                ai.ReminderSet = false;
-                                itemModified++;
-                            }
-                        }
-                    }
-                }
-                if (itemModified > 0) {
-                    MainForm.Instance.Logboxout(sb.ToString(), false, verbose: true);
-                    MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose: true);
-                    System.Windows.Forms.Application.DoEvents();
-
-                    OutlookCalendar.Instance.UpdateCalendarEntry(ai);
-                    entriesUpdated++;
-                }
-            }
-        }
 
         public String GetRecipientEmail(Recipient recipient) {
-            return "";
-        }
-
-        public Event AddGoogleAttendee(EventAttendee ea, Event ev) {
-            if (ev.Description==null || !ev.Description.Contains(attendeeSeparator)) {
-                ev.Description += attendeeSeparator;
+            String retEmail = "";
+            log.Fine("Determining email of recipient: " + recipient.Name);
+            if (recipient.AddressEntry == null) {
+                log.Warn("No AddressEntry exists!");
+                return retEmail;
             }
-            ev.Description += "\r\n" + ea.DisplayName;
-            if ((bool)ea.Optional)
-                ev.Description += " >> Optional";
-            return ev;
-        }
-
-        public static String GetDescription(String description) {
-            if (description.Contains(attendeeSeparator)) {
-                string[] splitter = new string[] { attendeeSeparator };
-                string[] result = description.Split(splitter,2,StringSplitOptions.None);
-                return result[0];
-            } 
-            return description;
-        }
-
-        public static Dictionary<String,Boolean> GetAttendeesFromDescription(String description) {
-            Dictionary<String,Boolean> attendeeList = new Dictionary<String,Boolean>();
-            if (description.Contains(attendeeSeparator)) {
-                string[] splitter = new string[] { attendeeSeparator };
-                string[] result = description.Split(splitter, 2, StringSplitOptions.None);
-                if (result.Count() == 2) {
-                    splitter = new string[] { "\r\n" };
-                    string[] attendees = result[1].Split(splitter, 100, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (String attendee in attendees) {
-                        String attendeeName = attendee;
-                        Boolean optional = false;
-                        if (attendee.Contains(" >> Optional")) {
-                            optional = true;
-                            attendeeName = attendee.Replace(" >> Optional", "");
-                        }
-                        attendeeList.Add(attendeeName, optional);
-                    }
-                }
+            log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
+            if (recipient.AddressEntry.Type == "EX") { //Exchange
+                log.Fine("Address is from Exchange");
+                retEmail = ADX_GetSMTPAddress(recipient.AddressEntry.Address);
+            } else {
+                log.Fine("Not from Exchange");
+                retEmail = recipient.AddressEntry.Address;
             }
-            return attendeeList;
-        }
-
-        public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, 
-            Dictionary<String, Boolean> attendeesFromDescription, 
-            StringBuilder sb, ref int itemModified
-        ) {
-            //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
-            Dictionary<String, Boolean> removeAttendee = attendeesFromDescription;
+            if (retEmail == null || retEmail == String.Empty || retEmail == "" || retEmail == "Unknown") {
+                log.Error("Failed to get email address through Addin MAPI access!");
+                String buildFakeEmail = recipient.Name.Replace(",", "");
+                buildFakeEmail = buildFakeEmail.Replace(" ", "");
+                buildFakeEmail += "@unknownemail.com";
+                log.Debug("Built a fake email for them: " + buildFakeEmail);
+                retEmail = buildFakeEmail;
+            }                
             
-            if (ai.Recipients.Count > 1) {
-                for (int o = ai.Recipients.Count; o > 0; o--) {
-                    bool foundAttendee = false;
-                    Recipient recipient = ai.Recipients[o];
+            log.Fine("Email address: " + retEmail);
+            return retEmail;
+        }
 
-                    for (int g = removeAttendee.Count - 1; g >= 0; g--) {
-                        String attendeeName = removeAttendee.Keys.ElementAt(g);
-                        if (recipient.Name == attendeeName) {
-                            foundAttendee = true;
+        #region Addin Express Code
+        //This code has been sourced from:
+        //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/
+        //https://www.add-in-express.com/files/howtos/blog/adx-ol-smtp-address-cs.zip
+        public static string ADX_GetSMTPAddress(string exchangeAddress) {
+            string smtpAddress = string.Empty;
+            IAddrBook addrBook = ADX_GetAddrBook();
+            if (addrBook != null)
+                try {
+                    IntPtr szPtr = IntPtr.Zero;
+                    IntPtr propValuePtr = Marshal.AllocHGlobal(16);
+                    IntPtr adrListPtr = Marshal.AllocHGlobal(16);
 
-                            //Optional attendee
-                            bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(recipient.Name));
-                            bool gOptional = removeAttendee.Values.ElementAt(g);
-                            if (MainForm.CompareAttribute("Attendee " + attendeeName + " - Optional",
-                                SyncDirection.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
-                                    itemModified++;
+                    Marshal.WriteInt32(propValuePtr, (int)MAPI.PR_DISPLAY_NAME);
+                    Marshal.WriteInt32(new IntPtr(propValuePtr.ToInt32() + 4), 0);
+                    szPtr = Marshal.StringToHGlobalAnsi(exchangeAddress);
+                    Marshal.WriteInt64(new IntPtr(propValuePtr.ToInt32() + 8), szPtr.ToInt32());
+
+                    Marshal.WriteInt32(adrListPtr, 1);
+                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 4), 0);
+                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 8), 1);
+                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 12), propValuePtr.ToInt32());
+                    try {
+                        if (addrBook.ResolveName(0, MAPI.MAPI_DIALOG, null, adrListPtr) == MAPI.S_OK) {
+                            SPropValue spValue = new SPropValue();
+                            int pcount = Marshal.ReadInt32(new IntPtr(adrListPtr.ToInt32() + 8));
+                            IntPtr props = new IntPtr(Marshal.ReadInt32(new IntPtr(adrListPtr.ToInt32() + 12)));
+                            for (int i = 0; i < pcount; i++) {
+                                spValue = (SPropValue)Marshal.PtrToStructure(
+                                    new IntPtr(props.ToInt32() + (16 * i)), typeof(SPropValue));
+                                if (spValue.ulPropTag == MAPI.PR_ENTRYID) {
+                                    IntPtr addrEntryPtr = IntPtr.Zero;
+                                    IntPtr propAddressPtr = IntPtr.Zero;
+                                    uint objType = 0;
+                                    uint cb = (uint)(spValue.Value & 0xFFFFFFFF);
+                                    IntPtr entryID = new IntPtr((int)(spValue.Value >> 32));
+                                    if (addrBook.OpenEntry(cb, entryID, IntPtr.Zero, 0, out objType, out addrEntryPtr) == MAPI.S_OK)
+                                        try {
+                                            if (MAPI.HrGetOneProp(addrEntryPtr, MAPI.PR_EMS_AB_PROXY_ADDRESSES, out propAddressPtr) == MAPI.S_OK) {
+                                                IntPtr emails = IntPtr.Zero;
+                                                SPropValue addrValue = (SPropValue)Marshal.PtrToStructure(propAddressPtr, typeof(SPropValue));
+                                                int acount = (int)(addrValue.Value & 0xFFFFFFFF);
+                                                IntPtr pemails = new IntPtr((int)(addrValue.Value >> 32));
+                                                for (int j = 0; j < acount; j++) {
+                                                    emails = new IntPtr(Marshal.ReadInt32(new IntPtr(pemails.ToInt32() + (4 * j))));
+                                                    smtpAddress = Marshal.PtrToStringAnsi(emails);
+                                                    if (smtpAddress.IndexOf("SMTP:") == 0) {
+                                                        smtpAddress = smtpAddress.Substring(5, smtpAddress.Length - 5);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        finally {
+                                            if (propAddressPtr != IntPtr.Zero)
+                                                Marshal.Release(propAddressPtr);
+                                            if (addrEntryPtr != IntPtr.Zero)
+                                                Marshal.Release(addrEntryPtr);
+                                        }
+                                }
                             }
-                            removeAttendee.Remove(attendeeName);
                         }
                     }
-                    if (!foundAttendee) {
-                        sb.AppendLine("Attendee added: " + recipient.Name);
-                        EventAttendee ea = GoogleCalendar.CreateAttendee(recipient, ai);
-                        attendeesFromDescription.Add(ea.DisplayName, (bool)ea.Optional);
-                        removeAttendee.Remove(recipient.Name);
-                        itemModified++;
+                    finally {
+                        Marshal.FreeHGlobal(szPtr);
+                        Marshal.FreeHGlobal(propValuePtr);
+                        Marshal.FreeHGlobal(adrListPtr);
                     }
                 }
-            } //more than just 1 (me) recipients
-            
-            foreach (KeyValuePair<String,Boolean> attendee in removeAttendee) {
-                sb.AppendLine("Attendee removed: " + attendee.Key);
-                itemModified++;
-            }
-            return (itemModified > 0);
+                finally {
+                    Marshal.ReleaseComObject(addrBook);
+                }
+            return smtpAddress;
         }
+
+        private static IAddrBook ADX_GetAddrBook() {
+            if (MAPI.MAPIInitialize(IntPtr.Zero) == MAPI.S_OK) {
+                IntPtr sessionPtr = IntPtr.Zero;
+                MAPI.MAPILogonEx(0, null, null, MAPI.MAPI_EXTENDED | MAPI.MAPI_ALLOW_OTHERS, out sessionPtr);
+                if (sessionPtr == IntPtr.Zero)
+                    MAPI.MAPILogonEx(0, null, null, MAPI.MAPI_EXTENDED | MAPI.MAPI_NEW_SESSION | MAPI.MAPI_USE_DEFAULT, out sessionPtr);
+                if (sessionPtr != IntPtr.Zero)
+                    try {
+                        object sessionObj = Marshal.GetObjectForIUnknown(sessionPtr);
+                        if (sessionObj != null)
+                            try {
+                                IMAPISession session = sessionObj as IMAPISession;
+                                if (session != null) {
+                                    IntPtr addrBookPtr = IntPtr.Zero;
+                                    session.OpenAddressBook(0, IntPtr.Zero, MAPI.AB_NO_DIALOG, out addrBookPtr);
+                                    if (addrBookPtr != IntPtr.Zero)
+                                        try {
+                                            object addrBookObj = Marshal.GetObjectForIUnknown(addrBookPtr);
+                                            if (addrBookObj != null)
+                                                return addrBookObj as IAddrBook;
+                                        }
+                                        finally {
+                                            Marshal.Release(addrBookPtr);
+                                        }
+                                }
+                            }
+                            finally {
+                                Marshal.ReleaseComObject(sessionObj);
+                            }
+                    }
+                    finally {
+                        Marshal.Release(sessionPtr);
+                    }
+            } else
+                throw new ApplicationException("MAPI can not be initialized.");
+            return null;
+        }
+
+        #region Extended MAPI routines
+
+        internal class MAPI {
+            public const int S_OK = 0;
+
+            public const uint MV_FLAG = 0x1000;
+
+            public const uint PT_UNSPECIFIED = 0;
+            public const uint PT_NULL = 1;
+            public const uint PT_I2 = 2;
+            public const uint PT_LONG = 3;
+            public const uint PT_R4 = 4;
+            public const uint PT_DOUBLE = 5;
+            public const uint PT_CURRENCY = 6;
+            public const uint PT_APPTIME = 7;
+            public const uint PT_ERROR = 10;
+            public const uint PT_BOOLEAN = 11;
+            public const uint PT_OBJECT = 13;
+            public const uint PT_I8 = 20;
+            public const uint PT_STRING8 = 30;
+            public const uint PT_UNICODE = 31;
+            public const uint PT_SYSTIME = 64;
+            public const uint PT_CLSID = 72;
+            public const uint PT_BINARY = 258;
+            public const uint PT_MV_TSTRING = (MV_FLAG | PT_STRING8);
+
+            public const uint PR_SENDER_ADDRTYPE = (PT_STRING8 | (0x0C1E << 16));
+            public const uint PR_SENDER_EMAIL_ADDRESS = (PT_STRING8 | (0x0C1F << 16));
+            public const uint PR_SENDER_NAME = (PT_STRING8 | (0x0C1A << 16));
+            public const uint PR_ADDRTYPE = (PT_STRING8 | (0x3002 << 16));
+            public const uint PR_ADDRTYPE_W = (PT_UNICODE | (0x3002 << 16));
+            public const uint PR_EMAIL_ADDRESS = (PT_STRING8 | (0x3003 << 16));
+            public const uint PR_EMAIL_ADDRESS_W = (PT_UNICODE | (0x3003 << 16));
+            public const uint PR_DISPLAY_NAME = (PT_STRING8 | (0x3001 << 16));
+            public const uint PR_DISPLAY_NAME_W = (PT_UNICODE | (0x3001 << 16));
+            public const uint PR_ENTRYID = (PT_BINARY | (0x0FFF << 16));
+            public const uint PR_EMS_AB_PROXY_ADDRESSES = unchecked((uint)(PT_MV_TSTRING | (0x800F << 16)));
+
+            public const uint PR_SMTP_ADDRESS = (PT_STRING8 | (0x39FE << 16));
+            public const uint PR_SMTP_ADDRESS_W = (PT_UNICODE | (0x39FE << 16));
+
+            public const uint MAPI_NEW_SESSION = 0x00000002;
+            public const uint MAPI_FORCE_DOWNLOAD = 0x00001000;
+            public const uint MAPI_LOGON_UI = 0x00000001;
+            public const uint MAPI_ALLOW_OTHERS = 0x00000008;
+            public const uint MAPI_EXPLICIT_PROFILE = 0x00000010;
+            public const uint MAPI_EXTENDED = 0x00000020;
+            public const uint MAPI_SERVICE_UI_ALWAYS = 0x00002000;
+            public const uint MAPI_NO_MAIL = 0x00008000;
+            public const uint MAPI_USE_DEFAULT = 0x00000040;
+
+            public const uint AB_NO_DIALOG = 0x00000001;
+            public const uint MAPI_DIALOG = 0x00000008;
+
+            public const string IID_IMAPIProp = "00020303-0000-0000-C000-000000000046";
+
+            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "HrGetOneProp@12")]
+            public static extern int HrGetOneProp(IntPtr pmp, uint ulPropTag, out IntPtr ppProp);
+
+            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPIFreeBuffer@4")]
+            public static extern void MAPIFreeBuffer(IntPtr lpBuffer);
+
+            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPIInitialize@4")]
+            public static extern int MAPIInitialize(IntPtr lpMapiInit);
+
+            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPILogonEx@20")]
+            public static extern int MAPILogonEx(uint ulUIParam, [MarshalAs(UnmanagedType.LPWStr)] string lpszProfileName,
+                [MarshalAs(UnmanagedType.LPWStr)] string lpszPassword, uint flFlags, out IntPtr lppSession);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SPropValue {
+            public uint ulPropTag;
+            public uint dwAlignPad;
+            public long Value;
+        }
+
+        [ComImport, ComVisible(false), InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
+        Guid("00020300-0000-0000-C000-000000000046")]
+        public interface IMAPISession {
+            int GetLastError(int hResult, uint ulFlags, out IntPtr lppMAPIError);
+            int GetMsgStoresTable(uint ulFlags, out IntPtr lppTable);
+            int OpenMsgStore(uint ulUIParam, uint cbEntryID, IntPtr lpEntryID, ref Guid lpInterface, uint ulFlags, out IntPtr lppMDB);
+            int OpenAddressBook(uint ulUIParam, IntPtr lpInterface, uint ulFlags, out IntPtr lppAdrBook);
+            int OpenProfileSection(ref Guid lpUID, ref Guid lpInterface, uint ulFlags, out IntPtr lppProfSect);
+            int GetStatusTable(uint ulFlags, out IntPtr lppTable);
+            int OpenEntry(uint cbEntryID, IntPtr lpEntryID, ref Guid lpInterface, uint ulFlags, out uint lpulObjType, out IntPtr lppUnk);
+            int CompareEntryIDs(uint cbEntryID1, IntPtr lpEntryID1, uint cbEntryID2, IntPtr lpEntryID2, uint ulFlags, out uint lpulResult);
+            int Advise(uint cbEntryID, IntPtr lpEntryID, uint ulEventMask, IntPtr lpAdviseSink, out uint lpulConnection);
+            int Unadvise(uint ulConnection);
+            int MessageOptions(uint ulUIParam, uint ulFlags, [MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, IntPtr lpMessage);
+            int QueryDefaultMessageOpt([MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, uint ulFlags, out uint lpcValues, out IntPtr lppOptions);
+            int EnumAdrTypes(uint ulFlags, out uint lpcAdrTypes, out IntPtr lpppszAdrTypes);
+            int QueryIdentity(out uint lpcbEntryID, out IntPtr lppEntryID);
+            int Logoff(uint ulUIParam, uint ulFlags, uint ulReserved);
+            int SetDefaultStore(uint ulFlags, uint cbEntryID, IntPtr lpEntryID);
+            int AdminServices(uint ulFlags, out IntPtr lppServiceAdmin);
+            int ShowForm(uint ulUIParam, IntPtr lpMsgStore, IntPtr lpParentFolder, ref Guid lpInterface, uint ulMessageToken,
+                IntPtr lpMessageSent, uint ulFlags, uint ulMessageStatus, uint ulMessageFlags, uint ulAccess, [MarshalAs(UnmanagedType.LPWStr)] string lpszMessageClass);
+            int PrepareForm(ref Guid lpInterface, IntPtr lpMessage, out uint lpulMessageToken);
+        }
+
+        [ComImport, ComVisible(false), InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
+        Guid("00020309-0000-0000-C000-000000000046")]
+        public interface IAddrBook {
+            int GetLastError(int hResult, uint ulFlags, out IntPtr lppMAPIError);
+            int SaveChanges(uint ulFlags);
+            int GetProps(IntPtr lpPropTagArray, uint ulFlags, out uint lpcValues, out IntPtr lppPropArray);
+            int GetPropList(uint ulFlags, out IntPtr lppPropTagArray);
+            int OpenProperty(uint ulPropTag, ref Guid lpiid, uint ulInterfaceOptions, uint ulFlags, out IntPtr lppUnk);
+            int SetProps(uint cValues, IntPtr lpPropArray, out IntPtr lppProblems);
+            int DeleteProps(IntPtr lpPropTagArray, out IntPtr lppProblems);
+            int CopyTo(uint ciidExclude, ref Guid rgiidExclude, IntPtr lpExcludeProps, uint ulUIParam,
+                IntPtr lpProgress, ref Guid lpInterface, IntPtr lpDestObj, uint ulFlags, out IntPtr lppProblems);
+            int CopyProps(IntPtr lpIncludeProps, uint ulUIParam, IntPtr lpProgress, ref Guid lpInterface,
+                IntPtr lpDestObj, uint ulFlags, out IntPtr lppProblems);
+            int GetNamesFromIDs(out IntPtr lppPropTags, ref Guid lpPropSetGuid, uint ulFlags,
+                out uint lpcPropNames, out IntPtr lpppPropNames);
+            int GetIDsFromNames(uint cPropNames, ref IntPtr lppPropNames, uint ulFlags, out IntPtr lppPropTags);
+            int OpenEntry(uint cbEntryID, IntPtr lpEntryID, IntPtr lpInterface, uint ulFlags, out uint lpulObjType, out IntPtr lppUnk);
+            int CompareEntryIDs(uint cbEntryID1, IntPtr lpEntryID1, uint cbEntryID2, IntPtr lpEntryID2, uint ulFlags, out uint lpulResult);
+            int Advise(uint cbEntryID, IntPtr lpEntryID, uint ulEventMask, IntPtr lpAdviseSink, out uint lpulConnection);
+            int Unadvise(uint ulConnection);
+            int CreateOneOff([MarshalAs(UnmanagedType.LPWStr)] string lpszName, [MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType,
+                [MarshalAs(UnmanagedType.LPWStr)] string lpszAddress, uint ulFlags, out uint lpcbEntryID, out IntPtr lppEntryID);
+            int NewEntry(uint ulUIParam, uint ulFlags, uint cbEIDContainer, IntPtr lpEIDContainer, uint cbEIDNewEntryTpl, IntPtr lpEIDNewEntryTpl, out uint lpcbEIDNewEntry, out IntPtr lppEIDNewEntry);
+            int ResolveName(uint ulUIParam, uint ulFlags, [MarshalAs(UnmanagedType.LPWStr)] string lpszNewEntryTitle, IntPtr lpAdrList);
+            int Address(out uint lpulUIParam, IntPtr lpAdrParms, out IntPtr lppAdrList);
+            int Details(out uint lpulUIParam, IntPtr lpfnDismiss, IntPtr lpvDismissContext, uint cbEntryID, IntPtr lpEntryID,
+                IntPtr lpfButtonCallback, IntPtr lpvButtonContext, [MarshalAs(UnmanagedType.LPWStr)] string lpszButtonText, uint ulFlags);
+            int RecipOptions(uint ulUIParam, uint ulFlags, IntPtr lpRecip);
+            int QueryDefaultRecipOpt([MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, uint ulFlags, out uint lpcValues, out IntPtr lppOptions);
+            int GetPAB(out uint lpcbEntryID, out IntPtr lppEntryID);
+            int SetPAB(uint cbEntryID, IntPtr lpEntryID);
+            int GetDefaultDir(out uint lpcbEntryID, out IntPtr lppEntryID);
+            int SetDefaultDir(uint cbEntryID, IntPtr lpEntryID);
+            int GetSearchPath(uint ulFlags, out IntPtr lppSearchPath);
+            int SetSearchPath(uint ulFlags, IntPtr lpSearchPath);
+            int PrepareRecips(uint ulFlags, IntPtr lpSPropTagArray, IntPtr lpRecipList);
+        }
+
+        #endregion
+
+        #endregion
         
     }
 }
