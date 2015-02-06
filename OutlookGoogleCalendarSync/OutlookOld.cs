@@ -81,9 +81,15 @@ namespace OutlookGoogleCalendarSync {
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
+            try {
+                AddressEntry addressEntry = recipient.AddressEntry;
+            } catch {
+                log.Warn("Can't resolve this recipient!");
+                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+            }
             if (recipient.AddressEntry == null) {
                 log.Warn("No AddressEntry exists!");
-                return retEmail;
+                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
             }
             log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
             if (recipient.AddressEntry.Type == "EX") { //Exchange
@@ -95,13 +101,8 @@ namespace OutlookGoogleCalendarSync {
             }
             if (retEmail == null || retEmail == String.Empty || retEmail == "" || retEmail == "Unknown") {
                 log.Error("Failed to get email address through Addin MAPI access!");
-                String buildFakeEmail = recipient.Name.Replace(",", "");
-                buildFakeEmail = buildFakeEmail.Replace(" ", "");
-                buildFakeEmail += "@unknownemail.com";
-                log.Debug("Built a fake email for them: " + buildFakeEmail);
-                retEmail = buildFakeEmail;
-            }                
-            
+                retEmail = OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+            }                           
             log.Fine("Email address: " + retEmail);
             return retEmail;
         }

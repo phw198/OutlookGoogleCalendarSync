@@ -99,9 +99,9 @@ namespace OutlookGoogleCalendarSync {
 
                 lr.TimeMin = GoogleTimeFrom(DateTime.Today.AddDays(-Settings.Instance.DaysInThePast));
                 lr.TimeMax = GoogleTimeFrom(DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1));
-                //lr.OrderBy = EventsResource.OrderBy.StartTime;
                 lr.PageToken = pageToken;
                 lr.SingleEvents = true;
+                lr.OrderBy = EventsResource.OrderBy.StartTime;
                 
                 request = lr.Fetch();
                 pageToken = request.NextPageToken;
@@ -475,8 +475,7 @@ namespace OutlookGoogleCalendarSync {
             ea.DisplayName = recipient.Name;
             ea.Email = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);
             ea.Optional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
-            ea.Organizer = (ai.Organizer == recipient.Name);
-            ea.Self = (OutlookCalendar.Instance.CurrentUserName == recipient.Name);
+            //Readonly: ea.Organizer = (ai.Organizer == recipient.Name);
             switch (recipient.MeetingResponseStatus) {
                 case OlResponseStatus.olResponseNone: ea.ResponseStatus = "needsAction"; break;
                 case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;

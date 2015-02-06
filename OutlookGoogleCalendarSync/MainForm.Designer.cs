@@ -942,7 +942,6 @@
         private System.Windows.Forms.ComboBox ddMailboxName;
         private System.Windows.Forms.TextBox txtEWSServerURL;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.RadioButton rbOutlookDefaultMB;
         private System.Windows.Forms.RadioButton rbOutlookAltMB;
         private System.Windows.Forms.RadioButton rbOutlookEWS;
         private System.Windows.Forms.ComboBox cbOutlookCalendars;
@@ -972,5 +971,6 @@
         public System.Windows.Forms.Button bSyncNow;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cbLoggingLevel;
+        public System.Windows.Forms.RadioButton rbOutlookDefaultMB;
 	}
 }

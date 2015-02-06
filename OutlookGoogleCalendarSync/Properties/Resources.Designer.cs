@@ -60,6 +60,13 @@ namespace OutlookGoogleCalendarSync.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap ogcs {
+            get {
+                object obj = ResourceManager.GetObject("ogcs", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap paypalDonate {
             get {
                 object obj = ResourceManager.GetObject("paypalDonate", resourceCulture);

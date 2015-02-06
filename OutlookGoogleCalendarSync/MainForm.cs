@@ -701,7 +701,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region Outlook settings
-        private void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
+        public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
             if (rbOutlookDefaultMB.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
                 OutlookCalendar.Instance.Reset();

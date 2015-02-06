@@ -93,7 +93,12 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  VerboseOutput: " + VerboseOutput);
             //To pick up from settings.xml file:
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
-            log.Info("Logging Level: "+ LoggingLevel); 
+            log.Info("  Logging Level: "+ LoggingLevel); 
+
+            log.Info("ENVIRONMENT:-");
+            log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
+            log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+            log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
         }
     }
 }

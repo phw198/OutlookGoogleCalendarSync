@@ -24,6 +24,16 @@ namespace OutlookGoogleCalendarSync {
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            Form splash = new Splash();
+            splash.Show();
+            DateTime splashed = DateTime.Now;
+            while (DateTime.Now < splashed.AddSeconds(8) && !splash.IsDisposed) {
+                Application.DoEvents();
+                System.Threading.Thread.Sleep(100);
+            }
+            if (!splash.IsDisposed) splash.Close();
+
             Application.Run(new MainForm());
         }
 

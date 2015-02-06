@@ -20,13 +20,7 @@ namespace OutlookGoogleCalendarSync {
             if (outlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {
-                if (MessageBox.Show("Sync for Outlook 2007 and earlier is undergoing development.\r\n" +
-                    "Click OK to continue...but please be patient with bugs!", "Under construction",
-                    MessageBoxButtons.OKCancel) == DialogResult.OK) {
-                    return new OutlookOld();
-                } else {
-                    System.Windows.Forms.Application.Exit();
-                }
+                return new OutlookOld();
             }
             return null;
         }

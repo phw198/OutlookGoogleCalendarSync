@@ -38,7 +38,20 @@ namespace OutlookGoogleCalendarSync {
 
             // Get the Default Calendar folder
             if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
-                useOutlookCalendar = oNS.Folders[Settings.Instance.MailboxName].Folders["Calendar"];
+                foreach (Folder folder in oNS.Folders[Settings.Instance.MailboxName].Folders) {
+                    if (folder.DefaultItemType == OlItemType.olAppointmentItem) {
+                        log.Fine("Alternate mailbox default Calendar folder: " + folder.Name);
+                        useOutlookCalendar = folder;
+                    }
+                }
+                if (useOutlookCalendar == null) {
+                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
+                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+                    MainForm.Instance.rbOutlookDefaultMB.Checked = true;
+                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+                    useOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+                }
             } else {
                 // Use the logged in user's Calendar folder.
                 useOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
@@ -89,13 +102,20 @@ namespace OutlookGoogleCalendarSync {
 
         private const String gEventID = "googleEventID";
         public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+        private const String PR_ORIGINAL_DISPLAY_NAME = "http://schemas.microsoft.com/mapi/proptag/0x3A13001E";
 
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
+            try {
+                AddressEntry addressEntry = recipient.AddressEntry;
+            } catch {
+                log.Warn("Can't resolve this recipient!");
+                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+            }
             if (recipient.AddressEntry == null) {
-                log.Debug("No AddressEntry exists!");
-                return retEmail;
+                log.Warn("No AddressEntry exists!");
+                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
             }
             log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
             if (recipient.AddressEntry.Type == "EX") { //Exchange
@@ -106,19 +126,31 @@ namespace OutlookGoogleCalendarSync {
                     if (eu != null && eu.PrimarySmtpAddress != null)
                         retEmail = eu.PrimarySmtpAddress;
                     else {
-                        log.Error("Exchange does not have an email for this recipient's account!");
+                        log.Warn("Exchange does not have an email for this recipient's account!");
                         try {
+                            //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
                             Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
                             retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
                             log.Debug("Retrieved from PropertyAccessor instead.");
                         } catch {
-                            log.Error("Also failed to retrieve email from PropertyAccessor.");
-                            String buildFakeEmail = recipient.Name.Replace(",", "");
-                            buildFakeEmail = buildFakeEmail.Replace(" ", "");
-                            buildFakeEmail += "@unknownemail.com";
-                            log.Debug("Built a fake email for them: " + buildFakeEmail);
-                            retEmail = buildFakeEmail;
+                            log.Warn("Also failed to retrieve email from PropertyAccessor.");
+                            retEmail = OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
                         }
+                    }
+
+                } else if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
+                    log.Fine("This is an Exchange contact");
+                    ContactItem contact = null;
+                    try {
+                        contact = recipient.AddressEntry.GetContact();
+                    } catch {
+                        log.Warn("Doesn't seem to be a valid contact object. Maybe this account is not longer in Exchange.");
+                        retEmail = OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+                    }
+                    if (contact != null) {
+                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = contact.PropertyAccessor;
+                        retEmail = pa.GetProperty(OutlookNew.PR_ORIGINAL_DISPLAY_NAME).ToString();
+                        retEmail = contact.Email1Address;
                     }
                 } else {
                     log.Fine("Exchange type: " + recipient.AddressEntry.AddressEntryUserType.ToString());
