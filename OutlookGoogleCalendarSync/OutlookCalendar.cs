@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (Settings.Instance.CreateCSVFiles) {
                 log.Debug("Outputting CSV files...");
-                TextWriter tw = new StreamWriter("outlook_appointments.csv");
+                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_appointments.csv"));
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
                 tw.WriteLine(CSVheader);
@@ -197,11 +197,11 @@ namespace OutlookGoogleCalendarSync {
             return result;
         }
 
-        public static void AddCalendarEntry(AppointmentItem ai) {
+        private static void addCalendarEntry(AppointmentItem ai) {
             ai.Save();
         }
 
-        public void UpdateCalendarEntry(AppointmentItem ai) {
+        private void updateCalendarEntry(AppointmentItem ai) {
             ai.Save();
         }
 
@@ -238,7 +238,7 @@ namespace OutlookGoogleCalendarSync {
 
                 if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                     foreach (EventAttendee ea in ev.Attendees) {
-                        CreateRecipient(ea, ai);
+                        createRecipient(ea, ai);
                     }
                 }
 
@@ -253,7 +253,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai), verbose: true);
-                OutlookCalendar.AddCalendarEntry(ai);
+                OutlookCalendar.addCalendarEntry(ai);
             }
         }
 
@@ -317,52 +317,57 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 if (Settings.Instance.AddAttendees) {
-                    //Build a list of Outlook attendees. Any remaining at the end of the diff must be deleted.
-                    List<Recipient> removeRecipient = new List<Recipient>();
-                    if (ai.Recipients != null) {
-                        foreach (Recipient recipient in ai.Recipients) {
-                            removeRecipient.Add(recipient);
-                        }
-                    }
-                    if (ev.Attendees != null) {
-                        for (int g = ev.Attendees.Count - 1; g >= 0; g--) {
-                            bool foundRecipient = false;
-                            EventAttendee attendee = ev.Attendees[g];
-
+                    if (ev.Description != null && ev.Description.Contains("===--- Attendees ---===")) {
+                        //Protect against <v1.2.4 where attendees were stored as text
+                        log.Info("This event still has attendee information in the description - cannot sync them.");
+                    } else {
+                        //Build a list of Outlook attendees. Any remaining at the end of the diff must be deleted.
+                        List<Recipient> removeRecipient = new List<Recipient>();
+                        if (ai.Recipients != null) {
                             foreach (Recipient recipient in ai.Recipients) {
-                                if (!recipient.Resolved) recipient.Resolve();
-                                String recipientSMTP = IOutlook.GetRecipientEmail(recipient);
-                                if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
-                                    foundRecipient = true;
-                                    removeRecipient.Remove(recipient);
+                                removeRecipient.Add(recipient);
+                            }
+                        }
+                        if (ev.Attendees != null) {
+                            for (int g = ev.Attendees.Count - 1; g >= 0; g--) {
+                                bool foundRecipient = false;
+                                EventAttendee attendee = ev.Attendees[g];
 
-                                    //Optional attendee
-                                    bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(attendee.DisplayName));
-                                    bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
-                                    if (MainForm.CompareAttribute("Recipient " + recipient.Name + " - Optional Check",
-                                        SyncDirection.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
-                                        if (gOptional) {
-                                            recipient.Type = (int)OlMeetingRecipientType.olOptional;
-                                        } else {
-                                            recipient.Type = (int)OlMeetingRecipientType.olRequired;
+                                foreach (Recipient recipient in ai.Recipients) {
+                                    if (!recipient.Resolved) recipient.Resolve();
+                                    String recipientSMTP = IOutlook.GetRecipientEmail(recipient);
+                                    if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
+                                        foundRecipient = true;
+                                        removeRecipient.Remove(recipient);
+
+                                        //Optional attendee
+                                        bool oOptional = (ai.OptionalAttendees != null && ai.OptionalAttendees.Contains(attendee.DisplayName));
+                                        bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
+                                        if (MainForm.CompareAttribute("Recipient " + recipient.Name + " - Optional Check",
+                                            SyncDirection.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
+                                            if (gOptional) {
+                                                recipient.Type = (int)OlMeetingRecipientType.olOptional;
+                                            } else {
+                                                recipient.Type = (int)OlMeetingRecipientType.olRequired;
+                                            }
                                         }
+                                        //Response is readonly in Outlook :(
+                                        break;
                                     }
-                                    //Response is readonly in Outlook :(
-                                    break;
+                                }
+                                if (!foundRecipient) {
+                                    sb.AppendLine("Recipient added: " + attendee.DisplayName);
+                                    createRecipient(attendee, ai);
+                                    itemModified++;
                                 }
                             }
-                            if (!foundRecipient) {
-                                sb.AppendLine("Recipient added: " + attendee.DisplayName);
-                                OutlookCalendar.Instance.CreateRecipient(attendee, ai);
-                                itemModified++;
-                            }
                         }
-                    }
 
-                    foreach (Recipient recipient in removeRecipient) {
-                        sb.AppendLine("Recipient removed: " + recipient.Name);
-                        recipient.Delete();
-                        itemModified++;
+                        foreach (Recipient recipient in removeRecipient) {
+                            sb.AppendLine("Recipient removed: " + recipient.Name);
+                            recipient.Delete();
+                            itemModified++;
+                        }
                     }
                 }
                 //Reminders
@@ -398,8 +403,12 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose: true);
                     System.Windows.Forms.Application.DoEvents();
 
-                    OutlookCalendar.Instance.UpdateCalendarEntry(ai);
+                    OutlookCalendar.Instance.updateCalendarEntry(ai);
                     entriesUpdated++;
+                } else {
+                    //Do a dummy update in order to update the last modified date
+                    ai.Subject += " ";
+                    OutlookCalendar.Instance.updateCalendarEntry(ai);
                 }
             }
         }
@@ -440,7 +449,7 @@ namespace OutlookGoogleCalendarSync {
                         //Use simple matching on start,end,subject,location to pair events
                         if (signature(ai) == GoogleCalendar.signature(ev)) {
                             ai.UserProperties.Add(gEventID, OlUserPropertyType.olText).Value = ev.Id;
-                            UpdateCalendarEntry(ai);
+                            updateCalendarEntry(ai);
                             unclaimedAi.Remove(ai);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ai), verbose: true);
                             break;
@@ -465,7 +474,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private void CreateRecipient(EventAttendee ea, AppointmentItem ai) {
+        private void createRecipient(EventAttendee ea, AppointmentItem ai) {
             if (IOutlook.CurrentUserSMTP().ToLower() != ea.Email) {
                 Recipient recipient = ai.Recipients.Add(ea.DisplayName + "<" + ea.Email + ">");
                 recipient.Resolve();
@@ -475,7 +484,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev,/* Dictionary<String, Boolean> attendeesFromDescription,*/ StringBuilder sb, ref int itemModified) {
+        public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
             List<EventAttendee> removeAttendee = new List<EventAttendee>();
             if (ev.Attendees != null) {
@@ -541,16 +550,18 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                     if (!foundAttendee) {
+                        log.Fine("Attendee added: " + recipient.Name);
                         sb.AppendLine("Attendee added: " + recipient.Name);
                         if (ev.Attendees == null) ev.Attendees = new List<EventAttendee>();
-                        ev.Attendees.Add(GoogleCalendar.CreateAttendee(recipient, ai));
+                        ev.Attendees.Add(GoogleCalendar.CreateAttendee(recipient));
                         itemModified++;
                     }
                 }
             } //more than just 1 (me) recipients
 
             foreach (EventAttendee ea in removeAttendee) {
-                sb.AppendLine("Attendee removed: " + ea.DisplayName);
+                log.Fine("Attendee removed: " + (ea.DisplayName == null ? ea.Email : ea.DisplayName));
+                sb.AppendLine("Attendee removed: " + (ea.DisplayName==null ? ea.Email : ea.DisplayName));
                 ev.Attendees.Remove(ea);
                 itemModified++;
             }
@@ -636,7 +647,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.CreateCSVFiles) {
                 //Outlook Deletions
                 log.Debug("Outputting items for deletion to CSV...");
-                TextWriter tw = new StreamWriter("outlook_delete.csv");
+                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_delete.csv"));
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(exportToCSV(ai));
                 }
@@ -644,7 +655,7 @@ namespace OutlookGoogleCalendarSync {
 
                 //Outlook Creations
                 log.Debug("Outputting items for creation to CSV...");
-                tw = new StreamWriter("outlook_create.csv");
+                tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_create.csv"));
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(OutlookCalendar.signature(ai));
                 }

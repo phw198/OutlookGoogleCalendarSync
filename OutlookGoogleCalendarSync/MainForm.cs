@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Net;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Outlook;
-using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using log4net;
+using Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -16,8 +14,6 @@ namespace OutlookGoogleCalendarSync {
     /// </summary>
     public partial class MainForm : Form {
         public static MainForm Instance;
-
-        public const string FILENAME = "settings.xml";
 
         public Timer OgcsPushTimer;
         private Timer ogcsTimer;
@@ -48,10 +44,10 @@ namespace OutlookGoogleCalendarSync {
             System.Net.WebRequest.DefaultWebProxy = wp;
 
             log.Debug("Loading settings/creating settings file.");
-            if (File.Exists(FILENAME)) {
-                Settings.Instance = XMLManager.import<Settings>(FILENAME);
+            if (File.Exists(Program.SettingsFile)) {
+                Settings.Instance = XMLManager.import<Settings>(Program.SettingsFile);
             } else {
-                XMLManager.export(Settings.Instance, FILENAME);
+                XMLManager.export(Settings.Instance, Program.SettingsFile);
             }
 
             #region Update GUI from Settings
@@ -178,6 +174,8 @@ namespace OutlookGoogleCalendarSync {
                 "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
             toolTip1.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
+            toolTip1.SetToolTip(btResetGCal,
+                "Reset the Google account being used to synchonize with.");
             toolTip1.SetToolTip(tbInterval,
                 "Set to zero to disable");
             toolTip1.SetToolTip(cbCreateFiles,
@@ -222,7 +220,7 @@ namespace OutlookGoogleCalendarSync {
             if (cbShowBubbleTooltips.Checked) {
                 notifyIcon1.ShowBalloonTip(
                     500,
-                    "OutlookGoogleSync",
+                    "Outlook Google Calendar Sync",
                     "Autosyncing calendar...",
                     ToolTipIcon.Info
                 );
@@ -241,7 +239,7 @@ namespace OutlookGoogleCalendarSync {
                 if (cbShowBubbleTooltips.Checked) {
                     notifyIcon1.ShowBalloonTip(
                         500,
-                        "OutlookGoogleSync",
+                        "Outlook Google Calendar Sync",
                         "Autosyncing calendar...",
                         ToolTipIcon.Info
                     );
@@ -306,7 +304,9 @@ namespace OutlookGoogleCalendarSync {
         private void sync_Start(Boolean updateSyncSchedule=true) {
             LogBox.Clear();
 
-            if (Settings.Instance.UseGoogleCalendar == null || Settings.Instance.UseGoogleCalendar.Id == "") {
+            if (Settings.Instance.UseGoogleCalendar == null || 
+                Settings.Instance.UseGoogleCalendar.Id == null ||
+                Settings.Instance.UseGoogleCalendar.Id == "") {
                 MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                 return;
             }
@@ -663,7 +663,7 @@ namespace OutlookGoogleCalendarSync {
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
-            XMLManager.export(Settings.Instance, FILENAME);
+            XMLManager.export(Settings.Instance, Program.SettingsFile);
 
             //Shortcut
             Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
@@ -735,8 +735,10 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
-            Settings.Instance.MailboxName = ddMailboxName.Text;
-            OutlookCalendar.Instance.Reset();
+            if (this.Visible) {
+                Settings.Instance.MailboxName = ddMailboxName.Text;
+                OutlookCalendar.Instance.Reset();
+            }
         }
 
         private void txtEWSUser_TextChanged(object sender, EventArgs e) {
@@ -757,7 +759,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region Google settings
-        void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
+        private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
             bGetGoogleCalendars.Enabled = false;
             cbGoogleCalendars.Enabled = false;
             List<MyGoogleCalendarListEntry> calendars = null;
@@ -779,8 +781,19 @@ namespace OutlookGoogleCalendarSync {
             cbGoogleCalendars.Enabled = true;
         }
 
-        void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
+        private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.UseGoogleCalendar = (MyGoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
+        }
+
+        private void btResetGCal_Click(object sender, EventArgs e) {
+            if (MessageBox.Show("This will reset the Google account you are using to synchronise with.\r\n" +
+                "Useful if you want to start syncing to a different account.",
+                "Reset Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+                    Settings.Instance.UseGoogleCalendar.Id = null;
+                    Settings.Instance.UseGoogleCalendar.Name = null;
+                    this.cbGoogleCalendars.Items.Clear();
+                    GoogleCalendar.Instance.Reset();
+            }
         }
         #endregion
         #region Sync options
@@ -871,6 +884,13 @@ namespace OutlookGoogleCalendarSync {
             ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
             Settings.Instance.LoggingLevel = MainForm.Instance.cbLoggingLevel.Text.ToUpper();
             log.Info("Logging level changing to " + Settings.Instance.LoggingLevel);
+        }
+
+        private void btLogLocation_Click(object sender, EventArgs e) {
+            log4net.Appender.IAppender[] appenders = log.Logger.Repository.GetAppenders();
+            String logFileLocation = (((log4net.Appender.FileAppender)appenders[0]).File);
+            logFileLocation = logFileLocation.Substring(0, logFileLocation.LastIndexOf("\\"));
+            System.Diagnostics.Process.Start(@logFileLocation);
         }
         #endregion
 

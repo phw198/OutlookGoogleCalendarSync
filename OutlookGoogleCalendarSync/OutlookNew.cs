@@ -24,45 +24,37 @@ namespace OutlookGoogleCalendarSync {
             NameSpace oNS = oApp.GetNamespace("mapi");
 
             //Log on by using a dialog box to choose the profile.
-            oNS.Logon("", "", true, true);
+            //oNS.Logon("", Type.Missing, true, true); 
+
+            //Implicit logon to default profile, with no dialog box
+            //If 1< profile, a dialogue is forced unless implicit login used
+            if (oNS.ExchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
+                log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
+            }
+            
+            //Logon using a specific profile. Can't see a use case for this when using OGsync
+            //If using this logon method, change the profile name to an appropriate value:
+            //HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles
+            //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
+
+            log.Info("Exchange connection mode: " + oNS.ExchangeConnectionMode.ToString());
             currentUserSMTP = GetRecipientEmail(oNS.CurrentUser);
             currentUserName = oNS.CurrentUser.Name;
-
-            //Alternate logon method that uses a specific profile.
-            // If you use this logon method, 
-            // change the profile name to an appropriate value.
-            //oNS.Logon("YourValidProfile", Missing.Value, false, true); 
-
+            if (currentUserName == "Unknown") {
+                log.Info("Current username is \"Unknown\"");
+                if (Settings.Instance.AddAttendees) {
+                    System.Windows.Forms.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
+                        "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
+                        "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Warning);
+                }
+            }
+            
             //Get the accounts configured in Outlook
             accounts = oNS.Accounts;
-
-            // Get the Default Calendar folder
-            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
-                foreach (Folder folder in oNS.Folders[Settings.Instance.MailboxName].Folders) {
-                    if (folder.DefaultItemType == OlItemType.olAppointmentItem) {
-                        log.Fine("Alternate mailbox default Calendar folder: " + folder.Name);
-                        useOutlookCalendar = folder;
-                    }
-                }
-                if (useOutlookCalendar == null) {
-                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
-                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
-                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
-                    MainForm.Instance.rbOutlookDefaultMB.Checked = true;
-                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
-                    useOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
-                }
-            } else {
-                // Use the logged in user's Calendar folder.
-                useOutlookCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
-            }
-            calendarFolders.Add("Default " + useOutlookCalendar.Name, useOutlookCalendar);
-            //Get any subfolders - note, this isn't recursive
-            foreach (MAPIFolder calendar in useOutlookCalendar.Folders) {
-                if (calendar.DefaultItemType == OlItemType.olAppointmentItem) {
-                    calendarFolders.Add(calendar.Name, calendar);
-                }
-            }
+            
+            // Get the Calendar folders
+            useOutlookCalendar = getDefaultCalendar(oNS);
 
             // Done. Log off.
             oNS.Logoff();
@@ -103,6 +95,52 @@ namespace OutlookGoogleCalendarSync {
         private const String gEventID = "googleEventID";
         public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
         private const String PR_ORIGINAL_DISPLAY_NAME = "http://schemas.microsoft.com/mapi/proptag/0x3A13001E";
+
+        private MAPIFolder getDefaultCalendar(NameSpace oNS) {
+            MAPIFolder defaultCalendar = null;
+            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
+                log.Debug("Finding Alternative Mailbox calendar folders");
+                findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, defaultCalendar);
+
+                //Default to first calendar in drop down
+                foreach (KeyValuePair<String, MAPIFolder> calendar in calendarFolders) {
+                    defaultCalendar = calendar.Value;
+                    break;
+                }
+                if (defaultCalendar == null) {
+                    log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
+                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
+                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+                    MainForm.Instance.rbOutlookDefaultMB.Checked = true;
+                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+                    defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+                    calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
+                    findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, defaultCalendar);
+                }
+
+            } else {
+                log.Debug("Finding default Mailbox calendar folders");
+                defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+                calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
+                findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, defaultCalendar);
+            }
+            log.Debug("Default Calendar folder: " + defaultCalendar.Name);
+            return defaultCalendar;
+        }
+
+        private void findCalendars(Folders folders, Dictionary<string, MAPIFolder> calendarFolders, MAPIFolder defaultCalendar) {
+            foreach (MAPIFolder folder in folders) {
+                if (folder.DefaultItemType == OlItemType.olAppointmentItem) {
+                    if (defaultCalendar == null ||
+                        (folder.EntryID != defaultCalendar.EntryID))
+                        calendarFolders.Add(folder.Name, folder);
+                }
+                if (folder.Folders.Count > 0) {
+                    findCalendars(folder.Folders, calendarFolders, defaultCalendar);
+                }
+            }
+        }
 
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";

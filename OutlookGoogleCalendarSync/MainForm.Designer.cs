@@ -95,6 +95,8 @@
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.btResetGCal = new System.Windows.Forms.Button();
+            this.btLogLocation = new System.Windows.Forms.Button();
             this.tabSettings.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -260,6 +262,7 @@
             // 
             this.gbGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle.Controls.Add(this.btResetGCal);
             this.gbGoogle.Controls.Add(this.lGoogleHelp);
             this.gbGoogle.Controls.Add(this.lGoogleCalendar);
             this.gbGoogle.Controls.Add(this.bGetGoogleCalendars);
@@ -308,7 +311,7 @@
             this.cbGoogleCalendars.FormattingEnabled = true;
             this.cbGoogleCalendars.Location = new System.Drawing.Point(96, 42);
             this.cbGoogleCalendars.Name = "cbGoogleCalendars";
-            this.cbGoogleCalendars.Size = new System.Drawing.Size(364, 21);
+            this.cbGoogleCalendars.Size = new System.Drawing.Size(336, 21);
             this.cbGoogleCalendars.TabIndex = 1;
             this.cbGoogleCalendars.SelectedIndexChanged += new System.EventHandler(this.cbGoogleCalendars_SelectedIndexChanged);
             // 
@@ -466,6 +469,7 @@
             // 
             this.gbAppBehaviour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbAppBehaviour.Controls.Add(this.btLogLocation);
             this.gbAppBehaviour.Controls.Add(this.label3);
             this.gbAppBehaviour.Controls.Add(this.cbLoggingLevel);
             this.gbAppBehaviour.Controls.Add(this.cbStartOnStartup);
@@ -506,7 +510,7 @@
             "All"});
             this.cbLoggingLevel.Location = new System.Drawing.Point(79, 116);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
-            this.cbLoggingLevel.Size = new System.Drawing.Size(174, 21);
+            this.cbLoggingLevel.Size = new System.Drawing.Size(100, 21);
             this.cbLoggingLevel.TabIndex = 9;
             this.cbLoggingLevel.Tag = "l";
             this.cbLoggingLevel.SelectedIndexChanged += new System.EventHandler(this.cbLoggingLevel_SelectedIndexChanged);
@@ -866,8 +870,31 @@
             // notifyIcon1
             // 
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "OutlookGoogleSync";
+            this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
+            // 
+            // btResetGCal
+            // 
+            this.btResetGCal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btResetGCal.BackColor = System.Drawing.Color.Red;
+            this.btResetGCal.Location = new System.Drawing.Point(438, 41);
+            this.btResetGCal.Name = "btResetGCal";
+            this.btResetGCal.Size = new System.Drawing.Size(22, 23);
+            this.btResetGCal.TabIndex = 5;
+            this.btResetGCal.Text = "X";
+            this.btResetGCal.UseVisualStyleBackColor = false;
+            this.btResetGCal.Click += new System.EventHandler(this.btResetGCal_Click);
+            // 
+            // btLogLocation
+            // 
+            this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btLogLocation.Location = new System.Drawing.Point(185, 115);
+            this.btLogLocation.Name = "btLogLocation";
+            this.btLogLocation.Size = new System.Drawing.Size(72, 23);
+            this.btLogLocation.TabIndex = 11;
+            this.btLogLocation.Text = "Open Log";
+            this.btLogLocation.UseVisualStyleBackColor = true;
+            this.btLogLocation.Click += new System.EventHandler(this.btLogLocation_Click);
             // 
             // MainForm
             // 
@@ -972,5 +999,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cbLoggingLevel;
         public System.Windows.Forms.RadioButton rbOutlookDefaultMB;
+        private System.Windows.Forms.Button btResetGCal;
+        private System.Windows.Forms.Button btLogLocation;
 	}
 }

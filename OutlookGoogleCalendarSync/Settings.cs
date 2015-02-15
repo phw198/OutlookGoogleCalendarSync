@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using log4net;
 
 namespace OutlookGoogleCalendarSync {
@@ -62,6 +61,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void LogSettings() {
+            log.Info(Program.SettingsFile);
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);

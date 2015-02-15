@@ -209,5 +209,17 @@
     <None Include="Resources\ogcs.png" />
     <Content Include="Resources\paypalDonate.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <PublishFile Include="logger.xml">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using log4net;
 using log4net.Config;
@@ -11,13 +12,35 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Program entry point.
         /// </summary>
+        public static string UserFilePath;
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
-        private static string logFile = "logger.xml";
+        private const string logFile = "logger.xml";
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
+
+        private const String settingsFilename = "settings.xml";
+        private static String settingsFile;
+        public static String SettingsFile {
+            get { return settingsFile; }
+        }
             
         [STAThread]
         private static void Main(string[] args) {
+            #region User File Management
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            UserFilePath = Path.Combine(localAppData, Application.ProductName);
+            settingsFile = Path.Combine(UserFilePath, settingsFilename);
+            
+            if (!Directory.Exists(UserFilePath))
+                Directory.CreateDirectory(UserFilePath);
+
+            //If settings.xml file doesn't exist, copy it from the deployment location
+            if (!File.Exists(settingsFile)) {
+                string sourceFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, settingsFilename);
+                File.Copy(sourceFilePath, settingsFile);
+            }
+            #endregion
+            
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
             log.Info("Program started: v"+ Application.ProductVersion);
@@ -25,14 +48,18 @@ namespace OutlookGoogleCalendarSync {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            #region SplashScreen
             Form splash = new Splash();
             splash.Show();
             DateTime splashed = DateTime.Now;
-            while (DateTime.Now < splashed.AddSeconds(8) && !splash.IsDisposed) {
+            while (DateTime.Now < splashed.AddSeconds((System.Diagnostics.Debugger.IsAttached ? 1 :8)) && !splash.IsDisposed) {
                 Application.DoEvents();
                 System.Threading.Thread.Sleep(100);
             }
             if (!splash.IsDisposed) splash.Close();
+            #endregion 
+
+            
 
             Application.Run(new MainForm());
         }

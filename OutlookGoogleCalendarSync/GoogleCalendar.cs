@@ -38,6 +38,11 @@ namespace OutlookGoogleCalendarSync {
             service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, getAuthentication));
         }
 
+        public void Reset() {
+            instance = new GoogleCalendar();
+            Settings.Instance.RefreshToken = "";
+        }
+
         private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
             // Get the auth URL:
             IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
@@ -58,7 +63,7 @@ namespace OutlookGoogleCalendarSync {
 
                     //save the refresh token for future use
                     Settings.Instance.RefreshToken = result.RefreshToken;
-                    XMLManager.export(Settings.Instance, MainForm.FILENAME);
+                    XMLManager.export(Settings.Instance, Program.SettingsFile);
 
                     return result;
                 } else {
@@ -113,7 +118,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (Settings.Instance.CreateCSVFiles) {
                 log.Debug("Outputting CSV files...");
-                TextWriter tw = new StreamWriter("google_events.csv");
+                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_events.csv"));
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Google ID,Outlook ID";
                 tw.WriteLine(CSVheader);
@@ -178,7 +183,7 @@ namespace OutlookGoogleCalendarSync {
                 ev.Attendees = new List<EventAttendee>();
                 if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1) { //Don't add attendees if there's only 1 (me)
                     foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
-                        EventAttendee ea = GoogleCalendar.CreateAttendee(recipient, ai);
+                        EventAttendee ea = GoogleCalendar.CreateAttendee(recipient);
                         ev.Attendees.Add(ea);
                     }
                 }
@@ -212,24 +217,28 @@ namespace OutlookGoogleCalendarSync {
 
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
                 sb.AppendLine(aiSummary);
+                
+                //Handle an event's all-day attribute being toggled
+                String evStart = (ev.Start.DateTime == null) ? ev.Start.Date : ev.Start.DateTime;
+                String evEnd = (ev.End.DateTime == null) ? ev.End.Date : ev.End.DateTime;
                 if (ai.AllDayEvent) {
                     ev.Start.DateTime = null;
                     ev.End.DateTime = null;
-                    if (MainForm.CompareAttribute("Start time", SyncDirection.OutlookToGoogle, ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                    if (MainForm.CompareAttribute("Start time", SyncDirection.OutlookToGoogle, evStart, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
                         ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                     }
-                    if (MainForm.CompareAttribute("End time", SyncDirection.OutlookToGoogle, ev.End.Date, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                    if (MainForm.CompareAttribute("End time", SyncDirection.OutlookToGoogle, evEnd, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
                         ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                     }
                 } else {
                     ev.Start.Date = null;
                     ev.End.Date = null;
                     if (MainForm.CompareAttribute("Start time", SyncDirection.OutlookToGoogle,
-                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime)), GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
+                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(evStart)), GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
                         ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(ai.Start);
                     }
                     if (MainForm.CompareAttribute("End time", SyncDirection.OutlookToGoogle, 
-                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)), GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
+                        GoogleCalendar.GoogleTimeFrom(DateTime.Parse(evEnd)), GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
                         ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
                     }
                 }
@@ -295,9 +304,13 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.Logboxout(sb.ToString(), false, verbose:true);
                     MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose:true);
                     System.Windows.Forms.Application.DoEvents();
-                
+
                     GoogleCalendar.Instance.updateCalendarEntry(ev);
                     entriesUpdated++;
+                } else {
+                    //Do a dummy update in order to update the last modified date
+                    ev.Summary += " ";
+                    GoogleCalendar.Instance.updateCalendarEntry(ev);
                 }
             }
         }
@@ -354,6 +367,7 @@ namespace OutlookGoogleCalendarSync {
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
                             break;
                         }
+                        ai.Close(OlInspectorClose.olDiscard);
                     }
                 }
             }
@@ -470,7 +484,7 @@ namespace OutlookGoogleCalendarSync {
             return eventSummary;
         }
 
-        public static EventAttendee CreateAttendee(Recipient recipient, AppointmentItem ai) {
+        public static EventAttendee CreateAttendee(Recipient recipient) {
             EventAttendee ea = new EventAttendee();
             ea.DisplayName = recipient.Name;
             ea.Email = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);
@@ -525,7 +539,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.CreateCSVFiles) {
                 //Google Deletions
                 log.Debug("Outputting items for deletion to CSV...");
-                TextWriter tw = new StreamWriter("google_delete.csv");
+                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_delete.csv"));
                 foreach (Event ev in google) {
                     tw.WriteLine(signature(ev));
                 }
@@ -533,7 +547,7 @@ namespace OutlookGoogleCalendarSync {
 
                 //Google Creations
                 log.Debug("Outputting items for creation to CSV...");
-                tw = new StreamWriter("google_create.csv");
+                tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_create.csv"));
                 foreach (AppointmentItem ai in outlook) {
                     tw.WriteLine(OutlookCalendar.signature(ai));
                 }
