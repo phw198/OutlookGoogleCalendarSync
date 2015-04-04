@@ -43,13 +43,9 @@ namespace OutlookGoogleCalendarSync {
             wp.UseDefaultCredentials = true;
             System.Net.WebRequest.DefaultWebProxy = wp;
 
-            log.Debug("Loading settings/creating settings file.");
-            if (File.Exists(Program.SettingsFile)) {
-                Settings.Instance = XMLManager.import<Settings>(Program.SettingsFile);
-            } else {
-                XMLManager.export(Settings.Instance, Program.SettingsFile);
-            }
-
+            log.Debug("Loading settings from file.");
+            Settings.Instance = XMLManager.import<Settings>(Program.SettingsFile);
+            
             #region Update GUI from Settings
             this.SuspendLayout();
             #region Outlook box
@@ -332,6 +328,7 @@ namespace OutlookGoogleCalendarSync {
             lNextSyncVal.Text = "In progress...";
 
             DateTime SyncStarted = DateTime.Now;
+            log.Info("Sync version: " + System.Windows.Forms.Application.ProductVersion);
             Logboxout("Sync started at " + SyncStarted.ToString());
             Logboxout("Syncing from "+ DateTime.Today.AddDays(-Settings.Instance.DaysInThePast).ToShortDateString() +
                 " to "+ DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1).ToShortDateString());

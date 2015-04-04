@@ -34,9 +34,17 @@ namespace OutlookGoogleCalendarSync {
             if (!Directory.Exists(UserFilePath))
                 Directory.CreateDirectory(UserFilePath);
 
-            //If settings.xml file doesn't exist, copy it from the deployment location
+            log.Debug("Checking existance of settings.xml file.");
             if (!File.Exists(settingsFile)) {
+                log.Info("User settings.xml file does not exist in "+ settingsFile);
+                //Try and copy from where the application.exe is - this is to support legacy versions <= v1.2.4
                 string sourceFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, settingsFilename);
+                if (!File.Exists(sourceFilePath)) {
+                    log.Info("No settings.xml file found in " + sourceFilePath);
+                    XMLManager.export(Settings.Instance, sourceFilePath);
+                    log.Info("New blank template created.");
+                }
+                log.Info("Copying settings.xml to user's local appdata store.");
                 File.Copy(sourceFilePath, settingsFile);
             }
             #endregion

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Google.Apis.Calendar.v3.Data;
@@ -154,9 +155,10 @@ namespace OutlookGoogleCalendarSync {
                 foreach (AppointmentItem ai in filtered) {
                     try {
                         tw.WriteLine(exportToCSV(ai));
-                    } catch {
+                    } catch (System.Exception ex) {
                         MainForm.Instance.Logboxout("Failed to output following Outlook appointment to CSV:-");
                         MainForm.Instance.Logboxout(GetEventSummary(ai));
+                        log.Error(ex.Message);
                     }
                 }
                 tw.Close();
@@ -175,9 +177,8 @@ namespace OutlookGoogleCalendarSync {
             if (OutlookItems != null) {
                 DateTime min = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
                 DateTime max = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
-                string format = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-                format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
-                string filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
+                
+                string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
                     if (ai.End == min) continue; //Required for midnight to midnight events 
@@ -185,13 +186,16 @@ namespace OutlookGoogleCalendarSync {
                 }
                 log.Fine("Filtered down to " + result.Count);
                 result = new List<AppointmentItem>();
-
-                filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
+                
+                //Outlook can't handle times formatted with a . delimeter!
+                string format = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+                format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".",":");
+                filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
                     if (ai.End == min) continue; //Required for midnight to midnight events 
                     result.Add(ai);
-                }                
+                }
             }
             log.Fine("Filtered down to "+ result.Count); 
             return result;
@@ -487,10 +491,8 @@ namespace OutlookGoogleCalendarSync {
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
             List<EventAttendee> removeAttendee = new List<EventAttendee>();
-            if (ev.Attendees != null) {
-                foreach (EventAttendee ea in ev.Attendees) {
-                    removeAttendee.Add(ea);
-                }
+            foreach (EventAttendee ea in ev.Attendees ?? Enumerable.Empty<EventAttendee>()) {
+                removeAttendee.Add(ea);
             }
             if (ai.Recipients.Count > 1) {
                 for (int o = ai.Recipients.Count; o > 0; o--) {
@@ -502,16 +504,16 @@ namespace OutlookGoogleCalendarSync {
                         recipientSMTP = recipientSMTP.Substring(recipientSMTP.IndexOf("<") + 1);
                         recipientSMTP = recipientSMTP.TrimEnd(Convert.ToChar(">"));
                     }
-
-                    foreach (EventAttendee attendee in ev.Attendees) {
-                        if (recipientSMTP.ToLower() == attendee.Email.ToLower()) {
+                    foreach (EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<EventAttendee>()) {
+                        if (attendee.Email != null && (recipientSMTP.ToLower() == attendee.Email.ToLower())) {
                             foundAttendee = true;
                             removeAttendee.Remove(attendee);
 
                             //Optional attendee
                             bool oOptional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
                             bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
-                            if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Optional Check",
+                            String attendeeIdentifier = (attendee.DisplayName == null) ? attendee.Email : attendee.DisplayName;
+                            if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Optional Check",
                                 SyncDirection.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
                                 attendee.Optional = oOptional;
                             }
@@ -519,28 +521,28 @@ namespace OutlookGoogleCalendarSync {
                             //Response
                             switch (recipient.MeetingResponseStatus) {
                                 case OlResponseStatus.olResponseNone:
-                                    if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Response Status",
+                                    if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                                         SyncDirection.OutlookToGoogle,
                                         attendee.ResponseStatus, "needsAction", sb, ref itemModified)) {
                                         attendee.ResponseStatus = "needsAction";
                                     }
                                     break;
                                 case OlResponseStatus.olResponseAccepted:
-                                    if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Response Status",
+                                    if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                                         SyncDirection.OutlookToGoogle,
                                         attendee.ResponseStatus, "accepted", sb, ref itemModified)) {
                                         attendee.ResponseStatus = "accepted";
                                     }
                                     break;
                                 case OlResponseStatus.olResponseDeclined:
-                                    if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Response Status",
+                                    if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                                         SyncDirection.OutlookToGoogle,
                                         attendee.ResponseStatus, "declined", sb, ref itemModified)) {
                                         attendee.ResponseStatus = "declined";
                                     }
                                     break;
                                 case OlResponseStatus.olResponseTentative:
-                                    if (MainForm.CompareAttribute("Attendee " + attendee.DisplayName + " - Response Status",
+                                    if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                                         SyncDirection.OutlookToGoogle,
                                         attendee.ResponseStatus, "tentative", sb, ref itemModified)) {
                                         attendee.ResponseStatus = "tentative";
@@ -548,7 +550,8 @@ namespace OutlookGoogleCalendarSync {
                                     break;
                             }
                         }
-                    }
+                    } //each attendee
+                
                     if (!foundAttendee) {
                         log.Fine("Attendee added: " + recipient.Name);
                         sb.AppendLine("Attendee added: " + recipient.Name);
