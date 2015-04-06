@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Windows.Forms;
@@ -28,6 +29,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
+        private Rectangle tabAppSettings_background = new Rectangle();
 
         public MainForm() {
             log.Debug("Initialiasing MainForm.");
@@ -36,20 +38,68 @@ namespace OutlookGoogleCalendarSync {
 
             Instance = this;
 
-            log.Debug("Setting system proxy.");
-            WebProxy wp = (WebProxy)System.Net.GlobalProxySelection.Select;
-            //http://www.dreamincode.net/forums/topic/160555-working-with-proxy-servers/
-            //WebProxy wp = (WebProxy)WebRequest.DefaultWebProxy;
-            wp.UseDefaultCredentials = true;
-            System.Net.WebRequest.DefaultWebProxy = wp;
-
             log.Debug("Loading settings from file.");
             Settings.Instance = XMLManager.import<Settings>(Program.SettingsFile);
+
+            updateGUIsettings();
+            Settings.Instance.LogSettings();
+            Settings.Instance.Proxy.applyProxy();
             
-            #region Update GUI from Settings
+            log.Debug("Create the timer for the auto synchronisation");
+            ogcsTimer = new Timer();
+            ogcsTimer.Tag = "AutoSyncTimer";
+            ogcsTimer.Tick += new EventHandler(ogcsTimer_Tick);
+
+            #region Tooltips
+            //set up tooltips for some controls
+            ToolTip toolTip1 = new ToolTip();
+            toolTip1.AutoPopDelay = 10000;
+            toolTip1.InitialDelay = 500;
+            toolTip1.ReshowDelay = 200;
+            toolTip1.ShowAlways = true;
+            toolTip1.SetToolTip(cbOutlookCalendars,
+                "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
+            toolTip1.SetToolTip(cbGoogleCalendars,
+                "The Google calendar to synchonize with.");
+            toolTip1.SetToolTip(btResetGCal,
+                "Reset the Google account being used to synchonize with.");
+            toolTip1.SetToolTip(tbInterval,
+                "Set to zero to disable");
+            toolTip1.SetToolTip(cbCreateFiles,
+                "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
+                "to CSV files in the application's directory (named \"*.csv\"). \n" +
+                "Only for debug/diagnostic purposes.");
+            toolTip1.SetToolTip(rbOutlookAltMB,
+                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
+            toolTip1.SetToolTip(cbMergeItems,
+                "If the destination calendar has pre-existing items, don't delete them");
+            toolTip1.SetToolTip(cbOutlookPush,
+                "Synchronise changes in Outlook to Google within a few minutes.");
+            toolTip1.SetToolTip(rbProxyIE,
+                "If IE settings have been changed, a restart of the Sync application may be required");
+            #endregion
+
+            //Refresh synchronizations (last and next)
+            lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
+            setNextSync(getResyncInterval());
+
+            //Set up listener for Outlook calendar changes
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
+
+            //Start in tray?
+            if (cbStartInTray.Checked) {
+                this.WindowState = FormWindowState.Minimized;
+                notifyIcon1.Visible = true;
+                this.Hide();
+                this.ShowInTaskbar = false;
+            }
+        }
+
+        private void updateGUIsettings() {
             this.SuspendLayout();
+            lastSyncDate = Settings.Instance.LastSyncDate;
+            cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             #region Outlook box
-            this.gbOutlook.SuspendLayout();
             gbEWS.Enabled = false;
             if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
                 rbOutlookAltMB.Checked = true;
@@ -94,15 +144,12 @@ namespace OutlookGoogleCalendarSync {
                 c++;
             }
             if (cbOutlookCalendars.SelectedIndex == -1) cbOutlookCalendars.SelectedIndex = 0;
-            this.gbOutlook.ResumeLayout();
             #endregion
             #region Google box
-            this.gbGoogle.SuspendLayout();
             if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
                 cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
                 cbGoogleCalendars.SelectedIndex = 0;
             }
-            this.gbGoogle.ResumeLayout();
             #endregion
             #region Sync Options box
             syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
@@ -115,7 +162,13 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
-            this.gbSyncOptions.SuspendLayout();
+            this.gbSyncOptions_How.SuspendLayout();
+            cbMergeItems.Checked = Settings.Instance.MergeItems;
+            cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
+            cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
+            cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+            this.gbSyncOptions_How.ResumeLayout();
+            this.gbSyncOptions_When.SuspendLayout();
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
             tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
@@ -125,17 +178,14 @@ namespace OutlookGoogleCalendarSync {
             cbIntervalUnit.Text = Settings.Instance.SyncIntervalUnit;
             cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged); 
             cbOutlookPush.Checked = Settings.Instance.OutlookPush;
+            this.gbSyncOptions_When.ResumeLayout();
+            this.gbSyncOptions_What.SuspendLayout();
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
-            cbMergeItems.Checked = Settings.Instance.MergeItems;
-            cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
-            cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
-            cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
-            this.gbSyncOptions.ResumeLayout();
+            this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #region Application behaviour
-            this.gbAppBehaviour.SuspendLayout();
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
@@ -147,59 +197,91 @@ namespace OutlookGoogleCalendarSync {
                     break;
                 }
             }
-            this.gbAppBehaviour.ResumeLayout();
+            updateGUIsettings_Proxy();
             #endregion
-            lastSyncDate = Settings.Instance.LastSyncDate;
-            cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             this.ResumeLayout();
-            #endregion
-            Settings.Instance.LogSettings();
+        }
 
-            log.Debug("Create the timer for the auto synchronisation");
-            ogcsTimer = new Timer();
-            ogcsTimer.Tag = "AutoSyncTimer";
-            ogcsTimer.Tick += new EventHandler(ogcsTimer_Tick);
-            
-            //set up tooltips for some controls
-            ToolTip toolTip1 = new ToolTip();
-            toolTip1.AutoPopDelay = 10000;
-            toolTip1.InitialDelay = 500;
-            toolTip1.ReshowDelay = 200;
-            toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(cbOutlookCalendars,
-                "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
-            toolTip1.SetToolTip(cbGoogleCalendars,
-                "The Google calendar to synchonize with.");
-            toolTip1.SetToolTip(btResetGCal,
-                "Reset the Google account being used to synchonize with.");
-            toolTip1.SetToolTip(tbInterval,
-                "Set to zero to disable");
-            toolTip1.SetToolTip(cbCreateFiles,
-                "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
-                "to CSV files in the application's directory (named \"*.csv\"). \n" +
-                "Only for debug/diagnostic purposes.");
-            toolTip1.SetToolTip(rbOutlookAltMB,
-                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
-            toolTip1.SetToolTip(cbMergeItems,
-                "If the destination calendar has pre-existing items, don't delete them");
-            toolTip1.SetToolTip(cbOutlookPush,
-                "Synchronise changes in Outlook to Google within a few minutes.");
-
-            //Refresh synchronizations (last and next)
-            lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
-            setNextSync(getResyncInterval());
-
-            //Set up listener for Outlook calendar changes
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
-
-            //Start in tray?
-            if (cbStartInTray.Checked) {
-                this.WindowState = FormWindowState.Minimized;
-                notifyIcon1.Visible = true;
-                this.Hide();
-                this.ShowInTaskbar = false;
+        #region Proxy
+        private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
+            bool result = rbProxyCustom.Checked;
+            txtProxyServer.Enabled = result;
+            txtProxyPort.Enabled = result;
+            cbProxyAuthRequired.Enabled = result;
+            if (result) {
+                result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);
+                cbProxyAuthRequired.Checked = result;
+                txtProxyUser.Enabled = result;
+                txtProxyPassword.Enabled = result;
             }
         }
+        private void cbProxyAuthRequired_CheckedChanged(object sender, EventArgs e) {
+            bool result = cbProxyAuthRequired.Checked;
+            this.txtProxyPassword.Enabled = result;
+            this.txtProxyUser.Enabled = result;
+        }
+
+        private void updateGUIsettings_Proxy() {
+            rbProxyIE.Checked = true;
+            rbProxyCustom.Checked = (Settings.Instance.Proxy.Type == "Custom");
+            cbProxyAuthRequired.Enabled = (Settings.Instance.Proxy.Type == "Custom");
+            txtProxyServer.Text = Settings.Instance.Proxy.ServerName;
+            txtProxyPort.Text = Settings.Instance.Proxy.Port.ToString();
+            txtProxyServer.Enabled = rbProxyCustom.Checked;
+            txtProxyPort.Enabled = rbProxyCustom.Checked;
+
+            if (!string.IsNullOrEmpty(Settings.Instance.Proxy.UserName) &&
+                !string.IsNullOrEmpty(Settings.Instance.Proxy.Password)) {
+                cbProxyAuthRequired.Checked = true;
+            } else {
+                cbProxyAuthRequired.Checked = false;
+            }
+            txtProxyUser.Text = Settings.Instance.Proxy.UserName;
+            txtProxyPassword.Text = Settings.Instance.Proxy.Password;
+            txtProxyUser.Enabled = cbProxyAuthRequired.Checked;
+            txtProxyPassword.Enabled = cbProxyAuthRequired.Checked;
+        }
+        
+        private void saveProxy() {
+            if (rbProxyNone.Checked) Settings.Instance.Proxy.Type = rbProxyNone.Tag.ToString();
+            else if (rbProxyCustom.Checked) Settings.Instance.Proxy.Type = rbProxyCustom.Tag.ToString();
+            else Settings.Instance.Proxy.Type = rbProxyIE.Tag.ToString();
+            
+            if (rbProxyCustom.Checked) {
+                if (String.IsNullOrEmpty(txtProxyServer.Text) || String.IsNullOrEmpty(txtProxyPort.Text)) {
+                    MessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtProxyServer.Focus();
+                    return;
+                }
+                int nPort;
+                if (!int.TryParse(txtProxyPort.Text, out nPort)) {
+                    MessageBox.Show("Proxy server port must be a number.", "Invalid Proxy Port",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtProxyPort.Focus();
+                    return;
+                }
+
+                string userName = null;
+                string password = null;
+                if (cbProxyAuthRequired.Checked) {
+                    userName = txtProxyUser.Text;
+                    password = txtProxyPassword.Text;
+                } else {
+                    userName = string.Empty;
+                    password = string.Empty;
+                }
+
+                Settings.Instance.Proxy.ServerName = txtProxyServer.Text;
+                Settings.Instance.Proxy.Port = nPort;
+                Settings.Instance.Proxy.UserName = userName;
+                Settings.Instance.Proxy.Password = password;
+            }
+            Settings.Instance.Proxy.Apply();
+
+            XMLManager.export(Settings.Instance, Program.SettingsFile);
+        }
+        #endregion
 
         #region Autosync functions
         int getResyncInterval() {
@@ -661,6 +743,7 @@ namespace OutlookGoogleCalendarSync {
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
             XMLManager.export(Settings.Instance, Program.SettingsFile);
+            saveProxy();
 
             //Shortcut
             Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
@@ -757,12 +840,16 @@ namespace OutlookGoogleCalendarSync {
         #endregion
         #region Google settings
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
+            this.bGetGoogleCalendars.Text = "Retrieving Calendars...";
             bGetGoogleCalendars.Enabled = false;
             cbGoogleCalendars.Enabled = false;
             List<MyGoogleCalendarListEntry> calendars = null;
             try {
                 calendars = GoogleCalendar.Instance.GetCalendars();
             } catch (System.Exception ex) {
+                MessageBox.Show("Failed to retrieve Google calendars. \r\n" +
+                    "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logboxout("Unable to get the list of Google Calendars. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Check your network connection.");
             }
@@ -776,6 +863,7 @@ namespace OutlookGoogleCalendarSync {
 
             bGetGoogleCalendars.Enabled = true;
             cbGoogleCalendars.Enabled = true;
+            this.bGetGoogleCalendars.Text = "Retrieve Calendars";
         }
 
         private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
@@ -796,16 +884,6 @@ namespace OutlookGoogleCalendarSync {
         #region Sync options
         private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.SyncDirection = (SyncDirection)syncDirection.SelectedItem;
-            if (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle) {
-                tbHelp.Text = "It's advisable to create a dedicated calendar in Google for synchronising to from Outlook. \r\n" +
-                    "Otherwise you may end up with duplicates or non-Outlook entries deleted.";
-            } else if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook &&
-                cbOutlookCalendars.Text == "Default Calendar") {
-                tbHelp.Text = "It's advisable to create a dedicated calendar in Outlook for synchronising to from Google. \r\n" +
-                    "Otherwise you may end up with duplicates or non-Google entries deleted.";
-            } else if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
-                tbHelp.Text = "It's advisable to run a one-way sync first before configuring bi-directional. Have you done this?"; 
-            }
         }
 
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
@@ -934,5 +1012,53 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
+        private void tabAppSettings_DrawItem(object sender, DrawItemEventArgs e) {
+            //Want to have horizontal sub-tabs on the left of the Settings tab.
+            //Need to handle this manually
+
+            Graphics g = e.Graphics;
+
+            //Tab is rotated, so width is height and vica-versa :-|
+            if (tabAppSettings.ItemSize.Width != 35 || tabAppSettings.ItemSize.Height != 75) {
+                tabAppSettings.ItemSize = new Size(35, 75);
+            }
+            // Get the item from the collection.
+            TabPage tabPage = tabAppSettings.TabPages[e.Index];
+
+            // Get the real bounds for the tab rectangle.
+            Rectangle tabBounds = tabAppSettings.GetTabRect(e.Index);
+            Font tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Regular, GraphicsUnit.Pixel);
+            Brush textBrush = new SolidBrush(Color.Black);
+            
+            if (e.State == DrawItemState.Selected) {
+                tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Bold, GraphicsUnit.Pixel);
+                Rectangle tabColour = e.Bounds;
+                //Blue highlight
+                int highlightWidth = 5;
+                tabColour.Width = highlightWidth;
+                tabColour.X = 0;
+                g.FillRectangle(Brushes.Blue, tabColour);
+                //Tab main background
+                tabColour = e.Bounds;
+                tabColour.Width -= highlightWidth;
+                tabColour.X += highlightWidth;
+                g.FillRectangle(Brushes.White, tabColour);                
+            } else {
+                // Draw a different background color, and don't paint a focus rectangle.
+                g.FillRectangle(SystemBrushes.ButtonFace, e.Bounds);
+            }
+            
+            //Draw white rectangle below the tabs (this would be nice and easy in .Net4)
+            Rectangle lastTabRect = tabAppSettings.GetTabRect(tabAppSettings.TabPages.Count - 1);
+            tabAppSettings_background.Location = new Point(0, ((lastTabRect.Height + 1) * tabAppSettings.TabPages.Count));
+            tabAppSettings_background.Size = new Size(lastTabRect.Width, tabAppSettings.Height - (lastTabRect.Height * tabAppSettings.TabPages.Count));
+            e.Graphics.FillRectangle(Brushes.White, tabAppSettings_background);
+            
+            // Draw string and align the text.
+            StringFormat stringFlags = new StringFormat();
+            stringFlags.Alignment = StringAlignment.Far;
+            stringFlags.LineAlignment = StringAlignment.Center;
+            g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
+        }        
     }
 }

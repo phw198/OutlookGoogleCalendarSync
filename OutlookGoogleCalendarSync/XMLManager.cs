@@ -40,7 +40,7 @@ namespace OutlookGoogleCalendarSync
             try {
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
             } catch {
-                MainForm.Instance.tabSettings.SelectedTab = MainForm.Instance.tabPage_Settings;
+                MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
             }
             fs.Close();
             return result;

@@ -128,6 +128,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SettingsProxy.cs" />
     <Compile Include="Splash.cs">
       <SubType>Form</SubType>
     </Compile>

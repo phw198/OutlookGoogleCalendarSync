@@ -43,7 +43,10 @@ namespace OutlookGoogleCalendarSync {
         public bool AddAttendees = true;
         public bool MergeItems = true;
         public bool DisableDelete = true;
-        public bool ConfirmOnDelete = true;        
+        public bool ConfirmOnDelete = true;
+
+        //Proxy
+        public SettingsProxy Proxy = new SettingsProxy();
         
         //App behaviour
         public bool ShowBubbleTooltipWhenSyncing = false;
@@ -81,7 +84,16 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  AddAttendees: " + AddAttendees);
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
-            log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);        
+            log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
+
+            log.Info("PROXY:-");
+            log.Info("  Type: " + Proxy.Type);
+            if (Proxy.Type == "Custom") {
+                log.Info("  Server Name: " + Proxy.ServerName);
+                log.Info("  Port: " + Proxy.Port.ToString());
+                log.Info("  UserName: " + Proxy.UserName);
+                log.Info("  Password: " + (string.IsNullOrEmpty(Proxy.Password) ? "" : "*********"));
+            } 
         
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
@@ -93,7 +105,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  VerboseOutput: " + VerboseOutput);
             //To pick up from settings.xml file:
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
-            log.Info("  Logging Level: "+ LoggingLevel); 
+            log.Info("  Logging Level: "+ LoggingLevel);
 
             log.Info("ENVIRONMENT:-");
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);

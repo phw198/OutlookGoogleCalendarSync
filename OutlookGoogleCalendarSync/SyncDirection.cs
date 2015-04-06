@@ -11,9 +11,9 @@ namespace OutlookGoogleCalendarSync {
         [DataMember]
         public readonly int Id;
 
-        public static readonly SyncDirection OutlookToGoogle = new SyncDirection(1, "Outlook ====> Google");
-        public static readonly SyncDirection GoogleToOutlook = new SyncDirection(2, "Outlook <==== Google");
-        public static readonly SyncDirection Bidirectional = new SyncDirection(3,   "Outlook <===> Google");
+        public static readonly SyncDirection OutlookToGoogle = new SyncDirection(1, "Outlook → Google");
+        public static readonly SyncDirection GoogleToOutlook = new SyncDirection(2, "Outlook ← Google");
+        public static readonly SyncDirection Bidirectional = new SyncDirection(3,   "Outlook ↔ Google");
 
         public SyncDirection() { }
 
