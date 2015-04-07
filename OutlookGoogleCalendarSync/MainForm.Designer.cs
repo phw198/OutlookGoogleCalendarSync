@@ -36,6 +36,7 @@
             this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage_Settings = new System.Windows.Forms.TabPage();
+            this.lSettingInfo = new System.Windows.Forms.Label();
             this.tabAppSettings = new System.Windows.Forms.TabControl();
             this.tabOutlook = new System.Windows.Forms.TabPage();
             this.label11 = new System.Windows.Forms.Label();
@@ -85,6 +86,7 @@
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
             this.gbProxy = new System.Windows.Forms.GroupBox();
+            this.rbProxyNone = new System.Windows.Forms.RadioButton();
             this.rbProxyIE = new System.Windows.Forms.RadioButton();
             this.rbProxyCustom = new System.Windows.Forms.RadioButton();
             this.txtProxyPassword = new System.Windows.Forms.TextBox();
@@ -112,7 +114,6 @@
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.rbProxyNone = new System.Windows.Forms.RadioButton();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -238,6 +239,7 @@
             // 
             // tabPage_Settings
             // 
+            this.tabPage_Settings.Controls.Add(this.lSettingInfo);
             this.tabPage_Settings.Controls.Add(this.tabAppSettings);
             this.tabPage_Settings.Controls.Add(this.bSave);
             this.tabPage_Settings.Location = new System.Drawing.Point(4, 22);
@@ -247,6 +249,18 @@
             this.tabPage_Settings.TabIndex = 1;
             this.tabPage_Settings.Text = "Settings";
             this.tabPage_Settings.UseVisualStyleBackColor = true;
+            // 
+            // lSettingInfo
+            // 
+            this.lSettingInfo.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lSettingInfo.AutoSize = true;
+            this.lSettingInfo.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.lSettingInfo.Location = new System.Drawing.Point(131, 495);
+            this.lSettingInfo.Name = "lSettingInfo";
+            this.lSettingInfo.Size = new System.Drawing.Size(176, 26);
+            this.lSettingInfo.TabIndex = 27;
+            this.lSettingInfo.Text = "Settings will take effect immediately,\r\nbut to make them persist, hit Save.";
+            this.lSettingInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tabAppSettings
             // 
@@ -264,7 +278,7 @@
             this.tabAppSettings.Multiline = true;
             this.tabAppSettings.Name = "tabAppSettings";
             this.tabAppSettings.SelectedIndex = 0;
-            this.tabAppSettings.Size = new System.Drawing.Size(475, 481);
+            this.tabAppSettings.Size = new System.Drawing.Size(475, 470);
             this.tabAppSettings.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabAppSettings.TabIndex = 20;
             this.tabAppSettings.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.tabAppSettings_DrawItem);
@@ -283,7 +297,7 @@
             this.tabOutlook.Location = new System.Drawing.Point(79, 4);
             this.tabOutlook.Name = "tabOutlook";
             this.tabOutlook.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOutlook.Size = new System.Drawing.Size(392, 473);
+            this.tabOutlook.Size = new System.Drawing.Size(392, 462);
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
             // 
@@ -451,7 +465,7 @@
             this.tabGoogle.Location = new System.Drawing.Point(79, 4);
             this.tabGoogle.Name = "tabGoogle";
             this.tabGoogle.Padding = new System.Windows.Forms.Padding(3);
-            this.tabGoogle.Size = new System.Drawing.Size(392, 473);
+            this.tabGoogle.Size = new System.Drawing.Size(392, 462);
             this.tabGoogle.TabIndex = 1;
             this.tabGoogle.Text = "  Google";
             this.tabGoogle.UseVisualStyleBackColor = true;
@@ -541,7 +555,7 @@
             this.tabSyncOptions.Controls.Add(this.gbSyncOptions_How);
             this.tabSyncOptions.Location = new System.Drawing.Point(79, 4);
             this.tabSyncOptions.Name = "tabSyncOptions";
-            this.tabSyncOptions.Size = new System.Drawing.Size(392, 473);
+            this.tabSyncOptions.Size = new System.Drawing.Size(392, 462);
             this.tabSyncOptions.TabIndex = 2;
             this.tabSyncOptions.Text = "  Sync Options";
             this.tabSyncOptions.UseVisualStyleBackColor = true;
@@ -573,7 +587,7 @@
             this.cbOutlookPush.AutoSize = true;
             this.cbOutlookPush.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbOutlookPush.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbOutlookPush.Location = new System.Drawing.Point(13, 92);
+            this.cbOutlookPush.Location = new System.Drawing.Point(42, 92);
             this.cbOutlookPush.Name = "cbOutlookPush";
             this.cbOutlookPush.Size = new System.Drawing.Size(191, 17);
             this.cbOutlookPush.TabIndex = 42;
@@ -866,13 +880,15 @@
             this.tabAppBehaviour.Controls.Add(this.cbCreateFiles);
             this.tabAppBehaviour.Location = new System.Drawing.Point(79, 4);
             this.tabAppBehaviour.Name = "tabAppBehaviour";
-            this.tabAppBehaviour.Size = new System.Drawing.Size(392, 473);
+            this.tabAppBehaviour.Size = new System.Drawing.Size(392, 462);
             this.tabAppBehaviour.TabIndex = 3;
             this.tabAppBehaviour.Text = "  Application Behaviour";
             this.tabAppBehaviour.UseVisualStyleBackColor = true;
             // 
             // gbProxy
             // 
+            this.gbProxy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gbProxy.Controls.Add(this.rbProxyNone);
             this.gbProxy.Controls.Add(this.rbProxyIE);
             this.gbProxy.Controls.Add(this.rbProxyCustom);
@@ -889,10 +905,25 @@
             this.gbProxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbProxy.Location = new System.Drawing.Point(16, 168);
             this.gbProxy.Name = "gbProxy";
-            this.gbProxy.Size = new System.Drawing.Size(365, 200);
+            this.gbProxy.Size = new System.Drawing.Size(364, 200);
             this.gbProxy.TabIndex = 37;
             this.gbProxy.TabStop = false;
             this.gbProxy.Text = "Proxy Setting";
+            this.gbProxy.Leave += new System.EventHandler(this.gbProxy_Leave);
+            // 
+            // rbProxyNone
+            // 
+            this.rbProxyNone.AutoSize = true;
+            this.rbProxyNone.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rbProxyNone.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.rbProxyNone.Location = new System.Drawing.Point(20, 22);
+            this.rbProxyNone.Name = "rbProxyNone";
+            this.rbProxyNone.Size = new System.Drawing.Size(68, 17);
+            this.rbProxyNone.TabIndex = 1;
+            this.rbProxyNone.Tag = "None";
+            this.rbProxyNone.Text = "No Proxy";
+            this.rbProxyNone.UseVisualStyleBackColor = true;
+            this.rbProxyNone.CheckedChanged += new System.EventHandler(this.rbProxyCustom_CheckedChanged);
             // 
             // rbProxyIE
             // 
@@ -904,6 +935,7 @@
             this.rbProxyIE.Name = "rbProxyIE";
             this.rbProxyIE.Size = new System.Drawing.Size(157, 17);
             this.rbProxyIE.TabIndex = 2;
+            this.rbProxyIE.TabStop = true;
             this.rbProxyIE.Tag = "IE";
             this.rbProxyIE.Text = "Inherit from Internet Explorer";
             this.rbProxyIE.UseVisualStyleBackColor = true;
@@ -932,7 +964,7 @@
             this.txtProxyPassword.ForeColor = System.Drawing.SystemColors.ControlText;
             this.txtProxyPassword.Location = new System.Drawing.Point(94, 167);
             this.txtProxyPassword.Name = "txtProxyPassword";
-            this.txtProxyPassword.Size = new System.Drawing.Size(261, 20);
+            this.txtProxyPassword.Size = new System.Drawing.Size(259, 20);
             this.txtProxyPassword.TabIndex = 8;
             // 
             // cbProxyAuthRequired
@@ -962,13 +994,12 @@
             // 
             // txtProxyPort
             // 
-            this.txtProxyPort.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtProxyPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtProxyPort.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.txtProxyPort.Location = new System.Drawing.Point(311, 91);
+            this.txtProxyPort.Location = new System.Drawing.Point(302, 92);
             this.txtProxyPort.Name = "txtProxyPort";
-            this.txtProxyPort.Size = new System.Drawing.Size(44, 20);
+            this.txtProxyPort.Size = new System.Drawing.Size(51, 20);
             this.txtProxyPort.TabIndex = 5;
             // 
             // txtProxyUser
@@ -980,7 +1011,7 @@
             this.txtProxyUser.ForeColor = System.Drawing.SystemColors.ControlText;
             this.txtProxyUser.Location = new System.Drawing.Point(94, 143);
             this.txtProxyUser.Name = "txtProxyUser";
-            this.txtProxyUser.Size = new System.Drawing.Size(261, 20);
+            this.txtProxyUser.Size = new System.Drawing.Size(259, 20);
             this.txtProxyUser.TabIndex = 7;
             // 
             // txtProxyServer
@@ -991,7 +1022,7 @@
             this.txtProxyServer.ForeColor = System.Drawing.SystemColors.ControlText;
             this.txtProxyServer.Location = new System.Drawing.Point(94, 92);
             this.txtProxyServer.Name = "txtProxyServer";
-            this.txtProxyServer.Size = new System.Drawing.Size(183, 20);
+            this.txtProxyServer.Size = new System.Drawing.Size(174, 20);
             this.txtProxyServer.TabIndex = 4;
             // 
             // label10
@@ -1010,7 +1041,7 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label5.Location = new System.Drawing.Point(283, 95);
+            this.label5.Location = new System.Drawing.Point(276, 95);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(29, 13);
             this.label5.TabIndex = 0;
@@ -1033,7 +1064,7 @@
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label14.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label14.Location = new System.Drawing.Point(121, 13);
+            this.label14.Location = new System.Drawing.Point(136, 13);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(139, 15);
             this.label14.TabIndex = 36;
@@ -1043,7 +1074,7 @@
             // btLogLocation
             // 
             this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btLogLocation.Location = new System.Drawing.Point(301, 136);
+            this.btLogLocation.Location = new System.Drawing.Point(302, 136);
             this.btLogLocation.Name = "btLogLocation";
             this.btLogLocation.Size = new System.Drawing.Size(80, 23);
             this.btLogLocation.TabIndex = 19;
@@ -1077,7 +1108,7 @@
             "All"});
             this.cbLoggingLevel.Location = new System.Drawing.Point(86, 137);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
-            this.cbLoggingLevel.Size = new System.Drawing.Size(209, 21);
+            this.cbLoggingLevel.Size = new System.Drawing.Size(210, 21);
             this.cbLoggingLevel.TabIndex = 17;
             this.cbLoggingLevel.Tag = "l";
             this.cbLoggingLevel.SelectedIndexChanged += new System.EventHandler(this.cbLoggingLevel_SelectedIndexChanged);
@@ -1136,7 +1167,7 @@
             // bSave
             // 
             this.bSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSave.Location = new System.Drawing.Point(391, 494);
+            this.bSave.Location = new System.Drawing.Point(392, 493);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(75, 31);
             this.bSave.TabIndex = 8;
@@ -1212,20 +1243,6 @@
             this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
             // 
-            // rbProxyNone
-            // 
-            this.rbProxyNone.AutoSize = true;
-            this.rbProxyNone.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rbProxyNone.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rbProxyNone.Location = new System.Drawing.Point(20, 22);
-            this.rbProxyNone.Name = "rbProxyNone";
-            this.rbProxyNone.Size = new System.Drawing.Size(68, 17);
-            this.rbProxyNone.TabIndex = 1;
-            this.rbProxyNone.Tag = "None";
-            this.rbProxyNone.Text = "No Proxy";
-            this.rbProxyNone.UseVisualStyleBackColor = true;
-            this.rbProxyNone.CheckedChanged += new System.EventHandler(this.rbProxyCustom_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1238,11 +1255,12 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Outlook Google Calendar Sync";
-            this.Resize += new System.EventHandler(this.MainFormResize);
+            this.Resize += new System.EventHandler(this.mainFormResize);
             this.tabApp.ResumeLayout(false);
             this.tabPage_Sync.ResumeLayout(false);
             this.tabPage_Sync.PerformLayout();
             this.tabPage_Settings.ResumeLayout(false);
+            this.tabPage_Settings.PerformLayout();
             this.tabAppSettings.ResumeLayout(false);
             this.tabOutlook.ResumeLayout(false);
             this.tabOutlook.PerformLayout();
@@ -1356,5 +1374,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.RadioButton rbProxyNone;
+        private System.Windows.Forms.Label lSettingInfo;
     }
 }

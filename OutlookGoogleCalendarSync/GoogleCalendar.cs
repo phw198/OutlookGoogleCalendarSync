@@ -20,7 +20,6 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(GoogleCalendar));
 
         private static GoogleCalendar instance;
-
         public static GoogleCalendar Instance {
             get {
                 if (instance == null) instance = new GoogleCalendar();
@@ -30,6 +29,7 @@ namespace OutlookGoogleCalendarSync {
 
         private CalendarService service;
         private const String oEntryID = "outlook_EntryID";
+        public static Boolean APIlimitReached_attendee = false;
 
         public GoogleCalendar() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
@@ -63,8 +63,8 @@ namespace OutlookGoogleCalendarSync {
 
                     //save the refresh token for future use
                     Settings.Instance.RefreshToken = result.RefreshToken;
-                    XMLManager.export(Settings.Instance, Program.SettingsFile);
-
+                    Settings.Instance.Save();
+                    
                     return result;
                 } else {
                     String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
@@ -103,7 +103,7 @@ namespace OutlookGoogleCalendarSync {
                 EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
                 lr.TimeMin = GoogleTimeFrom(DateTime.Today.AddDays(-Settings.Instance.DaysInThePast));
-                lr.TimeMax = GoogleTimeFrom(DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1));
+                lr.TimeMax = GoogleTimeFrom(DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1));
                 lr.PageToken = pageToken;
                 lr.SingleEvents = true;
                 lr.OrderBy = EventsResource.OrderBy.StartTime;
@@ -139,6 +139,14 @@ namespace OutlookGoogleCalendarSync {
 
         private void addCalendarEntry(Event e) {
             var result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
+            //DOS ourself by triggering API limit
+            //for (int i = 1; i <= 30; i++) {
+            //    MainForm.Instance.Logboxout("Add #" + i, verbose:true);
+            //    Event result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
+            //    System.Threading.Thread.Sleep(300);
+            //    GoogleCalendar.Instance.deleteCalendarEntry(result);
+            //    System.Threading.Thread.Sleep(300);
+            //}
         }
 
         private void updateCalendarEntry(Event e) {
@@ -181,10 +189,15 @@ namespace OutlookGoogleCalendarSync {
                 ev.Transparency = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
                 ev.Attendees = new List<EventAttendee>();
-                if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1) { //Don't add attendees if there's only 1 (me)
-                    foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
-                        EventAttendee ea = GoogleCalendar.CreateAttendee(recipient);
-                        ev.Attendees.Add(ea);
+                if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
+                    if (ai.Recipients.Count >= 200) {
+                        MainForm.Instance.Logboxout("ALERT: Attendees will not be synced for this meeting as it has " +
+                            "more than 200, which Google does not allow.");
+                    } else {
+                        foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
+                            EventAttendee ea = GoogleCalendar.CreateAttendee(recipient);
+                            ev.Attendees.Add(ea);
+                        }
                     }
                 }
 
@@ -200,7 +213,16 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 MainForm.Instance.Logboxout(GetEventSummary(ev), verbose: true);
-                GoogleCalendar.Instance.addCalendarEntry(ev);
+                try {
+                    GoogleCalendar.Instance.addCalendarEntry(ev);
+                    if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                        log.Info("API limit for attendee sync lifted :-)");
+                        Settings.Instance.APIlimit_inEffect = false;
+                    }
+                } catch (System.Exception ex) {
+                    handleAPIlimits(ex, ev, ai);
+                    GoogleCalendar.Instance.addCalendarEntry(ev);
+                }
             }
         }
 
@@ -209,7 +231,14 @@ namespace OutlookGoogleCalendarSync {
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 AppointmentItem ai = compare.Key;
                 Event ev = compare.Value;
-                if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))) continue;
+
+                if (!Settings.Instance.APIlimit_inEffect &&
+                    DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime))
+                    ||
+                    Settings.Instance.APIlimit_inEffect &&
+                    ai.LastModificationTime < Settings.Instance.APIlimit_lastHit) {
+                    continue;
+                }
                 
                 int itemModified = 0;
                 String aiSummary = OutlookCalendar.GetEventSummary(ai);
@@ -261,8 +290,14 @@ namespace OutlookGoogleCalendarSync {
                     ev.Transparency = oFreeBusy;
                 }
                 
-                if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1) {
-                    OutlookCalendar.Instance.CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
+                if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
+                    if (ai.Recipients.Count >= 200) {
+                        MainForm.Instance.Logboxout("ALERT: Attendees will not be synced for this meeting as it has " +
+                            "more than 200, which Google does not allow.");
+                        ev.Attendees = new List<EventAttendee>();
+                    } else {
+                        OutlookCalendar.Instance.CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
+                    }
                 }
                         
                 //Reminders
@@ -304,9 +339,18 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.Logboxout(sb.ToString(), false, verbose:true);
                     MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose:true);
                     System.Windows.Forms.Application.DoEvents();
-
-                    GoogleCalendar.Instance.updateCalendarEntry(ev);
-                    entriesUpdated++;
+                    try {
+                        GoogleCalendar.Instance.updateCalendarEntry(ev);
+                        entriesUpdated++;
+                        if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                            log.Info("API limit for attendee sync lifted :-)");
+                            Settings.Instance.APIlimit_inEffect = false;
+                        }
+                    } catch (System.Exception ex) {
+                        handleAPIlimits(ex, ev, ai);
+                        GoogleCalendar.Instance.updateCalendarEntry(ev);
+                        entriesUpdated++;
+                    }
                 } else {
                     //Do a dummy update in order to update the last modified date
                     ev.Summary += " ";
@@ -555,6 +599,25 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Done.");
             }
         }
+        
+        private static void handleAPIlimits(System.Exception ex, Event ev, AppointmentItem ai) {
+            if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]")) {
+                //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
+                //This happens because too many attendees have been added in a short period of time.
+                //See https://support.google.com/a/answer/2905486?hl=en-uk&hlrm=en
+
+                MainForm.Instance.Logboxout("ALERT: You have added enough meeting attendees to have reached the Google API limit.");
+                MainForm.Instance.Logboxout("Don't worry, this only lasts for an hour or two, but until then attendees will not be synced.");
+                
+                APIlimitReached_attendee = true;
+                Settings.Instance.APIlimit_inEffect = true;
+                Settings.Instance.APIlimit_lastHit = ai.LastModificationTime;
+
+                ev.Attendees = new List<EventAttendee>();
+            } else {
+                throw ex;
+            }
+        }        
         #endregion
     }
 }

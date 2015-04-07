@@ -18,7 +18,6 @@ namespace OutlookGoogleCalendarSync {
 
         public Timer OgcsPushTimer;
         private Timer ogcsTimer;
-        private List<int> MinuteOffsets = new List<int>();
         private DateTime lastSyncDate;
 
         private BackgroundWorker bwSync;
@@ -39,11 +38,11 @@ namespace OutlookGoogleCalendarSync {
             Instance = this;
 
             log.Debug("Loading settings from file.");
-            Settings.Instance = XMLManager.import<Settings>(Program.SettingsFile);
+            Settings.Load();
 
             updateGUIsettings();
             Settings.Instance.LogSettings();
-            Settings.Instance.Proxy.applyProxy();
+            Settings.Instance.Proxy.Configure();
             
             log.Debug("Create the timer for the auto synchronisation");
             ogcsTimer = new Timer();
@@ -202,27 +201,9 @@ namespace OutlookGoogleCalendarSync {
             this.ResumeLayout();
         }
 
-        #region Proxy
-        private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
-            bool result = rbProxyCustom.Checked;
-            txtProxyServer.Enabled = result;
-            txtProxyPort.Enabled = result;
-            cbProxyAuthRequired.Enabled = result;
-            if (result) {
-                result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);
-                cbProxyAuthRequired.Checked = result;
-                txtProxyUser.Enabled = result;
-                txtProxyPassword.Enabled = result;
-            }
-        }
-        private void cbProxyAuthRequired_CheckedChanged(object sender, EventArgs e) {
-            bool result = cbProxyAuthRequired.Checked;
-            this.txtProxyPassword.Enabled = result;
-            this.txtProxyUser.Enabled = result;
-        }
-
         private void updateGUIsettings_Proxy() {
             rbProxyIE.Checked = true;
+            rbProxyNone.Checked = (Settings.Instance.Proxy.Type == "None");
             rbProxyCustom.Checked = (Settings.Instance.Proxy.Type == "Custom");
             cbProxyAuthRequired.Enabled = (Settings.Instance.Proxy.Type == "Custom");
             txtProxyServer.Text = Settings.Instance.Proxy.ServerName;
@@ -242,7 +223,7 @@ namespace OutlookGoogleCalendarSync {
             txtProxyPassword.Enabled = cbProxyAuthRequired.Checked;
         }
         
-        private void saveProxy() {
+        private void applyProxy() {
             if (rbProxyNone.Checked) Settings.Instance.Proxy.Type = rbProxyNone.Tag.ToString();
             else if (rbProxyCustom.Checked) Settings.Instance.Proxy.Type = rbProxyCustom.Tag.ToString();
             else Settings.Instance.Proxy.Type = rbProxyIE.Tag.ToString();
@@ -277,11 +258,8 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Proxy.UserName = userName;
                 Settings.Instance.Proxy.Password = password;
             }
-            Settings.Instance.Proxy.Apply();
-
-            XMLManager.export(Settings.Instance, Program.SettingsFile);
+            Settings.Instance.Proxy.Configure();
         }
-        #endregion
 
         #region Autosync functions
         int getResyncInterval() {
@@ -405,6 +383,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Error(ex.StackTrace);
                 return;
             }
+            GoogleCalendar.APIlimitReached_attendee = false;
             bSyncNow.Text = "Stop Sync";
             String cacheNextSync = lNextSyncVal.Text;
             lNextSyncVal.Text = "In progress...";
@@ -457,14 +436,13 @@ namespace OutlookGoogleCalendarSync {
 
             if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
 
+            lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
             if (!updateSyncSchedule) {
-                lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
                 lNextSyncVal.Text = cacheNextSync;
             } else {
                 if (syncOk) {
                     lastSyncDate = SyncStarted;
                     Settings.Instance.LastSyncDate = lastSyncDate;
-                    lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
                     setNextSync(getResyncInterval());
                 } else {
                     if (Settings.Instance.SyncInterval != 0) {
@@ -737,14 +715,14 @@ namespace OutlookGoogleCalendarSync {
             System.Environment.Exit(-1);
             System.Windows.Forms.Application.Exit();
         }
-
+                
         
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
-            XMLManager.export(Settings.Instance, Program.SettingsFile);
-            saveProxy();
-
+            applyProxy();
+            Settings.Instance.Save();
+            
             //Shortcut
             Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
             if (Settings.Instance.StartOnStartup && !startupShortcutExists)
@@ -764,7 +742,7 @@ namespace OutlookGoogleCalendarSync {
             this.Show();
         }
 
-        void MainFormResize(object sender, EventArgs e) {
+        private void mainFormResize(object sender, EventArgs e) {
             if (!cbMinimizeToTray.Checked) return;
             if (this.WindowState == FormWindowState.Minimized) {
                 notifyIcon1.Visible = true;
@@ -780,6 +758,54 @@ namespace OutlookGoogleCalendarSync {
             System.Diagnostics.Process.Start(lAboutURL.Text);
         }
         #endregion
+        private void tabAppSettings_DrawItem(object sender, DrawItemEventArgs e) {
+            //Want to have horizontal sub-tabs on the left of the Settings tab.
+            //Need to handle this manually
+
+            Graphics g = e.Graphics;
+
+            //Tab is rotated, so width is height and vica-versa :-|
+            if (tabAppSettings.ItemSize.Width != 35 || tabAppSettings.ItemSize.Height != 75) {
+                tabAppSettings.ItemSize = new Size(35, 75);
+            }
+            // Get the item from the collection.
+            TabPage tabPage = tabAppSettings.TabPages[e.Index];
+
+            // Get the real bounds for the tab rectangle.
+            Rectangle tabBounds = tabAppSettings.GetTabRect(e.Index);
+            Font tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Regular, GraphicsUnit.Pixel);
+            Brush textBrush = new SolidBrush(Color.Black);
+
+            if (e.State == DrawItemState.Selected) {
+                tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Bold, GraphicsUnit.Pixel);
+                Rectangle tabColour = e.Bounds;
+                //Blue highlight
+                int highlightWidth = 5;
+                tabColour.Width = highlightWidth;
+                tabColour.X = 0;
+                g.FillRectangle(Brushes.Blue, tabColour);
+                //Tab main background
+                tabColour = e.Bounds;
+                tabColour.Width -= highlightWidth;
+                tabColour.X += highlightWidth;
+                g.FillRectangle(Brushes.White, tabColour);
+            } else {
+                // Draw a different background color, and don't paint a focus rectangle.
+                g.FillRectangle(SystemBrushes.ButtonFace, e.Bounds);
+            }
+
+            //Draw white rectangle below the tabs (this would be nice and easy in .Net4)
+            Rectangle lastTabRect = tabAppSettings.GetTabRect(tabAppSettings.TabPages.Count - 1);
+            tabAppSettings_background.Location = new Point(0, ((lastTabRect.Height + 1) * tabAppSettings.TabPages.Count));
+            tabAppSettings_background.Size = new Size(lastTabRect.Width, tabAppSettings.Height - (lastTabRect.Height * tabAppSettings.TabPages.Count));
+            e.Graphics.FillRectangle(Brushes.White, tabAppSettings_background);
+
+            // Draw string and align the text.
+            StringFormat stringFlags = new StringFormat();
+            stringFlags.Alignment = StringAlignment.Far;
+            stringFlags.LineAlignment = StringAlignment.Center;
+            g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
+        }
         #region Outlook settings
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
             if (rbOutlookDefaultMB.Checked) {
@@ -967,6 +993,31 @@ namespace OutlookGoogleCalendarSync {
             logFileLocation = logFileLocation.Substring(0, logFileLocation.LastIndexOf("\\"));
             System.Diagnostics.Process.Start(@logFileLocation);
         }
+
+        #region Proxy
+        private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
+            bool result = rbProxyCustom.Checked;
+            txtProxyServer.Enabled = result;
+            txtProxyPort.Enabled = result;
+            cbProxyAuthRequired.Enabled = result;
+            if (result) {
+                result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);
+                cbProxyAuthRequired.Checked = result;
+                txtProxyUser.Enabled = result;
+                txtProxyPassword.Enabled = result;
+            }
+        }
+
+        private void cbProxyAuthRequired_CheckedChanged(object sender, EventArgs e) {
+            bool result = cbProxyAuthRequired.Checked;
+            this.txtProxyPassword.Enabled = result;
+            this.txtProxyUser.Enabled = result;
+        }
+
+        private void gbProxy_Leave(object sender, EventArgs e) {
+            applyProxy();
+        }
+        #endregion
         #endregion
 
         private void cbVerboseOutput_CheckedChanged(object sender, EventArgs e) {
@@ -1012,53 +1063,5 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        private void tabAppSettings_DrawItem(object sender, DrawItemEventArgs e) {
-            //Want to have horizontal sub-tabs on the left of the Settings tab.
-            //Need to handle this manually
-
-            Graphics g = e.Graphics;
-
-            //Tab is rotated, so width is height and vica-versa :-|
-            if (tabAppSettings.ItemSize.Width != 35 || tabAppSettings.ItemSize.Height != 75) {
-                tabAppSettings.ItemSize = new Size(35, 75);
-            }
-            // Get the item from the collection.
-            TabPage tabPage = tabAppSettings.TabPages[e.Index];
-
-            // Get the real bounds for the tab rectangle.
-            Rectangle tabBounds = tabAppSettings.GetTabRect(e.Index);
-            Font tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Regular, GraphicsUnit.Pixel);
-            Brush textBrush = new SolidBrush(Color.Black);
-            
-            if (e.State == DrawItemState.Selected) {
-                tabFont = new Font("Microsoft Sans Serif", (float)11, FontStyle.Bold, GraphicsUnit.Pixel);
-                Rectangle tabColour = e.Bounds;
-                //Blue highlight
-                int highlightWidth = 5;
-                tabColour.Width = highlightWidth;
-                tabColour.X = 0;
-                g.FillRectangle(Brushes.Blue, tabColour);
-                //Tab main background
-                tabColour = e.Bounds;
-                tabColour.Width -= highlightWidth;
-                tabColour.X += highlightWidth;
-                g.FillRectangle(Brushes.White, tabColour);                
-            } else {
-                // Draw a different background color, and don't paint a focus rectangle.
-                g.FillRectangle(SystemBrushes.ButtonFace, e.Bounds);
-            }
-            
-            //Draw white rectangle below the tabs (this would be nice and easy in .Net4)
-            Rectangle lastTabRect = tabAppSettings.GetTabRect(tabAppSettings.TabPages.Count - 1);
-            tabAppSettings_background.Location = new Point(0, ((lastTabRect.Height + 1) * tabAppSettings.TabPages.Count));
-            tabAppSettings_background.Size = new Size(lastTabRect.Width, tabAppSettings.Height - (lastTabRect.Height * tabAppSettings.TabPages.Count));
-            e.Graphics.FillRectangle(Brushes.White, tabAppSettings_background);
-            
-            // Draw string and align the text.
-            StringFormat stringFlags = new StringFormat();
-            stringFlags.Alignment = StringAlignment.Far;
-            stringFlags.LineAlignment = StringAlignment.Center;
-            g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
-        }        
     }
 }

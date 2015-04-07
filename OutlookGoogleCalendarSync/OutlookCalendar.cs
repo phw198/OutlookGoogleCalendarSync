@@ -187,9 +187,13 @@ namespace OutlookGoogleCalendarSync {
                 log.Fine("Filtered down to " + result.Count);
                 result = new List<AppointmentItem>();
                 
-                //Outlook can't handle times formatted with a . delimeter!
+                //Outlook can't handle dates or times formatted with a . delimeter!
                 string format = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-                format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".",":");
+                switch (format) {
+                    case "yyyy.MMdd": format = "yyyy-MM-dd"; break;
+                    default: break;
+                }
+                format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
                 filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {

@@ -26,7 +26,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember]
         public string Password { get; set; }
 
-        public void Apply() {
+        public void Configure() {
             WebProxy wp;
             if (Type == "None") {
                 log.Info("Removing proxy usage.");

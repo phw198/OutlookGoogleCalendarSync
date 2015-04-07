@@ -41,7 +41,7 @@ namespace OutlookGoogleCalendarSync {
                 string sourceFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, settingsFilename);
                 if (!File.Exists(sourceFilePath)) {
                     log.Info("No settings.xml file found in " + sourceFilePath);
-                    XMLManager.export(Settings.Instance, sourceFilePath);
+                    Settings.Instance.Save(sourceFilePath);
                     log.Info("New blank template created.");
                 }
                 log.Info("Copying settings.xml to user's local appdata store.");
@@ -66,8 +66,6 @@ namespace OutlookGoogleCalendarSync {
             }
             if (!splash.IsDisposed) splash.Close();
             #endregion 
-
-            
 
             Application.Run(new MainForm());
         }
