@@ -493,6 +493,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
+            log.Fine("Comparing Recipients");
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
             List<EventAttendee> removeAttendee = new List<EventAttendee>();
             foreach (EventAttendee ea in ev.Attendees ?? Enumerable.Empty<EventAttendee>()) {

@@ -30,9 +30,10 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
 
-        public MainForm() {
+        public MainForm(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
+            if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
             lAboutMain.Text = lAboutMain.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
 
             Instance = this;
@@ -481,6 +482,14 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout("Unable to connect to the Google calendar. The following error occurred:");
                 Logboxout(ex.Message);
                 log.Error(ex.StackTrace);
+                if (Settings.Instance.Proxy.Type == "IE") {
+                    if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n"+
+                        "Test it now? If successful, please retry synchronising your calendar.", 
+                        "Test IE Internet Access",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                        System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                    }
+                }
                 return false;
             }
             Logboxout(googleEntries.Count + " Google calendar entries found.");
@@ -876,8 +885,16 @@ namespace OutlookGoogleCalendarSync {
                 MessageBox.Show("Failed to retrieve Google calendars. \r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Logboxout("Unable to get the list of Google Calendars. The following error occurred:");
-                Logboxout(ex.Message + "\r\n => Check your network connection.");
+                Logboxout("Unable to get the list of Google calendars. The following error occurred:");
+                Logboxout(ex.Message);
+                if (Settings.Instance.Proxy.Type == "IE") {
+                    if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                        "Test it now? If successful, please retry retrieving your Google calendars.",
+                        "Test IE Internet Access",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                        System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                    }
+                }
             }
             if (calendars != null) {
                 cbGoogleCalendars.Items.Clear();

@@ -13,6 +13,7 @@ namespace OutlookGoogleCalendarSync {
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private MAPIFolder useOutlookCalendar;
         private Dictionary<string, MAPIFolder> calendarFolders = new Dictionary<string, MAPIFolder>();
+        private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
             log.Debug("Setting up Outlook connection.");
@@ -25,10 +26,11 @@ namespace OutlookGoogleCalendarSync {
 
             //Implicit logon to default profile, with no dialog box
             //If 1< profile, a dialogue is forced unless implicit login used
-            if (oNS.ExchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
+            exchangeConnectionMode = oNS.ExchangeConnectionMode;
+            if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
                 log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
             }
-            log.Info("Exchange connection mode: " + oNS.ExchangeConnectionMode.ToString());
+            log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
             
             currentUserSMTP = GetRecipientEmail(oNS.CurrentUser);
             currentUserName = oNS.CurrentUser.Name;
@@ -72,7 +74,10 @@ namespace OutlookGoogleCalendarSync {
         public Boolean Offline() {
             return oApp.GetNamespace("mapi").Offline;
         }
-
+        public OlExchangeConnectionMode ExchangeConnectionMode() {
+            return exchangeConnectionMode;
+        }
+        
         private const String gEventID = "googleEventID";
 
         private MAPIFolder getDefaultCalendar(NameSpace oNS) {
@@ -102,7 +107,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Finding default Mailbox calendar folders");
                 defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
                 calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
-                findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, defaultCalendar);
+                findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
             return defaultCalendar;

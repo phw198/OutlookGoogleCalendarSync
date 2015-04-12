@@ -108,6 +108,20 @@
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
             this.bSave = new System.Windows.Forms.Button();
+            this.tabPage_Help = new System.Windows.Forms.TabPage();
+            this.label27 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label25 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
             this.tabPage_About = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.pbDonate = new System.Windows.Forms.PictureBox();
@@ -130,6 +144,8 @@
             this.gbSyncOptions_How.SuspendLayout();
             this.tabAppBehaviour.SuspendLayout();
             this.gbProxy.SuspendLayout();
+            this.tabPage_Help.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.tabPage_About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             this.SuspendLayout();
@@ -141,6 +157,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tabApp.Controls.Add(this.tabPage_Sync);
             this.tabApp.Controls.Add(this.tabPage_Settings);
+            this.tabApp.Controls.Add(this.tabPage_Help);
             this.tabApp.Controls.Add(this.tabPage_About);
             this.tabApp.Location = new System.Drawing.Point(12, 12);
             this.tabApp.Multiline = true;
@@ -285,7 +302,7 @@
             // 
             // tabOutlook
             // 
-            this.tabOutlook.BackColor = System.Drawing.Color.White;
+            this.tabOutlook.BackColor = System.Drawing.Color.Transparent;
             this.tabOutlook.Controls.Add(this.label11);
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
             this.tabOutlook.Controls.Add(this.cbOutlookCalendars);
@@ -300,6 +317,7 @@
             this.tabOutlook.Size = new System.Drawing.Size(392, 462);
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
+            this.tabOutlook.UseVisualStyleBackColor = true;
             // 
             // label11
             // 
@@ -476,9 +494,9 @@
             this.label13.Location = new System.Drawing.Point(153, 96);
             this.label13.MaximumSize = new System.Drawing.Size(200, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(164, 26);
+            this.label13.Size = new System.Drawing.Size(189, 26);
             this.label13.TabIndex = 28;
-            this.label13.Text = "Reset the Google account being synchronised with\r\n";
+            this.label13.Text = "Reset the Google account the application is using to synchronise with\r\n";
             // 
             // label12
             // 
@@ -735,7 +753,7 @@
             // cbAddReminders
             // 
             this.cbAddReminders.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbAddReminders.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.cbAddReminders.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAddReminders.Location = new System.Drawing.Point(45, 73);
             this.cbAddReminders.Name = "cbAddReminders";
             this.cbAddReminders.Size = new System.Drawing.Size(80, 17);
@@ -747,7 +765,7 @@
             // lAttributes
             // 
             this.lAttributes.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lAttributes.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.lAttributes.ForeColor = System.Drawing.SystemColors.ControlText;
             this.lAttributes.Location = new System.Drawing.Point(6, 19);
             this.lAttributes.Name = "lAttributes";
             this.lAttributes.Size = new System.Drawing.Size(120, 14);
@@ -757,7 +775,7 @@
             // cbAddAttendees
             // 
             this.cbAddAttendees.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbAddAttendees.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.cbAddAttendees.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAddAttendees.Location = new System.Drawing.Point(45, 54);
             this.cbAddAttendees.Name = "cbAddAttendees";
             this.cbAddAttendees.Size = new System.Drawing.Size(80, 17);
@@ -769,7 +787,7 @@
             // cbAddDescription
             // 
             this.cbAddDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbAddDescription.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.cbAddDescription.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAddDescription.Location = new System.Drawing.Point(45, 36);
             this.cbAddDescription.Name = "cbAddDescription";
             this.cbAddDescription.Size = new System.Drawing.Size(80, 17);
@@ -1175,6 +1193,182 @@
             this.bSave.UseVisualStyleBackColor = true;
             this.bSave.Click += new System.EventHandler(this.Save_Click);
             // 
+            // tabPage_Help
+            // 
+            this.tabPage_Help.Controls.Add(this.label27);
+            this.tabPage_Help.Controls.Add(this.label26);
+            this.tabPage_Help.Controls.Add(this.label20);
+            this.tabPage_Help.Controls.Add(this.tableLayoutPanel1);
+            this.tabPage_Help.Controls.Add(this.label16);
+            this.tabPage_Help.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_Help.Name = "tabPage_Help";
+            this.tabPage_Help.Size = new System.Drawing.Size(487, 542);
+            this.tabPage_Help.TabIndex = 3;
+            this.tabPage_Help.Text = "Help";
+            this.tabPage_Help.UseVisualStyleBackColor = true;
+            // 
+            // label27
+            // 
+            this.label27.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label27.AutoSize = true;
+            this.label27.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label27.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label27.Location = new System.Drawing.Point(179, 441);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(104, 15);
+            this.label27.TabIndex = 47;
+            this.label27.Text = "TroubleShooting";
+            this.label27.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label26
+            // 
+            this.label26.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(89, 464);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(299, 65);
+            this.label26.TabIndex = 46;
+            this.label26.Text = resources.GetString("label26.Text");
+            // 
+            // label20
+            // 
+            this.label20.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label20.AutoSize = true;
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(74, 38);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(347, 26);
+            this.label20.TabIndex = 40;
+            this.label20.Text = "All the configuration is defined on the \"Settings\" tab above.\r\nTry hovering the m" +
+                "ouse over individual settings for extra tips, if available.";
+            this.label20.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8.75576F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 91.24424F));
+            this.tableLayoutPanel1.Controls.Add(this.label24, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label22, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.label21, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label19, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label17, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label18, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label23, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.label25, 1, 3);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(21, 82);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20.58824F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 79.41177F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 106F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 121F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(434, 347);
+            this.tableLayoutPanel1.TabIndex = 38;
+            // 
+            // label24
+            // 
+            this.label24.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label24.AutoSize = true;
+            this.label24.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label24.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label24.Location = new System.Drawing.Point(8, 225);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(21, 15);
+            this.label24.TabIndex = 44;
+            this.label24.Text = "#4";
+            this.label24.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label22
+            // 
+            this.label22.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label22.AutoSize = true;
+            this.label22.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label22.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label22.Location = new System.Drawing.Point(8, 119);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(21, 15);
+            this.label22.TabIndex = 42;
+            this.label22.Text = "#3";
+            this.label22.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(40, 24);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(389, 78);
+            this.label21.TabIndex = 41;
+            this.label21.Text = resources.GetString("label21.Text");
+            // 
+            // label19
+            // 
+            this.label19.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label19.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label19.Location = new System.Drawing.Point(8, 24);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(21, 15);
+            this.label19.TabIndex = 40;
+            this.label19.Text = "#2";
+            this.label19.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label17
+            // 
+            this.label17.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label17.Location = new System.Drawing.Point(8, 0);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(21, 15);
+            this.label17.TabIndex = 38;
+            this.label17.Text = "#1";
+            this.label17.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(40, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(321, 13);
+            this.label18.TabIndex = 39;
+            this.label18.Text = "On the \"Outlook\" tab, select the calendar you wish to synchronise.";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(40, 119);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(379, 104);
+            this.label23.TabIndex = 43;
+            this.label23.Text = resources.GetString("label23.Text");
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(40, 225);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(391, 104);
+            this.label25.TabIndex = 45;
+            this.label25.Text = resources.GetString("label25.Text");
+            // 
+            // label16
+            // 
+            this.label16.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label16.Location = new System.Drawing.Point(196, 13);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(87, 15);
+            this.label16.TabIndex = 37;
+            this.label16.Text = "Configuration";
+            this.label16.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // tabPage_About
             // 
             this.tabPage_About.Controls.Add(this.label2);
@@ -1281,6 +1475,10 @@
             this.tabAppBehaviour.PerformLayout();
             this.gbProxy.ResumeLayout(false);
             this.gbProxy.PerformLayout();
+            this.tabPage_Help.ResumeLayout(false);
+            this.tabPage_Help.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.tabPage_About.ResumeLayout(false);
             this.tabPage_About.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).EndInit();
@@ -1375,5 +1573,19 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.RadioButton rbProxyNone;
         private System.Windows.Forms.Label lSettingInfo;
+        private System.Windows.Forms.TabPage tabPage_Help;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label27;
     }
 }

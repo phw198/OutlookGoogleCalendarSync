@@ -174,7 +174,7 @@ namespace OutlookGoogleCalendarSync {
 
                 ev.Start = new EventDateTime();
                 ev.End = new EventDateTime();
-
+                
                 if (ai.AllDayEvent) {
                     ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                     ev.End.Date = ai.End.ToString("yyyy-MM-dd");
@@ -296,7 +296,18 @@ namespace OutlookGoogleCalendarSync {
                             "more than 200, which Google does not allow.");
                         ev.Attendees = new List<EventAttendee>();
                     } else {
-                        OutlookCalendar.Instance.CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
+                        try {
+                            OutlookCalendar.Instance.CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
+                        } catch (System.Exception ex) {
+                            if (ex.Message.Contains("An error occurred while performing the operation") &&
+                                OutlookCalendar.Instance.IOutlook.ExchangeConnectionMode() == OlExchangeConnectionMode.olCachedDisconnected) {
+                                MainForm.Instance.Logboxout("Outlook is currently disconnected from Exchange, so it's not possible to sync attendees.");
+                                MainForm.Instance.Logboxout("Please reconnect or do not sync attendees.");
+                                throw new System.Exception("Outlook has disconnected from Exchange.");
+                            } else {
+                                throw ex;
+                            }
+                        }
                     }
                 }
                         

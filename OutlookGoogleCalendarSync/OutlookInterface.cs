@@ -17,6 +17,6 @@ namespace OutlookGoogleCalendarSync {
         Boolean Offline();
 
         String GetRecipientEmail(Recipient recipient);
-
+        OlExchangeConnectionMode ExchangeConnectionMode();
     }
 }

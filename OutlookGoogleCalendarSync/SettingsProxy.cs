@@ -8,6 +8,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(SettingsProxy));
 
         public SettingsProxy() {
+            this.Type = "IE";
             this.Port = 8888;
         }
 
@@ -45,11 +46,9 @@ namespace OutlookGoogleCalendarSync {
 
             } else { //IE
                 log.Info("Setting system proxy.");
-                //wp = (WebProxy)System.Net.GlobalProxySelection.Select;
-                //http://www.dreamincode.net/forums/topic/160555-working-with-proxy-servers/
-                //wp = (WebProxy)WebRequest.DefaultWebProxy;
-                //wp.UseDefaultCredentials = true;
-                WebRequest.DefaultWebProxy = WebRequest.GetSystemWebProxy();
+                IWebProxy iwp = WebRequest.GetSystemWebProxy();
+                iwp.Credentials = CredentialCache.DefaultNetworkCredentials;
+                WebRequest.DefaultWebProxy = iwp;
             }
             //IWebProxy iwp = WebRequest.DefaultWebProxy;
         }

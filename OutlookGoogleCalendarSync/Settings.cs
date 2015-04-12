@@ -49,7 +49,7 @@ namespace OutlookGoogleCalendarSync {
             StartOnStartup = true;
             StartInTray = false;
             MinimizeToTray = false;
-            CreateCSVFiles = true;
+            CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
             Proxy = new SettingsProxy();
             

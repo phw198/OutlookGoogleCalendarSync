@@ -13,6 +13,7 @@ namespace OutlookGoogleCalendarSync {
         private Accounts accounts;
         private MAPIFolder useOutlookCalendar;
         private Dictionary<string, MAPIFolder> calendarFolders = new Dictionary<string, MAPIFolder>();
+        private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
             log.Debug("Setting up Outlook connection.");
@@ -28,7 +29,8 @@ namespace OutlookGoogleCalendarSync {
 
             //Implicit logon to default profile, with no dialog box
             //If 1< profile, a dialogue is forced unless implicit login used
-            if (oNS.ExchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
+            exchangeConnectionMode = oNS.ExchangeConnectionMode;
+            if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
                 log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
             }
             
@@ -37,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
             //HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles
             //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
 
-            log.Info("Exchange connection mode: " + oNS.ExchangeConnectionMode.ToString());
+            log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
             currentUserSMTP = GetRecipientEmail(oNS.CurrentUser);
             currentUserName = oNS.CurrentUser.Name;
             if (currentUserName == "Unknown") {
@@ -90,6 +92,9 @@ namespace OutlookGoogleCalendarSync {
                 OutlookCalendar.Instance.Reset();
                 return oApp.GetNamespace("mapi").Offline;
             }
+        }
+        public OlExchangeConnectionMode ExchangeConnectionMode() {
+            return exchangeConnectionMode;
         }
 
         private const String gEventID = "googleEventID";

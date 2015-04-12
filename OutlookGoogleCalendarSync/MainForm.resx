@@ -117,6 +117,30 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label26.Text" xml:space="preserve">
+    <value>If you think you have found a bug, please:-
+  - set the logging level to "Debug"
+  - reproduce the problem
+  - update an existing issue or create a new issue on CodePlex
+  - attach your OGcalsync.log file</value>
+  </data>
+  <data name="label21.Text" xml:space="preserve">
+    <value>On the "Google" tab, select the calendar you wish to synchronise.
+
+If this is the first time using this application, you will need to authorise it to access your Google account. This is more secure than providing the application your username and password directly, and the process will happen automatically when you click "Retrieve Calendars".</value>
+  </data>
+  <data name="label23.Text" xml:space="preserve">
+    <value>The "Synchronisation Options" tab is the heart of the application. Here you specify 
+HOW - The direction of synchronisation, and how is deals with existing entries (merging and deleting)
+WHEN - The date range to synchronise and whether automatically at a regular interval, push changes as they occur in Outlook, or simply manually on-demand
+WHAT - Choose the meeting attributes to sync: attendees, description and reminders.</value>
+  </data>
+  <data name="label25.Text" xml:space="preserve">
+    <value>Finally, on the "Application Behaviour" tab, choose whether it starts automatically on login to Windows,  minimises to the application tray or shows a notification bubble on sync.
+For helping to troubleshoot a problem, CSVs of your meetings being synchronised can be generated, and the application logging level can be altered.
+
+If you need to access Google through a proxy, you can also provide the details here, or just rely on using Internet Explorers configuration (which is the default).</value>
+  </data>
   <data name="lAboutMain.Text" xml:space="preserve">
     <value>Outlook Google Calendar Sync
 
