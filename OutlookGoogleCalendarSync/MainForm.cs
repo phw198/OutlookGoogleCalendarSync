@@ -30,9 +30,10 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
 
-        public MainForm() {
+        public MainForm(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
+            if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
             lAboutMain.Text = lAboutMain.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
 
             Instance = this;

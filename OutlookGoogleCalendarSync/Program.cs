@@ -26,6 +26,7 @@ namespace OutlookGoogleCalendarSync {
             
         [STAThread]
         private static void Main(string[] args) {
+            String startingTab = null;
             #region User File Management
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             UserFilePath = Path.Combine(localAppData, Application.ProductName);
@@ -37,6 +38,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Checking existance of settings.xml file.");
             if (!File.Exists(settingsFile)) {
                 log.Info("User settings.xml file does not exist in "+ settingsFile);
+                startingTab = "Help";
                 //Try and copy from where the application.exe is - this is to support legacy versions <= v1.2.4
                 string sourceFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, settingsFilename);
                 if (!File.Exists(sourceFilePath)) {
@@ -67,7 +69,7 @@ namespace OutlookGoogleCalendarSync {
             if (!splash.IsDisposed) splash.Close();
             #endregion 
 
-            Application.Run(new MainForm());
+            Application.Run(new MainForm(startingTab));
         }
 
         #region Application Behaviour
