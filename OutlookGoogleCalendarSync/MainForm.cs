@@ -887,6 +887,7 @@ namespace OutlookGoogleCalendarSync {
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logboxout("Unable to get the list of Google calendars. The following error occurred:");
                 Logboxout(ex.Message);
+                if (ex.InnerException!=null) Logboxout(ex.InnerException.Message);
                 if (Settings.Instance.Proxy.Type == "IE") {
                     if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
                         "Test it now? If successful, please retry retrieving your Google calendars.",
@@ -998,10 +999,8 @@ namespace OutlookGoogleCalendarSync {
         }
         
         private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
-            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level = log.Logger.Repository.LevelMap[MainForm.Instance.cbLoggingLevel.Text];
-            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
+            Settings.configureLoggingLevel(MainForm.Instance.cbLoggingLevel.Text);
             Settings.Instance.LoggingLevel = MainForm.Instance.cbLoggingLevel.Text.ToUpper();
-            log.Info("Logging level changing to " + Settings.Instance.LoggingLevel);
         }
 
         private void btLogLocation_Click(object sender, EventArgs e) {

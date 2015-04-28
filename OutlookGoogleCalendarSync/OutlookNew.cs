@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync {
             // Done. Log off.
             oNS.Logoff();
         }
-
+        
         public List<String> Accounts() {
             List<String> accs = new List<String>();
             foreach (Account acc in accounts) {
@@ -135,13 +135,14 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void findCalendars(Folders folders, Dictionary<string, MAPIFolder> calendarFolders, MAPIFolder defaultCalendar) {
+            string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
             foreach (MAPIFolder folder in folders) {
                 if (folder.DefaultItemType == OlItemType.olAppointmentItem) {
                     if (defaultCalendar == null ||
                         (folder.EntryID != defaultCalendar.EntryID))
                         calendarFolders.Add(folder.Name, folder);
                 }
-                if (folder.Folders.Count > 0) {
+                if (folder.EntryID != excludeDeletedFolder && folder.Folders.Count > 0) {
                     findCalendars(folder.Folders, calendarFolders, defaultCalendar);
                 }
             }
@@ -169,7 +170,7 @@ namespace OutlookGoogleCalendarSync {
                     if (eu != null && eu.PrimarySmtpAddress != null)
                         retEmail = eu.PrimarySmtpAddress;
                     else {
-                        log.Warn("Exchange does not have an email for this recipient's account!");
+                        log.Warn("Exchange does not have an email for recipient: "+ recipient.Name);
                         try {
                             //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
                             Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;

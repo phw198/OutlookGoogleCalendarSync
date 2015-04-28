@@ -13,6 +13,7 @@ namespace OutlookGoogleCalendarSync
     /// </summary>
     public class XMLManager {
         private static readonly ILog log = LogManager.GetLogger(typeof(XMLManager));
+        private static XNamespace ns = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync";
 
         public XMLManager() {
         }
@@ -47,9 +48,20 @@ namespace OutlookGoogleCalendarSync
             return result;
         }
 
+        public static string ImportElement(string nodeName, string filename) {
+            try {
+                XDocument xml = XDocument.Load(filename);
+                XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
+                XElement xe = settingsXE.Elements(ns + nodeName).First();
+                log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
+                return xe.Value;
+            } catch {
+                return null;
+            }
+        }
+        
         public static void ExportElement(string nodeName, object nodeValue, string filename) {
             XDocument xml = XDocument.Load(filename);
-            XNamespace ns = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync";
             XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();

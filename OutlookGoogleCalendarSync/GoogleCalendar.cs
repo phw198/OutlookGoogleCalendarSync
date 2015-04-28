@@ -44,6 +44,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
+            log.Debug("Authenticating with Google calendar service...");
             // Get the auth URL:
             IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
@@ -53,26 +54,39 @@ namespace OutlookGoogleCalendarSync {
             IAuthorizationState result = null;
 
             if (state.RefreshToken == "") {
+                log.Info("No refresh token available - need user authorisation.");
+
                 // Request authorization from the user (by opening a browser window):
                 Process.Start(authUri.ToString());
 
                 frmGoogleAuthorizationCode eac = new frmGoogleAuthorizationCode();
                 if (eac.ShowDialog() == DialogResult.OK) {
+                    if (string.IsNullOrEmpty(eac.authcode))
+                        log.Debug("User continued but did not provide a code! This isn't going to work...");
+                    else
+                        log.Debug("User has provided authentication code.");
+
                     // Retrieve the access/refresh tokens by using the authorization code:
                     result = arg.ProcessUserAuthorization(eac.authcode, state);
 
                     //save the refresh token for future use
                     Settings.Instance.RefreshToken = result.RefreshToken;
                     Settings.Instance.Save();
+                    log.Info("Refresh and Access token successfully retrieved.");
                     
                     return result;
                 } else {
+                    log.Info("User declined to provide authorisation code. Sync will not be able to work.");
                     String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
                     MessageBox.Show(noAuth, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new System.Exception(noAuth);
                 }
             } else {
                 arg.RefreshToken(state, null);
+                if (string.IsNullOrEmpty(state.AccessToken))
+                    log.Error("Failed to retrieve Access token.");
+                else 
+                    log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
                 result = state;
                 return result;
             }
@@ -82,7 +96,7 @@ namespace OutlookGoogleCalendarSync {
         public List<MyGoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
             request = service.CalendarList.List().Fetch();
-            
+
             if (request != null) {
 
                 List<MyGoogleCalendarListEntry> result = new List<MyGoogleCalendarListEntry>();
@@ -90,6 +104,8 @@ namespace OutlookGoogleCalendarSync {
                     result.Add(new MyGoogleCalendarListEntry(cle));
                 }
                 return result;
+            } else {
+                log.Error("Handshaking with the Google calendar service failed.");
             }
             return null;
         }
@@ -159,7 +175,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
-                log.Fine("Processing >> " + OutlookCalendar.GetEventSummary(ai));
+                log.Debug("Processing >> " + OutlookCalendar.GetEventSummary(ai));
                 Event ev = new Event();
 
                 //Add the Outlook appointment ID into Google event.
@@ -171,7 +187,7 @@ namespace OutlookGoogleCalendarSync {
                     ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
                 else
                     ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
-
+                
                 ev.Start = new EventDateTime();
                 ev.End = new EventDateTime();
                 
@@ -242,7 +258,7 @@ namespace OutlookGoogleCalendarSync {
                 
                 int itemModified = 0;
                 String aiSummary = OutlookCalendar.GetEventSummary(ai);
-                log.Fine("Processing >> " + aiSummary);
+                log.Debug("Processing >> " + aiSummary);
 
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
                 sb.AppendLine(aiSummary);
@@ -289,7 +305,7 @@ namespace OutlookGoogleCalendarSync {
                 if (MainForm.CompareAttribute("Free/Busy", SyncDirection.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
                     ev.Transparency = oFreeBusy;
                 }
-                
+
                 if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
                     if (ai.Recipients.Count >= 200) {
                         MainForm.Instance.Logboxout("ALERT: Attendees will not be synced for this meeting as it has " +
@@ -422,7 +438,6 @@ namespace OutlookGoogleCalendarSync {
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
                             break;
                         }
-                        ai.Close(OlInspectorClose.olDiscard);
                     }
                 }
             }
@@ -541,6 +556,7 @@ namespace OutlookGoogleCalendarSync {
 
         public static EventAttendee CreateAttendee(Recipient recipient) {
             EventAttendee ea = new EventAttendee();
+            log.Fine("Creating attendee " + recipient.Name);
             ea.DisplayName = recipient.Name;
             ea.Email = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);
             ea.Optional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);

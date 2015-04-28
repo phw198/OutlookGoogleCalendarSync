@@ -8,6 +8,14 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(SettingsProxy));
 
         public SettingsProxy() {
+            //Default values for new class
+            this.Type = "IE";
+            this.Port = 8888;
+        }
+        
+        //Default values when loading from xml and attribute not yet serialized
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext context) {
             this.Type = "IE";
             this.Port = 8888;
         }

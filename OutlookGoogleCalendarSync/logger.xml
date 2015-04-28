@@ -1,6 +1,6 @@
 <log4net>
 		<appender name="RollingFile" type="log4net.Appender.RollingFileAppender">
-				<file type="log4net.Util.PatternString" value="${LOCALAPPDATA}\\Outlook Google Calendar Sync\\OGcalsync.log" />
+				<file type="log4net.Util.PatternString" value="${APPDATA}\\Outlook Google Calendar Sync\\OGcalsync.log" />
 				<encoding value="utf-8" />
 				<appendToFile value="true" />
 				<maximumFileSize value="500KB" />

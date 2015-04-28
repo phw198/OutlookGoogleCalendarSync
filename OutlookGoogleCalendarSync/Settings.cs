@@ -129,21 +129,8 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool VerboseOutput { get; set; }
 
         public static void Load(string XMLfile = null) {
-            //We don't want to do this as it will trample new properties that aren't yet in the user's XML file
-            //Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
-
-            //So let's load the user's settings file to a separate object
-            Settings userSettings = new Settings();
-            userSettings = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
-            IList<PropertyInfo> userProps = userSettings.GetType().GetProperties();
-            IList<PropertyInfo> fullProps = typeof(Settings).GetProperties().ToList();
-            //...and then merge the properties in
-            for (int i = 0; i < userProps.Count; i++) {
-                var property = userProps[i].GetValue(userSettings, null);
-                if (property != null && !string.IsNullOrEmpty(property.ToString())) {
-                    fullProps[i].SetValue(Settings.Instance, property, null);
-                }
-            }
+            Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
+            log.Fine("User settings loaded.");
         }
 
         public void Save(string XMLfile = null) {
@@ -210,6 +197,12 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+        }
+
+        public static void configureLoggingLevel(string logLevel) {
+            log.Info("Logging level configured to '" + logLevel + "'");
+            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level = log.Logger.Repository.LevelMap[logLevel];
+            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
         }
     }
 }

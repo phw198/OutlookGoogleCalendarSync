@@ -35,7 +35,14 @@ namespace OutlookGoogleCalendarSync {
             if (!Directory.Exists(UserFilePath))
                 Directory.CreateDirectory(UserFilePath);
 
-            log.Debug("Checking existance of settings.xml file.");
+            log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
+            XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
+            log.Info("Program started: v" + Application.ProductVersion);
+
+            string logLevel = XMLManager.ImportElement("LoggingLevel", settingsFile);
+            Settings.configureLoggingLevel(logLevel ?? "FINE");
+
+            log.Debug("Checking existance of settings.xml file "+ settingsFile);
             if (!File.Exists(settingsFile)) {
                 log.Info("User settings.xml file does not exist in "+ settingsFile);
                 startingTab = "Help";
@@ -46,14 +53,10 @@ namespace OutlookGoogleCalendarSync {
                     Settings.Instance.Save(sourceFilePath);
                     log.Info("New blank template created.");
                 }
-                log.Info("Copying settings.xml to user's local appdata store.");
+                log.Info("Copying settings.xml to user's roaming appdata store.");
                 File.Copy(sourceFilePath, settingsFile);
             }
             #endregion
-            
-            log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
-            XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
-            log.Info("Program started: v"+ Application.ProductVersion);
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -69,7 +72,13 @@ namespace OutlookGoogleCalendarSync {
             if (!splash.IsDisposed) splash.Close();
             #endregion 
 
-            Application.Run(new MainForm(startingTab));
+            try {
+                Application.Run(new MainForm(startingTab));
+            } catch (Exception ex) {
+                log.Fatal("Application unexpectedly terminated!");
+                log.Fatal(ex.Message);
+                MessageBox.Show("Application unexpectedly terminated!", ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #region Application Behaviour
