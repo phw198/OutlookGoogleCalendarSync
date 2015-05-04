@@ -18,6 +18,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
         private DateTime lastSyncDate;
+        private Boolean portable;
 
         public Settings() {
             OutlookService = OutlookCalendar.Service.DefaultMailbox;
@@ -51,6 +52,7 @@ namespace OutlookGoogleCalendarSync {
             MinimizeToTray = false;
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
+            portable = false;
             Proxy = new SettingsProxy();
             
             lastSyncDate = new DateTime(0);
@@ -113,6 +115,14 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimizeToTray { get; set; }
+        [DataMember] public bool Portable {
+            get { return portable; }
+            set {
+                portable = value;
+                if (!loading()) XMLManager.ExportElement("Portable", value, Program.SettingsFile);
+            }
+        }
+
         [DataMember] public bool CreateCSVFiles { get; set; }
         [DataMember] public String LoggingLevel { get; set; }
         //Proxy
@@ -186,6 +196,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  StartOnStartup: " + StartOnStartup);
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimizeToTray: " + MinimizeToTray);
+            log.Info("  Portable: " + Portable);
             log.Info("  CreateCSVFiles: " + CreateCSVFiles);
 
             log.Info("  VerboseOutput: " + VerboseOutput);

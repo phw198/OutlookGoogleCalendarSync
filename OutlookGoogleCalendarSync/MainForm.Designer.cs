@@ -128,6 +128,7 @@
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.cbPortable = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -886,6 +887,7 @@
             // 
             // tabAppBehaviour
             // 
+            this.tabAppBehaviour.Controls.Add(this.cbPortable);
             this.tabAppBehaviour.Controls.Add(this.gbProxy);
             this.tabAppBehaviour.Controls.Add(this.label14);
             this.tabAppBehaviour.Controls.Add(this.btLogLocation);
@@ -921,7 +923,7 @@
             this.gbProxy.Controls.Add(this.label4);
             this.gbProxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbProxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbProxy.Location = new System.Drawing.Point(16, 168);
+            this.gbProxy.Location = new System.Drawing.Point(16, 187);
             this.gbProxy.Name = "gbProxy";
             this.gbProxy.Size = new System.Drawing.Size(364, 200);
             this.gbProxy.TabIndex = 37;
@@ -1092,7 +1094,7 @@
             // btLogLocation
             // 
             this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btLogLocation.Location = new System.Drawing.Point(302, 136);
+            this.btLogLocation.Location = new System.Drawing.Point(302, 155);
             this.btLogLocation.Name = "btLogLocation";
             this.btLogLocation.Size = new System.Drawing.Size(80, 23);
             this.btLogLocation.TabIndex = 19;
@@ -1103,7 +1105,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 141);
+            this.label3.Location = new System.Drawing.Point(13, 160);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 13);
             this.label3.TabIndex = 18;
@@ -1124,7 +1126,7 @@
             "Debug",
             "Fine",
             "All"});
-            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 137);
+            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 156);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
             this.cbLoggingLevel.Size = new System.Drawing.Size(210, 21);
             this.cbLoggingLevel.TabIndex = 17;
@@ -1174,7 +1176,7 @@
             // 
             // cbCreateFiles
             // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(16, 115);
+            this.cbCreateFiles.Location = new System.Drawing.Point(16, 134);
             this.cbCreateFiles.Name = "cbCreateFiles";
             this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
             this.cbCreateFiles.TabIndex = 15;
@@ -1437,6 +1439,17 @@
             this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
             // 
+            // cbPortable
+            // 
+            this.cbPortable.AutoSize = true;
+            this.cbPortable.Location = new System.Drawing.Point(16, 119);
+            this.cbPortable.Name = "cbPortable";
+            this.cbPortable.Size = new System.Drawing.Size(148, 17);
+            this.cbPortable.TabIndex = 38;
+            this.cbPortable.Text = "Make application portable";
+            this.cbPortable.UseVisualStyleBackColor = true;
+            this.cbPortable.CheckedChanged += new System.EventHandler(this.cbPortable_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1587,5 +1600,6 @@
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.CheckBox cbPortable;
     }
 }

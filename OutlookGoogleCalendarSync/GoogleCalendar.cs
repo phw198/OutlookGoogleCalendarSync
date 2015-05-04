@@ -79,7 +79,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Info("User declined to provide authorisation code. Sync will not be able to work.");
                     String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
                     MessageBox.Show(noAuth, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    throw new System.Exception(noAuth);
+                    throw new System.ApplicationException(noAuth);
                 }
             } else {
                 arg.RefreshToken(state, null);
@@ -95,7 +95,11 @@ namespace OutlookGoogleCalendarSync {
 
         public List<MyGoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
-            request = service.CalendarList.List().Fetch();
+            try {
+                request = service.CalendarList.List().Fetch();
+            } catch (ApplicationException ex) {
+                throw ex;
+            }
 
             if (request != null) {
 

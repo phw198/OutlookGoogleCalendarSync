@@ -100,6 +100,7 @@ namespace OutlookGoogleCalendarSync {
         private const String gEventID = "googleEventID";
         public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
         private const String PR_ORIGINAL_DISPLAY_NAME = "http://schemas.microsoft.com/mapi/proptag/0x3A13001E";
+        private const String EMAIL1ADDRESS = "http://schemas.microsoft.com/mapi/id/{00062004-0000-0000-C000-000000000046}/8084001F";
 
         private MAPIFolder getDefaultCalendar(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
@@ -183,7 +184,7 @@ namespace OutlookGoogleCalendarSync {
                     }
 
                 } else if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
-                    log.Fine("This is an Exchange contact");
+                    log.Fine("This is an Outlook contact");
                     ContactItem contact = null;
                     try {
                         contact = recipient.AddressEntry.GetContact();
@@ -192,9 +193,14 @@ namespace OutlookGoogleCalendarSync {
                         retEmail = OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
                     }
                     if (contact != null) {
-                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = contact.PropertyAccessor;
-                        retEmail = pa.GetProperty(OutlookNew.PR_ORIGINAL_DISPLAY_NAME).ToString();
-                        retEmail = contact.Email1Address;
+                        if (contact.Email1AddressType == "EX") {
+                            log.Fine("Address is from Exchange.");
+                            log.Fine("Using PropertyAccessor to get email address.");
+                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = contact.PropertyAccessor;
+                            retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
+                        } else {
+                            retEmail = contact.Email1Address;
+                        }
                     }
                 } else {
                     log.Fine("Exchange type: " + recipient.AddressEntry.AddressEntryUserType.ToString());

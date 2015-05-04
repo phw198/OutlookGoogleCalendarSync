@@ -190,6 +190,7 @@ namespace OutlookGoogleCalendarSync {
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
+            cbPortable.Checked = Settings.Instance.Portable;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
@@ -881,6 +882,7 @@ namespace OutlookGoogleCalendarSync {
             List<MyGoogleCalendarListEntry> calendars = null;
             try {
                 calendars = GoogleCalendar.Instance.GetCalendars();
+            } catch (ApplicationException) {
             } catch (System.Exception ex) {
                 MessageBox.Show("Failed to retrieve Google calendars. \r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
@@ -896,7 +898,7 @@ namespace OutlookGoogleCalendarSync {
                         System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
                     }
                 }
-            }
+            } 
             if (calendars != null) {
                 cbGoogleCalendars.Items.Clear();
                 foreach (MyGoogleCalendarListEntry mcle in calendars) {
@@ -992,6 +994,13 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbMinimizeToTrayCheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.MinimizeToTray = cbMinimizeToTray.Checked;
+        }
+
+        private void cbPortable_CheckedChanged(object sender, EventArgs e) {
+            if (this.Visible) {
+                Settings.Instance.Portable = cbPortable.Checked;
+                Program.MakePortable(cbPortable.Checked);
+            }
         }
 
         private void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {

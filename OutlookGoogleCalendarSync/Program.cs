@@ -23,40 +23,12 @@ namespace OutlookGoogleCalendarSync {
         public static String SettingsFile {
             get { return settingsFile; }
         }
+        private static String startingTab = null;
+        private static String roamingOGCS;
             
         [STAThread]
         private static void Main(string[] args) {
-            String startingTab = null;
-            #region User File Management
-            string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            UserFilePath = Path.Combine(roamingAppData, Application.ProductName);
-            settingsFile = Path.Combine(UserFilePath, settingsFilename);
-            
-            if (!Directory.Exists(UserFilePath))
-                Directory.CreateDirectory(UserFilePath);
-
-            log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
-            XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
-            log.Info("Program started: v" + Application.ProductVersion);
-
-            string logLevel = XMLManager.ImportElement("LoggingLevel", settingsFile);
-            Settings.configureLoggingLevel(logLevel ?? "FINE");
-
-            log.Debug("Checking existance of settings.xml file "+ settingsFile);
-            if (!File.Exists(settingsFile)) {
-                log.Info("User settings.xml file does not exist in "+ settingsFile);
-                startingTab = "Help";
-                //Try and copy from where the application.exe is - this is to support legacy versions <= v1.2.4
-                string sourceFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, settingsFilename);
-                if (!File.Exists(sourceFilePath)) {
-                    log.Info("No settings.xml file found in " + sourceFilePath);
-                    Settings.Instance.Save(sourceFilePath);
-                    log.Info("New blank template created.");
-                }
-                log.Info("Copying settings.xml to user's roaming appdata store.");
-                File.Copy(sourceFilePath, settingsFile);
-            }
-            #endregion
+            initialiseFiles();
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -77,8 +49,59 @@ namespace OutlookGoogleCalendarSync {
             } catch (Exception ex) {
                 log.Fatal("Application unexpectedly terminated!");
                 log.Fatal(ex.Message);
-                MessageBox.Show("Application unexpectedly terminated!", ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private static void initialiseFiles() {
+            string appFilePath = System.Windows.Forms.Application.StartupPath;
+            string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            roamingOGCS = Path.Combine(roamingAppData, Application.ProductName);
+
+            //Don't know where to write log file to yet. If settings.xml exists in Roaming profile, 
+            //then log should go there too.
+            if (File.Exists(Path.Combine(roamingOGCS, settingsFilename))) {
+                UserFilePath = roamingOGCS;
+                initialiseLogger(UserFilePath, true);
+                log.Info("Storing user files in roaming directory: " + UserFilePath);
+            } else {
+                UserFilePath = appFilePath;
+                initialiseLogger(UserFilePath, true);
+                log.Info("Storing user files in application directory: " + appFilePath);
+
+                if (!File.Exists(Path.Combine(appFilePath, settingsFilename))) {
+                    log.Info("No settings.xml file found in " + appFilePath);
+                    Settings.Instance.Save(Path.Combine(appFilePath, settingsFilename));
+                    log.Info("New blank template created.");
+                    startingTab = "Help";
+                }
+            }
+
+            //Now let's confirm the actual setting
+            settingsFile = Path.Combine(UserFilePath, settingsFilename);
+            Boolean keepPortable = (XMLManager.ImportElement("Portable", settingsFile) ?? "false").Equals("true");
+            if (keepPortable) {
+                if (UserFilePath != appFilePath) {
+                    log.Info("File storage location is incorrect according to " + settingsFilename);
+                    MakePortable(true);
+                }
+            } else {
+                if (UserFilePath != roamingOGCS) {
+                    log.Info("File storage location is incorrect according to " + settingsFilename);
+                    MakePortable(false);
+                }
+            }
+
+            string logLevel = XMLManager.ImportElement("LoggingLevel", settingsFile);
+            Settings.configureLoggingLevel(logLevel ?? "FINE");
+        }
+
+        private static void initialiseLogger(string logPath, Boolean bootstrap = false) {
+            log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
+            log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
+            XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
+
+            if (bootstrap) log.Info("Program started: v" + Application.ProductVersion);
         }
 
         #region Application Behaviour
@@ -138,6 +161,62 @@ namespace OutlookGoogleCalendarSync {
                     break;
                 }
             }
+        }
+
+        public static void MakePortable(Boolean portable) {
+            if (portable) {
+                log.Info("Making the application portable...");
+                string appFilePath = System.Windows.Forms.Application.StartupPath;
+                if (appFilePath == UserFilePath) {
+                    log.Info("It already is!");
+                    return;
+                }
+                moveFiles(UserFilePath, appFilePath);
+
+            } else {
+                log.Info("Making the application non-portable...");
+                if (roamingOGCS == UserFilePath) {
+                    log.Info("It already is!");
+                    return;
+                }
+                if (!Directory.Exists(roamingOGCS))
+                    Directory.CreateDirectory(roamingOGCS);
+
+                moveFiles(UserFilePath, roamingOGCS);
+            }
+        }
+
+        private static void moveFiles(string srcDir, string dstDir) {
+            log.Info("Moving files from " + srcDir + " to " + dstDir + ":-");
+            if (!Directory.Exists(dstDir)) Directory.CreateDirectory(dstDir);
+
+            string dstFile = Path.Combine(dstDir, settingsFilename);
+            File.Delete(dstFile);
+            log.Debug("  "+ settingsFilename);
+            File.Move(SettingsFile, dstFile);
+            settingsFile = Path.Combine(dstDir, settingsFilename);
+
+            foreach (string file in Directory.GetFiles(srcDir)) {
+                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv")) {
+                    dstFile = Path.Combine(dstDir, Path.GetFileName(file));
+                    File.Delete(dstFile);
+                    log.Debug("  " + Path.GetFileName(file));
+                    if (file.EndsWith(".log")) {
+                        log4net.LogManager.Shutdown();
+                        File.Move(file, dstFile);
+                        initialiseLogger(dstDir);
+                    } else {
+                        File.Move(file, dstFile);
+                    }
+                }
+            }
+            try {
+                log.Debug("Deleting directory " + srcDir);
+                Directory.Delete(srcDir);
+            } catch (System.Exception ex) {
+                log.Debug(ex.Message);
+            }
+            UserFilePath = dstDir;
         }
         #endregion
     }
