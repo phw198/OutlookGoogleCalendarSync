@@ -1,5 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Deployment.Application;
+using System.Linq;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using log4net;
 using log4net.Config;
@@ -25,11 +29,12 @@ namespace OutlookGoogleCalendarSync {
         }
         private static String startingTab = null;
         private static String roamingOGCS;
-            
+        private static Boolean checkForUpdate_force = false;
+
         [STAThread]
         private static void Main(string[] args) {
             initialiseFiles();
-            
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -37,12 +42,17 @@ namespace OutlookGoogleCalendarSync {
             Form splash = new Splash();
             splash.Show();
             DateTime splashed = DateTime.Now;
-            while (DateTime.Now < splashed.AddSeconds((System.Diagnostics.Debugger.IsAttached ? 1 :8)) && !splash.IsDisposed) {
+            while (DateTime.Now < splashed.AddSeconds((System.Diagnostics.Debugger.IsAttached ? 1 : 8)) && !splash.IsDisposed) {
                 Application.DoEvents();
                 System.Threading.Thread.Sleep(100);
             }
             if (!splash.IsDisposed) splash.Close();
-            #endregion 
+            #endregion
+
+            log.Debug("Loading settings from file.");
+            Settings.Load();
+
+            checkForUpdate();
 
             try {
                 Application.Run(new MainForm(startingTab));
@@ -192,7 +202,7 @@ namespace OutlookGoogleCalendarSync {
 
             string dstFile = Path.Combine(dstDir, settingsFilename);
             File.Delete(dstFile);
-            log.Debug("  "+ settingsFilename);
+            log.Debug("  " + settingsFilename);
             File.Move(SettingsFile, dstFile);
             settingsFile = Path.Combine(dstDir, settingsFilename);
 
@@ -219,5 +229,153 @@ namespace OutlookGoogleCalendarSync {
             UserFilePath = dstDir;
         }
         #endregion
-    }
+
+        #region Update Checking
+        public static Boolean isClickOnceInstall() {
+            return ApplicationDeployment.IsNetworkDeployed;
+        }
+        
+        public static void checkForUpdate(Boolean forceCheck = false) {
+            checkForUpdate_force = forceCheck;
+            if (forceCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
+
+            if (isClickOnceInstall()) {
+                ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+                if (forceCheck || ad.TimeOfLastUpdateCheck < DateTime.Now.AddDays(-1)) {
+                    log.Debug("Checking for ClickOnce update...");
+                    ad.CheckForUpdateCompleted -= new CheckForUpdateCompletedEventHandler(checkForUpdate_completed);
+                    ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(checkForUpdate_completed);
+                    ad.CheckForUpdateAsync();
+                }
+            } else {
+                BackgroundWorker bwUpdater = new BackgroundWorker();
+                bwUpdater.WorkerReportsProgress = false;
+                bwUpdater.WorkerSupportsCancellation = false;
+                bwUpdater.DoWork += new DoWorkEventHandler(checkForZip);
+                bwUpdater.RunWorkerCompleted += new RunWorkerCompletedEventHandler(checkForZip_completed);
+                bwUpdater.RunWorkerAsync();
+            }
+        }
+        #region ClickOnce
+        private static void checkForUpdate_completed(object sender, CheckForUpdateCompletedEventArgs e) {
+            if (e.Error != null) {
+                log.Error("Could not retrieve new version of the application.");
+                log.Error(e.Error.Message);
+                MessageBox.Show("Could not retrieve new version of the application.\n" + e.Error.Message, "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            } else if (e.Cancelled == true) {
+                log.Info("The update was cancelled");
+                MessageBox.Show("The update was cancelled.", "Update Check Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (e.UpdateAvailable) {
+                log.Info("An update is available: v" + e.AvailableVersion);
+
+                if (!e.IsUpdateRequired) {
+                    log.Info("This is an optional update.");
+                    DialogResult dr = MessageBox.Show("An update is available. Would you like to update the application now?", "Update Available", MessageBoxButtons.YesNo);
+                    if (dr == DialogResult.Yes) {
+                        beginUpdate();
+                    }
+                } else {
+                    log.Info("This is a mandatory update.");
+                    MessageBox.Show("A mandatory update is available. The update will be installed now and the application restarted.", "Update Required", MessageBoxButtons.OK);
+                    beginUpdate();
+                }
+            } else {
+                log.Info("Already running the latest version.");
+                if (checkForUpdate_force) { //Was a manual check, so give feedback
+                    MessageBox.Show("You are already running the latest version.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private static void beginUpdate() {
+            log.Info("Beginning application update...");
+            ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+            ad.UpdateCompleted += new AsyncCompletedEventHandler(update_completed);
+            ad.UpdateAsync();
+        }
+        private static void update_completed(object sender, AsyncCompletedEventArgs e) {
+            if (checkForUpdate_force) MainForm.Instance.btCheckForUpdate.Text = "Check For Update";
+            if (e.Cancelled) {
+                log.Info("The update to the latest version was cancelled.");
+                MessageBox.Show("The update to the latest version was cancelled.", "Installation Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            } else if (e.Error != null) {
+                log.Error("Could not install the latest version.\n" + e.Error.Message);
+                MessageBox.Show("Could not install the latest version.\n" + e.Error.Message, "Installation Failure", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            DialogResult dr = MessageBox.Show("The application has been updated. Restart? (If you do not restart now, the new version will not take effect until after you quit and launch the application again.)", "Restart Application?", MessageBoxButtons.YesNo);
+            if (dr == DialogResult.Yes) {
+                log.Info("Restarting application following update.");
+                Application.Restart();
+            }
+        }
+        #endregion
+        #region ZIP
+        private static void checkForZip(object sender, DoWorkEventArgs e) {
+            string releaseURL = null;
+            string releaseVersion = null;
+            string releaseType = null;
+            Boolean newerRelease = false;
+
+            log.Debug("Checking for ZIP update...");
+            string html = new System.Net.WebClient().DownloadString("https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Latest%20Releases");
+            
+            log.Debug("Finding Beta release...");
+            MatchCollection release = getRelease(html, @"<b>Beta</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
+            if (release.Count > 0) {
+                releaseType = "Beta";
+                releaseURL = release[0].Result("$1");
+                releaseVersion = release[0].Result("$2");
+            }
+            if (Settings.Instance.AlphaReleases) {
+                log.Debug("Finding Alpha release...");
+                release = getRelease(html, @"<b>Alpha</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
+                if (release.Count > 0) {
+                    releaseType = "Alpha";
+                    releaseURL = release[0].Result("$1");
+                    releaseVersion = release[0].Result("$2");
+                }
+            }
+
+            if (releaseVersion != null) {
+                string[] versionBits = releaseVersion.Split(new string[] { "." }, StringSplitOptions.None);
+                string[] myVersionBits = Application.ProductVersion.Split(new string[] { "." }, StringSplitOptions.None);
+                for (int i = 0; i < versionBits.Count(); i++) {
+                    if (int.Parse(versionBits[i]) > int.Parse(myVersionBits[i])) {
+                        log.Info("New "+ releaseType +" ZIP release found: "+ releaseVersion);
+                        newerRelease = true;
+                        DialogResult dr = MessageBox.Show("A new " + releaseType + " release is available. Would you like to upgrade?", "New Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (dr == DialogResult.Yes) {
+                            System.Diagnostics.Process.Start(releaseURL);
+                        }
+                        break;
+                    }
+                }
+                if (!newerRelease) {
+                    log.Info("Already on latest ZIP release.");
+                    if (checkForUpdate_force) MessageBox.Show("You are already on the latest release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } else if (checkForUpdate_force) {
+                log.Info("Did not find ZIP release.");
+                MessageBox.Show("Failed to check for ZIP release", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        
+        private static void checkForZip_completed(object sender, RunWorkerCompletedEventArgs e) {
+            if (checkForUpdate_force)
+                MainForm.Instance.btCheckForUpdate.Text = "Check For Update";
+        }
+        
+        private static MatchCollection getRelease(string source, string pattern) {
+            Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+            return rgx.Matches(source);
+        }
+        #endregion
+        #endregion
+    }        
 }

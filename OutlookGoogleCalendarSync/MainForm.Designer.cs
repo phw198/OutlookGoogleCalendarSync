@@ -85,6 +85,7 @@
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbPortable = new System.Windows.Forms.CheckBox();
             this.gbProxy = new System.Windows.Forms.GroupBox();
             this.rbProxyNone = new System.Windows.Forms.RadioButton();
             this.rbProxyIE = new System.Windows.Forms.RadioButton();
@@ -123,12 +124,14 @@
             this.label25 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.tabPage_About = new System.Windows.Forms.TabPage();
-            this.label2 = new System.Windows.Forms.Label();
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.cbPortable = new System.Windows.Forms.CheckBox();
+            this.label28 = new System.Windows.Forms.Label();
+            this.lVersion = new System.Windows.Forms.Label();
+            this.btCheckForUpdate = new System.Windows.Forms.Button();
+            this.cbAlphaReleases = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -905,6 +908,17 @@
             this.tabAppBehaviour.Text = "  Application Behaviour";
             this.tabAppBehaviour.UseVisualStyleBackColor = true;
             // 
+            // cbPortable
+            // 
+            this.cbPortable.AutoSize = true;
+            this.cbPortable.Location = new System.Drawing.Point(16, 119);
+            this.cbPortable.Name = "cbPortable";
+            this.cbPortable.Size = new System.Drawing.Size(148, 17);
+            this.cbPortable.TabIndex = 38;
+            this.cbPortable.Text = "Make application portable";
+            this.cbPortable.UseVisualStyleBackColor = true;
+            this.cbPortable.CheckedChanged += new System.EventHandler(this.cbPortable_CheckedChanged);
+            // 
             // gbProxy
             // 
             this.gbProxy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -1373,7 +1387,10 @@
             // 
             // tabPage_About
             // 
-            this.tabPage_About.Controls.Add(this.label2);
+            this.tabPage_About.Controls.Add(this.cbAlphaReleases);
+            this.tabPage_About.Controls.Add(this.btCheckForUpdate);
+            this.tabPage_About.Controls.Add(this.lVersion);
+            this.tabPage_About.Controls.Add(this.label28);
             this.tabPage_About.Controls.Add(this.pbDonate);
             this.tabPage_About.Controls.Add(this.lAboutURL);
             this.tabPage_About.Controls.Add(this.lAboutMain);
@@ -1385,23 +1402,12 @@
             this.tabPage_About.Text = "About";
             this.tabPage_About.UseVisualStyleBackColor = true;
             // 
-            // label2
-            // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(153, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(181, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Outlook Google Calendar Sync";
-            // 
             // pbDonate
             // 
             this.pbDonate.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
-            this.pbDonate.Location = new System.Drawing.Point(206, 311);
+            this.pbDonate.Location = new System.Drawing.Point(206, 270);
             this.pbDonate.Name = "pbDonate";
             this.pbDonate.Size = new System.Drawing.Size(75, 23);
             this.pbDonate.TabIndex = 3;
@@ -1425,10 +1431,10 @@
             this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lAboutMain.Location = new System.Drawing.Point(30, 32);
+            this.lAboutMain.Location = new System.Drawing.Point(30, 59);
             this.lAboutMain.Name = "lAboutMain";
             this.lAboutMain.Padding = new System.Windows.Forms.Padding(15);
-            this.lAboutMain.Size = new System.Drawing.Size(426, 318);
+            this.lAboutMain.Size = new System.Drawing.Size(426, 249);
             this.lAboutMain.TabIndex = 1;
             this.lAboutMain.Text = resources.GetString("lAboutMain.Text");
             this.lAboutMain.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -1439,16 +1445,51 @@
             this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
             // 
-            // cbPortable
+            // label28
             // 
-            this.cbPortable.AutoSize = true;
-            this.cbPortable.Location = new System.Drawing.Point(16, 119);
-            this.cbPortable.Name = "cbPortable";
-            this.cbPortable.Size = new System.Drawing.Size(148, 17);
-            this.cbPortable.TabIndex = 38;
-            this.cbPortable.Text = "Make application portable";
-            this.cbPortable.UseVisualStyleBackColor = true;
-            this.cbPortable.CheckedChanged += new System.EventHandler(this.cbPortable_CheckedChanged);
+            this.label28.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label28.AutoSize = true;
+            this.label28.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label28.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label28.Location = new System.Drawing.Point(143, 13);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(188, 15);
+            this.label28.TabIndex = 37;
+            this.label28.Text = "Outlook Google Calendar Sync";
+            this.label28.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // lVersion
+            // 
+            this.lVersion.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lVersion.AutoSize = true;
+            this.lVersion.Location = new System.Drawing.Point(194, 35);
+            this.lVersion.Name = "lVersion";
+            this.lVersion.Size = new System.Drawing.Size(87, 13);
+            this.lVersion.TabIndex = 38;
+            this.lVersion.Text = "Version {version}";
+            // 
+            // btCheckForUpdate
+            // 
+            this.btCheckForUpdate.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btCheckForUpdate.Location = new System.Drawing.Point(187, 337);
+            this.btCheckForUpdate.Name = "btCheckForUpdate";
+            this.btCheckForUpdate.Size = new System.Drawing.Size(113, 23);
+            this.btCheckForUpdate.TabIndex = 39;
+            this.btCheckForUpdate.Text = "Check for Update";
+            this.btCheckForUpdate.UseVisualStyleBackColor = true;
+            this.btCheckForUpdate.Click += new System.EventHandler(this.btCheckForUpdate_Click);
+            // 
+            // cbAlphaReleases
+            // 
+            this.cbAlphaReleases.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.cbAlphaReleases.AutoSize = true;
+            this.cbAlphaReleases.Location = new System.Drawing.Point(171, 366);
+            this.cbAlphaReleases.Name = "cbAlphaReleases";
+            this.cbAlphaReleases.Size = new System.Drawing.Size(144, 17);
+            this.cbAlphaReleases.TabIndex = 40;
+            this.cbAlphaReleases.Text = "Check for Alpha releases";
+            this.cbAlphaReleases.UseVisualStyleBackColor = true;
+            this.cbAlphaReleases.CheckedChanged += new System.EventHandler(this.cbAlphaReleases_CheckedChanged);
             // 
             // MainForm
             // 
@@ -1513,7 +1554,6 @@
         public System.Windows.Forms.TabControl tabApp;
         public System.Windows.Forms.TabPage tabPage_Settings;
         private System.Windows.Forms.PictureBox pbDonate;
-        private System.Windows.Forms.Label label2;
         public System.Windows.Forms.Button bSyncNow;
         private System.Windows.Forms.TabControl tabAppSettings;
         private System.Windows.Forms.TabPage tabOutlook;
@@ -1601,5 +1641,9 @@
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.CheckBox cbPortable;
+        private System.Windows.Forms.Label lVersion;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.CheckBox cbAlphaReleases;
+        public System.Windows.Forms.Button btCheckForUpdate;
     }
 }

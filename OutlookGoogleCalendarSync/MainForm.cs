@@ -34,12 +34,9 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
             if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
-            lAboutMain.Text = lAboutMain.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
+            lVersion.Text = lVersion.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
 
             Instance = this;
-
-            log.Debug("Loading settings from file.");
-            Settings.Load();
 
             updateGUIsettings();
             Settings.Instance.LogSettings();
@@ -65,6 +62,9 @@ namespace OutlookGoogleCalendarSync {
                 "Reset the Google account being used to synchonize with.");
             toolTip1.SetToolTip(tbInterval,
                 "Set to zero to disable");
+            toolTip1.SetToolTip(cbPortable,
+                "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive.\n" +
+                "Default is in your User roaming profile.");
             toolTip1.SetToolTip(cbCreateFiles,
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
@@ -191,6 +191,7 @@ namespace OutlookGoogleCalendarSync {
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
             cbPortable.Checked = Settings.Instance.Portable;
+            cbPortable.Enabled = !Program.isClickOnceInstall();
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
@@ -200,6 +201,8 @@ namespace OutlookGoogleCalendarSync {
             }
             updateGUIsettings_Proxy();
             #endregion
+            cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
+            cbAlphaReleases.Visible = !Program.isClickOnceInstall();
             this.ResumeLayout();
         }
 
@@ -1051,6 +1054,14 @@ namespace OutlookGoogleCalendarSync {
 
         private void pbDonate_Click(object sender, EventArgs e) {
             System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ");
+        }
+
+        private void btCheckForUpdate_Click(object sender, EventArgs e) {
+            Program.checkForUpdate(true);
+        }
+        private void cbAlphaReleases_CheckedChanged(object sender, EventArgs e) {
+            if (this.Visible)
+                Settings.Instance.AlphaReleases = cbAlphaReleases.Checked;
         }
         #endregion
 

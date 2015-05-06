@@ -15,12 +15,15 @@ namespace OutlookGoogleCalendarSync {
     public class Settings {
         private static readonly ILog log = LogManager.GetLogger(typeof(Settings));
         private static Settings instance;
+        //Settings saved immediately
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
         private DateTime lastSyncDate;
         private Boolean portable;
+        private Boolean alphaReleases;
 
         public Settings() {
+            //Default values
             OutlookService = OutlookCalendar.Service.DefaultMailbox;
             MailboxName = "";
             EWSuser = "";
@@ -54,6 +57,8 @@ namespace OutlookGoogleCalendarSync {
             LoggingLevel = "DEBUG";
             portable = false;
             Proxy = new SettingsProxy();
+
+            alphaReleases = false;
             
             lastSyncDate = new DateTime(0);
             VerboseOutput = false;
@@ -127,6 +132,16 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public String LoggingLevel { get; set; }
         //Proxy
         [DataMember] public SettingsProxy Proxy { get; set; }
+        #endregion
+        #region About
+        [DataMember]
+        public bool AlphaReleases {
+            get { return alphaReleases; }
+            set {
+                alphaReleases = value;
+                if (!loading()) XMLManager.ExportElement("AlphaReleases", value, Program.SettingsFile);
+            }
+        }
         #endregion
 
         [DataMember] public DateTime LastSyncDate {
