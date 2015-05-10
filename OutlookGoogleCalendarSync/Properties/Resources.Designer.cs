@@ -60,6 +60,27 @@ namespace OutlookGoogleCalendarSync.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap facebook {
+            get {
+                object obj = ResourceManager.GetObject("facebook", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap google_ {
+            get {
+                object obj = ResourceManager.GetObject("google+", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap linkedin {
+            get {
+                object obj = ResourceManager.GetObject("linkedin", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap ogcs {
             get {
                 object obj = ResourceManager.GetObject("ogcs", resourceCulture);
@@ -70,6 +91,20 @@ namespace OutlookGoogleCalendarSync.Properties {
         internal static System.Drawing.Bitmap paypalDonate {
             get {
                 object obj = ResourceManager.GetObject("paypalDonate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap rssfeed {
+            get {
+                object obj = ResourceManager.GetObject("rssfeed", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap twitter {
+            get {
+                object obj = ResourceManager.GetObject("twitter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -117,22 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="lAboutMain.Text" xml:space="preserve">
-    <value>Originally developed by Zissis Siantidis (2012-2013)
-
-Thanks also go to contributors of the original project:
-- bycrobe/allinclusive
-- kyledykstra/alternateAccount
-- junderhill/deleteConfirmation
-- Proteus642040/SyncFixes
-- SigmaPic/OutlookGoogleSync
-
-Continued by Paul Woolcock (2014-2015)
-
-If you wish to show your appreciation for this free utility 
-or support further improvements, 
-any donations would be greatly appreciated!</value>
-  </data>
   <data name="label26.Text" xml:space="preserve">
     <value>If you think you have found a bug, please:-
   - set the logging level to "Debug"
@@ -156,6 +140,22 @@ WHAT - Choose the meeting attributes to sync: attendees, description and reminde
 For helping to troubleshoot a problem, CSVs of your meetings being synchronised can be generated, and the application logging level can be altered.
 
 If you need to access Google through a proxy, you can also provide the details here, or just rely on using Internet Explorers configuration (which is the default).</value>
+  </data>
+  <data name="lAboutMain.Text" xml:space="preserve">
+    <value>Originally developed by Zissis Siantidis (2012-2013)
+
+Thanks also go to contributors of the original project:
+- bycrobe/allinclusive
+- kyledykstra/alternateAccount
+- junderhill/deleteConfirmation
+- Proteus642040/SyncFixes
+- SigmaPic/OutlookGoogleSync
+
+Continued by Paul Woolcock (2014-2015)
+
+If you wish to show your appreciation for this free utility 
+or support further improvements, 
+any donations would be greatly appreciated!</value>
   </data>
   <metadata name="notifyIcon1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>

@@ -469,6 +469,13 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public void GetSetting(string setting) {
+            try {
+                SettingsResource.GetRequest sr = service.Settings.Get(setting);
+                sr.FetchAsync();
+            } catch { }
+        }
+
         #region STATIC FUNCTIONS
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"

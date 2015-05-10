@@ -203,6 +203,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\google+.png" />
+    <None Include="Resources\facebook.png" />
+    <None Include="Resources\rssfeed.png" />
+    <None Include="Resources\linkedin.png" />
+    <Content Include="Resources\twitter.png" />
     <None Include="app.config" />
     <None Include="icon.ico" />
     <Content Include="logger.xml">

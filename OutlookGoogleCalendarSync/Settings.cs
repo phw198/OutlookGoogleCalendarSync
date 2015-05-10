@@ -19,6 +19,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
         private DateTime lastSyncDate;
+        private Int32 completedSyncs;
         private Boolean portable;
         private Boolean alphaReleases;
 
@@ -49,7 +50,7 @@ namespace OutlookGoogleCalendarSync {
             DisableDelete = true;
             ConfirmOnDelete = true;
 
-            ShowBubbleTooltipWhenSyncing = false;
+            ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = true;
             StartInTray = false;
             MinimizeToTray = false;
@@ -61,6 +62,7 @@ namespace OutlookGoogleCalendarSync {
             alphaReleases = false;
             
             lastSyncDate = new DateTime(0);
+            completedSyncs = 0;
             VerboseOutput = false;
         }
 
@@ -149,6 +151,13 @@ namespace OutlookGoogleCalendarSync {
             set {
                 lastSyncDate = value;
                 if (!loading()) XMLManager.ExportElement("LastSyncDate", value, Program.SettingsFile);
+            }
+        }
+        [DataMember] public Int32 CompletedSyncs {
+            get { return completedSyncs; }
+            set {
+                completedSyncs = value;
+                if (!loading()) XMLManager.ExportElement("CompletedSyncs", value, Program.SettingsFile);
             }
         }
         [DataMember] public bool VerboseOutput { get; set; }

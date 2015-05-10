@@ -14,8 +14,6 @@ namespace OutlookGoogleCalendarSync {
     /// </summary>
     public class OutlookCalendar {
         private static OutlookCalendar instance;
-        private Dictionary<string, AppointmentItem> changeQueue = new Dictionary<string, AppointmentItem>();
-        
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookCalendar));
         public OutlookInterface IOutlook;
         
@@ -59,7 +57,7 @@ namespace OutlookGoogleCalendarSync {
         public void Reset() {
             instance = new OutlookCalendar();
         }
-
+        
         #region Push Sync
         public void RegisterForAutoSync() {
             log.Info("Registering for Outlook appointment change events...");
