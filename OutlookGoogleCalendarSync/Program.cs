@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (Exception ex) {
                 log.Fatal("Application unexpectedly terminated!");
                 log.Fatal(ex.Message);
+                log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -236,6 +237,8 @@ namespace OutlookGoogleCalendarSync {
         }
         
         public static void checkForUpdate(Boolean forceCheck = false) {
+            if (System.Diagnostics.Debugger.IsAttached) return;
+            
             checkForUpdate_force = forceCheck;
             if (forceCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
 

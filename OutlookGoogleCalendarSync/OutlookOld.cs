@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
-using System.Runtime.InteropServices;
 
 namespace OutlookGoogleCalendarSync {
     class OutlookOld : OutlookInterface {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookOld));
         
-        private Application oApp;
+        private Microsoft.Office.Interop.Outlook.Application oApp;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private MAPIFolder useOutlookCalendar;
@@ -19,7 +20,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Setting up Outlook connection.");
 
             // Create the Outlook application.
-            oApp = new Application();
+            oApp = new Microsoft.Office.Interop.Outlook.Application();
 
             // Get the NameSpace and Logon information.
             NameSpace oNS = oApp.GetNamespace("mapi");
@@ -50,7 +51,7 @@ namespace OutlookGoogleCalendarSync {
             // Done. Log off.
             oNS.Logoff();
         }
-
+        
         public List<String> Accounts() {
             List<String> accs = new List<String>();
             accs.Add(currentUserSMTP.ToLower());
@@ -115,14 +116,29 @@ namespace OutlookGoogleCalendarSync {
 
         private void findCalendars(Folders folders, Dictionary<string, MAPIFolder> calendarFolders, MAPIFolder defaultCalendar) {
             foreach (MAPIFolder folder in folders) {
-                if (folder.DefaultItemType == OlItemType.olAppointmentItem) {
-                    if (defaultCalendar == null ||
-                        (folder.EntryID != defaultCalendar.EntryID))
-                        calendarFolders.Add(folder.Name, folder);
-                }
-                if (folder.Folders.Count > 0) {
-                    findCalendars(folder.Folders, calendarFolders, defaultCalendar);
-                }
+                try {
+                    OlItemType defaultItemType = folder.DefaultItemType;
+                    if (defaultItemType == OlItemType.olAppointmentItem) {
+                        if (defaultCalendar == null ||
+                            (folder.EntryID != defaultCalendar.EntryID))
+                            calendarFolders.Add(folder.Name, folder);
+                    }
+                    if (folder.Folders.Count > 0) {
+                        findCalendars(folder.Folders, calendarFolders, defaultCalendar);
+                    }
+
+                } catch (System.Exception ex) {
+                    if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") &&
+                        ex.Message == "Network problems are preventing connection to Microsoft Exchange.") {
+                        MainForm.Instance.ToolTips.SetToolTip(MainForm.Instance.cbOutlookCalendars,
+                            "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
+                    } else {
+                        log.Error("Failed to recurse MAPI folders.");
+                        log.Error(ex.Message);
+                        MessageBox.Show("An problem was encountered when searching for Outlook calendar folders.",
+                            "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                } 
             }
         }
 
@@ -133,25 +149,33 @@ namespace OutlookGoogleCalendarSync {
                 AddressEntry addressEntry = recipient.AddressEntry;
             } catch {
                 log.Warn("Can't resolve this recipient!");
-                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+                recipient.AddressEntry = null;
             }
             if (recipient.AddressEntry == null) {
                 log.Warn("No AddressEntry exists!");
-                return OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
+                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                EmailAddress.IsValidEmail(retEmail);
+                return retEmail;
             }
             log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
             if (recipient.AddressEntry.Type == "EX") { //Exchange
                 log.Fine("Address is from Exchange");
                 retEmail = ADX_GetSMTPAddress(recipient.AddressEntry.Address);
+            } else if (recipient.AddressEntry.Type.ToUpper() == "NOTES") {
+                log.Fine("From Lotus Notes");
+                //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
+                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+
             } else {
                 log.Fine("Not from Exchange");
                 retEmail = recipient.AddressEntry.Address;
             }
             if (retEmail == null || retEmail == String.Empty || retEmail == "" || retEmail == "Unknown") {
                 log.Error("Failed to get email address through Addin MAPI access!");
-                retEmail = OutlookCalendar.BuildFakeEmailAddress(recipient.Name);
-            }                           
+                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+            }
             log.Fine("Email address: " + retEmail);
+            EmailAddress.IsValidEmail(retEmail);
             return retEmail;
         }
 

@@ -74,6 +74,13 @@ namespace OutlookGoogleCalendarSync.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap google_community {
+            get {
+                object obj = ResourceManager.GetObject("google_community", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap linkedin {
             get {
                 object obj = ResourceManager.GetObject("linkedin", resourceCulture);
@@ -105,6 +112,13 @@ namespace OutlookGoogleCalendarSync.Properties {
         internal static System.Drawing.Bitmap twitter {
             get {
                 object obj = ResourceManager.GetObject("twitter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap twitter_follow {
+            get {
+                object obj = ResourceManager.GetObject("twitter_follow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

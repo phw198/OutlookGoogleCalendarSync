@@ -24,6 +24,16 @@ namespace OutlookGoogleCalendarSync {
         private Boolean alphaReleases;
 
         public Settings() {
+            setDefaults();
+        }
+
+        //Default values before loading from xml and attribute not yet serialized
+        [OnDeserializing]
+        void OnDeserializing(StreamingContext context) {
+            setDefaults();
+        }
+
+        private void setDefaults() {
             //Default values
             OutlookService = OutlookCalendar.Service.DefaultMailbox;
             MailboxName = "";
@@ -232,6 +242,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+            log.Info("  Completed Syncs: "+ CompletedSyncs);
         }
 
         public static void configureLoggingLevel(string logLevel) {

@@ -129,7 +129,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EmailAddress.cs" />
     <Compile Include="SettingsProxy.cs" />
+    <Compile Include="Social.cs" />
     <Compile Include="Splash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,10 +205,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\twitter_follow.png" />
     <None Include="Resources\google+.png" />
     <None Include="Resources\facebook.png" />
     <None Include="Resources\rssfeed.png" />
     <None Include="Resources\linkedin.png" />
+    <Content Include="Resources\google_community.png" />
     <Content Include="Resources\twitter.png" />
     <None Include="app.config" />
     <None Include="icon.ico" />

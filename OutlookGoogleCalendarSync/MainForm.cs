@@ -15,6 +15,7 @@ namespace OutlookGoogleCalendarSync {
     /// </summary>
     public partial class MainForm : Form {
         public static MainForm Instance;
+        public ToolTip ToolTips;
 
         public Timer OgcsPushTimer;
         private Timer ogcsTimer;
@@ -38,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
 
             Instance = this;
 
-            trackVersion();
+            Social.TrackVersion();
             updateGUIsettings();
             Settings.Instance.LogSettings();
             Settings.Instance.Proxy.Configure();
@@ -50,33 +51,33 @@ namespace OutlookGoogleCalendarSync {
 
             #region Tooltips
             //set up tooltips for some controls
-            ToolTip toolTip1 = new ToolTip();
-            toolTip1.AutoPopDelay = 10000;
-            toolTip1.InitialDelay = 500;
-            toolTip1.ReshowDelay = 200;
-            toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(cbOutlookCalendars,
-                "The Outlook calendar to synchonize with. List also includes subfolders of default calendar.");
-            toolTip1.SetToolTip(cbGoogleCalendars,
+            ToolTips = new ToolTip();
+            ToolTips.AutoPopDelay = 10000;
+            ToolTips.InitialDelay = 500;
+            ToolTips.ReshowDelay = 200;
+            ToolTips.ShowAlways = true;
+            ToolTips.SetToolTip(cbOutlookCalendars,
+                "The Outlook calendar to synchonize with.");
+            ToolTips.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
-            toolTip1.SetToolTip(btResetGCal,
+            ToolTips.SetToolTip(btResetGCal,
                 "Reset the Google account being used to synchonize with.");
-            toolTip1.SetToolTip(tbInterval,
+            ToolTips.SetToolTip(tbInterval,
                 "Set to zero to disable");
-            toolTip1.SetToolTip(cbPortable,
+            ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive.\n" +
                 "Default is in your User roaming profile.");
-            toolTip1.SetToolTip(cbCreateFiles,
+            ToolTips.SetToolTip(cbCreateFiles,
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
                 "Only for debug/diagnostic purposes.");
-            toolTip1.SetToolTip(rbOutlookAltMB,
+            ToolTips.SetToolTip(rbOutlookAltMB,
                 "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
-            toolTip1.SetToolTip(cbMergeItems,
+            ToolTips.SetToolTip(cbMergeItems,
                 "If the destination calendar has pre-existing items, don't delete them");
-            toolTip1.SetToolTip(cbOutlookPush,
+            ToolTips.SetToolTip(cbOutlookPush,
                 "Synchronise changes in Outlook to Google within a few minutes.");
-            toolTip1.SetToolTip(rbProxyIE,
+            ToolTips.SetToolTip(rbProxyIE,
                 "If IE settings have been changed, a restart of the Sync application may be required");
             #endregion
 
@@ -395,7 +396,7 @@ namespace OutlookGoogleCalendarSync {
 
             Boolean syncOk = false;
             int failedAttempts = 0;
-            trackSync();
+            Social.TrackSync();
             while (!syncOk) {
                 if (failedAttempts > 0 &&
                     MessageBox.Show("The synchronisation failed. Do you want to try again?", "Sync Failed",
@@ -1070,7 +1071,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ");
+            Social.Donate();
         }
 
         private void btCheckForUpdate_Click(object sender, EventArgs e) {
@@ -1129,65 +1130,43 @@ namespace OutlookGoogleCalendarSync {
                 case 1000: isMilestone = true; break;
             }
             if (isMilestone) {
-                MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 lMilestone.Text = syncs +" Syncs!";
                 lMilestoneBlurb.Text = blurb;
-                tabApp.TabPages["Socialise"].Focus();   
-            } 
+                if (MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
+                    tabApp.SelectedTab = tabPage_Social;
+            }
         }
 
         private void btSocialTweet_Click(object sender, EventArgs e) {
-            string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://twitter.com/intent/tweet?&url=http://bit.ly/OGcalsync&text="+ text +"&via=ogcalsync");
+            Social.Twitter_tweet();
         }
-        private void urlFollowTwitter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://twitter.com/OGcalsync");
+        private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
+            Social.Twitter_follow();
         }
 
         private void btSocialGplus_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("https://plus.google.com/share?&url=http://bit.ly/OGcalsync");
+            Social.Google_share();
         }
-        private void urlCommunity_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://plus.google.com/communities/114412828247015553563");
+        private void pbSocialGplusCommunity_Click(object sender, EventArgs e) {
+            Social.Google_goToCommunity();
         }
 
         private void btSocialFB_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGcalsync");
+            Social.Facebook_share();
         }
 
         private void btSocialRSSfeed_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/project/feeds/rss?ProjectRSSFeed=codeplex%3a%2f%2frelease%2foutlookgooglecalendarsync");
+            Social.RSS_follow();
         }
 
         private void btSocialLinkedin_Click(object sender, EventArgs e) {
-            string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/OGcalsync&summary="+ text);
+            Social.Linkedin_share();
         }
 
-        private void trackVersion() {
-            if (System.Diagnostics.Debugger.IsAttached) return;
-
-            string analytics = null;
-            switch (OutlookFactory.OutlookVersion) {
-                case 11: analytics = "http://goo.gl/LMf6HT"; break; //2003
-                case 12: analytics = "http://goo.gl/Xpqzua"; break; //2007
-                case 14: analytics = "http://goo.gl/VM9Yaz"; break; //2010
-                case 15: analytics = "http://goo.gl/LvIiQd"; break; //2013
-            }
-            if (analytics != null) {
-                log.Debug("Retrieving URL: " + analytics);
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
-                wc.DownloadStringAsync(new Uri(analytics));
-            }
-        }
-
-        private void trackSync() {
-            //Use an API that isn't used anywhere else - can use to see how many syncs are happening
-            if (System.Diagnostics.Debugger.IsAttached) return;
-            GoogleCalendar.Instance.GetSetting("locale");
-        }
         #endregion
+
+
+
 
     }
 }

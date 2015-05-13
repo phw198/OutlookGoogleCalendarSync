@@ -41,8 +41,10 @@ namespace OutlookGoogleCalendarSync
             T result = default(T);
             try {
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
-            } catch {
-                MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
+            } catch (System.Exception ex) {
+                log.Error("Failed to import settings");
+                log.Error(ex.Message);
+                if (MainForm.Instance != null) MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
             }
             fs.Close();
             return result;
@@ -68,8 +70,12 @@ namespace OutlookGoogleCalendarSync
                 xe.SetValue(nodeValue);
             } catch (Exception ex) {
                 if (ex.Message == "Sequence contains no elements") {
-                    log.Debug("Setting " + nodeName + " added to settings.xml");
-                    settingsXE.Add(new XElement(ns + nodeName, nodeValue));
+                    log.Debug("Adding Setting " + nodeName + " to settings.xml");
+                    //This appends to the end, which won't import properly. 
+                    //settingsXE.Add(new XElement(ns + nodeName, nodeValue));
+                    //To save writing a sort method, let's just save everything!
+                    Settings.Instance.Save();
+
                 } else {
                     log.Error("Failed to export setting " + nodeName + "=" + nodeValue + " to settings.xml file.");
                 }
