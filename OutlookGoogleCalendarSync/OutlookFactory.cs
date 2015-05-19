@@ -21,7 +21,7 @@ namespace OutlookGoogleCalendarSync {
 
         public static OutlookInterface getOutlookInterface() {
             if (testing2003) outlookVersion = 11;
-            if (outlookVersion >= 12) { //2007 or newer
+            if (OutlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {
                 return new OutlookOld();

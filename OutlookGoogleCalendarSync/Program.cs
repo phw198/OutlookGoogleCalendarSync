@@ -30,6 +30,7 @@ namespace OutlookGoogleCalendarSync {
         private static String startingTab = null;
         private static String roamingOGCS;
         private static Boolean checkForUpdate_force = false;
+        public const String OGCSmodified = "OGCSmodified";
 
         [STAThread]
         private static void Main(string[] args) {
@@ -62,6 +63,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            log.Info("Application closed.");
         }
 
         private static void initialiseFiles() {

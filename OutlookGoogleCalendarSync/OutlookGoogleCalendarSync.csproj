@@ -39,7 +39,7 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.2.5.0</ApplicationVersion>
+    <ApplicationVersion>1.2.6.1</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -210,15 +210,15 @@
     <None Include="Resources\facebook.png" />
     <None Include="Resources\rssfeed.png" />
     <None Include="Resources\linkedin.png" />
-    <Content Include="Resources\google_community.png" />
-    <Content Include="Resources\twitter.png" />
+    <None Include="Resources\google_community.png" />
+    <None Include="Resources\twitter.png" />
     <None Include="app.config" />
     <None Include="icon.ico" />
     <Content Include="logger.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\ogcs.png" />
-    <Content Include="Resources\paypalDonate.gif" />
+    <None Include="Resources\paypalDonate.gif" />
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="logger.xml">

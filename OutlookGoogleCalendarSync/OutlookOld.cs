@@ -174,6 +174,12 @@ namespace OutlookGoogleCalendarSync {
                 log.Error("Failed to get email address through Addin MAPI access!");
                 retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
             }
+
+
+            if (retEmail.IndexOf("<") > 0) {
+                retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
+                retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
+            }
             log.Fine("Email address: " + retEmail);
             EmailAddress.IsValidEmail(retEmail);
             return retEmail;

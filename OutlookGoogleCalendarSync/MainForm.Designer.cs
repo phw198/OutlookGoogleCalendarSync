@@ -147,6 +147,9 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.WhatPostit = new System.Windows.Forms.Panel();
+            this.tbWhatHelp = new System.Windows.Forms.RichTextBox();
+            this.cbAddDescription_OnlyToGoogle = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -172,6 +175,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
+            this.WhatPostit.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabApp
@@ -592,6 +596,7 @@
             // 
             // tabSyncOptions
             // 
+            this.tabSyncOptions.Controls.Add(this.WhatPostit);
             this.tabSyncOptions.Controls.Add(this.gbSyncOptions_When);
             this.tabSyncOptions.Controls.Add(this.gbSyncOptions_What);
             this.tabSyncOptions.Controls.Add(this.label15);
@@ -762,6 +767,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbAddDescription_OnlyToGoogle);
             this.gbSyncOptions_What.Controls.Add(this.cbAddReminders);
             this.gbSyncOptions_What.Controls.Add(this.lAttributes);
             this.gbSyncOptions_What.Controls.Add(this.cbAddAttendees);
@@ -1714,6 +1720,45 @@
             this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
             // 
+            // WhatPostit
+            // 
+            this.WhatPostit.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.WhatPostit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.WhatPostit.Controls.Add(this.tbWhatHelp);
+            this.WhatPostit.Location = new System.Drawing.Point(89, 379);
+            this.WhatPostit.Name = "WhatPostit";
+            this.WhatPostit.Size = new System.Drawing.Size(211, 68);
+            this.WhatPostit.TabIndex = 34;
+            // 
+            // tbWhatHelp
+            // 
+            this.tbWhatHelp.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tbWhatHelp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.tbWhatHelp.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbWhatHelp.Cursor = System.Windows.Forms.Cursors.Help;
+            this.tbWhatHelp.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbWhatHelp.Location = new System.Drawing.Point(12, 4);
+            this.tbWhatHelp.Name = "tbWhatHelp";
+            this.tbWhatHelp.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.tbWhatHelp.Size = new System.Drawing.Size(193, 64);
+            this.tbWhatHelp.TabIndex = 1;
+            this.tbWhatHelp.Text = "Google event descriptions don\'t support rich text (RTF) and truncate at 8Kb. So m" +
+                "ake sure you REALLY want to 2-way sync descriptions!";
+            // 
+            // cbAddDescription_OnlyToGoogle
+            // 
+            this.cbAddDescription_OnlyToGoogle.Checked = true;
+            this.cbAddDescription_OnlyToGoogle.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbAddDescription_OnlyToGoogle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbAddDescription_OnlyToGoogle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbAddDescription_OnlyToGoogle.Location = new System.Drawing.Point(126, 36);
+            this.cbAddDescription_OnlyToGoogle.Name = "cbAddDescription_OnlyToGoogle";
+            this.cbAddDescription_OnlyToGoogle.Size = new System.Drawing.Size(150, 17);
+            this.cbAddDescription_OnlyToGoogle.TabIndex = 34;
+            this.cbAddDescription_OnlyToGoogle.Text = "1-way: Outlook to Google";
+            this.cbAddDescription_OnlyToGoogle.UseVisualStyleBackColor = true;
+            this.cbAddDescription_OnlyToGoogle.CheckedChanged += new System.EventHandler(this.cbAddDescription_OnlyToGoogle_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1766,6 +1811,7 @@
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
+            this.WhatPostit.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1890,5 +1936,8 @@
         private System.Windows.Forms.PictureBox pbSocialGplusCommunity;
         private System.Windows.Forms.Label label30;
         private System.Windows.Forms.PictureBox pbSocialTwitterFollow;
+        private System.Windows.Forms.Panel WhatPostit;
+        private System.Windows.Forms.RichTextBox tbWhatHelp;
+        private System.Windows.Forms.CheckBox cbAddDescription_OnlyToGoogle;
     }
 }

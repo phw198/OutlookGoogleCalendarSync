@@ -235,6 +235,11 @@ namespace OutlookGoogleCalendarSync {
                 log.Fine("Not from Exchange");
                 retEmail = recipient.AddressEntry.Address;
             }
+
+            if (retEmail.IndexOf("<") > 0) {
+                retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
+                retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
+            }
             log.Fine("Email address: " + retEmail);
             EmailAddress.IsValidEmail(retEmail);
             return retEmail;

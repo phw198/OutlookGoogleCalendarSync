@@ -156,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
             #region Sync Options box
             syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
             syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
-            //syncDirection.Items.Add(SyncDirection.Bidirectional);
+            syncDirection.Items.Add(SyncDirection.Bidirectional);
             for (int i = 0; i < syncDirection.Items.Count; i++) {
                 SyncDirection sd = (syncDirection.Items[i] as SyncDirection);
                 if (sd.Id == Settings.Instance.SyncDirection.Id) {
@@ -280,7 +280,7 @@ namespace OutlookGoogleCalendarSync {
         private void ogcsTimer_Tick(object sender, EventArgs e) {
             log.Debug("Scheduled sync triggered.");
 
-            showBubbleInfo("Autosyncing calendar...");
+            showBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
             if (!this.SyncingNow) {
                 sync_Click(sender, null);
             } else {
@@ -292,7 +292,7 @@ namespace OutlookGoogleCalendarSync {
         public void OgcsPushTimer_Tick(object sender, EventArgs e) {
             if (Convert.ToInt16(bSyncNow.Tag) != 0) {
                 log.Debug("Push sync triggered.");
-                showBubbleInfo("Autosyncing calendar...");
+                showBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
                 if (!this.SyncingNow) {
                     sync_Click(sender, null);
                 } else {
@@ -429,7 +429,6 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
             bSyncNow.Text = "Start Sync";
 
-            Logboxout("--------------------------------------------------");
             Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
 
             if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
@@ -495,17 +494,23 @@ namespace OutlookGoogleCalendarSync {
             Logboxout("--------------------------------------------------");
             #endregion
 
-            if (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle) {
-                return sync_outlookToGoogle(OutlookEntries, googleEntries);
-            } else if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) {
-                return sync_googleToOutlook(googleEntries, OutlookEntries);
+            Boolean success = true;
+            String bubbleText = "";
+            if (Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook) {
+                success = sync_outlookToGoogle(OutlookEntries, googleEntries, ref bubbleText);
             }
-            return false;
+            if (!success) return false;
+            if (Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) {
+                if (bubbleText != "") bubbleText += "\r\n";
+                success = sync_googleToOutlook(googleEntries, OutlookEntries, ref bubbleText);
+            }
+            if (bubbleText != "") showBubbleInfo(bubbleText);
+            return success;
         }
 
-        private Boolean sync_outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries) {
+        private Boolean sync_outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries, ref String bubbleText) {
             log.Debug("Synchronising from Outlook to Google.");
-
+            
             //  Make copies of each list of events (Not strictly needed)
             List<AppointmentItem> googleEntriesToBeCreated = new List<AppointmentItem>(outlookEntries);
             List<Event> googleEntriesToBeDeleted = new List<Event>(googleEntries);
@@ -522,7 +527,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 GoogleCalendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
             } catch (System.Exception ex) {
-                MainForm.Instance.Logboxout("Unable to identify calendar differences. The following error occurred:");
+                MainForm.Instance.Logboxout("Unable to identify differences in Google calendar. The following error occurred:");
                 MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
                 log.Error(ex.StackTrace);
                 return false;
@@ -590,23 +595,38 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout(entriesUpdated + " entries updated.");
             }
             #endregion
+            Logboxout("--------------------------------------------------");
 
-            showBubbleInfo("Google: " + googleEntriesToBeCreated.Count + " created; "+ 
-                googleEntriesToBeDeleted.Count +" deleted; "+ entriesUpdated + " updated");
+            bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; "+ 
+                googleEntriesToBeDeleted.Count +" deleted; "+ entriesUpdated + " updated";
 
             return true;
         }
 
-        private Boolean sync_googleToOutlook(List<Event> googleEntries, List<AppointmentItem> outlookEntries) {
+        private Boolean sync_googleToOutlook(List<Event> googleEntries, List<AppointmentItem> outlookEntries, ref String bubbleText) {
             log.Debug("Synchronising from Google to Outlook.");
-
+            
             //  Make copies of each list of events (Not strictly needed)
             List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
             List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
             
-            OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
-            OutlookCalendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
+            try {
+                OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Outlook calendar. The following error occurred:");
+                MainForm.Instance.Logboxout(ex.Message, notifyBubble:true);
+                log.Error(ex.StackTrace);
+                return false;
+            }
+            try {
+                OutlookCalendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("Unable to identify differences in Outlook calendar. The following error occurred:");
+                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
+                log.Error(ex.StackTrace);
+                return false;
+            }
             
             Logboxout(outlookEntriesToBeDeleted.Count + " Outlook calendar entries to be deleted.");
             Logboxout(outlookEntriesToBeCreated.Count + " Outlook calendar entries to be created.");
@@ -653,7 +673,7 @@ namespace OutlookGoogleCalendarSync {
             }
             #endregion
             
-            #region Update Google Entries
+            #region Update Outlook Entries
             int entriesUpdated = 0;
             if (entriesToBeCompared.Count > 0) {
                 Logboxout("--------------------------------------------------");
@@ -669,9 +689,10 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout(entriesUpdated + " entries updated.");
             }
             #endregion
+            Logboxout("--------------------------------------------------");
 
-            showBubbleInfo("Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
-                outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated");
+            bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
+                outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
             
             return true;
         }
@@ -949,10 +970,26 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region Sync options
+        #region How
         private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.SyncDirection = (SyncDirection)syncDirection.SelectedItem;
+            showWhatPostit();
         }
 
+        private void cbMergeItems_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.MergeItems = cbMergeItems.Checked;
+        }
+
+        private void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
+        }
+
+        private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
+            cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
+        }
+        #endregion
+        #region When
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInThePast = (int)tbDaysInThePast.Value;
         }
@@ -974,11 +1011,24 @@ namespace OutlookGoogleCalendarSync {
         private void cbOutlookPush_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.OutlookPush = cbOutlookPush.Checked;
         }
+        #endregion
+        #region What
+        private void showWhatPostit() {
+            Boolean visible = (Settings.Instance.AddDescription &&
+                Settings.Instance.SyncDirection == SyncDirection.Bidirectional);
+            WhatPostit.Visible = visible;
+            cbAddDescription_OnlyToGoogle.Visible = visible;
+        }
 
         private void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription = cbAddDescription.Checked;
+            cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
+            showWhatPostit();
         }
-
+        private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddDescription_OnlyToGoogle = cbAddDescription_OnlyToGoogle.Checked;
+        }
+        
         private void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddReminders = cbAddReminders.Checked;
         }
@@ -986,19 +1036,7 @@ namespace OutlookGoogleCalendarSync {
         private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddAttendees = cbAddAttendees.Checked;
         }
-
-        private void cbMergeItems_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.MergeItems = cbMergeItems.Checked;
-        }
-
-        private void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.ConfirmOnDelete = cbConfirmOnDelete.Checked;
-        }
-
-        private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
-            cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
-        }
+        #endregion
         #endregion
         #region Application settings
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
@@ -1121,8 +1159,11 @@ namespace OutlookGoogleCalendarSync {
         private void checkSyncMilestone() {
             Boolean isMilestone = false;
             Int32 syncs = Settings.Instance.CompletedSyncs;
-            String blurb = "You've completed "+ syncs +" syncs! Why not let people know how useful this tool is...";
+            String blurb = "You've completed "+ String.Format("{0:n0}",syncs) +" syncs! Why not let people know how useful this tool is...";
             
+            lMilestone.Text = String.Format("{0:n0}",syncs) +" Syncs!";
+            lMilestoneBlurb.Text = blurb;
+
             switch (syncs) {
                 case 10: isMilestone = true; break;
                 case 100: isMilestone = true; break;
@@ -1130,8 +1171,6 @@ namespace OutlookGoogleCalendarSync {
                 case 1000: isMilestone = true; break;
             }
             if (isMilestone) {
-                lMilestone.Text = syncs +" Syncs!";
-                lMilestoneBlurb.Text = blurb;
                 if (MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
                     tabApp.SelectedTab = tabPage_Social;
             }
@@ -1164,9 +1203,6 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #endregion
-
-
-
 
     }
 }
