@@ -151,13 +151,14 @@ namespace OutlookGoogleCalendarSync {
 
                 } catch (System.Exception ex) {
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") &&
-                        ex.Message == "Network problems are preventing connection to Microsoft Exchange.") {
+                        ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")) {
+                            log.Info("Currently disconnected from Exchange - unable to retreive MAPI folders.");
                         MainForm.Instance.ToolTips.SetToolTip(MainForm.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
                         log.Error("Failed to recurse MAPI folders.");
                         log.Error(ex.Message);
-                        MessageBox.Show("An problem was encountered when searching for Outlook calendar folders.",
+                        MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.",
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }

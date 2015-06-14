@@ -254,7 +254,7 @@ namespace OutlookGoogleCalendarSync {
                 ai.Start = DateTime.Parse(ev.Start.DateTime);
                 ai.End = DateTime.Parse(ev.End.DateTime);
             }
-            ai.Subject = ev.Summary;
+            ai.Subject = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
             ai.Location = ev.Location;
             ai.Sensitivity = (ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
@@ -379,8 +379,9 @@ namespace OutlookGoogleCalendarSync {
                     ai.End = DateTime.Parse(ev.End.DateTime);
                 }
             }
-            if (MainForm.CompareAttribute("Subject", SyncDirection.GoogleToOutlook, ev.Summary, ai.Subject, sb, ref itemModified)) {
-                ai.Subject = ev.Summary;
+            String summaryObfuscated = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
+            if (MainForm.CompareAttribute("Subject", SyncDirection.GoogleToOutlook, summaryObfuscated, ai.Subject, sb, ref itemModified)) {
+                ai.Subject = summaryObfuscated;
             }
             if (!Settings.Instance.AddDescription) ev.Description = "";
             if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook || !Settings.Instance.AddDescription_OnlyToGoogle) {
@@ -567,17 +568,25 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Looking for orphaned items to reclaim...");
 
             //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
-            int unclaimed = 0;
             List<AppointmentItem> unclaimedAi = new List<AppointmentItem>();
 
-            foreach (AppointmentItem ai in oAppointments) {
+            for (int o = oAppointments.Count-1; o>=0; o--){
+                AppointmentItem ai = oAppointments[o];
                 //Find entries with no Google ID
                 if (ai.UserProperties[gEventID] == null) {
                     unclaimedAi.Add(ai);
                     foreach (Event ev in gEvents) {
                         //Use simple matching on start,end,subject,location to pair events
-                        if (signature(ai) == GoogleCalendar.signature(ev)) {
-                            ai.UserProperties.Add(gEventID, OlUserPropertyType.olText).Value = ev.Id;
+                        String sigAi = signature(ai);
+                        String sigEv = GoogleCalendar.signature(ev);
+                        if (Settings.Instance.Obfuscation.Enabled) {
+                            if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
+                                sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);
+                            else
+                                sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
+                        }
+                        if (sigAi == sigEv) {
+                            AddOGCSproperty(ref ai, gEventID, ev.Id);
                             updateCalendarEntry_save(ai);
                             unclaimedAi.Remove(ai);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ai), verbose: true);
@@ -590,8 +599,8 @@ namespace OutlookGoogleCalendarSync {
                     Settings.Instance.SyncDirection == SyncDirection.Bidirectional) &&
                 unclaimedAi.Count > 0 &&
                 !Settings.Instance.MergeItems && !Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete) {
-
-                if (MessageBox.Show(unclaimed + " Outlook calendar items can't be matched to Google.\r\n" +
+                    
+                if (MessageBox.Show(unclaimedAi.Count + " Outlook calendar items can't be matched to Google.\r\n" +
                     "Remember, it's recommended to have a dedicated Outlook calendar to sync with, " +
                     "or you may wish to merge with unmatched events. Continue with deletions?",
                     "Delete unmatched Outlook items?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
@@ -615,7 +624,7 @@ namespace OutlookGoogleCalendarSync {
         
         #region STATIC functions
         public static string signature(AppointmentItem ai) {
-            return (GoogleCalendar.GoogleTimeFrom(ai.Start) + ";" + GoogleCalendar.GoogleTimeFrom(ai.End) + ";" + ai.Subject + ";" + ai.Location).Trim();
+            return (GoogleCalendar.GoogleTimeFrom(ai.Start) + ";" + GoogleCalendar.GoogleTimeFrom(ai.End) + ";" + ai.Subject).Trim();
         }
         
         private static string exportToCSV(AppointmentItem ai) {

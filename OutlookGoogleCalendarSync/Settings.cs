@@ -60,6 +60,7 @@ namespace OutlookGoogleCalendarSync {
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
+            Obfuscation = new Obfuscate();
 
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = true;
@@ -115,6 +116,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region Sync Options
+        //Main
         [DataMember] public SyncDirection SyncDirection { get; set; }
         [DataMember] public int DaysInThePast { get; set; }
         [DataMember] public int DaysInTheFuture { get; set; }
@@ -128,6 +130,10 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
+
+        //Obfuscation
+        [DataMember] public Obfuscate Obfuscation { get; set; }
+
         #endregion
         #region App behaviour
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
@@ -205,6 +211,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  API attendee limit last reached: " + APIlimit_lastHit);
         
             log.Info("SYNC OPTIONS:-");
+            log.Info(" Main");
             log.Info("  SyncDirection: "+ SyncDirection.Name);
             log.Info("  DaysInThePast: "+ DaysInThePast);
             log.Info("  DaysInTheFuture:" + DaysInTheFuture);
@@ -217,6 +224,15 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
+            log.Info("  Obfuscate Words: "+ Obfuscation.Enabled);
+            if (Obfuscation.Enabled) {
+                if (Settings.Instance.Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
+                else {
+                    foreach (FindReplace findReplace in Settings.Instance.Obfuscation.FindReplace) {
+                        log.Info("    '" + findReplace.find + "' -> '" + findReplace.replace + "'");
+                    }
+                }
+            }
 
             log.Info("PROXY:-");
             log.Info("  Type: " + Proxy.Type);

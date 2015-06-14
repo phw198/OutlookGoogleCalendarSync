@@ -217,7 +217,7 @@ namespace OutlookGoogleCalendarSync {
                 ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(ai.Start);
                 ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
             }
-            ev.Summary = ai.Subject;
+            ev.Summary = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (Settings.Instance.AddDescription) ev.Description = ai.Body;
             ev.Location = ai.Location;
             ev.Visibility = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
@@ -376,8 +376,9 @@ namespace OutlookGoogleCalendarSync {
                     ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
                 }
             }
-            if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, ai.Subject, sb, ref itemModified)) {
-                ev.Summary = ai.Subject;
+            String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
+            if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
+                ev.Summary = subjectObfuscated;
             }
             if (!Settings.Instance.AddDescription) ai.Body = "";
             String outlookBody = ai.Body;
@@ -538,7 +539,9 @@ namespace OutlookGoogleCalendarSync {
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
 
-            foreach (Event ev in gEvents) {
+            for (int g = gEvents.Count-1; g >= 0; g--) {
+                Event ev = gEvents[g];
+                    
                 //Find entries with no Outlook ID
                 if (ev.ExtendedProperties == null ||
                     ev.ExtendedProperties.Private == null ||
@@ -547,16 +550,20 @@ namespace OutlookGoogleCalendarSync {
                     unclaimedEvents.Add(ev);
                     foreach (AppointmentItem ai in oAppointments) {
                         //Use simple matching on start,end,subject,location to pair events
-                        String a = signature(ev);
-                        String b = OutlookCalendar.signature(ai);
-                        if (signature(ev) == OutlookCalendar.signature(ai)) {
-                            if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
-                            if (ev.ExtendedProperties.Private == null) ev.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
-                            
-                            if (ai.IsRecurring)
-                                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
+                        String sigEv = signature(ev);
+                        String sigAi = OutlookCalendar.signature(ai);
+
+                        if (Settings.Instance.Obfuscation.Enabled) {
+                            if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
+                                sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);
                             else
-                                ev.ExtendedProperties.Private.Add(oEntryID, ai.EntryID);
+                                sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
+                        }
+                        if (sigEv == sigAi) {                            
+                            if (ai.IsRecurring)
+                                GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
+                            else
+                                GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID);
                             UpdateCalendarEntry_save(ev);
                             unclaimedEvents.Remove(ev);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
@@ -691,7 +698,7 @@ namespace OutlookGoogleCalendarSync {
             signature += ";" + ((ev.End.DateTime == null) ?
                 GoogleTimeFrom(DateTime.Parse(ev.End.Date)) :
                 GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)));
-            signature += ";" + ev.Summary + ";" + ev.Location;
+            signature += ";" + ev.Summary;
             
             return signature.Trim();
         }

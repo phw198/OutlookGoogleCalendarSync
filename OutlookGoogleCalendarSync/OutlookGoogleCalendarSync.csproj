@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailAddress.cs" />
+    <Compile Include="Obfuscate.cs" />
     <Compile Include="SettingsProxy.cs" />
     <Compile Include="Social.cs" />
     <Compile Include="Splash.cs">

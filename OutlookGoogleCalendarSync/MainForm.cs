@@ -56,14 +56,26 @@ namespace OutlookGoogleCalendarSync {
             ToolTips.InitialDelay = 500;
             ToolTips.ReshowDelay = 200;
             ToolTips.ShowAlways = true;
+            //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
                 "The Outlook calendar to synchonize with.");
+            //Google
             ToolTips.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
             ToolTips.SetToolTip(btResetGCal,
                 "Reset the Google account being used to synchonize with.");
+            //Settings
             ToolTips.SetToolTip(tbInterval,
                 "Set to zero to disable");
+            ToolTips.SetToolTip(rbOutlookAltMB,
+                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
+            ToolTips.SetToolTip(cbMergeItems,
+                "If the destination calendar has pre-existing items, don't delete them");
+            ToolTips.SetToolTip(cbOutlookPush,
+                "Synchronise changes in Outlook to Google within a few minutes.");
+            ToolTips.SetToolTip(cbOfuscate,
+                "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
+            //Application behaviour
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive.\n" +
                 "Default is in your User roaming profile.");
@@ -71,12 +83,6 @@ namespace OutlookGoogleCalendarSync {
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
                 "Only for debug/diagnostic purposes.");
-            ToolTips.SetToolTip(rbOutlookAltMB,
-                "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
-            ToolTips.SetToolTip(cbMergeItems,
-                "If the destination calendar has pre-existing items, don't delete them");
-            ToolTips.SetToolTip(cbOutlookPush,
-                "Synchronise changes in Outlook to Google within a few minutes.");
             ToolTips.SetToolTip(rbProxyIE,
                 "If IE settings have been changed, a restart of the Sync application may be required");
             #endregion
@@ -154,9 +160,14 @@ namespace OutlookGoogleCalendarSync {
             }
             #endregion
             #region Sync Options box
+            #region How
+            this.gbSyncOptions_How.Height = 109;
             syncDirection.Items.Add(SyncDirection.OutlookToGoogle);
             syncDirection.Items.Add(SyncDirection.GoogleToOutlook);
             syncDirection.Items.Add(SyncDirection.Bidirectional);
+            cbObfuscateDirection.Items.Add(SyncDirection.OutlookToGoogle);
+            cbObfuscateDirection.Items.Add(SyncDirection.GoogleToOutlook);
+            //Sync Direction dropdown
             for (int i = 0; i < syncDirection.Items.Count; i++) {
                 SyncDirection sd = (syncDirection.Items[i] as SyncDirection);
                 if (sd.Id == Settings.Instance.SyncDirection.Id) {
@@ -169,7 +180,19 @@ namespace OutlookGoogleCalendarSync {
             cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+            //Obfuscate Direction dropdown
+            for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
+                SyncDirection sd = (cbObfuscateDirection.Items[i] as SyncDirection);
+                if (sd.Id == Settings.Instance.Obfuscation.Direction.Id) {
+                    cbObfuscateDirection.SelectedIndex = i;
+                }
+            }
+            if (cbObfuscateDirection.SelectedIndex == -1) cbObfuscateDirection.SelectedIndex = 0;
+            cbObfuscateDirection.Enabled = Settings.Instance.SyncDirection == SyncDirection.Bidirectional;
+            Settings.Instance.Obfuscation.LoadRegex(dgObfuscateRegex);
             this.gbSyncOptions_How.ResumeLayout();
+            #endregion
+            #region When
             this.gbSyncOptions_When.SuspendLayout();
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
@@ -181,11 +204,14 @@ namespace OutlookGoogleCalendarSync {
             cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged); 
             cbOutlookPush.Checked = Settings.Instance.OutlookPush;
             this.gbSyncOptions_When.ResumeLayout();
+            #endregion
+            #region What
             this.gbSyncOptions_What.SuspendLayout();
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             this.gbSyncOptions_What.ResumeLayout();
+            #endregion
             #endregion
             #region Application behaviour
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
@@ -973,6 +999,13 @@ namespace OutlookGoogleCalendarSync {
         #region How
         private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.SyncDirection = (SyncDirection)syncDirection.SelectedItem;
+            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                cbObfuscateDirection.Enabled = true;
+                cbObfuscateDirection.SelectedIndex = SyncDirection.OutlookToGoogle.Id-1;
+            } else {
+                cbObfuscateDirection.Enabled = false;
+                cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id-1;
+            }
             showWhatPostit();
         }
 
@@ -987,6 +1020,39 @@ namespace OutlookGoogleCalendarSync {
         private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.DisableDelete = cbDisableDeletion.Checked;
             cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
+        }
+
+        private void cbOfuscate_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.Obfuscation.Enabled = cbOfuscate.Checked;
+        }
+        
+        private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
+            const int minPanelHeight = 109;
+            const int maxPanelHeight = 251;
+            this.gbSyncOptions_How.BringToFront();
+            if ((sender as CheckBox).Checked) {
+                while (this.gbSyncOptions_How.Height < maxPanelHeight) {
+                    this.gbSyncOptions_How.Height += 2;
+                    System.Windows.Forms.Application.DoEvents();
+                    System.Threading.Thread.Sleep(1);
+                }
+                this.gbSyncOptions_How.Height = maxPanelHeight;
+            } else {
+                while (this.gbSyncOptions_How.Height > minPanelHeight && this.Visible) {
+                    this.gbSyncOptions_How.Height -= 2;
+                    System.Windows.Forms.Application.DoEvents();
+                    System.Threading.Thread.Sleep(1);
+                }
+                this.gbSyncOptions_How.Height = minPanelHeight;
+            }
+        }
+
+        private void cbObfuscateDirection_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Instance.Obfuscation.Direction = (SyncDirection)cbObfuscateDirection.SelectedItem;
+        }
+
+        private void dgObfuscateRegex_Leave(object sender, EventArgs e) {
+            Settings.Instance.Obfuscation.SaveRegex(dgObfuscateRegex);
         }
         #endregion
         #region When
