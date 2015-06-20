@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using log4net;
 
 namespace OutlookGoogleCalendarSync {
@@ -54,10 +55,16 @@ namespace OutlookGoogleCalendarSync {
             }
             if (analytics != null) {
                 log.Debug("Retrieving URL: " + analytics);
-                System.Net.WebClient wc = new System.Net.WebClient();
+                WebClient wc = new WebClient();
                 wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
+                wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
                 wc.DownloadStringAsync(new Uri(analytics));
             }
+        }
+
+        private static void trackVersion_completed(object sender, DownloadStringCompletedEventArgs e) {
+            if (e.Error != null)
+                log.Error("Failed to access URL: " + e.Error.Message);
         }
 
         public static void TrackSync() {

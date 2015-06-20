@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync {
 
             log.Debug("Loading settings from file.");
             Settings.Load();
-
+            isNewVersion();
             checkForUpdate();
 
             try {
@@ -118,6 +118,19 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region Application Behaviour
+        public static void CreateStartupShortcut(Boolean recreate = false) {
+            Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
+            if (startupShortcutExists && recreate) {
+                log.Debug("Recreating startup shortcut.");
+                Program.RemoveShortcut(Environment.SpecialFolder.Startup);
+                startupShortcutExists = false;
+            }
+            if (Settings.Instance.StartOnStartup && !startupShortcutExists)
+                Program.AddShortcut(Environment.SpecialFolder.Startup);
+            else if (!Settings.Instance.StartOnStartup && startupShortcutExists)
+                Program.RemoveShortcut(Environment.SpecialFolder.Startup);
+        }
+
         public static void AddShortcut(Environment.SpecialFolder directory, String subdir = "") {
             log.Debug("AddShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
             String appPath = Application.ExecutablePath;
@@ -234,19 +247,21 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         #region Update Checking
+        private static Boolean isManualCheck = false;
+        
         public static Boolean isClickOnceInstall() {
             return ApplicationDeployment.IsNetworkDeployed;
         }
-        
-        public static void checkForUpdate(Boolean forceCheck = false) {
+        public static void checkForUpdate(Boolean isManualCheck = false) {
             if (System.Diagnostics.Debugger.IsAttached) return;
-            
-            checkForUpdate_force = forceCheck;
-            if (forceCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
+
+            Program.isManualCheck = isManualCheck;
+            Settings.Instance.Proxy.Configure();
+            if (isManualCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
 
             if (isClickOnceInstall()) {
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
-                if (forceCheck || ad.TimeOfLastUpdateCheck < DateTime.Now.AddDays(-1)) {
+                if (isManualCheck || ad.TimeOfLastUpdateCheck < DateTime.Now.AddDays(-1)) {
                     log.Debug("Checking for ClickOnce update...");
                     ad.CheckForUpdateCompleted -= new CheckForUpdateCompletedEventHandler(checkForUpdate_completed);
                     ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(checkForUpdate_completed);
@@ -266,11 +281,13 @@ namespace OutlookGoogleCalendarSync {
             if (e.Error != null) {
                 log.Error("Could not retrieve new version of the application.");
                 log.Error(e.Error.Message);
-                MessageBox.Show("Could not retrieve new version of the application.\n" + e.Error.Message, "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (Program.isManualCheck)
+                    MessageBox.Show("Could not retrieve new version of the application.\n" + e.Error.Message, "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             } else if (e.Cancelled == true) {
                 log.Info("The update was cancelled");
-                MessageBox.Show("The update was cancelled.", "Update Check Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (Program.isManualCheck)
+                    MessageBox.Show("The update was cancelled.", "Update Check Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             if (e.UpdateAvailable) {
@@ -289,7 +306,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } else {
                 log.Info("Already running the latest version.");
-                if (checkForUpdate_force) { //Was a manual check, so give feedback
+                if (Program.isManualCheck) { //Was a manual check, so give feedback
                     MessageBox.Show("You are already running the latest version.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -328,22 +345,29 @@ namespace OutlookGoogleCalendarSync {
             Boolean newerRelease = false;
 
             log.Debug("Checking for ZIP update...");
-            string html = new System.Net.WebClient().DownloadString("https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Latest%20Releases");
-            
-            log.Debug("Finding Beta release...");
-            MatchCollection release = getRelease(html, @"<b>Beta</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
-            if (release.Count > 0) {
-                releaseType = "Beta";
-                releaseURL = release[0].Result("$1");
-                releaseVersion = release[0].Result("$2");
+            string html = "";
+            try {
+                html = new System.Net.WebClient().DownloadString("https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Latest%20Releases");
+            } catch (Exception ex) {
+                log.Error("Failed to retrieve data: " + ex.Message);
             }
-            if (Settings.Instance.AlphaReleases) {
-                log.Debug("Finding Alpha release...");
-                release = getRelease(html, @"<b>Alpha</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
+
+            if (!string.IsNullOrEmpty(html)) {
+                log.Debug("Finding Beta release...");
+                MatchCollection release = getRelease(html, @"<b>Beta</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
                 if (release.Count > 0) {
-                    releaseType = "Alpha";
+                    releaseType = "Beta";
                     releaseURL = release[0].Result("$1");
                     releaseVersion = release[0].Result("$2");
+                }
+                if (Settings.Instance.AlphaReleases) {
+                    log.Debug("Finding Alpha release...");
+                    release = getRelease(html, @"<b>Alpha</b>: <a href=""(.*?)"">\r\nv([\d\.]+)");
+                    if (release.Count > 0) {
+                        releaseType = "Alpha";
+                        releaseURL = release[0].Result("$1");
+                        releaseVersion = release[0].Result("$2");
+                    }
                 }
             }
 
@@ -381,6 +405,15 @@ namespace OutlookGoogleCalendarSync {
             return rgx.Matches(source);
         }
         #endregion
+
+        public static void isNewVersion() {
+            string settingsVersion = string.IsNullOrEmpty(Settings.Instance.Version) ? "Unknown" : Settings.Instance.Version;
+            if (settingsVersion != Application.ProductVersion) {
+                log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
+                Program.CreateStartupShortcut(recreate: true);
+                Settings.Instance.Version = Application.ProductVersion;
+            }
+        }
         #endregion
-    }        
+    }
 }

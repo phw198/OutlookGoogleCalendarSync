@@ -22,6 +22,7 @@ namespace OutlookGoogleCalendarSync {
         private Int32 completedSyncs;
         private Boolean portable;
         private Boolean alphaReleases;
+        private String version;
 
         public Settings() {
             setDefaults();
@@ -154,8 +155,14 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public SettingsProxy Proxy { get; set; }
         #endregion
         #region About
-        [DataMember]
-        public bool AlphaReleases {
+        [DataMember] public string Version {
+            get { return version; }
+            set {
+                version = value;
+                if (!loading()) XMLManager.ExportElement("Version", value, Program.SettingsFile);
+            }
+        }
+        [DataMember] public bool AlphaReleases {
             get { return alphaReleases; }
             set {
                 alphaReleases = value;

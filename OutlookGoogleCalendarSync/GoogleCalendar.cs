@@ -391,7 +391,8 @@ namespace OutlookGoogleCalendarSync {
             if (MainForm.CompareAttribute("Description", SyncDirection.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified)) 
                 ev.Description = outlookBody;
             
-            if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified)) ev.Location = ai.Location;
+            if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified)) 
+                ev.Location = ai.Location;
 
             String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
             String gPrivacy = (ev.Visibility == null ? "default" : ev.Visibility);

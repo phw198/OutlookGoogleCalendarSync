@@ -68,6 +68,8 @@ namespace OutlookGoogleCalendarSync
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
                 xe.SetValue(nodeValue);
+                xml.Save(filename);
+                log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
             } catch (Exception ex) {
                 if (ex.Message == "Sequence contains no elements") {
                     log.Debug("Adding Setting " + nodeName + " to settings.xml");
@@ -80,8 +82,6 @@ namespace OutlookGoogleCalendarSync
                     log.Error("Failed to export setting " + nodeName + "=" + nodeValue + " to settings.xml file.");
                 }
             }
-            xml.Save(filename);
-            log.Debug("Setting '"+ nodeName +"' updated to '"+ nodeValue +"'");
         }
     }
 }

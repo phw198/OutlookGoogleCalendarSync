@@ -25,8 +25,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
@@ -65,6 +64,8 @@
             this.cbGoogleCalendars = new System.Windows.Forms.ComboBox();
             this.tabSyncOptions = new System.Windows.Forms.TabPage();
             this.gbSyncOptions_How = new System.Windows.Forms.GroupBox();
+            this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
+            this.label31 = new System.Windows.Forms.Label();
             this.dgObfuscateRegex = new System.Windows.Forms.DataGridView();
             this.regexFind = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.regexReplace = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -157,8 +158,6 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
-            this.label31 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -641,6 +640,27 @@
             this.gbSyncOptions_How.TabStop = false;
             this.gbSyncOptions_How.Text = "How";
             // 
+            // cbObfuscateDirection
+            // 
+            this.cbObfuscateDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbObfuscateDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbObfuscateDirection.FormattingEnabled = true;
+            this.cbObfuscateDirection.Location = new System.Drawing.Point(95, 116);
+            this.cbObfuscateDirection.Name = "cbObfuscateDirection";
+            this.cbObfuscateDirection.Size = new System.Drawing.Size(265, 21);
+            this.cbObfuscateDirection.TabIndex = 43;
+            this.cbObfuscateDirection.SelectedIndexChanged += new System.EventHandler(this.cbObfuscateDirection_SelectedIndexChanged);
+            // 
+            // label31
+            // 
+            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label31.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label31.Location = new System.Drawing.Point(8, 119);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(90, 14);
+            this.label31.TabIndex = 44;
+            this.label31.Text = "Obfuscate from:";
+            // 
             // dgObfuscateRegex
             // 
             this.dgObfuscateRegex.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -651,24 +671,17 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.InactiveCaption;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgObfuscateRegex.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            this.dgObfuscateRegex.ShowCellToolTips = false;
             this.dgObfuscateRegex.Size = new System.Drawing.Size(351, 99);
             this.dgObfuscateRegex.TabIndex = 42;
             this.dgObfuscateRegex.Leave += new System.EventHandler(this.dgObfuscateRegex_Leave);
@@ -810,9 +823,9 @@
             this.gbSyncOptions_When.Controls.Add(this.lDateRange);
             this.gbSyncOptions_When.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbSyncOptions_When.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbSyncOptions_When.Location = new System.Drawing.Point(15, 151);
+            this.gbSyncOptions_When.Location = new System.Drawing.Point(12, 151);
             this.gbSyncOptions_When.Name = "gbSyncOptions_When";
-            this.gbSyncOptions_When.Size = new System.Drawing.Size(366, 116);
+            this.gbSyncOptions_When.Size = new System.Drawing.Size(369, 116);
             this.gbSyncOptions_When.TabIndex = 41;
             this.gbSyncOptions_When.TabStop = false;
             this.gbSyncOptions_When.Text = "When";
@@ -1845,27 +1858,6 @@
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "Outlook Google Calendar Sync";
             this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
-            // 
-            // cbObfuscateDirection
-            // 
-            this.cbObfuscateDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbObfuscateDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbObfuscateDirection.FormattingEnabled = true;
-            this.cbObfuscateDirection.Location = new System.Drawing.Point(95, 116);
-            this.cbObfuscateDirection.Name = "cbObfuscateDirection";
-            this.cbObfuscateDirection.Size = new System.Drawing.Size(265, 21);
-            this.cbObfuscateDirection.TabIndex = 43;
-            this.cbObfuscateDirection.SelectedIndexChanged += new System.EventHandler(this.cbObfuscateDirection_SelectedIndexChanged);
-            // 
-            // label31
-            // 
-            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label31.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label31.Location = new System.Drawing.Point(8, 119);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(90, 14);
-            this.label31.TabIndex = 44;
-            this.label31.Text = "Obfuscate from:";
             // 
             // MainForm
             // 

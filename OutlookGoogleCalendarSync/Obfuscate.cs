@@ -74,20 +74,24 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String ApplyRegex(String source, SyncDirection direction) {
+            String retStr = source;
             if (Settings.Instance.Obfuscation.Enabled && direction == Settings.Instance.Obfuscation.Direction) {
                 foreach (DataGridViewRow row in MainForm.Instance.dgObfuscateRegex.Rows) {
                     DataGridViewCellCollection cells = row.Cells;
-                    System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
-                        cells[Obfuscate.FindCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    if (cells[Obfuscate.FindCol].Value != null) {
+                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
+                            cells[Obfuscate.FindCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-                    System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(source);
-                    if (matches.Count > 0) {
-                        log.Debug("Regex has matched and altered string. " + cells[Obfuscate.FindCol].Value.ToString());
-                        return rgx.Replace(source, cells[Obfuscate.ReplaceCol].Value.ToString());
+                        System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
+                        if (matches.Count > 0) {
+                            log.Debug("Regex has matched and altered string: " + cells[Obfuscate.FindCol].Value.ToString());
+                            if (cells[Obfuscate.ReplaceCol].Value == null) cells[Obfuscate.ReplaceCol].Value = "";
+                            retStr = rgx.Replace(retStr, cells[Obfuscate.ReplaceCol].Value.ToString());
+                        }
                     }
                 }
             }
-            return source;
+            return retStr;
         }
     }
 

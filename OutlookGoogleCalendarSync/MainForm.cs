@@ -42,7 +42,6 @@ namespace OutlookGoogleCalendarSync {
             Social.TrackVersion();
             updateGUIsettings();
             Settings.Instance.LogSettings();
-            Settings.Instance.Proxy.Configure();
             
             log.Debug("Create the timer for the auto synchronisation");
             ogcsTimer = new Timer();
@@ -75,6 +74,8 @@ namespace OutlookGoogleCalendarSync {
                 "Synchronise changes in Outlook to Google within a few minutes.");
             ToolTips.SetToolTip(cbOfuscate,
                 "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
+            ToolTips.SetToolTip(dgObfuscateRegex,
+                "All rules are applied using AND logic");
             //Application behaviour
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive.\n" +
@@ -801,12 +802,7 @@ namespace OutlookGoogleCalendarSync {
             applyProxy();
             Settings.Instance.Save();
             
-            //Shortcut
-            Boolean startupShortcutExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
-            if (Settings.Instance.StartOnStartup && !startupShortcutExists)
-                Program.AddShortcut(Environment.SpecialFolder.Startup);
-            else if (!Settings.Instance.StartOnStartup && startupShortcutExists)
-                Program.RemoveShortcut(Environment.SpecialFolder.Startup);
+            Program.CreateStartupShortcut();
 
             //Push Sync
             if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
