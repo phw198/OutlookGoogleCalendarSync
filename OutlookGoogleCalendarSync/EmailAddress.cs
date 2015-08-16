@@ -8,8 +8,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(EmailAddress));
 
         public static String BuildFakeEmailAddress(String recipientName) {
-            String buildFakeEmail = recipientName.Replace(",", "");
-            buildFakeEmail = buildFakeEmail.Replace(" ", "");
+            String buildFakeEmail = Regex.Replace(recipientName, @"[^\w\.-]", "");
             buildFakeEmail += "@unknownemail.com";
             log.Debug("Built a fake email for them: " + buildFakeEmail);
             return buildFakeEmail;

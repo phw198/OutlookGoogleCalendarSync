@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailAddress.cs" />
+    <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
     <Compile Include="SettingsProxy.cs" />
     <Compile Include="Social.cs" />
@@ -206,6 +207,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\sync.gif" />
+    <None Include="Resources\cog.png" />
+    <None Include="Resources\exit.gif" />
     <None Include="Resources\twitter_follow.png" />
     <None Include="Resources\google+.png" />
     <None Include="Resources\facebook.png" />

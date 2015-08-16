@@ -10,12 +10,16 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
-            if (disposing) {
-                if (components != null) {
-                    components.Dispose();
+            if (Settings.Instance.MinimizeToTray && !MainForm.Instance.notificationTray.Exited) {
+                this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
+            } else {
+                if (disposing) {
+                    if (components != null) {
+                        components.Dispose();
+                    }
                 }
+                base.Dispose(disposing);
             }
-            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -157,7 +161,7 @@
             this.pbSocialGplusCommunity = new System.Windows.Forms.PictureBox();
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -1853,11 +1857,10 @@
             this.label2.Text = "Get Social && Spread The Word!";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // notifyIcon1
+            // trayIcon
             // 
-            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "Outlook Google Calendar Sync";
-            this.notifyIcon1.Click += new System.EventHandler(this.NotifyIcon1_Click);
+            this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
+            this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
             // MainForm
             // 
@@ -1918,7 +1921,7 @@
         }
         private System.Windows.Forms.LinkLabel lAboutURL;
         private System.Windows.Forms.TabPage tabPage_About;
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.NotifyIcon trayIcon;
         private System.Windows.Forms.Label lAboutMain;
         private System.Windows.Forms.TextBox LogBox;
         private System.Windows.Forms.Button bSave;

@@ -15,6 +15,7 @@ namespace OutlookGoogleCalendarSync {
     /// </summary>
     public partial class MainForm : Form {
         public static MainForm Instance;
+        private NotificationTray notificationTray;
         public ToolTip ToolTips;
 
         public Timer OgcsPushTimer;
@@ -34,6 +35,8 @@ namespace OutlookGoogleCalendarSync {
         public MainForm(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
+            notificationTray = new NotificationTray(this.trayIcon);
+            
             if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
             lVersion.Text = lVersion.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
 
@@ -98,7 +101,6 @@ namespace OutlookGoogleCalendarSync {
             //Start in tray?
             if (cbStartInTray.Checked) {
                 this.WindowState = FormWindowState.Minimized;
-                notifyIcon1.Visible = true;
                 this.Hide();
                 this.ShowInTaskbar = false;
             }
@@ -408,6 +410,8 @@ namespace OutlookGoogleCalendarSync {
             }
             GoogleCalendar.APIlimitReached_attendee = false;
             bSyncNow.Text = "Stop Sync";
+            notificationTray.UpdateItem("sync", "&Stop Sync");
+
             String cacheNextSync = lNextSyncVal.Text;
             lNextSyncVal.Text = "In progress...";
 
@@ -430,6 +434,7 @@ namespace OutlookGoogleCalendarSync {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
                 {
                     bSyncNow.Text = "Start Sync";
+                    notificationTray.UpdateItem("sync", "&Sync Now");
                     break;
                 }
 
@@ -455,6 +460,7 @@ namespace OutlookGoogleCalendarSync {
             }
             Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
             bSyncNow.Text = "Start Sync";
+            notificationTray.UpdateItem("sync", "&Sync Now");
 
             Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
 
@@ -760,9 +766,8 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         private void showBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.Info) {
-            notifyIcon1.Visible = true; //How best to do this?
             if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
-                notifyIcon1.ShowBalloonTip(
+                trayIcon.ShowBalloonTip(
                     500,
                     "Outlook Google Calendar Sync",
                     message,
@@ -811,20 +816,16 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.LogSettings();
         }
 
-        private void NotifyIcon1_Click(object sender, EventArgs e) {
-            this.WindowState = FormWindowState.Normal;
+        public void MainFormShow() {
             this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
         }
 
         private void mainFormResize(object sender, EventArgs e) {
-            if (!cbMinimizeToTray.Checked) return;
-            if (this.WindowState == FormWindowState.Minimized) {
-                notifyIcon1.Visible = true;
+            if (cbMinimizeToTray.Checked && this.WindowState == FormWindowState.Minimized) {
                 this.Hide();
                 this.ShowInTaskbar = false;
-            } else if (this.WindowState == FormWindowState.Normal) {
-                notifyIcon1.Visible = false;
-                this.ShowInTaskbar = true;
             }
         }
 

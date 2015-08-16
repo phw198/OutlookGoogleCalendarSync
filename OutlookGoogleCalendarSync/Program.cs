@@ -412,6 +412,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 Program.CreateStartupShortcut(recreate: true);
                 Settings.Instance.Version = Application.ProductVersion;
+                System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Release Notes");
             }
         }
         #endregion
