@@ -66,7 +66,9 @@ namespace OutlookGoogleCalendarSync {
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = true;
             StartInTray = false;
-            MinimizeToTray = false;
+            MinimiseToTray = false;
+            MinimiseNotClose = false;
+
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
             portable = false;
@@ -140,7 +142,8 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartInTray { get; set; }
-        [DataMember] public bool MinimizeToTray { get; set; }
+        [DataMember] public bool MinimiseToTray { get; set; }
+        [DataMember] public bool MinimiseNotClose { get; set; }
         [DataMember] public bool Portable {
             get { return portable; }
             set {
@@ -254,7 +257,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup);
             log.Info("  StartInTray: " + StartInTray);
-            log.Info("  MinimizeToTray: " + MinimizeToTray);
+            log.Info("  MinimizeToTray: " + MinimiseToTray);
+            log.Info("  MinimizeNotClose: " + MinimiseNotClose);
             log.Info("  Portable: " + Portable);
             log.Info("  CreateCSVFiles: " + CreateCSVFiles);
 

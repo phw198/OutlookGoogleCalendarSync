@@ -220,7 +220,8 @@ namespace OutlookGoogleCalendarSync {
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
-            cbMinimizeToTray.Checked = Settings.Instance.MinimizeToTray;
+            cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
+            cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable;
             cbPortable.Enabled = !Program.isClickOnceInstall();
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
@@ -823,7 +824,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void mainFormResize(object sender, EventArgs e) {
-            if (cbMinimizeToTray.Checked && this.WindowState == FormWindowState.Minimized) {
+            if (cbMinimiseToTray.Checked && this.WindowState == FormWindowState.Minimized) {
                 this.Hide();
                 this.ShowInTaskbar = false;
             }
@@ -1114,8 +1115,12 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.StartInTray = cbStartInTray.Checked;
         }
 
-        private void cbMinimizeToTrayCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.MinimizeToTray = cbMinimizeToTray.Checked;
+        private void cbMinimiseToTrayCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.MinimiseToTray = cbMinimiseToTray.Checked;
+        }
+
+        private void cbMinimiseNotCloseCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.MinimiseNotClose = cbMinimiseNotClose.Checked;
         }
 
         private void cbPortable_CheckedChanged(object sender, EventArgs e) {

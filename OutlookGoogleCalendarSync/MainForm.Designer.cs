@@ -10,7 +10,8 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
-            if (Settings.Instance.MinimizeToTray && !MainForm.Instance.notificationTray.Exited) {
+            if (Settings.Instance.MinimiseNotClose && !MainForm.Instance.notificationTray.Exited &&
+                this.WindowState != System.Windows.Forms.FormWindowState.Minimized) {
                 this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             } else {
                 if (disposing) {
@@ -29,7 +30,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
@@ -100,6 +101,7 @@
             this.cbAddDescription = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbMinimiseNotClose = new System.Windows.Forms.CheckBox();
             this.cbPortable = new System.Windows.Forms.CheckBox();
             this.gbProxy = new System.Windows.Forms.GroupBox();
             this.rbProxyNone = new System.Windows.Forms.RadioButton();
@@ -120,7 +122,7 @@
             this.cbLoggingLevel = new System.Windows.Forms.ComboBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
-            this.cbMinimizeToTray = new System.Windows.Forms.CheckBox();
+            this.cbMinimiseToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
             this.bSave = new System.Windows.Forms.Button();
@@ -401,10 +403,10 @@
             this.rbOutlookDefaultMB.Checked = true;
             this.rbOutlookDefaultMB.Location = new System.Drawing.Point(20, 47);
             this.rbOutlookDefaultMB.Name = "rbOutlookDefaultMB";
-            this.rbOutlookDefaultMB.Size = new System.Drawing.Size(98, 17);
+            this.rbOutlookDefaultMB.Size = new System.Drawing.Size(97, 17);
             this.rbOutlookDefaultMB.TabIndex = 18;
             this.rbOutlookDefaultMB.TabStop = true;
-            this.rbOutlookDefaultMB.Text = "Default Mailbox";
+            this.rbOutlookDefaultMB.Text = "Default mailbox";
             this.rbOutlookDefaultMB.UseVisualStyleBackColor = true;
             this.rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
             // 
@@ -425,9 +427,9 @@
             this.rbOutlookAltMB.AutoSize = true;
             this.rbOutlookAltMB.Location = new System.Drawing.Point(20, 70);
             this.rbOutlookAltMB.Name = "rbOutlookAltMB";
-            this.rbOutlookAltMB.Size = new System.Drawing.Size(114, 17);
+            this.rbOutlookAltMB.Size = new System.Drawing.Size(113, 17);
             this.rbOutlookAltMB.TabIndex = 17;
-            this.rbOutlookAltMB.Text = "Alternative Mailbox";
+            this.rbOutlookAltMB.Text = "Alternative mailbox";
             this.rbOutlookAltMB.UseVisualStyleBackColor = true;
             this.rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
             // 
@@ -675,14 +677,14 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.ShowCellToolTips = false;
@@ -1059,6 +1061,7 @@
             // 
             // tabAppBehaviour
             // 
+            this.tabAppBehaviour.Controls.Add(this.cbMinimiseNotClose);
             this.tabAppBehaviour.Controls.Add(this.cbPortable);
             this.tabAppBehaviour.Controls.Add(this.gbProxy);
             this.tabAppBehaviour.Controls.Add(this.label14);
@@ -1067,7 +1070,7 @@
             this.tabAppBehaviour.Controls.Add(this.cbLoggingLevel);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartup);
             this.tabAppBehaviour.Controls.Add(this.cbShowBubbleTooltips);
-            this.tabAppBehaviour.Controls.Add(this.cbMinimizeToTray);
+            this.tabAppBehaviour.Controls.Add(this.cbMinimiseToTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartInTray);
             this.tabAppBehaviour.Controls.Add(this.cbCreateFiles);
             this.tabAppBehaviour.Location = new System.Drawing.Point(79, 4);
@@ -1077,10 +1080,20 @@
             this.tabAppBehaviour.Text = "  Application Behaviour";
             this.tabAppBehaviour.UseVisualStyleBackColor = true;
             // 
+            // cbMinimiseNotClose
+            // 
+            this.cbMinimiseNotClose.Location = new System.Drawing.Point(16, 96);
+            this.cbMinimiseNotClose.Name = "cbMinimiseNotClose";
+            this.cbMinimiseNotClose.Size = new System.Drawing.Size(353, 24);
+            this.cbMinimiseNotClose.TabIndex = 39;
+            this.cbMinimiseNotClose.Text = "Close button [X] minimises window instead of terminating application";
+            this.cbMinimiseNotClose.UseVisualStyleBackColor = true;
+            this.cbMinimiseNotClose.CheckedChanged += new System.EventHandler(this.cbMinimiseNotCloseCheckedChanged);
+            // 
             // cbPortable
             // 
             this.cbPortable.AutoSize = true;
-            this.cbPortable.Location = new System.Drawing.Point(16, 119);
+            this.cbPortable.Location = new System.Drawing.Point(16, 138);
             this.cbPortable.Name = "cbPortable";
             this.cbPortable.Size = new System.Drawing.Size(148, 17);
             this.cbPortable.TabIndex = 38;
@@ -1106,7 +1119,7 @@
             this.gbProxy.Controls.Add(this.label4);
             this.gbProxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbProxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbProxy.Location = new System.Drawing.Point(16, 187);
+            this.gbProxy.Location = new System.Drawing.Point(16, 206);
             this.gbProxy.Name = "gbProxy";
             this.gbProxy.Size = new System.Drawing.Size(364, 200);
             this.gbProxy.TabIndex = 37;
@@ -1121,10 +1134,10 @@
             this.rbProxyNone.ForeColor = System.Drawing.SystemColors.ControlText;
             this.rbProxyNone.Location = new System.Drawing.Point(20, 22);
             this.rbProxyNone.Name = "rbProxyNone";
-            this.rbProxyNone.Size = new System.Drawing.Size(68, 17);
+            this.rbProxyNone.Size = new System.Drawing.Size(67, 17);
             this.rbProxyNone.TabIndex = 1;
             this.rbProxyNone.Tag = "None";
-            this.rbProxyNone.Text = "No Proxy";
+            this.rbProxyNone.Text = "No proxy";
             this.rbProxyNone.UseVisualStyleBackColor = true;
             this.rbProxyNone.CheckedChanged += new System.EventHandler(this.rbProxyCustom_CheckedChanged);
             // 
@@ -1151,10 +1164,10 @@
             this.rbProxyCustom.ForeColor = System.Drawing.SystemColors.ControlText;
             this.rbProxyCustom.Location = new System.Drawing.Point(20, 68);
             this.rbProxyCustom.Name = "rbProxyCustom";
-            this.rbProxyCustom.Size = new System.Drawing.Size(104, 17);
+            this.rbProxyCustom.Size = new System.Drawing.Size(102, 17);
             this.rbProxyCustom.TabIndex = 3;
             this.rbProxyCustom.Tag = "Custom";
-            this.rbProxyCustom.Text = "Custom Setttings";
+            this.rbProxyCustom.Text = "Custom setttings";
             this.rbProxyCustom.UseVisualStyleBackColor = true;
             this.rbProxyCustom.CheckedChanged += new System.EventHandler(this.rbProxyCustom_CheckedChanged);
             // 
@@ -1179,9 +1192,9 @@
             this.cbProxyAuthRequired.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbProxyAuthRequired.Location = new System.Drawing.Point(38, 120);
             this.cbProxyAuthRequired.Name = "cbProxyAuthRequired";
-            this.cbProxyAuthRequired.Size = new System.Drawing.Size(140, 17);
+            this.cbProxyAuthRequired.Size = new System.Drawing.Size(135, 17);
             this.cbProxyAuthRequired.TabIndex = 6;
-            this.cbProxyAuthRequired.Text = "Authentication Required";
+            this.cbProxyAuthRequired.Text = "Authentication required";
             this.cbProxyAuthRequired.UseVisualStyleBackColor = true;
             this.cbProxyAuthRequired.CheckedChanged += new System.EventHandler(this.cbProxyAuthRequired_CheckedChanged);
             // 
@@ -1278,7 +1291,7 @@
             // btLogLocation
             // 
             this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btLogLocation.Location = new System.Drawing.Point(302, 155);
+            this.btLogLocation.Location = new System.Drawing.Point(302, 174);
             this.btLogLocation.Name = "btLogLocation";
             this.btLogLocation.Size = new System.Drawing.Size(80, 23);
             this.btLogLocation.TabIndex = 19;
@@ -1289,7 +1302,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 160);
+            this.label3.Location = new System.Drawing.Point(13, 179);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 13);
             this.label3.TabIndex = 18;
@@ -1310,7 +1323,7 @@
             "Debug",
             "Fine",
             "All"});
-            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 156);
+            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 175);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
             this.cbLoggingLevel.Size = new System.Drawing.Size(210, 21);
             this.cbLoggingLevel.TabIndex = 17;
@@ -1330,23 +1343,23 @@
             // 
             // cbShowBubbleTooltips
             // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(16, 96);
+            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(16, 115);
             this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
             this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 24);
             this.cbShowBubbleTooltips.TabIndex = 14;
-            this.cbShowBubbleTooltips.Text = "Show Bubble Tooltip in Taskbar when Syncing";
+            this.cbShowBubbleTooltips.Text = "Show bubble tooltip in tray when syncing";
             this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
             this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.cbShowBubbleTooltipsCheckedChanged);
             // 
-            // cbMinimizeToTray
+            // cbMinimiseToTray
             // 
-            this.cbMinimizeToTray.Location = new System.Drawing.Point(16, 77);
-            this.cbMinimizeToTray.Name = "cbMinimizeToTray";
-            this.cbMinimizeToTray.Size = new System.Drawing.Size(104, 24);
-            this.cbMinimizeToTray.TabIndex = 12;
-            this.cbMinimizeToTray.Text = "Minimize to Tray";
-            this.cbMinimizeToTray.UseVisualStyleBackColor = true;
-            this.cbMinimizeToTray.CheckedChanged += new System.EventHandler(this.cbMinimizeToTrayCheckedChanged);
+            this.cbMinimiseToTray.Location = new System.Drawing.Point(16, 77);
+            this.cbMinimiseToTray.Name = "cbMinimiseToTray";
+            this.cbMinimiseToTray.Size = new System.Drawing.Size(206, 24);
+            this.cbMinimiseToTray.TabIndex = 12;
+            this.cbMinimiseToTray.Text = "Minimise to tray instead of taskbar";
+            this.cbMinimiseToTray.UseVisualStyleBackColor = true;
+            this.cbMinimiseToTray.CheckedChanged += new System.EventHandler(this.cbMinimiseToTrayCheckedChanged);
             // 
             // cbStartInTray
             // 
@@ -1354,13 +1367,13 @@
             this.cbStartInTray.Name = "cbStartInTray";
             this.cbStartInTray.Size = new System.Drawing.Size(104, 24);
             this.cbStartInTray.TabIndex = 13;
-            this.cbStartInTray.Text = "Start in Tray";
+            this.cbStartInTray.Text = "Start in tray";
             this.cbStartInTray.UseVisualStyleBackColor = true;
             this.cbStartInTray.CheckedChanged += new System.EventHandler(this.cbStartInTrayCheckedChanged);
             // 
             // cbCreateFiles
             // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(16, 134);
+            this.cbCreateFiles.Location = new System.Drawing.Point(16, 153);
             this.cbCreateFiles.Name = "cbCreateFiles";
             this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
             this.cbCreateFiles.TabIndex = 15;
@@ -1966,7 +1979,7 @@
         private System.Windows.Forms.ComboBox cbLoggingLevel;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.CheckBox cbShowBubbleTooltips;
-        private System.Windows.Forms.CheckBox cbMinimizeToTray;
+        private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
         private System.Windows.Forms.CheckBox cbCreateFiles;
         private System.Windows.Forms.Label label14;
@@ -2050,5 +2063,6 @@
         private System.Windows.Forms.ComboBox cbObfuscateDirection;
         private System.Windows.Forms.Label label31;
         public System.Windows.Forms.DataGridView dgObfuscateRegex;
+        private System.Windows.Forms.CheckBox cbMinimiseNotClose;
     }
 }
