@@ -97,6 +97,9 @@ namespace OutlookGoogleCalendarSync {
         public OlExchangeConnectionMode ExchangeConnectionMode() {
             return exchangeConnectionMode;
         }
+        public Microsoft.Office.Interop.Outlook.TimeZones GetTimeZones() {
+            return oApp.TimeZones;
+        }
 
         private const String gEventID = "googleEventID";
         public const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";

@@ -253,10 +253,10 @@ namespace OutlookGoogleCalendarSync {
             return ApplicationDeployment.IsNetworkDeployed;
         }
         public static void checkForUpdate(Boolean isManualCheck = false) {
+            Settings.Instance.Proxy.Configure();
             if (System.Diagnostics.Debugger.IsAttached) return;
 
             Program.isManualCheck = isManualCheck;
-            Settings.Instance.Proxy.Configure();
             if (isManualCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
 
             if (isClickOnceInstall()) {

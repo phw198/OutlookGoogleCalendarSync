@@ -111,6 +111,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
     </Reference>
+    <Reference Include="NodaTime">
+      <HintPath>lib\NodaTime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -132,6 +135,7 @@
     <Compile Include="EmailAddress.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
+    <Compile Include="Recurrence.cs" />
     <Compile Include="SettingsProxy.cs" />
     <Compile Include="Social.cs" />
     <Compile Include="Splash.cs">

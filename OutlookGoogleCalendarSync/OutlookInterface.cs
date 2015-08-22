@@ -18,5 +18,6 @@ namespace OutlookGoogleCalendarSync {
 
         String GetRecipientEmail(Recipient recipient);
         OlExchangeConnectionMode ExchangeConnectionMode();
+        TimeZones GetTimeZones();
     }
 }

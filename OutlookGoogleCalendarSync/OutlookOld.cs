@@ -78,7 +78,9 @@ namespace OutlookGoogleCalendarSync {
         public OlExchangeConnectionMode ExchangeConnectionMode() {
             return exchangeConnectionMode;
         }
-        
+        public Microsoft.Office.Interop.Outlook.TimeZones GetTimeZones() {
+            return oApp.TimeZones;
+        }
         private const String gEventID = "googleEventID";
 
         private MAPIFolder getDefaultCalendar(NameSpace oNS) {

@@ -168,7 +168,7 @@ namespace OutlookGoogleCalendarSync {
             log.Fine(OutlookItems.Count + " calendar items exist.");
 
             OutlookItems.Sort("[Start]", Type.Missing);
-            OutlookItems.IncludeRecurrences = true;
+            OutlookItems.IncludeRecurrences = false;
 
             if (OutlookItems != null) {
                 DateTime min = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
@@ -197,7 +197,7 @@ namespace OutlookGoogleCalendarSync {
                     result.Add(ai);
                 }
             }
-            log.Fine("Filtered down to "+ result.Count); 
+            log.Fine("Filtered down to "+ result.Count);
             return result;
         }
 
@@ -229,6 +229,12 @@ namespace OutlookGoogleCalendarSync {
                         break;
                     }
                 }
+
+                if (ev.Recurrence != null && ev.RecurringEventId == null && Recurrence.Instance.HasExceptions(ev)) {
+                    MainForm.Instance.Logboxout("This is a recurring item with some exceptions:-");
+                    Recurrence.Instance.CreateOutlookExceptions(newAi, ev);
+                    MainForm.Instance.Logboxout("Recurring exceptions completed.");
+                }
             }
         }
         
@@ -254,6 +260,9 @@ namespace OutlookGoogleCalendarSync {
                 ai.Start = DateTime.Parse(ev.Start.DateTime);
                 ai.End = DateTime.Parse(ev.End.DateTime);
             }
+
+            Recurrence.Instance.BuildOutlookPattern(ref ev, ai);
+            
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
             ai.Location = ev.Location;
@@ -304,8 +313,9 @@ namespace OutlookGoogleCalendarSync {
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 int itemModified = 0;
                 AppointmentItem ai = IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+                Boolean aiWasRecurring = compare.Key.IsRecurring;
                 try {
-                    ai = updateCalendarEntry(compare.Key, compare.Value, ref itemModified);
+                    ai = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
                     if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(compare.Value));
                     MainForm.Instance.Logboxout("WARNING: Appointment update failed.\n" + ex.Message);
@@ -330,6 +340,10 @@ namespace OutlookGoogleCalendarSync {
                             break;
                         }
                     }
+                    if (!aiWasRecurring && ai.IsRecurring) {
+                        log.Debug("Appointment has changed from single instance to recurring, so exceptions may need processing.");
+                        Recurrence.Instance.CreateOutlookExceptions(ai, compare.Value);
+                    }
                 } else if (ai != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date.");
                     AddOGCSproperty(ref ai, Program.OGCSmodified, DateTime.Now);
@@ -338,16 +352,22 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private AppointmentItem updateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified) {
-            if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
-                if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                    return null;
+        public AppointmentItem UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
+            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) { //The exception child objects might have changed
+                log.Debug("Processing recurring master appointment.");
             } else {
-                if (GoogleCalendar.OGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
-                    //Google last modified by OGCS
-                    return null;
-                if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                    return null;
+                if (!forceCompare) { //Needed if the exception has just been created, but now needs updating
+                    if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                        if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                            return null;
+                    } else {
+                        if (GoogleCalendar.OGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
+                            //Google last modified by OGCS
+                            return null;
+                        if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                            return null;
+                    }
+                }
             }
 
             String evSummary = GoogleCalendar.GetEventSummary(ev);
@@ -379,6 +399,23 @@ namespace OutlookGoogleCalendarSync {
                     ai.End = DateTime.Parse(ev.End.DateTime);
                 }
             }
+
+            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+                if (ev.Recurrence == null || ev.RecurringEventId != null) {
+                    log.Debug("Converting to non-recurring events.");
+                    ai.ClearRecurrencePattern();
+                    itemModified++;
+                } else {
+                    Recurrence.Instance.UpdateOutlookExceptions(ai, ev);
+                }
+            } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
+                if (!ai.IsRecurring && ev.Recurrence != null && ev.RecurringEventId == null) {
+                    log.Debug("Converting to recurring appointment.");
+                    Recurrence.Instance.CreateOutlookExceptions(ai, ev);
+                    itemModified++;
+                }
+            }
+
             String summaryObfuscated = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (MainForm.CompareAttribute("Subject", SyncDirection.GoogleToOutlook, summaryObfuscated, ai.Subject, sb, ref itemModified)) {
                 ai.Subject = summaryObfuscated;
@@ -415,7 +452,8 @@ namespace OutlookGoogleCalendarSync {
                     List<Recipient> removeRecipient = new List<Recipient>();
                     if (ai.Recipients != null) {
                         foreach (Recipient recipient in ai.Recipients) {
-                            removeRecipient.Add(recipient);
+                            if (recipient.Name != ai.Organizer)
+                                removeRecipient.Add(recipient);
                         }
                     }
                     if (ev.Attendees != null) {
@@ -661,12 +699,12 @@ namespace OutlookGoogleCalendarSync {
             String eventSummary = "";
             if (ai.AllDayEvent) {
                 log.Fine("GetSummary - all day event");
-                eventSummary += DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.Start)).ToString("dd/MM/yyyy");
+                eventSummary += ai.Start.Date.ToShortDateString();
             } else {
                 log.Fine("GetSummary - not all day event");
-                eventSummary += DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.Start)).ToString("dd/MM/yyyy HH:mm");
+                eventSummary += ai.Start.ToShortDateString() + " " + ai.Start.ToShortTimeString();
             }
-            eventSummary += " => ";
+            eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
             eventSummary += '"' + ai.Subject + '"';
             return eventSummary;
         }

@@ -183,6 +183,7 @@ namespace OutlookGoogleCalendarSync {
             cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+            cbOfuscate.Checked = Settings.Instance.Obfuscation.Enabled;
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 SyncDirection sd = (cbObfuscateDirection.Items[i] as SyncDirection);
@@ -525,6 +526,9 @@ namespace OutlookGoogleCalendarSync {
                 return false;
             }
             Logboxout(googleEntries.Count + " Google calendar entries found.");
+            Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
+            if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) 
+                Logboxout(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.");
             Logboxout("--------------------------------------------------");
             #endregion
 
@@ -786,8 +790,8 @@ namespace OutlookGoogleCalendarSync {
                 showBubbleInfo("Issue encountered.\n" +
                     "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
             }
-            if (verbose) log.Debug(s);
-            else log.Info(s);
+            if (verbose) log.Debug(s.TrimEnd());
+            else log.Info(s.TrimEnd());
         }
 
         public void HandleException(System.Exception ex) {
