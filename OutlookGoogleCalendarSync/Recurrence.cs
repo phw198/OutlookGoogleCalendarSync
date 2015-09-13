@@ -37,12 +37,17 @@ namespace OutlookGoogleCalendarSync {
             return gPattern;
         }
 
-        public void BuildOutlookPattern(ref Event ev, AppointmentItem ai) {
-            if (ev.Recurrence == null) return;
+        public void BuildOutlookPattern(Event ev, AppointmentItem ai) {
+            RecurrencePattern ignore;
+            BuildOutlookPattern(ev, ai, out ignore);
+        }
+
+        public void BuildOutlookPattern(Event ev, AppointmentItem ai, out RecurrencePattern oPattern) {
+            if (ev.Recurrence == null) { oPattern = null; return; }
 
             Dictionary<String, String> ruleBook = explodeRrule(ev.Recurrence);
             log.Fine("Building Outlook recurrence pattern");
-            RecurrencePattern oPattern = ai.GetRecurrencePattern();
+            oPattern = ai.GetRecurrencePattern();
             #region RECURRENCE PATTERN
             //RRULE:FREQ=WEEKLY;UNTIL=20150906T000000Z;BYDAY=SA
 
@@ -56,7 +61,6 @@ namespace OutlookGoogleCalendarSync {
                         // Need to work out dayMask from "BY" pattern
                         // Eg "BYDAY=MO,TU,WE,TH,FR"
                         oPattern.DayOfWeekMask = getDOWmask(ruleBook);
-
                         break;
                     }
                 case "MONTHLY": {
@@ -116,8 +120,39 @@ namespace OutlookGoogleCalendarSync {
                 oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture);
             #endregion
 
-            ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
-            ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+            ai = OutlookCalendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+        }
+
+        public void CompareOutlookPattern(Event ev, AppointmentItem ai, System.Text.StringBuilder sb, ref int itemModified) {
+            if (ev.Recurrence == null) return;
+
+            log.Fine("Building a temporary recurrent Appointment generated from Event");
+            AppointmentItem evAI = OutlookCalendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+            RecurrencePattern evOpattern;
+            RecurrencePattern aiOpattern = ai.GetRecurrencePattern();
+            BuildOutlookPattern(ev, evAI, out evOpattern);
+            log.Fine("Comparing Google recurrence to Outlook equivalent");
+
+            if (MainForm.CompareAttribute("Recurrence Type", Settings.Instance.SyncDirection,
+                evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
+                aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
+            }
+            if (MainForm.CompareAttribute("Recurrence Interval", Settings.Instance.SyncDirection,
+                evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
+                aiOpattern.Interval = evOpattern.Interval;
+            }
+            if (MainForm.CompareAttribute("Recurrence Instance", Settings.Instance.SyncDirection,
+                evOpattern.Instance.ToString(), aiOpattern.Instance.ToString(), sb, ref itemModified)) {
+                aiOpattern.Instance= evOpattern.Instance;
+            }
+            if (MainForm.CompareAttribute("Recurrence DoW", Settings.Instance.SyncDirection,
+                evOpattern.DayOfWeekMask.ToString(), aiOpattern.DayOfWeekMask.ToString(), sb, ref itemModified)) {
+                aiOpattern.DayOfWeekMask = evOpattern.DayOfWeekMask;
+            }
+            if (MainForm.CompareAttribute("Recurrence MoY", Settings.Instance.SyncDirection,
+                evOpattern.MonthOfYear.ToString(), aiOpattern.MonthOfYear.ToString(), sb, ref itemModified)) {
+                aiOpattern.MonthOfYear = evOpattern.MonthOfYear;
+            }
         }
 
         private String buildRrule(RecurrencePattern oPattern) {
@@ -254,45 +289,6 @@ namespace OutlookGoogleCalendarSync {
             //Need to add a day to date else Google is a day short compared to Outlook
             return dt.AddDays(1).ToString("yyyyMMddTHHmmssZ");
         }
-        public static String IANAtimezone(Microsoft.Office.Interop.Outlook.TimeZone oTZ) {
-            //Convert from Windows Timezone to Iana
-            //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
-            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
-            if (oTZ.ID.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + oTZ.Name + "\" mapped to \"Etc/UTC\"");
-                return "Etc/UTC";
-            }
-
-            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
-            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ.ID);
-            String tzID = tzDBsource.MapTimeZoneId(tzi);
-            log.Fine("Timezone \"" + oTZ.Name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
-            return tzDBsource.CanonicalIdMap[tzID];
-        }
-        public static Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
-            Microsoft.Office.Interop.Outlook.TimeZones tzs = OutlookCalendar.Instance.IOutlook.GetTimeZones();
-            var utcZones = new[] { "Etc/UTC", "Etc/UCT" };
-            if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
-                return tzs["UTC"];
-            }
-
-            var tzdbSource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
-            // resolve any link, since the CLDR doesn't necessarily use canonical IDs
-            var links = tzdbSource.CanonicalIdMap
-              .Where(x => x.Value.Equals(ianaZoneId, StringComparison.OrdinalIgnoreCase))
-              .Select(x => x.Key);
-            var mappings = tzdbSource.WindowsMapping.MapZones;
-            var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(links.Contains));
-            if (item == null) {
-
-                log.Warn("Timezone \"" + ianaZoneId + "\" could not find a mapping");
-                return null;
-            }
-            log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
-
-            return tzs[item.WindowsId];
-        }
         #endregion
 
         #region Exceptions
@@ -367,6 +363,25 @@ namespace OutlookGoogleCalendarSync {
             return null;
         }
 
+        public Event GetGoogleMasterEvent(AppointmentItem ai) {
+            log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookCalendar.GetEventSummary(ai));
+            List<Event> events = GoogleCalendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
+            List<AppointmentItem> ais = new List<AppointmentItem>();
+            ais.Add(ai);
+            GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
+            foreach (Event ev in events) {
+                if (ev.ExtendedProperties != null &&
+                    ev.ExtendedProperties.Private != null &&
+                    ev.ExtendedProperties.Private.ContainsKey(GoogleCalendar.oEntryID) &&
+                    ev.ExtendedProperties.Private[GoogleCalendar.oEntryID] == ai.EntryID) {
+                    log.Fine("Found master event.");
+                    return ev;
+                }
+            }
+            log.Warn("Failed to find master Google event for: " + OutlookCalendar.GetEventSummary(ai));
+            return null;
+        }
+
         public static void CreateGoogleExceptions(AppointmentItem ai, String recurringEventId) {
             if (!ai.IsRecurring) return;
 
@@ -405,6 +420,7 @@ namespace OutlookGoogleCalendarSync {
             if (ai.IsRecurring) {
                 RecurrencePattern recurrence = ai.GetRecurrencePattern();
                 if (recurrence.Exceptions.Count > 0) {
+                    log.Debug(OutlookCalendar.GetEventSummary(ai));
                     log.Debug("This is a recurring appointment with " + recurrence.Exceptions.Count + " exceptions that will now be iteratively compared.");
                     foreach (Microsoft.Office.Interop.Outlook.Exception oExcp in recurrence.Exceptions) {
                         int excp_itemModified = 0;
@@ -414,8 +430,7 @@ namespace OutlookGoogleCalendarSync {
                         try {
                             oExcp_date = oExcp.Deleted ? oExcp.OriginalDate : oExcp.AppointmentItem.Start;
                         } catch { }
-                        if (oExcp_date < DateTime.Today.AddDays(-Settings.Instance.DaysInThePast).Date ||
-                            oExcp_date > DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture).Date) {
+                        if (oExcp_date < Settings.Instance.SyncStart.Date || oExcp_date > Settings.Instance.SyncEnd.Date) {
                             log.Fine("Exception is outside date range being synced: " + oExcp_date.Date.ToString("dd/MM/yyyy"));
                             continue;
                         }

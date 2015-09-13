@@ -18,6 +18,8 @@ namespace OutlookGoogleCalendarSync {
         //Settings saved immediately
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
+        private DateTime syncStart;
+        private DateTime syncEnd;
         private DateTime lastSyncDate;
         private Int32 completedSyncs;
         private Boolean portable;
@@ -120,9 +122,25 @@ namespace OutlookGoogleCalendarSync {
         #endregion
         #region Sync Options
         //Main
+        private int daysInThePast;
+        private int daysInTheFuture;
+        public DateTime SyncStart { get { return this.syncStart; } }
+        public DateTime SyncEnd { get { return this.syncEnd; } }
         [DataMember] public SyncDirection SyncDirection { get; set; }
-        [DataMember] public int DaysInThePast { get; set; }
-        [DataMember] public int DaysInTheFuture { get; set; }
+        [DataMember] public int DaysInThePast {
+            get { return daysInThePast; }
+            set {
+                this.daysInThePast = value;
+                this.syncStart = DateTime.Today.AddDays(-value); 
+            } 
+        }
+        [DataMember] public int DaysInTheFuture {
+            get { return daysInTheFuture; }
+            set {
+                this.daysInTheFuture = value; 
+                this.syncEnd = DateTime.Today.AddDays(+value + 1);
+            }
+        }
         [DataMember] public int SyncInterval { get; set; }
         [DataMember] public String SyncIntervalUnit { get; set; }
         [DataMember] public bool OutlookPush { get; set; }

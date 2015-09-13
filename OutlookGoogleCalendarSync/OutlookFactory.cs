@@ -20,7 +20,6 @@ namespace OutlookGoogleCalendarSync {
         private const Boolean testing2003 = false;
 
         public static OutlookInterface getOutlookInterface() {
-            if (testing2003) outlookVersion = 11;
             if (OutlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {
@@ -31,7 +30,12 @@ namespace OutlookGoogleCalendarSync {
         private static void getOutlookVersion() {
             Microsoft.Office.Interop.Outlook.Application oApp = new Microsoft.Office.Interop.Outlook.Application();
             log.Info("Outlook Version: " + oApp.Version);
-            outlookVersionFull = oApp.Version;
+            if (testing2003) {
+                log.Info("*** 2003 TESTING ***");
+                outlookVersionFull = "11";
+            } else {
+                outlookVersionFull = oApp.Version;
+            }
             outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
         }
     }

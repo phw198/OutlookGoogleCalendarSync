@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using Google.Apis.Calendar.v3.Data;
+using NodaTime;
 
 namespace OutlookGoogleCalendarSync {
     class OutlookOld : OutlookInterface {
@@ -29,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
             //If 1< profile, a dialogue is forced unless implicit login used
             exchangeConnectionMode = oNS.ExchangeConnectionMode;
             if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
-                log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
+                log.Info("Exchange server version: Unknown");
             }
             log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
             
@@ -78,9 +80,6 @@ namespace OutlookGoogleCalendarSync {
         public OlExchangeConnectionMode ExchangeConnectionMode() {
             return exchangeConnectionMode;
         }
-        public Microsoft.Office.Interop.Outlook.TimeZones GetTimeZones() {
-            return oApp.TimeZones;
-        }
         private const String gEventID = "googleEventID";
 
         private MAPIFolder getDefaultCalendar(NameSpace oNS) {
@@ -103,7 +102,7 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
                     defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
                     calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
-                    findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, defaultCalendar);
+                    findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, defaultCalendar);
                 }
 
             } else {
@@ -444,6 +443,48 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         #endregion
-        
+
+        #region TimeZone Stuff
+        public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
+            ev.Start.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
+            ev.End.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
+            return ev;
+        }
+
+        private String IANAtimezone(String oTZ_id, String oTZ_name) {
+            //Convert from Windows Timezone to Iana
+            //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
+            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
+            if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
+                log.Fine("Windows Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                return "Etc/UTC";
+            }
+
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
+            String tzID = tzDBsource.MapTimeZoneId(tzi);
+            log.Fine("Windows Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
+            return tzDBsource.CanonicalIdMap[tzID];
+        }
+
+        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
+            ai.Start = WindowsTimeZone(ev.Start);
+            ai.End = WindowsTimeZone(ev.End);
+            return ai;
+        }
+
+        private DateTime WindowsTimeZone(EventDateTime time) {
+            DateTime theDate = DateTime.Parse(time.DateTime ?? time.Date);
+            if (time.TimeZone == null) return theDate;
+
+            LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);
+            DateTimeZone zone = DateTimeZoneProviders.Tzdb[time.TimeZone];
+            ZonedDateTime zonedTime = local.InZoneLeniently(zone);
+            DateTime foo = zonedTime.ToDateTimeUtc();
+            log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ foo.ToString("dd/MM/yyyy HH:mm:ss"));
+            return foo;
+        }
+        #endregion
+
     }
 }

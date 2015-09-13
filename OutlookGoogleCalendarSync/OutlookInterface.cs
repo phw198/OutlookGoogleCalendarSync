@@ -18,6 +18,8 @@ namespace OutlookGoogleCalendarSync {
 
         String GetRecipientEmail(Recipient recipient);
         OlExchangeConnectionMode ExchangeConnectionMode();
-        TimeZones GetTimeZones();
+
+        Event IANAtimezone_set(Event ev, AppointmentItem ai);
+        AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev);
     }
 }

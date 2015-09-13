@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
     class OutlookNew : OutlookInterface {
@@ -96,9 +98,6 @@ namespace OutlookGoogleCalendarSync {
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
             return exchangeConnectionMode;
-        }
-        public Microsoft.Office.Interop.Outlook.TimeZones GetTimeZones() {
-            return oApp.TimeZones;
         }
 
         private const String gEventID = "googleEventID";
@@ -248,6 +247,62 @@ namespace OutlookGoogleCalendarSync {
             EmailAddress.IsValidEmail(retEmail);
             return retEmail;
         }
-        
+
+        #region TimeZone Stuff
+        public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
+            ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
+            ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+            return ev;
+        }
+
+        private String IANAtimezone(String oTZ_id, String oTZ_name) {
+            //Convert from Windows Timezone to Iana
+            //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
+            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
+            if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
+                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                return "Etc/UTC";
+            }
+
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
+            String tzID = tzDBsource.MapTimeZoneId(tzi);
+            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
+            return tzDBsource.CanonicalIdMap[tzID];
+        }
+
+        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
+            ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
+            ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+            ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
+            ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+            return ai;
+        }
+
+        private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
+            Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
+            var utcZones = new[] { "Etc/UTC", "Etc/UCT" };
+            if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
+                log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
+                return tzs["UTC"];
+            }
+
+            var tzdbSource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            // resolve any link, since the CLDR doesn't necessarily use canonical IDs
+            var links = tzdbSource.CanonicalIdMap
+              .Where(x => x.Value.Equals(ianaZoneId, StringComparison.OrdinalIgnoreCase))
+              .Select(x => x.Key);
+            var mappings = tzdbSource.WindowsMapping.MapZones;
+            var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(links.Contains));
+            if (item == null) {
+
+                log.Warn("Timezone \"" + ianaZoneId + "\" could not find a mapping");
+                return null;
+            }
+            log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
+
+            return tzs[item.WindowsId];
+        }
+        #endregion
     }
 }

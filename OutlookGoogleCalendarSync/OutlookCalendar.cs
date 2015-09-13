@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Google.Apis.Calendar.v3.Data;
+using log4net;
+using Microsoft.Office.Interop.Outlook;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using Google.Apis.Calendar.v3.Data;
-using log4net;
-using Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -167,12 +167,12 @@ namespace OutlookGoogleCalendarSync {
             List<AppointmentItem> result = new List<AppointmentItem>();
             log.Fine(OutlookItems.Count + " calendar items exist.");
 
-            OutlookItems.Sort("[Start]", Type.Missing);
+            //OutlookItems.Sort("[Start]", Type.Missing);
             OutlookItems.IncludeRecurrences = false;
 
             if (OutlookItems != null) {
-                DateTime min = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
-                DateTime max = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
+                DateTime min = Settings.Instance.SyncStart;
+                DateTime max = Settings.Instance.SyncEnd;
                 
                 string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
                 log.Fine("Filter string: " + filter);
@@ -250,18 +250,9 @@ namespace OutlookGoogleCalendarSync {
 
             ai.Start = new DateTime();
             ai.End = new DateTime();
-
-            if (ev.Start.Date != null) {
-                ai.AllDayEvent = true;
-                ai.Start = DateTime.Parse(ev.Start.Date);
-                ai.End = DateTime.Parse(ev.End.Date);
-            } else {
-                ai.AllDayEvent = false;
-                ai.Start = DateTime.Parse(ev.Start.DateTime);
-                ai.End = DateTime.Parse(ev.End.DateTime);
-            }
-
-            Recurrence.Instance.BuildOutlookPattern(ref ev, ai);
+            ai.AllDayEvent = (ev.Start.Date != null);
+            ai = OutlookCalendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+            Recurrence.Instance.BuildOutlookPattern(ev, ai);
             
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
@@ -342,7 +333,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                     if (!aiWasRecurring && ai.IsRecurring) {
                         log.Debug("Appointment has changed from single instance to recurring, so exceptions may need processing.");
-                        Recurrence.Instance.CreateOutlookExceptions(ai, compare.Value);
+                        Recurrence.Instance.UpdateOutlookExceptions(ai, compare.Value);
                     }
                 } else if (ai != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date.");
@@ -377,26 +368,34 @@ namespace OutlookGoogleCalendarSync {
             sb.AppendLine(evSummary);
 
             if (ev.Start.Date != null) {
-                ai.AllDayEvent = true;
+                RecurrencePattern oPattern = ai.GetRecurrencePattern();
+                if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = true;
                 if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook, ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
-                    ai.Start = DateTime.Parse(ev.Start.Date);
+                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternStartDate = DateTime.Parse(ev.Start.Date);
+                    else ai.Start = DateTime.Parse(ev.Start.Date);
                 }
                 if (MainForm.CompareAttribute("End time", SyncDirection.GoogleToOutlook, ev.End.Date, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
-                    ai.End = DateTime.Parse(ev.End.Date);
+                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternEndDate = DateTime.Parse(ev.End.Date);
+                    else ai.End = DateTime.Parse(ev.End.Date);
                 }
             } else {
-                ai.AllDayEvent = false;
+                RecurrencePattern oPattern = ai.GetRecurrencePattern();
+                if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = false;
                 if (MainForm.CompareAttribute("Start time",
                     SyncDirection.GoogleToOutlook,
                     GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime)),
-                    GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
-                    ai.Start = DateTime.Parse(ev.Start.DateTime);
+                    GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) 
+                {
+                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternStartDate = DateTime.Parse(ev.Start.DateTime);
+                    else ai.Start = DateTime.Parse(ev.Start.DateTime);
                 }
                 if (MainForm.CompareAttribute("End time",
                     SyncDirection.GoogleToOutlook,
                     GoogleCalendar.GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)),
-                    GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
-                    ai.End = DateTime.Parse(ev.End.DateTime);
+                    GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) 
+                {
+                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternEndDate = DateTime.Parse(ev.End.DateTime);
+                    else ai.End = DateTime.Parse(ev.End.DateTime);
                 }
             }
 
@@ -406,6 +405,7 @@ namespace OutlookGoogleCalendarSync {
                     ai.ClearRecurrencePattern();
                     itemModified++;
                 } else {
+                    Recurrence.Instance.CompareOutlookPattern(ev, ai, sb, ref itemModified);
                     Recurrence.Instance.UpdateOutlookExceptions(ai, ev);
                 }
             } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {

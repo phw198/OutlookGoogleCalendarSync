@@ -139,19 +139,23 @@ namespace OutlookGoogleCalendarSync {
                 log.Error(ex.Message);
                 return null;
             }
-        }            
+        }
 
         public List<Event> GetCalendarEntriesInRange() {
+            return GetCalendarEntriesInRange(Settings.Instance.SyncStart, Settings.Instance.SyncEnd);
+        }
+
+        public List<Event> GetCalendarEntriesInRange(DateTime from, DateTime to) {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
 
             do {
-                log.Debug("Retrieving all events in sync date range from Google.");
+                log.Debug("Retrieving all events from Google: "+ from.ToShortDateString() +" -> "+ to.ToShortDateString());
                 EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
-                lr.TimeMin = GoogleTimeFrom(DateTime.Today.AddDays(-Settings.Instance.DaysInThePast));
-                lr.TimeMax = GoogleTimeFrom(DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1));
+                lr.TimeMin = GoogleTimeFrom(from);
+                lr.TimeMax = GoogleTimeFrom(to);
                 lr.PageToken = pageToken;
                 lr.SingleEvents = false;
                 
@@ -244,8 +248,7 @@ namespace OutlookGoogleCalendarSync {
 
             ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             if (ev.Recurrence != null) {
-                ev.Start.TimeZone = Recurrence.IANAtimezone(ai.StartTimeZone);
-                ev.End.TimeZone = Recurrence.IANAtimezone(ai.EndTimeZone);
+                ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
             }
                             
             if (ai.AllDayEvent) {
@@ -430,8 +433,13 @@ namespace OutlookGoogleCalendarSync {
                     String rrule = ev.Recurrence[r];
                     if (rrule.StartsWith("RRULE:")) {
                         if (oRrules != null) {
-                            if (MainForm.CompareAttribute("Recurrence", SyncDirection.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                ev.Recurrence[r] = oRrules.First();
+                            String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
+                            foreach (String oRrule_bit in oRrule_bits) {
+                                if (!rrule.Contains(oRrule_bit)) {
+                                    if (MainForm.CompareAttribute("Recurrence", SyncDirection.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                        ev.Recurrence[r] = oRrules.First();
+                                    }
+                                }
                             }
                         } else {
                             log.Debug("Converting to non-recurring event.");
@@ -448,9 +456,8 @@ namespace OutlookGoogleCalendarSync {
                     ev.Recurrence = oRrules;
                 }
             }
-            ev.Start.TimeZone = Recurrence.IANAtimezone(ai.StartTimeZone);
-            ev.End.TimeZone = Recurrence.IANAtimezone(ai.EndTimeZone);
-
+            ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+            
             String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
@@ -609,7 +616,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments) {
+        public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             log.Debug("Looking for orphaned events to reclaim...");
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
@@ -636,10 +643,7 @@ namespace OutlookGoogleCalendarSync {
                                 sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
                         }
                         if (sigEv == sigAi) {                            
-                            if (ai.IsRecurring)
-                                GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID + "_" + ai.Start.ToString("yyyyMMdd"));
-                            else
-                                GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID);
+                            GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID);
                             UpdateCalendarEntry_save(ev);
                             unclaimedEvents.Remove(ev);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
@@ -648,9 +652,10 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
-            if ((Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle ||
-                    Settings.Instance.SyncDirection == SyncDirection.Bidirectional ) &&
-                unclaimedEvents.Count > 0) 
+            log.Debug(unclaimedEvents.Count + " unclaimed.");
+            if (!neverDelete && unclaimedEvents.Count > 0 &&
+                (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle ||
+                 Settings.Instance.SyncDirection == SyncDirection.Bidirectional )) 
             {
                 log.Info(unclaimedEvents.Count +" unclaimed orphan events found.");
                 if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
@@ -768,14 +773,14 @@ namespace OutlookGoogleCalendarSync {
         
         public static string signature(Event ev) {
             String signature = "";
-            signature += (ev.Start.DateTime == null) ? 
-                GoogleTimeFrom(DateTime.Parse(ev.Start.Date)) :
-                GoogleTimeFrom(DateTime.Parse(ev.Start.DateTime));
-            signature += ";" + ((ev.End.DateTime == null) ?
-                GoogleTimeFrom(DateTime.Parse(ev.End.Date)) :
-                GoogleTimeFrom(DateTime.Parse(ev.End.DateTime)));
-            signature += ";" + ev.Summary;
-            
+            if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
+                signature += GoogleTimeFrom(DateTime.Parse(ev.OriginalStartTime.Date ?? ev.OriginalStartTime.DateTime));
+                signature += ";" + (ev.Summary ?? "[cancelled]");
+            } else {
+                signature += GoogleTimeFrom(DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime));
+                signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.End.Date ?? ev.End.DateTime));
+                signature += ";" + ev.Summary;
+            }
             return signature.Trim();
         }
 

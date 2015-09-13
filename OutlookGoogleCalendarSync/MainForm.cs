@@ -420,8 +420,8 @@ namespace OutlookGoogleCalendarSync {
             DateTime SyncStarted = DateTime.Now;
             log.Info("Sync version: " + System.Windows.Forms.Application.ProductVersion);
             Logboxout("Sync started at " + SyncStarted.ToString());
-            Logboxout("Syncing from "+ DateTime.Today.AddDays(-Settings.Instance.DaysInThePast).ToShortDateString() +
-                " to "+ DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture+1).ToShortDateString());
+            Logboxout("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
+                " to " + Settings.Instance.SyncEnd.ToShortDateString());
             Logboxout(Settings.Instance.SyncDirection.Name);
             Logboxout("--------------------------------------------------");
 
@@ -492,9 +492,9 @@ namespace OutlookGoogleCalendarSync {
         private Boolean synchronize() {
             #region Read Outlook items
             Logboxout("Reading Outlook Calendar Entries...");
-            List<AppointmentItem> OutlookEntries = null;
+            List<AppointmentItem> outlookEntries = null;
             try {
-                OutlookEntries = OutlookCalendar.Instance.getCalendarEntriesInRange();
+                outlookEntries = OutlookCalendar.Instance.getCalendarEntriesInRange();
             } catch (System.Exception ex) {
                 Logboxout("Unable to access the Outlook calendar. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Retry later.");
@@ -502,7 +502,7 @@ namespace OutlookGoogleCalendarSync {
                 try { OutlookCalendar.Instance.Reset(); } catch { }
                 return false;
             }
-            Logboxout(OutlookEntries.Count + " Outlook calendar entries found.");
+            Logboxout(outlookEntries.Count + " Outlook calendar entries found.");
             Logboxout("--------------------------------------------------");
             #endregion
 
@@ -531,16 +531,40 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.");
             Logboxout("--------------------------------------------------");
             #endregion
+            
+            //Outlook returns recurring items that span the sync date range, Google doesn't
+            //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
+            for (int o = outlookEntries.Count - 1; o >= 0; o--) {
+                AppointmentItem ai = outlookEntries[o];
+                if (ai.IsRecurring && ai.Start.Date < Settings.Instance.SyncStart && ai.End.Date < Settings.Instance.SyncStart) {
+                    //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
+                    //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
+                    RecurrencePattern oPattern = ai.GetRecurrencePattern();
+                    if (oPattern.RecurrenceType.ToString().Contains("Yearly") &&
+                        (ai.Start.Month < Settings.Instance.SyncStart.Month || ai.Start.Month > Settings.Instance.SyncEnd.Month)) {
+                        outlookEntries.Remove(outlookEntries[o]);
+                    } else {
+                        Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                        if (masterEv != null) {
+                            Boolean alreadyCached = false;
+                            foreach (Event ev in googleEntries) {
+                                if (ev.Id == masterEv.Id) { alreadyCached = true; break; }
+                            }
+                            if (!alreadyCached) googleEntries.Add(masterEv);
+                        }
+                    }
+                }
+            }
 
             Boolean success = true;
             String bubbleText = "";
             if (Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook) {
-                success = sync_outlookToGoogle(OutlookEntries, googleEntries, ref bubbleText);
+                success = sync_outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
             }
             if (!success) return false;
             if (Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) {
                 if (bubbleText != "") bubbleText += "\r\n";
-                success = sync_googleToOutlook(googleEntries, OutlookEntries, ref bubbleText);
+                success = sync_googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
             }
             if (bubbleText != "") showBubbleInfo(bubbleText);
             return success;
