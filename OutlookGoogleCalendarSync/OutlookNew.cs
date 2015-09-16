@@ -59,7 +59,12 @@ namespace OutlookGoogleCalendarSync {
             accounts = oNS.Accounts;
             
             // Get the Calendar folders
-            useOutlookCalendar = getDefaultCalendar(oNS);
+            if (!MainForm.Instance.IsHandleCreated) //Bootstrapping
+                useOutlookCalendar = getDefaultCalendar(oNS);
+            else { //resetting connection
+                KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
+                useOutlookCalendar = calendar.Value;
+            }
 
             // Done. Log off.
             oNS.Logoff();
@@ -152,7 +157,7 @@ namespace OutlookGoogleCalendarSync {
                     }
 
                 } catch (System.Exception ex) {
-                    if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") &&
+                    if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
                         ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")) {
                             log.Info("Currently disconnected from Exchange - unable to retreive MAPI folders.");
                         MainForm.Instance.ToolTips.SetToolTip(MainForm.Instance.cbOutlookCalendars,

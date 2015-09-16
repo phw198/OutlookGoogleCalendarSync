@@ -325,10 +325,8 @@ namespace OutlookGoogleCalendarSync {
             entriesUpdated = 0;
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 int itemModified = 0;
-                Boolean evWasRecurring = (compare.Value.Recurrence != null);
                 Event ev = new Event();
                 try {
-                    Recurrence.UpdateGoogleExceptions(compare.Key, compare.Value);                    
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
                     if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(compare.Key));
@@ -363,15 +361,13 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
                     }
-                    if (!evWasRecurring && ev.Recurrence != null) {
-                        log.Debug("Event has changed from single instance to recurring, so exceptions may need processing.");
-                        Recurrence.UpdateGoogleExceptions(compare.Key, ev);
-                    }
                 } else if (ev != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date.");
                     addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
                     UpdateCalendarEntry_save(ev);
                 }
+
+                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);  
             }
         }
 

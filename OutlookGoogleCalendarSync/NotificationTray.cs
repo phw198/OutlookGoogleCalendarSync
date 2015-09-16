@@ -16,7 +16,9 @@ namespace OutlookGoogleCalendarSync {
             this.icon = icon;
             this.icon.ContextMenuStrip = new ContextMenuStrip();
             this.icon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-            this.icon.DoubleClick += notifyIcon_DoubleClick;
+            this.icon.MouseClick += notifyIcon_Click;
+            this.icon.MouseDoubleClick += notifyIcon_DoubleClick;
+            this.icon.BalloonTipClicked += notifyIcon_BubbleClick;
             this.icon.Visible = true;
             buildMenu();
         }
@@ -24,11 +26,11 @@ namespace OutlookGoogleCalendarSync {
         private void buildMenu() {
             this.icon.ContextMenuStrip.Items.Clear();
 
-            this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("&Sync Now", "sync", syncItem_Click));
-
-            ToolStripMenuItem cfg = toolStripMenuItemWithHandler("Sho&w", "show", showItem_Click);
+            ToolStripMenuItem cfg = toolStripMenuItemWithHandler("&Sync Now", "sync", syncItem_Click);
             cfg.Font = new System.Drawing.Font(cfg.Font, System.Drawing.FontStyle.Bold);
             this.icon.ContextMenuStrip.Items.Add(cfg);
+            
+            this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("Sho&w", "show", showItem_Click));
 
             this.icon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("&Exit", "exit", exitItem_Click));
@@ -61,41 +63,32 @@ namespace OutlookGoogleCalendarSync {
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e) {
             e.Cancel = false;
             this.icon.ContextMenuStrip.Show();
-            //buildMenu();
-
-            //menuBuilder.BuildContextMenu(LyncLyteTrayIcon.ContextMenuStrip);
-            //LyncLyteTrayIcon.ContextMenuStrip.Items.Add(menuBuilder.ToolStripMenuItemWithHandler("Connect to Lync Client", "connect", findLync_Click));
-            //LyncLyteTrayIcon.ContextMenuStrip.Items.Add(menuBuilder.ToolStripMenuItemWithHandler("&Find LyncLyte(s)", "find", findLyte_Click));
-
-            //ToolStripMenuItem cfg = menuBuilder.ToolStripMenuItemWithHandler("&Configure LyncLyte", "config", showConfig_Click);
-            //cfg.Font = new System.Drawing.Font(cfg.Font, System.Drawing.FontStyle.Bold);
-            //LyncLyteTrayIcon.ContextMenuStrip.Items.Add(cfg);
-
-            //ToolStripMenuItem manualColours = new ToolStripMenuItem("&Set Colour");
-            //manualColours.DropDownDirection = (ToolStripDropDownDirection.Left);
-            //manualColours.DropDown.Items.AddRange(new ToolStripItem[] {
-            //    menuBuilder.ToolStripMenuItemWithHandler("Available", "Available", setColourAvailable_Click),
-            //    menuBuilder.ToolStripMenuItemWithHandler("Away", "Away", setColourAway_Click),
-            //    menuBuilder.ToolStripMenuItemWithHandler("Busy", "Busy", setColourBusy_Click),
-            //    menuBuilder.ToolStripMenuItemWithHandler("Do not disturb", "DND", setColourDND_Click),
-            //    menuBuilder.ToolStripMenuItemWithHandler("Reset", setColourReset_Click)
-            //});
-
-            //LyncLyteTrayIcon.ContextMenuStrip.Items.AddRange(
-            //    new ToolStripItem[] {
-            //        manualColours
-            //    });
         }
 
         private void syncItem_Click(object sender, EventArgs e) {
-            MainForm.Instance.bSyncNow.PerformClick();
+            MainForm.Instance.Sync_Requested();
         }
 
         private void showItem_Click(object sender, EventArgs e) {
             MainForm.Instance.MainFormShow();
         }
-        private void notifyIcon_DoubleClick(object sender, EventArgs e) { 
-            MainForm.Instance.MainFormShow(); 
+        
+        private void notifyIcon_Click(object sender, MouseEventArgs e) { 
+            if (e.Button == MouseButtons.Left)
+                MainForm.Instance.MainFormShow(); 
+        }
+        private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Left)
+                MainForm.Instance.Sync_Requested();
+        }
+
+        private void notifyIcon_BubbleClick(object sender, EventArgs e) {
+            NotifyIcon notifyIcon = (sender as NotifyIcon);
+            if (notifyIcon.Tag == "ShowBubbleWhenMinimising") {
+                Settings.Instance.ShowBubbleWhenMinimising = false;
+                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile); 
+                notifyIcon.Tag = "";
+            }
         }
 
         private void exitItem_Click(object sender, EventArgs e) {

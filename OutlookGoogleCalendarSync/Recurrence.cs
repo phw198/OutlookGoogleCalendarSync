@@ -27,7 +27,7 @@ namespace OutlookGoogleCalendarSync {
         #region iCalendar Functions
         private Dictionary<String, String> rrule = new Dictionary<String, String>();
         public List<String> BuildGooglePattern(AppointmentItem ai, Event ev) {
-            if (!ai.IsRecurring) return null;
+            if (!ai.IsRecurring || ai.RecurrenceState != OlRecurrenceState.olApptMaster) return null;
 
             log.Debug("Creating Google iCalendar definition for recurring event.");
             List<String> gPattern = new List<String>();
@@ -334,19 +334,25 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Event GetGoogleInstance(Microsoft.Office.Interop.Outlook.Exception oExcp, String gRecurringEventID, String oEntryID) {
+            log.Debug("Finding Google instance for "+ (oExcp.Deleted ? "deleted " : "") + "Outlook exception:-");
+            log.Debug("  Original date: " + oExcp.OriginalDate.ToString("dd/MM/yyyy"));
             try {
-                log.Debug("Finding Google instance for " + oExcp.AppointmentItem.Start.ToString("dd/MM/yyyy"));
+                if (!oExcp.Deleted) log.Debug("  Current  date: " + oExcp.AppointmentItem.Start.ToString("dd/MM/yyyy"));
             } catch (System.Exception ex) {
                 if (ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") {
                     log.Debug("This Outlook recurrence instance has been deleted, but the API is reporting it incorrectly!");
-                    log.Debug("Finding Google instance for " + oExcp.OriginalDate.ToString("dd/MM/yyyy"));
                 }
             }
             foreach (Event gExcp in googleExceptions) {
-                if (gExcp.Status != "cancelled" &&
-                    oEntryID == gExcp.ExtendedProperties.Private[GoogleCalendar.oEntryID] &&
-                    GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == (gExcp.OriginalStartTime.DateTime ?? gExcp.OriginalStartTime.Date)) {
-                    return gExcp;
+                if (gExcp.RecurringEventId == gRecurringEventID) {
+                    if ((!oExcp.Deleted &&
+                        GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == (gExcp.OriginalStartTime.Date ?? gExcp.OriginalStartTime.DateTime)
+                        ) ||
+                        (oExcp.Deleted &&
+                        GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == (gExcp.OriginalStartTime.Date ?? GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gExcp.OriginalStartTime.DateTime).Date))
+                        )) {
+                        return gExcp;
+                    }
                 }
             }
             log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
@@ -355,9 +361,15 @@ namespace OutlookGoogleCalendarSync {
             googleExceptions = googleExceptions.Union(gInstances.Where(ev => ev.Sequence > 0)).ToList();
 
             foreach (Event gInst in gInstances) {
-                if (gInst.Status != "cancelled" &&
-                    (gInst.OriginalStartTime.DateTime ?? gInst.OriginalStartTime.Date) == GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate)) {
-                    return gInst;
+                if (gInst.RecurringEventId == gRecurringEventID) {
+                    if ((!oExcp.Deleted &&
+                        GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gInst.OriginalStartTime.Date ?? gInst.OriginalStartTime.DateTime))
+                        ) ||
+                        (oExcp.Deleted &&
+                        GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gInst.OriginalStartTime.Date ?? gInst.OriginalStartTime.DateTime).Date)
+                        )) {
+                        return gInst;
+                    }
                 }
             }
             return null;
@@ -425,33 +437,38 @@ namespace OutlookGoogleCalendarSync {
                     foreach (Microsoft.Office.Interop.Outlook.Exception oExcp in recurrence.Exceptions) {
                         int excp_itemModified = 0;
 
-                        //Check the exception fall in the date range being synced
-                        DateTime oExcp_date = oExcp.OriginalDate;
-                        try {
-                            oExcp_date = oExcp.Deleted ? oExcp.OriginalDate : oExcp.AppointmentItem.Start;
-                        } catch { }
-                        if (oExcp_date < Settings.Instance.SyncStart.Date || oExcp_date > Settings.Instance.SyncEnd.Date) {
-                            log.Fine("Exception is outside date range being synced: " + oExcp_date.Date.ToString("dd/MM/yyyy"));
+                        //Check the exception falls in the date range being synced
+                        DateTime oExcp_currDate = oExcp.Deleted ? oExcp.OriginalDate : oExcp.AppointmentItem.Start;
+                        if (oExcp_currDate < Settings.Instance.SyncStart.Date || oExcp_currDate > Settings.Instance.SyncEnd.Date) {
+                            log.Fine("Exception is outside date range being synced: " + oExcp_currDate.Date.ToString("dd/MM/yyyy"));
                             continue;
                         }
 
                         Event gExcp = Recurrence.Instance.GetGoogleInstance(oExcp, ev.RecurringEventId ?? ev.Id, ai.EntryID);
                         if (gExcp != null) {
                             log.Debug("Matching Google Event recurrence found.");
+                            if (gExcp.Status == "cancelled") {
+                                log.Debug("It is deleted in Google, so cannot compare items.");
+                                if (!oExcp.Deleted) log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow");
+                                continue;
+                            }
                             try {
                                 GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, gExcp, ref excp_itemModified, forceCompare: true);
                             } catch (System.Exception ex) {
-                                if (oExcp.Deleted || ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") {
-                                    gExcp.Status = "cancelled";
-                                    excp_itemModified++;
+                                if (oExcp.Deleted) {
+                                    if (gExcp.Status != "cancelled") {
+                                        gExcp.Status = "cancelled";
+                                        excp_itemModified++;
+                                    }
+                                } else {
+                                    throw ex;
                                 }
                             }
                             if (excp_itemModified > 0) GoogleCalendar.Instance.UpdateCalendarEntry_save(gExcp);
 
                         } else {
                             log.Debug("No matching Google Event recurrence found.");
-                            log.Debug("This may be because the appointment is changing from single instance to recurring, or it has been deleted.");
-                            log.Debug("Either way, don't worry...!");
+                            if (oExcp.Deleted) log.Debug("The Outlook appointment is deleted, so not a problem.");
                         }
                     }
                 }

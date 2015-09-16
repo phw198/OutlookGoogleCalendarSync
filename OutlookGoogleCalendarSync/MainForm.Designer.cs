@@ -300,6 +300,7 @@
             // 
             // tabPage_Settings
             // 
+            this.tabPage_Settings.BackColor = System.Drawing.Color.White;
             this.tabPage_Settings.Controls.Add(this.lSettingInfo);
             this.tabPage_Settings.Controls.Add(this.tabAppSettings);
             this.tabPage_Settings.Controls.Add(this.bSave);
@@ -309,7 +310,6 @@
             this.tabPage_Settings.Size = new System.Drawing.Size(487, 542);
             this.tabPage_Settings.TabIndex = 1;
             this.tabPage_Settings.Text = "Settings";
-            this.tabPage_Settings.UseVisualStyleBackColor = true;
             // 
             // lSettingInfo
             // 
@@ -346,7 +346,7 @@
             // 
             // tabOutlook
             // 
-            this.tabOutlook.BackColor = System.Drawing.Color.Transparent;
+            this.tabOutlook.BackColor = System.Drawing.Color.White;
             this.tabOutlook.Controls.Add(this.label11);
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
             this.tabOutlook.Controls.Add(this.cbOutlookCalendars);
@@ -361,7 +361,6 @@
             this.tabOutlook.Size = new System.Drawing.Size(392, 462);
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
-            this.tabOutlook.UseVisualStyleBackColor = true;
             // 
             // label11
             // 

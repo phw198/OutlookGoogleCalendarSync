@@ -17,7 +17,12 @@ namespace OutlookGoogleCalendarSync {
         
         public static OutlookCalendar Instance {
             get {
-                if (instance == null) instance = new OutlookCalendar();
+                try {
+                    if (instance == null || instance.Accounts == null) instance = new OutlookCalendar();
+                } catch {
+                    log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
+                    instance = new OutlookCalendar();
+                }
                 return instance;
             }
         }

@@ -51,6 +51,23 @@ namespace OutlookGoogleCalendarSync {
             ogcsTimer.Tag = "AutoSyncTimer";
             ogcsTimer.Tick += new EventHandler(ogcsTimer_Tick);
 
+            //Refresh synchronizations (last and next)
+            lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
+            setNextSync(getResyncInterval());
+
+            //Set up listener for Outlook calendar changes
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
+
+            //Start in tray?
+            if (cbStartInTray.Checked) {
+                this.WindowState = FormWindowState.Minimized;
+                this.Hide();
+                this.ShowInTaskbar = false;
+            }
+        }
+
+        private void updateGUIsettings() {
+            this.SuspendLayout();
             #region Tooltips
             //set up tooltips for some controls
             ToolTips = new ToolTip();
@@ -91,23 +108,6 @@ namespace OutlookGoogleCalendarSync {
                 "If IE settings have been changed, a restart of the Sync application may be required");
             #endregion
 
-            //Refresh synchronizations (last and next)
-            lLastSyncVal.Text = lastSyncDate.ToLongDateString() + " - " + lastSyncDate.ToLongTimeString();
-            setNextSync(getResyncInterval());
-
-            //Set up listener for Outlook calendar changes
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
-
-            //Start in tray?
-            if (cbStartInTray.Checked) {
-                this.WindowState = FormWindowState.Minimized;
-                this.Hide();
-                this.ShowInTaskbar = false;
-            }
-        }
-
-        private void updateGUIsettings() {
-            this.SuspendLayout();
             lastSyncDate = Settings.Instance.LastSyncDate;
             cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             #region Outlook box
@@ -362,8 +362,11 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         private void sync_Click(object sender, EventArgs e) {
+            Sync_Requested(sender, e);
+        }
+        public void Sync_Requested(object sender = null, EventArgs e = null) {
             if (bSyncNow.Text == "Start Sync") {
-                if (sender.GetType().ToString().EndsWith("Timer")) {
+                if (sender != null && sender.GetType().ToString().EndsWith("Timer")) {
                     log.Debug("Scheduled sync started.");
                     Timer aTimer = sender as Timer;
                     if (aTimer.Tag.ToString() == "PushTimer") sync_Start(updateSyncSchedule: false);
@@ -531,7 +534,8 @@ namespace OutlookGoogleCalendarSync {
                 Logboxout(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.");
             Logboxout("--------------------------------------------------");
             #endregion
-            
+
+            Logboxout("Total inc. recurring items spanning sync date range...");
             //Outlook returns recurring items that span the sync date range, Google doesn't
             //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
             for (int o = outlookEntries.Count - 1; o >= 0; o--) {
@@ -540,7 +544,7 @@ namespace OutlookGoogleCalendarSync {
                     //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                     //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                     RecurrencePattern oPattern = ai.GetRecurrencePattern();
-                    if (oPattern.RecurrenceType.ToString().Contains("Yearly") &&
+                    if (oPattern.RecurrenceType.ToString().Contains("Year") &&
                         (ai.Start.Month < Settings.Instance.SyncStart.Month || ai.Start.Month > Settings.Instance.SyncEnd.Month)) {
                         outlookEntries.Remove(outlookEntries[o]);
                     } else {
@@ -555,6 +559,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
+            Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
+            Logboxout("--------------------------------------------------");
 
             Boolean success = true;
             String bubbleText = "";
@@ -846,15 +852,17 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void MainFormShow() {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = true;
+            this.WindowState = FormWindowState.Normal;
         }
 
         private void mainFormResize(object sender, EventArgs e) {
             if (cbMinimiseToTray.Checked && this.WindowState == FormWindowState.Minimized) {
-                this.Hide();
                 this.ShowInTaskbar = false;
+                if (Settings.Instance.ShowBubbleWhenMinimising) {
+                    showBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.");
+                    trayIcon.Tag = "ShowBubbleWhenMinimising";
+                }
             }
         }
 
