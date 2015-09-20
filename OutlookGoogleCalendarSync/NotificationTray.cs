@@ -84,7 +84,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            if (notifyIcon.Tag == "ShowBubbleWhenMinimising") {
+            if (notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
                 Settings.Instance.ShowBubbleWhenMinimising = false;
                 XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile); 
                 notifyIcon.Tag = "";

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Google.Apis.Calendar.v3.Data;
+using log4net;
+using Microsoft.Office.Interop.Outlook;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Net;
+using System.Linq;
 using System.Windows.Forms;
-using Google.Apis.Calendar.v3.Data;
-using log4net;
-using Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -58,11 +58,9 @@ namespace OutlookGoogleCalendarSync {
             //Set up listener for Outlook calendar changes
             if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
 
-            //Start in tray?
-            if (cbStartInTray.Checked) {
+            if (Settings.Instance.StartInTray) {
+                this.CreateHandle();
                 this.WindowState = FormWindowState.Minimized;
-                this.Hide();
-                this.ShowInTaskbar = false;
             }
         }
 
@@ -557,6 +555,7 @@ namespace OutlookGoogleCalendarSync {
                             if (!alreadyCached) googleEntries.Add(masterEv);
                         }
                     }
+                    oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
                 }
             }
             Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
@@ -573,6 +572,11 @@ namespace OutlookGoogleCalendarSync {
                 success = sync_googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
             }
             if (bubbleText != "") showBubbleInfo(bubbleText);
+
+            for (int o = outlookEntries.Count() - 1; o >= 0; o--) {
+                outlookEntries[o] = (AppointmentItem)OutlookCalendar.ReleaseObject(outlookEntries[o]);
+                outlookEntries.RemoveAt(o);
+            }
             return success;
         }
 
@@ -615,59 +619,75 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
 
-            #region Delete Google Entries
-            if (googleEntriesToBeDeleted.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Deleting " + googleEntriesToBeDeleted.Count + " Google calendar entries...");
-                try {
-                    GoogleCalendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
-                } catch (System.Exception ex) {
-                    MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
-                    MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                    log.Error(ex.StackTrace);
-                    return false;
-                }
-                Logboxout("Done.");
-            }
-            #endregion
-
-            #region Create Google Entries
-            if (googleEntriesToBeCreated.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Creating " + googleEntriesToBeCreated.Count + " Google calendar entries...");
-                try {
-                    GoogleCalendar.Instance.CreateCalendarEntries(googleEntriesToBeCreated);
-                } catch (System.Exception ex) {
-                    Logboxout("Unable to add new entries into the Google Calendar. The following error occurred:");
-                    Logboxout(ex.Message, notifyBubble: true);
-                    log.Error(ex.StackTrace);
-                    return false;
-                }
-                Logboxout("Done.");
-            }
-            #endregion
-
-            #region Update Google Entries
             int entriesUpdated = 0;
-            if (entriesToBeCompared.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries...");
-                try {
-                    GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
-                } catch (System.Exception ex) {
-                    Logboxout("Unable to update existing entries in the Google calendar. The following error occurred:");
-                    Logboxout(ex.Message, notifyBubble: true);
-                    log.Error(ex.StackTrace);
-                    return false;
+            try {
+                #region Delete Google Entries
+                if (googleEntriesToBeDeleted.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Deleting " + googleEntriesToBeDeleted.Count + " Google calendar entries...");
+                    try {
+                        GoogleCalendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
+                        MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout("Done.");
                 }
-                Logboxout(entriesUpdated + " entries updated.");
+                #endregion
+
+                #region Create Google Entries
+                if (googleEntriesToBeCreated.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Creating " + googleEntriesToBeCreated.Count + " Google calendar entries...");
+                    try {
+                        GoogleCalendar.Instance.CreateCalendarEntries(googleEntriesToBeCreated);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        Logboxout("Unable to add new entries into the Google Calendar. The following error occurred:");
+                        Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout("Done.");
+                }
+                #endregion
+
+                #region Update Google Entries
+                if (entriesToBeCompared.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries...");
+                    try {
+                        GoogleCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        Logboxout("Unable to update existing entries in the Google calendar. The following error occurred:");
+                        Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout(entriesUpdated + " entries updated.");
+                }
+                #endregion
+                Logboxout("--------------------------------------------------");
+
+            } finally {
+                bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
+                    googleEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
+
+                while (entriesToBeCompared.Count() > 0) {
+                    OutlookCalendar.ReleaseObject(entriesToBeCompared.Keys.Last());
+                    entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
+                }
             }
-            #endregion
-            Logboxout("--------------------------------------------------");
-
-            bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; "+ 
-                googleEntriesToBeDeleted.Count +" deleted; "+ entriesUpdated + " updated";
-
             return true;
         }
 
@@ -678,12 +698,12 @@ namespace OutlookGoogleCalendarSync {
             List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
             List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
-            
+
             try {
                 OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Outlook calendar. The following error occurred:");
-                MainForm.Instance.Logboxout(ex.Message, notifyBubble:true);
+                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
                 log.Error(ex.StackTrace);
                 return false;
             }
@@ -708,60 +728,76 @@ namespace OutlookGoogleCalendarSync {
                     outlookEntriesToBeDeleted = new List<AppointmentItem>();
                 }
             }
-            
-            #region Delete Outlook Entries
-            if (outlookEntriesToBeDeleted.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Deleting " + outlookEntriesToBeDeleted.Count + " Outlook calendar entries...");
-                try {
-                    OutlookCalendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
-                } catch (System.Exception ex) {
-                    MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
-                    MainForm.Instance.Logboxout(ex.Message, notifyBubble:true);
-                    log.Error(ex.StackTrace);
-                    return false;
-                }
-                Logboxout("Done.");
-            }
-            #endregion
-            
-            #region Create Outlook Entries
-            if (outlookEntriesToBeCreated.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Creating " + outlookEntriesToBeCreated.Count + " Outlook calendar entries...");
-                try {
-                    OutlookCalendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
-                } catch (System.Exception ex) {
-                    Logboxout("Unable to add new entries into the Outlook Calendar. The following error occurred:");
-                    Logboxout(ex.Message, notifyBubble:true);
-                    log.Error(ex.StackTrace);
-                    return false;
-                }
-                Logboxout("Done.");
-            }
-            #endregion
-            
-            #region Update Outlook Entries
-            int entriesUpdated = 0;
-            if (entriesToBeCompared.Count > 0) {
-                Logboxout("--------------------------------------------------");
-                Logboxout("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries...");
-                try {
-                    OutlookCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
-                } catch (System.Exception ex) {
-                    Logboxout("Unable to update new entries into the Outlook calendar. The following error occurred:");
-                    Logboxout(ex.Message, notifyBubble:true);
-                    log.Error(ex.StackTrace);
-                    return false;
-                }
-                Logboxout(entriesUpdated + " entries updated.");
-            }
-            #endregion
-            Logboxout("--------------------------------------------------");
 
-            bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
-                outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
-            
+            int entriesUpdated = 0;
+            try {
+                #region Delete Outlook Entries
+                if (outlookEntriesToBeDeleted.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Deleting " + outlookEntriesToBeDeleted.Count + " Outlook calendar entries...");
+                    try {
+                        OutlookCalendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
+                        MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout("Done.");
+                }
+                #endregion
+
+                #region Create Outlook Entries
+                if (outlookEntriesToBeCreated.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Creating " + outlookEntriesToBeCreated.Count + " Outlook calendar entries...");
+                    try {
+                        OutlookCalendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        Logboxout("Unable to add new entries into the Outlook Calendar. The following error occurred:");
+                        Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout("Done.");
+                }
+                #endregion
+
+                #region Update Outlook Entries
+                if (entriesToBeCompared.Count > 0) {
+                    Logboxout("--------------------------------------------------");
+                    Logboxout("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries...");
+                    try {
+                        OutlookCalendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                    } catch (UserCancelledSyncException ex) {
+                        log.Info(ex.Message);
+                        return false;
+                    } catch (System.Exception ex) {
+                        Logboxout("Unable to update new entries into the Outlook calendar. The following error occurred:");
+                        Logboxout(ex.Message, notifyBubble: true);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    }
+                    Logboxout(entriesUpdated + " entries updated.");
+                }
+                #endregion
+                Logboxout("--------------------------------------------------");
+
+            } finally {
+                bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
+                    outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
+
+                while (entriesToBeCompared.Count() > 0) {
+                    OutlookCalendar.ReleaseObject(entriesToBeCompared.Keys.Last());
+                    entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
+                }
+            }
             return true;
         }
 
@@ -824,18 +860,6 @@ namespace OutlookGoogleCalendarSync {
             else log.Info(s.TrimEnd());
         }
 
-        public void HandleException(System.Exception ex) {
-            MessageBox.Show(ex.ToString(), "Exception!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            TextWriter tw = new StreamWriter("exception.txt");
-            tw.WriteLine(ex.ToString());
-            tw.Close();
-
-            this.Close();
-            System.Environment.Exit(-1);
-            System.Windows.Forms.Application.Exit();
-        }
-                
-        
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
@@ -857,7 +881,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void mainFormResize(object sender, EventArgs e) {
-            if (cbMinimiseToTray.Checked && this.WindowState == FormWindowState.Minimized) {
+            if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
                 this.ShowInTaskbar = false;
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
                     showBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.");

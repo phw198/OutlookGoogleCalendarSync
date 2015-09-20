@@ -196,12 +196,12 @@ namespace OutlookGoogleCalendarSync {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
                     if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai));
-                    MainForm.Instance.Logboxout("WARNING: Event creation failed.\n" + ex.Message);
+                    MainForm.Instance.Logboxout("WARNING: Event creation failed.\r\n" + ex.Message);
+                    log.Error(ex.StackTrace);
                     if (MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
-                        log.Debug("User chose not to continue sync.");
-                        return;
+                        throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
                 }
 
@@ -216,12 +216,12 @@ namespace OutlookGoogleCalendarSync {
                     if (handleAPIlimits(ex, newEvent, ai))
                         createdEvent = createCalendarEntry_save(newEvent, ai);
                     else {
-                        MainForm.Instance.Logboxout("WARNING: New event failed to save.\n" + ex.Message);
+                        MainForm.Instance.Logboxout("WARNING: New event failed to save.\r\n" + ex.Message);
+                        log.Error(ex.StackTrace);
                         if (MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else {
-                            log.Debug("User chose not to continue sync.");
-                            break;
+                            throw new UserCancelledSyncException("User chose not to continue sync.");
                         }
                     }
                 }
@@ -330,12 +330,12 @@ namespace OutlookGoogleCalendarSync {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
                     if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(compare.Key));
-                    MainForm.Instance.Logboxout("WARNING: Event update failed.\n" + ex.Message);
+                    MainForm.Instance.Logboxout("WARNING: Event update failed.\r\n" + ex.Message);
+                    log.Error(ex.StackTrace);
                     if (MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
-                        log.Debug("User chose not to continue sync.");
-                        return;
+                        throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
                 }
 
@@ -352,12 +352,12 @@ namespace OutlookGoogleCalendarSync {
                             UpdateCalendarEntry_save(ev);
                             entriesUpdated++;
                         } else {
-                            MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\n" + ex.Message);
+                            MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
+                            log.Error(ex.StackTrace);
                             if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else {
-                                log.Debug("User chose not to continue sync.");
-                                break;
+                                throw new UserCancelledSyncException("User chose not to continue sync.");
                             }
                         }
                     }
@@ -373,7 +373,7 @@ namespace OutlookGoogleCalendarSync {
 
         public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
             if (!Settings.Instance.APIlimit_inEffect) {
-                if (!forceCompare) { //Compare/process recurring items
+                //if (!forceCompare) { //Compare/process recurring items
                     if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                         if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
                             return null;
@@ -384,7 +384,7 @@ namespace OutlookGoogleCalendarSync {
                         if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
                             return null;
                     }
-                }
+                //}
             } else { //Settings.Instance.APIlimit_inEffect
                 if (!(OGCSlastModified(ev).AddSeconds(5) < Settings.Instance.APIlimit_lastHit &&
                     DateTime.Parse(ev.Updated) > Settings.Instance.APIlimit_lastHit))
@@ -452,7 +452,9 @@ namespace OutlookGoogleCalendarSync {
                     ev.Recurrence = oRrules;
                 }
             }
-            ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+            if (ev.Recurrence != null && ev.RecurringEventId == null) {
+                ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+            }
             
             String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
@@ -565,12 +567,12 @@ namespace OutlookGoogleCalendarSync {
                     doDelete = deleteCalendarEntry(ev);
                 } catch (System.Exception ex) {
                     if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
-                    MainForm.Instance.Logboxout("WARNING: Event deletion failed.\n" + ex.Message);
+                    MainForm.Instance.Logboxout("WARNING: Event deletion failed.\r\n" + ex.Message);
+                    log.Error(ex.StackTrace);
                     if (MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
-                        log.Debug("User chose not to continue sync.");
-                        return;
+                        throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
                 }
 
@@ -578,12 +580,12 @@ namespace OutlookGoogleCalendarSync {
                     if (doDelete) deleteCalendarEntry_save(ev);
                     else events.Remove(ev);
                 } catch (System.Exception ex) {
-                    MainForm.Instance.Logboxout("WARNING: Deleted event failed to remove.\n" + ex.Message);
+                    MainForm.Instance.Logboxout("WARNING: Deleted event failed to remove.\r\n" + ex.Message);
+                    log.Error(ex.StackTrace);
                     if (MessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
-                        log.Debug("User chose not to continue sync.");
-                        break;
+                        throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
                 }
             }

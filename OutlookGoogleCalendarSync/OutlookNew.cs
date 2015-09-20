@@ -69,7 +69,11 @@ namespace OutlookGoogleCalendarSync {
             // Done. Log off.
             oNS.Logoff();
         }
-        
+        public void Disconnect() {
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+            oApp = null;
+        }
+
         public List<String> Accounts() {
             List<String> accs = new List<String>();
             foreach (Account acc in accounts) {
@@ -278,9 +282,9 @@ namespace OutlookGoogleCalendarSync {
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
             ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
-            ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+            if (ev.Start.TimeZone != null) ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
             ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
-            ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+            if (ev.End.TimeZone != null) ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
             return ai;
         }
 

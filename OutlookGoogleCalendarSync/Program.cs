@@ -29,7 +29,6 @@ namespace OutlookGoogleCalendarSync {
         }
         private static String startingTab = null;
         private static String roamingOGCS;
-        private static Boolean checkForUpdate_force = false;
         public const String OGCSmodified = "OGCSmodified";
 
         [STAThread]
@@ -63,6 +62,9 @@ namespace OutlookGoogleCalendarSync {
                 log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            OutlookCalendar.Instance.IOutlook.Disconnect();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             log.Info("Application closed.");
         }
 
@@ -319,7 +321,7 @@ namespace OutlookGoogleCalendarSync {
             ad.UpdateAsync();
         }
         private static void update_completed(object sender, AsyncCompletedEventArgs e) {
-            if (checkForUpdate_force) MainForm.Instance.btCheckForUpdate.Text = "Check For Update";
+            if (isManualCheck) MainForm.Instance.btCheckForUpdate.Text = "Check For Update";
             if (e.Cancelled) {
                 log.Info("The update to the latest version was cancelled.");
                 MessageBox.Show("The update to the latest version was cancelled.", "Installation Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -342,7 +344,6 @@ namespace OutlookGoogleCalendarSync {
             string releaseURL = null;
             string releaseVersion = null;
             string releaseType = null;
-            Boolean newerRelease = false;
 
             log.Debug("Checking for ZIP update...");
             string html = "";
@@ -372,31 +373,26 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (releaseVersion != null) {
-                string[] versionBits = releaseVersion.Split(new string[] { "." }, StringSplitOptions.None);
-                string[] myVersionBits = Application.ProductVersion.Split(new string[] { "." }, StringSplitOptions.None);
-                for (int i = 0; i < versionBits.Count(); i++) {
-                    if (int.Parse(versionBits[i]) > int.Parse(myVersionBits[i])) {
-                        log.Info("New "+ releaseType +" ZIP release found: "+ releaseVersion);
-                        newerRelease = true;
-                        DialogResult dr = MessageBox.Show("A new " + releaseType + " release is available. Would you like to upgrade?", "New Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (dr == DialogResult.Yes) {
-                            System.Diagnostics.Process.Start(releaseURL);
-                        }
-                        break;
+                Int16 releaseNum = Convert.ToInt16(releaseVersion.Replace(".", ""));
+                Int16 myReleaseNum = Convert.ToInt16(Application.ProductVersion.Replace(".", ""));
+                if (releaseNum > myReleaseNum) {
+                    log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
+                    DialogResult dr = MessageBox.Show("A new " + releaseType + " release is available. Would you like to upgrade to v" + releaseVersion + "?", "New Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dr == DialogResult.Yes) {
+                        System.Diagnostics.Process.Start(releaseURL);
                     }
-                }
-                if (!newerRelease) {
+                } else {
                     log.Info("Already on latest ZIP release.");
-                    if (checkForUpdate_force) MessageBox.Show("You are already on the latest release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (isManualCheck) MessageBox.Show("You are already on the latest release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-            } else if (checkForUpdate_force) {
+            } else {
                 log.Info("Did not find ZIP release.");
-                MessageBox.Show("Failed to check for ZIP release", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (isManualCheck) MessageBox.Show("Failed to check for ZIP release", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         
         private static void checkForZip_completed(object sender, RunWorkerCompletedEventArgs e) {
-            if (checkForUpdate_force)
+            if (isManualCheck)
                 MainForm.Instance.btCheckForUpdate.Text = "Check For Update";
         }
         

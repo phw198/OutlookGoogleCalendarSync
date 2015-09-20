@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailAddress.cs" />
+    <Compile Include="Exception.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
     <Compile Include="Recurrence.cs" />

@@ -8,6 +8,7 @@ using Google.Apis.Calendar.v3.Data;
 namespace OutlookGoogleCalendarSync {
     public interface OutlookInterface {
         void Connect();
+        void Disconnect();
         List<String> Accounts();
         Dictionary<string, MAPIFolder> CalendarFolders();
         MAPIFolder UseOutlookCalendar();

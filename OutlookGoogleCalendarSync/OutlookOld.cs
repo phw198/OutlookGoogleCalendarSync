@@ -53,6 +53,10 @@ namespace OutlookGoogleCalendarSync {
             // Done. Log off.
             oNS.Logoff();
         }
+        public void Disconnect() {
+            Marshal.FinalReleaseComObject(oApp);
+            oApp = null;
+        }
         
         public List<String> Accounts() {
             List<String> accs = new List<String>();
@@ -480,9 +484,9 @@ namespace OutlookGoogleCalendarSync {
             LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);
             DateTimeZone zone = DateTimeZoneProviders.Tzdb[time.TimeZone];
             ZonedDateTime zonedTime = local.InZoneLeniently(zone);
-            DateTime foo = zonedTime.ToDateTimeUtc();
-            log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ foo.ToString("dd/MM/yyyy HH:mm:ss"));
-            return foo;
+            DateTime zonedUTC = zonedTime.ToDateTimeUtc();
+            log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));
+            return zonedUTC;
         }
         #endregion
 

@@ -6,6 +6,7 @@ using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
 using NodaTime;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
     class Recurrence {
@@ -40,6 +41,7 @@ namespace OutlookGoogleCalendarSync {
         public void BuildOutlookPattern(Event ev, AppointmentItem ai) {
             RecurrencePattern ignore;
             BuildOutlookPattern(ev, ai, out ignore);
+            ignore = (RecurrencePattern)OutlookCalendar.ReleaseObject(ignore);
         }
 
         public void BuildOutlookPattern(Event ev, AppointmentItem ai, out RecurrencePattern oPattern) {
@@ -153,6 +155,9 @@ namespace OutlookGoogleCalendarSync {
                 evOpattern.MonthOfYear.ToString(), aiOpattern.MonthOfYear.ToString(), sb, ref itemModified)) {
                 aiOpattern.MonthOfYear = evOpattern.MonthOfYear;
             }
+            aiOpattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(aiOpattern);
+            evOpattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(evOpattern);
+            evAI = (AppointmentItem)OutlookCalendar.ReleaseObject(evAI);
         }
 
         private String buildRrule(RecurrencePattern oPattern) {
@@ -358,8 +363,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
             List<Event> gInstances = GoogleCalendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID);
             //Add any new exceptions to local cache
-            googleExceptions = googleExceptions.Union(gInstances.Where(ev => ev.Sequence > 0)).ToList();
-
+            googleExceptions = googleExceptions.Union(gInstances.Where(ev => !String.IsNullOrEmpty(ev.RecurringEventId))).ToList();
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
                     if ((!oExcp.Deleted &&
@@ -461,17 +465,34 @@ namespace OutlookGoogleCalendarSync {
                                         excp_itemModified++;
                                     }
                                 } else {
+                                    log.Error(ex.Message);
+                                    log.Error(ex.StackTrace);
+                                    recurrence = (RecurrencePattern)OutlookCalendar.ReleaseObject(recurrence);
                                     throw ex;
                                 }
                             }
-                            if (excp_itemModified > 0) GoogleCalendar.Instance.UpdateCalendarEntry_save(gExcp);
-
+                            if (excp_itemModified > 0) {
+                                try {
+                                    GoogleCalendar.Instance.UpdateCalendarEntry_save(gExcp);
+                                } catch (System.Exception ex) {
+                                    MainForm.Instance.Logboxout("WARNING: Updated event exception failed to save.\r\n" + ex.Message);
+                                    log.Error(ex.StackTrace);
+                                    if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                        continue;
+                                    else {
+                                        throw new UserCancelledSyncException("User chose not to continue sync.");
+                                    }
+                                } finally {
+                                    recurrence = (RecurrencePattern)OutlookCalendar.ReleaseObject(recurrence);
+                                }
+                            }
                         } else {
                             log.Debug("No matching Google Event recurrence found.");
                             if (oExcp.Deleted) log.Debug("The Outlook appointment is deleted, so not a problem.");
                         }
                     }
                 }
+                recurrence = (RecurrencePattern)OutlookCalendar.ReleaseObject(recurrence);
             }
         }
         #endregion
@@ -498,7 +519,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Fine("Found Google exception for " + (gExcp.OriginalStartTime.DateTime ?? gExcp.OriginalStartTime.Date));
 
                 DateTime oExcpDate = DateTime.Parse(gExcp.OriginalStartTime.DateTime ?? gExcp.OriginalStartTime.Date);
-                AppointmentItem newAiExcp = getOutlookInstance(oPattern, (gExcp.Status == "cancelled" ? oExcpDate.Date : oExcpDate));
+                AppointmentItem newAiExcp = getOutlookInstance(oPattern, oExcpDate);
                 if (newAiExcp == null) continue;
 
                 if (gExcp.Status != "cancelled") {
@@ -509,8 +530,10 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai) +"\r\nDeleted.");
                     newAiExcp.Delete();
                 }
+                newAiExcp = (AppointmentItem)OutlookCalendar.ReleaseObject(newAiExcp);
             }
             if (!ai.Saved) ai.Save();
+            oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
         }
 
         private static AppointmentItem getOutlookInstance(RecurrencePattern oPattern, DateTime instanceDate) {
@@ -524,7 +547,7 @@ namespace OutlookGoogleCalendarSync {
                 //If this has changed >1 in Google then there's no way of knowing what it might be!
                 
                 foreach (Microsoft.Office.Interop.Outlook.Exception oExp in oPattern.Exceptions) {
-                    if (oExp.OriginalDate == instanceDate) {
+                    if (oExp.OriginalDate.Date == instanceDate.Date) {
                         try {
                             log.Debug("Found Outlook exception for " + instanceDate);
                             if (oExp.Deleted) {
@@ -544,8 +567,8 @@ namespace OutlookGoogleCalendarSync {
             }
             return ai;
         }
-
         #endregion
+        
         #endregion
     }
 }

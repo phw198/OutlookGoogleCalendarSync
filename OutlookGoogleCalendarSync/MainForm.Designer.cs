@@ -212,6 +212,7 @@
             // 
             // tabPage_Sync
             // 
+            this.tabPage_Sync.BackColor = System.Drawing.Color.White;
             this.tabPage_Sync.Controls.Add(this.cbVerboseOutput);
             this.tabPage_Sync.Controls.Add(this.lNextSyncVal);
             this.tabPage_Sync.Controls.Add(this.lLastSyncVal);
@@ -225,7 +226,6 @@
             this.tabPage_Sync.Size = new System.Drawing.Size(487, 542);
             this.tabPage_Sync.TabIndex = 0;
             this.tabPage_Sync.Text = "Sync";
-            this.tabPage_Sync.UseVisualStyleBackColor = true;
             // 
             // cbVerboseOutput
             // 
