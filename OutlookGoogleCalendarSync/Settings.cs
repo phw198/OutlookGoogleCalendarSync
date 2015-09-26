@@ -66,7 +66,7 @@ namespace OutlookGoogleCalendarSync {
             Obfuscation = new Obfuscate();
 
             ShowBubbleTooltipWhenSyncing = true;
-            StartOnStartup = true;
+            StartOnStartup = false;
             StartInTray = false;
             MinimiseToTray = false;
             MinimiseNotClose = false;

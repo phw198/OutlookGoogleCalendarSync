@@ -146,7 +146,7 @@ namespace OutlookGoogleCalendarSync {
         public List<AppointmentItem> getCalendarEntriesInRange() {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             filtered = filterCalendarEntries(UseOutlookCalendar.Items);
-
+            
             if (Settings.Instance.CreateCSVFiles) {
                 log.Debug("Outputting CSV files...");
                 TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_appointments.csv"));
@@ -178,7 +178,7 @@ namespace OutlookGoogleCalendarSync {
             if (OutlookItems != null) {
                 DateTime min = Settings.Instance.SyncStart;
                 DateTime max = Settings.Instance.SyncEnd;
-                
+
                 string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
@@ -187,7 +187,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 log.Fine("Filtered down to " + result.Count);
                 result = new List<AppointmentItem>();
-                
+
                 //Outlook can't handle dates or times formatted with a . delimeter!
                 string format = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
                 switch (format) {
@@ -195,6 +195,16 @@ namespace OutlookGoogleCalendarSync {
                     default: break;
                 }
                 format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
+                filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
+                log.Fine("Filter string: " + filter);
+                foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
+                    if (ai.End == min) continue; //Required for midnight to midnight events 
+                    result.Add(ai);
+                }
+                log.Fine("Filtered down to " + result.Count);
+                result = new List<AppointmentItem>();
+
+                format = "MMMM dd, yyyy hh:mm tt"; //January 15, 1999 13:30 PM
                 filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
@@ -647,7 +657,6 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                 }
-                ai = (AppointmentItem)ReleaseObject(ai);
             }
             if ((Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook ||
                     Settings.Instance.SyncDirection == SyncDirection.Bidirectional) &&
@@ -704,7 +713,7 @@ namespace OutlookGoogleCalendarSync {
             csv.Append("\"" + (ai.OptionalAttendees==null?"":ai.OptionalAttendees) + "\",");
             csv.Append(ai.ReminderSet + ",");
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
-            csv.Append(ai.EntryID + ",");
+            csv.Append(ai.GlobalAppointmentID + ",");
             if (ai.UserProperties[gEventID] != null)
                 csv.Append(ai.UserProperties[gEventID].Value.ToString());
 
@@ -755,12 +764,10 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (google[g].ExtendedProperties != null &&
-                        google[g].ExtendedProperties.Private != null &&
-                        google[g].ExtendedProperties.Private.ContainsKey(GoogleCalendar.oEntryID))
+                    if (GoogleCalendar.GetOGCSproperty(google[g], GoogleCalendar.oEntryID))
                         google.Remove(google[g]);
                 }
-                //Don't delete any items that aren't yet in Google
+                //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (outlook[o].UserProperties[OutlookCalendar.gEventID] == null ||
                         outlook[o].LastModificationTime > Settings.Instance.LastSyncDate)

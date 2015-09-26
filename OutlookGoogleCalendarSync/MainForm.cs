@@ -597,7 +597,7 @@ namespace OutlookGoogleCalendarSync {
                 return false;
             }
             try {
-                GoogleCalendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
+                GoogleCalendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("Unable to identify differences in Google calendar. The following error occurred:");
                 MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
@@ -683,9 +683,11 @@ namespace OutlookGoogleCalendarSync {
                 bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
                     googleEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
 
-                while (entriesToBeCompared.Count() > 0) {
-                    OutlookCalendar.ReleaseObject(entriesToBeCompared.Keys.Last());
-                    entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
+                if (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle) {
+                    while (entriesToBeCompared.Count() > 0) {
+                        OutlookCalendar.ReleaseObject(entriesToBeCompared.Keys.Last());
+                        entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
+                    }
                 }
             }
             return true;

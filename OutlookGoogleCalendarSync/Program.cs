@@ -373,8 +373,16 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (releaseVersion != null) {
-                Int16 releaseNum = Convert.ToInt16(releaseVersion.Replace(".", ""));
-                Int16 myReleaseNum = Convert.ToInt16(Application.ProductVersion.Replace(".", ""));
+                String paddedVersion = "";
+                foreach (String versionBit in releaseVersion.Split('.')) {
+                    paddedVersion += versionBit.PadLeft(2, '0');
+                }
+                Int32 releaseNum = Convert.ToInt32(paddedVersion);
+                paddedVersion = "";
+                foreach (String versionBit in Application.ProductVersion.Split('.')) {
+                    paddedVersion += versionBit.PadLeft(2, '0');
+                }
+                Int32 myReleaseNum = Convert.ToInt32(paddedVersion);
                 if (releaseNum > myReleaseNum) {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
                     DialogResult dr = MessageBox.Show("A new " + releaseType + " release is available. Would you like to upgrade to v" + releaseVersion + "?", "New Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

@@ -141,6 +141,25 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public Event GetCalendarEntry(String eventId) {
+            Event request = null;
+
+            try {
+                log.Debug("Retrieving specific Event with ID " + eventId);
+                EventsResource.GetRequest gr = service.Events.Get(Settings.Instance.UseGoogleCalendar.Id, eventId);
+                request = gr.Fetch();
+
+                if (request != null)
+                    return request;
+                else
+                    throw new System.Exception("Returned null");
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("ERROR: Failed to retrieve Google event");
+                log.Error(ex.Message);
+                return null;
+            }
+        }
+
         public List<Event> GetCalendarEntriesInRange() {
             return GetCalendarEntriesInRange(Settings.Instance.SyncStart, Settings.Instance.SyncEnd);
         }
@@ -624,10 +643,7 @@ namespace OutlookGoogleCalendarSync {
                 Event ev = gEvents[g];
                     
                 //Find entries with no Outlook ID
-                if (ev.ExtendedProperties == null ||
-                    ev.ExtendedProperties.Private == null ||
-                    !ev.ExtendedProperties.Private.ContainsKey(oEntryID))
-                {
+                if (!GetOGCSproperty(ev, oEntryID)) {
                     unclaimedEvents.Add(ev);
                     foreach (AppointmentItem ai in oAppointments) {
                         //Use simple matching on start,end,subject,location to pair events
@@ -641,7 +657,7 @@ namespace OutlookGoogleCalendarSync {
                                 sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
                         }
                         if (sigEv == sigAi) {                            
-                            GoogleCalendar.addOGCSproperty(ref ev, oEntryID, ai.EntryID);
+                            AddOutlookID(ref ev, ai);
                             UpdateCalendarEntry_save(ev);
                             unclaimedEvents.Remove(ev);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
@@ -833,8 +849,9 @@ namespace OutlookGoogleCalendarSync {
             if (!foundReminder) csv.Append(",,");
 
             csv.Append(ev.Id + ",");
-            if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private != null && ev.ExtendedProperties.Private.ContainsKey(oEntryID)) {
-                csv.Append(ev.ExtendedProperties.Private[oEntryID]);
+            String gEntryID;
+            if (GetOGCSproperty(ev, oEntryID, out gEntryID)) {
+                csv.Append(gEntryID);
             }
 
             return csv.ToString();
@@ -875,32 +892,46 @@ namespace OutlookGoogleCalendarSync {
         //      3.  Items remaining in Outlook list are new and need to be created
         //      4.  Items remaining in Google list need to be deleted
         //</summary>
-        public static void IdentifyEventDifferences(
+        public void IdentifyEventDifferences(
             ref List<AppointmentItem> outlook,  //need creating
             ref List<Event> google,             //need deleting
             Dictionary<AppointmentItem, Event> compare) {
             log.Debug("Comparing Outlook items to Google events...");
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
-            for (int o = outlook.Count - 1; o >= 0; o--) {
-                String compare_oEntryID = outlook[o].EntryID;
-                for (int g = google.Count - 1; g >= 0; g--) {
-                    if (google[g].ExtendedProperties != null &&
-                        google[g].ExtendedProperties.Private != null &&
-                        google[g].ExtendedProperties.Private.ContainsKey(oEntryID)) {
-                        
-                        if (compare_oEntryID == google[g].ExtendedProperties.Private[oEntryID]) {
+            String compare_gEntryID;
+            int migrated = 0;
+            for (int g = google.Count - 1; g >= 0; g--) {
+                if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
+                    for (int o = outlook.Count - 1; o >= 0; o--) {
+                        if (outlook[o].EntryID == compare_gEntryID) {
+                            if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
+                            //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
+                            //To prevent existing users from having everything deleted and recreated, need to migrate them.
+                            //This change was effective from v2.0.2.3
+                            Event ev = google[g];
+                            AddOutlookID(ref ev, outlook[o]);
+                            UpdateCalendarEntry_save(ev);
+                            google[g] = ev;
+                            compare_gEntryID = outlook[o].GlobalAppointmentID;
+                            migrated++;
+                            //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
+                            System.Threading.Thread.Sleep(250);
+                        }
+                        if (outlook[o].GlobalAppointmentID == compare_gEntryID) {
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
                             google.Remove(google[g]);
                             break;
                         }
-                    } else if (Settings.Instance.MergeItems) {
-                        //Remove the non-Outlook item so it doesn't get deleted
-                        google.Remove(google[g]);
                     }
+                } else if (Settings.Instance.MergeItems) {
+                    //Remove the non-Outlook item so it doesn't get deleted
+                    google.Remove(google[g]);
                 }
             }
+            if (migrated > 0) log.Info(migrated + " migrated.");
+            
             if (Settings.Instance.DisableDelete) {
                 google = new List<Event>();
             }
@@ -910,11 +941,10 @@ namespace OutlookGoogleCalendarSync {
                     if (outlook[o].UserProperties[OutlookCalendar.gEventID] != null)
                         outlook.Remove(outlook[o]);
                 }
-                //Don't delete any items that aren't yet in Outlook
+                //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (google[g].ExtendedProperties == null ||
-                        google[g].ExtendedProperties.Private == null ||
-                        !google[g].ExtendedProperties.Private.ContainsKey(GoogleCalendar.oEntryID))
+                    if (!GetOGCSproperty(google[g], oEntryID) ||
+                        DateTime.Parse(google[g].Updated) > Settings.Instance.LastSyncDate)
                         google.Remove(google[g]);
                 }
             }
@@ -971,7 +1001,7 @@ namespace OutlookGoogleCalendarSync {
             //Add the Outlook appointment ID into Google event.
             //This will make comparison more efficient and set the scene for 2-way sync.
             
-            addOGCSproperty(ref ev, oEntryID, ai.EntryID);
+            addOGCSproperty(ref ev, oEntryID, ai.GlobalAppointmentID);
         }
 
         private static void addOGCSproperty(ref Event ev, String key, String value) {
@@ -988,13 +1018,29 @@ namespace OutlookGoogleCalendarSync {
             addOGCSproperty(ref ev, key, value.ToString());
         }
 
+        public static Boolean GetOGCSproperty(Event ev, String key) {
+            String throwAway;
+            return GoogleCalendar.GetOGCSproperty(ev, key, out throwAway);
+        }
+        public static Boolean GetOGCSproperty(Event ev, String key, out String value) {
+            if (ev.ExtendedProperties != null &&
+                ev.ExtendedProperties.Private != null &&
+                ev.ExtendedProperties.Private.ContainsKey(key)) {
+                value = ev.ExtendedProperties.Private[key];
+                return true;
+            } else {
+                value = null;
+                return false;
+            }
+        }
+
         public static DateTime OGCSlastModified(Event ev) {
-            if (ev.ExtendedProperties == null ||
-                ev.ExtendedProperties.Private == null ||
-                !ev.ExtendedProperties.Private.ContainsKey(Program.OGCSmodified))
+            String lastModded = null;
+            if (GetOGCSproperty(ev, Program.OGCSmodified, out lastModded)) {
+                return DateTime.Parse(lastModded);
+            } else {
                 return new DateTime();
-            else
-                return DateTime.Parse(ev.ExtendedProperties.Private[Program.OGCSmodified]);
+            }
         }
         #endregion
         #endregion
