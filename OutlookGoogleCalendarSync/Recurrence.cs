@@ -425,7 +425,13 @@ namespace OutlookGoogleCalendarSync {
                             gDate = GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gDate).Date);
                         }
                         if (oDate == gDate) {
-                            if (exp.Deleted) {
+                            Boolean isDeleted = exp.Deleted;
+                            if (!isDeleted) { //Double-check in case it's misreported due to caching 
+                                try {
+                                    AppointmentItem testAi = exp.AppointmentItem;
+                                } catch { isDeleted = true; }
+                            }
+                            if (isDeleted) {
                                 MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
                                 MainForm.Instance.Logboxout("Recurrence deleted.");
                                 ev.Status = "cancelled";

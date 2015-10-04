@@ -44,6 +44,7 @@ namespace OutlookGoogleCalendarSync {
             EWSpassword = "";
             EWSserver = "";
             UseOutlookCalendar = new MyOutlookCalendarListEntry();
+            OutlookDateFormat = "g";
 
             UseGoogleCalendar = new MyGoogleCalendarListEntry();
             RefreshToken = "";
@@ -102,6 +103,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public string EWSpassword { get; set; }
         [DataMember] public string EWSserver { get; set; }
         [DataMember] public MyOutlookCalendarListEntry UseOutlookCalendar { get; set; }
+        [DataMember] public string OutlookDateFormat { get; set; }
         #endregion
         #region Google
         [DataMember] public MyGoogleCalendarListEntry UseGoogleCalendar { get; set; }
@@ -234,6 +236,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);
+            log.Info("  Filter String: " + OutlookDateFormat);
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: "+ UseGoogleCalendar.Name);

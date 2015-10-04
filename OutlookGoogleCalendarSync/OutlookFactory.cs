@@ -28,14 +28,42 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void getOutlookVersion() {
+            //Microsoft.Office.Interop.Outlook.Application oApp = OutlookCalendar.AttachToOutlook();
             Microsoft.Office.Interop.Outlook.Application oApp = new Microsoft.Office.Interop.Outlook.Application();
-            log.Info("Outlook Version: " + oApp.Version);
+            outlookVersionFull = oApp.Version;
+
+            /* try {
+                outlookVersionFull = oApp.Version;
+            } catch (System.Exception ex) {
+                if (ex.Message.Contains("Call was rejected by callee.")) {
+                    log.Warn("The Outlook GUI is not quite ready yet - waiting until it is...");
+                    int maxWait = 30;
+                    while (maxWait > 0) {
+                        if (maxWait < 30 && maxWait % 10 == 0) { log.Debug("Still waiting..."); }
+                        try {
+                            outlookVersionFull = oApp.Version;
+                            maxWait = 0;
+                        } catch { }
+                        System.Threading.Thread.Sleep(1000);
+                        maxWait--;
+                    }
+                    if (maxWait > 0) {
+                        log.Error("Given up waiting for Outlook to respond.");
+                        throw new ApplicationException("Outlook would not give timely response.");
+                    }
+                } else {
+                    throw ex;
+                }
+            } finally {
+                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                oApp = null;
+            }*/
+
+            log.Info("Outlook Version: " + outlookVersionFull);
             if (testing2003) {
                 log.Info("*** 2003 TESTING ***");
                 outlookVersionFull = "11";
-            } else {
-                outlookVersionFull = oApp.Version;
-            }
+            } 
             outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
         }
     }

@@ -45,6 +45,12 @@
             this.lSettingInfo = new System.Windows.Forms.Label();
             this.tabAppSettings = new System.Windows.Forms.TabControl();
             this.tabOutlook = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btTestOutlookFilter = new System.Windows.Forms.Button();
+            this.tbOutlookDateFormatResult = new System.Windows.Forms.TextBox();
+            this.tbOutlookDateFormat = new System.Windows.Forms.TextBox();
+            this.cbOutlookDateFormat = new System.Windows.Forms.ComboBox();
+            this.txtDateFormats = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.lOutlookCalendar = new System.Windows.Forms.Label();
             this.cbOutlookCalendars = new System.Windows.Forms.ComboBox();
@@ -164,11 +170,14 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.urlDateFormats = new System.Windows.Forms.LinkLabel();
+            this.label32 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
             this.tabAppSettings.SuspendLayout();
             this.tabOutlook.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.gbEWS.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
@@ -347,6 +356,7 @@
             // tabOutlook
             // 
             this.tabOutlook.BackColor = System.Drawing.Color.White;
+            this.tabOutlook.Controls.Add(this.groupBox1);
             this.tabOutlook.Controls.Add(this.label11);
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
             this.tabOutlook.Controls.Add(this.cbOutlookCalendars);
@@ -361,6 +371,93 @@
             this.tabOutlook.Size = new System.Drawing.Size(392, 462);
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.label32);
+            this.groupBox1.Controls.Add(this.urlDateFormats);
+            this.groupBox1.Controls.Add(this.btTestOutlookFilter);
+            this.groupBox1.Controls.Add(this.tbOutlookDateFormatResult);
+            this.groupBox1.Controls.Add(this.tbOutlookDateFormat);
+            this.groupBox1.Controls.Add(this.cbOutlookDateFormat);
+            this.groupBox1.Controls.Add(this.txtDateFormats);
+            this.groupBox1.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.groupBox1.Location = new System.Drawing.Point(15, 242);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(369, 160);
+            this.groupBox1.TabIndex = 40;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Regional Date Format";
+            // 
+            // btTestOutlookFilter
+            // 
+            this.btTestOutlookFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btTestOutlookFilter.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btTestOutlookFilter.Location = new System.Drawing.Point(284, 128);
+            this.btTestOutlookFilter.Name = "btTestOutlookFilter";
+            this.btTestOutlookFilter.Size = new System.Drawing.Size(75, 23);
+            this.btTestOutlookFilter.TabIndex = 40;
+            this.btTestOutlookFilter.Text = "Test";
+            this.btTestOutlookFilter.UseVisualStyleBackColor = true;
+            this.btTestOutlookFilter.Click += new System.EventHandler(this.btTestOutlookFilter_Click);
+            // 
+            // tbOutlookDateFormatResult
+            // 
+            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbOutlookDateFormatResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbOutlookDateFormatResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbOutlookDateFormatResult.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.tbOutlookDateFormatResult.Location = new System.Drawing.Point(90, 109);
+            this.tbOutlookDateFormatResult.Name = "tbOutlookDateFormatResult";
+            this.tbOutlookDateFormatResult.Size = new System.Drawing.Size(269, 13);
+            this.tbOutlookDateFormatResult.TabIndex = 39;
+            this.tbOutlookDateFormatResult.Text = "The date format result";
+            // 
+            // tbOutlookDateFormat
+            // 
+            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
+            this.tbOutlookDateFormat.Name = "tbOutlookDateFormat";
+            this.tbOutlookDateFormat.ReadOnly = true;
+            this.tbOutlookDateFormat.Size = new System.Drawing.Size(204, 20);
+            this.tbOutlookDateFormat.TabIndex = 38;
+            this.tbOutlookDateFormat.TextChanged += new System.EventHandler(this.tbOutlookDateFormat_TextChanged);
+            this.tbOutlookDateFormat.Leave += new System.EventHandler(this.tbOutlookDateFormat_Leave);
+            // 
+            // cbOutlookDateFormat
+            // 
+            this.cbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbOutlookDateFormat.FormattingEnabled = true;
+            this.cbOutlookDateFormat.Location = new System.Drawing.Point(8, 79);
+            this.cbOutlookDateFormat.Name = "cbOutlookDateFormat";
+            this.cbOutlookDateFormat.Size = new System.Drawing.Size(140, 21);
+            this.cbOutlookDateFormat.TabIndex = 37;
+            this.cbOutlookDateFormat.SelectedIndexChanged += new System.EventHandler(this.cbOutlookDateFormat_SelectedIndexChanged);
+            // 
+            // txtDateFormats
+            // 
+            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDateFormats.BackColor = System.Drawing.SystemColors.Window;
+            this.txtDateFormats.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDateFormats.Location = new System.Drawing.Point(6, 25);
+            this.txtDateFormats.Multiline = true;
+            this.txtDateFormats.Name = "txtDateFormats";
+            this.txtDateFormats.Size = new System.Drawing.Size(353, 45);
+            this.txtDateFormats.TabIndex = 36;
+            this.txtDateFormats.Text = "Hopefully you will not need to adjust this.\r\nHowever, Microsoft\'s support of \"non" +
+    "-standard\" locales is poor.\r\nTry different formats if no Outlook appointments ar" +
+    "e being returned.";
+            this.txtDateFormats.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label11
             // 
@@ -610,9 +707,9 @@
             // 
             // tabSyncOptions
             // 
+            this.tabSyncOptions.Controls.Add(this.gbSyncOptions_When);
             this.tabSyncOptions.Controls.Add(this.gbSyncOptions_How);
             this.tabSyncOptions.Controls.Add(this.WhatPostit);
-            this.tabSyncOptions.Controls.Add(this.gbSyncOptions_When);
             this.tabSyncOptions.Controls.Add(this.gbSyncOptions_What);
             this.tabSyncOptions.Controls.Add(this.label15);
             this.tabSyncOptions.Location = new System.Drawing.Point(79, 4);
@@ -1874,6 +1971,32 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // urlDateFormats
+            // 
+            this.urlDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.urlDateFormats.BackColor = System.Drawing.Color.Transparent;
+            this.urlDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.urlDateFormats.Location = new System.Drawing.Point(39, 51);
+            this.urlDateFormats.Margin = new System.Windows.Forms.Padding(0);
+            this.urlDateFormats.Name = "urlDateFormats";
+            this.urlDateFormats.Size = new System.Drawing.Size(82, 21);
+            this.urlDateFormats.TabIndex = 41;
+            this.urlDateFormats.TabStop = true;
+            this.urlDateFormats.Text = "different formats";
+            this.urlDateFormats.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.urlDateFormats.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.urlDateFormats_LinkClicked);
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label32.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label32.Location = new System.Drawing.Point(10, 109);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(79, 13);
+            this.label32.TabIndex = 42;
+            this.label32.Text = "Current Format:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1895,6 +2018,8 @@
             this.tabAppSettings.ResumeLayout(false);
             this.tabOutlook.ResumeLayout(false);
             this.tabOutlook.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.gbEWS.ResumeLayout(false);
             this.gbEWS.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
@@ -2063,5 +2188,13 @@
         private System.Windows.Forms.Label label31;
         public System.Windows.Forms.DataGridView dgObfuscateRegex;
         private System.Windows.Forms.CheckBox cbMinimiseNotClose;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox tbOutlookDateFormat;
+        private System.Windows.Forms.ComboBox cbOutlookDateFormat;
+        private System.Windows.Forms.TextBox txtDateFormats;
+        private System.Windows.Forms.TextBox tbOutlookDateFormatResult;
+        private System.Windows.Forms.Button btTestOutlookFilter;
+        private System.Windows.Forms.LinkLabel urlDateFormats;
+        private System.Windows.Forms.Label label32;
     }
 }

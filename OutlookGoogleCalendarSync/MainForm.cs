@@ -76,6 +76,8 @@ namespace OutlookGoogleCalendarSync {
             //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
                 "The Outlook calendar to synchonize with.");
+            ToolTips.SetToolTip(btTestOutlookFilter,
+                "Check how many appointments are returned for the date range being synced.");
             //Google
             ToolTips.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
@@ -110,6 +112,7 @@ namespace OutlookGoogleCalendarSync {
             cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             #region Outlook box
             gbEWS.Enabled = false;
+            #region Mailbox
             if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
                 rbOutlookAltMB.Checked = true;
             } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.EWS) {
@@ -153,6 +156,33 @@ namespace OutlookGoogleCalendarSync {
                 c++;
             }
             if (cbOutlookCalendars.SelectedIndex == -1) cbOutlookCalendars.SelectedIndex = 0;
+            #endregion
+            #region DateTime Format / Locale
+            Dictionary<string,string> customDates = new Dictionary<string,string>();
+            customDates.Add("Default", "g");
+            String shortDate = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+            //Outlook can't handle dates or times formatted with a . delimeter!
+            switch (shortDate) {
+                case "yyyy.MMdd": shortDate = "yyyy-MM-dd"; break;
+                default: break;
+            }
+            String shortTime = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
+            customDates.Add("Short Date & Time", shortDate + " " + shortTime);
+            customDates.Add("Full (Short Time)", "f");
+            customDates.Add("Full Month", "MMMM dd, yyyy hh:mm tt");
+            customDates.Add("Generic", "yyyy-MM-dd hh:mm tt");
+            customDates.Add("Custom", "yyyy-MM-dd hh:mm tt");
+            cbOutlookDateFormat.DataSource = new BindingSource(customDates, null);
+            cbOutlookDateFormat.DisplayMember = "Key";
+            cbOutlookDateFormat.ValueMember = "Value";
+            for (int i = 0; i < cbOutlookDateFormat.Items.Count; i++) {
+                KeyValuePair<string, string> aFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.Items[i];
+                if (aFormat.Value == Settings.Instance.OutlookDateFormat) {
+                    cbOutlookDateFormat.SelectedIndex = i;
+                    break;
+                }
+            }
+            #endregion
             #endregion
             #region Google box
             if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
@@ -495,7 +525,7 @@ namespace OutlookGoogleCalendarSync {
             Logboxout("Reading Outlook Calendar Entries...");
             List<AppointmentItem> outlookEntries = null;
             try {
-                outlookEntries = OutlookCalendar.Instance.getCalendarEntriesInRange();
+                outlookEntries = OutlookCalendar.Instance.GetCalendarEntriesInRange();
             } catch (System.Exception ex) {
                 Logboxout("Unable to access the Outlook calendar. The following error occurred:");
                 Logboxout(ex.Message + "\r\n => Retry later.");
@@ -1001,6 +1031,37 @@ namespace OutlookGoogleCalendarSync {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
+
+        private void cbOutlookDateFormat_SelectedIndexChanged(object sender, EventArgs e) {
+            KeyValuePair<string, string> selectedFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.SelectedItem;
+            tbOutlookDateFormat.Text = selectedFormat.Value;
+            tbOutlookDateFormat.ReadOnly = (selectedFormat.Key != "Custom");
+        }
+
+        #region Datetime Format
+        private void tbOutlookDateFormat_TextChanged(object sender, EventArgs e) {
+            tbOutlookDateFormatResult.Text = DateTime.Now.ToString(tbOutlookDateFormat.Text);
+        }
+
+        private void tbOutlookDateFormat_Leave(object sender, EventArgs e) {
+            Settings.Instance.OutlookDateFormat = tbOutlookDateFormat.Text;
+        }
+
+        private void btTestOutlookFilter_Click(object sender, EventArgs e) {
+            log.Debug("Testing the Outlook filter string.");
+            int filterCount = OutlookCalendar.Instance.FilterCalendarEntries(OutlookCalendar.Instance.UseOutlookCalendar.Items).Count();
+            String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";
+            msg += Settings.Instance.SyncStart.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+            msg += " and " + Settings.Instance.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+
+            log.Info(msg);
+            MessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void urlDateFormats_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            System.Diagnostics.Process.Start("https://msdn.microsoft.com/en-us/library/az4se3k1%28v=vs.90%29.aspx");
+        }
+        #endregion
         #endregion
         #region Google settings
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
@@ -1333,6 +1394,5 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #endregion
-
     }
 }

@@ -19,10 +19,8 @@ namespace OutlookGoogleCalendarSync {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
+            oApp = OutlookCalendar.AttachToOutlook();
             log.Debug("Setting up Outlook connection.");
-
-            // Create the Outlook application.
-            oApp = new Microsoft.Office.Interop.Outlook.Application();
 
             // Get the NameSpace and Logon information.
             NameSpace oNS = oApp.GetNamespace("mapi");
@@ -49,7 +47,13 @@ namespace OutlookGoogleCalendarSync {
 
             // Get the Calendar folders
             useOutlookCalendar = getDefaultCalendar(oNS);
-
+            if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
+                MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
+                KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
+                calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
+                useOutlookCalendar = calendar.Value;
+            }
+            
             // Done. Log off.
             oNS.Logoff();
         }
@@ -135,6 +139,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") &&
                         ex.Message == "Network problems are preventing connection to Microsoft Exchange.") {
+                            log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
                         MainForm.Instance.ToolTips.SetToolTip(MainForm.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {

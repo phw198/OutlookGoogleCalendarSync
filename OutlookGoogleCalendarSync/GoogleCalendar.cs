@@ -45,56 +45,6 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.RefreshToken = "";
         }
 
-        private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
-            log.Debug("Authenticating with Google calendar service...");
-            // Get the auth URL:
-            IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
-            state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
-            state.RefreshToken = Settings.Instance.RefreshToken;
-            Uri authUri = arg.RequestUserAuthorization(state);
-
-            IAuthorizationState result = null;
-
-            if (state.RefreshToken == "") {
-                log.Info("No refresh token available - need user authorisation.");
-
-                // Request authorization from the user (by opening a browser window):
-                Process.Start(authUri.ToString());
-
-                frmGoogleAuthorizationCode eac = new frmGoogleAuthorizationCode();
-                if (eac.ShowDialog() == DialogResult.OK) {
-                    if (string.IsNullOrEmpty(eac.authcode))
-                        log.Debug("User continued but did not provide a code! This isn't going to work...");
-                    else
-                        log.Debug("User has provided authentication code.");
-
-                    // Retrieve the access/refresh tokens by using the authorization code:
-                    result = arg.ProcessUserAuthorization(eac.authcode, state);
-
-                    //save the refresh token for future use
-                    Settings.Instance.RefreshToken = result.RefreshToken;
-                    Settings.Instance.Save();
-                    log.Info("Refresh and Access token successfully retrieved.");
-                    
-                    return result;
-                } else {
-                    log.Info("User declined to provide authorisation code. Sync will not be able to work.");
-                    String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
-                    MessageBox.Show(noAuth, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    throw new System.ApplicationException(noAuth);
-                }
-            } else {
-                arg.RefreshToken(state, null);
-                if (string.IsNullOrEmpty(state.AccessToken))
-                    log.Error("Failed to retrieve Access token.");
-                else 
-                    log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
-                result = state;
-                return result;
-            }
-
-        }
-
         public List<MyGoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
             try {
@@ -691,6 +641,88 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        //<summary>New logic for comparing Outlook and Google events works as follows:
+        //      1.  Scan through both lists looking for duplicates
+        //      2.  Remove found duplicates from both lists
+        //      3.  Items remaining in Outlook list are new and need to be created
+        //      4.  Items remaining in Google list need to be deleted
+        //</summary>
+        public void IdentifyEventDifferences(
+            ref List<AppointmentItem> outlook,  //need creating
+            ref List<Event> google,             //need deleting
+            Dictionary<AppointmentItem, Event> compare) {
+            log.Debug("Comparing Outlook items to Google events...");
+
+            // Count backwards so that we can remove found items without affecting the order of remaining items
+            String compare_gEntryID;
+            int migrated = 0;
+            for (int g = google.Count - 1; g >= 0; g--) {
+                if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
+                    for (int o = outlook.Count - 1; o >= 0; o--) {
+                        if (outlook[o].EntryID == compare_gEntryID) {
+                            if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
+                            //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
+                            //To prevent existing users from having everything deleted and recreated, need to migrate them.
+                            //This change was effective from v2.0.2.3
+                            Event ev = google[g];
+                            AddOutlookID(ref ev, outlook[o]);
+                            UpdateCalendarEntry_save(ev);
+                            google[g] = ev;
+                            compare_gEntryID = outlook[o].GlobalAppointmentID;
+                            migrated++;
+                            //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
+                            System.Threading.Thread.Sleep(250);
+                        }
+                        if (outlook[o].GlobalAppointmentID == compare_gEntryID) {
+                            compare.Add(outlook[o], google[g]);
+                            outlook.Remove(outlook[o]);
+                            google.Remove(google[g]);
+                            break;
+                        }
+                    }
+                } else if (Settings.Instance.MergeItems) {
+                    //Remove the non-Outlook item so it doesn't get deleted
+                    google.Remove(google[g]);
+                }
+            }
+            if (migrated > 0) log.Info(migrated + " migrated.");
+
+            if (Settings.Instance.DisableDelete) {
+                google = new List<Event>();
+            }
+            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                //Don't recreate any items that have been deleted in Google
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (outlook[o].UserProperties[OutlookCalendar.gEventID] != null)
+                        outlook.Remove(outlook[o]);
+                }
+                //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
+                for (int g = google.Count - 1; g >= 0; g--) {
+                    if (!GetOGCSproperty(google[g], oEntryID) ||
+                        DateTime.Parse(google[g].Updated) > Settings.Instance.LastSyncDate)
+                        google.Remove(google[g]);
+                }
+            }
+            if (Settings.Instance.CreateCSVFiles) {
+                //Google Deletions
+                log.Debug("Outputting items for deletion to CSV...");
+                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath, "google_delete.csv"));
+                foreach (Event ev in google) {
+                    tw.WriteLine(signature(ev));
+                }
+                tw.Close();
+
+                //Google Creations
+                log.Debug("Outputting items for creation to CSV...");
+                tw = new StreamWriter(Path.Combine(Program.UserFilePath, "google_create.csv"));
+                foreach (AppointmentItem ai in outlook) {
+                    tw.WriteLine(OutlookCalendar.signature(ai));
+                }
+                tw.Close();
+                log.Debug("Done.");
+            }
+        }
+        
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
@@ -779,6 +811,56 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region STATIC FUNCTIONS
+        private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
+            log.Debug("Authenticating with Google calendar service...");
+            // Get the auth URL:
+            IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
+            state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
+            state.RefreshToken = Settings.Instance.RefreshToken;
+            Uri authUri = arg.RequestUserAuthorization(state);
+
+            IAuthorizationState result = null;
+
+            if (state.RefreshToken == "") {
+                log.Info("No refresh token available - need user authorisation.");
+
+                // Request authorization from the user (by opening a browser window):
+                Process.Start(authUri.ToString());
+
+                frmGoogleAuthorizationCode eac = new frmGoogleAuthorizationCode();
+                if (eac.ShowDialog() == DialogResult.OK) {
+                    if (string.IsNullOrEmpty(eac.authcode))
+                        log.Debug("User continued but did not provide a code! This isn't going to work...");
+                    else
+                        log.Debug("User has provided authentication code.");
+
+                    // Retrieve the access/refresh tokens by using the authorization code:
+                    result = arg.ProcessUserAuthorization(eac.authcode, state);
+
+                    //save the refresh token for future use
+                    Settings.Instance.RefreshToken = result.RefreshToken;
+                    Settings.Instance.Save();
+                    log.Info("Refresh and Access token successfully retrieved.");
+
+                    return result;
+                } else {
+                    log.Info("User declined to provide authorisation code. Sync will not be able to work.");
+                    String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
+                    MessageBox.Show(noAuth, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    throw new System.ApplicationException(noAuth);
+                }
+            } else {
+                arg.RefreshToken(state, null);
+                if (string.IsNullOrEmpty(state.AccessToken))
+                    log.Error("Failed to retrieve Access token.");
+                else
+                    log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
+                result = state;
+                return result;
+            }
+
+        }
+
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"
         public static string GoogleTimeFrom(DateTime dt) {
@@ -886,88 +968,6 @@ namespace OutlookGoogleCalendarSync {
             return ea;
         }
 
-        //<summary>New logic for comparing Outlook and Google events works as follows:
-        //      1.  Scan through both lists looking for duplicates
-        //      2.  Remove found duplicates from both lists
-        //      3.  Items remaining in Outlook list are new and need to be created
-        //      4.  Items remaining in Google list need to be deleted
-        //</summary>
-        public void IdentifyEventDifferences(
-            ref List<AppointmentItem> outlook,  //need creating
-            ref List<Event> google,             //need deleting
-            Dictionary<AppointmentItem, Event> compare) {
-            log.Debug("Comparing Outlook items to Google events...");
-
-            // Count backwards so that we can remove found items without affecting the order of remaining items
-            String compare_gEntryID;
-            int migrated = 0;
-            for (int g = google.Count - 1; g >= 0; g--) {
-                if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
-                    for (int o = outlook.Count - 1; o >= 0; o--) {
-                        if (outlook[o].EntryID == compare_gEntryID) {
-                            if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
-                            //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
-                            //To prevent existing users from having everything deleted and recreated, need to migrate them.
-                            //This change was effective from v2.0.2.3
-                            Event ev = google[g];
-                            AddOutlookID(ref ev, outlook[o]);
-                            UpdateCalendarEntry_save(ev);
-                            google[g] = ev;
-                            compare_gEntryID = outlook[o].GlobalAppointmentID;
-                            migrated++;
-                            //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
-                            System.Threading.Thread.Sleep(250);
-                        }
-                        if (outlook[o].GlobalAppointmentID == compare_gEntryID) {
-                            compare.Add(outlook[o], google[g]);
-                            outlook.Remove(outlook[o]);
-                            google.Remove(google[g]);
-                            break;
-                        }
-                    }
-                } else if (Settings.Instance.MergeItems) {
-                    //Remove the non-Outlook item so it doesn't get deleted
-                    google.Remove(google[g]);
-                }
-            }
-            if (migrated > 0) log.Info(migrated + " migrated.");
-            
-            if (Settings.Instance.DisableDelete) {
-                google = new List<Event>();
-            }
-            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
-                //Don't recreate any items that have been deleted in Google
-                for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (outlook[o].UserProperties[OutlookCalendar.gEventID] != null)
-                        outlook.Remove(outlook[o]);
-                }
-                //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
-                for (int g = google.Count - 1; g >= 0; g--) {
-                    if (!GetOGCSproperty(google[g], oEntryID) ||
-                        DateTime.Parse(google[g].Updated) > Settings.Instance.LastSyncDate)
-                        google.Remove(google[g]);
-                }
-            }
-            if (Settings.Instance.CreateCSVFiles) {
-                //Google Deletions
-                log.Debug("Outputting items for deletion to CSV...");
-                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_delete.csv"));
-                foreach (Event ev in google) {
-                    tw.WriteLine(signature(ev));
-                }
-                tw.Close();
-
-                //Google Creations
-                log.Debug("Outputting items for creation to CSV...");
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_create.csv"));
-                foreach (AppointmentItem ai in outlook) {
-                    tw.WriteLine(OutlookCalendar.signature(ai));
-                }
-                tw.Close();
-                log.Debug("Done.");
-            }
-        }
-        
         private static Boolean handleAPIlimits(System.Exception ex, Event ev, AppointmentItem ai) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 

@@ -56,13 +56,17 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 Application.Run(new MainForm(startingTab));
+                OutlookCalendar.Instance.IOutlook.Disconnect();
+            } catch (ApplicationException ex) {
+                log.Fatal(ex.Message);
+                MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             } catch (Exception ex) {
                 log.Fatal("Application unexpectedly terminated!");
                 log.Fatal(ex.Message);
                 log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                OutlookCalendar.Instance.IOutlook.Disconnect();
             }
-            OutlookCalendar.Instance.IOutlook.Disconnect();
             GC.Collect();
             GC.WaitForPendingFinalizers();
             log.Info("Application closed.");

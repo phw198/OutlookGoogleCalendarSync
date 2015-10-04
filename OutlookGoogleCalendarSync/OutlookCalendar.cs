@@ -4,6 +4,7 @@ using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
@@ -19,7 +20,10 @@ namespace OutlookGoogleCalendarSync {
             get {
                 try {
                     if (instance == null || instance.Accounts == null) instance = new OutlookCalendar();
-                } catch {
+                } catch (System.ApplicationException ex) {
+                    throw ex;
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
                     instance = new OutlookCalendar();
                 }
@@ -60,7 +64,7 @@ namespace OutlookGoogleCalendarSync {
         public void Reset() {
             instance = new OutlookCalendar();
         }
-        
+
         #region Push Sync
         public void RegisterForAutoSync() {
             log.Info("Registering for Outlook appointment change events...");
@@ -143,9 +147,9 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public List<AppointmentItem> getCalendarEntriesInRange() {
+        public List<AppointmentItem> GetCalendarEntriesInRange() {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
-            filtered = filterCalendarEntries(UseOutlookCalendar.Items);
+            filtered = FilterCalendarEntries(UseOutlookCalendar.Items);
             
             if (Settings.Instance.CreateCSVFiles) {
                 log.Debug("Outputting CSV files...");
@@ -168,44 +172,21 @@ namespace OutlookGoogleCalendarSync {
             return filtered;
         }
 
-        public List<AppointmentItem> filterCalendarEntries(Items OutlookItems) {
+        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems) {
+            //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
+
             List<AppointmentItem> result = new List<AppointmentItem>();
-            log.Fine(OutlookItems.Count + " calendar items exist.");
-
-            //OutlookItems.Sort("[Start]", Type.Missing);
-            OutlookItems.IncludeRecurrences = false;
-
             if (OutlookItems != null) {
+                log.Fine(OutlookItems.Count + " calendar items exist.");
+
+                //OutlookItems.Sort("[Start]", Type.Missing);
+                OutlookItems.IncludeRecurrences = false;
+
                 DateTime min = Settings.Instance.SyncStart;
                 DateTime max = Settings.Instance.SyncEnd;
 
-                string filter = "[End] >= '" + min.ToString("g") + "' AND [Start] < '" + max.ToString("g") + "'";
-                log.Fine("Filter string: " + filter);
-                foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
-                    if (ai.End == min) continue; //Required for midnight to midnight events 
-                    result.Add(ai);
-                }
-                log.Fine("Filtered down to " + result.Count);
-                result = new List<AppointmentItem>();
-
-                //Outlook can't handle dates or times formatted with a . delimeter!
-                string format = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-                switch (format) {
-                    case "yyyy.MMdd": format = "yyyy-MM-dd"; break;
-                    default: break;
-                }
-                format += " " + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
-                filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
-                log.Fine("Filter string: " + filter);
-                foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
-                    if (ai.End == min) continue; //Required for midnight to midnight events 
-                    result.Add(ai);
-                }
-                log.Fine("Filtered down to " + result.Count);
-                result = new List<AppointmentItem>();
-
-                format = "MMMM dd, yyyy hh:mm tt"; //January 15, 1999 13:30 PM
-                filter = "[End] >= '" + min.ToString(format) + "' AND [Start] < '" + max.ToString(format) + "'";
+                string filter = "[End] >= '" + min.ToString(Settings.Instance.OutlookDateFormat) + 
+                    "' AND [Start] < '" + max.ToString(Settings.Instance.OutlookDateFormat) + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
                     if (ai.End == min) continue; //Required for midnight to midnight events 
@@ -686,6 +667,25 @@ namespace OutlookGoogleCalendarSync {
         }
         
         #region STATIC functions
+        public static Microsoft.Office.Interop.Outlook.Application AttachToOutlook() {
+            Microsoft.Office.Interop.Outlook.Application oApp;
+            if (System.Diagnostics.Process.GetProcessesByName("OUTLOOK").Count() > 0) {
+                log.Debug("Attaching to the already running Outlook process.");
+                try {
+                    oApp = System.Runtime.InteropServices.Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
+                } catch (SystemException ex) {
+                    log.Debug("Attachment failed. Is Outlook running fully, or perhaps just the 'reminders' window?");
+                    log.Debug(ex.Message);
+                    log.Debug("Starting a new instance of Outlook.");
+                    oApp = new Microsoft.Office.Interop.Outlook.Application();
+                }
+            } else {
+                log.Debug("Starting a new instance of Outlook.");
+                oApp = new Microsoft.Office.Interop.Outlook.Application();
+            }
+            return oApp;
+        }
+
         public static string signature(AppointmentItem ai) {
             return (GoogleCalendar.GoogleTimeFrom(ai.Start) + ";" + GoogleCalendar.GoogleTimeFrom(ai.End) + ";" + ai.Subject).Trim();
         }
