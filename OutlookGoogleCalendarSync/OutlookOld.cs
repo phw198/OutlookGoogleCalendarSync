@@ -195,6 +195,15 @@ namespace OutlookGoogleCalendarSync {
             return retEmail;
         }
 
+        public String GetGlobalApptID(AppointmentItem ai) {
+            try {
+                if (ai.GlobalAppointmentID == null) throw new System.Exception();
+                else return ai.GlobalAppointmentID;
+            } catch {
+                return ai.EntryID;
+            } 
+        }
+
         #region Addin Express Code
         //This code has been sourced from:
         //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/

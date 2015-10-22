@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
             // Get the Calendar folders
             useOutlookCalendar = getDefaultCalendar(oNS);
             if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
+                //***This might be cross thread, so don't rely on MainForm
                 MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
                 KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
                 calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
@@ -254,6 +255,14 @@ namespace OutlookGoogleCalendarSync {
             log.Fine("Email address: " + retEmail);
             EmailAddress.IsValidEmail(retEmail);
             return retEmail;
+        }
+
+        public String GetGlobalApptID(AppointmentItem ai) {
+            if (ai.GlobalAppointmentID == null) {
+                log.Warn("GlobalAppointmentID is null - this shouldn't happen! Falling back to EntryID.");
+                return ai.EntryID;
+            }
+            return ai.GlobalAppointmentID;
         }
 
         #region TimeZone Stuff

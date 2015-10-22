@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync {
             /* try {
                 outlookVersionFull = oApp.Version;
             } catch (System.Exception ex) {
-                if (ex.Message.Contains("Call was rejected by callee.")) {
+                if (ex.Message.Contains("RPC_E_CALL_REJECTED")) { //Issue #86: Call was rejected by callee.
                     log.Warn("The Outlook GUI is not quite ready yet - waiting until it is...");
                     int maxWait = 30;
                     while (maxWait > 0) {

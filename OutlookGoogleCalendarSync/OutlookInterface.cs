@@ -19,6 +19,7 @@ namespace OutlookGoogleCalendarSync {
 
         String GetRecipientEmail(Recipient recipient);
         OlExchangeConnectionMode ExchangeConnectionMode();
+        String GetGlobalApptID(AppointmentItem ai);
 
         Event IANAtimezone_set(Event ev, AppointmentItem ai);
         AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev);

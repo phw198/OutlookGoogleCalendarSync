@@ -463,13 +463,12 @@ namespace OutlookGoogleCalendarSync {
                     try {
                         CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
                     } catch (System.Exception ex) {
-                        if (ex.Message.Contains("An error occurred while performing the operation") &&
-                            OutlookCalendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
+                        if (OutlookCalendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
                             MainForm.Instance.Logboxout("Outlook is currently disconnected from Exchange, so it's not possible to sync attendees.");
                             MainForm.Instance.Logboxout("Please reconnect or do not sync attendees.");
                             throw new System.Exception("Outlook has disconnected from Exchange.");
                         } else {
-                            MainForm.Instance.Logboxout("WARNING: Unable to sync attendees.\n" + ex.Message);
+                            MainForm.Instance.Logboxout("WARNING: Unable to sync attendees.\r\n" + ex.Message);
                         }
                     }
                 }
@@ -659,7 +658,8 @@ namespace OutlookGoogleCalendarSync {
             for (int g = google.Count - 1; g >= 0; g--) {
                 if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
                     for (int o = outlook.Count - 1; o >= 0; o--) {
-                        if (outlook[o].EntryID == compare_gEntryID) {
+                        String compare_oGlobalID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
+                        if (compare_gEntryID.StartsWith(outlook[o].EntryID)) {
                             if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
                             //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
                             //To prevent existing users from having everything deleted and recreated, need to migrate them.
@@ -668,12 +668,12 @@ namespace OutlookGoogleCalendarSync {
                             AddOutlookID(ref ev, outlook[o]);
                             UpdateCalendarEntry_save(ev);
                             google[g] = ev;
-                            compare_gEntryID = outlook[o].GlobalAppointmentID;
+                            compare_gEntryID = compare_oGlobalID;
                             migrated++;
                             //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
                             System.Threading.Thread.Sleep(250);
                         }
-                        if (outlook[o].GlobalAppointmentID == compare_gEntryID) {
+                        if (compare_gEntryID == compare_oGlobalID) {
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
                             google.Remove(google[g]);
@@ -1000,8 +1000,8 @@ namespace OutlookGoogleCalendarSync {
         public static void AddOutlookID(ref Event ev, AppointmentItem ai) {
             //Add the Outlook appointment ID into Google event.
             //This will make comparison more efficient and set the scene for 2-way sync.
-            
-            addOGCSproperty(ref ev, oEntryID, ai.GlobalAppointmentID);
+
+            addOGCSproperty(ref ev, oEntryID, OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai));
         }
 
         private static void addOGCSproperty(ref Event ev, String key, String value) {

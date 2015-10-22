@@ -390,7 +390,12 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         private void sync_Click(object sender, EventArgs e) {
-            Sync_Requested(sender, e);
+            try {
+                Sync_Requested(sender, e);
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("WARNING: Problem encountered during synchronisation.\r\n" + ex.Message);
+                log.Error(ex.StackTrace);
+            }
         }
         public void Sync_Requested(object sender = null, EventArgs e = null) {
             if (bSyncNow.Text == "Start Sync") {
