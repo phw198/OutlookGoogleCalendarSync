@@ -30,6 +30,7 @@ namespace OutlookGoogleCalendarSync {
         private static String startingTab = null;
         private static String roamingOGCS;
         public const String OGCSmodified = "OGCSmodified";
+        public const String APIlimitHit = "APIlimitHit";
 
         [STAThread]
         private static void Main(string[] args) {

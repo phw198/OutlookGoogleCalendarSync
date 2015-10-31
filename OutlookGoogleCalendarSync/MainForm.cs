@@ -180,6 +180,9 @@ namespace OutlookGoogleCalendarSync {
                 if (aFormat.Value == Settings.Instance.OutlookDateFormat) {
                     cbOutlookDateFormat.SelectedIndex = i;
                     break;
+                } else if (i == cbOutlookDateFormat.Items.Count - 1 && cbOutlookDateFormat.SelectedIndex == 0) {
+                    cbOutlookDateFormat.SelectedIndex = i;
+                    tbOutlookDateFormat.Text = Settings.Instance.OutlookDateFormat;
                 }
             }
             #endregion
@@ -577,20 +580,27 @@ namespace OutlookGoogleCalendarSync {
                     //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                     //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                     RecurrencePattern oPattern = ai.GetRecurrencePattern();
-                    if (oPattern.RecurrenceType.ToString().Contains("Year") &&
+                    try {
+                        if (oPattern.RecurrenceType.ToString().Contains("Year") &&
                         (ai.Start.Month < Settings.Instance.SyncStart.Month || ai.Start.Month > Settings.Instance.SyncEnd.Month)) {
-                        outlookEntries.Remove(outlookEntries[o]);
-                    } else {
-                        Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
-                        if (masterEv != null) {
-                            Boolean alreadyCached = false;
-                            foreach (Event ev in googleEntries) {
-                                if (ev.Id == masterEv.Id) { alreadyCached = true; break; }
+                            outlookEntries.Remove(outlookEntries[o]);
+                        } else {
+                            Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                            if (masterEv != null) {
+                                Boolean alreadyCached = false;
+                                foreach (Event ev in googleEntries) {
+                                    if (ev.Id == masterEv.Id) { alreadyCached = true; break; }
+                                }
+                                if (!alreadyCached) googleEntries.Add(masterEv);
                             }
-                            if (!alreadyCached) googleEntries.Add(masterEv);
                         }
+                    } catch (System.Exception ex) {
+                        Logboxout("Failed to retrieve master for Google recurring event. The following error occurred:\r\n" + ex.Message);
+                        log.Error(ex.StackTrace);
+                        return false;
+                    } finally {
+                        oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
                     }
-                    oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
                 }
             }
             Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
@@ -923,6 +933,8 @@ namespace OutlookGoogleCalendarSync {
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
                     showBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.");
                     trayIcon.Tag = "ShowBubbleWhenMinimising";
+                } else {
+                    trayIcon.Tag = "";
                 }
             }
         }
@@ -1041,6 +1053,7 @@ namespace OutlookGoogleCalendarSync {
             KeyValuePair<string, string> selectedFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.SelectedItem;
             tbOutlookDateFormat.Text = selectedFormat.Value;
             tbOutlookDateFormat.ReadOnly = (selectedFormat.Key != "Custom");
+            Settings.Instance.OutlookDateFormat = tbOutlookDateFormat.Text;
         }
 
         #region Datetime Format

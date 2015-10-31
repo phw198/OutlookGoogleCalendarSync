@@ -31,7 +31,14 @@ namespace OutlookGoogleCalendarSync {
 
         private CalendarService service;
         public const String oEntryID = "outlook_EntryID";
+        
         public static Boolean APIlimitReached_attendee = false;
+        private const int backoffLimit = 5;
+        private enum apiException {
+            justContinue,
+            backoffThenRetry,
+            throwException
+        }
 
         public GoogleCalendar() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
@@ -47,14 +54,30 @@ namespace OutlookGoogleCalendarSync {
 
         public List<MyGoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
-            try {
-                request = service.CalendarList.List().Fetch();
-            } catch (ApplicationException ex) {
-                throw ex;
+            int backoff = 0;
+            while (backoff < backoffLimit) {
+                try {
+                    request = service.CalendarList.List().Fetch();
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (handleAPIlimits(ex, null)) {
+                        case apiException.throwException: throw;
+                        case apiException.backoffThenRetry: {
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                        }
+                    }
+                }
             }
 
             if (request != null) {
-
                 List<MyGoogleCalendarListEntry> result = new List<MyGoogleCalendarListEntry>();
                 foreach (CalendarListEntry cle in request.Items) {
                     result.Add(new MyGoogleCalendarListEntry(cle));
@@ -70,6 +93,7 @@ namespace OutlookGoogleCalendarSync {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
+            Int16 pageNum = 1;
 
             try {
                 log.Debug("Retrieving all recurring event instances from Google.");
@@ -77,13 +101,38 @@ namespace OutlookGoogleCalendarSync {
                     EventsResource.InstancesRequest ir = service.Events.Instances(Settings.Instance.UseGoogleCalendar.Id, recurringEventId);
                     ir.ShowDeleted = true;
                     ir.PageToken = pageToken;
-                    request = ir.Fetch();
-                    pageToken = request.NextPageToken;
+                    int backoff = 0;
+                    while (backoff < backoffLimit) {
+                        try {
+                            request = ir.Fetch();
+                            log.Debug("Page " + pageNum + " received.");
+                            break;
+                        } catch (Google.GoogleApiException ex) {
+                            switch (handleAPIlimits(ex, null)) {
+                                case apiException.throwException: throw;
+                                case apiException.backoffThenRetry: {
+                                        backoff++;
+                                        if (backoff == backoffLimit) {
+                                            log.Error("API limit backoff was not successful. Paginated retrieve failed.");
+                                            throw;
+                                        } else {
+                                            log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                            System.Threading.Thread.Sleep(backoff * 1000);
+                                        }
+                                        break;
+                                    }
+                            }
+                        }
+                    }
 
-                    if (request != null)
+                    if (request != null) {
+                        pageToken = request.NextPageToken;
+                        pageNum++;
                         if (request.Items != null) result.AddRange(request.Items);
+                    }
                 } while (pageToken != null);
                 return result;
+
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("ERROR: Failed to retrieve recurring events");
                 log.Error(ex.Message);
@@ -97,7 +146,28 @@ namespace OutlookGoogleCalendarSync {
             try {
                 log.Debug("Retrieving specific Event with ID " + eventId);
                 EventsResource.GetRequest gr = service.Events.Get(Settings.Instance.UseGoogleCalendar.Id, eventId);
-                request = gr.Fetch();
+                int backoff = 0;
+                while (backoff < backoffLimit) {
+                    try {
+                        request = gr.Fetch();
+                        break;
+                    } catch (Google.GoogleApiException ex) {
+                        switch (handleAPIlimits(ex, null)) {
+                            case apiException.throwException: throw;
+                            case apiException.backoffThenRetry: {
+                                backoff++;
+                                if (backoff == backoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (request != null)
                     return request;
@@ -118,9 +188,10 @@ namespace OutlookGoogleCalendarSync {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
-
+            Int16 pageNum = 1;
+            
+            log.Debug("Retrieving all events from Google: " + from.ToShortDateString() + " -> " + to.ToShortDateString());
             do {
-                log.Debug("Retrieving all events from Google: "+ from.ToShortDateString() +" -> "+ to.ToShortDateString());
                 EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
                 lr.TimeMin = GoogleTimeFrom(from);
@@ -128,10 +199,33 @@ namespace OutlookGoogleCalendarSync {
                 lr.PageToken = pageToken;
                 lr.SingleEvents = false;
                 
-                request = lr.Fetch();
-                pageToken = request.NextPageToken;
+                int backoff = 0;
+                while (backoff < backoffLimit) {
+                    try {
+                        request = lr.Fetch();
+                        log.Debug("Page " + pageNum + " received.");
+                        break;
+                    } catch (Google.GoogleApiException ex) {
+                        switch (handleAPIlimits(ex, null)) {
+                            case apiException.throwException: throw;
+                            case apiException.backoffThenRetry: {
+                                backoff++;
+                                if (backoff == backoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (request != null) {
+                    pageToken = request.NextPageToken;
+                    pageNum++;
                     if (request.Items != null) result.AddRange(request.Items);
                 }
             } while (pageToken != null);
@@ -177,22 +271,13 @@ namespace OutlookGoogleCalendarSync {
                 Event createdEvent = new Event();
                 try {
                     createdEvent = createCalendarEntry_save(newEvent, ai);
-                    if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
-                        log.Info("API limit for attendee sync lifted :-)");
-                        Settings.Instance.APIlimit_inEffect = false;
-                    }
                 } catch (System.Exception ex) {
-                    if (handleAPIlimits(ex, newEvent, ai))
-                        createdEvent = createCalendarEntry_save(newEvent, ai);
-                    else {
-                        MainForm.Instance.Logboxout("WARNING: New event failed to save.\r\n" + ex.Message);
-                        log.Error(ex.StackTrace);
-                        if (MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            continue;
-                        else {
-                            throw new UserCancelledSyncException("User chose not to continue sync.");
-                        }
-                    }
+                    MainForm.Instance.Logboxout("WARNING: New event failed to save.\r\n" + ex.Message);
+                    log.Error(ex.StackTrace);
+                    if (MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        continue;
+                    else 
+                        throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
 
                 if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
@@ -264,9 +349,39 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Saving timestamp when OGCS updated event.");
                 addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
             }
-            
-            Event createdEvent = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Fetch();
-            
+            if (Settings.Instance.APIlimit_inEffect) {
+                addOGCSproperty(ref ev, Program.APIlimitHit, "True");
+            }
+
+            Event createdEvent = new Event();
+            int backoff = 0;
+            while (backoff < backoffLimit) {
+                try {
+                    createdEvent = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Fetch();
+                    if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                        log.Info("API limit for attendee sync lifted :-)");
+                        Settings.Instance.APIlimit_inEffect = false;
+                    }
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (handleAPIlimits(ex, ev)) {
+                        case apiException.throwException: throw; 
+                        case apiException.justContinue: break;
+                        case apiException.backoffThenRetry: {
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
             Boolean gKeyExists = false;
             try {
                 UserProperty up = ai.UserProperties.Find(OutlookCalendar.gEventID);
@@ -303,62 +418,56 @@ namespace OutlookGoogleCalendarSync {
                     log.Error(ex.StackTrace);
                     if (MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
-                    else {
+                    else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
                 }
 
                 if (itemModified > 0) {
                     try {
                         UpdateCalendarEntry_save(ev);
                         entriesUpdated++;
-                        if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
-                            log.Info("API limit for attendee sync lifted :-)");
-                            Settings.Instance.APIlimit_inEffect = false;
-                        }
                     } catch (System.Exception ex) {
-                        if (handleAPIlimits(ex, ev, compare.Key)) {
-                            UpdateCalendarEntry_save(ev);
-                            entriesUpdated++;
-                        } else {
-                            MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
-                            log.Error(ex.StackTrace);
-                            if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                                continue;
-                            else {
-                                throw new UserCancelledSyncException("User chose not to continue sync.");
-                            }
-                        }
+                        MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
+                        log.Error(ex.StackTrace);
+                        if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            continue;
+                        else
+                            throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
+
                 } else if (ev != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date.");
                     addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
-                    UpdateCalendarEntry_save(ev);
+                    try {
+                        UpdateCalendarEntry_save(ev);
+                    } catch (System.Exception ex) {
+                        MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
+                        log.Error(ex.StackTrace);
+                        if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            continue;
+                        else
+                            throw new UserCancelledSyncException("User chose not to continue sync.");
+                    }
                 }
 
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);  
             }
         }
 
-        public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
-            if (!Settings.Instance.APIlimit_inEffect) {
-                //if (!forceCompare) { //Compare/process recurring items
-                    if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
-                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
-                            return null;
-                    } else {
-                        if (OutlookCalendar.OGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
-                            //Outlook last modified by OGCS
-                            return null;
-                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
-                            return null;
-                    }
-                //}
-            } else { //Settings.Instance.APIlimit_inEffect
-                if (!(OGCSlastModified(ev).AddSeconds(5) < Settings.Instance.APIlimit_lastHit &&
-                    DateTime.Parse(ev.Updated) > Settings.Instance.APIlimit_lastHit))
-                    //Not been synced without attendees
-                    return null;
+        public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified) {
+            if (!Settings.Instance.APIlimit_inEffect && GetOGCSproperty(ev, Program.APIlimitHit)) {
+                log.Fine("Back processing Event affected by attendee API limit.");
+            } else {
+                if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                    if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                        return null;
+                } else {
+                    if (OutlookCalendar.OGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
+                        //Outlook last modified by OGCS
+                        return null;
+                    if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                        return null;
+                }
             }
                 
             String aiSummary = OutlookCalendar.GetEventSummary(ai);
@@ -521,8 +630,38 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 log.Debug("Saving timestamp when OGCS updated event.");
                 addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
-            } 
-            var request = service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id).Fetch();
+            }
+            if (Settings.Instance.APIlimit_inEffect)
+                addOGCSproperty(ref ev, Program.APIlimitHit, "True");
+            else
+                removeOGCSproperty(ref ev, Program.APIlimitHit);
+
+            int backoff = 0;
+            while (backoff < backoffLimit) {
+                try {
+                    var request = service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id).Fetch();
+                    if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                        log.Info("API limit for attendee sync lifted :-)");
+                        Settings.Instance.APIlimit_inEffect = false;
+                    }
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (handleAPIlimits(ex, ev)) {
+                        case apiException.throwException: throw;
+                        case apiException.backoffThenRetry: {
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
@@ -577,8 +716,29 @@ namespace OutlookGoogleCalendarSync {
             return doDelete;
         }
 
-        private void deleteCalendarEntry_save(Event e) {
-            string request = service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, e.Id).Fetch();
+        private void deleteCalendarEntry_save(Event ev) {
+            int backoff = 0;
+            while (backoff < backoffLimit) {
+                try {
+                    string request = service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, ev.Id).Fetch();
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (handleAPIlimits(ex, ev)) {
+                        case apiException.throwException: throw;
+                        case apiException.backoffThenRetry: {
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
@@ -623,6 +783,8 @@ namespace OutlookGoogleCalendarSync {
                 log.Info(unclaimedEvents.Count +" unclaimed orphan events found.");
                 if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
                     log.Info("These will be kept due to configuration settings.");
+                } else if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                    log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
                 } else {
                     if (MessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
                         "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
@@ -968,10 +1130,10 @@ namespace OutlookGoogleCalendarSync {
             return ea;
         }
 
-        private static Boolean handleAPIlimits(System.Exception ex, Event ev, AppointmentItem ai) {
+        private static apiException handleAPIlimits(System.Exception ex, Event ev) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
-            if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]")) {
+            if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
                 //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
                 //This happens because too many attendees have been added in a short period of time.
                 //See https://support.google.com/a/answer/2905486?hl=en-uk&hlrm=en
@@ -981,18 +1143,16 @@ namespace OutlookGoogleCalendarSync {
                 
                 APIlimitReached_attendee = true;
                 Settings.Instance.APIlimit_inEffect = true;
-                Settings.Instance.APIlimit_lastHit = ai.LastModificationTime;
+                Settings.Instance.APIlimit_lastHit = DateTime.Now;
 
                 ev.Attendees = new List<EventAttendee>();
-                return true;
+                return apiException.justContinue;
 
             } else if (ex.Message.Contains("Rate Limit Exceeded")) {
-                log.Debug("Exceeded API call rate/second/user - pausing a second...");
-                System.Threading.Thread.Sleep(1000);
-                return true;
+                return apiException.backoffThenRetry;
 
             } else {
-                return false;
+                return apiException.throwException;
             }
         }
 
@@ -1014,7 +1174,6 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void addOGCSproperty(ref Event ev, String key, DateTime value) {
-            if (key == Program.OGCSmodified && Settings.Instance.APIlimit_inEffect) return;
             addOGCSproperty(ref ev, key, value.ToString());
         }
 
@@ -1032,6 +1191,11 @@ namespace OutlookGoogleCalendarSync {
                 value = null;
                 return false;
             }
+        }
+
+        private static void removeOGCSproperty(ref Event ev, String key) {
+            if (GetOGCSproperty(ev, key))
+                ev.ExtendedProperties.Private.Remove(Program.APIlimitHit);
         }
 
         public static DateTime OGCSlastModified(Event ev) {

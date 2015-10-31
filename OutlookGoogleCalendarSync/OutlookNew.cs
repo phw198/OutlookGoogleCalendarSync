@@ -290,9 +290,9 @@ namespace OutlookGoogleCalendarSync {
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
             ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
-            if (ev.Start.TimeZone != null) ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+            if (!String.IsNullOrEmpty(ev.Start.TimeZone)) ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
             ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
-            if (ev.End.TimeZone != null) ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+            if (!String.IsNullOrEmpty(ev.Start.TimeZone)) ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
             return ai;
         }
 

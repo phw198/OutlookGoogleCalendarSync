@@ -62,7 +62,10 @@ namespace OutlookGoogleCalendarSync {
                         oPattern.RecurrenceType = OlRecurrenceType.olRecursWeekly;
                         // Need to work out dayMask from "BY" pattern
                         // Eg "BYDAY=MO,TU,WE,TH,FR"
-                        oPattern.DayOfWeekMask = getDOWmask(ruleBook);
+                        OlDaysOfWeek dowMask = getDOWmask(ruleBook);
+                        if (dowMask != 0) {
+                            oPattern.DayOfWeekMask = dowMask;
+                        }
                         break;
                     }
                 case "MONTHLY": {
@@ -176,7 +179,7 @@ namespace OutlookGoogleCalendarSync {
                 case OlRecurrenceType.olRecursWeekly: {
                         addRule(rrule, "FREQ", "WEEKLY");
                         setInterval(oPattern.Interval);
-                        if (oPattern.Interval == 1) {
+                        if ((oPattern.DayOfWeekMask & (oPattern.DayOfWeekMask-1)) != 0) { //is not a power of 2 (i.e. not just a single day) 
                             // Need to work out "BY" pattern
                             // Eg "BYDAY=MO,TU,WE,TH,FR"
                             addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
@@ -467,7 +470,7 @@ namespace OutlookGoogleCalendarSync {
                                 continue;
                             }
                             try {
-                                GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, gExcp, ref excp_itemModified, forceCompare: true);
+                                GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, gExcp, ref excp_itemModified);
                             } catch (System.Exception ex) {
                                 if (oIsDeleted) {
                                     if (gExcp.Status != "cancelled") {

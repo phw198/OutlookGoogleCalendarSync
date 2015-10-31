@@ -369,8 +369,8 @@ namespace OutlookGoogleCalendarSync {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine(evSummary);
 
+            RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) ? null : ai.GetRecurrencePattern();
             if (ev.Start.Date != null) {
-                RecurrencePattern oPattern = ai.GetRecurrencePattern();
                 if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = true;
                 if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook, ev.Start.Date, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
                     if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternStartDate = DateTime.Parse(ev.Start.Date);
@@ -380,9 +380,7 @@ namespace OutlookGoogleCalendarSync {
                     if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternEndDate = DateTime.Parse(ev.End.Date);
                     else ai.End = DateTime.Parse(ev.End.Date);
                 }
-                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
             } else {
-                RecurrencePattern oPattern = ai.GetRecurrencePattern();
                 if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = false;
                 if (MainForm.CompareAttribute("Start time",
                     SyncDirection.GoogleToOutlook,
@@ -400,8 +398,8 @@ namespace OutlookGoogleCalendarSync {
                     if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) oPattern.PatternEndDate = DateTime.Parse(ev.End.DateTime);
                     else ai.End = DateTime.Parse(ev.End.DateTime);
                 }
-                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
             }
+            oPattern = (RecurrencePattern)ReleaseObject(oPattern);
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
                 if (ev.Recurrence == null || ev.RecurringEventId != null) {

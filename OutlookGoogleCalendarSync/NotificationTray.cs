@@ -84,10 +84,13 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            if (notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
+            if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
                 Settings.Instance.ShowBubbleWhenMinimising = false;
-                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile); 
+                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile);
                 notifyIcon.Tag = "";
+            } else {
+                MainForm.Instance.MainFormShow();
+                MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Sync;
             }
         }
 
