@@ -435,8 +435,14 @@ namespace OutlookGoogleCalendarSync {
                             throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
 
-                } else if (ev != null) {
-                    log.Debug("Doing a dummy update in order to update the last modified date.");
+                } 
+
+                //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
+                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);  
+
+                if (itemModified == 0 && ev != null) {
+                    log.Debug("Doing a dummy update in order to update the last modified date of "+ 
+                        (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring event" : "single instance"));
                     addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
                     try {
                         UpdateCalendarEntry_save(ev);
@@ -450,7 +456,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
 
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);  
             }
         }
 
@@ -1026,7 +1031,7 @@ namespace OutlookGoogleCalendarSync {
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"
         public static string GoogleTimeFrom(DateTime dt) {
-            return dt.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            return dt.ToString("yyyy-MM-ddTHH:mm:sszzz", new System.Globalization.CultureInfo("en-US"));
         }
         
         public static string signature(Event ev) {
