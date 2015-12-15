@@ -298,7 +298,7 @@ namespace OutlookGoogleCalendarSync {
 
         private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
             Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
-            var utcZones = new[] { "Etc/UTC", "Etc/UCT" };
+            var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC" };
             if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
                 log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
                 return tzs["UTC"];
@@ -312,7 +312,6 @@ namespace OutlookGoogleCalendarSync {
             var mappings = tzdbSource.WindowsMapping.MapZones;
             var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(links.Contains));
             if (item == null) {
-
                 log.Warn("Timezone \"" + ianaZoneId + "\" could not find a mapping");
                 return null;
             }

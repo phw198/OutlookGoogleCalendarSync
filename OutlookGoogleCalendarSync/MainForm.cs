@@ -22,7 +22,7 @@ namespace OutlookGoogleCalendarSync {
         private Timer ogcsTimer;
         private DateTime lastSyncDate;
 
-        private BackgroundWorker bwSync;
+        private AbortableBackgroundWorker bwSync;
         public Boolean SyncingNow {
             get {
                 if (bwSync == null) return false;
@@ -183,6 +183,7 @@ namespace OutlookGoogleCalendarSync {
                 } else if (i == cbOutlookDateFormat.Items.Count - 1 && cbOutlookDateFormat.SelectedIndex == 0) {
                     cbOutlookDateFormat.SelectedIndex = i;
                     tbOutlookDateFormat.Text = Settings.Instance.OutlookDateFormat;
+                    tbOutlookDateFormat.ReadOnly = false;
                 }
             }
             #endregion
@@ -401,24 +402,37 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public void Sync_Requested(object sender = null, EventArgs e = null) {
-            if (bSyncNow.Text == "Start Sync") {
-                if (sender != null && sender.GetType().ToString().EndsWith("Timer")) {
+            if (sender != null && sender.GetType().ToString().EndsWith("Timer")) { //Automated sync
+                if (bSyncNow.Text == "Start Sync") {
                     log.Debug("Scheduled sync started.");
                     Timer aTimer = sender as Timer;
                     if (aTimer.Tag.ToString() == "PushTimer") sync_Start(updateSyncSchedule: false);
                     else if (aTimer.Tag.ToString() == "AutoSyncTimer") sync_Start(updateSyncSchedule: true);
-                } else {
-                    log.Debug("Manual sync started.");
-                    sync_Start(updateSyncSchedule: false);
+                } else if (bSyncNow.Text == "Stop Sync") {
+                    log.Warn("Automated sync triggered whilst previous automated sync is still running. Ignoring this new request.");
+                    if (bwSync == null)
+                        log.Debug("Background worker is null somehow?!");
+                    else 
+                        log.Debug("Background worker must be reporting not busy? " + bwSync.IsBusy.ToString());
                 }
 
-            } else if (bSyncNow.Text == "Stop Sync") {
-                if (bwSync != null && !bwSync.CancellationPending) {
-                    log.Warn("Sync cancellation requested.");
-                    bwSync.CancelAsync();
-                } else {
-                    log.Warn("Repeated cancellation requested - forcefully aborting thread!");
-                    bwSync = null;
+            } else { //Manual sync
+                if (bSyncNow.Text == "Start Sync") {
+                    log.Debug("Manual sync started.");
+                    sync_Start(updateSyncSchedule: false);
+
+                } else if (bSyncNow.Text == "Stop Sync") {
+                    if (bwSync != null && !bwSync.CancellationPending) {
+                        log.Warn("Sync cancellation requested.");
+                        bwSync.CancelAsync();
+                    } else {
+                        Logboxout("Repeated cancellation requested - forcefully aborting thread!");
+                        try {
+                            bwSync.Abort();
+                            bwSync.Dispose();
+                            bwSync = null;
+                        } catch { }
+                    }
                 }
             }
         } 
@@ -480,7 +494,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
-                bwSync = new BackgroundWorker();
+                bwSync = new AbortableBackgroundWorker();
                 //Don't need thread to report back. The logbox is updated from the thread anyway.
                 bwSync.WorkerReportsProgress = false;
                 bwSync.WorkerSupportsCancellation = true;
@@ -581,10 +595,19 @@ namespace OutlookGoogleCalendarSync {
                     //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                     RecurrencePattern oPattern = ai.GetRecurrencePattern();
                     try {
-                        if (oPattern.RecurrenceType.ToString().Contains("Year") &&
-                        (ai.Start.Month < Settings.Instance.SyncStart.Month || ai.Start.Month > Settings.Instance.SyncEnd.Month)) {
-                            outlookEntries.Remove(outlookEntries[o]);
-                        } else {
+                        if (oPattern.RecurrenceType.ToString().Contains("Year")) {
+                            Boolean monthInSyncRange = false;
+                            DateTime monthMarker = Settings.Instance.SyncStart;
+                            while (monthMarker <= Settings.Instance.SyncEnd && !monthInSyncRange) {
+                                if (monthMarker.Month == ai.Start.Month) {
+                                    monthInSyncRange = true;
+                                }
+                                monthMarker = monthMarker.AddMonths(1);
+                            }
+                            if (!monthInSyncRange) outlookEntries.Remove(ai);
+
+                        }
+                        if (!oPattern.RecurrenceType.ToString().Contains("Year") || outlookEntries.Contains(ai)) {
                             Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
                             if (masterEv != null) {
                                 Boolean alreadyCached = false;
@@ -910,15 +933,7 @@ namespace OutlookGoogleCalendarSync {
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
-            applyProxy();
             Settings.Instance.Save();
-            
-            Program.CreateStartupShortcut();
-
-            //Push Sync
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
-            else OutlookCalendar.Instance.DeregisterForAutoSync();
-
             Settings.Instance.LogSettings();
         }
 
@@ -1049,19 +1064,28 @@ namespace OutlookGoogleCalendarSync {
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
 
+        #region Datetime Format
         private void cbOutlookDateFormat_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<string, string> selectedFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.SelectedItem;
-            tbOutlookDateFormat.Text = selectedFormat.Value;
+            if (selectedFormat.Key != "Custom") {
+                tbOutlookDateFormat.Text = selectedFormat.Value;
+                Settings.Instance.OutlookDateFormat = tbOutlookDateFormat.Text;
+            }
             tbOutlookDateFormat.ReadOnly = (selectedFormat.Key != "Custom");
-            Settings.Instance.OutlookDateFormat = tbOutlookDateFormat.Text;
         }
 
-        #region Datetime Format
         private void tbOutlookDateFormat_TextChanged(object sender, EventArgs e) {
-            tbOutlookDateFormatResult.Text = DateTime.Now.ToString(tbOutlookDateFormat.Text);
+            try {
+                tbOutlookDateFormatResult.Text = DateTime.Now.ToString(tbOutlookDateFormat.Text);
+            } catch (System.FormatException) {
+                tbOutlookDateFormatResult.Text = "Not a valid date format";
+            }
         }
 
         private void tbOutlookDateFormat_Leave(object sender, EventArgs e) {
+            if (String.IsNullOrEmpty(tbOutlookDateFormat.Text) || tbOutlookDateFormatResult.Text == "Not a valid date format") {
+                cbOutlookDateFormat.SelectedIndex = 0;
+            }
             Settings.Instance.OutlookDateFormat = tbOutlookDateFormat.Text;
         }
 
@@ -1145,6 +1169,13 @@ namespace OutlookGoogleCalendarSync {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id-1;
             }
+            if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) {
+                OutlookCalendar.Instance.DeregisterForAutoSync();
+                this.cbOutlookPush.Checked = false;
+                this.cbOutlookPush.Enabled = false;
+            } else {
+                this.cbOutlookPush.Enabled = true;
+            }
             showWhatPostit();
         }
 
@@ -1204,17 +1235,28 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
+            if ((int)tbInterval.Value > 0 && (int)tbInterval.Value < 10 && cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
+                if (tbInterval.Value < Convert.ToInt16(tbInterval.Text))
+                    tbInterval.Value = 0;
+                else
+                    tbInterval.Value = 10;
+            }
             Settings.Instance.SyncInterval = (int)tbInterval.Value;
             setNextSync(getResyncInterval());
         }
 
         private void cbIntervalUnit_SelectedIndexChanged(object sender, EventArgs e) {
+            if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < 10) {
+                tbInterval.Value = 10;
+            }
             Settings.Instance.SyncIntervalUnit = cbIntervalUnit.Text;
             setNextSync(getResyncInterval());
         }
 
         private void cbOutlookPush_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.OutlookPush = cbOutlookPush.Checked;
+            if (cbOutlookPush.Checked) OutlookCalendar.Instance.RegisterForAutoSync();
+            else OutlookCalendar.Instance.DeregisterForAutoSync();                
         }
         #endregion
         #region What
@@ -1246,6 +1288,7 @@ namespace OutlookGoogleCalendarSync {
         #region Application settings
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
+            Program.CreateStartupShortcut();
         }
 
         private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
@@ -1311,6 +1354,21 @@ namespace OutlookGoogleCalendarSync {
             applyProxy();
         }
         #endregion
+        #endregion
+
+        #region Help
+        private void linkTShoot_loglevel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            this.tabApp.SelectedTab = this.tabPage_Settings;
+            this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabAppBehaviour"];
+        }
+
+        private void linkTShoot_issue_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/workitem/list/basic");
+        }
+
+        private void linkTShoot_logfile_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            this.btLogLocation_Click(null, null);
+        }
         #endregion
 
         private void cbVerboseOutput_CheckedChanged(object sender, EventArgs e) {

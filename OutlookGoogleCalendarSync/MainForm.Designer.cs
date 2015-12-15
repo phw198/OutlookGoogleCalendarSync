@@ -135,6 +135,9 @@
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
             this.bSave = new System.Windows.Forms.Button();
             this.tabPage_Help = new System.Windows.Forms.TabPage();
+            this.linkTShoot_logfile = new System.Windows.Forms.LinkLabel();
+            this.linkTShoot_issue = new System.Windows.Forms.LinkLabel();
+            this.linkTShoot_loglevel = new System.Windows.Forms.LinkLabel();
             this.label27 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
@@ -460,6 +463,7 @@
             // 
             this.cbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbOutlookDateFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbOutlookDateFormat.FormattingEnabled = true;
             this.cbOutlookDateFormat.Location = new System.Drawing.Point(8, 79);
@@ -1516,6 +1520,9 @@
             // 
             // tabPage_Help
             // 
+            this.tabPage_Help.Controls.Add(this.linkTShoot_logfile);
+            this.tabPage_Help.Controls.Add(this.linkTShoot_issue);
+            this.tabPage_Help.Controls.Add(this.linkTShoot_loglevel);
             this.tabPage_Help.Controls.Add(this.label27);
             this.tabPage_Help.Controls.Add(this.label26);
             this.tabPage_Help.Controls.Add(this.label20);
@@ -1527,6 +1534,45 @@
             this.tabPage_Help.TabIndex = 3;
             this.tabPage_Help.Text = "Help";
             this.tabPage_Help.UseVisualStyleBackColor = true;
+            // 
+            // linkTShoot_logfile
+            // 
+            this.linkTShoot_logfile.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.linkTShoot_logfile.AutoSize = true;
+            this.linkTShoot_logfile.Location = new System.Drawing.Point(158, 516);
+            this.linkTShoot_logfile.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.linkTShoot_logfile.Name = "linkTShoot_logfile";
+            this.linkTShoot_logfile.Size = new System.Drawing.Size(92, 13);
+            this.linkTShoot_logfile.TabIndex = 50;
+            this.linkTShoot_logfile.TabStop = true;
+            this.linkTShoot_logfile.Text = "OGcalsync.log file";
+            this.linkTShoot_logfile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkTShoot_logfile_LinkClicked);
+            // 
+            // linkTShoot_issue
+            // 
+            this.linkTShoot_issue.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.linkTShoot_issue.AutoSize = true;
+            this.linkTShoot_issue.Location = new System.Drawing.Point(295, 503);
+            this.linkTShoot_issue.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.linkTShoot_issue.Name = "linkTShoot_issue";
+            this.linkTShoot_issue.Size = new System.Drawing.Size(94, 13);
+            this.linkTShoot_issue.TabIndex = 49;
+            this.linkTShoot_issue.TabStop = true;
+            this.linkTShoot_issue.Text = "issue on CodePlex";
+            this.linkTShoot_issue.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkTShoot_issue_LinkClicked);
+            // 
+            // linkTShoot_loglevel
+            // 
+            this.linkTShoot_loglevel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.linkTShoot_loglevel.AutoSize = true;
+            this.linkTShoot_loglevel.Location = new System.Drawing.Point(135, 477);
+            this.linkTShoot_loglevel.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.linkTShoot_loglevel.Name = "linkTShoot_loglevel";
+            this.linkTShoot_loglevel.Size = new System.Drawing.Size(66, 13);
+            this.linkTShoot_loglevel.TabIndex = 48;
+            this.linkTShoot_loglevel.TabStop = true;
+            this.linkTShoot_loglevel.Text = "logging level";
+            this.linkTShoot_loglevel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkTShoot_loglevel_LinkClicked);
             // 
             // label27
             // 
@@ -1543,7 +1589,7 @@
             // 
             // label26
             // 
-            this.label26.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.label26.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label26.AutoSize = true;
             this.label26.Location = new System.Drawing.Point(89, 464);
             this.label26.Name = "label26";
@@ -1583,8 +1629,8 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20.58824F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 79.41177F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 106F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 79.41176F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 115F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 121F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(434, 347);
             this.tableLayoutPanel1.TabIndex = 38;
@@ -1608,7 +1654,7 @@
             this.label22.AutoSize = true;
             this.label22.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label22.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label22.Location = new System.Drawing.Point(8, 119);
+            this.label22.Location = new System.Drawing.Point(8, 110);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(21, 15);
             this.label22.TabIndex = 42;
@@ -1618,7 +1664,7 @@
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(40, 24);
+            this.label21.Location = new System.Drawing.Point(40, 22);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(389, 78);
             this.label21.TabIndex = 41;
@@ -1630,7 +1676,7 @@
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label19.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label19.Location = new System.Drawing.Point(8, 24);
+            this.label19.Location = new System.Drawing.Point(8, 22);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(21, 15);
             this.label19.TabIndex = 40;
@@ -1662,7 +1708,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(40, 119);
+            this.label23.Location = new System.Drawing.Point(40, 110);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(379, 104);
             this.label23.TabIndex = 43;
@@ -2196,5 +2242,8 @@
         private System.Windows.Forms.LinkLabel urlDateFormats;
         private System.Windows.Forms.Label label32;
         public System.Windows.Forms.TabPage tabPage_Sync;
+        private System.Windows.Forms.LinkLabel linkTShoot_logfile;
+        private System.Windows.Forms.LinkLabel linkTShoot_issue;
+        private System.Windows.Forms.LinkLabel linkTShoot_loglevel;
     }
 }

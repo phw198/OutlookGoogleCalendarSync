@@ -132,6 +132,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbortableBackgroundWorker.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="EmailAddress.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="NotificationTray.cs" />

@@ -39,6 +39,7 @@ namespace OutlookGoogleCalendarSync {
             backoffThenRetry,
             throwException
         }
+        private static Random random = new Random();
 
         public GoogleCalendar() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
@@ -347,7 +348,7 @@ namespace OutlookGoogleCalendarSync {
         private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 log.Debug("Saving timestamp when OGCS updated event.");
-                addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
+                setOGCSlastModified(ref ev);
             }
             if (Settings.Instance.APIlimit_inEffect) {
                 addOGCSproperty(ref ev, Program.APIlimitHit, "True");
@@ -443,7 +444,7 @@ namespace OutlookGoogleCalendarSync {
                 if (itemModified == 0 && ev != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date of "+ 
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring event" : "single instance"));
-                    addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
+                    setOGCSlastModified(ref ev);
                     try {
                         UpdateCalendarEntry_save(ev);
                     } catch (System.Exception ex) {
@@ -459,19 +460,21 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified) {
+        public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
             if (!Settings.Instance.APIlimit_inEffect && GetOGCSproperty(ev, Program.APIlimitHit)) {
                 log.Fine("Back processing Event affected by attendee API limit.");
             } else {
-                if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
-                    if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
-                        return null;
-                } else {
-                    if (OutlookCalendar.OGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
-                        //Outlook last modified by OGCS
-                        return null;
-                    if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
-                        return null;
+                if (!forceCompare) { //Needed if the exception has just been created, but now needs updating
+                    if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                            return null;
+                    } else {
+                        if (OutlookCalendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
+                            //Outlook last modified by OGCS
+                            return null;
+                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                            return null;
+                    }
                 }
             }
                 
@@ -634,7 +637,7 @@ namespace OutlookGoogleCalendarSync {
         public void UpdateCalendarEntry_save(Event ev) {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 log.Debug("Saving timestamp when OGCS updated event.");
-                addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
+                setOGCSlastModified(ref ev);
             }
             if (Settings.Instance.APIlimit_inEffect)
                 addOGCSproperty(ref ev, Program.APIlimitHit, "True");
@@ -833,8 +836,8 @@ namespace OutlookGoogleCalendarSync {
                             //This change was effective from v2.0.2.3
                             Event ev = google[g];
                             AddOutlookID(ref ev, outlook[o]);
-                            UpdateCalendarEntry_save(ev);
                             google[g] = ev;
+                            UpdateCalendarEntry_save(google[g]);
                             compare_gEntryID = compare_oGlobalID;
                             migrated++;
                             //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
@@ -1036,13 +1039,21 @@ namespace OutlookGoogleCalendarSync {
         
         public static string signature(Event ev) {
             String signature = "";
-            if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
-                signature += GoogleTimeFrom(DateTime.Parse(ev.OriginalStartTime.Date ?? ev.OriginalStartTime.DateTime));
-                signature += ";" + (ev.Summary ?? "[cancelled]");
-            } else {
-                signature += GoogleTimeFrom(DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime));
-                signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.End.Date ?? ev.End.DateTime));
-                signature += ";" + ev.Summary;
+            try {
+                if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
+                    signature += (ev.Summary ?? "[cancelled]");
+                    signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.OriginalStartTime.Date ?? ev.OriginalStartTime.DateTime));
+                } else {
+                    signature += ev.Summary;
+                    signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime)) + ";";
+                    if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
+                        signature += GoogleTimeFrom(DateTime.Parse(ev.End.Date ?? ev.End.DateTime));
+                    }
+                }
+            } catch {
+                log.Debug("Failed to create signature: " + signature);
+                signature += random.Next(1,10000000).ToString();
+                log.Warn("Random signature created: " + signature);
             }
             return signature.Trim();
         }
@@ -1177,7 +1188,6 @@ namespace OutlookGoogleCalendarSync {
             else
                 ev.ExtendedProperties.Private.Add(key, value);
         }
-
         private static void addOGCSproperty(ref Event ev, String key, DateTime value) {
             addOGCSproperty(ref ev, key, value.ToString());
         }
@@ -1203,13 +1213,16 @@ namespace OutlookGoogleCalendarSync {
                 ev.ExtendedProperties.Private.Remove(Program.APIlimitHit);
         }
 
-        public static DateTime OGCSlastModified(Event ev) {
+        public static DateTime GetOGCSlastModified(Event ev) {
             String lastModded = null;
             if (GetOGCSproperty(ev, Program.OGCSmodified, out lastModded)) {
                 return DateTime.Parse(lastModded);
             } else {
                 return new DateTime();
             }
+        }
+        private static void setOGCSlastModified(ref Event ev) {
+            addOGCSproperty(ref ev, Program.OGCSmodified, DateTime.Now);
         }
         #endregion
         #endregion

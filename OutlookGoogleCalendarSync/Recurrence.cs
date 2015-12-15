@@ -121,8 +121,13 @@ namespace OutlookGoogleCalendarSync {
                 oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
             if (ruleBook.ContainsKey("COUNT"))
                 oPattern.Occurrences = Convert.ToInt16(ruleBook["COUNT"]);
-            if (ruleBook.ContainsKey("UNTIL"))
-                oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture);
+            if (ruleBook.ContainsKey("UNTIL")) {
+                if (ev.Start.DateTime == null) {
+                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                } else {
+                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
             #endregion
 
             ai = OutlookCalendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
@@ -133,6 +138,7 @@ namespace OutlookGoogleCalendarSync {
 
             log.Fine("Building a temporary recurrent Appointment generated from Event");
             AppointmentItem evAI = OutlookCalendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+            evAI.Start = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime); 
             RecurrencePattern evOpattern;
             RecurrencePattern aiOpattern = ai.GetRecurrencePattern();
             BuildOutlookPattern(ev, evAI, out evOpattern);
@@ -416,14 +422,13 @@ namespace OutlookGoogleCalendarSync {
             if (gRecurrences != null) {
                 Microsoft.Office.Interop.Outlook.Exceptions exps = ai.GetRecurrencePattern().Exceptions;
                 foreach (Microsoft.Office.Interop.Outlook.Exception oExcp in exps) {
-                    String oDate = GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate);
                     foreach (Event ev in gRecurrences) {
                         String gDate = ev.OriginalStartTime.DateTime ?? ev.OriginalStartTime.Date;
                         Boolean isDeleted = exceptionIsDeleted(oExcp);
                         if (isDeleted && !ai.AllDayEvent) { //Deleted items get truncated?!
                             gDate = GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gDate).Date);
                         }
-                        if (oDate == gDate) {
+                        if (oExcp.OriginalDate == DateTime.Parse(gDate)) {
                             if (isDeleted) {
                                 MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
                                 MainForm.Instance.Logboxout("Recurrence deleted.");
@@ -431,7 +436,7 @@ namespace OutlookGoogleCalendarSync {
                                 GoogleCalendar.Instance.UpdateCalendarEntry_save(ev);
                             } else {
                                 int exceptionItemsModified = 0;
-                                Event modifiedEv = GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, ev, ref exceptionItemsModified);
+                                Event modifiedEv = GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, ev, ref exceptionItemsModified, forceCompare:true);
                                 if (exceptionItemsModified > 0) {
                                     GoogleCalendar.Instance.UpdateCalendarEntry_save(modifiedEv);
                                 }

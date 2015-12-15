@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync {
                 MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             } catch (Exception ex) {
                 log.Fatal("Application unexpectedly terminated!");
-                log.Fatal(ex.Message);
+                log.Fatal(ex.GetType().ToString() +": "+ ex.Message);
                 log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 OutlookCalendar.Instance.IOutlook.Disconnect();
@@ -149,7 +149,7 @@ namespace OutlookGoogleCalendarSync {
                 System.IO.Directory.CreateDirectory(shortcutDir);
             }
 
-            string shortcutLocation = System.IO.Path.Combine(shortcutDir, "OutlookGoogleCalendarSync.lnk");
+            string shortcutLocation = System.IO.Path.Combine(shortcutDir, Application.ProductName + ".lnk");
             IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
             IWshRuntimeLibrary.IWshShortcut shortcut = shell.CreateShortcut(shortcutLocation) as IWshRuntimeLibrary.WshShortcut;
 
@@ -188,7 +188,8 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             foreach (String file in System.IO.Directory.GetFiles(shortcutDir)) {
-                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk")) {
+                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk") || //legacy name <=v2.1.0.0
+                    file.EndsWith("\\" + Application.ProductName + ".lnk")) {
                     System.IO.File.Delete(file);
                     log.Info("Deleted shortcut in \"" + shortcutDir + "\"");
                     break;
@@ -264,6 +265,7 @@ namespace OutlookGoogleCalendarSync {
             if (System.Diagnostics.Debugger.IsAttached) return;
 
             Program.isManualCheck = isManualCheck;
+            log.Debug((isManualCheck ? "Manual" : "Automatic") + " update check requested.");
             if (isManualCheck) MainForm.Instance.btCheckForUpdate.Text = "Checking...";
 
             if (isClickOnceInstall()) {
