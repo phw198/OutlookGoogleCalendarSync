@@ -7,7 +7,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(Social));
 
         public static void Donate() {
-            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ");
+            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
 
         #region Social

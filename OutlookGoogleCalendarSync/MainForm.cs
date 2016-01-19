@@ -38,8 +38,7 @@ namespace OutlookGoogleCalendarSync {
             notificationTray = new NotificationTray(this.trayIcon);
             
             if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
-            lVersion.Text = lVersion.Text.Replace("{version}", System.Windows.Forms.Application.ProductVersion);
-
+            
             Instance = this;
 
             Social.TrackVersion();
@@ -266,8 +265,21 @@ namespace OutlookGoogleCalendarSync {
             }
             updateGUIsettings_Proxy();
             #endregion
+            #region About
+            int r = 0;
+            dgAbout.Rows.Add();
+            dgAbout.Rows[r].Cells[0].Value = "Version";
+            dgAbout.Rows[r].Cells[1].Value = System.Windows.Forms.Application.ProductVersion;
+            dgAbout.Rows.Add(); r++;
+            dgAbout.Rows[r].Cells[0].Value = "Running From";
+            dgAbout.Rows[r].Cells[1].Value = Program.UserFilePath;
+            dgAbout.Rows.Add(); r++;
+            dgAbout.Rows[r].Cells[0].Value = "Subscription";
+            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
+            
             cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
             cbAlphaReleases.Visible = !Program.isClickOnceInstall();
+            #endregion
             this.ResumeLayout();
         }
 
@@ -365,7 +377,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         
-        void setNextSync(int delayMins, Boolean fromNow=false) {
+        private void setNextSync(int delayMins, Boolean fromNow=false) {
             if (tbInterval.Value != 0) {
                 DateTime nextSyncDate = lastSyncDate.AddMinutes(delayMins);
                 DateTime now = DateTime.Now;
@@ -375,11 +387,11 @@ namespace OutlookGoogleCalendarSync {
                 if (ogcsTimer.Interval != (delayMins * 60000)) {
                     ogcsTimer.Stop();
                     TimeSpan diff = nextSyncDate - now;
-                    if (diff.Minutes < 1) {
+                    if (diff.TotalMinutes < 1) {
                         nextSyncDate = now.AddMinutes(1);
                         ogcsTimer.Interval = 1 * 60000;
                     } else {
-                        ogcsTimer.Interval = diff.Minutes * 60000;
+                        ogcsTimer.Interval = (int)(diff.TotalMinutes * 60000);
                     }
                     ogcsTimer.Start();
                 }
@@ -464,6 +476,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             GoogleCalendar.APIlimitReached_attendee = false;
+            MainForm.Instance.syncNote(SyncNotes.QuotaExhaustedInfo, null, false);
             bSyncNow.Text = "Stop Sync";
             notificationTray.UpdateItem("sync", "&Stop Sync");
 
@@ -485,7 +498,7 @@ namespace OutlookGoogleCalendarSync {
             Social.TrackSync();
             while (!syncOk) {
                 if (failedAttempts > 0 &&
-                    MessageBox.Show("The synchronisation failed. Do you want to try again?", "Sync Failed",
+                    MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
                 {
                     bSyncNow.Text = "Start Sync";
@@ -930,6 +943,54 @@ namespace OutlookGoogleCalendarSync {
             else log.Info(s.TrimEnd());
         }
 
+        public enum SyncNotes {
+            QuotaExhaustedInfo,
+            RecentSubscription,
+            SubscriptionPendingExpire,
+            SubscriptionExpired
+        }
+        public void syncNote(SyncNotes syncNote, Object extraData, Boolean show = true) {
+            if (!this.tbSyncNote.Visible && !show) return; //Already hidden
+
+            String note = "";
+            String url = "";
+            String urlStub = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=";
+            String cr = "\r\n";
+            switch (syncNote) {
+                case SyncNotes.QuotaExhaustedInfo: 
+                    note =  "  Google's daily free calendar quota is exhausted!" + cr +
+                            "     Either wait for new quota at 08:00GMT or     " + cr +
+                            "  get yourself guaranteed quota for just £1/month.";
+                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    break;
+                case SyncNotes.RecentSubscription:
+                    note =  "                                                  " + cr +
+                            "   Thank you for your subscription and support!   " + cr +
+                            "                                                  ";
+                    break;
+                case SyncNotes.SubscriptionPendingExpire:
+                    DateTime expiration = (DateTime)extraData;
+                    note =  "  Your annual subscription for guaranteed quota   " + cr +
+                            "  for Google calendar usage is expiring on" + expiration.ToString("dd-MMM") + "." + cr +
+                            "         Click to renew for just £1/month.        ";
+                    url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy") + " for " + Settings.Instance.GaccountEmail;
+                    break;
+                case SyncNotes.SubscriptionExpired:
+                    expiration = (DateTime)extraData;
+                    note =  "  Your annual subscription for guaranteed quota   " + cr +
+                            "    for Google calendar usage expired on " + expiration.ToString("dd-MMM") + "." + cr +
+                            "         Click to renew for just £1/month.        ";
+                    url = urlStub + "OGCS Premium renewal for " + Settings.Instance.GaccountEmail;
+                    break;
+            }
+            String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
+            if (note != existingNote && !show) return; //Trying to hide a note that isn't currently displaying
+            SetControlPropertyThreadSafe(tbSyncNote, "Text", note);
+            SetControlPropertyThreadSafe(tbSyncNote, "Tag", url);
+            SetControlPropertyThreadSafe(tbSyncNote, "Visible", show);
+            SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
+        }
+
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
@@ -954,8 +1015,14 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        void lAboutURL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+        private void lAboutURL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             System.Diagnostics.Process.Start(lAboutURL.Text);
+        }
+
+        private void tbSyncNote_Click(object sender, EventArgs e) {
+            if (tbSyncNote.Tag != "") {
+                System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
+            }
         }
         #endregion
         private void tabAppSettings_DrawItem(object sender, DrawItemEventArgs e) {
@@ -1113,9 +1180,10 @@ namespace OutlookGoogleCalendarSync {
             List<MyGoogleCalendarListEntry> calendars = null;
             try {
                 calendars = GoogleCalendar.Instance.GetCalendars();
-            } catch (ApplicationException) {
+            } catch (ApplicationException ex) {
+                if (!String.IsNullOrEmpty(ex.Message)) Logboxout(ex.Message);
             } catch (System.Exception ex) {
-                MessageBox.Show("Failed to retrieve Google calendars. \r\n" +
+                MessageBox.Show("Failed to retrieve Google calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logboxout("Unable to get the list of Google calendars. The following error occurred:");

@@ -24,7 +24,11 @@ namespace OutlookGoogleCalendarSync {
         private static GoogleCalendar instance;
         public static GoogleCalendar Instance {
             get {
-                if (instance == null) instance = new GoogleCalendar();
+                if (instance == null) {
+                    instance = new GoogleCalendar();
+                    instance.initCalendarService();
+                    instance.userSubscriptionCheck();
+                }
                 return instance;
             }
         }
@@ -37,20 +41,36 @@ namespace OutlookGoogleCalendarSync {
         private enum apiException {
             justContinue,
             backoffThenRetry,
+            freeAPIexhausted,
             throwException
         }
         private static Random random = new Random();
 
-        public GoogleCalendar() {
+        public GoogleCalendar() { }
+
+        public void initCalendarService() {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
-            provider.ClientIdentifier = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
-            provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
+            if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000")) {
+                provider.ClientIdentifier = "550071650559-44lnvhdu5liq5kftj5t8k0aasgei5g7t.apps.googleusercontent.com";
+                provider.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
+            } else {
+                provider.ClientIdentifier = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
+                provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
+            }
             service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, getAuthentication));
         }
 
         public void Reset() {
-            instance = new GoogleCalendar();
             Settings.Instance.RefreshToken = "";
+            initCalendarService();
+        }
+
+        public String ChangeAPIkeys() {
+            String msg = "Your authorisation token is no longer valid and has been removed.\r\n" +
+                        "The process to reauthorise access to your Google account will now begin...";
+            MessageBox.Show(msg, "Authorisation token invalid", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            Reset();
+            return msg;
         }
 
         public List<MyGoogleCalendarListEntry> GetCalendars() {
@@ -63,6 +83,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (Google.GoogleApiException ex) {
                     switch (handleAPIlimits(ex, null)) {
                         case apiException.throwException: throw;
+                        case apiException.freeAPIexhausted: throw;
                         case apiException.backoffThenRetry: {
                             backoff++;
                             if (backoff == backoffLimit) {
@@ -111,6 +132,7 @@ namespace OutlookGoogleCalendarSync {
                         } catch (Google.GoogleApiException ex) {
                             switch (handleAPIlimits(ex, null)) {
                                 case apiException.throwException: throw;
+                                case apiException.freeAPIexhausted: throw;
                                 case apiException.backoffThenRetry: {
                                         backoff++;
                                         if (backoff == backoffLimit) {
@@ -155,6 +177,7 @@ namespace OutlookGoogleCalendarSync {
                     } catch (Google.GoogleApiException ex) {
                         switch (handleAPIlimits(ex, null)) {
                             case apiException.throwException: throw;
+                            case apiException.freeAPIexhausted: throw;
                             case apiException.backoffThenRetry: {
                                 backoff++;
                                 if (backoff == backoffLimit) {
@@ -194,7 +217,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Retrieving all events from Google: " + from.ToShortDateString() + " -> " + to.ToShortDateString());
             do {
                 EventsResource.ListRequest lr = service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
-
+                
                 lr.TimeMin = GoogleTimeFrom(from);
                 lr.TimeMax = GoogleTimeFrom(to);
                 lr.PageToken = pageToken;
@@ -209,6 +232,7 @@ namespace OutlookGoogleCalendarSync {
                     } catch (Google.GoogleApiException ex) {
                         switch (handleAPIlimits(ex, null)) {
                             case apiException.throwException: throw;
+                            case apiException.freeAPIexhausted: throw;
                             case apiException.backoffThenRetry: {
                                 backoff++;
                                 if (backoff == backoffLimit) {
@@ -367,6 +391,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (Google.GoogleApiException ex) {
                     switch (handleAPIlimits(ex, ev)) {
                         case apiException.throwException: throw; 
+                        case apiException.freeAPIexhausted: throw;
                         case apiException.justContinue: break;
                         case apiException.backoffThenRetry: {
                             backoff++;
@@ -436,7 +461,7 @@ namespace OutlookGoogleCalendarSync {
                             throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
 
-                } 
+                }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);  
@@ -466,7 +491,7 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 if (!forceCompare) { //Needed if the exception has just been created, but now needs updating
                     if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
-                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                        if (DateTime.Parse(ev.Updated) > ai.LastModificationTime)
                             return null;
                     } else {
                         if (OutlookCalendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
@@ -507,7 +532,7 @@ namespace OutlookGoogleCalendarSync {
                     GoogleCalendar.GoogleTimeFrom(DateTime.Parse(evEnd)), GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
                     ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
                 }
-            }
+            } 
 
             List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
             if (ev.Recurrence != null) {
@@ -656,6 +681,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (Google.GoogleApiException ex) {
                     switch (handleAPIlimits(ex, ev)) {
                         case apiException.throwException: throw;
+                        case apiException.freeAPIexhausted: throw;
                         case apiException.backoffThenRetry: {
                             backoff++;
                             if (backoff == backoffLimit) {
@@ -733,6 +759,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (Google.GoogleApiException ex) {
                     switch (handleAPIlimits(ex, ev)) {
                         case apiException.throwException: throw;
+                        case apiException.freeAPIexhausted: throw;
                         case apiException.backoffThenRetry: {
                             backoff++;
                             if (backoff == backoffLimit) {
@@ -980,11 +1007,78 @@ namespace OutlookGoogleCalendarSync {
             } catch { }
         }
 
-        #region STATIC FUNCTIONS
-        private static IAuthorizationState getAuthentication(NativeApplicationClient arg) {
+        private Boolean userSubscriptionCheck() {
+            List<Event> result = new List<Event>();
+            Events request = null;
+            String pageToken = null;
+            Int16 pageNum = 1;
+            
+            log.Debug("Retrieving all subscribers from past year.");
+            try {
+                do {
+                    EventsResource.ListRequest lr = service.Events.List("pqeo689qhvpl1g09bcnma1uaoo@group.calendar.google.com");
+
+                    lr.PageToken = pageToken;
+                    lr.SingleEvents = true;
+                    lr.OrderBy = EventsResource.OrderBy.StartTime;
+                    request = lr.Fetch();
+                    log.Debug("Page " + pageNum + " received.");
+
+                    if (request != null) {
+                        pageToken = request.NextPageToken;
+                        pageNum++;
+                        if (request.Items != null) result.AddRange(request.Items);
+                    }
+                } while (pageToken != null);
+
+                if (String.IsNullOrEmpty(Settings.Instance.GaccountEmail)) { //This gets retrieved via the above lr.Fetch()
+                    log.Warn("User's Google account username is not present - cannot check if they have subscribed.");
+                    return false;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to retrieve subscribers - cannot check if they have subscribed.");
+                log.Error(ex.Message);
+                return false;
+            }
+
+            log.Debug("Searching for subscription for: "+ Settings.Instance.GaccountEmail_masked());
+            Event subscriber = result.Where(x => x.Summary.Equals(Settings.Instance.GaccountEmail)).Last();
+            if (subscriber == null) {
+                log.Fine("This user has never subscribed.");
+                Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
+                return false;
+            } else {
+                Boolean subscribed;
+                DateTime subscriptionStart = DateTime.Parse(subscriber.Start.Date ?? subscriber.Start.DateTime).Date;
+                Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
+                if (subscriptionRemaining > 0) {
+                    if (subscriptionRemaining > 360)
+                        MainForm.Instance.syncNote(MainForm.SyncNotes.RecentSubscription, null);
+                    if (subscriptionRemaining < 28)
+                        MainForm.Instance.syncNote(MainForm.SyncNotes.SubscriptionPendingExpire, subscriptionStart.AddYears(1));
+                    subscribed = true;
+                } else {
+                    Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
+                    if (subscriptionRemaining > -14)
+                        MainForm.Instance.syncNote(MainForm.SyncNotes.SubscriptionExpired, subscriptionStart.AddYears(1));
+                    subscribed = false;
+                }
+
+                DateTime prevSubscriptionStart = Settings.Instance.Subscribed;
+                Settings.Instance.Subscribed = subscriptionStart;
+                if (prevSubscriptionStart != subscriptionStart) {
+                    if (prevSubscriptionStart == DateTime.Parse("01-Jan-2000") || subscriptionStart == DateTime.Parse("01-Jan-2000")) {
+                        GoogleCalendar.Instance.ChangeAPIkeys();
+                    }
+                }
+                return subscribed;
+            }
+        }
+
+        private IAuthorizationState getAuthentication(NativeApplicationClient arg) {
             log.Debug("Authenticating with Google calendar service...");
-            // Get the auth URL:
-            IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue() });
+            // Get the auth URLs:
+            IAuthorizationState state = new AuthorizationState(new[] { CalendarService.Scopes.Calendar.GetStringValue(), "https://www.googleapis.com/auth/userinfo.email" });
             state.Callback = new Uri(NativeApplicationClient.OutOfBandCallbackUrl);
             state.RefreshToken = Settings.Instance.RefreshToken;
             Uri authUri = arg.RequestUserAuthorization(state);
@@ -1012,7 +1106,7 @@ namespace OutlookGoogleCalendarSync {
                     Settings.Instance.Save();
                     log.Info("Refresh and Access token successfully retrieved.");
 
-                    return result;
+                    getGaccountEmail(result.AccessToken, true);
                 } else {
                     log.Info("User declined to provide authorisation code. Sync will not be able to work.");
                     String noAuth = "Sorry, but this application will not work if you don't give it access to your Google Calendar :(";
@@ -1026,9 +1120,36 @@ namespace OutlookGoogleCalendarSync {
                 else
                     log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
                 result = state;
-                return result;
+                getGaccountEmail(result.AccessToken, false);
             }
+            return result;
+        }
 
+        #region STATIC FUNCTIONS        
+        private void getGaccountEmail(String accessToken, Boolean newRefreshToken) {
+            try {
+                System.Net.WebClient wc = new System.Net.WebClient();
+                wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
+                String xmlString = wc.DownloadString("https://www.googleapis.com/userinfo/email?alt=xml&access_token=" + accessToken);
+                System.Xml.Linq.XDocument xmlDoc = System.Xml.Linq.XDocument.Parse(xmlString);
+
+                if (Settings.Instance.GaccountEmail != xmlDoc.Element("email").Value) {
+                    Settings.Instance.GaccountEmail = xmlDoc.Element("email").Value;
+                    log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
+                    if (!newRefreshToken) {
+                        log.Debug("Looks like you've been tampering with the Google account username value :-O");
+                    }
+                }
+            } catch (System.Net.WebException ex) {
+                if (ex.Message.Contains("The remote server returned an error: (403) Forbidden.") || ex.Message == "Insufficient Permission") {
+                    String msg = ChangeAPIkeys();
+                    throw new System.ApplicationException(msg);
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to retrieve Google account username.");
+                log.Error(ex.Message);
+                log.Debug("Using previously retrieved username: " + Settings.Instance.GaccountEmail_masked());
+            }
         }
 
         //returns the Google Time Format String of a given .Net DateTime value
@@ -1166,6 +1287,12 @@ namespace OutlookGoogleCalendarSync {
 
             } else if (ex.Message.Contains("Rate Limit Exceeded")) {
                 return apiException.backoffThenRetry;
+
+            } else if (ex.Message.Contains("Daily Limit Exceeded [403]")) {
+                log.Warn(ex.Message);
+                log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT");
+                MainForm.Instance.syncNote(MainForm.SyncNotes.QuotaExhaustedInfo, null);
+                return apiException.freeAPIexhausted;
 
             } else {
                 return apiException.throwException;

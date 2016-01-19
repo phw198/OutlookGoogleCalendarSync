@@ -30,10 +30,13 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
+            this.tbSyncNote = new System.Windows.Forms.RichTextBox();
+            this.panelSyncNote = new System.Windows.Forms.Panel();
             this.cbVerboseOutput = new System.Windows.Forms.CheckBox();
             this.lNextSyncVal = new System.Windows.Forms.Label();
             this.lLastSyncVal = new System.Windows.Forms.Label();
@@ -154,7 +157,6 @@
             this.tabPage_About = new System.Windows.Forms.TabPage();
             this.cbAlphaReleases = new System.Windows.Forms.CheckBox();
             this.btCheckForUpdate = new System.Windows.Forms.Button();
-            this.lVersion = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.lAboutURL = new System.Windows.Forms.LinkLabel();
             this.lAboutMain = new System.Windows.Forms.Label();
@@ -175,6 +177,9 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.dgAbout = new System.Windows.Forms.DataGridView();
+            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -203,6 +208,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgAbout)).BeginInit();
             this.SuspendLayout();
             // 
             // tabApp
@@ -225,6 +231,8 @@
             // tabPage_Sync
             // 
             this.tabPage_Sync.BackColor = System.Drawing.Color.White;
+            this.tabPage_Sync.Controls.Add(this.tbSyncNote);
+            this.tabPage_Sync.Controls.Add(this.panelSyncNote);
             this.tabPage_Sync.Controls.Add(this.cbVerboseOutput);
             this.tabPage_Sync.Controls.Add(this.lNextSyncVal);
             this.tabPage_Sync.Controls.Add(this.lLastSyncVal);
@@ -238,6 +246,32 @@
             this.tabPage_Sync.Size = new System.Drawing.Size(487, 542);
             this.tabPage_Sync.TabIndex = 0;
             this.tabPage_Sync.Text = "Sync";
+            // 
+            // tbSyncNote
+            // 
+            this.tbSyncNote.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.tbSyncNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.tbSyncNote.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbSyncNote.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.tbSyncNote.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbSyncNote.Location = new System.Drawing.Point(112, 486);
+            this.tbSyncNote.Name = "tbSyncNote";
+            this.tbSyncNote.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.tbSyncNote.Size = new System.Drawing.Size(262, 52);
+            this.tbSyncNote.TabIndex = 1;
+            this.tbSyncNote.Text = "";
+            this.tbSyncNote.Visible = false;
+            this.tbSyncNote.Click += new System.EventHandler(this.tbSyncNote_Click);
+            // 
+            // panelSyncNote
+            // 
+            this.panelSyncNote.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.panelSyncNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.panelSyncNote.Location = new System.Drawing.Point(107, 481);
+            this.panelSyncNote.Name = "panelSyncNote";
+            this.panelSyncNote.Size = new System.Drawing.Size(270, 58);
+            this.panelSyncNote.TabIndex = 35;
+            this.panelSyncNote.Visible = false;
             // 
             // cbVerboseOutput
             // 
@@ -958,14 +992,14 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.ShowCellToolTips = false;
@@ -1738,9 +1772,9 @@
             // 
             // tabPage_About
             // 
+            this.tabPage_About.Controls.Add(this.dgAbout);
             this.tabPage_About.Controls.Add(this.cbAlphaReleases);
             this.tabPage_About.Controls.Add(this.btCheckForUpdate);
-            this.tabPage_About.Controls.Add(this.lVersion);
             this.tabPage_About.Controls.Add(this.label28);
             this.tabPage_About.Controls.Add(this.lAboutURL);
             this.tabPage_About.Controls.Add(this.lAboutMain);
@@ -1757,7 +1791,7 @@
             // 
             this.cbAlphaReleases.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cbAlphaReleases.AutoSize = true;
-            this.cbAlphaReleases.Location = new System.Drawing.Point(171, 366);
+            this.cbAlphaReleases.Location = new System.Drawing.Point(171, 452);
             this.cbAlphaReleases.Name = "cbAlphaReleases";
             this.cbAlphaReleases.Size = new System.Drawing.Size(144, 17);
             this.cbAlphaReleases.TabIndex = 40;
@@ -1768,23 +1802,13 @@
             // btCheckForUpdate
             // 
             this.btCheckForUpdate.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btCheckForUpdate.Location = new System.Drawing.Point(187, 337);
+            this.btCheckForUpdate.Location = new System.Drawing.Point(187, 423);
             this.btCheckForUpdate.Name = "btCheckForUpdate";
             this.btCheckForUpdate.Size = new System.Drawing.Size(113, 23);
             this.btCheckForUpdate.TabIndex = 39;
             this.btCheckForUpdate.Text = "Check for Update";
             this.btCheckForUpdate.UseVisualStyleBackColor = true;
             this.btCheckForUpdate.Click += new System.EventHandler(this.btCheckForUpdate_Click);
-            // 
-            // lVersion
-            // 
-            this.lVersion.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.lVersion.AutoSize = true;
-            this.lVersion.Location = new System.Drawing.Point(194, 35);
-            this.lVersion.Name = "lVersion";
-            this.lVersion.Size = new System.Drawing.Size(87, 13);
-            this.lVersion.TabIndex = 38;
-            this.lVersion.Text = "Version {version}";
             // 
             // label28
             // 
@@ -1802,7 +1826,7 @@
             // lAboutURL
             // 
             this.lAboutURL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.lAboutURL.Location = new System.Drawing.Point(6, 396);
+            this.lAboutURL.Location = new System.Drawing.Point(6, 482);
             this.lAboutURL.Name = "lAboutURL";
             this.lAboutURL.Size = new System.Drawing.Size(475, 23);
             this.lAboutURL.TabIndex = 2;
@@ -1816,7 +1840,7 @@
             this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lAboutMain.Location = new System.Drawing.Point(30, 59);
+            this.lAboutMain.Location = new System.Drawing.Point(30, 145);
             this.lAboutMain.Name = "lAboutMain";
             this.lAboutMain.Padding = new System.Windows.Forms.Padding(15);
             this.lAboutMain.Size = new System.Drawing.Size(426, 221);
@@ -1829,7 +1853,7 @@
             this.pbDonate.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
-            this.pbDonate.Location = new System.Drawing.Point(206, 308);
+            this.pbDonate.Location = new System.Drawing.Point(206, 394);
             this.pbDonate.Name = "pbDonate";
             this.pbDonate.Size = new System.Drawing.Size(75, 23);
             this.pbDonate.TabIndex = 3;
@@ -2043,6 +2067,44 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // dgAbout
+            // 
+            this.dgAbout.AllowUserToAddRows = false;
+            this.dgAbout.AllowUserToDeleteRows = false;
+            this.dgAbout.AllowUserToResizeRows = false;
+            this.dgAbout.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgAbout.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dgAbout.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgAbout.ColumnHeadersVisible = false;
+            this.dgAbout.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Column1,
+            this.Column2});
+            this.dgAbout.Location = new System.Drawing.Point(81, 48);
+            this.dgAbout.Name = "dgAbout";
+            this.dgAbout.ReadOnly = true;
+            this.dgAbout.RowHeadersVisible = false;
+            this.dgAbout.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.dgAbout.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgAbout.Size = new System.Drawing.Size(328, 69);
+            this.dgAbout.TabIndex = 44;
+            // 
+            // Column1
+            // 
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Column1.DefaultCellStyle = dataGridViewCellStyle6;
+            this.Column1.HeaderText = "Name";
+            this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
+            this.Column1.Width = 75;
+            // 
+            // Column2
+            // 
+            this.Column2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column2.HeaderText = "Value";
+            this.Column2.Name = "Column2";
+            this.Column2.ReadOnly = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2099,6 +2161,7 @@
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgAbout)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -2181,7 +2244,6 @@
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.CheckBox cbPortable;
-        private System.Windows.Forms.Label lVersion;
         private System.Windows.Forms.Label label28;
         private System.Windows.Forms.CheckBox cbAlphaReleases;
         public System.Windows.Forms.Button btCheckForUpdate;
@@ -2245,5 +2307,10 @@
         private System.Windows.Forms.LinkLabel linkTShoot_logfile;
         private System.Windows.Forms.LinkLabel linkTShoot_issue;
         private System.Windows.Forms.LinkLabel linkTShoot_loglevel;
+        private System.Windows.Forms.RichTextBox tbSyncNote;
+        private System.Windows.Forms.Panel panelSyncNote;
+        private System.Windows.Forms.DataGridView dgAbout;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
     }
 }

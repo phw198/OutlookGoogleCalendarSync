@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using log4net;
+using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
-using log4net;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -50,6 +48,7 @@ namespace OutlookGoogleCalendarSync {
             RefreshToken = "";
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
+            GaccountEmail = "";
 
             SyncDirection = new SyncDirection();
             DaysInThePast = 1;
@@ -79,6 +78,7 @@ namespace OutlookGoogleCalendarSync {
             Proxy = new SettingsProxy();
 
             alphaReleases = false;
+            Subscribed = DateTime.Parse("01-Jan-2000");
             
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
@@ -121,6 +121,13 @@ namespace OutlookGoogleCalendarSync {
                 apiLimit_lastHit = value;
                 if (!loading()) XMLManager.ExportElement("APIlimit_lastHit", value, Program.SettingsFile);
             }
+        }
+        [DataMember] public String GaccountEmail { get; set; }
+        public String GaccountEmail_masked() {
+            String email = GaccountEmail;
+            int at = email.IndexOf('@');
+            String masked = email.Substring(0, 2) + "".PadRight(at - 3,'*') + email.Substring(at - 1);
+            return masked;
         }
         #endregion
         #region Sync Options
@@ -194,6 +201,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("AlphaReleases", value, Program.SettingsFile);
             }
         }
+        [DataMember] public DateTime Subscribed { get; set; }
         #endregion
 
         [DataMember] public DateTime LastSyncDate {
@@ -291,6 +299,10 @@ namespace OutlookGoogleCalendarSync {
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
 
+            log.Info("ABOUT:-");
+            log.Info("  Alpha Releases: " + alphaReleases);
+            log.Info("  Subscribed: " + Subscribed.ToString("dd-MMM-yyyy"));
+            
             log.Info("ENVIRONMENT:-");
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);

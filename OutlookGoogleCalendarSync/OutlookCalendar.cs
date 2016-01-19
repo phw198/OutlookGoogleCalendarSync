@@ -195,7 +195,18 @@ namespace OutlookGoogleCalendarSync {
                     "' AND [Start] < '" + max.ToString(Settings.Instance.OutlookDateFormat) + "'";
                 log.Fine("Filter string: " + filter);
                 foreach (AppointmentItem ai in OutlookItems.Restrict(filter)) {
-                    if (ai.End == min) continue; //Required for midnight to midnight events 
+                    try {
+                        if (ai.End == min) continue; //Required for midnight to midnight events 
+                    } catch (System.Exception ex) {
+                        log.Error(ex.Message);
+                        log.Error(ex.StackTrace);
+                        try {
+                            log.Debug("Unable to get End date for: " + OutlookCalendar.GetEventSummary(ai));
+                        } catch {
+                            log.Error("Appointment item seems unusable!");
+                        } 
+                        continue;
+                    }
                     result.Add(ai);
                 }
             }
@@ -775,19 +786,19 @@ namespace OutlookGoogleCalendarSync {
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
             String oEventID;
-            for (int g = google.Count - 1; g >= 0; g--) {
-                for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (getOGCSproperty(outlook[o], gEventID, out oEventID)) {
+            for (int o = outlook.Count - 1; o >= 0; o--) {
+                if (getOGCSproperty(outlook[o], gEventID, out oEventID)) {
+                    for (int g = google.Count - 1; g >= 0; g--) {
                         if (oEventID == google[g].Id.ToString()) {
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
                             google.Remove(google[g]);
                             break;
                         }
-                    } else if (Settings.Instance.MergeItems) {
-                        //Remove the non-Google item so it doesn't get deleted
-                        outlook.Remove(outlook[o]);
                     }
+                } else if (Settings.Instance.MergeItems) {
+                    //Remove the non-Google item so it doesn't get deleted
+                    outlook.Remove(outlook[o]);
                 }
             }
 
