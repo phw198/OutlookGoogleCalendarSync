@@ -421,11 +421,11 @@ namespace OutlookGoogleCalendarSync {
                     if (aTimer.Tag.ToString() == "PushTimer") sync_Start(updateSyncSchedule: false);
                     else if (aTimer.Tag.ToString() == "AutoSyncTimer") sync_Start(updateSyncSchedule: true);
                 } else if (bSyncNow.Text == "Stop Sync") {
-                    log.Warn("Automated sync triggered whilst previous automated sync is still running. Ignoring this new request.");
+                    log.Warn("Automated sync triggered whilst previous sync is still running. Ignoring this new request.");
                     if (bwSync == null)
                         log.Debug("Background worker is null somehow?!");
                     else 
-                        log.Debug("Background worker must be reporting not busy? " + bwSync.IsBusy.ToString());
+                        log.Debug("Background worker is busy? A:" + bwSync.IsBusy.ToString());
                 }
 
             } else { //Manual sync
@@ -451,7 +451,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void sync_Start(Boolean updateSyncSchedule=true) {
             LogBox.Clear();
-
+                        
             if (Settings.Instance.UseGoogleCalendar == null || 
                 Settings.Instance.UseGoogleCalendar.Id == null ||
                 Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -514,16 +514,25 @@ namespace OutlookGoogleCalendarSync {
 
                 //Kick off the sync in the background thread
                 bwSync.DoWork += new DoWorkEventHandler(
-                delegate(object o, DoWorkEventArgs args) {
-                    BackgroundWorker b = o as BackgroundWorker;
-                    syncOk = synchronize();
-                });
+                    delegate(object o, DoWorkEventArgs args) {
+                        BackgroundWorker b = o as BackgroundWorker;
+                        try {
+                            syncOk = synchronize();
+                        } catch (System.Exception ex) {
+                            MainForm.Instance.Logboxout("The following error occurred during sync:-");
+                            MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
+                            log.Error(ex.StackTrace);
+                            syncOk = false;
+                        }
+                    }
+                );
 
                 bwSync.RunWorkerAsync();
                 while (bwSync != null && (bwSync.IsBusy || bwSync.CancellationPending)) {
                     System.Windows.Forms.Application.DoEvents();
                     System.Threading.Thread.Sleep(100);
                 }
+
                 failedAttempts += !syncOk ? 1 : 0;
             }
             Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
@@ -598,17 +607,56 @@ namespace OutlookGoogleCalendarSync {
             Logboxout("--------------------------------------------------");
             #endregion
 
+            #region Normalise recurring items in sync window
             Logboxout("Total inc. recurring items spanning sync date range...");
             //Outlook returns recurring items that span the sync date range, Google doesn't
             //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
             for (int o = outlookEntries.Count - 1; o >= 0; o--) {
-                AppointmentItem ai = outlookEntries[o];
+                log.Fine("Processing " + o + "/" + (outlookEntries.Count - 1));
+                AppointmentItem ai;
+                try {
+                    if (outlookEntries[o] is AppointmentItem) ai = outlookEntries[o];
+                    else if (outlookEntries[o] is MeetingItem) {
+                        log.Info("Calendar object appears to be a MeetingItem, so retrieving associated AppointmentItem.");
+                        MeetingItem mi = outlookEntries[o] as MeetingItem;
+                        outlookEntries[o] = mi.GetAssociatedAppointment(false);
+                        ai = outlookEntries[o];
+                    } else {
+                        log.Warn("Unknown calendar object type - cannot sync it.");
+                        log.Debug("Outlook object removed: " + outlookEntries[o].Subject);
+                        outlookEntries[o] = (AppointmentItem)OutlookCalendar.ReleaseObject(outlookEntries[o]);
+                        outlookEntries.RemoveAt(o);
+                        continue;
+                    }
+                } catch (System.Exception ex) {
+                    log.Error("Encountered error casting calendar object to AppointItem - cannot system it.");
+                    log.Debug(ex.Message);
+                    log.Debug("Outlook object removed: " + outlookEntries[o].Subject);
+                    outlookEntries[o] = (AppointmentItem)OutlookCalendar.ReleaseObject(outlookEntries[o]);
+                    outlookEntries.RemoveAt(o);
+                    continue;
+                }
+
+                //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
+                try {
+                    DateTime checkDates = ai.Start;
+                    checkDates = ai.End;
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                    log.Warn("Calendar item does not have a proper date range - cannot sync it.");
+                    outlookEntries.Remove(ai);
+                    log.Debug("Outlook object removed: " + ai.Subject);
+                    ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                    continue;
+                }
+
                 if (ai.IsRecurring && ai.Start.Date < Settings.Instance.SyncStart && ai.End.Date < Settings.Instance.SyncStart) {
                     //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                     //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                     RecurrencePattern oPattern = ai.GetRecurrencePattern();
                     try {
                         if (oPattern.RecurrenceType.ToString().Contains("Year")) {
+                            log.Fine("It's an annual event.");
                             Boolean monthInSyncRange = false;
                             DateTime monthMarker = Settings.Instance.SyncStart;
                             while (monthMarker <= Settings.Instance.SyncEnd && !monthInSyncRange) {
@@ -617,10 +665,10 @@ namespace OutlookGoogleCalendarSync {
                                 }
                                 monthMarker = monthMarker.AddMonths(1);
                             }
-                            if (!monthInSyncRange) outlookEntries.Remove(ai);
+                            log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
+                            if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
 
-                        }
-                        if (!oPattern.RecurrenceType.ToString().Contains("Year") || outlookEntries.Contains(ai)) {
+                        } else {
                             Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
                             if (masterEv != null) {
                                 Boolean alreadyCached = false;
@@ -641,6 +689,7 @@ namespace OutlookGoogleCalendarSync {
             }
             Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
             Logboxout("--------------------------------------------------");
+            #endregion
 
             Boolean success = true;
             String bubbleText = "";

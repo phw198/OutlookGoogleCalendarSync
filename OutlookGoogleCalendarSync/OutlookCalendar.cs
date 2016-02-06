@@ -388,64 +388,38 @@ namespace OutlookGoogleCalendarSync {
 
             RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) ? null : ai.GetRecurrencePattern();
 
-            if (ev.Start.Date != null) {
-                if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = true;
-                DateTime evParsedDate = DateTime.Parse(ev.Start.Date);
-                if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook,
-                    GoogleCalendar.GoogleTimeFrom(evParsedDate),
-                    GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) 
-                {
-                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                        oPattern.PatternStartDate = evParsedDate;
-                        oPattern.StartTime = evParsedDate;
-                    } else {
-                        ai.Start = evParsedDate;
-                    }
+            if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = (ev.Start.DateTime == null);
+
+            DateTime evParsedDate = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime);
+            if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook,
+                GoogleCalendar.GoogleTimeFrom(evParsedDate),
+                GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) 
+            {
+                if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+                    oPattern.PatternStartDate = evParsedDate;
+                    oPattern.StartTime = evParsedDate;
+                } else {
+                    ai.Start = evParsedDate;
                 }
-                evParsedDate = DateTime.Parse(ev.End.Date);
-                if (MainForm.CompareAttribute("End time", SyncDirection.GoogleToOutlook,
-                    GoogleCalendar.GoogleTimeFrom(evParsedDate),
-                    GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) 
-                {
-                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                        oPattern.PatternEndDate = evParsedDate;
-                        oPattern.EndTime = evParsedDate;
-                    } else {
-                        ai.End = evParsedDate;
-                    }
-                }
-                oPattern.Duration = Convert.ToInt32((evParsedDate - DateTime.Parse(ev.Start.Date)).TotalMinutes);
-            } else {
-                if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = false;
-                DateTime evParsedDate = DateTime.Parse(ev.Start.DateTime);
-                if (MainForm.CompareAttribute("Start time",
-                    SyncDirection.GoogleToOutlook,
-                    GoogleCalendar.GoogleTimeFrom(evParsedDate),
-                    GoogleCalendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) 
-                {
-                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                        oPattern.PatternStartDate = evParsedDate;
-                        oPattern.StartTime = evParsedDate;
-                    } else {
-                        ai.Start = evParsedDate;
-                    }
-                }
-                evParsedDate = DateTime.Parse(ev.End.DateTime);
-                if (MainForm.CompareAttribute("End time",
-                    SyncDirection.GoogleToOutlook,
-                    GoogleCalendar.GoogleTimeFrom(evParsedDate),
-                    GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) 
-                {
-                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                        oPattern.PatternEndDate = evParsedDate;
-                        oPattern.EndTime = evParsedDate;
-                    } else {
-                        ai.End = evParsedDate;
-                    }
-                }
-                oPattern.Duration = Convert.ToInt32((evParsedDate - DateTime.Parse(ev.Start.DateTime)).TotalMinutes);
             }
-            oPattern = (RecurrencePattern)ReleaseObject(oPattern);
+
+            evParsedDate = DateTime.Parse(ev.End.Date ?? ev.End.DateTime);
+            if (MainForm.CompareAttribute("End time", SyncDirection.GoogleToOutlook,
+                GoogleCalendar.GoogleTimeFrom(evParsedDate),
+                GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) 
+            {
+                if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+                    oPattern.PatternEndDate = evParsedDate;
+                    oPattern.EndTime = evParsedDate;
+                } else {
+                    ai.End = evParsedDate;
+                }
+            }
+
+            if (oPattern != null) {
+                oPattern.Duration = Convert.ToInt32((evParsedDate - DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime)).TotalMinutes);
+                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
+            }
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
                 if (ev.Recurrence == null || ev.RecurringEventId != null) {
@@ -766,15 +740,22 @@ namespace OutlookGoogleCalendarSync {
 
         public static string GetEventSummary(AppointmentItem ai) {
             String eventSummary = "";
-            if (ai.AllDayEvent) {
-                log.Fine("GetSummary - all day event");
-                eventSummary += ai.Start.Date.ToShortDateString();
-            } else {
-                log.Fine("GetSummary - not all day event");
-                eventSummary += ai.Start.ToShortDateString() + " " + ai.Start.ToShortTimeString();
-            }
-            eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
-            eventSummary += '"' + ai.Subject + '"';
+            try {
+                if (ai.AllDayEvent) {
+                    log.Fine("GetSummary - all day event");
+                    eventSummary += ai.Start.Date.ToShortDateString();
+                } else {
+                    log.Fine("GetSummary - not all day event");
+                    eventSummary += ai.Start.ToShortDateString() + " " + ai.Start.ToShortTimeString();
+                }
+                eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
+                eventSummary += '"' + ai.Subject + '"';
+
+            } catch (System.Exception ex) {
+                log.Warn("Failed to get appointment summary: " + eventSummary);
+                log.Error(ex.Message);
+                log.Error(ex.StackTrace);
+            } 
             return eventSummary;
         }
 

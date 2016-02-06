@@ -22,13 +22,16 @@ namespace OutlookGoogleCalendarSync {
                 MainForm.Instance.Logboxout("This must be manually resolved in order to sync attendees for this event.");
                 return false;
             }
+            if (strIn.StartsWith("'") && strIn.EndsWith("'")) {
+                strIn = strIn.TrimStart('\'').TrimEnd('\'').Trim();
+            }
 
             // Use IdnMapping class to convert Unicode domain names.
             strIn = Regex.Replace(strIn, @"(@)(.+)$", domainMapper);
             if (!invalidEmail) {
                 // Return true if strIn is in valid e-mail format. 
                 invalidEmail = !Regex.IsMatch(strIn,
-                    @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                    @"^(?("")(""[^""]+?""@)|(([0-9a-z_]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
                     @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$",
                     RegexOptions.IgnoreCase);
             }
@@ -51,6 +54,16 @@ namespace OutlookGoogleCalendarSync {
                 invalidEmail = true;
             }
             return match.Groups[1].Value + domainName;
+        }
+
+        public static String maskAddress(String emailAddress) {
+            try {
+                int at = emailAddress.IndexOf('@');
+                String masked = emailAddress.Substring(0, 2) + "".PadRight(at - 3, '*') + emailAddress.Substring(at - 1);
+                return masked;
+            } catch (System.Exception ex) {
+                return "*****@masked.com";
+            }
         }
     }
 }

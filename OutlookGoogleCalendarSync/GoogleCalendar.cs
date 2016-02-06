@@ -992,8 +992,8 @@ namespace OutlookGoogleCalendarSync {
             } //more than just 1 (me) recipients
 
             foreach (EventAttendee ea in removeAttendee) {
-                log.Fine("Attendee removed: " + (ea.DisplayName == null ? ea.Email : ea.DisplayName));
-                sb.AppendLine("Attendee removed: " + (ea.DisplayName == null ? ea.Email : ea.DisplayName));
+                log.Fine("Attendee removed: " + (ea.DisplayName ?? ea.Email), ea.Email);
+                sb.AppendLine("Attendee removed: " + (ea.DisplayName ?? ea.Email));
                 ev.Attendees.Remove(ea);
                 itemModified++;
             }
@@ -1042,14 +1042,15 @@ namespace OutlookGoogleCalendarSync {
             }
 
             log.Debug("Searching for subscription for: "+ Settings.Instance.GaccountEmail_masked());
-            Event subscriber = result.Where(x => x.Summary.Equals(Settings.Instance.GaccountEmail)).Last();
-            if (subscriber == null) {
+            List<Event> subscriptions = result.Where(x => x.Summary.Equals(Settings.Instance.GaccountEmail)).ToList();
+            if (subscriptions.Count == 0) {
                 log.Fine("This user has never subscribed.");
                 Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
                 return false;
             } else {
                 Boolean subscribed;
-                DateTime subscriptionStart = DateTime.Parse(subscriber.Start.Date ?? subscriber.Start.DateTime).Date;
+                Event subscription = subscriptions.Last();
+                DateTime subscriptionStart = DateTime.Parse(subscription.Start.Date ?? subscription.Start.DateTime).Date;
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining > 0) {
                     if (subscriptionRemaining > 360)
@@ -1136,7 +1137,7 @@ namespace OutlookGoogleCalendarSync {
                 if (Settings.Instance.GaccountEmail != xmlDoc.Element("email").Value) {
                     Settings.Instance.GaccountEmail = xmlDoc.Element("email").Value;
                     log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
-                    if (!newRefreshToken) {
+                    if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail) && !newRefreshToken) {
                         log.Debug("Looks like you've been tampering with the Google account username value :-O");
                     }
                 }

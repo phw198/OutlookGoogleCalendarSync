@@ -190,7 +190,7 @@ namespace OutlookGoogleCalendarSync {
                 retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
                 retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
             }
-            log.Fine("Email address: " + retEmail);
+            log.Fine("Email address: " + retEmail, retEmail);
             EmailAddress.IsValidEmail(retEmail);
             return retEmail;
         }

@@ -21,6 +21,7 @@ namespace OutlookGoogleCalendarSync {
         private const string logFile = "logger.xml";
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
+        public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
         private const String settingsFilename = "settings.xml";
         private static String settingsFile;
@@ -119,6 +120,7 @@ namespace OutlookGoogleCalendarSync {
         private static void initialiseLogger(string logPath, Boolean bootstrap = false) {
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
+            log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
             XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
 
             if (bootstrap) log.Info("Program started: v" + Application.ProductVersion);

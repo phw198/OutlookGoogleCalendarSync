@@ -124,10 +124,7 @@ namespace OutlookGoogleCalendarSync {
         }
         [DataMember] public String GaccountEmail { get; set; }
         public String GaccountEmail_masked() {
-            String email = GaccountEmail;
-            int at = email.IndexOf('@');
-            String masked = email.Substring(0, 2) + "".PadRight(at - 3,'*') + email.Substring(at - 1);
-            return masked;
+            return EmailAddress.maskAddress(GaccountEmail);
         }
         #endregion
         #region Sync Options
