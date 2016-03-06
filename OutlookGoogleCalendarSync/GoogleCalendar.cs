@@ -789,9 +789,14 @@ namespace OutlookGoogleCalendarSync {
                 //Find entries with no Outlook ID
                 if (!GetOGCSproperty(ev, oEntryID)) {
                     unclaimedEvents.Add(ev);
+                    
+                    //Use simple matching on start,end,subject,location to pair events
+                    String sigEv = signature(ev);
+                    if (String.IsNullOrEmpty(sigEv)) {
+                        gEvents.Remove(ev);
+                        break;
+                    }
                     foreach (AppointmentItem ai in oAppointments) {
-                        //Use simple matching on start,end,subject,location to pair events
-                        String sigEv = signature(ev);
                         String sigAi = OutlookCalendar.signature(ai);
 
                         if (Settings.Instance.Obfuscation.Enabled) {
@@ -815,7 +820,7 @@ namespace OutlookGoogleCalendarSync {
                 (Settings.Instance.SyncDirection == SyncDirection.OutlookToGoogle ||
                  Settings.Instance.SyncDirection == SyncDirection.Bidirectional )) 
             {
-                log.Info(unclaimedEvents.Count +" unclaimed orphan events found.");
+                log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
                 if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
                     log.Info("These will be kept due to configuration settings.");
                 } else if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
@@ -870,6 +875,12 @@ namespace OutlookGoogleCalendarSync {
                             //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
                             System.Threading.Thread.Sleep(250);
                         }
+
+                        //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
+                        //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
+                        //I guess the copied item doesn't really have its "own" ID. Anyway, we could consider just comparing
+                        //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
+                        //For now, let's just compare the whole ID
                         if (compare_gEntryID == compare_oGlobalID) {
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
@@ -1173,9 +1184,13 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } catch {
-                log.Debug("Failed to create signature: " + signature);
-                signature += random.Next(1,10000000).ToString();
-                log.Warn("Random signature created: " + signature);
+                log.Warn("Failed to create signature: " + signature);
+                log.Warn("This Event cannot be synced.");
+                try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.Date ?? ev.Start.DateTime)); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.Date ?? ev.End.DateTime)); } catch { }
+                try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
+                return "";
             }
             return signature.Trim();
         }
@@ -1294,6 +1309,11 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT");
                 MainForm.Instance.syncNote(MainForm.SyncNotes.QuotaExhaustedInfo, null);
                 return apiException.freeAPIexhausted;
+
+            } else if (ex.Message.Equals("The remote server returned an error: (401) Unauthorized.")) {
+                log.Warn(ex.Message);
+                log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
+                return apiException.backoffThenRetry;
 
             } else {
                 return apiException.throwException;

@@ -41,14 +41,8 @@ namespace OutlookGoogleCalendarSync {
             Application.SetCompatibleTextRenderingDefault(false);
 
             #region SplashScreen
-            Form splash = new Splash();
+            Splash splash = new Splash();
             splash.Show();
-            DateTime splashed = DateTime.Now;
-            while (DateTime.Now < splashed.AddSeconds((System.Diagnostics.Debugger.IsAttached ? 1 : 8)) && !splash.IsDisposed) {
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(100);
-            }
-            if (!splash.IsDisposed) splash.Close();
             #endregion
 
             log.Debug("Loading settings from file.");
@@ -57,7 +51,7 @@ namespace OutlookGoogleCalendarSync {
             checkForUpdate();
 
             try {
-                Application.Run(new MainForm(startingTab));
+                Application.Run(new MainForm(splash, startingTab));
                 OutlookCalendar.Instance.IOutlook.Disconnect();
             } catch (ApplicationException ex) {
                 log.Fatal(ex.Message);
@@ -172,7 +166,8 @@ namespace OutlookGoogleCalendarSync {
             if (!System.IO.Directory.Exists(shortcutDir)) return false;
 
             foreach (String file in System.IO.Directory.GetFiles(shortcutDir)) {
-                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk")) {
+                if (file.EndsWith("\\OutlookGoogleCalendarSync.lnk") || //legacy name <=v2.1.0.0
+                    file.EndsWith("\\" + Application.ProductName + ".lnk")) {
                     foundShortcut = true;
                     break;
                 }

@@ -70,7 +70,7 @@ namespace OutlookGoogleCalendarSync {
         //Simply removing an event handler before adding isn't safe enough
         private int eventHandlerHooks = 0;
 
-        public void RegisterForAutoSync() {
+        public void RegisterForPushSync() {
             log.Info("Registering for Outlook appointment change events...");
             if (eventHandlerHooks != 0) purgeOutlookEventHandlers();
             
@@ -101,9 +101,9 @@ namespace OutlookGoogleCalendarSync {
         private void purgeOutlookEventHandlers() {
             log.Debug("Removing " + eventHandlerHooks + " Outlook event handler hooks.");
             while (eventHandlerHooks > 0) {
-                UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
-                UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
-                UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
+                try { UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add); } catch { }
+                try { UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change); } catch { }
+                try { UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove); } catch { }
                 eventHandlerHooks--;
             }
         }
@@ -386,9 +386,10 @@ namespace OutlookGoogleCalendarSync {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine(evSummary);
 
-            RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) ? null : ai.GetRecurrencePattern();
-
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = (ev.Start.DateTime == null);
+
+            RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) ? null : ai.GetRecurrencePattern();
+            Recurrence.Instance.CompareOutlookPattern(ev, ai, sb, ref itemModified);
 
             DateTime evParsedDate = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime);
             if (MainForm.CompareAttribute("Start time", SyncDirection.GoogleToOutlook,
@@ -409,7 +410,6 @@ namespace OutlookGoogleCalendarSync {
                 GoogleCalendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) 
             {
                 if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                    oPattern.PatternEndDate = evParsedDate;
                     oPattern.EndTime = evParsedDate;
                 } else {
                     ai.End = evParsedDate;
@@ -427,7 +427,6 @@ namespace OutlookGoogleCalendarSync {
                     ai.ClearRecurrencePattern();
                     itemModified++;
                 } else {
-                    Recurrence.Instance.CompareOutlookPattern(ev, ai, sb, ref itemModified);
                     Recurrence.Instance.UpdateOutlookExceptions(ai, ev);
                 }
             } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
@@ -637,10 +636,16 @@ namespace OutlookGoogleCalendarSync {
                 //Find entries with no Google ID
                 if (ai.UserProperties[gEventID] == null) {
                     unclaimedAi.Add(ai);
+                    
+                    //Use simple matching on start,end,subject,location to pair events
+                    String sigAi = signature(ai);
                     foreach (Event ev in gEvents) {
-                        //Use simple matching on start,end,subject,location to pair events
-                        String sigAi = signature(ai);
                         String sigEv = GoogleCalendar.signature(ev);
+                        if (String.IsNullOrEmpty(sigEv)) {
+                            gEvents.Remove(ev);
+                            break;
+                        }
+
                         if (Settings.Instance.Obfuscation.Enabled) {
                             if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
                                 sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);

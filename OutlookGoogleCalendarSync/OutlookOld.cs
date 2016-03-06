@@ -155,13 +155,14 @@ namespace OutlookGoogleCalendarSync {
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
+            AddressEntry addressEntry;
             try {
-                AddressEntry addressEntry = recipient.AddressEntry;
+                addressEntry = recipient.AddressEntry;
             } catch {
                 log.Warn("Can't resolve this recipient!");
-                recipient.AddressEntry = null;
+                addressEntry = null;
             }
-            if (recipient.AddressEntry == null) {
+            if (addressEntry == null) {
                 log.Warn("No AddressEntry exists!");
                 retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
                 EmailAddress.IsValidEmail(retEmail);

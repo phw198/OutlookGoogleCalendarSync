@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
             if (ruleBook.ContainsKey("COUNT"))
                 oPattern.Occurrences = Convert.ToInt16(ruleBook["COUNT"]);
             if (ruleBook.ContainsKey("UNTIL")) {
-                if (ev.Start.DateTime == null) {
+                if (ruleBook["UNTIL"].Length == 8) {
                     oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
                 } else {
                     oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture);
@@ -147,6 +147,10 @@ namespace OutlookGoogleCalendarSync {
             if (MainForm.CompareAttribute("Recurrence Type", Settings.Instance.SyncDirection,
                 evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
                 aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
+            }
+            if (MainForm.CompareAttribute("Recurrence occurences", Settings.Instance.SyncDirection,
+                evOpattern.Occurrences.ToString(), aiOpattern.Occurrences.ToString(), sb, ref itemModified)) {
+                aiOpattern.Occurrences = evOpattern.Occurrences;
             }
             if (MainForm.CompareAttribute("Recurrence Interval", Settings.Instance.SyncDirection,
                 evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {

@@ -60,7 +60,6 @@ namespace OutlookGoogleCalendarSync {
             useOutlookCalendar = getDefaultCalendar(oNS);
             if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
                 //***This might be cross thread, so don't rely on MainForm
-                MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
                 KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
                 calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
                 useOutlookCalendar = calendar.Value;
@@ -179,13 +178,14 @@ namespace OutlookGoogleCalendarSync {
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
+            AddressEntry addressEntry;
             try {
-                AddressEntry addressEntry = recipient.AddressEntry;
+                addressEntry = recipient.AddressEntry;
             } catch {
                 log.Warn("Can't resolve this recipient!");
-                recipient.AddressEntry = null;
+                addressEntry = null;
             }
-            if (recipient.AddressEntry == null) {
+            if (addressEntry == null) {
                 log.Warn("No AddressEntry exists!");
                 retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
                 EmailAddress.IsValidEmail(retEmail);
@@ -258,11 +258,14 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public String GetGlobalApptID(AppointmentItem ai) {
-            if (ai.GlobalAppointmentID == null) {
-                log.Warn("GlobalAppointmentID is null - this shouldn't happen! Falling back to EntryID.");
+            try {
+                if (ai.GlobalAppointmentID == null)
+                    throw new System.Exception("GlobalAppointmentID is null - this shouldn't happen! Falling back to EntryID.");
+                return ai.GlobalAppointmentID;
+            } catch (System.Exception ex) {
+                log.Warn(ex.Message);
                 return ai.EntryID;
             }
-            return ai.GlobalAppointmentID;
         }
 
         #region TimeZone Stuff

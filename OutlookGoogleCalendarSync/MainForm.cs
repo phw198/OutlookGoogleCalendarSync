@@ -32,10 +32,9 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
 
-        public MainForm(string startingTab = null) {
+        public MainForm(Splash splashScreen, string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
-            notificationTray = new NotificationTray(this.trayIcon);
             
             if (startingTab!=null && startingTab=="Help") this.tabApp.SelectedTab = this.tabPage_Help;
             
@@ -44,6 +43,8 @@ namespace OutlookGoogleCalendarSync {
             Social.TrackVersion();
             updateGUIsettings();
             Settings.Instance.LogSettings();
+            notificationTray = new NotificationTray(this.trayIcon);
+            splashScreen.Remove();
             
             log.Debug("Create the timer for the auto synchronisation");
             ogcsTimer = new Timer();
@@ -55,7 +56,7 @@ namespace OutlookGoogleCalendarSync {
             setNextSync(getResyncInterval());
 
             //Set up listener for Outlook calendar changes
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForPushSync();
 
             if (Settings.Instance.StartInTray) {
                 this.CreateHandle();
@@ -541,7 +542,7 @@ namespace OutlookGoogleCalendarSync {
 
             Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after "+ failedAttempts +" failed attempts!");
 
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForAutoSync();
+            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForPushSync();
 
             lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
             Settings.Instance.LastSyncDate = SyncStarted;
@@ -1372,8 +1373,10 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbOutlookPush_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.OutlookPush = cbOutlookPush.Checked;
-            if (cbOutlookPush.Checked) OutlookCalendar.Instance.RegisterForAutoSync();
-            else OutlookCalendar.Instance.DeregisterForAutoSync();                
+            if (this.Visible) {
+                if (cbOutlookPush.Checked) OutlookCalendar.Instance.RegisterForPushSync();
+                else OutlookCalendar.Instance.DeregisterForAutoSync();
+            }
         }
         #endregion
         #region What
