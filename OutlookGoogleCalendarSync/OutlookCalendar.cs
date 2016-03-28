@@ -699,12 +699,27 @@ namespace OutlookGoogleCalendarSync {
                 } catch (SystemException ex) {
                     log.Debug("Attachment failed. Is Outlook running fully, or perhaps just the 'reminders' window?");
                     log.Debug(ex.Message);
-                    log.Debug("Starting a new instance of Outlook.");
-                    oApp = new Microsoft.Office.Interop.Outlook.Application();
+                    oApp = openOutlook();
                 }
             } else {
-                log.Debug("Starting a new instance of Outlook.");
+                oApp = openOutlook();
+            }
+            return oApp;
+        }
+        private static Microsoft.Office.Interop.Outlook.Application openOutlook() {
+            Microsoft.Office.Interop.Outlook.Application oApp;
+            log.Debug("Starting a new instance of Outlook.");
+            try {
                 oApp = new Microsoft.Office.Interop.Outlook.Application();
+            } catch (System.Exception ex) {
+                log.Warn("Early binding to Outlook appears to have failed.");
+                log.Debug(ex.Message);
+                log.Debug(ex.StackTrace);
+                log.Debug("Could try late binding??");
+                //System.Type oAppType = System.Type.GetTypeFromProgID("Outlook.Application");
+                //ApplicationClass oAppClass = System.Activator.CreateInstance(oAppType) as ApplicationClass;
+                //oApp = oAppClass.CreateObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
+                throw ex;
             }
             return oApp;
         }

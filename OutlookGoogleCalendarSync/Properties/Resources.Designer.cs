@@ -93,9 +93,9 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap google_ {
+        internal static System.Drawing.Bitmap googleplus {
             get {
-                object obj = ResourceManager.GetObject("google+", resourceCulture);
+                object obj = ResourceManager.GetObject("googleplus", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

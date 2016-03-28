@@ -81,8 +81,14 @@
   <PropertyGroup>
     <SignManifests>true</SignManifests>
   </PropertyGroup>
-  <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotNetOpenAuth">
@@ -96,11 +102,6 @@
     </Reference>
     <Reference Include="Google.Apis.Calendar.v3">
       <HintPath>lib\CalendarService\Google.Apis.Calendar.v3.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.IWshRuntimeLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>lib\Interop.IWshRuntimeLibrary.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

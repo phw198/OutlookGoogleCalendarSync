@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync {
                 int at = emailAddress.IndexOf('@');
                 String masked = emailAddress.Substring(0, 2) + "".PadRight(at - 3, '*') + emailAddress.Substring(at - 1);
                 return masked;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 return "*****@masked.com";
             }
         }

@@ -59,9 +59,8 @@ namespace OutlookGoogleCalendarSync {
             // Get the Calendar folders
             useOutlookCalendar = getDefaultCalendar(oNS);
             if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
-                //***This might be cross thread, so don't rely on MainForm
-                KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
-                calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
+                MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
+                KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedItem");
                 useOutlookCalendar = calendar.Value;
             }
 

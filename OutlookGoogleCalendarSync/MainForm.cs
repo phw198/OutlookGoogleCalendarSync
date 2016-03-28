@@ -32,7 +32,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
 
-        public MainForm(Splash splashScreen, string startingTab = null) {
+        public MainForm(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
             
@@ -44,7 +44,6 @@ namespace OutlookGoogleCalendarSync {
             updateGUIsettings();
             Settings.Instance.LogSettings();
             notificationTray = new NotificationTray(this.trayIcon);
-            splashScreen.Remove();
             
             log.Debug("Create the timer for the auto synchronisation");
             ogcsTimer = new Timer();
@@ -96,9 +95,11 @@ namespace OutlookGoogleCalendarSync {
                 "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
             ToolTips.SetToolTip(dgObfuscateRegex,
                 "All rules are applied using AND logic");
+            ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
+                "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
             //Application behaviour
             ToolTips.SetToolTip(cbPortable,
-                "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive.\n" +
+                "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive).\n" +
                 "Default is in your User roaming profile.");
             ToolTips.SetToolTip(cbCreateFiles,
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
@@ -246,6 +247,8 @@ namespace OutlookGoogleCalendarSync {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
+            cbUseGoogleDefaultReminder.Checked = Settings.Instance.UseGoogleDefaultReminder;
+            cbUseGoogleDefaultReminder.Enabled = Settings.Instance.AddReminders;
             this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #endregion
@@ -273,6 +276,9 @@ namespace OutlookGoogleCalendarSync {
             dgAbout.Rows[r].Cells[1].Value = System.Windows.Forms.Application.ProductVersion;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Running From";
+            dgAbout.Rows[r].Cells[1].Value = System.Windows.Forms.Application.ExecutablePath;
+            dgAbout.Rows.Add(); r++;
+            dgAbout.Rows[r].Cells[0].Value = "Config In";
             dgAbout.Rows[r].Cells[1].Value = Program.UserFilePath;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Subscription";
@@ -520,7 +526,7 @@ namespace OutlookGoogleCalendarSync {
                         try {
                             syncOk = synchronize();
                         } catch (System.Exception ex) {
-                            MainForm.Instance.Logboxout("The following error occurred during sync:-");
+                            MainForm.Instance.Logboxout("The following error was encountered during sync:-");
                             MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
                             log.Error(ex.StackTrace);
                             syncOk = false;
@@ -533,8 +539,15 @@ namespace OutlookGoogleCalendarSync {
                     System.Windows.Forms.Application.DoEvents();
                     System.Threading.Thread.Sleep(100);
                 }
-
-                failedAttempts += !syncOk ? 1 : 0;
+                try {
+                    //Get Logbox text - this is a little bit dirty!
+                    if (!syncOk && LogBox.Text.Contains("The RPC server is unavailable.")) {
+                        Logboxout("Attempting to reconnect to Outlook...");
+                        try { OutlookCalendar.Instance.Reset(); } catch { }
+                    }
+                } finally {
+                    failedAttempts += !syncOk ? 1 : 0;
+                }
             }
             Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
             bSyncNow.Text = "Start Sync";
@@ -572,11 +585,8 @@ namespace OutlookGoogleCalendarSync {
             try {
                 outlookEntries = OutlookCalendar.Instance.GetCalendarEntriesInRange();
             } catch (System.Exception ex) {
-                Logboxout("Unable to access the Outlook calendar. The following error occurred:");
-                Logboxout(ex.Message + "\r\n => Retry later.");
-                log.Error(ex.StackTrace);
-                try { OutlookCalendar.Instance.Reset(); } catch { }
-                return false;
+                Logboxout("Unable to access the Outlook calendar.");
+                throw ex;
             }
             Logboxout(outlookEntries.Count + " Outlook calendar entries found.");
             Logboxout("--------------------------------------------------");
@@ -588,9 +598,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 googleEntries = GoogleCalendar.Instance.GetCalendarEntriesInRange();
             } catch (System.Exception ex) {
-                Logboxout("Unable to connect to the Google calendar. The following error occurred:");
-                Logboxout(ex.Message);
-                log.Error(ex.StackTrace);
+                Logboxout("Unable to connect to the Google calendar.");
                 if (Settings.Instance.Proxy.Type == "IE") {
                     if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n"+
                         "Test it now? If successful, please retry synchronising your calendar.", 
@@ -599,7 +607,7 @@ namespace OutlookGoogleCalendarSync {
                         System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
                     }
                 }
-                return false;
+                throw ex;
             }
             Logboxout(googleEntries.Count + " Google calendar entries found.");
             Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
@@ -680,9 +688,8 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
                     } catch (System.Exception ex) {
-                        Logboxout("Failed to retrieve master for Google recurring event. The following error occurred:\r\n" + ex.Message);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        Logboxout("Failed to retrieve master for Google recurring event.");
+                        throw ex;
                     } finally {
                         oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
                     }
@@ -722,18 +729,14 @@ namespace OutlookGoogleCalendarSync {
             try {
                 GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
             } catch (System.Exception ex) {
-                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Google calendar. The following error occurred:");
-                MainForm.Instance.Logboxout(ex.Message, notifyBubble:true);
-                log.Error(ex.StackTrace);
-                return false;
+                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Google calendar.");
+                throw ex;
             }
             try {
                 GoogleCalendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
             } catch (System.Exception ex) {
-                MainForm.Instance.Logboxout("Unable to identify differences in Google calendar. The following error occurred:");
-                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                log.Error(ex.StackTrace);
-                return false;
+                MainForm.Instance.Logboxout("Unable to identify differences in Google calendar.");
+                throw ex;
             }
             
             Logboxout(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.");
@@ -762,10 +765,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
-                        MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar.");
+                        throw ex;
                     }
                     Logboxout("Done.");
                 }
@@ -781,10 +782,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        Logboxout("Unable to add new entries into the Google Calendar. The following error occurred:");
-                        Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        Logboxout("Unable to add new entries into the Google Calendar.");
+                        throw ex;
                     }
                     Logboxout("Done.");
                 }
@@ -800,10 +799,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        Logboxout("Unable to update existing entries in the Google calendar. The following error occurred:");
-                        Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        Logboxout("Unable to update existing entries in the Google calendar.");
+                        throw ex;
                     }
                     Logboxout(entriesUpdated + " entries updated.");
                 }
@@ -835,18 +832,14 @@ namespace OutlookGoogleCalendarSync {
             try {
                 OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
             } catch (System.Exception ex) {
-                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Outlook calendar. The following error occurred:");
-                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                log.Error(ex.StackTrace);
-                return false;
+                MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Outlook calendar.");
+                throw ex;
             }
             try {
                 OutlookCalendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
             } catch (System.Exception ex) {
-                MainForm.Instance.Logboxout("Unable to identify differences in Outlook calendar. The following error occurred:");
-                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                log.Error(ex.StackTrace);
-                return false;
+                MainForm.Instance.Logboxout("Unable to identify differences in Outlook calendar.");
+                throw ex;
             }
             
             Logboxout(outlookEntriesToBeDeleted.Count + " Outlook calendar entries to be deleted.");
@@ -874,10 +867,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar. The following error occurred:");
-                        MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        MainForm.Instance.Logboxout("Unable to delete obsolete entries in Google calendar.");
+                        throw ex;
                     }
                     Logboxout("Done.");
                 }
@@ -893,10 +884,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        Logboxout("Unable to add new entries into the Outlook Calendar. The following error occurred:");
-                        Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        Logboxout("Unable to add new entries into the Outlook Calendar.");
+                        throw ex;
                     }
                     Logboxout("Done.");
                 }
@@ -912,10 +901,8 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        Logboxout("Unable to update new entries into the Outlook calendar. The following error occurred:");
-                        Logboxout(ex.Message, notifyBubble: true);
-                        log.Error(ex.StackTrace);
-                        return false;
+                        Logboxout("Unable to update new entries into the Outlook calendar.");
+                        throw ex;
                     }
                     Logboxout(entriesUpdated + " entries updated.");
                 }
@@ -1070,8 +1057,20 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void tbSyncNote_Click(object sender, EventArgs e) {
-            if (tbSyncNote.Tag != "") {
-                System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
+            if (!String.IsNullOrEmpty(tbSyncNote.Tag.ToString())) {
+                if (tbSyncNote.Tag.ToString().EndsWith("for ")) {
+                    log.Info("User wanted to subscribe, but Google account username is not known :(");
+                     DialogResult authorise = MessageBox.Show("Thank you for your interest in subscribing. "+
+                        "To kick things off, you'll need to re-authorise OGCS to manage your Google calendar. " +
+                        "Would you like to do that now?", "Proceed with authorisation?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                     if (authorise == DialogResult.Yes) {
+                         log.Debug("Resetting Google account access.");
+                         GoogleCalendar.Instance.Reset();
+                         GoogleCalendar.Instance.UserSubscriptionCheck();
+                     }
+                } else {
+                    System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
+                }
             }
         }
         #endregion
@@ -1291,8 +1290,10 @@ namespace OutlookGoogleCalendarSync {
                 OutlookCalendar.Instance.DeregisterForAutoSync();
                 this.cbOutlookPush.Checked = false;
                 this.cbOutlookPush.Enabled = false;
+                this.cbUseGoogleDefaultReminder.Visible = false;
             } else {
                 this.cbOutlookPush.Enabled = true;
+                this.cbUseGoogleDefaultReminder.Visible = true;
             }
             showWhatPostit();
         }
@@ -1387,7 +1388,7 @@ namespace OutlookGoogleCalendarSync {
             cbAddDescription_OnlyToGoogle.Visible = visible;
         }
 
-        private void CbAddDescriptionCheckedChanged(object sender, EventArgs e) {
+        private void cbAddDescription_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription = cbAddDescription.Checked;
             cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
             showWhatPostit();
@@ -1395,9 +1396,13 @@ namespace OutlookGoogleCalendarSync {
         private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription_OnlyToGoogle = cbAddDescription_OnlyToGoogle.Checked;
         }
-        
-        private void CbAddRemindersCheckedChanged(object sender, EventArgs e) {
+
+        private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddReminders = cbAddReminders.Checked;
+            cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked;
+        }
+        private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;
         }
 
         private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
@@ -1408,7 +1413,7 @@ namespace OutlookGoogleCalendarSync {
         #region Application settings
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
-            Program.CreateStartupShortcut();
+            Program.ManageStartupRegKey();
         }
 
         private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {

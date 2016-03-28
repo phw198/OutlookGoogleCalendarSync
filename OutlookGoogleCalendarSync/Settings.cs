@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
             AddReminders = false;
+            UseGoogleDefaultReminder = false;
             AddAttendees = true;
             MergeItems = true;
             DisableDelete = true;
@@ -154,6 +155,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
         [DataMember] public bool AddReminders { get; set; }
+        [DataMember] public bool UseGoogleDefaultReminder { get; set; }
         [DataMember] public bool AddAttendees { get; set; }
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
@@ -257,7 +259,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
             log.Info("  Push Changes: " + OutlookPush);
             log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddReminders: " + AddReminders);
+            log.Info("  AddReminders: " + AddReminders + "; UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
             log.Info("  AddAttendees: " + AddAttendees);
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);

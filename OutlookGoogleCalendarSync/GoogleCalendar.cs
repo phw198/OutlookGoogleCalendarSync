@@ -27,7 +27,7 @@ namespace OutlookGoogleCalendarSync {
                 if (instance == null) {
                     instance = new GoogleCalendar();
                     instance.initCalendarService();
-                    instance.userSubscriptionCheck();
+                    instance.UserSubscriptionCheck();
                 }
                 return instance;
             }
@@ -357,14 +357,18 @@ namespace OutlookGoogleCalendarSync {
             }
 
             //Reminder alert
-            if (Settings.Instance.AddReminders && ai.ReminderSet) {
+            if (Settings.Instance.AddReminders) {
                 ev.Reminders = new Event.RemindersData();
-                ev.Reminders.UseDefault = false;
-                EventReminder reminder = new EventReminder();
-                reminder.Method = "popup";
-                reminder.Minutes = ai.ReminderMinutesBeforeStart;
-                ev.Reminders.Overrides = new List<EventReminder>();
-                ev.Reminders.Overrides.Add(reminder);
+                if (ai.ReminderSet) {
+                    ev.Reminders.UseDefault = false;
+                    EventReminder reminder = new EventReminder();
+                    reminder.Method = "popup";
+                    reminder.Minutes = ai.ReminderMinutesBeforeStart;
+                    ev.Reminders.Overrides = new List<EventReminder>();
+                    ev.Reminders.Overrides.Add(reminder);
+                } else {
+                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                }
             }
             return ev;
         }
@@ -510,8 +514,8 @@ namespace OutlookGoogleCalendarSync {
             sb.AppendLine(aiSummary);
                 
             //Handle an event's all-day attribute being toggled
-            String evStart = (ev.Start.DateTime == null) ? ev.Start.Date : ev.Start.DateTime;
-            String evEnd = (ev.End.DateTime == null) ? ev.End.Date : ev.End.DateTime;
+            String evStart = ev.Start.Date ?? ev.Start.DateTime;
+            String evEnd = ev.End.Date ?? ev.End.DateTime;
             if (ai.AllDayEvent) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
@@ -631,7 +635,7 @@ namespace OutlookGoogleCalendarSync {
                                 sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                 ev.Reminders.Overrides.Remove(reminder);
                                 if (ev.Reminders.Overrides == null || ev.Reminders.Overrides.Count == 0) {
-                                    ev.Reminders.UseDefault = true;
+                                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
                                 }
                                 itemModified++;
                             } //if Outlook reminders set
@@ -648,6 +652,10 @@ namespace OutlookGoogleCalendarSync {
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
+                    } else {
+                        if (MainForm.CompareAttribute("Reminder Default", SyncDirection.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), Settings.Instance.UseGoogleDefaultReminder.ToString(), sb, ref itemModified)) {
+                            ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                        }
                     }
                 }
             }
@@ -1018,7 +1026,7 @@ namespace OutlookGoogleCalendarSync {
             } catch { }
         }
 
-        private Boolean userSubscriptionCheck() {
+        public Boolean UserSubscriptionCheck() {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -1198,16 +1206,8 @@ namespace OutlookGoogleCalendarSync {
         private static string exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            if (ev.Start.Date == null) {
-                csv.Append(ev.Start.DateTime + ",");
-            } else {
-                csv.Append(ev.Start.Date + ",");
-            }
-            if (ev.End.Date == null) {
-                csv.Append(ev.End.DateTime + ",");
-            } else {
-                csv.Append(ev.End.Date + ",");
-            }
+            csv.Append(ev.Start.Date ?? ev.Start.DateTime + ",");
+            csv.Append(ev.End.Date ?? ev.End.DateTime + ",");
             csv.Append("\"" + ev.Summary + "\",");
             
             if (ev.Location == null) csv.Append(",");

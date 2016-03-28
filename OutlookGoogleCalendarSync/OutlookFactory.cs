@@ -28,8 +28,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void getOutlookVersion() {
-            //Microsoft.Office.Interop.Outlook.Application oApp = OutlookCalendar.AttachToOutlook();
-            Microsoft.Office.Interop.Outlook.Application oApp = new Microsoft.Office.Interop.Outlook.Application();
+            Microsoft.Office.Interop.Outlook.Application oApp = OutlookCalendar.AttachToOutlook();
             outlookVersionFull = oApp.Version;
 
             /* try {

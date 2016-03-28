@@ -121,7 +121,7 @@
   <data name="facebook" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\facebook.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="google+" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="googleplus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\google+.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ogcs" type="System.Resources.ResXFileRef, System.Windows.Forms">

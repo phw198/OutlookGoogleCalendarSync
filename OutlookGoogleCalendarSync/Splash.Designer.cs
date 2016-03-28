@@ -25,19 +25,19 @@
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Splash));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.lSyncCount = new System.Windows.Forms.Label();
+            this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.pbSocialGplusCommunity = new System.Windows.Forms.PictureBox();
             this.lVersion = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
-            this.lSyncCount = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -55,6 +55,31 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(463, 293);
             this.panel1.TabIndex = 9;
+            // 
+            // lSyncCount
+            // 
+            this.lSyncCount.AutoSize = true;
+            this.lSyncCount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lSyncCount.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.lSyncCount.Location = new System.Drawing.Point(145, 198);
+            this.lSyncCount.Name = "lSyncCount";
+            this.lSyncCount.Size = new System.Drawing.Size(173, 15);
+            this.lSyncCount.TabIndex = 55;
+            this.lSyncCount.Text = "{syncs} Syncs && Counting...";
+            this.lSyncCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pbSocialTwitterFollow
+            // 
+            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter_follow;
+            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(240, 251);
+            this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
+            this.pbSocialTwitterFollow.Size = new System.Drawing.Size(135, 27);
+            this.pbSocialTwitterFollow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbSocialTwitterFollow.TabIndex = 54;
+            this.pbSocialTwitterFollow.TabStop = false;
+            this.pbSocialTwitterFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
             // 
             // pbSocialGplusCommunity
             // 
@@ -122,31 +147,6 @@
             this.pictureBox1.TabIndex = 9;
             this.pictureBox1.TabStop = false;
             // 
-            // pbSocialTwitterFollow
-            // 
-            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter_follow;
-            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(240, 251);
-            this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
-            this.pbSocialTwitterFollow.Size = new System.Drawing.Size(135, 27);
-            this.pbSocialTwitterFollow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbSocialTwitterFollow.TabIndex = 54;
-            this.pbSocialTwitterFollow.TabStop = false;
-            this.pbSocialTwitterFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
-            // 
-            // lSyncCount
-            // 
-            this.lSyncCount.AutoSize = true;
-            this.lSyncCount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lSyncCount.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.lSyncCount.Location = new System.Drawing.Point(145, 198);
-            this.lSyncCount.Name = "lSyncCount";
-            this.lSyncCount.Size = new System.Drawing.Size(173, 15);
-            this.lSyncCount.TabIndex = 55;
-            this.lSyncCount.Text = "{syncs} Syncs && Counting...";
-            this.lSyncCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // Splash
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -164,12 +164,13 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Outlook Google Calendar Sync";
             this.TopMost = true;
+            this.Shown += new System.EventHandler(this.Splash_Shown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
             this.ResumeLayout(false);
 
         }

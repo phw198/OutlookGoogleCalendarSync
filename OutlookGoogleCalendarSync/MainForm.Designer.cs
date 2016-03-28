@@ -105,6 +105,7 @@
             this.WhatPostit = new System.Windows.Forms.Panel();
             this.tbWhatHelp = new System.Windows.Forms.RichTextBox();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.cbUseGoogleDefaultReminder = new System.Windows.Forms.CheckBox();
             this.cbAddDescription_OnlyToGoogle = new System.Windows.Forms.CheckBox();
             this.cbAddReminders = new System.Windows.Forms.CheckBox();
             this.lAttributes = new System.Windows.Forms.Label();
@@ -1133,6 +1134,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription_OnlyToGoogle);
             this.gbSyncOptions_What.Controls.Add(this.cbAddReminders);
             this.gbSyncOptions_What.Controls.Add(this.lAttributes);
@@ -1146,6 +1148,18 @@
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "What";
+            // 
+            // cbUseGoogleDefaultReminder
+            // 
+            this.cbUseGoogleDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbUseGoogleDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbUseGoogleDefaultReminder.Location = new System.Drawing.Point(126, 73);
+            this.cbUseGoogleDefaultReminder.Name = "cbUseGoogleDefaultReminder";
+            this.cbUseGoogleDefaultReminder.Size = new System.Drawing.Size(150, 17);
+            this.cbUseGoogleDefaultReminder.TabIndex = 35;
+            this.cbUseGoogleDefaultReminder.Text = "Use Google default";
+            this.cbUseGoogleDefaultReminder.UseVisualStyleBackColor = true;
+            this.cbUseGoogleDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseGoogleDefaultReminder_CheckedChanged);
             // 
             // cbAddDescription_OnlyToGoogle
             // 
@@ -1171,7 +1185,7 @@
             this.cbAddReminders.TabIndex = 32;
             this.cbAddReminders.Text = "Reminders";
             this.cbAddReminders.UseVisualStyleBackColor = true;
-            this.cbAddReminders.CheckedChanged += new System.EventHandler(this.CbAddRemindersCheckedChanged);
+            this.cbAddReminders.CheckedChanged += new System.EventHandler(this.cbAddReminders_CheckedChanged);
             // 
             // lAttributes
             // 
@@ -1205,7 +1219,7 @@
             this.cbAddDescription.TabIndex = 31;
             this.cbAddDescription.Text = "Description";
             this.cbAddDescription.UseVisualStyleBackColor = true;
-            this.cbAddDescription.CheckedChanged += new System.EventHandler(this.CbAddDescriptionCheckedChanged);
+            this.cbAddDescription.CheckedChanged += new System.EventHandler(this.cbAddDescription_CheckedChanged);
             // 
             // label15
             // 
@@ -1807,7 +1821,7 @@
             this.dgAbout.RowHeadersVisible = false;
             this.dgAbout.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
             this.dgAbout.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgAbout.Size = new System.Drawing.Size(328, 69);
+            this.dgAbout.Size = new System.Drawing.Size(328, 91);
             this.dgAbout.TabIndex = 44;
             // 
             // Column1
@@ -1830,7 +1844,7 @@
             // 
             this.cbAlphaReleases.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cbAlphaReleases.AutoSize = true;
-            this.cbAlphaReleases.Location = new System.Drawing.Point(171, 452);
+            this.cbAlphaReleases.Location = new System.Drawing.Point(171, 470);
             this.cbAlphaReleases.Name = "cbAlphaReleases";
             this.cbAlphaReleases.Size = new System.Drawing.Size(144, 17);
             this.cbAlphaReleases.TabIndex = 40;
@@ -1841,7 +1855,7 @@
             // btCheckForUpdate
             // 
             this.btCheckForUpdate.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btCheckForUpdate.Location = new System.Drawing.Point(187, 423);
+            this.btCheckForUpdate.Location = new System.Drawing.Point(187, 441);
             this.btCheckForUpdate.Name = "btCheckForUpdate";
             this.btCheckForUpdate.Size = new System.Drawing.Size(113, 23);
             this.btCheckForUpdate.TabIndex = 39;
@@ -1865,7 +1879,7 @@
             // lAboutURL
             // 
             this.lAboutURL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.lAboutURL.Location = new System.Drawing.Point(6, 482);
+            this.lAboutURL.Location = new System.Drawing.Point(6, 517);
             this.lAboutURL.Name = "lAboutURL";
             this.lAboutURL.Size = new System.Drawing.Size(475, 23);
             this.lAboutURL.TabIndex = 2;
@@ -1879,10 +1893,10 @@
             this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lAboutMain.Location = new System.Drawing.Point(30, 145);
+            this.lAboutMain.Location = new System.Drawing.Point(30, 163);
             this.lAboutMain.Name = "lAboutMain";
             this.lAboutMain.Padding = new System.Windows.Forms.Padding(15);
-            this.lAboutMain.Size = new System.Drawing.Size(426, 221);
+            this.lAboutMain.Size = new System.Drawing.Size(426, 216);
             this.lAboutMain.TabIndex = 1;
             this.lAboutMain.Text = resources.GetString("lAboutMain.Text");
             this.lAboutMain.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -1892,7 +1906,7 @@
             this.pbDonate.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pbDonate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbDonate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.paypalDonate;
-            this.pbDonate.Location = new System.Drawing.Point(206, 394);
+            this.pbDonate.Location = new System.Drawing.Point(206, 412);
             this.pbDonate.Name = "pbDonate";
             this.pbDonate.Size = new System.Drawing.Size(75, 23);
             this.pbDonate.TabIndex = 3;
@@ -1995,7 +2009,7 @@
             // 
             this.btSocialGplus.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btSocialGplus.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btSocialGplus.Image = global::OutlookGoogleCalendarSync.Properties.Resources.google_;
+            this.btSocialGplus.Image = global::OutlookGoogleCalendarSync.Properties.Resources.googleplus;
             this.btSocialGplus.Location = new System.Drawing.Point(7, 148);
             this.btSocialGplus.Name = "btSocialGplus";
             this.btSocialGplus.Size = new System.Drawing.Size(86, 34);
@@ -2313,5 +2327,6 @@
         private System.Windows.Forms.DataGridView dgAbout;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.CheckBox cbUseGoogleDefaultReminder;
     }
 }

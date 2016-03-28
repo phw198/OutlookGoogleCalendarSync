@@ -374,8 +374,8 @@ namespace OutlookGoogleCalendarSync {
             googleExceptions = googleExceptions.Union(gInstances.Where(ev => !String.IsNullOrEmpty(ev.RecurringEventId))).ToList();
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
-                    if ((!oIsDeleted &&
-                        GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gInst.OriginalStartTime.Date ?? gInst.OriginalStartTime.DateTime))
+                    if (((!oIsDeleted || (oIsDeleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
+                        && GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gInst.OriginalStartTime.Date ?? gInst.OriginalStartTime.DateTime))
                         ) ||
                         (oIsDeleted &&
                         GoogleCalendar.GoogleTimeFrom(oExcp.OriginalDate) == GoogleCalendar.GoogleTimeFrom(DateTime.Parse(gInst.OriginalStartTime.Date ?? gInst.OriginalStartTime.DateTime).Date)
