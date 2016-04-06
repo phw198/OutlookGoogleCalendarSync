@@ -869,7 +869,9 @@ namespace OutlookGoogleCalendarSync {
                 if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
                     for (int o = outlook.Count - 1; o >= 0; o--) {
                         String compare_oGlobalID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
-                        if (compare_gEntryID.StartsWith(outlook[o].EntryID)) {
+                        if (compare_oGlobalID == outlook[o].EntryID) {
+                            log.Debug("Can't migrate Event to GlobalAppointmentID.");
+                        } else if (compare_gEntryID.StartsWith(outlook[o].EntryID)) {
                             if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
                             //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
                             //To prevent existing users from having everything deleted and recreated, need to migrate them.
