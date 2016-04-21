@@ -45,6 +45,7 @@ namespace OutlookGoogleCalendarSync {
             throwException
         }
         private static Random random = new Random();
+        private long minDefaultReminder = long.MinValue;
 
         public GoogleCalendar() { }
 
@@ -256,21 +257,7 @@ namespace OutlookGoogleCalendarSync {
             } while (pageToken != null);
 
             if (Settings.Instance.CreateCSVFiles) {
-                log.Debug("Outputting CSV files...");
-                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"google_events.csv"));
-                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
-                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Google ID,Outlook ID";
-                tw.WriteLine(CSVheader);
-                foreach (Event ev in result) {
-                    try {
-                        tw.WriteLine(exportToCSV(ev));
-                    } catch {
-                        MainForm.Instance.Logboxout("Failed to output following Google event to CSV:-");
-                        MainForm.Instance.Logboxout(GetEventSummary(ev));
-                    }
-                }
-                tw.Close();
-                log.Debug("Done.");
+                ExportToCSV("Outputting all Events to CSV", "google_events.csv", result);
             }
 
             return result;
@@ -359,15 +346,19 @@ namespace OutlookGoogleCalendarSync {
             //Reminder alert
             if (Settings.Instance.AddReminders) {
                 ev.Reminders = new Event.RemindersData();
-                if (ai.ReminderSet) {
-                    ev.Reminders.UseDefault = false;
-                    EventReminder reminder = new EventReminder();
-                    reminder.Method = "popup";
-                    reminder.Minutes = ai.ReminderMinutesBeforeStart;
-                    ev.Reminders.Overrides = new List<EventReminder>();
-                    ev.Reminders.Overrides.Add(reminder);
+                if (isOKtoSyncReminder(ai)) {
+                    if (ai.ReminderSet) {
+                        ev.Reminders.UseDefault = false;
+                        EventReminder reminder = new EventReminder();
+                        reminder.Method = "popup";
+                        reminder.Minutes = ai.ReminderMinutesBeforeStart;
+                        ev.Reminders.Overrides = new List<EventReminder>();
+                        ev.Reminders.Overrides.Add(reminder);
+                    } else {
+                        ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                    }
                 } else {
-                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                    ev.Reminders.UseDefault = false;
                 }
             }
             return ev;
@@ -493,7 +484,7 @@ namespace OutlookGoogleCalendarSync {
             if (!Settings.Instance.APIlimit_inEffect && GetOGCSproperty(ev, Program.APIlimitHit)) {
                 log.Fine("Back processing Event affected by attendee API limit.");
             } else {
-                if (!forceCompare) { //Needed if the exception has just been created, but now needs updating
+                if (!(MainForm.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                     if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                         if (DateTime.Parse(ev.Updated) > ai.LastModificationTime)
                             return null;
@@ -622,28 +613,36 @@ namespace OutlookGoogleCalendarSync {
                         
             //Reminders
             if (Settings.Instance.AddReminders) {
+                Boolean OKtoSyncReminder = isOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null) {
                     //Find the popup reminder in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
                         EventReminder reminder = ev.Reminders.Overrides[r];
                         if (reminder.Method == "popup") {
-                            if (ai.ReminderSet) {
-                                if (MainForm.CompareAttribute("Reminder", SyncDirection.OutlookToGoogle, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                    reminder.Minutes = ai.ReminderMinutesBeforeStart;
-                                }
+                            if (OKtoSyncReminder) {
+                                if (ai.ReminderSet) {
+                                    if (MainForm.CompareAttribute("Reminder", SyncDirection.OutlookToGoogle, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
+                                        reminder.Minutes = ai.ReminderMinutesBeforeStart;
+                                    }
+                                } else {
+                                    sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
+                                    ev.Reminders.Overrides.Remove(reminder);
+                                    if (ev.Reminders.Overrides == null || ev.Reminders.Overrides.Count == 0) {
+                                        ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                                    }
+                                    itemModified++;
+                                } //if Outlook reminders set
                             } else {
                                 sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                 ev.Reminders.Overrides.Remove(reminder);
-                                if (ev.Reminders.Overrides == null || ev.Reminders.Overrides.Count == 0) {
-                                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
-                                }
+                                ev.Reminders.UseDefault = false;
                                 itemModified++;
-                            } //if Outlook reminders set
+                            }
                         } //if google reminder found
                     } //foreach reminder
 
                 } else { //no google reminders set
-                    if (ai.ReminderSet) {
+                    if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
                         EventReminder newReminder = new EventReminder();
@@ -653,8 +652,8 @@ namespace OutlookGoogleCalendarSync {
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
                     } else {
-                        if (MainForm.CompareAttribute("Reminder Default", SyncDirection.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), Settings.Instance.UseGoogleDefaultReminder.ToString(), sb, ref itemModified)) {
-                            ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                        if (MainForm.CompareAttribute("Reminder Default", SyncDirection.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder.ToString() : "False", sb, ref itemModified)) {
+                            ev.Reminders.UseDefault = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
                         }
                     }
                 }
@@ -868,34 +867,50 @@ namespace OutlookGoogleCalendarSync {
             for (int g = google.Count - 1; g >= 0; g--) {
                 if (GetOGCSproperty(google[g], oEntryID, out compare_gEntryID)) {
                     for (int o = outlook.Count - 1; o >= 0; o--) {
-                        String compare_oGlobalID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
-                        if (compare_oGlobalID == outlook[o].EntryID) {
-                            log.Debug("Can't migrate Event to GlobalAppointmentID.");
-                        } else if (compare_gEntryID.StartsWith(outlook[o].EntryID)) {
-                            if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
-                            //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
-                            //To prevent existing users from having everything deleted and recreated, need to migrate them.
-                            //This change was effective from v2.0.2.3
-                            Event ev = google[g];
-                            AddOutlookID(ref ev, outlook[o]);
-                            google[g] = ev;
-                            UpdateCalendarEntry_save(google[g]);
-                            compare_gEntryID = compare_oGlobalID;
-                            migrated++;
-                            //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
-                            System.Threading.Thread.Sleep(250);
-                        }
+                        try {
+                            log.Fine("Checking "+ OutlookCalendar.GetEventSummary(outlook[o]));
+                            String compare_oGlobalID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
+                            if (compare_oGlobalID == outlook[o].EntryID) {
+                                log.Debug("Can't migrate Event to GlobalAppointmentID.");
+                            } else if (compare_gEntryID.StartsWith(outlook[o].EntryID)) {
+                                if (migrated == 0) log.Info("Migrating Events from EntryID to GlobalAppointmentID...");
+                                //Should have used AppointmentItem Global ID, not Object ID (which changes when accepting invites!)
+                                //To prevent existing users from having everything deleted and recreated, need to migrate them.
+                                //This change was effective from v2.0.2.3
+                                //*** It's not the most efficient, so should be scrapped after a few Beta releases!
+                                Event ev = google[g];
+                                AddOutlookID(ref ev, outlook[o]);
+                                google[g] = ev;
+                                UpdateCalendarEntry_save(google[g]);
+                                compare_gEntryID = compare_oGlobalID;
+                                migrated++;
+                                //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
+                                System.Threading.Thread.Sleep(250);
+                            }
 
-                        //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
-                        //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
-                        //I guess the copied item doesn't really have its "own" ID. Anyway, we could consider just comparing
-                        //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
-                        //For now, let's just compare the whole ID
-                        if (compare_gEntryID == compare_oGlobalID) {
-                            compare.Add(outlook[o], google[g]);
-                            outlook.Remove(outlook[o]);
-                            google.Remove(google[g]);
-                            break;
+                            //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
+                            //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
+                            //I guess the copied item doesn't really have its "own" ID. Anyway, we could consider just comparing
+                            //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
+                            //For now, let's just compare the whole ID
+                            if (compare_gEntryID == compare_oGlobalID) {
+                                compare.Add(outlook[o], google[g]);
+                                outlook.Remove(outlook[o]);
+                                google.Remove(google[g]);
+                                break;
+                            }
+                        } catch (System.Exception ex) {
+                            if (!log.IsFineEnabled()) {
+                                try {
+                                    log.Info(OutlookCalendar.GetEventSummary(outlook[o]));
+                                } catch { }
+                            } 
+                            if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
+                                log.Warn("Item corrupted / inaccessible due to security certificate.");
+                                outlook.Remove(outlook[o]);
+                            } else {
+                                log.Error(ex.Message);
+                            }
                         }
                     }
                 } else if (Settings.Instance.MergeItems) {
@@ -922,22 +937,8 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             if (Settings.Instance.CreateCSVFiles) {
-                //Google Deletions
-                log.Debug("Outputting items for deletion to CSV...");
-                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath, "google_delete.csv"));
-                foreach (Event ev in google) {
-                    tw.WriteLine(signature(ev));
-                }
-                tw.Close();
-
-                //Google Creations
-                log.Debug("Outputting items for creation to CSV...");
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath, "google_create.csv"));
-                foreach (AppointmentItem ai in outlook) {
-                    tw.WriteLine(OutlookCalendar.signature(ai));
-                }
-                tw.Close();
-                log.Debug("Done.");
+                ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
+                OutlookCalendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
             }
         }
         
@@ -1023,9 +1024,22 @@ namespace OutlookGoogleCalendarSync {
 
         public void GetSetting(string setting) {
             try {
-                SettingsResource.GetRequest sr = service.Settings.Get(setting);
-                sr.FetchAsync();
+                service.Settings.Get(setting).FetchAsync();
             } catch { }
+        }
+        public void GetCalendarSettings() {
+            if (!Settings.Instance.UseGoogleDefaultReminder) return;
+            try {
+                CalendarListResource.GetRequest request = service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
+                CalendarListEntry cal = request.Fetch();
+                if (cal.DefaultReminders.Count == 0)
+                    this.minDefaultReminder = long.MinValue;
+                else
+                    this.minDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
+            } catch (System.Exception ex) {
+                log.Error("Failed to get calendar settings.");
+                log.Error(ex.Message);
+            }
         }
 
         public Boolean UserSubscriptionCheck() {
@@ -1205,7 +1219,40 @@ namespace OutlookGoogleCalendarSync {
             return signature.Trim();
         }
 
-        private static string exportToCSV(Event ev) {
+        public static void ExportToCSV(String action, String filename, List<Event> events) {
+            log.Debug(action);
+
+            TextWriter tw;
+            try {
+                tw = new StreamWriter(Path.Combine(Program.UserFilePath, filename));
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("Failed to create CSV file '"+ filename +"'.");
+                log.Error("Error opening file '"+ filename +"' for writing.");
+                log.Error(ex.Message);
+                return;
+            } 
+            try {
+                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Google ID,Outlook ID";
+
+                tw.WriteLine(CSVheader);
+
+                foreach (Event ev in events) {
+                    try {
+                        tw.WriteLine(exportToCSV(ev));
+                    } catch {
+                        MainForm.Instance.Logboxout("Failed to output following Google event to CSV:-");
+                        MainForm.Instance.Logboxout(GetEventSummary(ev));
+                    }
+                }
+            } catch {
+                MainForm.Instance.Logboxout("Failed to output Google events to CSV.");
+            } finally {
+                if (tw != null) tw.Close();
+            }
+            log.Debug("CSV export done.");
+        }
+        private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
             csv.Append(ev.Start.Date ?? ev.Start.DateTime + ",");
@@ -1322,6 +1369,47 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        private Boolean isOKtoSyncReminder(AppointmentItem ai) {                
+            if (Settings.Instance.ReminderDND) {
+                DateTime alarm;
+                if (ai.ReminderSet)
+                    alarm = ai.Start.Date.AddMinutes(-ai.ReminderMinutesBeforeStart);
+                else {
+                    if (Settings.Instance.UseGoogleDefaultReminder && minDefaultReminder != long.MinValue) {
+                        log.Fine("Using default Google reminder value: " + minDefaultReminder);
+                        alarm = ai.Start.Date.AddMinutes(-minDefaultReminder);
+                    } else
+                        return false;
+                }
+                return isOKtoSyncReminder(alarm);
+            }
+            return true; 
+        }
+        private Boolean isOKtoSyncReminder(DateTime alarm) {
+            if (Settings.Instance.ReminderDNDstart.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
+                //eg 22:00 to 06:00
+                //Make sure end time is the day following the start time
+                Settings.Instance.ReminderDNDstart = alarm.Date.Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
+                Settings.Instance.ReminderDNDend = alarm.Date.AddDays(1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
+
+                if (alarm > Settings.Instance.ReminderDNDstart && alarm < Settings.Instance.ReminderDNDend) {
+                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
+                    return false;
+                } else 
+                    return true;
+
+            } else {
+                //eg 01:00 to 06:00
+                if (alarm.TimeOfDay < Settings.Instance.ReminderDNDstart.TimeOfDay ||
+                    alarm.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
+                    return true;
+                } else {
+                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
+                    return false;
+                }
+            }
+        }
+
         #region OGCS event properties
         public static void AddOutlookID(ref Event ev, AppointmentItem ai) {
             //Add the Outlook appointment ID into Google event.
@@ -1339,7 +1427,7 @@ namespace OutlookGoogleCalendarSync {
                 ev.ExtendedProperties.Private.Add(key, value);
         }
         private static void addOGCSproperty(ref Event ev, String key, DateTime value) {
-            addOGCSproperty(ref ev, key, value.ToString());
+            addOGCSproperty(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
         }
 
         public static Boolean GetOGCSproperty(Event ev, String key) {
@@ -1366,7 +1454,20 @@ namespace OutlookGoogleCalendarSync {
         public static DateTime GetOGCSlastModified(Event ev) {
             String lastModded = null;
             if (GetOGCSproperty(ev, Program.OGCSmodified, out lastModded)) {
-                return DateTime.Parse(lastModded);
+                try {
+                    return DateTime.ParseExact(lastModded, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                } catch (System.FormatException) {
+                    //Bugfix <= v2.2, 
+                    log.Fine("Date wasn't stored as invariant culture.");
+                    DateTime retDate;
+                    if (DateTime.TryParse(lastModded, out retDate)) {
+                        log.Fine("Fall back to current culture successful.");
+                        return retDate;
+                    } else {
+                        log.Debug("Fall back to current culture for date failed. Last resort: setting to a month ago.");
+                        return DateTime.Now.AddMonths(-1);
+                    }
+                }
             } else {
                 return new DateTime();
             }

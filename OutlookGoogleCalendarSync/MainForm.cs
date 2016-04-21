@@ -29,6 +29,7 @@ namespace OutlookGoogleCalendarSync {
                 else return bwSync.IsBusy; 
             }
         }
+        public Boolean ManualForceCompare = false;
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
 
@@ -97,6 +98,8 @@ namespace OutlookGoogleCalendarSync {
                 "All rules are applied using AND logic");
             ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
+            ToolTips.SetToolTip(cbReminderDND,
+                "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             //Application behaviour
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive).\n" +
@@ -249,6 +252,13 @@ namespace OutlookGoogleCalendarSync {
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbUseGoogleDefaultReminder.Checked = Settings.Instance.UseGoogleDefaultReminder;
             cbUseGoogleDefaultReminder.Enabled = Settings.Instance.AddReminders;
+            cbReminderDND.Enabled = Settings.Instance.AddReminders;
+            cbReminderDND.Checked = Settings.Instance.ReminderDND; 
+            dtDNDstart.Enabled = Settings.Instance.AddReminders;
+            dtDNDend.Enabled = Settings.Instance.AddReminders;
+            dtDNDstart.Value = Settings.Instance.ReminderDNDstart;
+            dtDNDend.Value = Settings.Instance.ReminderDNDend;
+
             this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #endregion
@@ -421,6 +431,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public void Sync_Requested(object sender = null, EventArgs e = null) {
+            ManualForceCompare = false;
             if (sender != null && sender.GetType().ToString().EndsWith("Timer")) { //Automated sync
                 if (bSyncNow.Text == "Start Sync") {
                     log.Debug("Scheduled sync started.");
@@ -438,6 +449,7 @@ namespace OutlookGoogleCalendarSync {
             } else { //Manual sync
                 if (bSyncNow.Text == "Start Sync") {
                     log.Debug("Manual sync started.");
+                    if (Control.ModifierKeys == Keys.Shift) ManualForceCompare = true; log.Info("Shift-click has forced a compare of all items");
                     sync_Start(updateSyncSchedule: false);
 
                 } else if (bSyncNow.Text == "Stop Sync") {
@@ -503,6 +515,7 @@ namespace OutlookGoogleCalendarSync {
             Boolean syncOk = false;
             int failedAttempts = 0;
             Social.TrackSync();
+            GoogleCalendar.Instance.GetCalendarSettings();
             while (!syncOk) {
                 if (failedAttempts > 0 &&
                     MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
@@ -677,15 +690,14 @@ namespace OutlookGoogleCalendarSync {
                             log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
                             if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
 
-                        } else {
-                            Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
-                            if (masterEv != null) {
-                                Boolean alreadyCached = false;
-                                foreach (Event ev in googleEntries) {
-                                    if (ev.Id == masterEv.Id) { alreadyCached = true; break; }
-                                }
-                                if (!alreadyCached) googleEntries.Add(masterEv);
+                        }
+                        Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                        if (masterEv != null) {
+                            Boolean alreadyCached = false;
+                            if (googleEntries.Exists(x => x.Id == masterEv.Id)) {
+                                alreadyCached = true;
                             }
+                            if (!alreadyCached) googleEntries.Add(masterEv);
                         }
                     } catch (System.Exception ex) {
                         Logboxout("Failed to retrieve master for Google recurring event.");
@@ -1124,6 +1136,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #region Outlook settings
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
             if (rbOutlookDefaultMB.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
                 OutlookCalendar.Instance.Reset();
@@ -1134,6 +1147,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
             if (rbOutlookAltMB.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.AlternativeMailbox;
                 Settings.Instance.MailboxName = ddMailboxName.Text;
@@ -1147,6 +1161,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void rbOutlookEWS_CheckedChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
             if (rbOutlookEWS.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.EWS;
                 OutlookCalendar.Instance.Reset();
@@ -1175,7 +1190,7 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.EWSserver = txtEWSServerURL.Text;
         }
 
-        private void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
+        public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
@@ -1400,9 +1415,21 @@ namespace OutlookGoogleCalendarSync {
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddReminders = cbAddReminders.Checked;
             cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked;
+            cbReminderDND.Enabled = cbAddReminders.Checked;
+            dtDNDstart.Enabled = cbAddReminders.Checked;
+            dtDNDend.Enabled = cbAddReminders.Checked;
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;
+        }
+        private void cbReminderDND_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ReminderDND = cbReminderDND.Checked;
+        }
+        private void dtDNDstart_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.ReminderDNDstart = dtDNDstart.Value;
+        }
+        private void dtDNDend_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.ReminderDNDend = dtDNDend.Value;
         }
 
         private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {

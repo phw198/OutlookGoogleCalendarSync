@@ -58,10 +58,27 @@ namespace OutlookGoogleCalendarSync {
             
             // Get the Calendar folders
             useOutlookCalendar = getDefaultCalendar(oNS);
-            if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
+            if (MainForm.Instance.IsHandleCreated) {
+                log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
+
+                MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged -= MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged; 
                 MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
+                
+                //Select the right calendar
+                int c = 0;
+                foreach (KeyValuePair<String, MAPIFolder> calendarFolder in calendarFolders) {
+                    if (calendarFolder.Value.EntryID == Settings.Instance.UseOutlookCalendar.Id) {
+                        MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", c);
+                    }
+                    c++;
+                }
+                if ((int)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
+                    MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", 0);
+
                 KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedItem");
                 useOutlookCalendar = calendar.Value;
+
+                MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged += MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
             }
 
             // Done. Log off.

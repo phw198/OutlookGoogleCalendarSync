@@ -158,22 +158,7 @@ namespace OutlookGoogleCalendarSync {
             filtered = FilterCalendarEntries(UseOutlookCalendar.Items);
             
             if (Settings.Instance.CreateCSVFiles) {
-                log.Debug("Outputting CSV files...");
-                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_appointments.csv"));
-                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
-                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
-                tw.WriteLine(CSVheader);
-                foreach (AppointmentItem ai in filtered) {
-                    try {
-                        tw.WriteLine(exportToCSV(ai));
-                    } catch (System.Exception ex) {
-                        MainForm.Instance.Logboxout("Failed to output following Outlook appointment to CSV:-");
-                        MainForm.Instance.Logboxout(GetEventSummary(ai));
-                        log.Error(ex.Message);
-                    }
-                }
-                tw.Close();
-                log.Debug("Done.");
+                ExportToCSV("Outputting all Appointments to CSV", "outlook_appointments.csv", filtered);
             }
             return filtered;
         }
@@ -366,7 +351,7 @@ namespace OutlookGoogleCalendarSync {
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) { //The exception child objects might have changed
                 log.Debug("Processing recurring master appointment.");
             } else {
-                if (!forceCompare) { //Needed if the exception has just been created, but now needs updating
+                if (!(MainForm.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                     if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                         if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
                             return null;
@@ -388,7 +373,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) ai.AllDayEvent = (ev.Start.DateTime == null);
 
-            RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) ? null : ai.GetRecurrencePattern();
+            RecurrencePattern oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
             Recurrence.Instance.CompareOutlookPattern(ev, ai, sb, ref itemModified);
 
             DateTime evParsedDate = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime);
@@ -727,7 +712,39 @@ namespace OutlookGoogleCalendarSync {
         public static string signature(AppointmentItem ai) {
             return (ai.Subject + ";" + GoogleCalendar.GoogleTimeFrom(ai.Start) + ";" + GoogleCalendar.GoogleTimeFrom(ai.End)).Trim();
         }
-        
+
+        public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
+            log.Debug(action);
+
+            TextWriter tw;
+            try {
+                tw = new StreamWriter(Path.Combine(Program.UserFilePath, filename));
+            } catch (System.Exception ex) {
+                MainForm.Instance.Logboxout("Failed to create CSV file '" + filename + "'.");
+                log.Error("Error opening file '" + filename + "' for writing.");
+                log.Error(ex.Message);
+                return;
+            }
+            try {
+                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,Outlook ID,Google ID";
+                tw.WriteLine(CSVheader);
+                foreach (AppointmentItem ai in ais) {
+                    try {
+                        tw.WriteLine(exportToCSV(ai));
+                    } catch (System.Exception ex) {
+                        MainForm.Instance.Logboxout("Failed to output following Outlook appointment to CSV:-");
+                        MainForm.Instance.Logboxout(GetEventSummary(ai));
+                        log.Error(ex.Message);
+                    }
+                }
+            } catch {
+                MainForm.Instance.Logboxout("Failed to output Outlook events to CSV.");
+            } finally {
+                if (tw != null) tw.Close();
+            }
+            log.Debug("Done.");
+        }
         private static string exportToCSV(AppointmentItem ai) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
             
@@ -820,22 +837,8 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             if (Settings.Instance.CreateCSVFiles) {
-                //Outlook Deletions
-                log.Debug("Outputting items for deletion to CSV...");
-                TextWriter tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_delete.csv"));
-                foreach (AppointmentItem ai in outlook) {
-                    tw.WriteLine(exportToCSV(ai));
-                }
-                tw.Close();
-
-                //Outlook Creations
-                log.Debug("Outputting items for creation to CSV...");
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath,"outlook_create.csv"));
-                foreach (AppointmentItem ai in outlook) {
-                    tw.WriteLine(OutlookCalendar.signature(ai));
-                }
-                tw.Close();
-                log.Debug("Done.");
+                ExportToCSV("Appointments for deletion in Outlook", "outlook_delete.csv", outlook);
+                GoogleCalendar.ExportToCSV("Events for creation in Outlook", "outlook_create.csv", google);
             }
         }
 

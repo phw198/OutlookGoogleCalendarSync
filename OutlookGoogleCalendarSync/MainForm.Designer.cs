@@ -30,9 +30,9 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
@@ -181,6 +181,10 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.cbReminderDND = new System.Windows.Forms.CheckBox();
+            this.dtDNDstart = new System.Windows.Forms.DateTimePicker();
+            this.dtDNDend = new System.Windows.Forms.DateTimePicker();
+            this.label33 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -993,14 +997,14 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle13.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle13.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle13.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle13.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle13.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle13.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle13;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.ShowCellToolTips = false;
@@ -1110,7 +1114,7 @@
             this.WhatPostit.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.WhatPostit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.WhatPostit.Controls.Add(this.tbWhatHelp);
-            this.WhatPostit.Location = new System.Drawing.Point(89, 379);
+            this.WhatPostit.Location = new System.Drawing.Point(89, 387);
             this.WhatPostit.Name = "WhatPostit";
             this.WhatPostit.Size = new System.Drawing.Size(211, 68);
             this.WhatPostit.TabIndex = 34;
@@ -1134,17 +1138,21 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
+            this.gbSyncOptions_What.Controls.Add(this.label33);
+            this.gbSyncOptions_What.Controls.Add(this.dtDNDend);
+            this.gbSyncOptions_What.Controls.Add(this.dtDNDstart);
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription_OnlyToGoogle);
             this.gbSyncOptions_What.Controls.Add(this.cbAddReminders);
             this.gbSyncOptions_What.Controls.Add(this.lAttributes);
             this.gbSyncOptions_What.Controls.Add(this.cbAddAttendees);
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription);
+            this.gbSyncOptions_What.Controls.Add(this.cbReminderDND);
+            this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
             this.gbSyncOptions_What.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbSyncOptions_What.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbSyncOptions_What.Location = new System.Drawing.Point(12, 273);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(369, 96);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(369, 111);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "What";
@@ -1826,8 +1834,8 @@
             // 
             // Column1
             // 
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.Column1.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle14.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Column1.DefaultCellStyle = dataGridViewCellStyle14;
             this.Column1.HeaderText = "Name";
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
@@ -2120,6 +2128,55 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // cbReminderDND
+            // 
+            this.cbReminderDND.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbReminderDND.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbReminderDND.Location = new System.Drawing.Point(126, 89);
+            this.cbReminderDND.Name = "cbReminderDND";
+            this.cbReminderDND.Size = new System.Drawing.Size(215, 17);
+            this.cbReminderDND.TabIndex = 36;
+            this.cbReminderDND.Text = "DND between";
+            this.cbReminderDND.UseVisualStyleBackColor = true;
+            this.cbReminderDND.CheckedChanged += new System.EventHandler(this.cbReminderDND_CheckedChanged);
+            // 
+            // dtDNDstart
+            // 
+            this.dtDNDstart.CustomFormat = "HH:mm";
+            this.dtDNDstart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtDNDstart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtDNDstart.Location = new System.Drawing.Point(216, 87);
+            this.dtDNDstart.Name = "dtDNDstart";
+            this.dtDNDstart.ShowUpDown = true;
+            this.dtDNDstart.Size = new System.Drawing.Size(50, 20);
+            this.dtDNDstart.TabIndex = 38;
+            this.dtDNDstart.Value = new System.DateTime(2016, 5, 7, 22, 0, 0, 0);
+            this.dtDNDstart.ValueChanged += new System.EventHandler(this.dtDNDstart_ValueChanged);
+            // 
+            // dtDNDend
+            // 
+            this.dtDNDend.CustomFormat = "HH:mm";
+            this.dtDNDend.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtDNDend.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtDNDend.Location = new System.Drawing.Point(291, 87);
+            this.dtDNDend.Name = "dtDNDend";
+            this.dtDNDend.ShowUpDown = true;
+            this.dtDNDend.Size = new System.Drawing.Size(50, 20);
+            this.dtDNDend.TabIndex = 39;
+            this.dtDNDend.Value = new System.DateTime(2016, 5, 8, 6, 0, 0, 0);
+            this.dtDNDend.ValueChanged += new System.EventHandler(this.dtDNDend_ValueChanged);
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label33.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label33.Location = new System.Drawing.Point(266, 89);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(25, 13);
+            this.label33.TabIndex = 40;
+            this.label33.Text = "and";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2158,6 +2215,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgObfuscateRegex)).EndInit();
             this.WhatPostit.ResumeLayout(false);
             this.gbSyncOptions_What.ResumeLayout(false);
+            this.gbSyncOptions_What.PerformLayout();
             this.tabAppBehaviour.ResumeLayout(false);
             this.tabAppBehaviour.PerformLayout();
             this.gbProxy.ResumeLayout(false);
@@ -2328,5 +2386,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.CheckBox cbUseGoogleDefaultReminder;
+        private System.Windows.Forms.CheckBox cbReminderDND;
+        private System.Windows.Forms.DateTimePicker dtDNDstart;
+        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.DateTimePicker dtDNDend;
     }
 }

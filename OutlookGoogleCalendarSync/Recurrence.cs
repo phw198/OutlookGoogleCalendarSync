@@ -546,7 +546,7 @@ namespace OutlookGoogleCalendarSync {
         public void UpdateOutlookExceptions(AppointmentItem ai, Event ev) {
             processOutlookExceptions(ai, ev, forceCompare: false);
         }
-        
+
         private void processOutlookExceptions(AppointmentItem ai, Event ev, Boolean forceCompare) {
             if (!HasExceptions(ev, checkLocalCacheOnly: true)) return;
 
@@ -562,10 +562,20 @@ namespace OutlookGoogleCalendarSync {
 
                 if (gExcp.Status != "cancelled") {
                     int itemModified = 0;
-                    newAiExcp = OutlookCalendar.Instance.UpdateCalendarEntry(newAiExcp, gExcp, ref itemModified, forceCompare);
-                    if (itemModified > 0) newAiExcp.Save();
+                    newAiExcp = OutlookCalendar.Instance.UpdateCalendarEntry(newAiExcp, gExcp, ref itemModified, true); //forceCompare);
+                    if (itemModified > 0) {
+                        try {
+                            newAiExcp.Save();
+                        } catch (System.Exception ex) {
+                            log.Warn(ex.Message);
+                            if (ex.Message == "Cannot save this item.") {
+                                MainForm.Instance.Logboxout("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                    "You may have two occurences on the same day, which it doesn't allow.");
+                            }
+                        }
+                    }
                 } else {
-                    MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai) +"\r\nDeleted.");
+                    MainForm.Instance.Logboxout(OutlookCalendar.GetEventSummary(ai) + "\r\nDeleted.");
                     newAiExcp.Delete();
                 }
                 newAiExcp = (AppointmentItem)OutlookCalendar.ReleaseObject(newAiExcp);
@@ -598,6 +608,8 @@ namespace OutlookGoogleCalendarSync {
                             MainForm.Instance.Logboxout(ex.Message);
                             MainForm.Instance.Logboxout("If this keeps happening, please restart OGCS.");
                             break;
+                        } finally {
+                            OutlookCalendar.ReleaseObject(oExp);
                         }
                     }
                 }

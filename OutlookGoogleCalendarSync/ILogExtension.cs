@@ -17,6 +17,9 @@ namespace OutlookGoogleCalendarSync {
             }
             log.Fine(message);
         }
+        public static Boolean IsFineEnabled(this ILog log) {
+            return log.Logger.IsEnabledFor(Program.MyFineLevel);
+        }
 
         private static void UltraFine(this ILog log, string message, Exception exception) {
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,

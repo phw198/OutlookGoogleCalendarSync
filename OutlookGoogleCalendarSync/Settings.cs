@@ -16,8 +16,6 @@ namespace OutlookGoogleCalendarSync {
         //Settings saved immediately
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
-        private DateTime syncStart;
-        private DateTime syncEnd;
         private DateTime lastSyncDate;
         private Int32 completedSyncs;
         private Boolean portable;
@@ -60,6 +58,9 @@ namespace OutlookGoogleCalendarSync {
             AddDescription_OnlyToGoogle = true;
             AddReminders = false;
             UseGoogleDefaultReminder = false;
+            ReminderDND = false;
+            ReminderDNDstart = DateTime.Now.Date.AddHours(22);
+            ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
             AddAttendees = true;
             MergeItems = true;
             DisableDelete = true;
@@ -130,25 +131,11 @@ namespace OutlookGoogleCalendarSync {
         #endregion
         #region Sync Options
         //Main
-        private int daysInThePast;
-        private int daysInTheFuture;
-        public DateTime SyncStart { get { return this.syncStart; } }
-        public DateTime SyncEnd { get { return this.syncEnd; } }
+        public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
+        public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
         [DataMember] public SyncDirection SyncDirection { get; set; }
-        [DataMember] public int DaysInThePast {
-            get { return daysInThePast; }
-            set {
-                this.daysInThePast = value;
-                this.syncStart = DateTime.Today.AddDays(-value); 
-            } 
-        }
-        [DataMember] public int DaysInTheFuture {
-            get { return daysInTheFuture; }
-            set {
-                this.daysInTheFuture = value; 
-                this.syncEnd = DateTime.Today.AddDays(+value + 1);
-            }
-        }
+        [DataMember] public int DaysInThePast { get; set; }
+        [DataMember] public int DaysInTheFuture { get; set; }
         [DataMember] public int SyncInterval { get; set; }
         [DataMember] public String SyncIntervalUnit { get; set; }
         [DataMember] public bool OutlookPush { get; set; }
@@ -156,6 +143,9 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
         [DataMember] public bool AddReminders { get; set; }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
+        [DataMember] public bool ReminderDND { get; set; }
+        [DataMember] public DateTime ReminderDNDstart { get; set; }
+        [DataMember] public DateTime ReminderDNDend { get; set; }
         [DataMember] public bool AddAttendees { get; set; }
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
@@ -259,7 +249,9 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
             log.Info("  Push Changes: " + OutlookPush);
             log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddReminders: " + AddReminders + "; UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
+            log.Info("  AddReminders: " + AddReminders);
+            log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
+            log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
             log.Info("  AddAttendees: " + AddAttendees);
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
