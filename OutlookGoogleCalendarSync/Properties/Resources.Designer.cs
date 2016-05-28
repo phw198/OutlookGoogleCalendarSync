@@ -73,6 +73,16 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap delay {
+            get {
+                object obj = ResourceManager.GetObject("delay", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap exit {
             get {
                 object obj = ResourceManager.GetObject("exit", resourceCulture);
@@ -93,9 +103,9 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap googleplus {
+        internal static System.Drawing.Bitmap google_community {
             get {
-                object obj = ResourceManager.GetObject("googleplus", resourceCulture);
+                object obj = ResourceManager.GetObject("google_community", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,9 +113,9 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap google_community {
+        internal static System.Drawing.Bitmap googleplus {
             get {
-                object obj = ResourceManager.GetObject("google_community", resourceCulture);
+                object obj = ResourceManager.GetObject("googleplus", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

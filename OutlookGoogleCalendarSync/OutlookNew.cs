@@ -285,6 +285,9 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region TimeZone Stuff
+        //http://stackoverflow.com/questions/17348807/how-to-translate-between-windows-and-iana-time-zones
+        //https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
             ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
             ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
@@ -317,22 +320,29 @@ namespace OutlookGoogleCalendarSync {
 
         private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
             Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
-            var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC" };
+            var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC", "Etc/GMT" };
             if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
                 log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
                 return tzs["UTC"];
             }
-
+            
             var tzdbSource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            
             // resolve any link, since the CLDR doesn't necessarily use canonical IDs
             var links = tzdbSource.CanonicalIdMap
               .Where(x => x.Value.Equals(ianaZoneId, StringComparison.OrdinalIgnoreCase))
               .Select(x => x.Key);
+
+            // resolve canonical zones, and include original zone as well
+            var possibleZones = tzdbSource.CanonicalIdMap.ContainsKey(ianaZoneId)
+                ? links.Concat(new[] { tzdbSource.CanonicalIdMap[ianaZoneId], ianaZoneId })
+                : links;
+
+            // map the windows zone
             var mappings = tzdbSource.WindowsMapping.MapZones;
-            var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(links.Contains));
+            var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(possibleZones.Contains));
             if (item == null) {
-                log.Warn("Timezone \"" + ianaZoneId + "\" could not find a mapping");
-                return null;
+                throw new System.ApplicationException("Timezone \"" + ianaZoneId + "\" has no mapping.");
             }
             log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
 

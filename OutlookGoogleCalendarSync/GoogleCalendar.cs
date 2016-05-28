@@ -45,7 +45,7 @@ namespace OutlookGoogleCalendarSync {
             throwException
         }
         private static Random random = new Random();
-        private long minDefaultReminder = long.MinValue;
+        public long MinDefaultReminder = long.MinValue;
 
         public GoogleCalendar() { }
 
@@ -346,7 +346,7 @@ namespace OutlookGoogleCalendarSync {
             //Reminder alert
             if (Settings.Instance.AddReminders) {
                 ev.Reminders = new Event.RemindersData();
-                if (isOKtoSyncReminder(ai)) {
+                if (OutlookCalendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.ReminderSet) {
                         ev.Reminders.UseDefault = false;
                         EventReminder reminder = new EventReminder();
@@ -428,7 +428,8 @@ namespace OutlookGoogleCalendarSync {
         #region Update
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
-            foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
+            for (int i = 0; i < entriesToBeCompared.Count; i++) {
+                KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
                 Event ev = new Event();
                 try {
@@ -445,7 +446,7 @@ namespace OutlookGoogleCalendarSync {
 
                 if (itemModified > 0) {
                     try {
-                        UpdateCalendarEntry_save(ev);
+                        UpdateCalendarEntry_save(ref ev);
                         entriesUpdated++;
                     } catch (System.Exception ex) {
                         MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
@@ -466,7 +467,8 @@ namespace OutlookGoogleCalendarSync {
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring event" : "single instance"));
                     setOGCSlastModified(ref ev);
                     try {
-                        UpdateCalendarEntry_save(ev);
+                        UpdateCalendarEntry_save(ref ev);
+                        entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
                         MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
                         log.Error(ex.StackTrace);
@@ -517,6 +519,16 @@ namespace OutlookGoogleCalendarSync {
                     ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                 }
             } else {
+                //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
+                if (ev.Start.Date != null &&
+                    GoogleCalendar.GoogleTimeFrom(DateTime.Parse(evStart)) == GoogleCalendar.GoogleTimeFrom(ai.Start) &&
+                    GoogleCalendar.GoogleTimeFrom(DateTime.Parse(evEnd)) == GoogleCalendar.GoogleTimeFrom(ai.End)) 
+                {
+                    sb.AppendLine("All-Day: true => false");
+                    ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(ai.Start);
+                    ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
+                    itemModified++;
+                }
                 ev.Start.Date = null;
                 ev.End.Date = null;
                 if (MainForm.CompareAttribute("Start time", SyncDirection.OutlookToGoogle,
@@ -581,12 +593,12 @@ namespace OutlookGoogleCalendarSync {
                 ev.Location = ai.Location;
 
             String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
-            String gPrivacy = (ev.Visibility == null ? "default" : ev.Visibility);
+            String gPrivacy = ev.Visibility ?? "default";
             if (MainForm.CompareAttribute("Private", SyncDirection.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
                 ev.Visibility = oPrivacy;
             }
             String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
-            String gFreeBusy = (ev.Transparency == null ? "opaque" : ev.Transparency);
+            String gFreeBusy = ev.Transparency ?? "opaque";
             if (MainForm.CompareAttribute("Free/Busy", SyncDirection.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
                 ev.Transparency = oFreeBusy;
             }
@@ -613,7 +625,7 @@ namespace OutlookGoogleCalendarSync {
                         
             //Reminders
             if (Settings.Instance.AddReminders) {
-                Boolean OKtoSyncReminder = isOKtoSyncReminder(ai);
+                Boolean OKtoSyncReminder = OutlookCalendar.Instance.IsOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null) {
                     //Find the popup reminder in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
@@ -666,7 +678,7 @@ namespace OutlookGoogleCalendarSync {
             return ev;
         }
 
-        public void UpdateCalendarEntry_save(Event ev) {
+        public void UpdateCalendarEntry_save(ref Event ev) {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 log.Debug("Saving timestamp when OGCS updated event.");
                 setOGCSlastModified(ref ev);
@@ -679,7 +691,7 @@ namespace OutlookGoogleCalendarSync {
             int backoff = 0;
             while (backoff < backoffLimit) {
                 try {
-                    var request = service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id).Fetch();
+                    ev = service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id).Fetch();
                     if (Settings.Instance.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
@@ -814,9 +826,10 @@ namespace OutlookGoogleCalendarSync {
                         }
                         if (sigEv == sigAi) {                            
                             AddOutlookID(ref ev, ai);
-                            UpdateCalendarEntry_save(ev);
+                            UpdateCalendarEntry_save(ref ev);
                             unclaimedEvents.Remove(ev);
                             MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
+                            gEvents[g] = ev;
                             break;
                         }
                     }
@@ -880,8 +893,8 @@ namespace OutlookGoogleCalendarSync {
                                 //*** It's not the most efficient, so should be scrapped after a few Beta releases!
                                 Event ev = google[g];
                                 AddOutlookID(ref ev, outlook[o]);
+                                UpdateCalendarEntry_save(ref ev);
                                 google[g] = ev;
-                                UpdateCalendarEntry_save(google[g]);
                                 compare_gEntryID = compare_oGlobalID;
                                 migrated++;
                                 //There could be a lot of these, so let's not batter Google too hard - it doesn't like >4/sec
@@ -1033,9 +1046,9 @@ namespace OutlookGoogleCalendarSync {
                 CalendarListResource.GetRequest request = service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
                 CalendarListEntry cal = request.Fetch();
                 if (cal.DefaultReminders.Count == 0)
-                    this.minDefaultReminder = long.MinValue;
+                    this.MinDefaultReminder = long.MinValue;
                 else
-                    this.minDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
+                    this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
                 log.Error("Failed to get calendar settings.");
                 log.Error(ex.Message);
@@ -1366,47 +1379,6 @@ namespace OutlookGoogleCalendarSync {
 
             } else {
                 return apiException.throwException;
-            }
-        }
-
-        private Boolean isOKtoSyncReminder(AppointmentItem ai) {                
-            if (Settings.Instance.ReminderDND) {
-                DateTime alarm;
-                if (ai.ReminderSet)
-                    alarm = ai.Start.Date.AddMinutes(-ai.ReminderMinutesBeforeStart);
-                else {
-                    if (Settings.Instance.UseGoogleDefaultReminder && minDefaultReminder != long.MinValue) {
-                        log.Fine("Using default Google reminder value: " + minDefaultReminder);
-                        alarm = ai.Start.Date.AddMinutes(-minDefaultReminder);
-                    } else
-                        return false;
-                }
-                return isOKtoSyncReminder(alarm);
-            }
-            return true; 
-        }
-        private Boolean isOKtoSyncReminder(DateTime alarm) {
-            if (Settings.Instance.ReminderDNDstart.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
-                //eg 22:00 to 06:00
-                //Make sure end time is the day following the start time
-                Settings.Instance.ReminderDNDstart = alarm.Date.Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
-                Settings.Instance.ReminderDNDend = alarm.Date.AddDays(1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
-
-                if (alarm > Settings.Instance.ReminderDNDstart && alarm < Settings.Instance.ReminderDNDend) {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                } else 
-                    return true;
-
-            } else {
-                //eg 01:00 to 06:00
-                if (alarm.TimeOfDay < Settings.Instance.ReminderDNDstart.TimeOfDay ||
-                    alarm.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
-                    return true;
-                } else {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                }
             }
         }
 

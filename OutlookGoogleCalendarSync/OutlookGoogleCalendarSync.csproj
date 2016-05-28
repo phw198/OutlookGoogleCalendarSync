@@ -178,6 +178,9 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="SyncDirection.cs" />
+    <Compile Include="SyncTimer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="XMLManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +219,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\delay.png" />
     <None Include="OGCS_10years.pfx" />
     <None Include="Resources\sync.gif" />
     <None Include="Resources\cog.png" />
