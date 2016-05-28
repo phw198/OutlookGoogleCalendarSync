@@ -107,6 +107,7 @@ namespace OutlookGoogleCalendarSync {
 
             string logLevel = XMLManager.ImportElement("LoggingLevel", settingsFile);
             Settings.configureLoggingLevel(logLevel ?? "FINE");
+            purgeLogFiles(30);
         }
 
         private static void initialiseLogger(string logPath, Boolean bootstrap = false) {
@@ -116,6 +117,17 @@ namespace OutlookGoogleCalendarSync {
             XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
 
             if (bootstrap) log.Info("Program started: v" + Application.ProductVersion);
+        }
+
+        private static void purgeLogFiles(Int16 retention) {
+            log.Info("Purging log files older than "+ retention +" days...");
+            foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
+                if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
+                    log.Debug("Deleted "+ file);
+                    System.IO.File.Delete(file);
+                }
+            }
+            log.Info("Purge complete.");
         }
 
         #region Application Behaviour
@@ -289,7 +301,9 @@ namespace OutlookGoogleCalendarSync {
                     File.Delete(dstFile);
                     log.Debug("  " + Path.GetFileName(file));
                     if (file.EndsWith(".log")) {
+                        log.Logger.Repository.Shutdown();
                         log4net.LogManager.Shutdown();
+                        LogManager.GetRepository().ResetConfiguration();
                         File.Move(file, dstFile);
                         initialiseLogger(dstDir);
                     } else {

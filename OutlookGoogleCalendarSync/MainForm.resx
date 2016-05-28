@@ -123,13 +123,6 @@
   <metadata name="regexReplace.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
-  <data name="label26.Text" xml:space="preserve">
-    <value>If you think you have found a bug, please:-
-  - set the logging level to "Debug"
-  - reproduce the problem
-  - update an existing issue or create a new issue on CodePlex
-  - attach your OGcalsync.log file</value>
-  </data>
   <data name="label21.Text" xml:space="preserve">
     <value>On the "Google" tab, select the calendar you wish to synchronise.
 
@@ -148,16 +141,8 @@ For helping to troubleshoot a problem, CSVs of your meetings being synchronised 
 If you need to access Google through a proxy, you can also provide the details here, or just rely on using Internet Explorers configuration (which is the default).</value>
   </data>
   <data name="lAboutMain.Text" xml:space="preserve">
-    <value>Originally developed by Zissis Siantidis (2012-2013)
-
-Thanks also go to contributors of the original project:
-- bycrobe/allinclusive
-- kyledykstra/alternateAccount
-- junderhill/deleteConfirmation
-- Proteus642040/SyncFixes
-- SigmaPic/OutlookGoogleSync
-
-Continued by Paul Woolcock (2014-2016)
+    <value>Project forked by Paul Woolcock (2014-2016)
+A continuation of initial efforts by Zissis Siantidis (2012-2013)
 
 If you wish to show your appreciation for this free utility 
 or support further improvements, 

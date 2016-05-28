@@ -83,7 +83,12 @@ namespace OutlookGoogleCalendarSync {
             return currentUserName;
         }
         public Boolean Offline() {
-            return oApp.GetNamespace("mapi").Offline;
+            try {
+                return oApp.GetNamespace("mapi").Offline;
+            } catch {
+                OutlookCalendar.Instance.Reset();
+                return oApp.GetNamespace("mapi").Offline;
+            }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
             return exchangeConnectionMode;

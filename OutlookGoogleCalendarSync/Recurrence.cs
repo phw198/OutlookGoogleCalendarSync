@@ -399,14 +399,14 @@ namespace OutlookGoogleCalendarSync {
                 Event ev = GoogleCalendar.Instance.GetCalendarEntry(ai.UserProperties[OutlookCalendar.gEventID].Value.ToString());
                 if (ev != null) events.Add(ev);
             }
-            for (int g = 0; g < events.Count(); g++) { //Event ev in events) {
+            for (int g = 0; g < events.Count(); g++) {
                 String gEntryID;
                 Event ev = events[g];
                 if (GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.oEntryID, out gEntryID)) {
                     if (gEntryID == ai.EntryID) {
                         log.Info("Migrating Master Event from EntryID to GlobalAppointmentID...");
                         GoogleCalendar.AddOutlookID(ref ev, ai);
-                        GoogleCalendar.Instance.UpdateCalendarEntry_save(ev);
+                        GoogleCalendar.Instance.UpdateCalendarEntry_save(ref ev);
                         return ev;
                     } else if (gEntryID == OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai)) {
                         log.Fine("Found master event.");
@@ -426,7 +426,8 @@ namespace OutlookGoogleCalendarSync {
             if (gRecurrences != null) {
                 Microsoft.Office.Interop.Outlook.Exceptions exps = ai.GetRecurrencePattern().Exceptions;
                 foreach (Microsoft.Office.Interop.Outlook.Exception oExcp in exps) {
-                    foreach (Event ev in gRecurrences) {
+                    for (int g = 0; g < gRecurrences.Count; g++) {
+                        Event ev = gRecurrences[g];
                         String gDate = ev.OriginalStartTime.DateTime ?? ev.OriginalStartTime.Date;
                         Boolean isDeleted = exceptionIsDeleted(oExcp);
                         if (isDeleted && !ai.AllDayEvent) { //Deleted items get truncated?!
@@ -437,12 +438,12 @@ namespace OutlookGoogleCalendarSync {
                                 MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
                                 MainForm.Instance.Logboxout("Recurrence deleted.");
                                 ev.Status = "cancelled";
-                                GoogleCalendar.Instance.UpdateCalendarEntry_save(ev);
+                                GoogleCalendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } else {
                                 int exceptionItemsModified = 0;
-                                Event modifiedEv = GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, ev, ref exceptionItemsModified, forceCompare:true);
+                                Event modifiedEv = GoogleCalendar.Instance.UpdateCalendarEntry(oExcp.AppointmentItem, ev, ref exceptionItemsModified, forceCompare: true);
                                 if (exceptionItemsModified > 0) {
-                                    GoogleCalendar.Instance.UpdateCalendarEntry_save(modifiedEv);
+                                    GoogleCalendar.Instance.UpdateCalendarEntry_save(ref modifiedEv);
                                 }
                             }
                             break;
@@ -495,7 +496,7 @@ namespace OutlookGoogleCalendarSync {
                             }
                             if (excp_itemModified > 0) {
                                 try {
-                                    GoogleCalendar.Instance.UpdateCalendarEntry_save(gExcp);
+                                    GoogleCalendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                 } catch (System.Exception ex) {
                                     MainForm.Instance.Logboxout("WARNING: Updated event exception failed to save.\r\n" + ex.Message);
                                     log.Error(ex.StackTrace);
@@ -562,7 +563,7 @@ namespace OutlookGoogleCalendarSync {
 
                 if (gExcp.Status != "cancelled") {
                     int itemModified = 0;
-                    newAiExcp = OutlookCalendar.Instance.UpdateCalendarEntry(newAiExcp, gExcp, ref itemModified, true); //forceCompare);
+                    newAiExcp = OutlookCalendar.Instance.UpdateCalendarEntry(newAiExcp, gExcp, ref itemModified, forceCompare);
                     if (itemModified > 0) {
                         try {
                             newAiExcp.Save();
