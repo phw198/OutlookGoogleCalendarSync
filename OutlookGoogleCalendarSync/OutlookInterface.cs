@@ -16,6 +16,7 @@ namespace OutlookGoogleCalendarSync {
         String CurrentUserSMTP();
         String CurrentUserName();
         Boolean Offline();
+        object GetCategories();
 
         String GetRecipientEmail(Recipient recipient);
         OlExchangeConnectionMode ExchangeConnectionMode();

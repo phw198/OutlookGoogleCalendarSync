@@ -30,9 +30,9 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
@@ -48,6 +48,9 @@
             this.lSettingInfo = new System.Windows.Forms.Label();
             this.tabAppSettings = new System.Windows.Forms.TabControl();
             this.tabOutlook = new System.Windows.Forms.TabPage();
+            this.lFilterCategories = new System.Windows.Forms.Label();
+            this.cbCategoryFilter = new System.Windows.Forms.ComboBox();
+            this.clbCategories = new System.Windows.Forms.CheckedListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label32 = new System.Windows.Forms.Label();
             this.urlDateFormats = new System.Windows.Forms.LinkLabel();
@@ -79,16 +82,6 @@
             this.bGetGoogleCalendars = new System.Windows.Forms.Button();
             this.cbGoogleCalendars = new System.Windows.Forms.ComboBox();
             this.tabSyncOptions = new System.Windows.Forms.TabPage();
-            this.gbSyncOptions_When = new System.Windows.Forms.GroupBox();
-            this.cbOutlookPush = new System.Windows.Forms.CheckBox();
-            this.cbIntervalUnit = new System.Windows.Forms.ComboBox();
-            this.tbInterval = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.tbDaysInTheFuture = new System.Windows.Forms.NumericUpDown();
-            this.tbDaysInThePast = new System.Windows.Forms.NumericUpDown();
-            this.lDaysInFuture = new System.Windows.Forms.Label();
-            this.lDaysInPast = new System.Windows.Forms.Label();
-            this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_How = new System.Windows.Forms.GroupBox();
             this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
             this.label31 = new System.Windows.Forms.Label();
@@ -102,6 +95,16 @@
             this.cbMergeItems = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
+            this.gbSyncOptions_When = new System.Windows.Forms.GroupBox();
+            this.cbOutlookPush = new System.Windows.Forms.CheckBox();
+            this.cbIntervalUnit = new System.Windows.Forms.ComboBox();
+            this.tbInterval = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tbDaysInTheFuture = new System.Windows.Forms.NumericUpDown();
+            this.tbDaysInThePast = new System.Windows.Forms.NumericUpDown();
+            this.lDaysInFuture = new System.Windows.Forms.Label();
+            this.lDaysInPast = new System.Windows.Forms.Label();
+            this.lDateRange = new System.Windows.Forms.Label();
             this.WhatPostit = new System.Windows.Forms.Panel();
             this.tbWhatHelp = new System.Windows.Forms.RichTextBox();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
@@ -198,12 +201,12 @@
             this.gbEWS.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
+            this.gbSyncOptions_How.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgObfuscateRegex)).BeginInit();
             this.gbSyncOptions_When.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).BeginInit();
-            this.gbSyncOptions_How.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgObfuscateRegex)).BeginInit();
             this.WhatPostit.SuspendLayout();
             this.gbSyncOptions_What.SuspendLayout();
             this.tabAppBehaviour.SuspendLayout();
@@ -340,6 +343,8 @@
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.LogBox.Size = new System.Drawing.Size(478, 421);
             this.LogBox.TabIndex = 1;
+            this.LogBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.LogBox_KeyDown);
+            this.LogBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LogBox_MouseDown);
             // 
             // bSyncNow
             // 
@@ -402,6 +407,9 @@
             // tabOutlook
             // 
             this.tabOutlook.BackColor = System.Drawing.Color.White;
+            this.tabOutlook.Controls.Add(this.lFilterCategories);
+            this.tabOutlook.Controls.Add(this.cbCategoryFilter);
+            this.tabOutlook.Controls.Add(this.clbCategories);
             this.tabOutlook.Controls.Add(this.groupBox1);
             this.tabOutlook.Controls.Add(this.label11);
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
@@ -418,9 +426,50 @@
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
             // 
+            // lFilterCategories
+            // 
+            this.lFilterCategories.AutoSize = true;
+            this.lFilterCategories.Location = new System.Drawing.Point(20, 229);
+            this.lFilterCategories.Name = "lFilterCategories";
+            this.lFilterCategories.Size = new System.Drawing.Size(81, 13);
+            this.lFilterCategories.TabIndex = 44;
+            this.lFilterCategories.Text = "Filter categories";
+            // 
+            // cbCategoryFilter
+            // 
+            this.cbCategoryFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCategoryFilter.FormattingEnabled = true;
+            this.cbCategoryFilter.Items.AddRange(new object[] {
+            "Exclude",
+            "Include"});
+            this.cbCategoryFilter.Location = new System.Drawing.Point(107, 226);
+            this.cbCategoryFilter.Name = "cbCategoryFilter";
+            this.cbCategoryFilter.Size = new System.Drawing.Size(84, 21);
+            this.cbCategoryFilter.TabIndex = 43;
+            this.cbCategoryFilter.SelectedIndexChanged += new System.EventHandler(this.cbCategoryFilter_SelectedIndexChanged);
+            // 
+            // clbCategories
+            // 
+            this.clbCategories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.clbCategories.CheckOnClick = true;
+            this.clbCategories.FormattingEnabled = true;
+            this.clbCategories.Items.AddRange(new object[] {
+            "Category1",
+            "Category2",
+            "Category3",
+            "Category4"});
+            this.clbCategories.Location = new System.Drawing.Point(197, 227);
+            this.clbCategories.Name = "clbCategories";
+            this.clbCategories.Size = new System.Drawing.Size(187, 64);
+            this.clbCategories.Sorted = true;
+            this.clbCategories.TabIndex = 42;
+            this.clbCategories.SelectedIndexChanged += new System.EventHandler(this.clbCategories_SelectedIndexChanged);
+            // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.label32);
             this.groupBox1.Controls.Add(this.urlDateFormats);
@@ -431,9 +480,9 @@
             this.groupBox1.Controls.Add(this.txtDateFormats);
             this.groupBox1.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.groupBox1.Location = new System.Drawing.Point(15, 242);
+            this.groupBox1.Location = new System.Drawing.Point(6, 296);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(369, 160);
+            this.groupBox1.Size = new System.Drawing.Size(378, 160);
             this.groupBox1.TabIndex = 40;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Regional Date Format";
@@ -455,7 +504,7 @@
             this.urlDateFormats.AutoSize = true;
             this.urlDateFormats.BackColor = System.Drawing.Color.Transparent;
             this.urlDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.urlDateFormats.Location = new System.Drawing.Point(40, 51);
+            this.urlDateFormats.Location = new System.Drawing.Point(45, 51);
             this.urlDateFormats.Margin = new System.Windows.Forms.Padding(0);
             this.urlDateFormats.Name = "urlDateFormats";
             this.urlDateFormats.Size = new System.Drawing.Size(82, 13);
@@ -487,7 +536,7 @@
             this.tbOutlookDateFormatResult.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.tbOutlookDateFormatResult.Location = new System.Drawing.Point(90, 109);
             this.tbOutlookDateFormatResult.Name = "tbOutlookDateFormatResult";
-            this.tbOutlookDateFormatResult.Size = new System.Drawing.Size(269, 13);
+            this.tbOutlookDateFormatResult.Size = new System.Drawing.Size(278, 13);
             this.tbOutlookDateFormatResult.TabIndex = 39;
             this.tbOutlookDateFormatResult.Text = "The date format result";
             // 
@@ -499,7 +548,7 @@
             this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
             this.tbOutlookDateFormat.Name = "tbOutlookDateFormat";
             this.tbOutlookDateFormat.ReadOnly = true;
-            this.tbOutlookDateFormat.Size = new System.Drawing.Size(204, 20);
+            this.tbOutlookDateFormat.Size = new System.Drawing.Size(213, 20);
             this.tbOutlookDateFormat.TabIndex = 38;
             this.tbOutlookDateFormat.TextChanged += new System.EventHandler(this.tbOutlookDateFormat_TextChanged);
             this.tbOutlookDateFormat.Leave += new System.EventHandler(this.tbOutlookDateFormat_Leave);
@@ -525,7 +574,7 @@
             this.txtDateFormats.Location = new System.Drawing.Point(6, 25);
             this.txtDateFormats.Multiline = true;
             this.txtDateFormats.Name = "txtDateFormats";
-            this.txtDateFormats.Size = new System.Drawing.Size(353, 45);
+            this.txtDateFormats.Size = new System.Drawing.Size(362, 45);
             this.txtDateFormats.TabIndex = 36;
             this.txtDateFormats.Text = "Hopefully you will not need to adjust this.\r\nHowever, Microsoft\'s support of \"non" +
     "-standard\" locales is poor.\r\nTry different formats  if no Outlook appointments a" +
@@ -794,6 +843,172 @@
             this.tabSyncOptions.TabIndex = 2;
             this.tabSyncOptions.Text = "  Sync Options";
             // 
+            // gbSyncOptions_How
+            // 
+            this.gbSyncOptions_How.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_How.Controls.Add(this.cbObfuscateDirection);
+            this.gbSyncOptions_How.Controls.Add(this.label31);
+            this.gbSyncOptions_How.Controls.Add(this.dgObfuscateRegex);
+            this.gbSyncOptions_How.Controls.Add(this.btObfuscateRules);
+            this.gbSyncOptions_How.Controls.Add(this.cbOfuscate);
+            this.gbSyncOptions_How.Controls.Add(this.syncDirection);
+            this.gbSyncOptions_How.Controls.Add(this.lDirection);
+            this.gbSyncOptions_How.Controls.Add(this.cbMergeItems);
+            this.gbSyncOptions_How.Controls.Add(this.cbDisableDeletion);
+            this.gbSyncOptions_How.Controls.Add(this.cbConfirmOnDelete);
+            this.gbSyncOptions_How.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbSyncOptions_How.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbSyncOptions_How.Location = new System.Drawing.Point(12, 36);
+            this.gbSyncOptions_How.Name = "gbSyncOptions_How";
+            this.gbSyncOptions_How.Size = new System.Drawing.Size(369, 180);
+            this.gbSyncOptions_How.TabIndex = 40;
+            this.gbSyncOptions_How.TabStop = false;
+            this.gbSyncOptions_How.Text = "How";
+            // 
+            // cbObfuscateDirection
+            // 
+            this.cbObfuscateDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbObfuscateDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbObfuscateDirection.FormattingEnabled = true;
+            this.cbObfuscateDirection.Location = new System.Drawing.Point(95, 116);
+            this.cbObfuscateDirection.Name = "cbObfuscateDirection";
+            this.cbObfuscateDirection.Size = new System.Drawing.Size(265, 21);
+            this.cbObfuscateDirection.TabIndex = 43;
+            this.cbObfuscateDirection.SelectedIndexChanged += new System.EventHandler(this.cbObfuscateDirection_SelectedIndexChanged);
+            // 
+            // label31
+            // 
+            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label31.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label31.Location = new System.Drawing.Point(8, 119);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(90, 14);
+            this.label31.TabIndex = 44;
+            this.label31.Text = "Obfuscate from:";
+            // 
+            // dgObfuscateRegex
+            // 
+            this.dgObfuscateRegex.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgObfuscateRegex.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
+            this.dgObfuscateRegex.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgObfuscateRegex.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.regexFind,
+            this.regexReplace});
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle3;
+            this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
+            this.dgObfuscateRegex.Name = "dgObfuscateRegex";
+            this.dgObfuscateRegex.ShowCellToolTips = false;
+            this.dgObfuscateRegex.Size = new System.Drawing.Size(351, 99);
+            this.dgObfuscateRegex.TabIndex = 42;
+            this.dgObfuscateRegex.Leave += new System.EventHandler(this.dgObfuscateRegex_Leave);
+            // 
+            // regexFind
+            // 
+            this.regexFind.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.regexFind.HeaderText = "Find";
+            this.regexFind.Name = "regexFind";
+            // 
+            // regexReplace
+            // 
+            this.regexReplace.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.regexReplace.HeaderText = "Replace";
+            this.regexReplace.Name = "regexReplace";
+            // 
+            // btObfuscateRules
+            // 
+            this.btObfuscateRules.Appearance = System.Windows.Forms.Appearance.Button;
+            this.btObfuscateRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btObfuscateRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btObfuscateRules.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btObfuscateRules.Location = new System.Drawing.Point(306, 46);
+            this.btObfuscateRules.Name = "btObfuscateRules";
+            this.btObfuscateRules.Size = new System.Drawing.Size(54, 21);
+            this.btObfuscateRules.TabIndex = 40;
+            this.btObfuscateRules.Text = "Rules";
+            this.btObfuscateRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btObfuscateRules.UseVisualStyleBackColor = true;
+            this.btObfuscateRules.CheckedChanged += new System.EventHandler(this.btObfuscateRules_CheckedChanged);
+            // 
+            // cbOfuscate
+            // 
+            this.cbOfuscate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbOfuscate.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbOfuscate.Location = new System.Drawing.Point(200, 49);
+            this.cbOfuscate.Name = "cbOfuscate";
+            this.cbOfuscate.Size = new System.Drawing.Size(152, 17);
+            this.cbOfuscate.TabIndex = 39;
+            this.cbOfuscate.Text = "Word obfuscation";
+            this.cbOfuscate.UseVisualStyleBackColor = true;
+            this.cbOfuscate.CheckedChanged += new System.EventHandler(this.cbOfuscate_CheckedChanged);
+            // 
+            // syncDirection
+            // 
+            this.syncDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.syncDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.syncDirection.FormattingEnabled = true;
+            this.syncDirection.Location = new System.Drawing.Point(61, 22);
+            this.syncDirection.Name = "syncDirection";
+            this.syncDirection.Size = new System.Drawing.Size(299, 21);
+            this.syncDirection.TabIndex = 37;
+            this.syncDirection.SelectedIndexChanged += new System.EventHandler(this.syncDirection_SelectedIndexChanged);
+            // 
+            // lDirection
+            // 
+            this.lDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lDirection.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lDirection.Location = new System.Drawing.Point(6, 25);
+            this.lDirection.Name = "lDirection";
+            this.lDirection.Size = new System.Drawing.Size(55, 14);
+            this.lDirection.TabIndex = 38;
+            this.lDirection.Text = "Direction:";
+            this.lDirection.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // cbMergeItems
+            // 
+            this.cbMergeItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbMergeItems.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbMergeItems.Location = new System.Drawing.Point(42, 49);
+            this.cbMergeItems.Name = "cbMergeItems";
+            this.cbMergeItems.Size = new System.Drawing.Size(152, 17);
+            this.cbMergeItems.TabIndex = 36;
+            this.cbMergeItems.Text = "Merge with existing entries";
+            this.cbMergeItems.UseVisualStyleBackColor = true;
+            this.cbMergeItems.CheckedChanged += new System.EventHandler(this.cbMergeItems_CheckedChanged);
+            // 
+            // cbDisableDeletion
+            // 
+            this.cbDisableDeletion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbDisableDeletion.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbDisableDeletion.Location = new System.Drawing.Point(42, 67);
+            this.cbDisableDeletion.Name = "cbDisableDeletion";
+            this.cbDisableDeletion.Size = new System.Drawing.Size(106, 17);
+            this.cbDisableDeletion.TabIndex = 33;
+            this.cbDisableDeletion.Text = "Disable deletions";
+            this.cbDisableDeletion.UseVisualStyleBackColor = true;
+            this.cbDisableDeletion.CheckedChanged += new System.EventHandler(this.cbDisableDeletion_CheckedChanged);
+            // 
+            // cbConfirmOnDelete
+            // 
+            this.cbConfirmOnDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbConfirmOnDelete.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbConfirmOnDelete.Location = new System.Drawing.Point(42, 85);
+            this.cbConfirmOnDelete.Name = "cbConfirmOnDelete";
+            this.cbConfirmOnDelete.Size = new System.Drawing.Size(111, 17);
+            this.cbConfirmOnDelete.TabIndex = 34;
+            this.cbConfirmOnDelete.Text = "Confirm deletions";
+            this.cbConfirmOnDelete.UseVisualStyleBackColor = true;
+            this.cbConfirmOnDelete.CheckedChanged += new System.EventHandler(this.cbConfirmOnDelete_CheckedChanged);
+            // 
             // gbSyncOptions_When
             // 
             this.gbSyncOptions_When.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -949,178 +1164,12 @@
             this.lDateRange.Text = "Date range:";
             this.lDateRange.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // gbSyncOptions_How
-            // 
-            this.gbSyncOptions_How.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbSyncOptions_How.Controls.Add(this.cbObfuscateDirection);
-            this.gbSyncOptions_How.Controls.Add(this.label31);
-            this.gbSyncOptions_How.Controls.Add(this.dgObfuscateRegex);
-            this.gbSyncOptions_How.Controls.Add(this.btObfuscateRules);
-            this.gbSyncOptions_How.Controls.Add(this.cbOfuscate);
-            this.gbSyncOptions_How.Controls.Add(this.syncDirection);
-            this.gbSyncOptions_How.Controls.Add(this.lDirection);
-            this.gbSyncOptions_How.Controls.Add(this.cbMergeItems);
-            this.gbSyncOptions_How.Controls.Add(this.cbDisableDeletion);
-            this.gbSyncOptions_How.Controls.Add(this.cbConfirmOnDelete);
-            this.gbSyncOptions_How.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gbSyncOptions_How.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbSyncOptions_How.Location = new System.Drawing.Point(12, 36);
-            this.gbSyncOptions_How.Name = "gbSyncOptions_How";
-            this.gbSyncOptions_How.Size = new System.Drawing.Size(369, 180);
-            this.gbSyncOptions_How.TabIndex = 40;
-            this.gbSyncOptions_How.TabStop = false;
-            this.gbSyncOptions_How.Text = "How";
-            // 
-            // cbObfuscateDirection
-            // 
-            this.cbObfuscateDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbObfuscateDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbObfuscateDirection.FormattingEnabled = true;
-            this.cbObfuscateDirection.Location = new System.Drawing.Point(95, 116);
-            this.cbObfuscateDirection.Name = "cbObfuscateDirection";
-            this.cbObfuscateDirection.Size = new System.Drawing.Size(265, 21);
-            this.cbObfuscateDirection.TabIndex = 43;
-            this.cbObfuscateDirection.SelectedIndexChanged += new System.EventHandler(this.cbObfuscateDirection_SelectedIndexChanged);
-            // 
-            // label31
-            // 
-            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label31.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label31.Location = new System.Drawing.Point(8, 119);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(90, 14);
-            this.label31.TabIndex = 44;
-            this.label31.Text = "Obfuscate from:";
-            // 
-            // dgObfuscateRegex
-            // 
-            this.dgObfuscateRegex.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgObfuscateRegex.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
-            this.dgObfuscateRegex.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.dgObfuscateRegex.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.regexFind,
-            this.regexReplace});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
-            this.dgObfuscateRegex.Name = "dgObfuscateRegex";
-            this.dgObfuscateRegex.ShowCellToolTips = false;
-            this.dgObfuscateRegex.Size = new System.Drawing.Size(351, 99);
-            this.dgObfuscateRegex.TabIndex = 42;
-            this.dgObfuscateRegex.Leave += new System.EventHandler(this.dgObfuscateRegex_Leave);
-            // 
-            // regexFind
-            // 
-            this.regexFind.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.regexFind.HeaderText = "Find";
-            this.regexFind.Name = "regexFind";
-            // 
-            // regexReplace
-            // 
-            this.regexReplace.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.regexReplace.HeaderText = "Replace";
-            this.regexReplace.Name = "regexReplace";
-            // 
-            // btObfuscateRules
-            // 
-            this.btObfuscateRules.Appearance = System.Windows.Forms.Appearance.Button;
-            this.btObfuscateRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btObfuscateRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btObfuscateRules.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btObfuscateRules.Location = new System.Drawing.Point(306, 46);
-            this.btObfuscateRules.Name = "btObfuscateRules";
-            this.btObfuscateRules.Size = new System.Drawing.Size(54, 21);
-            this.btObfuscateRules.TabIndex = 40;
-            this.btObfuscateRules.Text = "Rules";
-            this.btObfuscateRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.btObfuscateRules.UseVisualStyleBackColor = true;
-            this.btObfuscateRules.CheckedChanged += new System.EventHandler(this.btObfuscateRules_CheckedChanged);
-            // 
-            // cbOfuscate
-            // 
-            this.cbOfuscate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbOfuscate.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbOfuscate.Location = new System.Drawing.Point(200, 49);
-            this.cbOfuscate.Name = "cbOfuscate";
-            this.cbOfuscate.Size = new System.Drawing.Size(152, 17);
-            this.cbOfuscate.TabIndex = 39;
-            this.cbOfuscate.Text = "Word obfuscation";
-            this.cbOfuscate.UseVisualStyleBackColor = true;
-            this.cbOfuscate.CheckedChanged += new System.EventHandler(this.cbOfuscate_CheckedChanged);
-            // 
-            // syncDirection
-            // 
-            this.syncDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.syncDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.syncDirection.FormattingEnabled = true;
-            this.syncDirection.Location = new System.Drawing.Point(61, 22);
-            this.syncDirection.Name = "syncDirection";
-            this.syncDirection.Size = new System.Drawing.Size(299, 21);
-            this.syncDirection.TabIndex = 37;
-            this.syncDirection.SelectedIndexChanged += new System.EventHandler(this.syncDirection_SelectedIndexChanged);
-            // 
-            // lDirection
-            // 
-            this.lDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lDirection.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDirection.Location = new System.Drawing.Point(6, 25);
-            this.lDirection.Name = "lDirection";
-            this.lDirection.Size = new System.Drawing.Size(55, 14);
-            this.lDirection.TabIndex = 38;
-            this.lDirection.Text = "Direction:";
-            this.lDirection.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // cbMergeItems
-            // 
-            this.cbMergeItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbMergeItems.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbMergeItems.Location = new System.Drawing.Point(42, 49);
-            this.cbMergeItems.Name = "cbMergeItems";
-            this.cbMergeItems.Size = new System.Drawing.Size(152, 17);
-            this.cbMergeItems.TabIndex = 36;
-            this.cbMergeItems.Text = "Merge with existing entries";
-            this.cbMergeItems.UseVisualStyleBackColor = true;
-            this.cbMergeItems.CheckedChanged += new System.EventHandler(this.cbMergeItems_CheckedChanged);
-            // 
-            // cbDisableDeletion
-            // 
-            this.cbDisableDeletion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbDisableDeletion.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbDisableDeletion.Location = new System.Drawing.Point(42, 67);
-            this.cbDisableDeletion.Name = "cbDisableDeletion";
-            this.cbDisableDeletion.Size = new System.Drawing.Size(106, 17);
-            this.cbDisableDeletion.TabIndex = 33;
-            this.cbDisableDeletion.Text = "Disable deletions";
-            this.cbDisableDeletion.UseVisualStyleBackColor = true;
-            this.cbDisableDeletion.CheckedChanged += new System.EventHandler(this.cbDisableDeletion_CheckedChanged);
-            // 
-            // cbConfirmOnDelete
-            // 
-            this.cbConfirmOnDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbConfirmOnDelete.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbConfirmOnDelete.Location = new System.Drawing.Point(42, 85);
-            this.cbConfirmOnDelete.Name = "cbConfirmOnDelete";
-            this.cbConfirmOnDelete.Size = new System.Drawing.Size(111, 17);
-            this.cbConfirmOnDelete.TabIndex = 34;
-            this.cbConfirmOnDelete.Text = "Confirm deletions";
-            this.cbConfirmOnDelete.UseVisualStyleBackColor = true;
-            this.cbConfirmOnDelete.CheckedChanged += new System.EventHandler(this.cbConfirmOnDelete_CheckedChanged);
-            // 
             // WhatPostit
             // 
             this.WhatPostit.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.WhatPostit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.WhatPostit.Controls.Add(this.tbWhatHelp);
-            this.WhatPostit.Location = new System.Drawing.Point(89, 387);
+            this.WhatPostit.Location = new System.Drawing.Point(89, 388);
             this.WhatPostit.Name = "WhatPostit";
             this.WhatPostit.Size = new System.Drawing.Size(211, 68);
             this.WhatPostit.TabIndex = 34;
@@ -1158,7 +1207,7 @@
             this.gbSyncOptions_What.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbSyncOptions_What.Location = new System.Drawing.Point(12, 273);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(369, 111);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(369, 112);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "What";
@@ -1947,8 +1996,8 @@
             // Column1
             // 
             this.Column1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.Column1.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Column1.DefaultCellStyle = dataGridViewCellStyle4;
             this.Column1.HeaderText = "Name";
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
@@ -2286,13 +2335,13 @@
             this.tabGoogle.PerformLayout();
             this.tabSyncOptions.ResumeLayout(false);
             this.tabSyncOptions.PerformLayout();
+            this.gbSyncOptions_How.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgObfuscateRegex)).EndInit();
             this.gbSyncOptions_When.ResumeLayout(false);
             this.gbSyncOptions_When.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInTheFuture)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbDaysInThePast)).EndInit();
-            this.gbSyncOptions_How.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgObfuscateRegex)).EndInit();
             this.WhatPostit.ResumeLayout(false);
             this.gbSyncOptions_What.ResumeLayout(false);
             this.gbSyncOptions_What.PerformLayout();
@@ -2474,5 +2523,8 @@
         public System.Windows.Forms.ComboBox cbIntervalUnit;
         public System.Windows.Forms.NumericUpDown tbInterval;
         public System.Windows.Forms.Label lNextSyncVal;
+        private System.Windows.Forms.CheckedListBox clbCategories;
+        private System.Windows.Forms.Label lFilterCategories;
+        public System.Windows.Forms.ComboBox cbCategoryFilter;
     }
 }

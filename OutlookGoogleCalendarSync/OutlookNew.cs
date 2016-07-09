@@ -284,13 +284,31 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public object GetCategories() {
+            return oApp.Session.Categories;
+        }
+
         #region TimeZone Stuff
         //http://stackoverflow.com/questions/17348807/how-to-translate-between-windows-and-iana-time-zones
         //https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
-            ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
-            ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+            try {
+                try {
+                    ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                    throw new ApplicationException("Failed to set start timezone. [" + ai.StartTimeZone.ID + ", " + ai.StartTimeZone.Name + "]");
+                }
+                try {
+                    ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                    throw new ApplicationException("Failed to set end timezone. [" + ai.EndTimeZone.ID + ", " + ai.EndTimeZone.Name + "]");
+                }
+            } catch (ApplicationException ex) {
+                log.Warn(ex.Message);
+            }
             return ev;
         }
 

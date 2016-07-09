@@ -40,6 +40,8 @@ namespace OutlookGoogleCalendarSync {
             EWSpassword = "";
             EWSserver = "";
             UseOutlookCalendar = new MyOutlookCalendarListEntry();
+            CategoriesRestrictBy = RestrictBy.Exclude;
+            Categories = new System.Collections.Generic.List<String>();
             OutlookDateFormat = "g";
 
             UseGoogleCalendar = new MyGoogleCalendarListEntry();
@@ -99,12 +101,17 @@ namespace OutlookGoogleCalendarSync {
         }
                 
         #region Outlook
+        public enum RestrictBy {
+            Include, Exclude
+        }   
         [DataMember] public OutlookCalendar.Service OutlookService { get; set; }
         [DataMember] public string MailboxName { get; set; }
         [DataMember] public string EWSuser { get; set; }
         [DataMember] public string EWSpassword { get; set; }
         [DataMember] public string EWSserver { get; set; }
         [DataMember] public MyOutlookCalendarListEntry UseOutlookCalendar { get; set; }
+        [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
+        [DataMember] public System.Collections.Generic.List<string> Categories { get; set; }
         [DataMember] public string OutlookDateFormat { get; set; }
         #endregion
         #region Google
@@ -233,6 +240,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);
+            log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
+            log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Filter String: " + OutlookDateFormat);
             
             log.Info("GOOGLE SETTINGS:-");

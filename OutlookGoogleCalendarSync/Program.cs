@@ -89,6 +89,7 @@ namespace OutlookGoogleCalendarSync {
                     startingTab = "Help";
                 }
             }
+            log.Info("Running from " + System.Windows.Forms.Application.ExecutablePath);
 
             //Now let's confirm the actual setting
             settingsFile = Path.Combine(UserFilePath, settingsFilename);

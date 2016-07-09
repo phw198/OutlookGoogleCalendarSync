@@ -53,6 +53,7 @@ namespace OutlookGoogleCalendarSync {
                 case 14: analytics = "http://goo.gl/VM9Yaz"; break; //2010
                 case 15: analytics = "http://goo.gl/LvIiQd"; break; //2013
                 case 16: analytics = "http://goo.gl/Jhyzo5"; break; //2016
+                default: analytics = "http://goo.gl/mzHcHj"; break; //9999 (Unknown)
             }
             if (analytics != null) {
                 log.Debug("Retrieving URL: " + analytics);

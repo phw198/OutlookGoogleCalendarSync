@@ -210,6 +210,10 @@ namespace OutlookGoogleCalendarSync {
             } 
         }
 
+        public object GetCategories() {
+            return null;
+        }
+        
         #region Addin Express Code
         //This code has been sourced from:
         //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/
