@@ -329,10 +329,16 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
+            if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
+                log.Fine("Has starting timezone: " + ev.Start.TimeZone);
+                ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+            }
             ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
-            if (!String.IsNullOrEmpty(ev.Start.TimeZone)) ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+            if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
+                log.Fine("Has ending timezone: " + ev.End.TimeZone);
+                ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+            }
             ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
-            if (!String.IsNullOrEmpty(ev.End.TimeZone)) ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
             return ai;
         }
 
