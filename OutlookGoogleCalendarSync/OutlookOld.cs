@@ -157,6 +157,12 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
+            NameSpace ns = oApp.GetNamespace("mapi");
+            ai = ns.GetItemFromID(entryID) as AppointmentItem;
+            ns = (NameSpace)OutlookCalendar.ReleaseObject(ns);
+        }
+
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
@@ -495,7 +501,12 @@ namespace OutlookGoogleCalendarSync {
             return tzDBsource.CanonicalIdMap[tzID];
         }
 
-        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
+        public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
+            startTz = "UTC";
+            endTz = "UTC";
+        }
+
+        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false) {
             ai.Start = WindowsTimeZone(ev.Start);
             ai.End = WindowsTimeZone(ev.End);
             return ai;
@@ -513,6 +524,5 @@ namespace OutlookGoogleCalendarSync {
             return zonedUTC;
         }
         #endregion
-
     }
 }

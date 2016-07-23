@@ -23,6 +23,8 @@ namespace OutlookGoogleCalendarSync {
         String GetGlobalApptID(AppointmentItem ai);
 
         Event IANAtimezone_set(Event ev, AppointmentItem ai);
-        AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev);
+        void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz);
+        AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false);
+        void GetAppointmentByID(String entryID, out AppointmentItem ai);
     }
 }

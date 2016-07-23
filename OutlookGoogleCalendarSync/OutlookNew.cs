@@ -191,86 +191,118 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
+            NameSpace ns = oApp.GetNamespace("mapi");
+            ai = ns.GetItemFromID(entryID) as AppointmentItem;
+            ns = (NameSpace)OutlookCalendar.ReleaseObject(ns);
+        }
+
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
-            AddressEntry addressEntry;
+            AddressEntry addressEntry = null;
             try {
-                addressEntry = recipient.AddressEntry;
-            } catch {
-                log.Warn("Can't resolve this recipient!");
-                addressEntry = null;
-            }
-            if (addressEntry == null) {
-                log.Warn("No AddressEntry exists!");
-                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                EmailAddress.IsValidEmail(retEmail);
-                return retEmail;
-            }
-            log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
-            if (recipient.AddressEntry.Type == "EX") { //Exchange
-                log.Fine("Address is from Exchange");
-                if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
-                    recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
-                    ExchangeUser eu = recipient.AddressEntry.GetExchangeUser();
-                    if (eu != null && eu.PrimarySmtpAddress != null)
-                        retEmail = eu.PrimarySmtpAddress;
-                    else {
-                        log.Warn("Exchange does not have an email for recipient: "+ recipient.Name);
+                try {
+                    addressEntry = recipient.AddressEntry;
+                } catch {
+                    log.Warn("Can't resolve this recipient!");
+                    addressEntry = null;
+                }
+                if (addressEntry == null) {
+                    log.Warn("No AddressEntry exists!");
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                    EmailAddress.IsValidEmail(retEmail);
+                    return retEmail;
+                }
+                log.Fine("AddressEntry Type: " + addressEntry.Type);
+                if (addressEntry.Type == "EX") { //Exchange
+                    log.Fine("Address is from Exchange");
+                    if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
+                        addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
+                        ExchangeUser eu = null;
                         try {
-                            //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
-                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
+                            eu = addressEntry.GetExchangeUser();
+                            if (eu != null && eu.PrimarySmtpAddress != null)
+                                retEmail = eu.PrimarySmtpAddress;
+                            else {
+                                log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
+                                Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                                try {
+                                    //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
+                                    pa = recipient.PropertyAccessor;
+                                    retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                                    log.Debug("Retrieved from PropertyAccessor instead.");
+                                } catch {
+                                    log.Warn("Also failed to retrieve email from PropertyAccessor.");
+                                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                                } finally {
+                                    pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
+                                }
+                            }
+                        } finally {
+                            eu = (ExchangeUser)OutlookCalendar.ReleaseObject(eu);
+                        }
+
+                    } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
+                        log.Fine("This is an Outlook contact");
+                        ContactItem contact = null;
+                        try {
+                            try {
+                                contact = addressEntry.GetContact();
+                            } catch {
+                                log.Warn("Doesn't seem to be a valid contact object. Maybe this account is no longer in Exchange.");
+                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                            }
+                            if (contact != null) {
+                                if (contact.Email1AddressType == "EX") {
+                                    log.Fine("Address is from Exchange.");
+                                    log.Fine("Using PropertyAccessor to get email address.");
+                                    Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                                    try {
+                                        pa = contact.PropertyAccessor;
+                                        retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
+                                    } finally {
+                                        pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
+                                    }
+                                } else {
+                                    retEmail = contact.Email1Address;
+                                }
+                            }
+                        } finally {
+                            contact = (ContactItem)OutlookCalendar.ReleaseObject(contact);
+                        }
+                    } else {
+                        log.Fine("Exchange type: " + addressEntry.AddressEntryUserType.ToString());
+                        log.Fine("Using PropertyAccessor to get email address.");
+                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                        try {
+                            pa = recipient.PropertyAccessor;
                             retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
-                            log.Debug("Retrieved from PropertyAccessor instead.");
-                        } catch {
-                            log.Warn("Also failed to retrieve email from PropertyAccessor.");
-                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                        } finally {
+                            pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
                         }
                     }
 
-                } else if (recipient.AddressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
-                    log.Fine("This is an Outlook contact");
-                    ContactItem contact = null;
-                    try {
-                        contact = recipient.AddressEntry.GetContact();
-                    } catch {
-                        log.Warn("Doesn't seem to be a valid contact object. Maybe this account is not longer in Exchange.");
-                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                    }
-                    if (contact != null) {
-                        if (contact.Email1AddressType == "EX") {
-                            log.Fine("Address is from Exchange.");
-                            log.Fine("Using PropertyAccessor to get email address.");
-                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = contact.PropertyAccessor;
-                            retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
-                        } else {
-                            retEmail = contact.Email1Address;
-                        }
-                    }
+                } else if (addressEntry.Type.ToUpper() == "NOTES") {
+                    log.Fine("From Lotus Notes");
+                    //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+
                 } else {
-                    log.Fine("Exchange type: " + recipient.AddressEntry.AddressEntryUserType.ToString());
-                    log.Fine("Using PropertyAccessor to get email address.");
-                    Microsoft.Office.Interop.Outlook.PropertyAccessor pa = recipient.PropertyAccessor;
-                    retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                    log.Fine("Not from Exchange");
+                    retEmail = addressEntry.Address;
                 }
 
-            } else if (recipient.AddressEntry.Type.ToUpper() == "NOTES") {
-                log.Fine("From Lotus Notes");
-                //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
-                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-
-            } else {
-                log.Fine("Not from Exchange");
-                retEmail = recipient.AddressEntry.Address;
+                if (retEmail.IndexOf("<") > 0) {
+                    retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
+                    retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
+                }
+                log.Fine("Email address: " + retEmail, retEmail);
+                EmailAddress.IsValidEmail(retEmail);
+                return retEmail;
+            } finally {
+                addressEntry = (AddressEntry)OutlookCalendar.ReleaseObject(addressEntry);
             }
-
-            if (retEmail.IndexOf("<") > 0) {
-                retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
-                retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
-            }
-            log.Fine("Email address: " + retEmail, retEmail);
-            EmailAddress.IsValidEmail(retEmail);
-            return retEmail;
         }
 
         public String GetGlobalApptID(AppointmentItem ai) {
@@ -328,17 +360,35 @@ namespace OutlookGoogleCalendarSync {
             return tzDBsource.CanonicalIdMap[tzID];
         }
 
-        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev) {
-            if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
-                log.Fine("Has starting timezone: " + ev.Start.TimeZone);
-                ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+        public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
+            Microsoft.Office.Interop.Outlook.TimeZone _startTz = null;
+            Microsoft.Office.Interop.Outlook.TimeZone _endTz = null;
+            try {
+                _startTz = ai.StartTimeZone;
+                _endTz = ai.EndTimeZone;
+                startTz = _startTz.ID;
+                endTz = _endTz.ID;
+            } finally {
+                _startTz = (Microsoft.Office.Interop.Outlook.TimeZone)OutlookCalendar.ReleaseObject(_startTz);
+                _endTz = (Microsoft.Office.Interop.Outlook.TimeZone)OutlookCalendar.ReleaseObject(_endTz);
             }
-            ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
-            if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
-                log.Fine("Has ending timezone: " + ev.End.TimeZone);
-                ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+        }
+
+        public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false) {
+            if ("Both,Start".Contains(attr)) {
+                if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
+                    log.Fine("Has starting timezone: " + ev.Start.TimeZone);
+                    ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+                }
+                if (!onlyTZattribute) ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
             }
-            ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
+            if ("Both,End".Contains(attr)) {
+                if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
+                    log.Fine("Has ending timezone: " + ev.End.TimeZone);
+                    ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+                }
+                if (!onlyTZattribute) ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
+            }
             return ai;
         }
 

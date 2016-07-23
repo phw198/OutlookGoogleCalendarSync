@@ -39,30 +39,52 @@ namespace OutlookGoogleCalendarSync {
         public string Password { get; set; }
 
         public void Configure() {
-            WebProxy wp;
             if (Type == "None") {
                 log.Info("Removing proxy usage.");
                 WebRequest.DefaultWebProxy = null;
 
             } else if (Type == "Custom") {
                 log.Info("Setting custom proxy.");
-                wp = new WebProxy();
+                WebProxy wp = new WebProxy();
                 wp.Address = new System.Uri(string.Format("http://{0}:{1}", ServerName, Port));
                 log.Debug("Using " + wp.Address);
                 wp.BypassProxyOnLocal = true;
                 if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password)) {
-                    wp.Credentials = new NetworkCredential(UserName, Password);
+                    if (UserName.Contains("\\")) {
+                        try {
+                            string[] usernameBits = UserName.Split('\\');
+                            wp.Credentials = new NetworkCredential(usernameBits[1], Password, usernameBits[0]);
+                        } catch (System.Exception ex) {
+                            log.Error("Failed to extract domain from proxy username: " + UserName);
+                            log.Error(ex.Message);
+                        }
+                    } else {
+                        wp.Credentials = new NetworkCredential(UserName, Password);
+                    }
                 }
                 WebRequest.DefaultWebProxy = wp;
 
             } else { //IE
-                log.Info("Setting system proxy.");
-                IWebProxy iwp = WebRequest.GetSystemWebProxy();
-                iwp.Credentials = CredentialCache.DefaultNetworkCredentials;
-                WebRequest.DefaultWebProxy = iwp;
+                if (WebRequest.DefaultWebProxy != null) {
+                    log.Info("Using default proxy (app.config / IE).");
+                } else {
+                    log.Info("Setting system-wide proxy.");
+                    IWebProxy iwp = WebRequest.GetSystemWebProxy();
+                    iwp.Credentials = CredentialCache.DefaultNetworkCredentials;
+                    WebRequest.DefaultWebProxy = iwp;
+                }
             }
-            //IWebProxy iwp = WebRequest.DefaultWebProxy;
-        }
 
+            if (WebRequest.DefaultWebProxy != null) { //Now let's test it
+                try {
+                    WebRequest wr = WebRequest.CreateDefault(new System.Uri("http://www.google.com"));
+                    System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri("http://www.google.com"));
+                    log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
+                } catch (System.Exception ex) {
+                    log.Error("Failed to confirm proxy settings.");
+                    log.Error(ex.Message);
+                }
+            }
+        }
     }
 }

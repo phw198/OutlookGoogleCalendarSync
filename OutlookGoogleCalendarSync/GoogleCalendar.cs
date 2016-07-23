@@ -309,13 +309,9 @@ namespace OutlookGoogleCalendarSync {
             //Add the Outlook appointment ID into Google event
             AddOutlookID(ref ev, ai);
 
+            ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
-                            
-            ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
-            if (ev.Recurrence != null) {
-                ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
-            }
                             
             if (ai.AllDayEvent) {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
@@ -324,6 +320,8 @@ namespace OutlookGoogleCalendarSync {
                 ev.Start.DateTime = GoogleCalendar.GoogleTimeFrom(ai.Start);
                 ev.End.DateTime = GoogleCalendar.GoogleTimeFrom(ai.End);
             }
+            ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+
             ev.Summary = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (Settings.Instance.AddDescription) ev.Description = ai.Body;
             ev.Location = ai.Location;
@@ -509,7 +507,7 @@ namespace OutlookGoogleCalendarSync {
             //Handle an event's all-day attribute being toggled
             String evStart = ev.Start.Date ?? ev.Start.DateTime;
             String evEnd = ev.End.Date ?? ev.End.DateTime;
-            if (ai.AllDayEvent) {
+            if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0,0,0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
                 if (MainForm.CompareAttribute("Start time", SyncDirection.OutlookToGoogle, evStart, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
@@ -570,10 +568,16 @@ namespace OutlookGoogleCalendarSync {
                     ev.Recurrence = oRrules;
                 }
             }
-            if (ev.Recurrence != null && ev.RecurringEventId == null) {
-                ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
-            }
             
+            //TimeZone
+            if (ev.Start.DateTime != null) {
+                String currentStartTZ = ev.Start.TimeZone;
+                String currentEndTZ = ev.End.TimeZone;
+                ev = OutlookCalendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+                MainForm.CompareAttribute("Start Timezone", SyncDirection.OutlookToGoogle, currentStartTZ, ev.Start.TimeZone, sb, ref itemModified);
+                MainForm.CompareAttribute("End Timezone", SyncDirection.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
+            }
+
             String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;

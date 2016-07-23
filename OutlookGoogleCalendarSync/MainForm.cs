@@ -161,14 +161,7 @@ namespace OutlookGoogleCalendarSync {
                 clbCategories.Enabled = false;
                 lFilterCategories.Enabled = false;
             } else {
-                foreach (Category cat in OutlookCalendar.Instance.IOutlook.GetCategories() as Categories) {
-                    clbCategories.Items.Add(cat.Name);
-                }
-                foreach (String cat in Settings.Instance.Categories) {
-                    try {
-                        clbCategories.SetItemChecked(clbCategories.Items.IndexOf(cat), true);
-                    } catch { /* Category "cat" no longer exists */ }
-                }
+                refreshCategories();
             }
             #endregion
             #region DateTime Format / Locale
@@ -588,7 +581,8 @@ namespace OutlookGoogleCalendarSync {
             //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
             for (int o = outlookEntries.Count - 1; o >= 0; o--) {
                 log.Fine("Processing " + o + "/" + (outlookEntries.Count - 1));
-                AppointmentItem ai;
+                AppointmentItem ai = null;
+                String entryID = outlookEntries[o].EntryID;
                 try {
                     if (outlookEntries[o] is AppointmentItem) ai = outlookEntries[o];
                     else if (outlookEntries[o] is MeetingItem) {
@@ -604,7 +598,7 @@ namespace OutlookGoogleCalendarSync {
                         continue;
                     }
                 } catch (System.Exception ex) {
-                    log.Error("Encountered error casting calendar object to AppointItem - cannot system it.");
+                    log.Error("Encountered error casting calendar object to AppointItem - cannot sync it.");
                     log.Debug(ex.Message);
                     log.Debug("Outlook object removed: " + outlookEntries[o].Subject);
                     outlookEntries[o] = (AppointmentItem)OutlookCalendar.ReleaseObject(outlookEntries[o]);
@@ -645,7 +639,7 @@ namespace OutlookGoogleCalendarSync {
 
                         }
                         Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
-                        if (masterEv != null) {
+                        if (masterEv != null && masterEv.Status != "cancelled") {
                             Boolean alreadyCached = false;
                             if (googleEntries.Exists(x => x.Id == masterEv.Id)) {
                                 alreadyCached = true;
@@ -659,9 +653,13 @@ namespace OutlookGoogleCalendarSync {
                         oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
                     }
                 }
+                //Completely dereference object and retrieve afresh (due to GetRecurrencePattern earlier) 
+                ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                OutlookCalendar.Instance.IOutlook.GetAppointmentByID(entryID, out ai);
+                outlookEntries[o] = ai;
             }
             Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
-            Logboxout("--------------------------------------------------");
+            Logboxout("--------------------------------------------------");            
             #endregion
 
             Boolean success = true;
@@ -793,7 +791,7 @@ namespace OutlookGoogleCalendarSync {
             List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
             List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
-
+            
             try {
                 OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
             } catch (System.Exception ex) {
@@ -816,7 +814,11 @@ namespace OutlookGoogleCalendarSync {
                 if (MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
-                    outlookEntriesToBeDeleted = new List<AppointmentItem>();
+
+                    while (outlookEntriesToBeDeleted.Count() > 0) {
+                        OutlookCalendar.ReleaseObject(outlookEntriesToBeDeleted.Last());
+                        outlookEntriesToBeDeleted.Remove(outlookEntriesToBeDeleted.Last());
+                    }
                 }
             }
 
@@ -878,6 +880,14 @@ namespace OutlookGoogleCalendarSync {
                 bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
                     outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
 
+                while (outlookEntriesToBeCreated.Count() > 0) {
+                    OutlookCalendar.ReleaseObject(outlookEntriesToBeCreated.Last());
+                    outlookEntriesToBeCreated.Remove(outlookEntriesToBeCreated.Last());
+                }
+                while (outlookEntriesToBeDeleted.Count() > 0) {
+                    OutlookCalendar.ReleaseObject(outlookEntriesToBeDeleted.Last());
+                    outlookEntriesToBeDeleted.Remove(outlookEntriesToBeDeleted.Last());
+                }
                 while (entriesToBeCompared.Count() > 0) {
                     OutlookCalendar.ReleaseObject(entriesToBeCompared.Keys.Last());
                     entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
@@ -1185,6 +1195,7 @@ namespace OutlookGoogleCalendarSync {
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
         }
 
+        #region Categories
         private void cbCategoryFilter_SelectedIndexChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
             Settings.Instance.CategoriesRestrictBy = (cbCategoryFilter.SelectedItem.ToString() == "Include") ?
@@ -1193,12 +1204,43 @@ namespace OutlookGoogleCalendarSync {
 
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
-            
+
             Settings.Instance.Categories.Clear();
             foreach (object item in clbCategories.CheckedItems) {
                 Settings.Instance.Categories.Add(item.ToString());
             }
         }
+
+        private void refreshCategories() {
+            clbCategories.BeginUpdate();
+            clbCategories.Items.Clear();
+            foreach (Category cat in OutlookCalendar.Instance.IOutlook.GetCategories() as Categories) {
+                clbCategories.Items.Add(cat.Name);
+            }
+            foreach (String cat in Settings.Instance.Categories) {
+                try {
+                    clbCategories.SetItemChecked(clbCategories.Items.IndexOf(cat), true);
+                } catch { /* Category "cat" no longer exists */ }
+            }
+            clbCategories.EndUpdate();
+        }
+        
+        private void miCatRefresh_Click(object sender, EventArgs e) {
+            refreshCategories();
+        }
+        private void miCatSelectNone_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbCategories.Items.Count; i++) {
+                clbCategories.SetItemCheckState(i, CheckState.Unchecked);
+            }
+            clbCategories_SelectedIndexChanged(null, null);
+        }
+        private void miCatSelectAll_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbCategories.Items.Count; i++) {
+                clbCategories.SetItemCheckState(i, CheckState.Checked);
+            }
+            clbCategories_SelectedIndexChanged(null, null);
+        }
+        #endregion
 
         #region Datetime Format
         private void cbOutlookDateFormat_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1431,7 +1473,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
-            Settings.Instance.AddReminders = cbAddReminders.Checked;
+            if (this.Visible) Settings.Instance.AddReminders = cbAddReminders.Checked;
             cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked;
             cbReminderDND.Enabled = cbAddReminders.Checked;
             dtDNDstart.Enabled = cbAddReminders.Checked;
