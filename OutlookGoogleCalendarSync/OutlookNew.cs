@@ -19,74 +19,116 @@ namespace OutlookGoogleCalendarSync {
         private OlExchangeConnectionMode exchangeConnectionMode;
         
         public void Connect() {
-            oApp = OutlookCalendar.AttachToOutlook();
+            OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
             // Get the NameSpace and Logon information.
-            NameSpace oNS = oApp.GetNamespace("mapi");
+            NameSpace oNS = null;
+            try {
+                oNS = oApp.GetNamespace("mapi");
 
-            //Log on by using a dialog box to choose the profile.
-            //oNS.Logon("", Type.Missing, true, true); 
-            
-            //Implicit logon to default profile, with no dialog box
-            //If 1< profile, a dialogue is forced unless implicit login used
-            exchangeConnectionMode = oNS.ExchangeConnectionMode;
-            if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
-                log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
-            }
-            
-            //Logon using a specific profile. Can't see a use case for this when using OGsync
-            //If using this logon method, change the profile name to an appropriate value:
-            //HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles
-            //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
+                //Log on by using a dialog box to choose the profile.
+                //oNS.Logon("", Type.Missing, true, true); 
 
-            log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
-            currentUserSMTP = GetRecipientEmail(oNS.CurrentUser);
-            currentUserName = oNS.CurrentUser.Name;
-            if (currentUserName == "Unknown") {
-                log.Info("Current username is \"Unknown\"");
-                if (Settings.Instance.AddAttendees) {
-                    System.Windows.Forms.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
-                        "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
-                        "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
-                        System.Windows.Forms.MessageBoxIcon.Warning);
+                //Implicit logon to default profile, with no dialog box
+                //If 1< profile, a dialogue is forced unless implicit login used
+                exchangeConnectionMode = oNS.ExchangeConnectionMode;
+                if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
+                    log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
                 }
-            }
 
-            //Get the accounts configured in Outlook
-            accounts = oNS.Accounts;
-            
-            // Get the Calendar folders
-            useOutlookCalendar = getDefaultCalendar(oNS);
-            if (MainForm.Instance.IsHandleCreated) {
-                log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
+                //Logon using a specific profile. Can't see a use case for this when using OGsync
+                //If using this logon method, change the profile name to an appropriate value:
+                //HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles
+                //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
 
-                MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged -= MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged; 
-                MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
-                
-                //Select the right calendar
-                int c = 0;
-                foreach (KeyValuePair<String, MAPIFolder> calendarFolder in calendarFolders) {
-                    if (calendarFolder.Value.EntryID == Settings.Instance.UseOutlookCalendar.Id) {
-                        MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", c);
+                log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
+
+                Recipient currentUser = null;
+                try {
+                    try {
+                        currentUser = oNS.CurrentUser;
+                    } catch {
+                        log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
+                        oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
+                        Disconnect();
+                        OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
+                        oNS = oApp.GetNamespace("mapi");
+                        currentUser = oNS.CurrentUser;
                     }
-                    c++;
+                    currentUserSMTP = GetRecipientEmail(currentUser);
+                    currentUserName = currentUser.Name;
+                } finally {
+                    currentUser = (Recipient)OutlookCalendar.ReleaseObject(currentUser);
                 }
-                if ((int)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
-                    MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", 0);
 
-                KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedItem");
-                useOutlookCalendar = calendar.Value;
+                if (currentUserName == "Unknown") {
+                    log.Info("Current username is \"Unknown\"");
+                    if (Settings.Instance.AddAttendees) {
+                        System.Windows.Forms.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
+                            "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
+                            "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
+                            System.Windows.Forms.MessageBoxIcon.Warning);
+                    }
+                }
 
-                MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged += MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
+                //Get the accounts configured in Outlook
+                accounts = oNS.Accounts;
+
+                // Get the Calendar folders
+                useOutlookCalendar = getDefaultCalendar(oNS);
+                if (MainForm.Instance.IsHandleCreated) {
+                    log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
+
+                    MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged -= MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
+                    MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
+
+                    //Select the right calendar
+                    int c = 0;
+                    foreach (KeyValuePair<String, MAPIFolder> calendarFolder in calendarFolders) {
+                        if (calendarFolder.Value.EntryID == Settings.Instance.UseOutlookCalendar.Id) {
+                            MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", c);
+                        }
+                        c++;
+                    }
+                    if ((int)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
+                        MainForm.Instance.SetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedIndex", 0);
+
+                    KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.GetControlPropertyThreadSafe(MainForm.Instance.cbOutlookCalendars, "SelectedItem");
+                    useOutlookCalendar = calendar.Value;
+
+                    MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged += MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
+                }
+
+            } finally {
+                // Done. Log off.
+                oNS.Logoff();
+                oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
             }
-
-            // Done. Log off.
-            oNS.Logoff();
         }
-        public void Disconnect() {
-            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
-            oApp = null;
+        public void Disconnect(Boolean onlyWhenNoGUI = false) {
+            if (!onlyWhenNoGUI ||
+                (onlyWhenNoGUI && oApp.Explorers.Count == 0)) 
+            {
+                log.Debug("De-referencing all Outlook application objects.");
+                try {
+                    accounts = (Accounts)OutlookCalendar.ReleaseObject(accounts);
+                    useOutlookCalendar = (MAPIFolder)OutlookCalendar.ReleaseObject(useOutlookCalendar);
+                    for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
+                        MAPIFolder mFld = calendarFolders.ElementAt(fld).Value;
+                        mFld = (MAPIFolder)OutlookCalendar.ReleaseObject(mFld);
+                        calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
+                    }
+                    calendarFolders = null;
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                }
+
+                log.Info("Disconnecting from Outlook application.");
+                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                oApp = null;
+                GC.Collect();
+            }
         }
 
         public List<String> Accounts() {
@@ -132,13 +174,23 @@ namespace OutlookGoogleCalendarSync {
             MAPIFolder defaultCalendar = null;
             if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
                 log.Debug("Finding Alternative Mailbox calendar folders");
-                findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, defaultCalendar);
+                try {
+                    findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, defaultCalendar);
+                } catch (System.Exception ex) {
+                    log.Error("Failed to find calendar folders in alternate account '" + Settings.Instance.MailboxName + "'.");
+                    log.Debug(ex.Message);
+                    log.Debug("Accounts:-");
+                    foreach (Account acc in accounts) {
+                        try {
+                            log.Debug("Name=" + acc.DisplayName + ";SMTP=" + acc.SmtpAddress + ";Type=" + acc.AccountType.ToString());
+                        } catch {
+                            log.Error("Failed enumerating an account!");
+                        }
+                    }
+                }
 
                 //Default to first calendar in drop down
-                foreach (KeyValuePair<String, MAPIFolder> calendar in calendarFolders) {
-                    defaultCalendar = calendar.Value;
-                    break;
-                }
+                defaultCalendar = calendarFolders.FirstOrDefault().Value;
                 if (defaultCalendar == null) {
                     log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
                     System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
@@ -149,6 +201,7 @@ namespace OutlookGoogleCalendarSync {
                     defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
                     calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
                     findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, defaultCalendar);
+                    MainForm.Instance.ddMailboxName.Text = "";
                 }
 
             } else {

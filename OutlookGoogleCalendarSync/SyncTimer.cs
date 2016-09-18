@@ -10,6 +10,24 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(SyncTimer));
         private Timer ogcsTimer;
         public DateTime LastSyncDate { get; set; }
+        public DateTime? NextSyncDate { 
+            get {
+                try {
+                    if (MainForm.Instance.NextSyncVal == "Inactive" || !ogcsTimer.Enabled) {
+                        return null;
+                    } else {
+                        return DateTime.ParseExact(MainForm.Instance.NextSyncVal,
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " - " +
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
+                            System.Globalization.CultureInfo.CurrentCulture);
+                    }
+                } catch (System.Exception ex) {
+                    log.Warn("Failed to determine next sync date.");
+                    log.Error(ex.Message);
+                    return null;
+                }
+            }
+        }
 
         public SyncTimer() {
             ogcsTimer = new Timer();

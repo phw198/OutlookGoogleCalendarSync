@@ -372,7 +372,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Found " + googleExceptions.Count + " exceptions.");
         }
 
-        public Event GetGoogleInstance(Microsoft.Office.Interop.Outlook.Exception oExcp, String gRecurringEventID, String oEntryID) {
+        private Event getGoogleInstance(ref Microsoft.Office.Interop.Outlook.Exception oExcp, String gRecurringEventID, String oEntryID) {
             Boolean oIsDeleted = exceptionIsDeleted(oExcp);
             log.Debug("Finding Google instance for " + (oIsDeleted ? "deleted " : "") + "Outlook exception:-");
             log.Debug("  Original date: " + oExcp.OriginalDate.ToString("dd/MM/yyyy"));
@@ -530,24 +530,21 @@ namespace OutlookGoogleCalendarSync {
                                     continue;
                                 }
 
-                                Event gExcp = Recurrence.Instance.GetGoogleInstance(oExcp, ev.RecurringEventId ?? ev.Id, OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai));
-                                aiExcp = oExcp.AppointmentItem;
+                                Event gExcp = Recurrence.Instance.getGoogleInstance(ref oExcp, ev.RecurringEventId ?? ev.Id, OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai));
                                 if (gExcp != null) {
                                     log.Debug("Matching Google Event recurrence found.");
                                     if (gExcp.Status == "cancelled") {
                                         log.Debug("It is deleted in Google, so cannot compare items.");
                                         if (!oIsDeleted) log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
                                         continue;
-                                    }
-                                    try {
-                                        GoogleCalendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified);
-                                    } catch (System.Exception ex) {
-                                        if (oIsDeleted) {
-                                            if (gExcp.Status != "cancelled") {
-                                                gExcp.Status = "cancelled";
-                                                excp_itemModified++;
-                                            }
-                                        } else {
+                                    } else if (oIsDeleted && gExcp.Status != "cancelled") {
+                                        gExcp.Status = "cancelled";
+                                        excp_itemModified++;
+                                    } else {
+                                        try {
+                                            aiExcp = oExcp.AppointmentItem;
+                                            GoogleCalendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified);
+                                        } catch (System.Exception ex) {
                                             log.Error(ex.Message);
                                             log.Error(ex.StackTrace);
                                             throw ex;

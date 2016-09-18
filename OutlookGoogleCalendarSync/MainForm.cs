@@ -54,6 +54,9 @@ namespace OutlookGoogleCalendarSync {
                 this.CreateHandle();
                 this.WindowState = FormWindowState.Minimized;
             }
+            if (((OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
+                OutlookCalendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
+            }
         }
 
         private void updateGUIsettings() {
@@ -532,6 +535,10 @@ namespace OutlookGoogleCalendarSync {
             bSyncNow.Enabled = true;
             if (OutlookCalendar.Instance.OgcsPushTimer != null)
                 OutlookCalendar.Instance.OgcsPushTimer.ItemsQueued = 0; //Reset Push flag regardless of success (don't want it trying every 2 mins)
+
+            //Release Outlook reference if GUI not available. 
+            //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
+            OutlookCalendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
 
             checkSyncMilestone();
         }

@@ -2425,7 +2425,7 @@
         private System.Windows.Forms.RadioButton rbOutlookEWS;
         public System.Windows.Forms.RadioButton rbOutlookDefaultMB;
         private System.Windows.Forms.RadioButton rbOutlookAltMB;
-        private System.Windows.Forms.ComboBox ddMailboxName;
+        public System.Windows.Forms.ComboBox ddMailboxName;
         private System.Windows.Forms.TabPage tabGoogle;
         private System.Windows.Forms.Label lOutlookCalendar;
         private System.Windows.Forms.GroupBox gbEWS;

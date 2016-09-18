@@ -485,7 +485,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public static void isNewVersion() {
+        private static void isNewVersion() {
             string settingsVersion = string.IsNullOrEmpty(Settings.Instance.Version) ? "Unknown" : Settings.Instance.Version;
             if (settingsVersion != Application.ProductVersion) {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);

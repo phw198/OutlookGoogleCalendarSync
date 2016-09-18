@@ -63,6 +63,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void Reset() {
+            if (IOutlook != null) IOutlook.Disconnect();
             instance = new OutlookCalendar();
         }
 
@@ -757,8 +758,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region STATIC functions
-        public static Microsoft.Office.Interop.Outlook.Application AttachToOutlook() {
-            Microsoft.Office.Interop.Outlook.Application oApp;
+        public static void AttachToOutlook(ref Microsoft.Office.Interop.Outlook.Application oApp, Boolean openOutlookOnFail = true, Boolean withSystemCall = false) {
             if (System.Diagnostics.Process.GetProcessesByName("OUTLOOK").Count() > 0) {
                 log.Info("Attaching to the already running Outlook process.");
                 try {
@@ -766,18 +766,36 @@ namespace OutlookGoogleCalendarSync {
                 } catch (SystemException ex) {
                     log.Warn("Attachment failed. Is Outlook running fully, or perhaps just the 'reminders' window?");
                     log.Debug(ex.Message);
-                    oApp = openOutlook();
+                    if (openOutlookOnFail) openOutlook(ref oApp, withSystemCall);
                 }
             } else {
-                oApp = openOutlook();
+                if (openOutlookOnFail) openOutlook(ref oApp, withSystemCall);
             }
-            return oApp;
         }
-        private static Microsoft.Office.Interop.Outlook.Application openOutlook() {
-            Microsoft.Office.Interop.Outlook.Application oApp;
+
+        private static void openOutlook(ref Microsoft.Office.Interop.Outlook.Application oApp, Boolean withSystemCall = false) {
             log.Info("Starting a new instance of Outlook.");
             try {
+                if (!withSystemCall)
                     oApp = new Microsoft.Office.Interop.Outlook.Application();
+                else {
+                    System.Diagnostics.Process oProcess = new System.Diagnostics.Process();
+                    oProcess.StartInfo.FileName = "outlook";
+                    oProcess.StartInfo.Arguments = "/recycle";
+                    oProcess.Start();
+
+                    int maxWaits = 8;
+                    while (maxWaits > 0 && oApp == null) {
+                        if (maxWaits % 2 == 0) log.Info("Waiting for Outlook to start...");
+                        oProcess.WaitForInputIdle(15);
+                        OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
+                        maxWaits--;
+                    }
+                    if (oApp == null) {
+                        log.Error("Giving up waiting for Outlook to open!");
+                        throw new System.ApplicationException("Could not establish a connection with Outlook.");
+                    }
+                }
             } catch (System.Runtime.InteropServices.COMException ex) {
                 oApp = null;
                 if (ex.ErrorCode == -2147221164) {
@@ -801,7 +819,6 @@ namespace OutlookGoogleCalendarSync {
                 //oApp = oAppClass.CreateObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
                 throw ex;
             }
-            return oApp;
         }
 
         public static string signature(AppointmentItem ai) {
