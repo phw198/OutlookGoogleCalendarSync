@@ -130,14 +130,14 @@ namespace OutlookGoogleCalendarSync {
             if (ruleBook.ContainsKey("COUNT"))
                 oPattern.Occurrences = Convert.ToInt16(ruleBook["COUNT"]);
             if (ruleBook.ContainsKey("UNTIL")) {
-                if (ruleBook["UNTIL"].Length == 8) {
-                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
-                } else {
-                    if (ruleBook["UNTIL"].ToString().Substring(8) == "T000000Z" && ev.Start.DateTime != null)
-                        oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture).AddDays(-1);
-                    else
-                        oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture);
-                }
+                //if (ruleBook["UNTIL"].Length == 8) {
+                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0,8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                //} else {
+                    //if (ruleBook["UNTIL"].ToString().Substring(8) == "T000000Z" && ev.Start.DateTime != null)
+                    //    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture).AddDays(-1);
+                    //else
+                        //oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture).Date;
+                //}
             }
             if (!ruleBook.ContainsKey("COUNT") && !ruleBook.ContainsKey("UNTIL")) {
                 oPattern.NoEndDate = true;
@@ -150,6 +150,7 @@ namespace OutlookGoogleCalendarSync {
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
             AppointmentItem evAI = OutlookCalendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+            evAI.Start = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime); 
 
             RecurrencePattern evOpattern = null;
             try {
@@ -258,10 +259,7 @@ namespace OutlookGoogleCalendarSync {
             #region RECURRENCE RANGE
             if (!oPattern.NoEndDate) {
                 log.Fine("Checking end date.");
-                if (oPattern.StartTime.TimeOfDay == oPattern.StartTime.Date.TimeOfDay) //All-day
-                    addRule(rrule, "UNTIL", Recurrence.IANAdate(oPattern.PatternEndDate.AddDays(-1)));
-                else
-                    addRule(rrule, "UNTIL", Recurrence.IANAdate(oPattern.PatternEndDate));
+                addRule(rrule, "UNTIL", Recurrence.IANAdate(oPattern.PatternEndDate + oPattern.StartTime.TimeOfDay));
             }
             #endregion
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
@@ -324,9 +322,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String IANAdate(DateTime dt) {
-            //Eg "RRULE:FREQ=DAILY;UNTIL=20150826T093000Z"
-            //Need to add a day to date else Google is a day short compared to Outlook
-            return dt.AddDays(1).ToString("yyyyMMddTHHmmssZ");
+            return dt.ToString("yyyyMMddTHHmmssZ");
         }
         #endregion
 

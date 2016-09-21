@@ -504,10 +504,14 @@ namespace OutlookGoogleCalendarSync {
             if (MainForm.CompareAttribute("Location", SyncDirection.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
                 ai.Location = ev.Location;
 
-            String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
-            String gPrivacy = ev.Visibility ?? "default";
-            if (MainForm.CompareAttribute("Private", SyncDirection.GoogleToOutlook, gPrivacy, oPrivacy, sb, ref itemModified)) {
-                ai.Sensitivity = (ev.Visibility != null && ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
+                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) 
+            {
+                String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
+                if (MainForm.CompareAttribute("Privacy", SyncDirection.GoogleToOutlook, gPrivacy, oPrivacy, sb, ref itemModified)) {
+                    ai.Sensitivity = (ev.Visibility != null && ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                }
             }
             String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
             String gFreeBusy = ev.Transparency ?? "opaque";
@@ -948,6 +952,11 @@ namespace OutlookGoogleCalendarSync {
                         outlook.Remove(outlook[o]);
                 }
             }
+            //Remove cancelled occurences for recurring Events
+            List<Event> cancelled = google.Where(ev => ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId)).ToList();
+            log.Debug(cancelled.Count + " Google Events are cancelled and will be excluded.");
+            google = google.Except(cancelled).ToList();
+
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Appointments for deletion in Outlook", "outlook_delete.csv", outlook);
                 GoogleCalendar.ExportToCSV("Events for creation in Outlook", "outlook_create.csv", google);

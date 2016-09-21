@@ -14,6 +14,8 @@ namespace OutlookGoogleCalendarSync {
             return buildFakeEmail;
         }
 
+        //Sourced from https://msdn.microsoft.com/en-us/library/01escwtf(v=vs.110).aspx
+        //Underscores added to regex as allowable
         private static Boolean invalidEmail = false;
         public static Boolean IsValidEmail(string strIn) {
             invalidEmail = false;
@@ -31,7 +33,7 @@ namespace OutlookGoogleCalendarSync {
             if (!invalidEmail) {
                 // Return true if strIn is in valid e-mail format. 
                 invalidEmail = !Regex.IsMatch(strIn,
-                    @"^(?("")(""[^""]+?""@)|(([0-9a-z_]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                    @"^(?("")(""[^""]+?""@)|(([0-9a-z_]((\.(?!\.))|[-_!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z_])@))" +
                     @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$",
                     RegexOptions.IgnoreCase);
             }

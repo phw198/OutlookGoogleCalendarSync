@@ -1,8 +1,5 @@
 ﻿using log4net;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
@@ -22,7 +19,7 @@ namespace OutlookGoogleCalendarSync {
                             System.Globalization.CultureInfo.CurrentCulture);
                     }
                 } catch (System.Exception ex) {
-                    log.Warn("Failed to determine next sync date.");
+                    log.Warn("Failed to determine next sync date from '" + MainForm.Instance.NextSyncVal +"'");
                     log.Error(ex.Message);
                     return null;
                 }
