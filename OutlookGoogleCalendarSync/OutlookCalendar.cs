@@ -19,7 +19,7 @@ namespace OutlookGoogleCalendarSync {
         public static OutlookCalendar Instance {
             get {
                 try {
-                    if (instance == null || instance.Accounts == null) instance = new OutlookCalendar();
+                    if (instance == null || instance.Folders == null) instance = new OutlookCalendar();
                 } catch (System.ApplicationException ex) {
                     throw ex;
                 } catch (System.Exception ex) {
@@ -44,8 +44,8 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.UseOutlookCalendar = new MyOutlookCalendarListEntry(value);
             }
         }
-        public List<String> Accounts {
-            get { return IOutlook.Accounts(); }
+        public Folders Folders {
+            get { return IOutlook.Folders(); }
         }
         public Dictionary<string, MAPIFolder> CalendarFolders {
             get { return IOutlook.CalendarFolders(); }
@@ -340,8 +340,9 @@ namespace OutlookGoogleCalendarSync {
                 AppointmentItem ai = compare.Key;
                 try {
                     Boolean aiWasRecurring = ai.IsRecurring;
+                    Boolean needsUpdating = false;
                     try {
-                        UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
+                        needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
                         if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(compare.Value));
                         MainForm.Instance.Logboxout("WARNING: Appointment update failed.\r\n" + ex.Message);
@@ -370,7 +371,7 @@ namespace OutlookGoogleCalendarSync {
                             log.Debug("Appointment has changed from single instance to recurring, so exceptions may need processing.");
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value);
                         }
-                    } else if (ai != null && ai.RecurrenceState != OlRecurrenceState.olApptMaster) { //Master events are always compared anyway
+                    } else if (needsUpdating && ai.RecurrenceState != OlRecurrenceState.olApptMaster) { //Master events are always compared anyway
                         log.Debug("Doing a dummy update in order to update the last modified date.");
                         setOGCSlastModified(ref ai);
                         updateCalendarEntry_save(ai);
@@ -381,20 +382,20 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public void UpdateCalendarEntry(ref AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
+        public Boolean UpdateCalendarEntry(ref AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) { //The exception child objects might have changed
                 log.Debug("Processing recurring master appointment.");
             } else {
                 if (!(MainForm.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                     if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                         if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                            return;
+                            return false;
                     } else {
                         if (GoogleCalendar.GetOGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
                             //Google last modified by OGCS
-                            return;
+                            return false;
                         if (DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                            return;
+                            return false;
                     }
                 }
             }
@@ -621,6 +622,7 @@ namespace OutlookGoogleCalendarSync {
                 MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose: true);
                 System.Windows.Forms.Application.DoEvents();
             }
+            return true;
         }
 
         private void updateCalendarEntry_save(AppointmentItem ai) {
@@ -767,7 +769,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("Attaching to the already running Outlook process.");
                 try {
                     oApp = System.Runtime.InteropServices.Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
-                } catch (SystemException ex) {
+                } catch (System.Exception ex) {
                     log.Warn("Attachment failed. Is Outlook running fully, or perhaps just the 'reminders' window?");
                     log.Debug(ex.Message);
                     if (openOutlookOnFail) openOutlook(ref oApp, withSystemCall);

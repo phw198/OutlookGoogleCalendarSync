@@ -9,7 +9,7 @@ namespace OutlookGoogleCalendarSync {
     public interface OutlookInterface {
         void Connect();
         void Disconnect(Boolean onlyWhenNoGUI = false);
-        List<String> Accounts();
+        Folders Folders();
         Dictionary<string, MAPIFolder> CalendarFolders();
         MAPIFolder UseOutlookCalendar();
         void UseOutlookCalendar(MAPIFolder set);
