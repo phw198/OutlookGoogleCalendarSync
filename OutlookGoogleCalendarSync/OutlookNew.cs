@@ -256,6 +256,7 @@ namespace OutlookGoogleCalendarSync {
                     }
 
                 } catch (System.Exception ex) {
+                    OGCSexception.Analyse(ex);
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
                         ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")) {
                             log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
@@ -367,17 +368,28 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
 
-                } else if (addressEntry.Type.ToUpper() == "NOTES") {
+                } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
                     log.Fine("From Lotus Notes");
                     //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
                     retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
 
                 } else {
                     log.Fine("Not from Exchange");
-                    retEmail = addressEntry.Address;
+                    try {
+                        if (string.IsNullOrEmpty(addressEntry.Address)) {
+                            log.Warn("addressEntry.Address is empty.");
+                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                        } else {
+                            retEmail = addressEntry.Address;
+                        }
+                    } catch (System.Exception ex) {
+                        log.Error("Failed accessing addressEntry.Address");
+                        log.Error(ex.Message);
+                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                    }
                 }
 
-                if (retEmail.IndexOf("<") > 0) {
+                if (retEmail != null && retEmail.IndexOf("<") > 0) {
                     retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
                     retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
                 }
@@ -437,7 +449,7 @@ namespace OutlookGoogleCalendarSync {
                 return "Etc/UTC";
             }
 
-            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
             String tzID = tzDBsource.MapTimeZoneId(tzi);
             log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
@@ -483,21 +495,21 @@ namespace OutlookGoogleCalendarSync {
                 log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
                 return tzs["UTC"];
             }
-            
-            var tzdbSource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             
             // resolve any link, since the CLDR doesn't necessarily use canonical IDs
-            var links = tzdbSource.CanonicalIdMap
+            var links = tzDBsource.CanonicalIdMap
               .Where(x => x.Value.Equals(ianaZoneId, StringComparison.OrdinalIgnoreCase))
               .Select(x => x.Key);
 
             // resolve canonical zones, and include original zone as well
-            var possibleZones = tzdbSource.CanonicalIdMap.ContainsKey(ianaZoneId)
-                ? links.Concat(new[] { tzdbSource.CanonicalIdMap[ianaZoneId], ianaZoneId })
+            var possibleZones = tzDBsource.CanonicalIdMap.ContainsKey(ianaZoneId)
+                ? links.Concat(new[] { tzDBsource.CanonicalIdMap[ianaZoneId], ianaZoneId })
                 : links;
 
             // map the windows zone
-            var mappings = tzdbSource.WindowsMapping.MapZones;
+            var mappings = tzDBsource.WindowsMapping.MapZones;
             var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(possibleZones.Contains));
             if (item == null) {
                 throw new System.ApplicationException("Timezone \"" + ianaZoneId + "\" has no mapping.");

@@ -33,7 +33,7 @@ namespace OutlookGoogleCalendarSync {
             if (!invalidEmail) {
                 // Return true if strIn is in valid e-mail format. 
                 invalidEmail = !Regex.IsMatch(strIn,
-                    @"^(?("")(""[^""]+?""@)|(([0-9a-z_]((\.(?!\.))|[-_!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z_])@))" +
+                    @"^(?("")(""[^""]+?""@)|(([0-9a-z_']((\.(?!\.))|[-_!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z_'])@))" +
                     @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$",
                     RegexOptions.IgnoreCase);
             }

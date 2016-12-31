@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
             } catch (System.Exception ex) {
                 log.Error("Failed to import settings");
-                log.Error(ex.Message);
+                OGCSexception.Analyse(ex);
                 if (MainForm.Instance != null) MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
             }
             fs.Close();
@@ -71,6 +71,7 @@ namespace OutlookGoogleCalendarSync
                 xml.Save(filename);
                 log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
             } catch (Exception ex) {
+                OGCSexception.Analyse(ex);
                 if (ex.Message == "Sequence contains no elements") {
                     log.Debug("Adding Setting " + nodeName + " to settings.xml");
                     //This appends to the end, which won't import properly. 

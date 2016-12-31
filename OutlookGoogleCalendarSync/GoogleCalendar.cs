@@ -228,6 +228,7 @@ namespace OutlookGoogleCalendarSync {
                 lr.TimeMin = GoogleTimeFrom(from);
                 lr.TimeMax = GoogleTimeFrom(to);
                 lr.PageToken = pageToken;
+                lr.ShowDeleted = false;
                 lr.SingleEvents = false;
 
                 int backoff = 0;
@@ -416,7 +417,7 @@ namespace OutlookGoogleCalendarSync {
             } catch { }
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional || gKeyExists) {
                 log.Debug("Storing the Google event ID in Outlook appointment.");
-                OutlookCalendar.AddOGCSproperty(ref ai, OutlookCalendar.gEventID, createdEvent.Id);
+                OutlookCalendar.AddGoogleID(ref ai, createdEvent);
                 ai.Save();
             }
             //DOS ourself by triggering API limit
@@ -437,6 +438,7 @@ namespace OutlookGoogleCalendarSync {
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
+                Boolean eventExceptionCacheDirty = false;
                 Event ev = new Event();
                 try {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
@@ -454,6 +456,7 @@ namespace OutlookGoogleCalendarSync {
                     try {
                         UpdateCalendarEntry_save(ref ev);
                         entriesUpdated++;
+                        eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
                         MainForm.Instance.Logboxout("WARNING: Updated event failed to save.\r\n" + ex.Message);
                         log.Error(ex.StackTrace);
@@ -466,7 +469,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value);
+                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0 && ev != null) {
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
@@ -499,7 +502,7 @@ namespace OutlookGoogleCalendarSync {
                         if (OutlookCalendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
                             //Outlook last modified by OGCS
                             return null;
-                        if (DateTime.Parse(ev.Updated) > DateTime.Parse(GoogleCalendar.GoogleTimeFrom(ai.LastModificationTime)))
+                        if (DateTime.Parse(ev.Updated) > ai.LastModificationTime)
                             return null;
                     }
                 }
@@ -810,7 +813,7 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
-            log.Debug("Looking for orphaned events to reclaim...");
+            log.Debug("Scanning "+ gEvents.Count +" Google events for orphans to reclaim...");
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
@@ -826,7 +829,7 @@ namespace OutlookGoogleCalendarSync {
                     String sigEv = signature(ev);
                     if (String.IsNullOrEmpty(sigEv)) {
                         gEvents.Remove(ev);
-                        break;
+                        continue;
                     }
                     foreach (AppointmentItem ai in oAppointments) {
                         String sigAi = OutlookCalendar.signature(ai);
@@ -838,11 +841,11 @@ namespace OutlookGoogleCalendarSync {
                                 sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
                         }
                         if (sigEv == sigAi) {
-                                AddOutlookID(ref ev, ai);
-                                UpdateCalendarEntry_save(ref ev);
-                                unclaimedEvents.Remove(ev);
-                                MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
-                                gEvents[g] = ev;
+                            AddOutlookID(ref ev, ai);
+                            UpdateCalendarEntry_save(ref ev);
+                            unclaimedEvents.Remove(ev);
+                            MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
+                            gEvents[g] = ev;
                             break;
                         }
                     }
@@ -914,12 +917,7 @@ namespace OutlookGoogleCalendarSync {
                                 System.Threading.Thread.Sleep(250);
                             }
 
-                            //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
-                            //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
-                            //I guess the copied item doesn't really have its "own" ID. Anyway, we could consider just comparing
-                            //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
-                            //For now, let's just compare the whole ID
-                            if (compare_gEntryID == compare_oGlobalID) {
+                            if (MainForm.ItemIDsMatch(compare_gEntryID, compare_oGlobalID)) {
                                 compare.Add(outlook[o], google[g]);
                                 outlook.Remove(outlook[o]);
                                 google.Remove(google[g]);
@@ -1184,6 +1182,7 @@ namespace OutlookGoogleCalendarSync {
                         log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
                 } catch (DotNetOpenAuth.Messaging.ProtocolException ex) {
                     Dictionary<String, String> errors = null;
+                    String webExceptionStr_orig = "";
                     try { //Process exact error
                         System.Net.WebException webException = ex.InnerException as System.Net.WebException;
                         /* Could treat this properly with JSON but would be another dll just to handle this situation.
@@ -1192,14 +1191,15 @@ namespace OutlookGoogleCalendarSync {
                          * var errorMessage = error.error_description; 
                          */
                         //String webExceptionStr = "{\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was not found.\"\n}";
-                        String webExceptionStr = extractResponseString(webException);
-                        webExceptionStr = webExceptionStr.Replace("\"", "");
+                        webExceptionStr_orig = extractResponseString(webException);
+                        String webExceptionStr = webExceptionStr_orig.Replace("\"", "");
                         webExceptionStr = webExceptionStr.TrimStart('{'); webExceptionStr = webExceptionStr.TrimEnd('}');
                         errors = webExceptionStr.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(s => s.Split(':')).ToDictionary(x => x[0].Trim(), x => x[1].Trim().TrimEnd(','));
 
                     } catch (System.Exception subEx) {
                         log.Error("Failed to process exact WebException: " + subEx.Message);
+                        log.Debug(webExceptionStr_orig);
                         throw ex;
                     }
 

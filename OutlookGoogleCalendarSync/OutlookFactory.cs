@@ -42,8 +42,10 @@ namespace OutlookGoogleCalendarSync {
                 outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
 
             } finally {
-                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
-                oApp = null;
+                if (oApp != null) {
+                    System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                    oApp = null;
+                }
             }
         }
     }

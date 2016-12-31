@@ -325,6 +325,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);
             log.Info("  Subscribed: " + Subscribed.ToString("dd-MMM-yyyy"));
+            log.Info("  Timezone Database: " + TimezoneDB.Instance.Version);
             
             log.Info("ENVIRONMENT:-");
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);

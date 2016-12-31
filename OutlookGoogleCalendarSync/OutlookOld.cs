@@ -230,6 +230,7 @@ namespace OutlookGoogleCalendarSync {
                     }
 
                 } catch (System.Exception ex) {
+                    OGCSexception.Analyse(ex);
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
                         ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")) {
                             log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
@@ -258,45 +259,60 @@ namespace OutlookGoogleCalendarSync {
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
             log.Fine("Determining email of recipient: " + recipient.Name);
-            AddressEntry addressEntry;
+            AddressEntry addressEntry = null;
             try {
-                addressEntry = recipient.AddressEntry;
-            } catch {
-                log.Warn("Can't resolve this recipient!");
-                addressEntry = null;
-            }
-            if (addressEntry == null) {
-                log.Warn("No AddressEntry exists!");
-                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                try {
+                    addressEntry = recipient.AddressEntry;
+                } catch {
+                    log.Warn("Can't resolve this recipient!");
+                    addressEntry = null;
+                }
+                if (addressEntry == null) {
+                    log.Warn("No AddressEntry exists!");
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                    EmailAddress.IsValidEmail(retEmail);
+                    return retEmail;
+                }
+                log.Fine("addressEntry Type: " + addressEntry.Type);
+                if (addressEntry.Type == "EX") { //Exchange
+                    log.Fine("Address is from Exchange");
+                    retEmail = ADX_GetSMTPAddress(addressEntry.Address);
+                } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
+                    log.Fine("From Lotus Notes");
+                    //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+
+                } else {
+                    log.Fine("Not from Exchange");
+                    try {
+                        if (string.IsNullOrEmpty(addressEntry.Address)) {
+                            log.Warn("addressEntry.Address is empty.");
+                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                        } else {
+                            retEmail = addressEntry.Address;
+                        }
+                    } catch (System.Exception ex) {
+                        log.Error("Failed accessing addressEntry.Address");
+                        log.Error(ex.Message);
+                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                    }
+                }
+                if (string.IsNullOrEmpty(retEmail) || retEmail == "Unknown") {
+                    log.Error("Failed to get email address through Addin MAPI access!");
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                }
+
+
+                if (retEmail != null && retEmail.IndexOf("<") > 0) {
+                    retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
+                    retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
+                }
+                log.Fine("Email address: " + retEmail, retEmail);
                 EmailAddress.IsValidEmail(retEmail);
                 return retEmail;
+            } finally {
+                addressEntry = (AddressEntry)OutlookCalendar.ReleaseObject(addressEntry);
             }
-            log.Fine("AddressEntry Type: " + recipient.AddressEntry.Type);
-            if (recipient.AddressEntry.Type == "EX") { //Exchange
-                log.Fine("Address is from Exchange");
-                retEmail = ADX_GetSMTPAddress(recipient.AddressEntry.Address);
-            } else if (recipient.AddressEntry.Type.ToUpper() == "NOTES") {
-                log.Fine("From Lotus Notes");
-                //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
-                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-
-            } else {
-                log.Fine("Not from Exchange");
-                retEmail = recipient.AddressEntry.Address;
-            }
-            if (retEmail == null || retEmail == String.Empty || retEmail == "" || retEmail == "Unknown") {
-                log.Error("Failed to get email address through Addin MAPI access!");
-                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-            }
-
-
-            if (retEmail.IndexOf("<") > 0) {
-                retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
-                retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
-            }
-            log.Fine("Email address: " + retEmail, retEmail);
-            EmailAddress.IsValidEmail(retEmail);
-            return retEmail;
         }
 
         public String GetGlobalApptID(AppointmentItem ai) {

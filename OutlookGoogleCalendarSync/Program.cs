@@ -46,20 +46,26 @@ namespace OutlookGoogleCalendarSync {
             Settings.Load();
             isNewVersion();
             checkForUpdate();
+            TimezoneDB.Instance.CheckForUpdate();
 
             try {
                 Application.Run(new MainForm(startingTab));
-                OutlookCalendar.Instance.IOutlook.Disconnect();
             } catch (ApplicationException ex) {
                 log.Fatal(ex.Message);
                 MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            } catch (Exception ex) {
+            } catch (System.Runtime.InteropServices.COMException ex) {
+                if ((uint)ex.ErrorCode == 0x80040115) {
+                    log.Error(ex.Message);
+                    MessageBox.Show("OGCS is not able to run as Outlook is not properly connected to the Exchange server.\r\n" +
+                        "Please try again later.", "Application cannot initialise!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                } else OGCSexception.Analyse(ex);
+                
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
                 log.Fatal("Application unexpectedly terminated!");
-                log.Fatal(ex.GetType().ToString() +": "+ ex.Message);
-                log.Fatal(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                OutlookCalendar.Instance.IOutlook.Disconnect();
             }
+            try { OutlookCalendar.Instance.IOutlook.Disconnect(); } catch { }
             Splash.CloseMe();
             GC.Collect();
             GC.WaitForPendingFinalizers();
