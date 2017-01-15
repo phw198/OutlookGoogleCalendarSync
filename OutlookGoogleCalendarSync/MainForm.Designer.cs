@@ -30,9 +30,9 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
@@ -205,6 +205,7 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -1222,14 +1223,14 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.ShowCellToolTips = false;
@@ -1518,6 +1519,7 @@
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbHideSplash);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseNotClose);
             this.tabAppBehaviour.Controls.Add(this.cbPortable);
             this.tabAppBehaviour.Controls.Add(this.gbProxy);
@@ -1538,9 +1540,9 @@
             // 
             // cbMinimiseNotClose
             // 
-            this.cbMinimiseNotClose.Location = new System.Drawing.Point(16, 96);
+            this.cbMinimiseNotClose.Location = new System.Drawing.Point(16, 116);
             this.cbMinimiseNotClose.Name = "cbMinimiseNotClose";
-            this.cbMinimiseNotClose.Size = new System.Drawing.Size(353, 24);
+            this.cbMinimiseNotClose.Size = new System.Drawing.Size(353, 17);
             this.cbMinimiseNotClose.TabIndex = 39;
             this.cbMinimiseNotClose.Text = "Close button [X] minimises window instead of terminating application";
             this.cbMinimiseNotClose.UseVisualStyleBackColor = true;
@@ -1549,7 +1551,7 @@
             // cbPortable
             // 
             this.cbPortable.AutoSize = true;
-            this.cbPortable.Location = new System.Drawing.Point(16, 138);
+            this.cbPortable.Location = new System.Drawing.Point(16, 153);
             this.cbPortable.Name = "cbPortable";
             this.cbPortable.Size = new System.Drawing.Size(148, 17);
             this.cbPortable.TabIndex = 38;
@@ -1575,7 +1577,7 @@
             this.gbProxy.Controls.Add(this.label5);
             this.gbProxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbProxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbProxy.Location = new System.Drawing.Point(16, 206);
+            this.gbProxy.Location = new System.Drawing.Point(16, 225);
             this.gbProxy.Name = "gbProxy";
             this.gbProxy.Size = new System.Drawing.Size(364, 200);
             this.gbProxy.TabIndex = 37;
@@ -1749,7 +1751,7 @@
             // 
             this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btLogLocation.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btLogLocation.Location = new System.Drawing.Point(302, 174);
+            this.btLogLocation.Location = new System.Drawing.Point(302, 193);
             this.btLogLocation.Name = "btLogLocation";
             this.btLogLocation.Size = new System.Drawing.Size(80, 23);
             this.btLogLocation.TabIndex = 19;
@@ -1760,7 +1762,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 179);
+            this.label3.Location = new System.Drawing.Point(13, 198);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 13);
             this.label3.TabIndex = 18;
@@ -1782,7 +1784,7 @@
             "Fine",
             "Ultra-Fine",
             "All"});
-            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 175);
+            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 194);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
             this.cbLoggingLevel.Size = new System.Drawing.Size(210, 21);
             this.cbLoggingLevel.TabIndex = 17;
@@ -1802,9 +1804,9 @@
             // 
             // cbShowBubbleTooltips
             // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(16, 115);
+            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(16, 134);
             this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
-            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 24);
+            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 17);
             this.cbShowBubbleTooltips.TabIndex = 14;
             this.cbShowBubbleTooltips.Text = "Show bubble tooltip in tray when syncing";
             this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
@@ -1812,9 +1814,9 @@
             // 
             // cbMinimiseToTray
             // 
-            this.cbMinimiseToTray.Location = new System.Drawing.Point(16, 77);
+            this.cbMinimiseToTray.Location = new System.Drawing.Point(16, 98);
             this.cbMinimiseToTray.Name = "cbMinimiseToTray";
-            this.cbMinimiseToTray.Size = new System.Drawing.Size(206, 24);
+            this.cbMinimiseToTray.Size = new System.Drawing.Size(206, 17);
             this.cbMinimiseToTray.TabIndex = 12;
             this.cbMinimiseToTray.Text = "Minimise to tray instead of taskbar";
             this.cbMinimiseToTray.UseVisualStyleBackColor = true;
@@ -1822,9 +1824,9 @@
             // 
             // cbStartInTray
             // 
-            this.cbStartInTray.Location = new System.Drawing.Point(16, 58);
+            this.cbStartInTray.Location = new System.Drawing.Point(16, 80);
             this.cbStartInTray.Name = "cbStartInTray";
-            this.cbStartInTray.Size = new System.Drawing.Size(104, 24);
+            this.cbStartInTray.Size = new System.Drawing.Size(104, 17);
             this.cbStartInTray.TabIndex = 13;
             this.cbStartInTray.Text = "Start in tray";
             this.cbStartInTray.UseVisualStyleBackColor = true;
@@ -1832,9 +1834,9 @@
             // 
             // cbCreateFiles
             // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(16, 153);
+            this.cbCreateFiles.Location = new System.Drawing.Point(16, 171);
             this.cbCreateFiles.Name = "cbCreateFiles";
-            this.cbCreateFiles.Size = new System.Drawing.Size(235, 24);
+            this.cbCreateFiles.Size = new System.Drawing.Size(235, 17);
             this.cbCreateFiles.TabIndex = 15;
             this.cbCreateFiles.Text = "Create CSV files of calendar entries";
             this.cbCreateFiles.UseVisualStyleBackColor = true;
@@ -2167,8 +2169,8 @@
             // Column1
             // 
             this.Column1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.Column1.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Column1.DefaultCellStyle = dataGridViewCellStyle4;
             this.Column1.HeaderText = "Name";
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
@@ -2477,6 +2479,17 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // cbHideSplash
+            // 
+            this.cbHideSplash.AutoSize = true;
+            this.cbHideSplash.Location = new System.Drawing.Point(16, 62);
+            this.cbHideSplash.Name = "cbHideSplash";
+            this.cbHideSplash.Size = new System.Drawing.Size(116, 17);
+            this.cbHideSplash.TabIndex = 40;
+            this.cbHideSplash.Text = "Hide splash screen";
+            this.cbHideSplash.UseVisualStyleBackColor = true;
+            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2713,5 +2726,6 @@
         private System.Windows.Forms.CheckBox cbShowDeveloperOptions;
         public System.Windows.Forms.Label lOutlookCalendar;
         public System.Windows.Forms.TabPage tabOutlook;
+        private System.Windows.Forms.CheckBox cbHideSplash;
     }
 }

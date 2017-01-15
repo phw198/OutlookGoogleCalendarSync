@@ -94,10 +94,12 @@
     <Reference Include="DotNetOpenAuth">
       <HintPath>lib\DotNetOpenAuth.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis">
+    <Reference Include="Google.Apis, Version=1.2.4573.23246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Google.Apis.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Authentication.OAuth2">
+    <Reference Include="Google.Apis.Authentication.OAuth2, Version=1.2.4573.23243, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Google.Apis.Authentication.OAuth2.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Calendar.v3">
@@ -111,6 +113,10 @@
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json.Net35, Version=4.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Newtonsoft.Json.Net35.dll</HintPath>
     </Reference>
     <Reference Include="NodaTime">
       <HintPath>lib\NodaTime.dll</HintPath>

@@ -1,6 +1,12 @@
 ﻿using System.Runtime.Serialization;
 using System.Net;
+using System;
 using log4net;
+
+//***
+//https://developers.google.com/gdata/articles/proxy_setup
+//The Google API needs updating so we don't have to rely on System proxy setting
+//service.RequestFactory.Proxy = new WebProxy();
 
 namespace OutlookGoogleCalendarSync {
     [DataContract]
@@ -33,6 +39,9 @@ namespace OutlookGoogleCalendarSync {
         public int Port { get; set; }
 
         [DataMember]
+        public Boolean AuthenticationRequired { get; set; }
+
+        [DataMember]
         public string UserName { get; set; }
 
         [DataMember]
@@ -49,7 +58,7 @@ namespace OutlookGoogleCalendarSync {
                 wp.Address = new System.Uri(string.Format("http://{0}:{1}", ServerName, Port));
                 log.Debug("Using " + wp.Address);
                 wp.BypassProxyOnLocal = true;
-                if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password)) {
+                if (AuthenticationRequired && !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password)) {
                     if (UserName.Contains("\\")) {
                         try {
                             string[] usernameBits = UserName.Split('\\');
@@ -63,26 +72,25 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 WebRequest.DefaultWebProxy = wp;
-
+                
             } else { //IE
-                if (WebRequest.DefaultWebProxy != null) {
-                    log.Info("Using default proxy (app.config / IE).");
-                } else {
-                    log.Info("Setting system-wide proxy.");
-                    IWebProxy iwp = WebRequest.GetSystemWebProxy();
-                    iwp.Credentials = CredentialCache.DefaultNetworkCredentials;
-                    WebRequest.DefaultWebProxy = iwp;
-                }
+                log.Info("Using default proxy (app.config / IE).");
+                log.Info("Setting system-wide proxy.");
+                IWebProxy iwp = WebRequest.GetSystemWebProxy();
+                iwp.Credentials = CredentialCache.DefaultNetworkCredentials;
+                WebRequest.DefaultWebProxy = iwp;
             }
 
-            if (WebRequest.DefaultWebProxy != null) { //Now let's test it
+            if (WebRequest.DefaultWebProxy != null) {
                 try {
-                    WebRequest wr = WebRequest.CreateDefault(new System.Uri("http://www.google.com"));
-                    System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri("http://www.google.com"));
-                    log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
+                   log.Debug("Testing the system proxy.");
+                   WebRequest wr = WebRequest.CreateDefault(new System.Uri("http://www.google.com"));
+                   System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri("http://www.google.com"));
+                   log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
                 } catch (System.Exception ex) {
-                    log.Error("Failed to confirm proxy settings.");
-                    log.Error(ex.Message);
+                   log.Error("Failed to confirm proxy settings.");
+                   log.Error(ex.Message);
+                
                 }
             }
         }

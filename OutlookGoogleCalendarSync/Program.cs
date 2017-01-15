@@ -30,8 +30,6 @@ namespace OutlookGoogleCalendarSync {
         }
         private static String startingTab = null;
         private static String roamingOGCS;
-        public const String OGCSmodified = "OGCSmodified";
-        public const String APIlimitHit = "APIlimitHit";
 
         [STAThread]
         private static void Main(string[] args) {
@@ -41,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
             Application.SetCompatibleTextRenderingDefault(false);
 
             Splash.ShowMe();
-           
+            
             log.Debug("Loading settings from file.");
             Settings.Load();
             isNewVersion();
@@ -54,7 +52,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Fatal(ex.Message);
                 MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             } catch (System.Runtime.InteropServices.COMException ex) {
-                if ((uint)ex.ErrorCode == 0x80040115) {
+                if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
                     log.Error(ex.Message);
                     MessageBox.Show("OGCS is not able to run as Outlook is not properly connected to the Exchange server.\r\n" +
                         "Please try again later.", "Application cannot initialise!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);

@@ -7,10 +7,11 @@ namespace OutlookGoogleCalendarSync {
     public class EmailAddress {
         private static readonly ILog log = LogManager.GetLogger(typeof(EmailAddress));
 
-        public static String BuildFakeEmailAddress(String recipientName) {
+        public static String BuildFakeEmailAddress(String recipientName, out Boolean builtFakeEmail) {
             String buildFakeEmail = Regex.Replace(recipientName, @"[^\w\.-]", "");
             buildFakeEmail += "@unknownemail.com";
             log.Debug("Built a fake email for them: " + buildFakeEmail);
+            builtFakeEmail = true;
             return buildFakeEmail;
         }
 
@@ -20,8 +21,6 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean IsValidEmail(string strIn) {
             invalidEmail = false;
             if (String.IsNullOrEmpty(strIn)) {
-                MainForm.Instance.Logboxout("ERROR: Recipient has no email address.", notifyBubble: true);
-                MainForm.Instance.Logboxout("This must be manually resolved in order to sync attendees for this event.");
                 return false;
             }
             if (strIn.StartsWith("'") && strIn.EndsWith("'")) {
@@ -38,8 +37,6 @@ namespace OutlookGoogleCalendarSync {
                     RegexOptions.IgnoreCase);
             }
             if (invalidEmail) {
-                MainForm.Instance.Logboxout("ERROR: Recipient with email address \"" + strIn + "\" is invalid.", notifyBubble: true);
-                MainForm.Instance.Logboxout("This must be manually resolved in order to sync attendees for this event.");
                 return false;
             }
             return true;

@@ -14,8 +14,14 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
             log.Error(ex.GetType().FullName +": "+ ex.Message);
-            log.Error("Code: " + getErrorCode(ex).ToString());
+            int errorCode = getErrorCode(ex);
+            log.Error("Code: 0x" + errorCode.ToString("X8") +";"+ errorCode.ToString());
             if (includeStackTrace) log.Error(ex.StackTrace);
+        }
+
+        public static String GetErrorCode(System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
+            UInt32 maskedCode = (uint)(getErrorCode(ex) & mask);
+            return "0x" + maskedCode.ToString("X8");
         }
 
         private static int getErrorCode(System.Exception ex) {

@@ -428,25 +428,34 @@ namespace OutlookGoogleCalendarSync {
         public Event GetGoogleMasterEvent(AppointmentItem ai) {
             log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookCalendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
-            if (ai.UserProperties[OutlookCalendar.gEventID] == null) {
+            String googleIdValue;
+            if (OutlookCalendar.GetOGCSproperty(ai, OutlookCalendar.MetadataId.gEventID, out googleIdValue)) {
+                Event ev = GoogleCalendar.Instance.GetCalendarEntry(googleIdValue);
+                if (ev != null) events.Add(ev);
+            } else {
                 events = GoogleCalendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
                 List<AppointmentItem> ais = new List<AppointmentItem>();
                 ais.Add(ai);
                 GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
-            } else {
-                Event ev = GoogleCalendar.Instance.GetCalendarEntry(ai.UserProperties[OutlookCalendar.gEventID].Value.ToString());
-                if (ev != null) events.Add(ev);
             }
             for (int g = 0; g < events.Count(); g++) {
                 String gEntryID;
                 Event ev = events[g];
-                if (GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.oEntryID, out gEntryID)) {
-                    if (gEntryID == ai.EntryID) {
-                        log.Info("Migrating Master Event from EntryID to GlobalAppointmentID...");
-                        GoogleCalendar.AddOutlookID(ref ev, ai);
-                        GoogleCalendar.Instance.UpdateCalendarEntry_save(ref ev);
-                        return ev;
-                    } else if (MainForm.ItemIDsMatch(gEntryID, OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai))) {
+                if (GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.MetadataId.oEntryId, out gEntryID)) {
+                    if (GoogleCalendar.OutlookIdMissing(ev)) {
+                        String compare_oID;
+                        if (gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
+                            compare_oID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai);
+                        } else {
+                            compare_oID = ai.EntryID;
+                        }
+                        if (gEntryID == compare_oID) {
+                            log.Info("Adding Outlook IDs to Master Google Event...");
+                            GoogleCalendar.AddOutlookIDs(ref ev, ai);
+                            GoogleCalendar.Instance.UpdateCalendarEntry_save(ref ev);
+                            return ev;
+                        }
+                    } else if (GoogleCalendar.ItemIDsMatch(ref ev, ai)) {
                         log.Fine("Found master event.");
                         return ev;
                     }
@@ -548,6 +557,7 @@ namespace OutlookGoogleCalendarSync {
                                         continue;
                                     } else if (oIsDeleted && gExcp.Status != "cancelled") {
                                         gExcp.Status = "cancelled";
+                                        log.Debug("Exception deleted.");
                                         excp_itemModified++;
                                     } else {
                                         try {

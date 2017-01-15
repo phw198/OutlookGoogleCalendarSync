@@ -258,6 +258,8 @@ namespace OutlookGoogleCalendarSync {
 
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
+            Boolean builtFakeEmail = false;
+
             log.Fine("Determining email of recipient: " + recipient.Name);
             AddressEntry addressEntry = null;
             try {
@@ -269,46 +271,52 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if (addressEntry == null) {
                     log.Warn("No AddressEntry exists!");
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                    EmailAddress.IsValidEmail(retEmail);
-                    return retEmail;
-                }
-                log.Fine("addressEntry Type: " + addressEntry.Type);
-                if (addressEntry.Type == "EX") { //Exchange
-                    log.Fine("Address is from Exchange");
-                    retEmail = ADX_GetSMTPAddress(addressEntry.Address);
-                } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
-                    log.Fine("From Lotus Notes");
-                    //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                 } else {
-                    log.Fine("Not from Exchange");
-                    try {
-                        if (string.IsNullOrEmpty(addressEntry.Address)) {
-                            log.Warn("addressEntry.Address is empty.");
-                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                        } else {
-                            retEmail = addressEntry.Address;
+                    log.Fine("addressEntry Type: " + addressEntry.Type);
+                    if (addressEntry.Type == "EX") { //Exchange
+                        log.Fine("Address is from Exchange");
+                        retEmail = ADX_GetSMTPAddress(addressEntry.Address);
+                    } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
+                        log.Fine("From Lotus Notes");
+                        //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
+                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+
+                    } else {
+                        log.Fine("Not from Exchange");
+                        try {
+                            if (string.IsNullOrEmpty(addressEntry.Address)) {
+                                log.Warn("addressEntry.Address is empty.");
+                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                            } else {
+                                retEmail = addressEntry.Address;
+                            }
+                        } catch (System.Exception ex) {
+                            log.Error("Failed accessing addressEntry.Address");
+                            log.Error(ex.Message);
+                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                         }
-                    } catch (System.Exception ex) {
-                        log.Error("Failed accessing addressEntry.Address");
-                        log.Error(ex.Message);
-                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
                     }
                 }
+
                 if (string.IsNullOrEmpty(retEmail) || retEmail == "Unknown") {
                     log.Error("Failed to get email address through Addin MAPI access!");
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                 }
-
 
                 if (retEmail != null && retEmail.IndexOf("<") > 0) {
                     retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
                     retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
                 }
                 log.Fine("Email address: " + retEmail, retEmail);
-                EmailAddress.IsValidEmail(retEmail);
+                if (!EmailAddress.IsValidEmail(retEmail) && !builtFakeEmail) {
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                    if (!EmailAddress.IsValidEmail(retEmail)) {
+                        MainForm.Instance.Logboxout("ERROR: Recipient \"" + recipient.Name + "\" with email address \"" + retEmail + "\" is invalid.", notifyBubble: true);
+                        MainForm.Instance.Logboxout("This must be manually resolved in order to sync this appointment.");
+                        throw new ApplicationException("Invalid recipient email for \"" + recipient.Name + "\"");
+                    }
+                }
                 return retEmail;
             } finally {
                 addressEntry = (AddressEntry)OutlookCalendar.ReleaseObject(addressEntry);

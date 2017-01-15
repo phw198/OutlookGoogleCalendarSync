@@ -33,6 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
@@ -43,6 +44,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.cbHideSplash);
             this.panel1.Controls.Add(this.lSyncCount);
             this.panel1.Controls.Add(this.pbSocialTwitterFollow);
             this.panel1.Controls.Add(this.pbSocialGplusCommunity);
@@ -53,11 +55,12 @@
             this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Location = new System.Drawing.Point(4, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(463, 293);
+            this.panel1.Size = new System.Drawing.Size(463, 303);
             this.panel1.TabIndex = 9;
             // 
             // lSyncCount
             // 
+            this.lSyncCount.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lSyncCount.AutoSize = true;
             this.lSyncCount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lSyncCount.ForeColor = System.Drawing.SystemColors.MenuHighlight;
@@ -94,8 +97,9 @@
             // 
             // lVersion
             // 
+            this.lVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lVersion.AutoSize = true;
-            this.lVersion.Location = new System.Drawing.Point(413, 275);
+            this.lVersion.Location = new System.Drawing.Point(413, 285);
             this.lVersion.Name = "lVersion";
             this.lVersion.Size = new System.Drawing.Size(42, 13);
             this.lVersion.TabIndex = 12;
@@ -147,12 +151,24 @@
             this.pictureBox1.TabIndex = 9;
             this.pictureBox1.TabStop = false;
             // 
+            // cbHideSplash
+            // 
+            this.cbHideSplash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbHideSplash.AutoSize = true;
+            this.cbHideSplash.Location = new System.Drawing.Point(8, 283);
+            this.cbHideSplash.Name = "cbHideSplash";
+            this.cbHideSplash.Size = new System.Drawing.Size(120, 17);
+            this.cbHideSplash.TabIndex = 56;
+            this.cbHideSplash.Text = "Hide Splash Screen";
+            this.cbHideSplash.UseVisualStyleBackColor = true;
+            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
+            // 
             // Splash
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Peru;
-            this.ClientSize = new System.Drawing.Size(471, 300);
+            this.ClientSize = new System.Drawing.Size(471, 310);
             this.ControlBox = false;
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -186,6 +202,7 @@
         private System.Windows.Forms.PictureBox pbSocialGplusCommunity;
         private System.Windows.Forms.PictureBox pbSocialTwitterFollow;
         private System.Windows.Forms.Label lSyncCount;
+        private System.Windows.Forms.CheckBox cbHideSplash;
 
     }
 }

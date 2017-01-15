@@ -21,6 +21,8 @@ namespace OutlookGoogleCalendarSync {
         private Boolean portable;
         private Boolean alphaReleases;
         private String version;
+        private Boolean donor;
+        private Boolean hideSplashScreen;
 
         public Settings() {
             setDefaults();
@@ -85,6 +87,8 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = false;
             Subscribed = DateTime.Parse("01-Jan-2000");
+            donor = false;
+            hideSplashScreen = false;
             
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
@@ -178,6 +182,14 @@ namespace OutlookGoogleCalendarSync {
 
         #endregion
         #region App behaviour
+        [DataMember] public bool HideSplashScreen {
+            get { return hideSplashScreen; }
+            set {
+                hideSplashScreen = value;
+                if (!loading()) XMLManager.ExportElement("HideSplashScreen", value, Program.SettingsFile);
+            }
+        }
+        
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartInTray { get; set; }
@@ -215,6 +227,13 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         [DataMember] public DateTime Subscribed { get; set; }
+        [DataMember] public Boolean Donor {
+            get { return donor; }
+            set {
+                donor = value;
+                if (!loading()) XMLManager.ExportElement("Donor", value, Program.SettingsFile);
+            }
+        }
         #endregion
 
         [DataMember] public DateTime LastSyncDate {
@@ -303,6 +322,7 @@ namespace OutlookGoogleCalendarSync {
             if (Proxy.Type == "Custom") {
                 log.Info("  Server Name: " + Proxy.ServerName);
                 log.Info("  Port: " + Proxy.Port.ToString());
+                log.Info("  Authentication Required: " + Proxy.AuthenticationRequired);
                 log.Info("  UserName: " + Proxy.UserName);
                 log.Info("  Password: " + (string.IsNullOrEmpty(Proxy.Password) ? "" : "*********"));
             } 
@@ -310,6 +330,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup);
+            log.Info("  HideSplashScreen: " + (Donor ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimiseToTray: " + MinimiseToTray);
             log.Info("  MinimiseNotClose: " + MinimiseNotClose);

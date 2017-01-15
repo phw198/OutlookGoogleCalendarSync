@@ -258,8 +258,9 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
-                        ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")) {
-                            log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
+                        ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
+                        OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                        log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
                         MainForm.Instance.ToolTips.SetToolTip(MainForm.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
@@ -284,6 +285,8 @@ namespace OutlookGoogleCalendarSync {
 
         public String GetRecipientEmail(Recipient recipient) {
             String retEmail = "";
+            Boolean builtFakeEmail = false;
+
             log.Fine("Determining email of recipient: " + recipient.Name);
             AddressEntry addressEntry = null;
             try {
@@ -295,97 +298,96 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if (addressEntry == null) {
                     log.Warn("No AddressEntry exists!");
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                    EmailAddress.IsValidEmail(retEmail);
-                    return retEmail;
-                }
-                log.Fine("AddressEntry Type: " + addressEntry.Type);
-                if (addressEntry.Type == "EX") { //Exchange
-                    log.Fine("Address is from Exchange");
-                    if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
-                        addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
-                        ExchangeUser eu = null;
-                        try {
-                            eu = addressEntry.GetExchangeUser();
-                            if (eu != null && eu.PrimarySmtpAddress != null)
-                                retEmail = eu.PrimarySmtpAddress;
-                            else {
-                                log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
-                                Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
-                                try {
-                                    //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
-                                    pa = recipient.PropertyAccessor;
-                                    retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
-                                    log.Debug("Retrieved from PropertyAccessor instead.");
-                                } catch {
-                                    log.Warn("Also failed to retrieve email from PropertyAccessor.");
-                                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                                } finally {
-                                    pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
-                                }
-                            }
-                        } finally {
-                            eu = (ExchangeUser)OutlookCalendar.ReleaseObject(eu);
-                        }
-
-                    } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
-                        log.Fine("This is an Outlook contact");
-                        ContactItem contact = null;
-                        try {
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                } else {
+                    log.Fine("AddressEntry Type: " + addressEntry.Type);
+                    if (addressEntry.Type == "EX") { //Exchange
+                        log.Fine("Address is from Exchange");
+                        if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
+                            addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
+                            ExchangeUser eu = null;
                             try {
-                                contact = addressEntry.GetContact();
-                            } catch {
-                                log.Warn("Doesn't seem to be a valid contact object. Maybe this account is no longer in Exchange.");
-                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-                            }
-                            if (contact != null) {
-                                if (contact.Email1AddressType == "EX") {
-                                    log.Fine("Address is from Exchange.");
-                                    log.Fine("Using PropertyAccessor to get email address.");
+                                eu = addressEntry.GetExchangeUser();
+                                if (eu != null && eu.PrimarySmtpAddress != null)
+                                    retEmail = eu.PrimarySmtpAddress;
+                                else {
+                                    log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
                                     Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
                                     try {
-                                        pa = contact.PropertyAccessor;
-                                        retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
+                                        //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
+                                        pa = recipient.PropertyAccessor;
+                                        retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                                        log.Debug("Retrieved from PropertyAccessor instead.");
+                                    } catch {
+                                        log.Warn("Also failed to retrieve email from PropertyAccessor.");
+                                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                                     } finally {
                                         pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
                                     }
-                                } else {
-                                    retEmail = contact.Email1Address;
                                 }
+                            } finally {
+                                eu = (ExchangeUser)OutlookCalendar.ReleaseObject(eu);
                             }
-                        } finally {
-                            contact = (ContactItem)OutlookCalendar.ReleaseObject(contact);
-                        }
-                    } else {
-                        log.Fine("Exchange type: " + addressEntry.AddressEntryUserType.ToString());
-                        log.Fine("Using PropertyAccessor to get email address.");
-                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
-                        try {
-                            pa = recipient.PropertyAccessor;
-                            retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
-                        } finally {
-                            pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
-                        }
-                    }
 
-                } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
-                    log.Fine("From Lotus Notes");
-                    //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
-
-                } else {
-                    log.Fine("Not from Exchange");
-                    try {
-                        if (string.IsNullOrEmpty(addressEntry.Address)) {
-                            log.Warn("addressEntry.Address is empty.");
-                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+                        } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
+                            log.Fine("This is an Outlook contact");
+                            ContactItem contact = null;
+                            try {
+                                try {
+                                    contact = addressEntry.GetContact();
+                                } catch {
+                                    log.Warn("Doesn't seem to be a valid contact object. Maybe this account is no longer in Exchange.");
+                                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                                }
+                                if (contact != null) {
+                                    if (contact.Email1AddressType == "EX") {
+                                        log.Fine("Address is from Exchange.");
+                                        log.Fine("Using PropertyAccessor to get email address.");
+                                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                                        try {
+                                            pa = contact.PropertyAccessor;
+                                            retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
+                                        } finally {
+                                            pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
+                                        }
+                                    } else {
+                                        retEmail = contact.Email1Address;
+                                    }
+                                }
+                            } finally {
+                                contact = (ContactItem)OutlookCalendar.ReleaseObject(contact);
+                            }
                         } else {
-                            retEmail = addressEntry.Address;
+                            log.Fine("Exchange type: " + addressEntry.AddressEntryUserType.ToString());
+                            log.Fine("Using PropertyAccessor to get email address.");
+                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                            try {
+                                pa = recipient.PropertyAccessor;
+                                retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                            } finally {
+                                pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
+                            }
                         }
-                    } catch (System.Exception ex) {
-                        log.Error("Failed accessing addressEntry.Address");
-                        log.Error(ex.Message);
-                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name);
+
+                    } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
+                        log.Fine("From Lotus Notes");
+                        //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
+                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+
+                    } else {
+                        log.Fine("Not from Exchange");
+                        try {
+                            if (string.IsNullOrEmpty(addressEntry.Address)) {
+                                log.Warn("addressEntry.Address is empty.");
+                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                            } else {
+                                retEmail = addressEntry.Address;
+                            }
+                        } catch (System.Exception ex) {
+                            log.Error("Failed accessing addressEntry.Address");
+                            log.Error(ex.Message);
+                            retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                        }
                     }
                 }
 
@@ -394,7 +396,14 @@ namespace OutlookGoogleCalendarSync {
                     retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
                 }
                 log.Fine("Email address: " + retEmail, retEmail);
-                EmailAddress.IsValidEmail(retEmail);
+                if (!EmailAddress.IsValidEmail(retEmail) && !builtFakeEmail) {
+                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                    if (!EmailAddress.IsValidEmail(retEmail)) {
+                        MainForm.Instance.Logboxout("ERROR: Recipient \"" + recipient.Name + "\" with email address \"" + retEmail + "\" is invalid.", notifyBubble: true);
+                        MainForm.Instance.Logboxout("This must be manually resolved in order to sync this appointment.");
+                        throw new ApplicationException("Invalid recipient email for \"" + recipient.Name + "\"");
+                    }
+                }
                 return retEmail;
             } finally {
                 addressEntry = (AddressEntry)OutlookCalendar.ReleaseObject(addressEntry);
@@ -489,6 +498,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
+            ianaZoneId = fixAlexa(ianaZoneId);
+
             Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
             var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC", "Etc/GMT" };
             if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
@@ -517,6 +528,31 @@ namespace OutlookGoogleCalendarSync {
             log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
 
             return tzs[item.WindowsId];
+        }
+
+        private String fixAlexa(String timezone) {
+            //Alexa (Amazon Echo) is a bit dumb - she creates Google Events with a GMT offset "timezone". Eg GMT-5
+            //This isn't actually a timezone at all, but an area, and not a legal IANA value.
+            //So to workaround this, we'll turn it into something valid at least, by inverting the offset sign and prefixing "Etc\"
+            //Issues:- 
+            // * As it's an area, Microsoft will just guess at the zone - so GMT-5 for CST may end up as Bogata/Lima.
+            // * Not sure what happens with half hour offset, such as in India with GMT+4:30
+            // * Not sure what happens with Daily Saving, as zones in the same area may or may not follow DST.
+
+            try {
+                System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"^GMT([+-])(\d{1,2})(:\d\d)*$");
+                System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(timezone);
+                if (matches.Count > 0) {
+                    log.Debug("Found an Alexa \"timezone\" of " + timezone);
+                    String fixedTimezone = "Etc/GMT" + (matches[0].Groups[1].Value == "+" ? "-" : "+") + Convert.ToInt16(matches[0].Groups[2].Value).ToString();
+                    log.Debug("Translated to " + fixedTimezone);
+                    return fixedTimezone;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to detect and translate Alexa timezone.");
+                OGCSexception.Analyse(ex);
+            }
+            return timezone;
         }
         #endregion
     }

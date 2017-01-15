@@ -100,6 +100,8 @@ namespace OutlookGoogleCalendarSync {
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             
             //Application behaviour
+            if (!Settings.Instance.Donor) 
+                ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive).\n" +
                 "Default is in your User roaming profile.");
@@ -312,6 +314,7 @@ namespace OutlookGoogleCalendarSync {
             #region Application behaviour
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
+            cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
@@ -733,7 +736,7 @@ namespace OutlookGoogleCalendarSync {
                 outlookEntries[o] = ai;
             }
             Logboxout("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
-            Logboxout("--------------------------------------------------");            
+            Logboxout("--------------------------------------------------");
             #endregion
 
             Boolean success = true;
@@ -775,7 +778,7 @@ namespace OutlookGoogleCalendarSync {
                 MainForm.Instance.Logboxout("Unable to identify differences in Google calendar.");
                 throw ex;
             }
-            
+
             Logboxout(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.");
             Logboxout(googleEntriesToBeCreated.Count + " Google calendar entries to be created.");
 
@@ -971,31 +974,6 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region Compare Event Attributes
-        public static Boolean ItemIDsMatch(String gEntryID, String oGlobalID) {
-            if (string.IsNullOrEmpty(gEntryID)) {
-                log.Error("Google Event ID is not available!");
-                return false;
-            }
-            if (string.IsNullOrEmpty(oGlobalID)) {
-                log.Error("Outlook global ID is not available!");
-                return false;
-            }
-
-            //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
-            if (oGlobalID.StartsWith("040000008200E00074C5B7101A82E008")) {
-                log.Fine("Comparing Outlook GlobalID");
-
-                //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
-                //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
-                //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
-                gEntryID = gEntryID.Substring(72);
-                oGlobalID = oGlobalID.Substring(72);
-            } else
-                log.Fine("Comparing Outlook EntryID");
-
-            return (gEntryID == oGlobalID);
-        }
-
         public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
             if (googleAttr == null) googleAttr = "";
             if (outlookAttr == null) outlookAttr = "";
@@ -1643,6 +1621,17 @@ namespace OutlookGoogleCalendarSync {
             Program.ManageStartupRegKey();
         }
 
+        private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
+            if (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000") && !Settings.Instance.Donor) {
+                cbHideSplash.Checked = false;
+                ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
+                ToolTips.Show(ToolTips.GetToolTip(cbHideSplash), cbHideSplash, 5000);
+                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
+            } else {
+                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
+            }
+        }
+
         private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.ShowBubbleTooltipWhenSyncing = cbShowBubbleTooltips.Checked;
         }
@@ -1702,6 +1691,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbProxyAuthRequired_CheckedChanged(object sender, EventArgs e) {
             bool result = cbProxyAuthRequired.Checked;
+            Settings.Instance.Proxy.AuthenticationRequired = result;
             this.txtProxyPassword.Enabled = result;
             this.txtProxyUser.Enabled = result;
         }
