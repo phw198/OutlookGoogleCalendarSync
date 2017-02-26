@@ -52,19 +52,34 @@ namespace OutlookGoogleCalendarSync {
             var provider = new NativeApplicationClient(GoogleAuthenticationServer.Description);
             if (Settings.Instance.UsingPersonalAPIkeys()) {
                 provider.ClientIdentifier = Settings.Instance.PersonalClientIdentifier;
-                provider.ClientSecret = Settings.Instance.PersonalClientSecret; 
-            } else if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000")) {
-                provider.ClientIdentifier = "550071650559-44lnvhdu5liq5kftj5t8k0aasgei5g7t.apps.googleusercontent.com";
-                provider.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
+                provider.ClientSecret = Settings.Instance.PersonalClientSecret;
             } else {
-                provider.ClientIdentifier = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
-                provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
+                ApiKeyring apiKeyring = new ApiKeyring();
+
+                if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000")) {
+                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber) && apiKeyring.Key != null) {
+                        provider.ClientIdentifier = apiKeyring.Key.ClientId;
+                        provider.ClientSecret = apiKeyring.Key.ClientSecret;
+                    } else {
+                        provider.ClientIdentifier = "550071650559-44lnvhdu5liq5kftj5t8k0aasgei5g7t.apps.googleusercontent.com";
+                        provider.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
+                    }
+                } else {
+                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber) && apiKeyring.Key != null) {
+                        provider.ClientIdentifier = apiKeyring.Key.ClientId;
+                        provider.ClientSecret = apiKeyring.Key.ClientSecret;
+                    } else {
+                        provider.ClientIdentifier = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
+                        provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
+                    }
+                }
             }
             service = new CalendarService(new OAuth2Authenticator<NativeApplicationClient>(provider, getAuthentication));
         }
 
         public void Reset() {
             Settings.Instance.RefreshToken = "";
+            Settings.Instance.AssignedClientIdentifier = "";
             initCalendarService();
         }
 
@@ -303,7 +318,6 @@ namespace OutlookGoogleCalendarSync {
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
-
                 if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
                     MainForm.Instance.Logboxout("This is a recurring item with some exceptions:-");
                     Recurrence.CreateGoogleExceptions(ai, createdEvent.Id);
@@ -477,7 +491,11 @@ namespace OutlookGoogleCalendarSync {
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
-                if (itemModified == 0 && ev != null) {
+                if (itemModified == 0) {
+                    if (ev == null && GetOGCSproperty(compare.Value, MetadataId.forceSave))
+                        ev = compare.Value;
+
+                    if (ev == null) continue;
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
                     setOGCSlastModified(ref ev);
@@ -708,6 +726,8 @@ namespace OutlookGoogleCalendarSync {
             else
                 removeOGCSproperty(ref ev, MetadataId.apiLimitHit);
 
+            removeOGCSproperty(ref ev, MetadataId.forceSave);
+
             int backoff = 0;
             while (backoff < backoffLimit) {
                 try {
@@ -893,7 +913,8 @@ namespace OutlookGoogleCalendarSync {
             oGlobalApptId,
             oCalendarId,
             ogcsModified,
-            apiLimitHit
+            apiLimitHit,
+            forceSave
         }
         public static String MetadataIdKeyName(MetadataId Id) {
             switch (Id) {
@@ -902,6 +923,7 @@ namespace OutlookGoogleCalendarSync {
                 case MetadataId.oCalendarId: return "outlook_CalendarID";
                 case MetadataId.ogcsModified: return "OGCSmodified";
                 case MetadataId.apiLimitHit: return "APIlimitHit";
+                case MetadataId.forceSave: return "forceSave";
                 default: return "outlook_EntryID";
             }
         }
@@ -951,6 +973,9 @@ namespace OutlookGoogleCalendarSync {
                                 log.Info("Enhancing event's metadata...");
                                 Event ev = google[g];
                                 AddOutlookIDs(ref ev, outlook[o]);
+                                //Don't want to save right now, else may make modified timestamp newer than a change in Outlook
+                                //which would no longer sync.
+                                addOGCSproperty(ref ev, MetadataId.forceSave, "True");
                                 google[g] = ev;
                                 metadataEnhanced++;
                             }
@@ -1270,7 +1295,6 @@ namespace OutlookGoogleCalendarSync {
                 return true;
             }
         }
-
 
         private IAuthorizationState getAuthentication(NativeApplicationClient arg) {
             log.Debug("Authenticating with Google calendar service...");
@@ -1660,7 +1684,7 @@ namespace OutlookGoogleCalendarSync {
         
         private static void removeOGCSproperty(ref Event ev, MetadataId key) {
             if (GetOGCSproperty(ev, key))
-                ev.ExtendedProperties.Private.Remove(MetadataIdKeyName(MetadataId.apiLimitHit));
+                ev.ExtendedProperties.Private.Remove(MetadataIdKeyName(key));
         }
 
         public static DateTime GetOGCSlastModified(Event ev) {

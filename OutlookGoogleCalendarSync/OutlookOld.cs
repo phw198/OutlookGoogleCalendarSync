@@ -69,7 +69,7 @@ namespace OutlookGoogleCalendarSync {
                 folders = oNS.Folders;
 
                 // Get the Calendar folders
-                useOutlookCalendar = getDefaultCalendar(oNS);
+                useOutlookCalendar = getCalendarStore(oNS);
                 if (MainForm.Instance.IsHandleCreated) { //resetting connection, so pick up selected calendar from GUI dropdown
                     MainForm.Instance.cbOutlookCalendars.DataSource = new BindingSource(calendarFolders, null);
                     KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)MainForm.Instance.cbOutlookCalendars.SelectedItem;
@@ -138,69 +138,57 @@ namespace OutlookGoogleCalendarSync {
         private const String gEventID = "googleEventID";
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
 
-        private MAPIFolder getDefaultCalendar(NameSpace oNS) {
+        private MAPIFolder getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
-                log.Debug("Finding Alternative Mailbox calendar folders");
-                Folders binFolders = null;
-                Store binStore = null;
-                PropertyAccessor pa = null;
-                try {
-                    binFolders = oNS.Folders;
-                    binStore = binFolders[Settings.Instance.MailboxName].Store;
-                    pa = binStore.PropertyAccessor;
-                    object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
-                    string excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
-
-                    MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
-                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                    findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
-                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                    MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
-                } catch (System.Exception ex) {
-                    log.Error("Failed to find calendar folders in alternate mailbox '" + Settings.Instance.MailboxName + "'.");
-                    log.Debug(ex.Message);
-                } finally {
-                    pa = (PropertyAccessor)OutlookCalendar.ReleaseObject(pa);
-                    binStore = (Store)OutlookCalendar.ReleaseObject(binStore);
-                    binFolders = (Folders)OutlookCalendar.ReleaseObject(binFolders);
-                }
-
-                //Default to first calendar in drop down
-                defaultCalendar = calendarFolders.FirstOrDefault().Value;
-                if (defaultCalendar == null) {
-                    log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
-                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
-                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
-                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
-                    MainForm.Instance.rbOutlookDefaultMB.Checked = true;
-                    MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
-                    defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
-                    calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
-                    string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
-
-                    MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
-                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                    findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
-                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                    MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
-                    MainForm.Instance.ddMailboxName.Text = "";
-                }
-
-            } else {
-                log.Debug("Finding default Mailbox calendar folders");
-                defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
-                calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
-                string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
-
-                MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
-                findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
-                MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
+            if (Settings.Instance.OutlookService == OutlookCalendar.Service.DefaultMailbox) {
+                getDefaultCalendar(oNS, ref defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
             return defaultCalendar;
+        }
+
+        private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI) {
+            Recipient sharer = null;
+            MAPIFolder sharedCalendar = null;
+            try {
+                sharer = oNS.CreateRecipient(sharedURI);
+                sharer.Resolve();
+                if (sharer.DisplayType == OlDisplayType.olDistList)
+                    throw new System.Exception("User selected a distribution list!");
+
+                sharedCalendar = oNS.GetSharedDefaultFolder(sharer, OlDefaultFolders.olFolderCalendar);
+                if (sharedCalendar.DefaultItemType != OlItemType.olAppointmentItem) {
+                    log.Debug(sharer.Name + " does not have a calendar shared.");
+                    throw new System.Exception("Wrong default item type.");
+                }
+                calendarFolders.Add(sharer.Name, sharedCalendar);
+                return sharedCalendar;
+
+            } catch (System.Exception ex) {
+                log.Error("Failed to get shared calendar from " + sharedURI + ". " + ex.Message);
+                MessageBox.Show("Could not find a shared calendar for '" + sharer.Name + "'.", "No shared calendar found",
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return null;
+            } finally {
+                sharer = (Recipient)OutlookCalendar.ReleaseObject(sharer);
+            }
+        }
+
+        private void getDefaultCalendar(NameSpace oNS, ref MAPIFolder defaultCalendar) {
+            log.Debug("Finding default Mailbox calendar folders");
+            MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+            MainForm.Instance.rbOutlookDefaultMB.Checked = true;
+            MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
+
+            defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+            calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
+            string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
+
+            MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
+            MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
+            findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
+            MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
+            MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
         }
 
         private void findCalendars(Folders folders, Dictionary<string, MAPIFolder> calendarFolders, String excludeDeletedFolder, MAPIFolder defaultCalendar = null) {

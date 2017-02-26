@@ -83,7 +83,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void Splash_Shown(object sender, EventArgs e) {
             splash.Tag = DateTime.Now;
-            while (DateTime.Now < ((DateTime)splash.Tag).AddSeconds((System.Diagnostics.Debugger.IsAttached ? 20 : 8)) && !splash.IsDisposed) {
+            while (DateTime.Now < ((DateTime)splash.Tag).AddSeconds((System.Diagnostics.Debugger.IsAttached ? 2 : 8)) && !splash.IsDisposed) {
                 splash.BringToFront();
                 splash.TopLevel = true;
                 splash.TopMost = true;

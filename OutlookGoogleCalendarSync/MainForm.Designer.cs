@@ -30,9 +30,9 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
@@ -67,16 +67,9 @@
             this.label11 = new System.Windows.Forms.Label();
             this.lOutlookCalendar = new System.Windows.Forms.Label();
             this.rbOutlookDefaultMB = new System.Windows.Forms.RadioButton();
-            this.rbOutlookEWS = new System.Windows.Forms.RadioButton();
+            this.rbOutlookSharedCal = new System.Windows.Forms.RadioButton();
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
-            this.gbEWS = new System.Windows.Forms.GroupBox();
-            this.txtEWSServerURL = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.txtEWSPass = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.txtEWSUser = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.tabGoogle = new System.Windows.Forms.TabPage();
             this.gbDeveloperOptions = new System.Windows.Forms.GroupBox();
             this.llAPIConsole = new System.Windows.Forms.LinkLabel();
@@ -133,6 +126,7 @@
             this.cbUseGoogleDefaultReminder = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.cbMinimiseNotClose = new System.Windows.Forms.CheckBox();
             this.cbPortable = new System.Windows.Forms.CheckBox();
             this.gbProxy = new System.Windows.Forms.GroupBox();
@@ -205,7 +199,6 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
@@ -213,7 +206,6 @@
             this.tabOutlook.SuspendLayout();
             this.msCategories.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.gbEWS.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.gbDeveloperOptions.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
@@ -431,10 +423,9 @@
             this.tabOutlook.Controls.Add(this.label11);
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
             this.tabOutlook.Controls.Add(this.rbOutlookDefaultMB);
-            this.tabOutlook.Controls.Add(this.rbOutlookEWS);
+            this.tabOutlook.Controls.Add(this.rbOutlookSharedCal);
             this.tabOutlook.Controls.Add(this.rbOutlookAltMB);
             this.tabOutlook.Controls.Add(this.ddMailboxName);
-            this.tabOutlook.Controls.Add(this.gbEWS);
             this.tabOutlook.Location = new System.Drawing.Point(79, 4);
             this.tabOutlook.Name = "tabOutlook";
             this.tabOutlook.Padding = new System.Windows.Forms.Padding(3);
@@ -448,7 +439,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutlookCalendars.FormattingEnabled = true;
-            this.cbOutlookCalendars.Location = new System.Drawing.Point(112, 199);
+            this.cbOutlookCalendars.Location = new System.Drawing.Point(112, 118);
             this.cbOutlookCalendars.Name = "cbOutlookCalendars";
             this.cbOutlookCalendars.Size = new System.Drawing.Size(272, 21);
             this.cbOutlookCalendars.TabIndex = 24;
@@ -457,7 +448,7 @@
             // lFilterCategories
             // 
             this.lFilterCategories.AutoSize = true;
-            this.lFilterCategories.Location = new System.Drawing.Point(20, 230);
+            this.lFilterCategories.Location = new System.Drawing.Point(20, 152);
             this.lFilterCategories.Name = "lFilterCategories";
             this.lFilterCategories.Size = new System.Drawing.Size(81, 13);
             this.lFilterCategories.TabIndex = 44;
@@ -470,7 +461,7 @@
             this.cbCategoryFilter.Items.AddRange(new object[] {
             "Exclude",
             "Include"});
-            this.cbCategoryFilter.Location = new System.Drawing.Point(112, 226);
+            this.cbCategoryFilter.Location = new System.Drawing.Point(112, 148);
             this.cbCategoryFilter.Name = "cbCategoryFilter";
             this.cbCategoryFilter.Size = new System.Drawing.Size(79, 21);
             this.cbCategoryFilter.TabIndex = 43;
@@ -489,9 +480,9 @@
             "Category2",
             "Category3",
             "Category4"});
-            this.clbCategories.Location = new System.Drawing.Point(197, 226);
+            this.clbCategories.Location = new System.Drawing.Point(197, 148);
             this.clbCategories.Name = "clbCategories";
-            this.clbCategories.Size = new System.Drawing.Size(187, 64);
+            this.clbCategories.Size = new System.Drawing.Size(187, 139);
             this.clbCategories.Sorted = true;
             this.clbCategories.TabIndex = 42;
             this.clbCategories.SelectedIndexChanged += new System.EventHandler(this.clbCategories_SelectedIndexChanged);
@@ -658,7 +649,7 @@
             // lOutlookCalendar
             // 
             this.lOutlookCalendar.AutoSize = true;
-            this.lOutlookCalendar.Location = new System.Drawing.Point(20, 203);
+            this.lOutlookCalendar.Location = new System.Drawing.Point(20, 122);
             this.lOutlookCalendar.Name = "lOutlookCalendar";
             this.lOutlookCalendar.Size = new System.Drawing.Size(81, 13);
             this.lOutlookCalendar.TabIndex = 25;
@@ -677,17 +668,16 @@
             this.rbOutlookDefaultMB.UseVisualStyleBackColor = true;
             this.rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
             // 
-            // rbOutlookEWS
+            // rbOutlookSharedCal
             // 
-            this.rbOutlookEWS.AutoSize = true;
-            this.rbOutlookEWS.Enabled = false;
-            this.rbOutlookEWS.Location = new System.Drawing.Point(20, 93);
-            this.rbOutlookEWS.Name = "rbOutlookEWS";
-            this.rbOutlookEWS.Size = new System.Drawing.Size(143, 17);
-            this.rbOutlookEWS.TabIndex = 19;
-            this.rbOutlookEWS.Text = "Exchange Web Services";
-            this.rbOutlookEWS.UseVisualStyleBackColor = true;
-            this.rbOutlookEWS.CheckedChanged += new System.EventHandler(this.rbOutlookEWS_CheckedChanged);
+            this.rbOutlookSharedCal.AutoSize = true;
+            this.rbOutlookSharedCal.Location = new System.Drawing.Point(20, 93);
+            this.rbOutlookSharedCal.Name = "rbOutlookSharedCal";
+            this.rbOutlookSharedCal.Size = new System.Drawing.Size(104, 17);
+            this.rbOutlookSharedCal.TabIndex = 19;
+            this.rbOutlookSharedCal.Text = "Shared Calendar";
+            this.rbOutlookSharedCal.UseVisualStyleBackColor = true;
+            this.rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
             // 
             // rbOutlookAltMB
             // 
@@ -712,77 +702,6 @@
             this.ddMailboxName.Sorted = true;
             this.ddMailboxName.TabIndex = 16;
             this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-            // 
-            // gbEWS
-            // 
-            this.gbEWS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbEWS.Controls.Add(this.txtEWSServerURL);
-            this.gbEWS.Controls.Add(this.label8);
-            this.gbEWS.Controls.Add(this.txtEWSPass);
-            this.gbEWS.Controls.Add(this.label7);
-            this.gbEWS.Controls.Add(this.txtEWSUser);
-            this.gbEWS.Controls.Add(this.label6);
-            this.gbEWS.Location = new System.Drawing.Point(49, 97);
-            this.gbEWS.Name = "gbEWS";
-            this.gbEWS.Size = new System.Drawing.Size(335, 96);
-            this.gbEWS.TabIndex = 23;
-            this.gbEWS.TabStop = false;
-            this.gbEWS.Text = "EWS Settings";
-            // 
-            // txtEWSServerURL
-            // 
-            this.txtEWSServerURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEWSServerURL.Location = new System.Drawing.Point(63, 67);
-            this.txtEWSServerURL.Name = "txtEWSServerURL";
-            this.txtEWSServerURL.Size = new System.Drawing.Size(265, 20);
-            this.txtEWSServerURL.TabIndex = 13;
-            this.txtEWSServerURL.TextChanged += new System.EventHandler(this.txtEWSServerURL_TextChanged);
-            // 
-            // label8
-            // 
-            this.label8.Location = new System.Drawing.Point(6, 70);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(58, 17);
-            this.label8.TabIndex = 12;
-            this.label8.Text = "Server:";
-            // 
-            // txtEWSPass
-            // 
-            this.txtEWSPass.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEWSPass.Location = new System.Drawing.Point(63, 41);
-            this.txtEWSPass.Name = "txtEWSPass";
-            this.txtEWSPass.Size = new System.Drawing.Size(265, 20);
-            this.txtEWSPass.TabIndex = 11;
-            this.txtEWSPass.TextChanged += new System.EventHandler(this.txtEWSPass_TextChanged);
-            // 
-            // label7
-            // 
-            this.label7.Location = new System.Drawing.Point(6, 44);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(58, 18);
-            this.label7.TabIndex = 10;
-            this.label7.Text = "Password:";
-            // 
-            // txtEWSUser
-            // 
-            this.txtEWSUser.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEWSUser.Location = new System.Drawing.Point(63, 15);
-            this.txtEWSUser.Name = "txtEWSUser";
-            this.txtEWSUser.Size = new System.Drawing.Size(265, 20);
-            this.txtEWSUser.TabIndex = 9;
-            this.txtEWSUser.TextChanged += new System.EventHandler(this.txtEWSUser_TextChanged);
-            // 
-            // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(6, 18);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 17);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "Email:";
             // 
             // tabGoogle
             // 
@@ -1223,14 +1142,14 @@
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
             this.regexReplace});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgObfuscateRegex.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgObfuscateRegex.Location = new System.Drawing.Point(9, 141);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.ShowCellToolTips = false;
@@ -1537,6 +1456,17 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(392, 462);
             this.tabAppBehaviour.TabIndex = 3;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbHideSplash
+            // 
+            this.cbHideSplash.AutoSize = true;
+            this.cbHideSplash.Location = new System.Drawing.Point(16, 62);
+            this.cbHideSplash.Name = "cbHideSplash";
+            this.cbHideSplash.Size = new System.Drawing.Size(116, 17);
+            this.cbHideSplash.TabIndex = 40;
+            this.cbHideSplash.Text = "Hide splash screen";
+            this.cbHideSplash.UseVisualStyleBackColor = true;
+            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
             // 
             // cbMinimiseNotClose
             // 
@@ -2169,8 +2099,8 @@
             // Column1
             // 
             this.Column1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.Column1.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Column1.DefaultCellStyle = dataGridViewCellStyle2;
             this.Column1.HeaderText = "Name";
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
@@ -2479,17 +2409,6 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
-            // cbHideSplash
-            // 
-            this.cbHideSplash.AutoSize = true;
-            this.cbHideSplash.Location = new System.Drawing.Point(16, 62);
-            this.cbHideSplash.Name = "cbHideSplash";
-            this.cbHideSplash.Size = new System.Drawing.Size(116, 17);
-            this.cbHideSplash.TabIndex = 40;
-            this.cbHideSplash.Text = "Hide splash screen";
-            this.cbHideSplash.UseVisualStyleBackColor = true;
-            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2514,8 +2433,6 @@
             this.msCategories.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.gbEWS.ResumeLayout(false);
-            this.gbEWS.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
             this.gbDeveloperOptions.ResumeLayout(false);
@@ -2569,18 +2486,11 @@
         private System.Windows.Forms.PictureBox pbDonate;
         public System.Windows.Forms.Button bSyncNow;
         private System.Windows.Forms.TabControl tabAppSettings;
-        private System.Windows.Forms.RadioButton rbOutlookEWS;
+        private System.Windows.Forms.RadioButton rbOutlookSharedCal;
         public System.Windows.Forms.RadioButton rbOutlookDefaultMB;
         private System.Windows.Forms.RadioButton rbOutlookAltMB;
         public System.Windows.Forms.ComboBox ddMailboxName;
         private System.Windows.Forms.TabPage tabGoogle;
-        private System.Windows.Forms.GroupBox gbEWS;
-        private System.Windows.Forms.TextBox txtEWSServerURL;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox txtEWSPass;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox txtEWSUser;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button btResetGCal;
         private System.Windows.Forms.Label lGoogleHelp;
         private System.Windows.Forms.Label lGoogleCalendar;

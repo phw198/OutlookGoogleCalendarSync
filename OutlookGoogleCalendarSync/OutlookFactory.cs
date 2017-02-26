@@ -48,5 +48,9 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
         }
+
+        public static Boolean is2003() {
+            return outlookVersionFull == "11";
+        }
     }
 }

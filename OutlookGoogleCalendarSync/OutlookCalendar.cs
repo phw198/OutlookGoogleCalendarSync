@@ -53,18 +53,20 @@ namespace OutlookGoogleCalendarSync {
         public enum Service {
             DefaultMailbox,
             AlternativeMailbox,
-            EWS
+            SharedCalendar
         }
         public enum MetadataId {
             gEventID,
             gCalendarId,
-            ogcsModified
+            ogcsModified,
+            forceSave
         }
         public static String MetadataIdKeyName(MetadataId Id) {
             switch (Id) {
                 case MetadataId.gEventID: return "googleEventID";
                 case MetadataId.gCalendarId: return "googleCalendarID";
                 case MetadataId.ogcsModified: return "OGCSmodified";
+                case MetadataId.forceSave: return "forceSave";
                 default: return "googleEventID";
             }
         }
@@ -404,7 +406,8 @@ namespace OutlookGoogleCalendarSync {
                             log.Debug("Appointment has changed from single instance to recurring, so exceptions may need processing.");
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value);
                         }
-                    } else if (needsUpdating && ai.RecurrenceState != OlRecurrenceState.olApptMaster) { //Master events are always compared anyway
+                    } else if ((needsUpdating && ai.RecurrenceState != OlRecurrenceState.olApptMaster) //Master events are always compared anyway
+                        || GetOGCSproperty(ai, MetadataId.forceSave)) {
                         log.Debug("Doing a dummy update in order to update the last modified date.");
                         setOGCSlastModified(ref ai);
                         updateCalendarEntry_save(ai);
@@ -663,6 +666,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 setOGCSlastModified(ref ai);
             }
+            removeOGCSproperty(ref ai, MetadataId.forceSave);
             ai.Save();
         }
         #endregion
@@ -982,6 +986,7 @@ namespace OutlookGoogleCalendarSync {
                                 log.Info("Enhancing appointment's metadata...");
                                 AppointmentItem ai = outlook[o];
                                 AddGoogleIDs(ref ai, google[g]);
+                                addOGCSproperty(ref ai, MetadataId.forceSave, "True");
                                 outlook[o] = ai;
                                 metadataEnhanced++;
                             }
@@ -1149,6 +1154,12 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void setOGCSlastModified(ref AppointmentItem ai) {
             addOGCSproperty(ref ai, MetadataId.ogcsModified, DateTime.Now);
+        }
+        private static void removeOGCSproperty(ref AppointmentItem ai, MetadataId key) {
+            if (GetOGCSproperty(ai, key)) {
+                UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
+                prop.Delete();
+            }
         }
         #endregion
         #endregion

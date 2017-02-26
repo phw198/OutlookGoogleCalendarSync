@@ -96,6 +96,8 @@ namespace OutlookGoogleCalendarSync {
                 "All rules are applied using AND logic");
             ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
+            ToolTips.SetToolTip(cbAddAttendees,
+                "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
             ToolTips.SetToolTip(cbReminderDND,
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             
@@ -115,19 +117,20 @@ namespace OutlookGoogleCalendarSync {
 
             cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             #region Outlook box
-            gbEWS.Enabled = false;
             #region Mailbox
-            if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
-                rbOutlookAltMB.Checked = true;
-            } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.EWS) {
-                rbOutlookEWS.Checked = true;
-                gbEWS.Enabled = true;
-            } else {
+            if (OutlookFactory.is2003()) {
                 rbOutlookDefaultMB.Checked = true;
+                rbOutlookAltMB.Enabled = false;
+                rbOutlookSharedCal.Enabled = false;
+            } else {
+                if (Settings.Instance.OutlookService == OutlookCalendar.Service.AlternativeMailbox) {
+                    rbOutlookAltMB.Checked = true;
+                } else if (Settings.Instance.OutlookService == OutlookCalendar.Service.SharedCalendar) {
+                    rbOutlookSharedCal.Checked = true;
+                } else {
+                    rbOutlookDefaultMB.Checked = true;
+                }
             }
-            txtEWSPass.Text = Settings.Instance.EWSpassword;
-            txtEWSUser.Text = Settings.Instance.EWSuser;
-            txtEWSServerURL.Text = Settings.Instance.EWSserver;
 
             //Mailboxes the user has access to
             log.Debug("Find Folders");
@@ -1217,7 +1220,6 @@ namespace OutlookGoogleCalendarSync {
             if (rbOutlookDefaultMB.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
                 OutlookCalendar.Instance.Reset();
-                gbEWS.Enabled = false;
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
@@ -1229,19 +1231,17 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.AlternativeMailbox;
                 Settings.Instance.MailboxName = ddMailboxName.Text;
                 OutlookCalendar.Instance.Reset();
-                gbEWS.Enabled = false;
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
             Settings.Instance.MailboxName = (rbOutlookAltMB.Checked ? ddMailboxName.Text : "");
         }
 
-        private void rbOutlookEWS_CheckedChanged(object sender, EventArgs e) {
+        private void rbOutlookSharedCal_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
-            if (rbOutlookEWS.Checked) {
-                Settings.Instance.OutlookService = OutlookCalendar.Service.EWS;
+            if (rbOutlookSharedCal.Checked) {
+                Settings.Instance.OutlookService = OutlookCalendar.Service.SharedCalendar;
                 OutlookCalendar.Instance.Reset();
-                gbEWS.Enabled = true;
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookCalendar.Instance.CalendarFolders, null);
             }
@@ -1255,18 +1255,6 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         
-        private void txtEWSUser_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.EWSuser = txtEWSUser.Text;
-        }
-
-        private void txtEWSPass_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.EWSpassword = txtEWSPass.Text;
-        }
-
-        private void txtEWSServerURL_TextChanged(object sender, EventArgs e) {
-            Settings.Instance.EWSserver = txtEWSServerURL.Text;
-        }
-
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookCalendar.Instance.UseOutlookCalendar = calendar.Value;
