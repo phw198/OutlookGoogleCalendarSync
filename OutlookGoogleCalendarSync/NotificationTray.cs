@@ -177,7 +177,7 @@ namespace OutlookGoogleCalendarSync {
                 MainForm.Instance.MainFormShow(); 
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left && !MainForm.Instance.SyncingNow)
                 MainForm.Instance.Sync_Requested();
         }
 

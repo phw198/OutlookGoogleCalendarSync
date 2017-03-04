@@ -2636,6 +2636,6 @@
         private System.Windows.Forms.CheckBox cbShowDeveloperOptions;
         public System.Windows.Forms.Label lOutlookCalendar;
         public System.Windows.Forms.TabPage tabOutlook;
-        private System.Windows.Forms.CheckBox cbHideSplash;
+        public System.Windows.Forms.CheckBox cbHideSplash;
     }
 }

@@ -167,7 +167,18 @@ namespace OutlookGoogleCalendarSync {
             String keyValue = startupKey.GetValue(Application.ProductName, "").ToString();
             if (keyValue == "" || keyValue != Application.ExecutablePath) {
                 log.Debug("Startup registry key "+ (keyValue == "" ? "created" : "updated") +".");
-                startupKey.SetValue(Application.ProductName, Application.ExecutablePath);
+                try {
+                    startupKey.SetValue(Application.ProductName, Application.ExecutablePath);
+                } catch (System.UnauthorizedAccessException ex) {
+                    log.Warn("Could not create/update registry key. " + ex.Message);
+                    Settings.Instance.StartOnStartup = false;
+                    if (MessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
+                        "Try manually adding a shortcut to the 'Startup' folder in Windows instead?", "Permission denied", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)
+                        == DialogResult.Yes) {
+                        System.Diagnostics.Process.Start(System.Windows.Forms.Application.StartupPath);
+                        System.Diagnostics.Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.Startup));
+                    }
+                }
             }
             startupKey.Close();
         }

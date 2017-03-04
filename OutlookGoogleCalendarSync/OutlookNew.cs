@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync {
                 return oApp.GetNamespace("mapi").Offline;
             } catch {
                 OutlookCalendar.Instance.Reset();
-                return oApp.GetNamespace("mapi").Offline;
+                return OutlookCalendar.Instance.IOutlook.Offline();
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -292,12 +292,12 @@ namespace OutlookGoogleCalendarSync {
                 MainForm.Instance.lOutlookCalendar.Location.Y + MainForm.Instance.lOutlookCalendar.Size.Height + 3);
             double stepSize = MainForm.Instance.lOutlookCalendar.Size.Width / folders.Count;
             
-            int fldCnt = 0;    
+            int fldCnt = 0;
             foreach (MAPIFolder folder in folders) {
                 fldCnt++;
                 System.Drawing.Point endPoint = new System.Drawing.Point(MainForm.Instance.lOutlookCalendar.Location.X + Convert.ToInt16(fldCnt * stepSize),
                     MainForm.Instance.lOutlookCalendar.Location.Y + MainForm.Instance.lOutlookCalendar.Size.Height + 3);
-                g.DrawLine(p, startPoint, endPoint); 
+                try { g.DrawLine(p, startPoint, endPoint); } catch { /*May get GDI+ error if g has been repainted*/ }
                 System.Windows.Forms.Application.DoEvents();
                 try {
                     OlItemType defaultItemType = folder.DefaultItemType;
@@ -326,7 +326,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             p.Dispose();
-            g.Clear(System.Drawing.Color.White);
+            try { g.Clear(System.Drawing.Color.White); } catch { }
             g.Dispose();
             System.Windows.Forms.Application.DoEvents();
         }
@@ -343,6 +343,7 @@ namespace OutlookGoogleCalendarSync {
 
             log.Fine("Determining email of recipient: " + recipient.Name);
             AddressEntry addressEntry = null;
+            String addressEntryType = "";
             try {
                 try {
                     addressEntry = recipient.AddressEntry;
@@ -354,8 +355,13 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("No AddressEntry exists!");
                     retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                 } else {
-                    log.Fine("AddressEntry Type: " + addressEntry.Type);
-                    if (addressEntry.Type == "EX") { //Exchange
+                    try {
+                        addressEntryType = addressEntry.Type;
+                    } catch {
+                        log.Warn("Cannot access addressEntry.Type!");
+                    }
+                    log.Fine("AddressEntry Type: " + addressEntryType);
+                    if (addressEntryType == "EX") { //Exchange
                         log.Fine("Address is from Exchange");
                         if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
                             addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
@@ -423,7 +429,7 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
 
-                    } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
+                    } else if (addressEntryType.ToUpper() == "NOTES") {
                         log.Fine("From Lotus Notes");
                         //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
                         retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
@@ -552,7 +558,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
-            ianaZoneId = fixAlexa(ianaZoneId);
+            ianaZoneId = TimezoneDB.FixAlexa(ianaZoneId);
 
             Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
             var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC", "Etc/GMT" };
@@ -582,31 +588,6 @@ namespace OutlookGoogleCalendarSync {
             log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
 
             return tzs[item.WindowsId];
-        }
-
-        private String fixAlexa(String timezone) {
-            //Alexa (Amazon Echo) is a bit dumb - she creates Google Events with a GMT offset "timezone". Eg GMT-5
-            //This isn't actually a timezone at all, but an area, and not a legal IANA value.
-            //So to workaround this, we'll turn it into something valid at least, by inverting the offset sign and prefixing "Etc\"
-            //Issues:- 
-            // * As it's an area, Microsoft will just guess at the zone - so GMT-5 for CST may end up as Bogata/Lima.
-            // * Not sure what happens with half hour offset, such as in India with GMT+4:30
-            // * Not sure what happens with Daily Saving, as zones in the same area may or may not follow DST.
-
-            try {
-                System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"^GMT([+-])(\d{1,2})(:\d\d)*$");
-                System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(timezone);
-                if (matches.Count > 0) {
-                    log.Debug("Found an Alexa \"timezone\" of " + timezone);
-                    String fixedTimezone = "Etc/GMT" + (matches[0].Groups[1].Value == "+" ? "-" : "+") + Convert.ToInt16(matches[0].Groups[2].Value).ToString();
-                    log.Debug("Translated to " + fixedTimezone);
-                    return fixedTimezone;
-                }
-            } catch (System.Exception ex) {
-                log.Error("Failed to detect and translate Alexa timezone.");
-                OGCSexception.Analyse(ex);
-            }
-            return timezone;
         }
         #endregion
     }

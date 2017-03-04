@@ -867,13 +867,12 @@ namespace OutlookGoogleCalendarSync {
         private Boolean sync_googleToOutlook(List<Event> googleEntries, List<AppointmentItem> outlookEntries, ref String bubbleText) {
             log.Debug("Synchronising from Google to Outlook.");
             
-            //  Make copies of each list of events (Not strictly needed)
             List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
             List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
             
             try {
-                OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref googleEntries);
+                OutlookCalendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref outlookEntriesToBeCreated);
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("Unable to reclaim orphan calendar entries in Outlook calendar.");
                 throw ex;
@@ -1611,7 +1610,9 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000") && !Settings.Instance.Donor) {
+                cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
+                cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.Show(ToolTips.GetToolTip(cbHideSplash), cbHideSplash, 5000);
                 Settings.Instance.HideSplashScreen = cbHideSplash.Checked;

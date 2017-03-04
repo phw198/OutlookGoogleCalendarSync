@@ -65,7 +65,7 @@ namespace OutlookGoogleCalendarSync {
                         provider.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
                     }
                 } else {
-                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber) && apiKeyring.Key != null) {
+                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Standard) && apiKeyring.Key != null) {
                         provider.ClientIdentifier = apiKeyring.Key.ClientId;
                         provider.ClientSecret = apiKeyring.Key.ClientSecret;
                     } else {
@@ -84,7 +84,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public String ChangeAPIkeys() {
-            String msg = "Your authorisation token is no longer valid and has been removed.\r\n" +
+            log.Info("Google API keys and refresh token are being updated.");
+            String msg = "Your Google authorisation token needs updating.\r\n" +
                         "The process to reauthorise access to your Google account will now begin...";
             MessageBox.Show(msg, "Authorisation token invalid", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             Reset();
@@ -220,7 +221,7 @@ namespace OutlookGoogleCalendarSync {
                     throw new System.Exception("Returned null");
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("ERROR: Failed to retrieve Google event");
-                log.Error(ex.Message);
+                if (!ex.Message.Contains("Not Found [404]")) log.Error(ex.Message);
                 return null;
             }
         }
@@ -256,6 +257,7 @@ namespace OutlookGoogleCalendarSync {
                             case apiException.throwException: throw;
                             case apiException.freeAPIexhausted: 
                                 throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+
                             case apiException.backoffThenRetry: {
                                     backoff++;
                                     if (backoff == backoffLimit) {
@@ -280,6 +282,15 @@ namespace OutlookGoogleCalendarSync {
 
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Outputting all Events to CSV", "google_events.csv", result);
+            }
+
+            //Remove cancelled non-recurring Events - don't know how these exist, but some users have them!
+            List<Event> cancelled = result.Where(ev =>
+                ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
+                ev.Start == null && ev.End == null && string.IsNullOrEmpty(ev.Summary)).ToList();
+            if (cancelled.Count > 0) {
+                log.Debug(cancelled.Count + " Google Events are cancelled and will be excluded.");
+                result = result.Except(cancelled).ToList();
             }
 
             return result;
@@ -850,7 +861,6 @@ namespace OutlookGoogleCalendarSync {
 
                 //Find entries with no Outlook ID
                 if (!GetOGCSproperty(ev, MetadataId.oEntryId)) {
-                    unclaimedEvents.Add(ev);
 
                     //Use simple matching on start,end,subject,location to pair events
                     String sigEv = signature(ev);
@@ -858,13 +868,21 @@ namespace OutlookGoogleCalendarSync {
                         gEvents.Remove(ev);
                         continue;
                     }
+
+                    unclaimedEvents.Add(ev);
                     foreach (AppointmentItem ai in oAppointments) {
-                        if (signaturesMatch(sigEv, OutlookCalendar.signature(ai))) {
-                            AddOutlookIDs(ref ev, ai);
-                            UpdateCalendarEntry_save(ref ev);
-                            unclaimedEvents.Remove(ev);
-                            MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
-                            gEvents[g] = ev;
+                        if (SignaturesMatch(sigEv, OutlookCalendar.signature(ai))) {
+                            try {
+                                AddOutlookIDs(ref ev, ai);
+                                UpdateCalendarEntry_save(ref ev);
+                                unclaimedEvents.Remove(ev);
+                                MainForm.Instance.Logboxout("Reclaimed: " + GetEventSummary(ev), verbose: true);
+                                gEvents[g] = ev;
+                            } catch (System.Exception ex) {
+                                log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
+                                log.Debug(ex.Message);
+                                log.Debug("Event status: " + ev.Status);
+                            }
                             break;
                         }
                     }
@@ -895,17 +913,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
-        }
-
-        private static Boolean signaturesMatch(String sigEv, String sigAi) {
-            //Use simple matching on start,end,subject,location to pair events
-            if (Settings.Instance.Obfuscation.Enabled) {
-                if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
-                    sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);
-                else
-                    sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
-            }
-            return (sigEv == sigAi);
         }
 
         public enum MetadataId {
@@ -1062,7 +1069,7 @@ namespace OutlookGoogleCalendarSync {
                             return true;
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
-                            if (signaturesMatch(signature(ev), OutlookCalendar.signature(ai))) {
+                            if (SignaturesMatch(signature(ev), OutlookCalendar.signature(ai))) {
                                 AddOutlookIDs(ref ev, ai); //update EntryID
                                 return true;
                             }
@@ -1203,6 +1210,9 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("User's Google account username is not present - cannot check if they have subscribed.");
                     return false;
                 }
+            } catch (DotNetOpenAuth.Messaging.ProtocolException ex) {
+                OGCSexception.AnalyseDotNetOpenAuth(ex);
+
             } catch (System.Exception ex) {
                 log.Error("Failed to retrieve subscribers - cannot check if they have subscribed.");
                 log.Error(ex.Message);
@@ -1219,6 +1229,7 @@ namespace OutlookGoogleCalendarSync {
                 Boolean subscribed;
                 Event subscription = subscriptions.Last();
                 DateTime subscriptionStart = DateTime.Parse(subscription.Start.Date ?? subscription.Start.DateTime).Date;
+                log.Debug("Last subscription date: "+ subscriptionStart.ToString());
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {
                     if (subscriptionRemaining > 360)
@@ -1234,8 +1245,10 @@ namespace OutlookGoogleCalendarSync {
                 
                 DateTime prevSubscriptionStart = Settings.Instance.Subscribed;
                 if (subscribed) {
+                    log.Info("User has an active subscription.");
                     Settings.Instance.Subscribed = subscriptionStart;
                 } else {
+                    log.Info("User has no active subscription.");
                     Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
                 }
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
@@ -1339,50 +1352,7 @@ namespace OutlookGoogleCalendarSync {
                     else
                         log.Debug("Access token refreshed - expires " + ((DateTime)state.AccessTokenExpirationUtc).ToLocalTime().ToString());
                 } catch (DotNetOpenAuth.Messaging.ProtocolException ex) {
-                    Dictionary<String, String> errors = null;
-                    String webExceptionStr_orig = "";
-                    System.Net.WebException webException = null;
-                    //Process exact error
-                    try { 
-                        webException = ex.InnerException as System.Net.WebException;
-                        webExceptionStr_orig = extractResponseString(webException);
-                    } catch (System.Exception subEx) {
-                        log.Error("Failed to retrieve WebException: " + subEx.Message);
-                        log.Debug(ex.Message);
-                        throw ex;
-                    }
-                    if (string.IsNullOrEmpty(webExceptionStr_orig)) {
-                        //Not an OAuthErrorMsg
-                        log.Error(webException.Message);
-                        throw ex;
-                    }
-                    try {
-                        /* Could treat this properly with JSON but would be another dll just to handle this situation.
-                          * OAuthErrorMsg error =
-                          * JsonConvert.DeserializeObject<OAuthErrorMsg>(ExtractResponseString(webException));
-                          * var errorMessage = error.error_description; 
-                          */
-                        //String webExceptionStr = "{\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was not found.\"\n}";
-                        String webExceptionStr = webExceptionStr_orig.Replace("\"", "");
-                        webExceptionStr = webExceptionStr.TrimStart('{'); webExceptionStr = webExceptionStr.TrimEnd('}');
-                        errors = webExceptionStr.Split(new String[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(s => s.Split(':')).ToDictionary(x => x[0].Trim(), x => x[1].Trim().TrimEnd(','));
-
-                    } catch (System.Exception subEx) {
-                        log.Error("Failed to process exact WebException: " + subEx.Message);
-                        log.Debug(webExceptionStr_orig);
-                        throw ex;
-                    }
-
-                    if (errors.ContainsKey("error")) {
-                        String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
-                        if (errors["error"] == "invalid_client")
-                            throw new System.Exception("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, ex);
-                        else if (errors["error"] == "invalid_grant")
-                            throw new System.Exception("Google has revoked your authentication token. Account requires reauthorising.\r\n" + instructions, ex);
-                    }
-                    log.Debug("Unknown web exception.");
-                    throw ex;
+                    OGCSexception.AnalyseDotNetOpenAuth(ex);
 
                 } catch (System.Exception ex) {
                     log.Error(ex.GetType().ToString() + " " + ex.Message);
@@ -1457,6 +1427,17 @@ namespace OutlookGoogleCalendarSync {
                 return "";
             }
             return signature.Trim();
+        }
+
+        public static Boolean SignaturesMatch(String sigEv, String sigAi) {
+            //Use simple matching on start,end,subject,location to pair events
+            if (Settings.Instance.Obfuscation.Enabled) {
+                if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
+                    sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);
+                else
+                    sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);
+            }
+            return (sigEv == sigAi);
         }
 
         public static void ExportToCSV(String action, String filename, List<Event> events) {
@@ -1609,6 +1590,13 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn(ex.Message);
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                 MainForm.Instance.syncNote(MainForm.SyncNotes.QuotaExhaustedInfo, null);
+                
+                //Delay next scheduled sync until after the new quota
+                DateTime now = DateTime.UtcNow;
+                DateTime quotaReset = now.Date.AddHours(8).AddMinutes(now.Minute);
+                if ((quotaReset - now).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                MainForm.Instance.OgcsTimer.SetNextSync((int)(quotaReset - now).TotalMinutes, fromNow: true);
+
                 return apiException.freeAPIexhausted;
 
             } else if (ex.Message.Contains("Daily Limit for Unauthenticated Use Exceeded. Continued use requires signup. [403]")) {
@@ -1626,22 +1614,6 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 return apiException.throwException;
             }
-        }
-
-        private static String extractResponseString(System.Net.WebException webException) {
-            if (webException == null || webException.Response == null)
-                return null;
-
-            var responseStream =
-                webException.Response.GetResponseStream() as MemoryStream;
-
-            if (responseStream == null)
-                return null;
-
-            var responseBytes = responseStream.ToArray();
-
-            var responseString = Encoding.UTF8.GetString(responseBytes);
-            return responseString;
         }
 
         #region OGCS event properties

@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void setDefaults() {
             //Default values
-            AssignedClientIdentifier = "";
+            assignedClientIdentifier = "";
             PersonalClientIdentifier = "";
             PersonalClientSecret = ""; 
             OutlookService = OutlookCalendar.Service.DefaultMailbox;
@@ -92,6 +92,10 @@ namespace OutlookGoogleCalendarSync {
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
             VerboseOutput = false;
+        }
+
+        public static Boolean InstanceInitialiased() {
+            return (instance != null);
         }
 
         public static Settings Instance {
@@ -191,7 +195,10 @@ namespace OutlookGoogleCalendarSync {
             get { return hideSplashScreen; }
             set {
                 hideSplashScreen = value;
-                if (!loading()) XMLManager.ExportElement("HideSplashScreen", value, Program.SettingsFile);
+                if (!loading()) {
+                    XMLManager.ExportElement("HideSplashScreen", value, Program.SettingsFile);
+                    MainForm.Instance.cbHideSplash.Checked = value;
+                }
             }
         }
         

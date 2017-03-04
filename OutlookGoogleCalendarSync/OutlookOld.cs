@@ -204,7 +204,7 @@ namespace OutlookGoogleCalendarSync {
                 fldCnt++;
                 System.Drawing.Point endPoint = new System.Drawing.Point(MainForm.Instance.lOutlookCalendar.Location.X + Convert.ToInt16(fldCnt * stepSize),
                     MainForm.Instance.lOutlookCalendar.Location.Y + MainForm.Instance.lOutlookCalendar.Size.Height + 3);
-                g.DrawLine(p, startPoint, endPoint);
+                try { g.DrawLine(p, startPoint, endPoint); } catch { /*May get GDI+ error if g has been repainted*/ }
                 System.Windows.Forms.Application.DoEvents();
                 try {
                     OlItemType defaultItemType = folder.DefaultItemType;
@@ -233,7 +233,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             p.Dispose();
-            g.Clear(System.Drawing.Color.White);
+            try { g.Clear(System.Drawing.Color.White); } catch { }
             g.Dispose();
             System.Windows.Forms.Application.DoEvents();
         }
@@ -594,14 +594,14 @@ namespace OutlookGoogleCalendarSync {
             //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
             //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
             if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Windows Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
                 return "Etc/UTC";
             }
 
-            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = NodaTime.TimeZones.TzdbDateTimeZoneSource.Default;
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
             String tzID = tzDBsource.MapTimeZoneId(tzi);
-            log.Fine("Windows Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
+            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
             return tzDBsource.CanonicalIdMap[tzID];
         }
 
@@ -621,7 +621,7 @@ namespace OutlookGoogleCalendarSync {
             if (time.TimeZone == null) return theDate;
 
             LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);
-            DateTimeZone zone = DateTimeZoneProviders.Tzdb[time.TimeZone];
+            DateTimeZone zone = DateTimeZoneProviders.Tzdb[TimezoneDB.FixAlexa(time.TimeZone)];
             ZonedDateTime zonedTime = local.InZoneLeniently(zone);
             DateTime zonedUTC = zonedTime.ToDateTimeUtc();
             log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));

@@ -71,8 +71,7 @@ namespace OutlookGoogleCalendarSync
                 xml.Save(filename);
                 log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
             } catch (Exception ex) {
-                OGCSexception.Analyse(ex);
-                if (ex.Message == "Sequence contains no elements") {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
                     log.Debug("Adding Setting " + nodeName + " to settings.xml");
                     //This appends to the end, which won't import properly. 
                     //settingsXE.Add(new XElement(ns + nodeName, nodeValue));
@@ -80,6 +79,7 @@ namespace OutlookGoogleCalendarSync
                     Settings.Instance.Save();
 
                 } else {
+                    OGCSexception.Analyse(ex);
                     log.Error("Failed to export setting " + nodeName + "=" + nodeValue + " to settings.xml file.");
                 }
             }

@@ -34,6 +34,7 @@ namespace OutlookGoogleCalendarSync {
         }
         
         public Boolean PickKey(KeyType keyType) {
+            log.Debug("Picking a " + keyType.ToString() + " key.");
             try {
                 List<ApiKey> keyRing = (keyType == KeyType.Standard) ? standardKeys : subscriberKeys;
                 if (keyRing == null || keyRing.Count == 0) {

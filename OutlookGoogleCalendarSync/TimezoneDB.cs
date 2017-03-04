@@ -83,5 +83,30 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
         }
+
+        public static String FixAlexa(String timezone) {
+            //Alexa (Amazon Echo) is a bit dumb - she creates Google Events with a GMT offset "timezone". Eg GMT-5
+            //This isn't actually a timezone at all, but an area, and not a legal IANA value.
+            //So to workaround this, we'll turn it into something valid at least, by inverting the offset sign and prefixing "Etc\"
+            //Issues:- 
+            // * As it's an area, Microsoft will just guess at the zone - so GMT-5 for CST may end up as Bogata/Lima.
+            // * Not sure what happens with half hour offset, such as in India with GMT+4:30
+            // * Not sure what happens with Daylight Saving, as zones in the same area may or may not follow DST.
+
+            try {
+                System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"^GMT([+-])(\d{1,2})(:\d\d)*$");
+                System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(timezone);
+                if (matches.Count > 0) {
+                    log.Debug("Found an Alexa \"timezone\" of " + timezone);
+                    String fixedTimezone = "Etc/GMT" + (matches[0].Groups[1].Value == "+" ? "-" : "+") + Convert.ToInt16(matches[0].Groups[2].Value).ToString();
+                    log.Debug("Translated to " + fixedTimezone);
+                    return fixedTimezone;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to detect and translate Alexa timezone.");
+                OGCSexception.Analyse(ex);
+            }
+            return timezone;
+        }
     }
 }
