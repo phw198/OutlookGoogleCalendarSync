@@ -347,7 +347,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup);
-            log.Info("  HideSplashScreen: " + (Donor ? HideSplashScreen.ToString() : "N/A"));
+            log.Info("  HideSplashScreen: " + ((Subscribed != DateTime.Parse("01-Jan-2000") || Donor) ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimiseToTray: " + MinimiseToTray);
             log.Info("  MinimiseNotClose: " + MinimiseNotClose);
