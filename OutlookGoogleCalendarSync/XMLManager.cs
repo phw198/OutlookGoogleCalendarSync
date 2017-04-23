@@ -57,6 +57,14 @@ namespace OutlookGoogleCalendarSync
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
                 log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
                 return xe.Value;
+            } catch (System.InvalidOperationException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
+                    log.Warn("'" + nodeName + "' could not be found.");
+                } else {
+                    log.Error("Failed retrieving '" + nodeName + "' from " + filename);
+                    OGCSexception.Analyse(ex);
+                }
+                return null;
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving '" + nodeName + "' from " + filename);
                 OGCSexception.Analyse(ex);

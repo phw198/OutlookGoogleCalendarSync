@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("Sho&w", "show", showItem_Click));
 
             this.icon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("&Exit", "exit", exitItem_Click));
+            this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("&Exit", "exit", ExitItem_Click));
 
             UpdateAutoSyncItems();
             UpdateItem("delayRemove", enabled: false);
@@ -193,7 +193,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private void exitItem_Click(object sender, EventArgs e) {
+        public void ExitItem_Click(object sender, EventArgs e) {
             exitEventFired = true;
             MainForm.Instance.Close();
         }

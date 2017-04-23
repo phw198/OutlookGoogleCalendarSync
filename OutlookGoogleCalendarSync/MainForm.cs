@@ -322,7 +322,7 @@ namespace OutlookGoogleCalendarSync {
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable;
-            cbPortable.Enabled = !Program.isClickOnceInstall();
+            cbPortable.Enabled = !Program.IsClickOnceInstall;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
@@ -355,7 +355,6 @@ namespace OutlookGoogleCalendarSync {
                 (new DateTime(2000, 1, 1).Add(new TimeSpan(TimeSpan.TicksPerDay * System.Reflection.Assembly.GetEntryAssembly().GetName().Version.Build))).Year.ToString());
 
             cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
-            cbAlphaReleases.Visible = !Program.isClickOnceInstall();
             #endregion
             this.ResumeLayout();
         }
@@ -1726,7 +1725,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void btCheckForUpdate_Click(object sender, EventArgs e) {
-            Program.checkForUpdate(true);
+            Program.Updater.CheckForUpdate(btCheckForUpdate);
         }
         private void cbAlphaReleases_CheckedChanged(object sender, EventArgs e) {
             if (this.Visible)
@@ -1817,5 +1816,6 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #endregion
+
     }
 }

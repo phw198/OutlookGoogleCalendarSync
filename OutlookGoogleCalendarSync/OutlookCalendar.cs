@@ -16,6 +16,10 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookCalendar));
         public OutlookInterface IOutlook;
 
+        /// <summary>
+        /// Whether instance of OutlookCalendar class should connect to Outlook application
+        /// </summary>
+        public static Boolean InstanceConnect = true;
         public static OutlookCalendar Instance {
             get {
                 try {
@@ -80,7 +84,7 @@ namespace OutlookGoogleCalendarSync {
         
         public OutlookCalendar() {
             IOutlook = OutlookFactory.getOutlookInterface();
-            IOutlook.Connect();
+            if (InstanceConnect) IOutlook.Connect();
         }
 
         public void Reset() {
@@ -88,7 +92,7 @@ namespace OutlookGoogleCalendarSync {
             if (IOutlook != null) IOutlook.Disconnect();
             instance = new OutlookCalendar();
         }
-
+        
         #region Push Sync
         //Multi-threaded, so need to protect against registering events more than once
         //Simply removing an event handler before adding isn't safe enough

@@ -60,7 +60,7 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 html = html.TrimEnd('\r', '\n');
                 if (html.EndsWith(localVersion + ".nzd")) {
-                    log.Debug("Already have latest version.");
+                    log.Debug("Already have latest TZDB version.");
                 } else {
                     Regex rgx = new Regex(@"https*:.*/tzdb(.*)\.nzd$", RegexOptions.IgnoreCase);
                     MatchCollection matches = rgx.Matches(html);

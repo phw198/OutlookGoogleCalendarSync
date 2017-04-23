@@ -1077,7 +1077,10 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } else {
-                log.Warn("Could not find global Appointment ID against Google Event.");
+                if (Settings.Instance.MergeItems)
+                    log.Fine("Could not find global Appointment ID against Google Event.");
+                else
+                    log.Warn("Could not find global Appointment ID against Google Event.");
             }
             return false;
         }
@@ -1213,6 +1216,9 @@ namespace OutlookGoogleCalendarSync {
             } catch (DotNetOpenAuth.Messaging.ProtocolException ex) {
                 OGCSexception.AnalyseDotNetOpenAuth(ex);
 
+            } catch (System.ApplicationException ex) {
+                throw ex;
+
             } catch (System.Exception ex) {
                 log.Error("Failed to retrieve subscribers - cannot check if they have subscribed.");
                 log.Error(ex.Message);
@@ -1290,6 +1296,10 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("User's Google account username is not present - cannot check if they have donated.");
                     return false;
                 }
+
+            } catch (System.ApplicationException ex) {
+                throw ex;
+            
             } catch (System.Exception ex) {
                 log.Error("Failed to retrieve donors - cannot check if they have donated.");
                 log.Error(ex.Message);
