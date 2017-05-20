@@ -4,6 +4,6 @@
 |Standard|OGCS KW 001|ogcs-kw-001|DISABLED|110989233159-nu3ohp5otqmjq1afvkg9hkrubbgal4n4.apps.googleusercontent.com|kA4LS1BDQdhE7Xtf5xj2S0LP|
 
 ### Status
-ACTIVE = Open for use and assignment.
+ACTIVE = Open for use and assignment.  
 DEAD = Not to be used at all. Those on it must start using a new key.  
 DISABLED|FULL = Useable, but not assigned to anyone new.  
