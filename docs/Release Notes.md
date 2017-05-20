@@ -1,3 +1,5 @@
+| Release Notes |
+|:---|
 # v2.4.0.0 - Beta
 
 :boom: This will be the final CodePlex release before we move home to GitHub.  
