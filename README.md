@@ -6,8 +6,7 @@
 <p align="center">:sparkles: We're new here, having just moved over <a href="https://outlookgooglecalendarsync.codeplex.com" target="_blank">from Codeplex</a>. Hi! :sparkles:<br/>
 Watch this space for updates as we busily get things moved over.</p>
 
-### Current Beta Release: [![GitHub release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
-[![Github Releases (by Release)](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.4.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.4.0-beta)
+### Current Beta Release: [![GitHub release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Github Releases (by Release)](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.4.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.4.0-beta)
 
 :package: [CodePlex ClickOnce Installer](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/badge/downloads-25827-green.svg)](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)
