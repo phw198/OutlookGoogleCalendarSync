@@ -54,7 +54,7 @@ namespace OutlookGoogleCalendarSync {
 
             Dictionary<String, String> ruleBook = explodeRrule(ev.Recurrence);
             if (ruleBook == null) {
-                throw new ApplicationException("WARNING: The recurrence pattern is not compatble with Outlook. This event cannot be synced.");
+                throw new ApplicationException("WARNING: The recurrence pattern is not compatible with Outlook. This event cannot be synced.");
             }
             log.Fine("Building Outlook recurrence pattern");
             oPattern = ai.GetRecurrencePattern();
@@ -133,14 +133,12 @@ namespace OutlookGoogleCalendarSync {
             if (ruleBook.ContainsKey("COUNT"))
                 oPattern.Occurrences = Convert.ToInt16(ruleBook["COUNT"]);
             if (ruleBook.ContainsKey("UNTIL")) {
-                //if (ruleBook["UNTIL"].Length == 8) {
-                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0,8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                //} else {
-                    //if (ruleBook["UNTIL"].ToString().Substring(8) == "T000000Z" && ev.Start.DateTime != null)
-                    //    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture).AddDays(-1);
-                    //else
-                        //oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture).Date;
-                //}
+                if (ruleBook["UNTIL"].StartsWith("4500")) {
+                    log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
+                    oPattern.NoEndDate = true;
+                } else {
+                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                }
             }
             if (!ruleBook.ContainsKey("COUNT") && !ruleBook.ContainsKey("UNTIL")) {
                 oPattern.NoEndDate = true;
@@ -445,17 +443,17 @@ namespace OutlookGoogleCalendarSync {
                 GoogleCalendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
             }
             for (int g = 0; g < events.Count(); g++) {
-                String gEntryID;
+                String gEntryID = null;
                 Event ev = events[g];
-                if (GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.MetadataId.oEntryId, out gEntryID) || haveMatchingEv) {
+                if (haveMatchingEv || GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.MetadataId.oEntryId, out gEntryID)) {
                     if (GoogleCalendar.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        if (gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
+                        if (gEntryID != null && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
                             compare_oID = ai.EntryID;
                         }
-                        if (gEntryID == compare_oID || haveMatchingEv) {
+                        if (haveMatchingEv || gEntryID == compare_oID) {
                             log.Info("Adding Outlook IDs to Master Google Event...");
                             GoogleCalendar.AddOutlookIDs(ref ev, ai);
                             try {

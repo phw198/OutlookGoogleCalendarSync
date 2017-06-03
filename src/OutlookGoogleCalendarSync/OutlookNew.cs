@@ -56,6 +56,12 @@ namespace OutlookGoogleCalendarSync {
                         oNS = oApp.GetNamespace("mapi");
                         currentUser = oNS.CurrentUser;
                     }
+                    
+                    //Issue 402
+                    log.Debug("Getting active window inspector");
+                    Inspector inspector = oApp.ActiveInspector();
+                    inspector = (Inspector)OutlookCalendar.ReleaseObject(inspector);
+                    log.Debug("Done.");
                     currentUserSMTP = GetRecipientEmail(currentUser);
                     currentUserName = currentUser.Name;
                 } finally {
@@ -241,6 +247,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI) {
+            if (string.IsNullOrEmpty(sharedURI)) return null;
+
             Recipient sharer = null;
             MAPIFolder sharedCalendar = null;
             try {
@@ -271,6 +279,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Finding default Mailbox calendar folders");
             MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
             MainForm.Instance.rbOutlookDefaultMB.Checked = true;
+            Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
             MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
 
             defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);

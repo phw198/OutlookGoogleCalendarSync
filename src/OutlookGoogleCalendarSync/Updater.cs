@@ -40,22 +40,28 @@ namespace OutlookGoogleCalendarSync {
 
             Settings.Instance.Proxy.Configure();
 
-            if (await githubCheck()) {
-                if (isManualCheck) updateButton.Text = "Check For Update";
-                if (restartRequested) {
-                    log.Debug("Restarting");
-                    try {
-                        //UpdateManager.RestartApp(restartExe); //Removes ClickOnce, but doesn't restart properly
-                        System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
-                    } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex, true);
+            try {
+                if (await githubCheck()) {
+                    if (isManualCheck) updateButton.Text = "Check For Update";
+                    if (restartRequested) {
+                        log.Debug("Restarting");
+                        try {
+                            //UpdateManager.RestartApp(restartExe); //Removes ClickOnce, but doesn't restart properly
+                            System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse(ex, true);
+                        }
+                        MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
                     }
-                    MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
+                } else {
+                    legacyCodeplexCheck();
                 }
-            } else {
-                legacyCodeplexCheck();
+            } catch (System.Exception ex) {
+                log.Error("Failure checking for update. " + ex.Message);
+                try { legacyCodeplexCheck(); } catch { }
+            } finally {
+                if (isManualCheck) updateButton.Text = "Check for Update";
             }
-            if (isManualCheck) updateButton.Text = "Check for Update";
         }
 
         private async Task<Boolean> githubCheck() {
@@ -85,7 +91,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                     if (string.IsNullOrEmpty(nonGitHubReleaseUri))
-                        updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync");
+                        updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir);
                     else
                         updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
                     

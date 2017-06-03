@@ -515,13 +515,11 @@ namespace OutlookGoogleCalendarSync {
             Social.TrackSync();
             GoogleCalendar.Instance.GetCalendarSettings();
             while (!syncOk) {
-                if (failedAttempts > 0 &&
-                    MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
-                {
-                    bSyncNow.Text = "Start Sync";
-                    NotificationTray.UpdateItem("sync", "&Sync Now");
-                    break;
+                if (failedAttempts > 0) {
+                    if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
+                        break;
+                    else log.Info("User opted to retry sync straight away.");
                 }
 
                 //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
@@ -707,7 +705,9 @@ namespace OutlookGoogleCalendarSync {
                             log.Fine("It's an annual event.");
                             Boolean monthInSyncRange = false;
                             DateTime monthMarker = Settings.Instance.SyncStart;
-                            while (monthMarker.Month <= Settings.Instance.SyncEnd.Month && !monthInSyncRange) {
+                            while (Convert.ToInt32(monthMarker.ToString("yyyyMM")) <= Convert.ToInt32(Settings.Instance.SyncEnd.ToString("yyyyMM")) 
+                                && !monthInSyncRange) 
+                            {
                                 if (monthMarker.Month == ai.Start.Month) {
                                     monthInSyncRange = true;
                                 }
@@ -719,14 +719,19 @@ namespace OutlookGoogleCalendarSync {
                         }
                         Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
                         if (masterEv != null && masterEv.Status != "cancelled") {
-                            Boolean alreadyCached = false;
-                            if (googleEntries.Exists(x => x.Id == masterEv.Id)) {
-                                alreadyCached = true;
+                            Event cachedEv = googleEntries.Find(x => x.Id == masterEv.Id);
+                            if (cachedEv == null) {
+                                googleEntries.Add(masterEv);
+                            } else {
+                                if (DateTime.Parse(masterEv.Updated) > DateTime.Parse(cachedEv.Updated)) {
+                                    log.Debug("Refreshing cache for this Event.");
+                                    googleEntries.Remove(cachedEv);
+                                    googleEntries.Add(masterEv);
+                                }
                             }
-                            if (!alreadyCached) googleEntries.Add(masterEv);
                         }
                     } catch (System.Exception ex) {
-                        Logboxout("Failed to retrieve master for Google recurring event.");
+                        Logboxout("Failed to retrieve master for Google recurring event outside of sync range.");
                         throw ex;
                     } finally {
                         oPattern = (RecurrencePattern)OutlookCalendar.ReleaseObject(oPattern);
