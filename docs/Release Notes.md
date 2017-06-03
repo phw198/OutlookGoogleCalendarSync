@@ -1,5 +1,19 @@
 | Release Notes |
 |:---|
+# v2.5.0.0 - Beta
+:boom: This will be the final<sup>1</sup> CodePlex release before we move home to GitHub.  
+
+**Bugfix Release on CodePlex/ClickOnce**
+- Pass explicit Squirrel install path (not relative to ClickOnce): show-stopper for moving to Squirrel installer.
+- Determining if annual recurrence is within sync range.
+- Refresh dirty cache of master recurring event.
+- Reset settings to default calendar if shared calendar not found.
+- Convert recurring series end dates in 4500 AD to "no end" date.
+- Catch error when checking for GitHub update.
+- Adding omitted Squirrel DLL library files.
+
+<sup>1</sup>The final final release. Ahem. :blush:
+
 # v2.4.0.0 - Beta
 
 :boom: This will be the final CodePlex release before we move home to GitHub.  
