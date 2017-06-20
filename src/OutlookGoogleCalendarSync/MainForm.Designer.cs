@@ -148,6 +148,7 @@
             this.cbLoggingLevel = new System.Windows.Forms.ComboBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
+            this.cbShowFailMessage = new System.Windows.Forms.CheckBox();
             this.cbMinimiseToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbCreateFiles = new System.Windows.Forms.CheckBox();
@@ -1448,6 +1449,7 @@
             this.tabAppBehaviour.Controls.Add(this.cbLoggingLevel);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartup);
             this.tabAppBehaviour.Controls.Add(this.cbShowBubbleTooltips);
+            this.tabAppBehaviour.Controls.Add(this.cbShowFailMessage);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseToTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartInTray);
             this.tabAppBehaviour.Controls.Add(this.cbCreateFiles);
@@ -1481,7 +1483,7 @@
             // cbPortable
             // 
             this.cbPortable.AutoSize = true;
-            this.cbPortable.Location = new System.Drawing.Point(16, 153);
+            this.cbPortable.Location = new System.Drawing.Point(16, 170);
             this.cbPortable.Name = "cbPortable";
             this.cbPortable.Size = new System.Drawing.Size(148, 17);
             this.cbPortable.TabIndex = 38;
@@ -1507,7 +1509,7 @@
             this.gbProxy.Controls.Add(this.label5);
             this.gbProxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbProxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbProxy.Location = new System.Drawing.Point(16, 225);
+            this.gbProxy.Location = new System.Drawing.Point(16, 242);
             this.gbProxy.Name = "gbProxy";
             this.gbProxy.Size = new System.Drawing.Size(364, 200);
             this.gbProxy.TabIndex = 37;
@@ -1681,7 +1683,7 @@
             // 
             this.btLogLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btLogLocation.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btLogLocation.Location = new System.Drawing.Point(302, 193);
+            this.btLogLocation.Location = new System.Drawing.Point(302, 210);
             this.btLogLocation.Name = "btLogLocation";
             this.btLogLocation.Size = new System.Drawing.Size(80, 23);
             this.btLogLocation.TabIndex = 19;
@@ -1692,7 +1694,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 198);
+            this.label3.Location = new System.Drawing.Point(13, 215);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 13);
             this.label3.TabIndex = 18;
@@ -1714,7 +1716,7 @@
             "Fine",
             "Ultra-Fine",
             "All"});
-            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 194);
+            this.cbLoggingLevel.Location = new System.Drawing.Point(86, 211);
             this.cbLoggingLevel.Name = "cbLoggingLevel";
             this.cbLoggingLevel.Size = new System.Drawing.Size(210, 21);
             this.cbLoggingLevel.TabIndex = 17;
@@ -1742,6 +1744,16 @@
             this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
             this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.cbShowBubbleTooltipsCheckedChanged);
             // 
+            // cbShowFailMessage
+            // 
+            this.cbShowFailMessage.Location = new System.Drawing.Point(16, 152);
+            this.cbShowFailMessage.Name = "cbShowFailMessage";
+            this.cbShowFailMessage.Size = new System.Drawing.Size(259, 17);
+            this.cbShowFailMessage.TabIndex = 41;
+            this.cbShowFailMessage.Text = "Show message if sync fails";
+            this.cbShowFailMessage.UseVisualStyleBackColor = true;
+            this.cbShowFailMessage.CheckedChanged += new System.EventHandler(this.cbShowFailMessageCheckedChanged);
+            // 
             // cbMinimiseToTray
             // 
             this.cbMinimiseToTray.Location = new System.Drawing.Point(16, 98);
@@ -1764,7 +1776,7 @@
             // 
             // cbCreateFiles
             // 
-            this.cbCreateFiles.Location = new System.Drawing.Point(16, 171);
+            this.cbCreateFiles.Location = new System.Drawing.Point(16, 188);
             this.cbCreateFiles.Name = "cbCreateFiles";
             this.cbCreateFiles.Size = new System.Drawing.Size(235, 17);
             this.cbCreateFiles.TabIndex = 15;
@@ -2507,6 +2519,7 @@
         private System.Windows.Forms.ComboBox cbLoggingLevel;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.CheckBox cbShowBubbleTooltips;
+        private System.Windows.Forms.CheckBox cbShowFailMessage;
         private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
         private System.Windows.Forms.CheckBox cbCreateFiles;
