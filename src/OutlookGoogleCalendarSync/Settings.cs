@@ -73,6 +73,7 @@ namespace OutlookGoogleCalendarSync {
             Obfuscation = new Obfuscate();
 
             ShowBubbleTooltipWhenSyncing = true;
+            ShowMessageWhenSyncFails = true;
             StartOnStartup = false;
             StartInTray = false;
             MinimiseToTray = false;
@@ -203,6 +204,7 @@ namespace OutlookGoogleCalendarSync {
         }
         
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
+        [DataMember] public bool ShowMessageWhenSyncFails { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimiseToTray { get; set; }
@@ -346,6 +348,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
+            log.Info("  ShowMessageWhenSyncFails: " + ShowMessageWhenSyncFails);
             log.Info("  StartOnStartup: " + StartOnStartup);
             log.Info("  HideSplashScreen: " + ((Subscribed != DateTime.Parse("01-Jan-2000") || Donor) ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);

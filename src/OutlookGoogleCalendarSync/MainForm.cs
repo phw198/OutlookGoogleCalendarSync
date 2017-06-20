@@ -316,6 +316,7 @@ namespace OutlookGoogleCalendarSync {
             #endregion
             #region Application behaviour
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
+            cbShowFailMessage.Checked = Settings.Instance.ShowMessageWhenSyncFails;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
@@ -516,6 +517,11 @@ namespace OutlookGoogleCalendarSync {
             GoogleCalendar.Instance.GetCalendarSettings();
             while (!syncOk) {
                 if (failedAttempts > 0) {
+                    if (!Settings.Instance.ShowMessageWhenSyncFails)
+                    {
+                        log.Info("User doesn't want a message when syncing fails.");
+                        break;
+                    }
                     if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
                         break;
@@ -1627,6 +1633,10 @@ namespace OutlookGoogleCalendarSync {
 
         private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.ShowBubbleTooltipWhenSyncing = cbShowBubbleTooltips.Checked;
+        }
+
+        private void cbShowFailMessageCheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.ShowMessageWhenSyncFails = cbShowFailMessage.Checked;
         }
 
         private void cbStartInTrayCheckedChanged(object sender, System.EventArgs e) {
