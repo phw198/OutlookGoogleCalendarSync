@@ -1702,7 +1702,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void linkTShoot_issue_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/workitem/list/basic");
+            System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues");
         }
 
         private void linkTShoot_logfile_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
