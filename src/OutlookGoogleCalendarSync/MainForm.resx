@@ -117,14 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="lAboutMain.Text" xml:space="preserve">
-    <value>Project forked by Paul Woolcock (2014-2017)
-A continuation of initial efforts by Zissis Siantidis (2012-2013)
-
-If you wish to show your appreciation for this free utility 
-or support further improvements, 
-any donations would be greatly appreciated!</value>
-  </data>
   <metadata name="msCategories.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>112, 5</value>
   </metadata>
@@ -150,6 +142,14 @@ WHAT - Choose the meeting attributes to sync: attendees, description and reminde
 For helping to troubleshoot a problem, CSVs of your meetings being synchronised can be generated, and the application logging level can be altered.
 
 If you need to access Google through a proxy, you can also provide the details here, or just rely on using Internet Explorers configuration (which is the default).</value>
+  </data>
+  <data name="lAboutMain.Text" xml:space="preserve">
+    <value>Project forked by Paul Woolcock (2014-2017)
+A continuation of initial efforts by Zissis Siantidis (2012-2013)
+
+If you wish to show your appreciation for this free utility 
+or support further improvements, 
+any donations would be greatly appreciated!</value>
   </data>
   <metadata name="trayIcon.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
