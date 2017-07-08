@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync {
             System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGcalsync");
         }
         public static void RSS_follow() {
-            System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/project/feeds/rss?ProjectRSSFeed=codeplex%3a%2f%2frelease%2foutlookgooglecalendarsync");
+            System.Diagnostics.Process.Start("https://github.com/phw198/outlookgooglecalendarsync/releases.atom");
         }
         public static void Linkedin_share() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";

@@ -75,11 +75,18 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public static Boolean GoogleIdMissing(AppointmentItem ai) {
-            //Make sure Google event has all Outlook IDs stored
-            Boolean retVal = false;
-            if (!GetOGCSproperty(ai, MetadataId.gCalendarId)) retVal = true;
-            if (retVal) log.Warn("Found Outlook item missing Google IDs. " + GetEventSummary(ai));
-            return retVal;
+            //Make sure Outlook appointment has all Google IDs stored
+            String missingIds = "";
+            if (!GetOGCSproperty(ai, MetadataId.gEventID)) missingIds += MetadataIdKeyName(MetadataId.gEventID) + "|";
+            if (!GetOGCSproperty(ai, MetadataId.gCalendarId)) missingIds += MetadataIdKeyName(MetadataId.gCalendarId) + "|";
+            if (!string.IsNullOrEmpty(missingIds)) 
+                log.Warn("Found Outlook item missing Google IDs. " + GetEventSummary(ai));
+            return !string.IsNullOrEmpty(missingIds);
+        }
+        public static Boolean HasOgcsProperty(AppointmentItem ai) {
+            if (GetOGCSproperty(ai, MetadataId.gEventID)) return true;
+            if (GetOGCSproperty(ai, MetadataId.gCalendarId)) return true;
+            return false;
         }
         
         public OutlookCalendar() {
@@ -362,9 +369,8 @@ namespace OutlookGoogleCalendarSync {
 
             ai.Save();
 
-            Boolean oKeyExists = GoogleCalendar.GetOGCSproperty(ev, GoogleCalendar.MetadataId.oEntryId);
-            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional || oKeyExists) {
-                log.Debug("Storing the Outlook appointment ID in Google event.");
+            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional || GoogleCalendar.HasOgcsProperty(ev)) {
+                log.Debug("Storing the Outlook appointment IDs in Google event.");
                 GoogleCalendar.AddOutlookIDs(ref ev, ai);
                 GoogleCalendar.Instance.UpdateCalendarEntry_save(ref ev);
             }
@@ -859,8 +865,8 @@ namespace OutlookGoogleCalendarSync {
                     log.Error("COM Exception encountered.");
                     OGCSexception.Analyse(ex);
                     System.Diagnostics.Process.Start(@Program.UserFilePath);
-                    System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/workitem/list/basic");
-                    throw new ApplicationException("COM exception encountered. Please log an Issue on CodePlex and upload your OGcalsync.log file.");
+                    System.Diagnostics.Process.Start("https://github.com/phw198/outlookgooglecalendarsync/issues");
+                    throw new ApplicationException("COM exception encountered. Please log an Issue on GitHub and upload your OGcalsync.log file.");
                 }
             } catch (System.Exception ex) {
                 log.Warn("Early binding to Outlook appears to have failed.");
@@ -1036,7 +1042,7 @@ namespace OutlookGoogleCalendarSync {
             if (GetOGCSproperty(ai, MetadataId.gEventID, out oCompareID) && oCompareID == ev.Id) {
                 log.Fine("Comparing Google Calendar ID");
                 if (GetOGCSproperty(ai, MetadataId.gCalendarId, out oCompareID) &&
-                    oCompareID == OutlookCalendar.Instance.UseOutlookCalendar.EntryID) return true;
+                    oCompareID == Settings.Instance.UseGoogleCalendar.Id) return true;
                 else {
                     log.Warn("Could not find Google calendar ID against Outlook appointment item.");
                     return true;
@@ -1062,11 +1068,11 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.ReminderDND) {
                 DateTime alarm;
                 if (ai.ReminderSet)
-                    alarm = ai.Start.Date.AddMinutes(-ai.ReminderMinutesBeforeStart);
+                    alarm = ai.Start.AddMinutes(-ai.ReminderMinutesBeforeStart);
                 else {
                     if (Settings.Instance.UseGoogleDefaultReminder && GoogleCalendar.Instance.MinDefaultReminder != long.MinValue) {
                         log.Fine("Using default Google reminder value: " + GoogleCalendar.Instance.MinDefaultReminder);
-                        alarm = ai.Start.Date.AddMinutes(-GoogleCalendar.Instance.MinDefaultReminder);
+                        alarm = ai.Start.AddMinutes(-GoogleCalendar.Instance.MinDefaultReminder);
                     } else
                         return false;
                 }
@@ -1078,8 +1084,8 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.ReminderDNDstart.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
                 //eg 22:00 to 06:00
                 //Make sure end time is the day following the start time
-                Settings.Instance.ReminderDNDstart = alarm.Date.Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
-                Settings.Instance.ReminderDNDend = alarm.Date.AddDays(1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
+                Settings.Instance.ReminderDNDstart = alarm.Date.AddDays(-1).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
+                Settings.Instance.ReminderDNDend = alarm.Date.Add(Settings.Instance.ReminderDNDend.TimeOfDay);
 
                 if (alarm > Settings.Instance.ReminderDNDstart && alarm < Settings.Instance.ReminderDNDend) {
                     log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");

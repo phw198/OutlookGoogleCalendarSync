@@ -1849,10 +1849,10 @@
             this.linkTShoot_issue.Location = new System.Drawing.Point(296, 506);
             this.linkTShoot_issue.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.linkTShoot_issue.Name = "linkTShoot_issue";
-            this.linkTShoot_issue.Size = new System.Drawing.Size(94, 13);
+            this.linkTShoot_issue.Size = new System.Drawing.Size(82, 13);
             this.linkTShoot_issue.TabIndex = 49;
             this.linkTShoot_issue.TabStop = true;
-            this.linkTShoot_issue.Text = "issue on CodePlex";
+            this.linkTShoot_issue.Text = "issue on GitHub";
             this.linkTShoot_issue.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkTShoot_issue_LinkClicked);
             // 
             // linkTShoot_loglevel
@@ -2030,7 +2030,7 @@
             this.tbTS3.Name = "tbTS3";
             this.tbTS3.Size = new System.Drawing.Size(297, 13);
             this.tbTS3.TabIndex = 54;
-            this.tbTS3.Text = "  - update an existing issue or create a new issue on CodePlex";
+            this.tbTS3.Text = "  - update an existing issue or create a new issue on GitHub";
             // 
             // tbTS1
             // 
@@ -2158,7 +2158,7 @@
             this.lAboutURL.Size = new System.Drawing.Size(475, 23);
             this.lAboutURL.TabIndex = 2;
             this.lAboutURL.TabStop = true;
-            this.lAboutURL.Text = "http://outlookgooglecalendarsync.codeplex.com/";
+            this.lAboutURL.Text = "https://github.com/phw198/OutlookGoogleCalendarSync";
             this.lAboutURL.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lAboutURL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lAboutURL_LinkClicked);
             // 

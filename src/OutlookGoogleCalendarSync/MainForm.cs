@@ -425,6 +425,11 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("WARNING: Problem encountered during synchronisation.\r\n" + ex.Message);
                 OGCSexception.Analyse(ex, true);
+            } finally {
+                if (bSyncNow.Text != "Start Sync") {
+                    bSyncNow.Text = "Start Sync";
+                    NotificationTray.UpdateItem("sync", "&Sync Now");
+                }
             }
         }
         public void Sync_Requested(object sender = null, EventArgs e = null) {
@@ -507,6 +512,7 @@ namespace OutlookGoogleCalendarSync {
                 " to " + Settings.Instance.SyncEnd.ToShortDateString());
             Logboxout(Settings.Instance.SyncDirection.Name);
             Logboxout("--------------------------------------------------");
+            System.Windows.Forms.Application.DoEvents();
 
             if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.DeregisterForPushSync();
 
@@ -657,7 +663,7 @@ namespace OutlookGoogleCalendarSync {
             //Outlook returns recurring items that span the sync date range, Google doesn't
             //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
             for (int o = outlookEntries.Count - 1; o >= 0; o--) {
-                log.Fine("Processing " + o + "/" + (outlookEntries.Count - 1));
+                log.Fine("Processing " + (o + 1) + "/" + outlookEntries.Count);
                 AppointmentItem ai = null;
                 try {
                     if (outlookEntries[o] is AppointmentItem) ai = outlookEntries[o];
@@ -951,7 +957,7 @@ namespace OutlookGoogleCalendarSync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        Logboxout("Unable to update new entries into the Outlook calendar.");
+                        Logboxout("Unable to update existing entries in the Outlook calendar.");
                         throw ex;
                     }
                     Logboxout(entriesUpdated + " entries updated.");
@@ -1702,7 +1708,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void linkTShoot_issue_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/workitem/list/basic");
+            System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues");
         }
 
         private void linkTShoot_logfile_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {

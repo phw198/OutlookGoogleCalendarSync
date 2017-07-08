@@ -109,6 +109,7 @@ namespace OutlookGoogleCalendarSync {
             ogcsTimer.Tag = "PushTimer";
             ogcsTimer.Interval = 2 * 60000;
             ogcsTimer.Tick += new EventHandler(ogcsPushTimer_Tick);
+            MainForm.Instance.NextSyncVal = "Push Sync Active";
         }
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
@@ -122,12 +123,19 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("Busy syncing already. No need to push.");
                     ItemsQueued = 0;
                 }
+            } else {
+                log.Fine("Push sync triggered, but no items queued.");
             }
         }
 
         public void Switch(Boolean enable) {
-            if (enable && !ogcsTimer.Enabled) ogcsTimer.Start();
-            else if (!enable && ogcsTimer.Enabled) ogcsTimer.Stop();
+            if (enable && !ogcsTimer.Enabled) {
+                ogcsTimer.Start();
+                MainForm.Instance.NextSyncVal = "Push Sync Active";
+            } else if (!enable && ogcsTimer.Enabled) {
+                ogcsTimer.Stop();
+                MainForm.Instance.OgcsTimer.SetNextSync();
+            }
         }
         public Boolean Running() {
             return ogcsTimer.Enabled;

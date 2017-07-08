@@ -33,6 +33,8 @@ namespace OutlookGoogleCalendarSync {
         private static void Main(string[] args) {
             initialiseFiles();
 
+            Updater.MakeSquirrelAware();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -41,8 +43,8 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Loading settings from file.");
             Settings.Load();
 
-            isNewVersion();
             Updater = new Updater();
+            isNewVersion(Updater.IsSquirrelInstall()); 
             Updater.CheckForUpdate();
 
             TimezoneDB.Instance.CheckForUpdate();
@@ -206,50 +208,6 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         #region Legacy Start Menu Shortcut
-        //public static void AddShortcut(Environment.SpecialFolder directory, String subdir = "") {
-        //    log.Debug("AddShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
-        //    String appPath = Application.ExecutablePath;
-        //    if (subdir != "") subdir = "\\" + subdir;
-        //    String shortcutDir = Environment.GetFolderPath(directory) + subdir;
-
-        //    if (!System.IO.Directory.Exists(shortcutDir)) {
-        //        log.Debug("Creating directory " + shortcutDir);
-        //        System.IO.Directory.CreateDirectory(shortcutDir);
-        //    }
-
-        //    string shortcutLocation = System.IO.Path.Combine(shortcutDir, Application.ProductName + ".lnk");
-        //    #region "Windows Script Host Object Model - 32bit only"
-        //    /*
-        //    IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
-        //    IWshRuntimeLibrary.IWshShortcut shortcut = shell.CreateShortcut(shortcutLocation) as IWshRuntimeLibrary.WshShortcut;
-        //    shortcut.Description = "Synchronise Outlook and Google calendars";
-        //    shortcut.IconLocation = appPath.ToLower().Replace("OutlookGoogleCalendarSync.exe", "icon.ico");
-        //    shortcut.TargetPath = appPath;
-        //    shortcut.WorkingDirectory = Application.StartupPath;
-        //    shortcut.Save();
-        //    */
-        //    #endregion
-        //    #region "C:\Windows\System32\shell32.dll - works but only compiles in VSE 2010?!"
-        //    /*
-        //    System.IO.File.WriteAllBytes(shortcutLocation, new byte[] { });
-            
-        //    //Initialize a ShellLinkObject for that .lnk file
-        //    Shell32.Shell shl = new Shell32.ShellClass();
-        //    Shell32.Folder dir = shl.NameSpace(shortcutDir);
-        //    Shell32.FolderItem itm = dir.Items().Item(Application.ProductName + ".lnk");
-        //    Shell32.ShellLinkObject lnk = (Shell32.ShellLinkObject)itm.GetLink;
-
-        //    lnk.Path = appPath;
-        //    lnk.Description = "Synchronise Outlook and Google calendars";
-        //    lnk.WorkingDirectory = Application.StartupPath;
-        //    lnk.SetIconLocation(appPath.ToLower().Replace("OutlookGoogleCalendarSync.exe", "icon.ico"), 0);
-            
-        //    lnk.Save(shortcutLocation);
-        //    */
-        //    #endregion
-        //    log.Info("Created shortcut in \"" + shortcutDir + "\"");
-        //}
-
         public static Boolean CheckShortcut(Environment.SpecialFolder directory, String subdir = "") {
             log.Debug("CheckShortcut: directory=" + directory.ToString() + "; subdir=" + subdir);
             Boolean foundShortcut = false;
@@ -352,13 +310,39 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        private static void isNewVersion() {
+        private static void isNewVersion(Boolean isSquirrelInstall) {
             string settingsVersion = string.IsNullOrEmpty(Settings.Instance.Version) ? "Unknown" : Settings.Instance.Version;
             if (settingsVersion != Application.ProductVersion) {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 Program.ManageStartupRegKey(recreate: true);
                 Settings.Instance.Version = Application.ProductVersion;
-                System.Diagnostics.Process.Start("https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Release Notes");
+                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
+            }
+
+            //Check upgrade to Squirrel release went OK
+            try {
+                String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
+                String paddedVersion = "";
+                if (settingsVersion != "Unknown") {
+                    foreach (String versionBit in settingsVersion.Split('.')) {
+                        paddedVersion += versionBit.PadLeft(2, '0');
+                    }
+                    Int32 upgradedFrom = Convert.ToInt32(paddedVersion);
+
+                    if (isSquirrelInstall &&
+                        (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
+                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) {
+                        log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
+                        if (MessageBox.Show("A suspected improper install location has been detected.\r\n" +
+                            "Click 'OK' for further details.", "Improper Install Location", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK) {
+                                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
+                        }
+                    }
+                }
+            } catch (System.Exception ex) {
+                log.Warn("Failed to determine if OGCS is installed in the correct location.");
+                log.Error(ex.Message);
             }
         }
     }

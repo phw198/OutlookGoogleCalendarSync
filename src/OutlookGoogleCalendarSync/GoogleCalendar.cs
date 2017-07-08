@@ -439,8 +439,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
 
-            Boolean gKeyExists = OutlookCalendar.GetOGCSproperty(ai, OutlookCalendar.MetadataId.gEventID);
-            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional || gKeyExists) {
+            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional || OutlookCalendar.HasOgcsProperty(ai)) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookCalendar.AddGoogleIDs(ref ai, createdEvent);
                 ai.Save();
@@ -937,11 +936,19 @@ namespace OutlookGoogleCalendarSync {
 
         public static Boolean OutlookIdMissing(Event ev) {
             //Make sure Google event has all Outlook IDs stored
-            Boolean retVal = false;
-            if (!GetOGCSproperty(ev, MetadataId.oGlobalApptId)) retVal = true;
-            if (!GetOGCSproperty(ev, MetadataId.oCalendarId)) retVal = true;
-            if (retVal) log.Warn("Found Google item missing Outlook IDs. " + GetEventSummary(ev));
-            return retVal;                    
+            String missingIds = "";
+            if (!GetOGCSproperty(ev, MetadataId.oGlobalApptId)) missingIds += MetadataIdKeyName(MetadataId.oGlobalApptId) + "|";
+            if (!GetOGCSproperty(ev, MetadataId.oCalendarId)) missingIds += MetadataIdKeyName(MetadataId.oCalendarId) + "|";
+            if (!GetOGCSproperty(ev, MetadataId.oEntryId)) missingIds += MetadataIdKeyName(MetadataId.oEntryId) + "|";
+            if (!string.IsNullOrEmpty(missingIds)) 
+                log.Warn("Found Google item missing Outlook IDs ("+ missingIds.TrimEnd('|') +"). " + GetEventSummary(ev));
+            return !string.IsNullOrEmpty(missingIds);
+        }
+        public static Boolean HasOgcsProperty(Event ev) {
+            if (GetOGCSproperty(ev, MetadataId.oEntryId)) return true;
+            if (GetOGCSproperty(ev, MetadataId.oGlobalApptId)) return true;
+            if (GetOGCSproperty(ev, MetadataId.oCalendarId)) return true;
+            return false;
         }
 
         //<summary>New logic for comparing Outlook and Google events works as follows:
@@ -1054,9 +1061,10 @@ namespace OutlookGoogleCalendarSync {
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((oGlobalID.StartsWith("040000008200E00074C5B7101A82E008") && //We got a bonafide Global ID
+                if ((oGlobalID.StartsWith("040000008200E00074C5B7101A82E008") && 
+                    gCompareID.StartsWith("040000008200E00074C5B7101A82E008") && //We've got bonafide Global IDs
                     gCompareID.Substring(72) == oGlobalID.Substring(72)) || 
-                    gCompareID == oGlobalID) //Or it's really a Entry ID (failsafe)
+                    gCompareID.Remove(gCompareID.Length-16) == oGlobalID.Remove(oGlobalID.Length-16)) //Or it's really a Entry ID (failsafe)
                 {
                     log.Fine("Comparing Outlook CalendarID");
                     if (GetOGCSproperty(ev, MetadataId.oCalendarId, out gCompareID) &&
@@ -1067,10 +1075,19 @@ namespace OutlookGoogleCalendarSync {
                         log.Fine("Comparing Outlook EntryID");
                         if (GetOGCSproperty(ev, MetadataId.oEntryId, out gCompareID) && gCompareID == ai.EntryID) {
                             return true;
+                        } else if (gCompareID.IsNotNullOrEmpty() && 
+                            gCompareID.Remove(gCompareID.Length-16) == ai.EntryID.Remove(ai.EntryID.Length-16)) 
+                        {
+                            log.Fine("Organiser changed time of appointment."); //MessageGlobalCounter bytes change (last 8-bytes)
+                            AddOutlookIDs(ref ev, ai); //update EntryID
+                            addOGCSproperty(ref ev, MetadataId.forceSave, "True");
+                            return true;
+
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
                             if (SignaturesMatch(signature(ev), OutlookCalendar.signature(ai))) {
                                 AddOutlookIDs(ref ev, ai); //update EntryID
+                                addOGCSproperty(ref ev, MetadataId.forceSave, "True");
                                 return true;
                             }
                         }

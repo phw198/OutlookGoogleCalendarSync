@@ -37,6 +37,7 @@ namespace OutlookGoogleCalendarSync {
         private void setDefaults() {
             //Default values
             assignedClientIdentifier = "";
+            assignedClientSecret = "";
             PersonalClientIdentifier = "";
             PersonalClientSecret = ""; 
             OutlookService = OutlookCalendar.Service.DefaultMailbox;
@@ -128,6 +129,14 @@ namespace OutlookGoogleCalendarSync {
             set {
                 assignedClientIdentifier = value.Trim();
                 if (!loading()) XMLManager.ExportElement("AssignedClientIdentifier", value.Trim(), Program.SettingsFile);
+            }
+        }
+        private String assignedClientSecret;
+        [DataMember] public String AssignedClientSecret {
+            get { return assignedClientSecret; }
+            set {
+                assignedClientSecret = value.Trim();
+                if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), Program.SettingsFile);
             }
         }
         private String personalClientIdentifier;

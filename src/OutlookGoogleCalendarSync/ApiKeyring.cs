@@ -15,12 +15,19 @@ using System.Text.RegularExpressions;
 namespace OutlookGoogleCalendarSync {
     public class ApiKeyring {
         private static readonly ILog log = LogManager.GetLogger(typeof(ApiKeyring));
-        private const String keyringURL = "https://outlookgooglecalendarsync.codeplex.com/wikipage?title=Keyring";
+        private const String keyringURL = "https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/keyring.md";
 
         public enum KeyType {
             Standard,
             Subscriber
         }
+        private enum KeyStatus {
+            ACTIVE,
+            DEAD,
+            DISABLED,
+            FULL
+        }
+
         private List<ApiKey> standardKeys = new List<ApiKey>();
         private List<ApiKey> subscriberKeys = new List<ApiKey>();
 
@@ -30,18 +37,13 @@ namespace OutlookGoogleCalendarSync {
             set {
                 key = value;
                 Settings.Instance.AssignedClientIdentifier = key.ClientId;
+                Settings.Instance.AssignedClientSecret = key.ClientSecret;
             }
         }
         
         public Boolean PickKey(KeyType keyType) {
             log.Debug("Picking a " + keyType.ToString() + " key.");
             try {
-                List<ApiKey> keyRing = (keyType == KeyType.Standard) ? standardKeys : subscriberKeys;
-                if (keyRing == null || keyRing.Count == 0) {
-                    log.Debug(keyType.ToString() + " keyring is empty.");
-                    Settings.Instance.AssignedClientIdentifier = "";
-                    return false;
-                }
                 if (string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier) &&
                     !string.IsNullOrEmpty(Settings.Instance.RefreshToken)) {
                     log.Debug("Legacy user with default API key.");
@@ -50,14 +52,49 @@ namespace OutlookGoogleCalendarSync {
                     return false;
                 }
 
-                if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier)) {
-                    Key = keyRing.Find(k => k.ClientId == Settings.Instance.AssignedClientIdentifier);
-                    if (key != null) return true;
-                    else log.Warn("Could not find assigned key!");
+                List<ApiKey> keyRing = (keyType == KeyType.Standard) ? standardKeys : subscriberKeys;
+                if (keyRing == null || keyRing.Count == 0) {
+                    log.Warn(keyType.ToString() + " keyring is empty!");
+                    if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier) &&
+                        !string.IsNullOrEmpty(Settings.Instance.AssignedClientSecret)) 
+                    {
+                        log.Debug("Using key from settings file.");
+                        key = new ApiKey(Settings.Instance.AssignedClientIdentifier, Settings.Instance.AssignedClientSecret);
+                        return true;
+                    } else {
+                        log.Debug("Reverting to default key.");
+                        Settings.Instance.AssignedClientIdentifier = "";
+                        return false;
+                    }
                 }
+
+                if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier)) {
+                    ApiKey retrievedKey = keyRing.Find(k => k.ClientId == Settings.Instance.AssignedClientIdentifier);
+                    if (retrievedKey == null) {
+                        log.Warn("Could not find assigned key on keyring!");
+                        if (standardKeys.Concat(subscriberKeys).Any(k => k.ClientId == Settings.Instance.AssignedClientIdentifier)) {
+                            log.Warn("The key was been taken from the other keyring!");
+                        }
+                        if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier) &&
+                            !string.IsNullOrEmpty(Settings.Instance.AssignedClientSecret)) 
+                        {
+                            log.Debug("Using key from settings file.");
+                            key = new ApiKey(Settings.Instance.AssignedClientIdentifier, Settings.Instance.AssignedClientSecret);
+                            return true;
+                        }
+                    } else {
+                        if (retrievedKey.Status == KeyStatus.DEAD.ToString())
+                            log.Warn("The assigned key can no longer be used. A new key must be assigned.");
+                        else {
+                            key = retrievedKey;
+                            return true;
+                        }
+                    }
+                }
+                keyRing = keyRing.Where(k => k.Status == KeyStatus.ACTIVE.ToString()).ToList();
                 Random rnd = new Random();
                 int chosenKey = rnd.Next(0, keyRing.Count - 1);
-                log.Fine("Picked random key #" + chosenKey + 1);
+                log.Fine("Picked random active key #" + chosenKey + 1);
                 Key = keyRing[chosenKey];
                 return true;
 
@@ -73,13 +110,11 @@ namespace OutlookGoogleCalendarSync {
             List<ApiKey> allKeys = getKeyRing();
             if (allKeys == null) return;
 
-            List<ApiKey> activeKeys = new List<ApiKey>();
-            activeKeys = allKeys.Where(key => key.Status == "ACTIVE").ToList();
-            log.Debug(activeKeys.Count + " keys are active.");
-            
-            standardKeys = activeKeys.Where(key => key.Type == KeyType.Standard.ToString()).ToList();
+            log.Debug(allKeys.Where(key => key.Status == KeyStatus.ACTIVE.ToString()).Count() + " keys are active.");
+
+            standardKeys = allKeys.Where(key => key.Type == KeyType.Standard.ToString()).ToList();
             log.Fine(standardKeys.Count + " are standard keys.");
-            subscriberKeys = activeKeys.Where(key => key.Type == KeyType.Subscriber.ToString()).ToList();
+            subscriberKeys = allKeys.Where(key => key.Type == KeyType.Subscriber.ToString()).ToList();
             log.Fine(subscriberKeys.Count + " are subscriber keys.");
         }
 
@@ -94,14 +129,14 @@ namespace OutlookGoogleCalendarSync {
                 log.Error("Failed to retrieve data: " + ex.Message);
             }
             if (!string.IsNullOrEmpty(html)) {
-                html = html.Replace("\r\n", "");
-                MatchCollection keyRecords = findText(html, @"<div class=\""wikidoc\""><table><tbody>(<tr>.*?</tr>)</tbody></table>");
+                html = html.Replace("\n", "");
+                MatchCollection keyRecords = findText(html, @"<article class=\""markdown-body entry-content\"".*?<tbody>(<tr>.*?</tr>)</tbody></table>");
                 if (keyRecords.Count == 0) {
                     log.Warn("Could you not find table of keys.");
                     return keyRing;
                 }
                 foreach (String record in keyRecords[0].Captures[0].Value.Split(new string[]{"<tr>"}, StringSplitOptions.None)) {
-                    MatchCollection keyAttributes = findText(record, @"<td>(.*?)</td>");
+                    MatchCollection keyAttributes = findText(record, @"<td.*?>(.*?)</td>");
                     if (keyAttributes.Count > 0) {
                         try {
                             keyRing.Add(new ApiKey(keyAttributes));
@@ -159,6 +194,11 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex);
                 throw ex;
             }
+        }
+
+        public ApiKey(String clientId, String clientSecret) {
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
         }
     }
 }
