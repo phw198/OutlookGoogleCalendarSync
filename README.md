@@ -6,14 +6,6 @@
 <p align="center">:sparkles: We're new here, having just moved over <a href="https://outlookgooglecalendarsync.codeplex.com" target="_blank">from Codeplex</a>. Hi! :sparkles:<br/>
 Watch this space for updates as we busily get things moved over.</p>
 
-### Current Beta Release: [![GitHub release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Github Releases (by Release)](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.5.0-beta)
-
-:package: [CodePlex ClickOnce Installer](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/badge/downloads-37099-green.svg)](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)
- 
- :package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.0-beta/Portable_OGCS_v2.5.0.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/latest/Portable_OGCS_v2.5.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.0-beta/Portable_OGCS_v2.5.0.zip)
-
 ### Continually Improving
 <img src="https://campbowiedistrict.com/wp-content/uploads/2016/08/page0-under-construction1.png" v
 align="left" width="100px"/> 
@@ -23,6 +15,26 @@ If you would like to support this tool and its further development please [![don
 
 <a href="https://plus.google.com/communities/114412828247015553563"><img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_google_community.png" align="center"></a> <a href="http://www.twitter.com/OGcalsync"><img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_twitter_follow.png" align="center"></a> <a href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fabout.twitter.com%2Fresources%2Fbuttons&text=I%20just%20found%20this%20amazing%20free%20tool%20to%20sync%20Outlook%20and%20Google%20calendars&tw_p=tweetbutton&url=http%3A%2F%2Fbit.ly%2FOGcalsync&via=OGcalsync"><img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_tweet.png" align="center"></a>
 
+
+### Latest Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/latest/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
+
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Setup.exe)
+ 
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip)
+
+:information_source: Upgrades to this release  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/OutlookGoogleCalendarSync-2.5.1-alpha-full.nupkg.svg)
+
+### Current Beta Release: [![Beta Release)](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.5.0-beta)
+
+:package: [CodePlex ClickOnce Installer](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/badge/downloads-33615-green.svg)](https://outlookgooglecalendarsync.codeplex.com/downloads/get/clickOnce/OutlookGoogleCalendarSync.application)
+ 
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.0-beta/Portable_OGCS_v2.5.0.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.0-beta/Portable_OGCS_v2.5.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.0-beta/Portable_OGCS_v2.5.0.zip)
+ 
 ## Functionality
 
 - Supports all versions of Outlook from 2003 to 2016 64-bit!
