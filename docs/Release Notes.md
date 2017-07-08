@@ -1,5 +1,23 @@
 | Release Notes |
 |:---|
+
+# v2.5.1.0 - Alpha
+
+**Enhancements**
+- First native GitHub release (using Squirrel). :tada:
+- Option to provide feedback when uninstalling.
+- Uninstalls CodePlex ClickOnce app.
+- All references to CodePlex removed.
+- Improved management of API keys.
+
+**Bugfix**
+- Continual retry to delete recurring all-day events
+- Failure to retrieve master for Google recurring event.
+- Saves failing to Google after adding calendar ID to event.
+- Cannot find shared Outlook folder.
+- Catch failure when checking for update on GitHub.
+- DND for reminders.
+
 # v2.5.0.0 - Beta
 :boom: This will be the final<sup>1</sup> CodePlex release before we move home to GitHub.  
 
