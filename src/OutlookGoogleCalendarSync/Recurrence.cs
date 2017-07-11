@@ -88,7 +88,6 @@ namespace OutlookGoogleCalendarSync {
                                 DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date).Day > 28) {
                                 //In Outlook this is simply a monthly recurring
                                 oPattern.RecurrenceType = OlRecurrenceType.olRecursMonthly;
-                                oPattern.DayOfWeekMask = 0;
                             }
                         }
                         if (ruleBook.ContainsKey("BYDAY")) {
@@ -231,9 +230,7 @@ namespace OutlookGoogleCalendarSync {
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(oPattern.Interval);
-                        if (oPattern.DayOfWeekMask != (OlDaysOfWeek)127) { //If not every day of week, define which ones
-                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
-                        }
+                        addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
                         addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
                         break;
                     }

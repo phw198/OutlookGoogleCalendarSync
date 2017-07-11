@@ -72,8 +72,6 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 log.Error("Failed to determine if app is a Squirrel install. Assuming not.");
                 OGCSexception.Analyse(ex);
-                if (this.isManualCheck)
-                    MessageBox.Show("Could not retrieve new version of the application.\n" + ex.Message, "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
             log.Info("This " + (isSquirrelInstall ? "is" : "is not") + " a Squirrel " + (Program.IsClickOnceInstall ? "aware ClickOnce " : "") + "install.");
@@ -239,7 +237,7 @@ namespace OutlookGoogleCalendarSync {
             //"C:\Users\username\AppData\Local\OutlookGoogleCalendarSync\app-2.5.0-beta\OutlookGoogleCalendarSync.exe" --squirrel-uninstall 2.5.0-beta
             try {
                 String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
-                if (cliArgs.Length == 2) {
+                if (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel")) {
                     log.Debug("CLI arguments: " + string.Join(" ", cliArgs));
                     cliArgs[1] = cliArgs[1].Split('-')[0];
                 }

@@ -15,7 +15,7 @@ namespace OutlookGoogleCalendarSync {
         public static readonly SyncDirection GoogleToOutlook = new SyncDirection(2, "Outlook ← Google");
         public static readonly SyncDirection Bidirectional = new SyncDirection(3,   "Outlook ↔ Google");
 
-        public SyncDirection() { }
+        private SyncDirection() { }
 
         private SyncDirection(int id, String name) {
             this.Name = name;

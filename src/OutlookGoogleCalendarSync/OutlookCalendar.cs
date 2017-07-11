@@ -59,35 +59,6 @@ namespace OutlookGoogleCalendarSync {
             AlternativeMailbox,
             SharedCalendar
         }
-        public enum MetadataId {
-            gEventID,
-            gCalendarId,
-            ogcsModified,
-            forceSave
-        }
-        public static String MetadataIdKeyName(MetadataId Id) {
-            switch (Id) {
-                case MetadataId.gEventID: return "googleEventID";
-                case MetadataId.gCalendarId: return "googleCalendarID";
-                case MetadataId.ogcsModified: return "OGCSmodified";
-                case MetadataId.forceSave: return "forceSave";
-                default: return "googleEventID";
-            }
-        }
-        public static Boolean GoogleIdMissing(AppointmentItem ai) {
-            //Make sure Outlook appointment has all Google IDs stored
-            String missingIds = "";
-            if (!GetOGCSproperty(ai, MetadataId.gEventID)) missingIds += MetadataIdKeyName(MetadataId.gEventID) + "|";
-            if (!GetOGCSproperty(ai, MetadataId.gCalendarId)) missingIds += MetadataIdKeyName(MetadataId.gCalendarId) + "|";
-            if (!string.IsNullOrEmpty(missingIds)) 
-                log.Warn("Found Outlook item missing Google IDs. " + GetEventSummary(ai));
-            return !string.IsNullOrEmpty(missingIds);
-        }
-        public static Boolean HasOgcsProperty(AppointmentItem ai) {
-            if (GetOGCSproperty(ai, MetadataId.gEventID)) return true;
-            if (GetOGCSproperty(ai, MetadataId.gCalendarId)) return true;
-            return false;
-        }
         
         public OutlookCalendar() {
             IOutlook = OutlookFactory.getOutlookInterface();
@@ -339,7 +310,7 @@ namespace OutlookGoogleCalendarSync {
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
             ai.Location = ev.Location;
-            ai.Sensitivity = (ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+            ai.Sensitivity = getPrivacy(ev.Visibility, SyncDirection.GoogleToOutlook);
             ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
@@ -554,16 +525,15 @@ namespace OutlookGoogleCalendarSync {
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
                 ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) 
             {
-                String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
-                String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
-                if (MainForm.CompareAttribute("Privacy", SyncDirection.GoogleToOutlook, gPrivacy, oPrivacy, sb, ref itemModified)) {
-                    ai.Sensitivity = (ev.Visibility != null && ev.Visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                OlSensitivity gPrivacy = getPrivacy(ev.Visibility, SyncDirection.GoogleToOutlook);
+                if (MainForm.CompareAttribute("Privacy", SyncDirection.GoogleToOutlook, gPrivacy.ToString(), ai.Sensitivity.ToString(), sb, ref itemModified)) {
+                    ai.Sensitivity = gPrivacy;
                 }
             }
             String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
             String gFreeBusy = ev.Transparency ?? "opaque";
             if (MainForm.CompareAttribute("Free/Busy", SyncDirection.GoogleToOutlook, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
-                ai.BusyStatus = (ev.Transparency != null && ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
             }
 
             if (Settings.Instance.AddAttendees) {
@@ -811,6 +781,19 @@ namespace OutlookGoogleCalendarSync {
                 } finally {
                     recipient = (Recipient)OutlookCalendar.ReleaseObject(recipient);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Determine Appointment Item's privacy setting
+        /// </summary>
+        /// <param name="visibility">Google's current setting</param>
+        /// <param name="direction">Direction of sync</param>
+        private OlSensitivity getPrivacy(String visibility, SyncDirection direction) {
+            if (Settings.Instance.SetEntriesPrivate && direction == Settings.Instance.PrivateCalendar) {
+                return OlSensitivity.olPrivate;
+            } else {
+                return (visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
             }
         }
 
@@ -1106,6 +1089,38 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region OGCS Outlook properties
+        public enum MetadataId {
+            gEventID,
+            gCalendarId,
+            ogcsModified,
+            forceSave
+        }
+        public static String MetadataIdKeyName(MetadataId Id) {
+            switch (Id) {
+                case MetadataId.gEventID: return "googleEventID";
+                case MetadataId.gCalendarId: return "googleCalendarID";
+                case MetadataId.ogcsModified: return "OGCSmodified";
+                case MetadataId.forceSave: return "forceSave";
+                default: return "googleEventID";
+            }
+        }
+        
+        public static Boolean GoogleIdMissing(AppointmentItem ai) {
+            //Make sure Outlook appointment has all Google IDs stored
+            String missingIds = "";
+            if (!GetOGCSproperty(ai, MetadataId.gEventID)) missingIds += MetadataIdKeyName(MetadataId.gEventID) + "|";
+            if (!GetOGCSproperty(ai, MetadataId.gCalendarId)) missingIds += MetadataIdKeyName(MetadataId.gCalendarId) + "|";
+            if (!string.IsNullOrEmpty(missingIds))
+                log.Warn("Found Outlook item missing Google IDs (" + missingIds.TrimEnd('|') + "). " + GetEventSummary(ai));
+            return !string.IsNullOrEmpty(missingIds);
+        }
+        
+        public static Boolean HasOgcsProperty(AppointmentItem ai) {
+            if (GetOGCSproperty(ai, MetadataId.gEventID)) return true;
+            if (GetOGCSproperty(ai, MetadataId.gCalendarId)) return true;
+            return false;
+        }
+        
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
             //Add the Google event IDs into Outlook appointment.
             addOGCSproperty(ref ai, MetadataId.gEventID, ev.Id);
@@ -1148,6 +1163,13 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        private static void removeOGCSproperty(ref AppointmentItem ai, MetadataId key) {
+            if (GetOGCSproperty(ai, key)) {
+                UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
+                prop.Delete();
+            }
+        }
+
         public static DateTime GetOGCSlastModified(AppointmentItem ai) {
             DateTime lastModded;
             getOGCSproperty(ai, MetadataId.ogcsModified, out lastModded);
@@ -1155,12 +1177,6 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void setOGCSlastModified(ref AppointmentItem ai) {
             addOGCSproperty(ref ai, MetadataId.ogcsModified, DateTime.Now);
-        }
-        private static void removeOGCSproperty(ref AppointmentItem ai, MetadataId key) {
-            if (GetOGCSproperty(ai, key)) {
-                UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
-                prop.Delete();
-            }
         }
         #endregion
         #endregion

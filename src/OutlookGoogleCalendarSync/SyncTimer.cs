@@ -10,7 +10,8 @@ namespace OutlookGoogleCalendarSync {
         public DateTime? NextSyncDate { 
             get {
                 try {
-                    if (MainForm.Instance.NextSyncVal == "Inactive" || !ogcsTimer.Enabled) {
+                    if (MainForm.Instance.NextSyncVal == "Inactive" || !ogcsTimer.Enabled || 
+                        MainForm.Instance.NextSyncVal == "Push Sync Active") {
                         return null;
                     } else {
                         return DateTime.ParseExact(MainForm.Instance.NextSyncVal,

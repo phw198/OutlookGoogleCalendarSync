@@ -102,6 +102,8 @@ namespace OutlookGoogleCalendarSync {
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             
             //Application behaviour
+            if (Settings.Instance.StartOnStartup)
+                ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
             if (!Settings.Instance.Donor) 
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
             ToolTips.SetToolTip(cbPortable,
@@ -267,6 +269,14 @@ namespace OutlookGoogleCalendarSync {
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
             cbOfuscate.Checked = Settings.Instance.Obfuscation.Enabled;
+            //More Options
+            howMorePanel.Visible = false;
+            cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
+            if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                if (Settings.Instance.PrivateCalendar == SyncDirection.OutlookToGoogle) tbPrivateCalendar.SelectedIndex = 0;
+                if (Settings.Instance.PrivateCalendar == SyncDirection.GoogleToOutlook) tbPrivateCalendar.SelectedIndex = 1;
+            } else 
+                tbPrivateCalendar.SelectedIndex = 2;
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 SyncDirection sd = (cbObfuscateDirection.Items[i] as SyncDirection);
@@ -317,6 +327,8 @@ namespace OutlookGoogleCalendarSync {
             #region Application behaviour
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
+            tbStartupDelay.Value = Settings.Instance.StartupDelay;
+            tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
@@ -1102,6 +1114,10 @@ namespace OutlookGoogleCalendarSync {
         #region EVENTS
         #region Form actions
         void Save_Click(object sender, EventArgs e) {
+            if (tbStartupDelay.Value != Settings.Instance.StartupDelay) {
+                Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
+                if (cbStartOnStartup.Checked) Program.ManageStartupRegKey(true);
+            }
             Settings.Instance.Save();
             Settings.Instance.LogSettings();
         }
@@ -1453,9 +1469,18 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = SyncDirection.OutlookToGoogle.Id - 1;
+                if (tbPrivateCalendar.Items.Contains("target calendar"))
+                    tbPrivateCalendar.Items.Remove("target calendar");
+                tbPrivateCalendar.SelectedIndex = 0;
+                tbPrivateCalendar.Enabled = cbPrivate.Checked;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id - 1;
+                if (!tbPrivateCalendar.Items.Contains("target calendar"))
+                    tbPrivateCalendar.Items.Add("target calendar");
+                if (tbPrivateCalendar.SelectedIndex == 2) tbPrivateCalendar_SelectedItemChanged(null, null);
+                tbPrivateCalendar.SelectedIndex = 2;
+                tbPrivateCalendar.Enabled = false;
             }
             if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) {
                 OutlookCalendar.Instance.DeregisterForPushSync();
@@ -1497,10 +1522,35 @@ namespace OutlookGoogleCalendarSync {
         }
         
         private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
+            Boolean show = (sender as CheckBox).Checked;
+            if (show) {
+                this.howObfuscatePanel.Visible = true;
+                this.howMorePanel.Visible = false;
+            }
+            gbSyncOptions_HowExpand(show, 251);
+            if (!show) {
+                this.howObfuscatePanel.Visible = false;
+                this.howMorePanel.Visible = false;
+            }
+        }
+        private void btHowMore_CheckedChanged(object sender, EventArgs e) {
+            Boolean show = (sender as CheckBox).Checked;
+            if (show) {
+                this.howMorePanel.Visible = true;
+                this.howObfuscatePanel.Visible = false;
+                this.btHowMore.Text = "Less...";
+            }
+            gbSyncOptions_HowExpand(show, 134);
+            if (!show) {
+                this.howMorePanel.Visible = false;
+                this.howObfuscatePanel.Visible = false;
+            }
+        }
+        private void gbSyncOptions_HowExpand(Boolean show, Int16 newHeight) {
             int minPanelHeight = Convert.ToInt16(109 * magnification);
-            int maxPanelHeight = Convert.ToInt16(251 * magnification);
+            int maxPanelHeight = Convert.ToInt16(newHeight * magnification);
             this.gbSyncOptions_How.BringToFront();
-            if ((sender as CheckBox).Checked) {
+            if (show) {
                 while (this.gbSyncOptions_How.Height < maxPanelHeight) {
                     this.gbSyncOptions_How.Height += 2;
                     System.Windows.Forms.Application.DoEvents();
@@ -1514,9 +1564,26 @@ namespace OutlookGoogleCalendarSync {
                     System.Threading.Thread.Sleep(1);
                 }
                 this.gbSyncOptions_How.Height = minPanelHeight;
+                this.btHowMore.Text = "More...";
             }
         }
+        #endregion
 
+        #region More Options Panel
+        private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.SetEntriesPrivate = cbPrivate.Checked;
+            tbPrivateCalendar.Enabled = cbPrivate.Checked && Settings.Instance.SyncDirection == SyncDirection.Bidirectional;
+        }
+        private void tbPrivateCalendar_SelectedItemChanged(object sender, EventArgs e) {
+            switch (tbPrivateCalendar.Text) {
+                case "Google calendar": Settings.Instance.PrivateCalendar = SyncDirection.OutlookToGoogle; break;
+                case "Outlook calendar": Settings.Instance.PrivateCalendar = SyncDirection.GoogleToOutlook; break;
+                case "target calendar": Settings.Instance.PrivateCalendar = Settings.Instance.SyncDirection; break;
+            }
+        }
+        #endregion
+
+        #region Obfuscation Panel
         private void cbObfuscateDirection_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.Obfuscation.Direction = (SyncDirection)cbObfuscateDirection.SelectedItem;
         }
@@ -1573,7 +1640,7 @@ namespace OutlookGoogleCalendarSync {
         private void showWhatPostit() {
             Boolean visible = (Settings.Instance.AddDescription &&
                 Settings.Instance.SyncDirection == SyncDirection.Bidirectional);
-            WhatPostit.Visible = visible;
+            WhatPostit.Visible = visible && !Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddDescription_OnlyToGoogle.Visible = visible;
         }
 
@@ -1584,6 +1651,7 @@ namespace OutlookGoogleCalendarSync {
         }
         private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription_OnlyToGoogle = cbAddDescription_OnlyToGoogle.Checked;
+            showWhatPostit();
         }
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
@@ -1615,6 +1683,7 @@ namespace OutlookGoogleCalendarSync {
         #region Application settings
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
+            tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             Program.ManageStartupRegKey();
         }
 

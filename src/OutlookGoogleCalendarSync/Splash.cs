@@ -12,6 +12,7 @@ namespace OutlookGoogleCalendarSync {
         private static ToolTip ToolTips;
         private static Boolean donor;
         private static DateTime subscribed;
+        private static Boolean initialised = false;
 
         public Splash() {
             InitializeComponent();
@@ -22,47 +23,56 @@ namespace OutlookGoogleCalendarSync {
                 splashThread = new Thread(new ThreadStart(doShowSplash));
                 splashThread.IsBackground = true;
                 splashThread.Start();
+                while (!initialised) {
+                    //Stop the program continuing until splash screen has finished accessing settings.xml
+                    Thread.Sleep(50);
+                }
             }
         }
         private static void doShowSplash() {
-            if (splash == null)
-                splash = new Splash();
+            try {
+                if (splash == null)
+                    splash = new Splash();
 
-            splash.lVersion.Text = "v" + Application.ProductVersion;
-            String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Program.SettingsFile) ?? "0";
-            if (completedSyncs == "0")
-                splash.lSyncCount.Visible = false;
-            else {
-                splash.lSyncCount.Text = splash.lSyncCount.Text.Replace("{syncs}", String.Format("{0:n0}", completedSyncs));
-                splash.lSyncCount.Left = (splash.panel1.Width - (splash.lSyncCount.Width)) / 2;
+                splash.lVersion.Text = "v" + Application.ProductVersion;
+                String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Program.SettingsFile) ?? "0";
+                if (completedSyncs == "0")
+                    splash.lSyncCount.Visible = false;
+                else {
+                    splash.lSyncCount.Text = splash.lSyncCount.Text.Replace("{syncs}", String.Format("{0:n0}", completedSyncs));
+                    splash.lSyncCount.Left = (splash.panel1.Width - (splash.lSyncCount.Width)) / 2;
+                }
+                //Load settings directly from XML
+                donor = (XMLManager.ImportElement("Donor", Program.SettingsFile) ?? "false") == "true";
+
+                String subscribedDate = XMLManager.ImportElement("Subscribed", Program.SettingsFile);
+                if (string.IsNullOrEmpty(subscribedDate)) subscribedDate = "01-Jan-2000";
+                subscribed = DateTime.Parse(subscribedDate);
+                Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Program.SettingsFile) ?? "false") == "true";
+                initialised = true;
+
+                splash.cbHideSplash.Checked = hideSplash;
+                if (subscribed == DateTime.Parse("01-Jan-2000") && !donor) {
+                    ToolTips = new ToolTip();
+                    ToolTips.AutoPopDelay = 10000;
+                    ToolTips.InitialDelay = 500;
+                    ToolTips.ReshowDelay = 200;
+                    ToolTips.ShowAlways = true;
+
+                    ToolTips.SetToolTip(splash.cbHideSplash, "Donate £10 or more to enable this feature.");
+                } else if (hideSplash) {
+                    log.Debug("Suppressing splash screen.");
+                    return;
+                }
+                splash.TopLevel = true;
+                splash.TopMost = true;
+                log.Debug("Showing splash screen.");
+                Application.Run(splash);
+                log.Debug("Disposed of splash screen.");
+                splashThread.Abort();
+            } finally {
+                initialised = true;
             }
-            //Load settings directly from XML
-            donor = (XMLManager.ImportElement("Donor", Program.SettingsFile) ?? "false") == "true";
-            
-            String subscribedDate = XMLManager.ImportElement("Subscribed", Program.SettingsFile);
-            if (string.IsNullOrEmpty(subscribedDate)) subscribedDate = "01-Jan-2000";
-            subscribed = DateTime.Parse(subscribedDate);
-            Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Program.SettingsFile) ?? "false") == "true";
-            
-            splash.cbHideSplash.Checked = hideSplash;
-            if (subscribed == DateTime.Parse("01-Jan-2000") && !donor) {
-                ToolTips = new ToolTip();
-                ToolTips.AutoPopDelay = 10000;
-                ToolTips.InitialDelay = 500;
-                ToolTips.ReshowDelay = 200;
-                ToolTips.ShowAlways = true;
-            
-                ToolTips.SetToolTip(splash.cbHideSplash, "Donate £10 or more to enable this feature.");
-            } else if (hideSplash) {
-                log.Debug("Suppressing splash screen.");
-                return;
-            }
-            splash.TopLevel = true;
-            splash.TopMost = true;
-            log.Debug("Showing splash screen.");
-            Application.Run(splash);
-            log.Debug("Disposed of splash screen.");
-            splashThread.Abort();
         }
 
         public static void CloseMe() {

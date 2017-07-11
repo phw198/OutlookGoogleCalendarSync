@@ -362,7 +362,7 @@ namespace OutlookGoogleCalendarSync {
             ev.Summary = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (Settings.Instance.AddDescription) ev.Description = ai.Body;
             ev.Location = ai.Location;
-            ev.Visibility = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+            ev.Visibility = getPrivacy(ai.Sensitivity, SyncDirection.OutlookToGoogle);
             ev.Transparency = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
             ev.Attendees = new List<EventAttendee>();
@@ -640,7 +640,7 @@ namespace OutlookGoogleCalendarSync {
             if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
 
-            String oPrivacy = (ai.Sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+            String oPrivacy = getPrivacy(ai.Sensitivity, SyncDirection.OutlookToGoogle);
             String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
             if (MainForm.CompareAttribute("Privacy", SyncDirection.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
                 ev.Visibility = oPrivacy;
@@ -912,43 +912,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
-        }
-
-        public enum MetadataId {
-            oEntryId,
-            oGlobalApptId,
-            oCalendarId,
-            ogcsModified,
-            apiLimitHit,
-            forceSave
-        }
-        public static String MetadataIdKeyName(MetadataId Id) {
-            switch (Id) {
-                case MetadataId.oEntryId: return "outlook_EntryID";
-                case MetadataId.oGlobalApptId: return "outlook_GlobalApptID";
-                case MetadataId.oCalendarId: return "outlook_CalendarID";
-                case MetadataId.ogcsModified: return "OGCSmodified";
-                case MetadataId.apiLimitHit: return "APIlimitHit";
-                case MetadataId.forceSave: return "forceSave";
-                default: return "outlook_EntryID";
-            }
-        }
-
-        public static Boolean OutlookIdMissing(Event ev) {
-            //Make sure Google event has all Outlook IDs stored
-            String missingIds = "";
-            if (!GetOGCSproperty(ev, MetadataId.oGlobalApptId)) missingIds += MetadataIdKeyName(MetadataId.oGlobalApptId) + "|";
-            if (!GetOGCSproperty(ev, MetadataId.oCalendarId)) missingIds += MetadataIdKeyName(MetadataId.oCalendarId) + "|";
-            if (!GetOGCSproperty(ev, MetadataId.oEntryId)) missingIds += MetadataIdKeyName(MetadataId.oEntryId) + "|";
-            if (!string.IsNullOrEmpty(missingIds)) 
-                log.Warn("Found Google item missing Outlook IDs ("+ missingIds.TrimEnd('|') +"). " + GetEventSummary(ev));
-            return !string.IsNullOrEmpty(missingIds);
-        }
-        public static Boolean HasOgcsProperty(Event ev) {
-            if (GetOGCSproperty(ev, MetadataId.oEntryId)) return true;
-            if (GetOGCSproperty(ev, MetadataId.oGlobalApptId)) return true;
-            if (GetOGCSproperty(ev, MetadataId.oCalendarId)) return true;
-            return false;
         }
 
         //<summary>New logic for comparing Outlook and Google events works as follows:
@@ -1397,6 +1360,19 @@ namespace OutlookGoogleCalendarSync {
             return result;
         }
 
+        /// <summary>
+        /// Determine Event's privacy setting
+        /// </summary>
+        /// <param name="sensitivity">Outlook's current setting</param>
+        /// <param name="direction">Direction of sync</param>
+        private String getPrivacy(OlSensitivity sensitivity, SyncDirection direction) {
+            if (Settings.Instance.SetEntriesPrivate && direction == Settings.Instance.PrivateCalendar) {
+                return "private";
+            } else {
+                return (sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+            }
+        }
+
         #region STATIC FUNCTIONS
         private void getGaccountEmail(String accessToken, Boolean newRefreshToken) {
             try {
@@ -1633,7 +1609,8 @@ namespace OutlookGoogleCalendarSync {
                 ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
                 return apiException.throwException;
 
-            } else if (ex.Message.Equals("The remote server returned an error: (401) Unauthorized.")) {
+            } else if (OGCSexception.GetErrorCode(ex) == "0x80131500") {
+                //The remote server returned an error: (401) Unauthorized.
                 log.Warn(ex.Message);
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return apiException.backoffThenRetry;
@@ -1644,6 +1621,44 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region OGCS event properties
+        public enum MetadataId {
+            oEntryId,
+            oGlobalApptId,
+            oCalendarId,
+            ogcsModified,
+            apiLimitHit,
+            forceSave
+        }
+        public static String MetadataIdKeyName(MetadataId Id) {
+            switch (Id) {
+                case MetadataId.oEntryId: return "outlook_EntryID";
+                case MetadataId.oGlobalApptId: return "outlook_GlobalApptID";
+                case MetadataId.oCalendarId: return "outlook_CalendarID";
+                case MetadataId.ogcsModified: return "OGCSmodified";
+                case MetadataId.apiLimitHit: return "APIlimitHit";
+                case MetadataId.forceSave: return "forceSave";
+                default: return "outlook_EntryID";
+            }
+        }
+
+        public static Boolean OutlookIdMissing(Event ev) {
+            //Make sure Google event has all Outlook IDs stored
+            String missingIds = "";
+            if (!GetOGCSproperty(ev, MetadataId.oGlobalApptId)) missingIds += MetadataIdKeyName(MetadataId.oGlobalApptId) + "|";
+            if (!GetOGCSproperty(ev, MetadataId.oCalendarId)) missingIds += MetadataIdKeyName(MetadataId.oCalendarId) + "|";
+            if (!GetOGCSproperty(ev, MetadataId.oEntryId)) missingIds += MetadataIdKeyName(MetadataId.oEntryId) + "|";
+            if (!string.IsNullOrEmpty(missingIds))
+                log.Warn("Found Google item missing Outlook IDs (" + missingIds.TrimEnd('|') + "). " + GetEventSummary(ev));
+            return !string.IsNullOrEmpty(missingIds);
+        }
+        
+        public static Boolean HasOgcsProperty(Event ev) {
+            if (GetOGCSproperty(ev, MetadataId.oEntryId)) return true;
+            if (GetOGCSproperty(ev, MetadataId.oGlobalApptId)) return true;
+            if (GetOGCSproperty(ev, MetadataId.oCalendarId)) return true;
+            return false;
+        }
+
         public static void AddOutlookIDs(ref Event ev, AppointmentItem ai) {
             //Add the Outlook appointment IDs into Google event.
             addOGCSproperty(ref ev, MetadataId.oEntryId, ai.EntryID);

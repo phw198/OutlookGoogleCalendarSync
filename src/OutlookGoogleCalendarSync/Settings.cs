@@ -54,7 +54,7 @@ namespace OutlookGoogleCalendarSync {
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
 
-            SyncDirection = new SyncDirection();
+            SyncDirection = SyncDirection.OutlookToGoogle;
             DaysInThePast = 1;
             DaysInTheFuture = 60;
             SyncInterval = 0;
@@ -71,10 +71,13 @@ namespace OutlookGoogleCalendarSync {
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
+            SetEntriesPrivate = false;
+            PrivateCalendar = SyncDirection.OutlookToGoogle;
             Obfuscation = new Obfuscate();
 
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = false;
+            StartupDelay = 0;
             StartInTray = false;
             MinimiseToTray = false;
             MinimiseNotClose = false;
@@ -194,7 +197,8 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
-
+        [DataMember] public bool SetEntriesPrivate { get; set; }
+        [DataMember] public SyncDirection PrivateCalendar { get; set; }
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
 
@@ -213,6 +217,7 @@ namespace OutlookGoogleCalendarSync {
         
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
+        [DataMember] public Int32 StartupDelay { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimiseToTray { get; set; }
         [DataMember] public bool MinimiseNotClose { get; set; }
@@ -333,7 +338,10 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
-            log.Info("  Obfuscate Words: "+ Obfuscation.Enabled);
+            log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
+            if (SetEntriesPrivate && SyncDirection == SyncDirection.Bidirectional)
+                log.Info("    PrivateCalendar: " + PrivateCalendar.Name);
+            log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {
                 if (Settings.Instance.Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
                 else {
@@ -355,7 +363,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
-            log.Info("  StartOnStartup: " + StartOnStartup);
+            log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + ((Subscribed != DateTime.Parse("01-Jan-2000") || Donor) ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimiseToTray: " + MinimiseToTray);

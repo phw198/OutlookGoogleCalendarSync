@@ -65,6 +65,15 @@ namespace OutlookGoogleCalendarSync
                     OGCSexception.Analyse(ex);
                 }
                 return null;
+            } catch (System.IO.IOException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80070020") { //Setting file in use by another process
+                    log.Warn("Failed retrieving '" + nodeName + "' from " + filename);
+                    log.Warn(ex.Message);
+                } else {
+                    log.Error("Failed retrieving '" + nodeName + "' from " + filename);
+                    OGCSexception.Analyse(ex);
+                }
+                return null;
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving '" + nodeName + "' from " + filename);
                 OGCSexception.Analyse(ex);

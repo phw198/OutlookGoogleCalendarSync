@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.5.1-alpha</version>
+    <version>2.5.2-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
     <licenseUrl>https://outlookgooglecalendarsync.codeplex.com/license</licenseUrl>
     <projectUrl>https://outlookgooglecalendarsync.codeplex.com</projectUrl>
-		<iconUrl>https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/ogcs64x64.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/images/ogcs64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>First Squirrel release on Git!</releaseNotes>
@@ -17,7 +17,6 @@
   </metadata>
   <files>
     <!--<file src="bin\Release\*.*" target="lib\net45\"></file>-->
-		<file src="bin\Release\OutlookGoogleCalendarSync.application" target="lib\net45\"></file>
 		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\"></file>
 		<file src="bin\Release\*.dll" target="lib\net45\"></file>
 		<file src="bin\Release\*.xml" target="lib\net45\"></file>

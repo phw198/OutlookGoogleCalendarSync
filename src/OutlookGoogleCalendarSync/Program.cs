@@ -12,7 +12,7 @@ namespace OutlookGoogleCalendarSync {
     internal sealed class Program {
         public static string UserFilePath;
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
-        private const string logFile = "logger.xml";
+        private const string logSettingsFile = "logger.xml";
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
@@ -38,6 +38,7 @@ namespace OutlookGoogleCalendarSync {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            delayStartup();
             Splash.ShowMe();
             
             log.Debug("Loading settings from file.");
@@ -136,7 +137,9 @@ namespace OutlookGoogleCalendarSync {
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
-            XmlConfigurator.Configure(new System.IO.FileInfo(logFile));
+            XmlConfigurator.Configure(new System.IO.FileInfo(
+                Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
+            ));
 
             if (bootstrap) log.Info("Program started: v" + Application.ProductVersion);
         }
@@ -182,10 +185,14 @@ namespace OutlookGoogleCalendarSync {
         private static void addRegKey() {
             Microsoft.Win32.RegistryKey startupKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(startupKeyPath, true);
             String keyValue = startupKey.GetValue(Application.ProductName, "").ToString();
-            if (keyValue == "" || keyValue != Application.ExecutablePath) {
+            String delayedStartup = "";
+            if (Settings.Instance.StartupDelay > 0)
+                delayedStartup = " --delay " + Settings.Instance.StartupDelay.ToString();
+            
+            if (keyValue == "" || keyValue != (Application.ExecutablePath + delayedStartup)) {
                 log.Debug("Startup registry key "+ (keyValue == "" ? "created" : "updated") +".");
                 try {
-                    startupKey.SetValue(Application.ProductName, Application.ExecutablePath);
+                    startupKey.SetValue(Application.ProductName, Application.ExecutablePath + delayedStartup);
                 } catch (System.UnauthorizedAccessException ex) {
                     log.Warn("Could not create/update registry key. " + ex.Message);
                     Settings.Instance.StartOnStartup = false;
@@ -206,6 +213,22 @@ namespace OutlookGoogleCalendarSync {
             startupKey.DeleteValue(Application.ProductName, false);
         }
         #endregion
+        private static void delayStartup() {
+            String[] cliArgs = { "" };
+            try {
+                cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+                if (cliArgs.Length == 2 && cliArgs[0].ToLower() == "--delay") {
+                    DateTime delayUntil = DateTime.Now.AddSeconds(Convert.ToInt32(cliArgs[1]));
+                    log.Info("Startup delay configured until " + delayUntil.ToString("HH:mm:ss"));
+                    while (DateTime.Now < delayUntil) {
+                        System.Threading.Thread.Sleep(250);
+                    }
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failure in delayStartup(). Args: "+ string.Join(" ", cliArgs));
+                log.Error(ex.Message);
+            }
+        }
 
         #region Legacy Start Menu Shortcut
         public static Boolean CheckShortcut(Environment.SpecialFolder directory, String subdir = "") {
@@ -334,10 +357,10 @@ namespace OutlookGoogleCalendarSync {
                         (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
                         !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
-                        if (MessageBox.Show("A suspected improper install location has been detected.\r\n" +
-                            "Click 'OK' for further details.", "Improper Install Location", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK) {
-                                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
-                        }
+                        MessageBox.Show("A suspected improper install location has been detected.\r\n" +
+                            "Click 'OK' for further details.", "Improper Install Location",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
                     }
                 }
             } catch (System.Exception ex) {
