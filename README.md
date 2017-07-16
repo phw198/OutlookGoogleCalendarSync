@@ -18,14 +18,16 @@ If you would like to support this tool and its further development please [![don
 
 ### Latest Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/latest/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
 
-:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Setup.exe)
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.2-alpha/Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.2-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.2-alpha/Setup.exe)
  
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.1-alpha/Portable_OGCS_v2.5.1.zip)
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.2-alpha/Portable_OGCS_v2.5.2.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.2-alpha/Portable_OGCS_v2.5.2.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.2-alpha/Portable_OGCS_v2.5.2.zip)
 
 :information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.1-alpha/OutlookGoogleCalendarSync-2.5.1-alpha-full.nupkg.svg)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.2-alpha/OutlookGoogleCalendarSync-2.5.2-alpha-full.nupkg.svg)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.2-alpha/OutlookGoogleCalendarSync-2.5.2-alpha-delta.nupkg.svg)
+
 
 ### Current Beta Release: [![Beta Release)](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.5.0-beta)
 

@@ -1,6 +1,18 @@
 | Release Notes |
 |:---|
 
+# v2.5.2.0 - Alpha
+
+**Enhancements**
+- Option to force all items as private in target calendar.
+- Option to delay start of application upon login.
+- Added animated logo during installation.
+- Added logo to Control Panel > Uninstall Programs.
+
+**Bugfix**
+- No log file for startup on login / Squirrel start.
+- Set a default sync direction on virgin install.
+
 # v2.5.1.0 - Alpha
 
 **Enhancements**
