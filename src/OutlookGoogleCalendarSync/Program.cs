@@ -56,14 +56,11 @@ namespace OutlookGoogleCalendarSync {
                 } catch (ApplicationException ex) {
                     log.Fatal(ex.Message);
                     MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    throw new ApplicationException();
+                    throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
+
                 } catch (System.Runtime.InteropServices.COMException ex) {
-                    if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
-                        log.Error(ex.Message);
-                        MessageBox.Show("OGCS is not able to run as Outlook is not properly connected to the Exchange server.\r\n" +
-                            "Please try again later.", "Application cannot initialise!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    } else OGCSexception.Analyse(ex);
-                    throw new ApplicationException();
+                    OGCSexception.Analyse(ex);
+                    throw new ApplicationException("Suggest startup delay");
 
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
@@ -71,11 +68,22 @@ namespace OutlookGoogleCalendarSync {
                     MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException();
                 }
-            } catch (ApplicationException) {
+
+            } catch (ApplicationException aex) {
+                if (aex.Message == "Suggest startup delay") {
+                    if (isCLIstartup() && Settings.Instance.StartOnStartup) {
+                        log.Debug("Suggesting to set a startup delay.");
+                        MessageBox.Show("If this error only happens when logging in to Windows, try " +
+                            ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
+                            "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 try {
-                    OutlookCalendar.InstanceConnect = false;
-                    OutlookCalendar.Instance.IOutlook.Disconnect();
+                    if (!OutlookCalendar.IsInstanceNull) {
+                        OutlookCalendar.InstanceConnect = false;
+                        OutlookCalendar.Instance.IOutlook.Disconnect();
+                    }
                 } catch { }
             }
             Splash.CloseMe();
@@ -141,7 +149,10 @@ namespace OutlookGoogleCalendarSync {
                 Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
             ));
 
-            if (bootstrap) log.Info("Program started: v" + Application.ProductVersion);
+            if (bootstrap) {
+                log.Info("Program started: v" + Application.ProductVersion);
+                log.Info("Started " + (isCLIstartup() ? "automatically" : "interactively") + ".");
+            }
         }
 
         private static void purgeLogFiles(Int16 retention) {
@@ -339,7 +350,8 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 Program.ManageStartupRegKey(recreate: true);
                 Settings.Instance.Version = Application.ProductVersion;
-                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
+                if (Application.ProductVersion.EndsWith(".0")) //Release notes not updated for hotfixes.
+                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
             }
 
             //Check upgrade to Squirrel release went OK
@@ -366,6 +378,18 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 log.Warn("Failed to determine if OGCS is installed in the correct location.");
                 log.Error(ex.Message);
+            }
+        }
+
+        private static Boolean isCLIstartup() {
+            try {
+                if (File.Exists(logSettingsFile)) return false;
+                else if (File.Exists(Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile))) return true;
+                else return false;
+            } catch (System.Exception ex) {
+                log.Error("Failed to determine if OGCS was started by CLI.");
+                OGCSexception.Analyse(ex);
+                return false;
             }
         }
     }

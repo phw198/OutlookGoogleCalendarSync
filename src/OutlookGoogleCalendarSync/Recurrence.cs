@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync {
                 case "YEARLY": {
                         oPattern.RecurrenceType = OlRecurrenceType.olRecursYearly;
                         //Google interval is years, Outlook is months
-                        if (ruleBook.ContainsKey("INTERVAL"))
+                        if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1)
                             oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]) * 12;
                         if (ruleBook.ContainsKey("BYSETPOS")) {
                             oPattern.RecurrenceType = OlRecurrenceType.olRecursYearNth;
@@ -238,7 +238,8 @@ namespace OutlookGoogleCalendarSync {
                 case OlRecurrenceType.olRecursYearly: {
                         addRule(rrule, "FREQ", "YEARLY");
                         //Google interval is years, Outlook is months
-                        addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
+                        if (oPattern.Interval != 12)
+                            addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
                         break;
                     }
 

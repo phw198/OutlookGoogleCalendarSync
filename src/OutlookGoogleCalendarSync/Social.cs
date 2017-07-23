@@ -15,26 +15,26 @@ namespace OutlookGoogleCalendarSync {
             System.Diagnostics.Process.Start("https://plus.google.com/communities/114412828247015553563");
         }
         public static void Google_share() {
-            System.Diagnostics.Process.Start("https://plus.google.com/share?&url=http://bit.ly/OGcalsync");
+            System.Diagnostics.Process.Start("https://plus.google.com/share?&url=http://bit.ly/ogcalsync");
         }
 
         public static void Twitter_tweet() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://twitter.com/intent/tweet?&url=http://bit.ly/OGcalsync&text=" + urlEncode(text) + "&via=ogcalsync");
+            System.Diagnostics.Process.Start("http://twitter.com/intent/tweet?&url=http://bit.ly/ogcalsync&text=" + urlEncode(text) + "&via=ogcalsync");
         }
         public static void Twitter_follow() {
             System.Diagnostics.Process.Start("https://twitter.com/OGcalsync");
         }
 
         public static void Facebook_share() {
-            System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGcalsync");
+            System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/ogcalsync");
         }
         public static void RSS_follow() {
             System.Diagnostics.Process.Start("https://github.com/phw198/outlookgooglecalendarsync/releases.atom");
         }
         public static void Linkedin_share() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/OGcalsync&summary=" + urlEncode(text));
+            System.Diagnostics.Process.Start("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/ogcalsync&summary=" + urlEncode(text));
         }
 
         private static String urlEncode(String text) {

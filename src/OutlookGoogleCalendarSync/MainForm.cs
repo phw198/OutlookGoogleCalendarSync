@@ -485,7 +485,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void sync_Start(Boolean updateSyncSchedule = true) {
             LogBox.Clear();
-
+            
             if (Settings.Instance.UseGoogleCalendar == null ||
                 Settings.Instance.UseGoogleCalendar.Id == null ||
                 Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -1005,6 +1005,8 @@ namespace OutlookGoogleCalendarSync {
             String googleAttr_stub = (googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr;
             String outlookAttr_stub = (outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr;
             log.Fine("Comparing " + attrDesc);
+            log.UltraFine("Google  attribute: " + googleAttr);
+            log.UltraFine("Outlook attribute: " + outlookAttr);
             if (googleAttr != outlookAttr) {
                 if (fromTo == SyncDirection.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr_stub + " => " + googleAttr_stub);
@@ -1012,12 +1014,15 @@ namespace OutlookGoogleCalendarSync {
                     sb.AppendLine(attrDesc + ": " + googleAttr_stub + " => " + outlookAttr_stub);
                 }
                 itemModified++;
+                log.Fine("Attributes differ.");
                 return true;
             }
             return false;
         }
         public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, Boolean googleAttr, Boolean outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing " + attrDesc);
+            log.UltraFine("Google  attribute: " + googleAttr);
+            log.UltraFine("Outlook attribute: " + outlookAttr);
             if (googleAttr != outlookAttr) {
                 if (fromTo == SyncDirection.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
@@ -1025,10 +1030,10 @@ namespace OutlookGoogleCalendarSync {
                     sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
                 }
                 itemModified++;
+                log.Fine("Attributes differ.");
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
         #endregion
 
@@ -1134,8 +1139,7 @@ namespace OutlookGoogleCalendarSync {
                 this.ShowInTaskbar = false;
                 this.Hide();
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
-                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.");
-                    trayIcon.Tag = "ShowBubbleWhenMinimising";
+                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", tagValue: "ShowBubbleWhenMinimising");
                 } else {
                     trayIcon.Tag = "";
                 }

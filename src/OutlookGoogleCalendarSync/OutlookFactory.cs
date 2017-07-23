@@ -19,7 +19,7 @@ namespace OutlookGoogleCalendarSync {
         }
         private const Boolean testing2003 = false;
 
-        public static OutlookInterface getOutlookInterface() {
+        public static OutlookInterface GetOutlookInterface() {
             if (OutlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {

@@ -20,6 +20,7 @@ namespace OutlookGoogleCalendarSync {
         /// Whether instance of OutlookCalendar class should connect to Outlook application
         /// </summary>
         public static Boolean InstanceConnect = true;
+        public static Boolean IsInstanceNull { get { return instance == null; } }
         public static OutlookCalendar Instance {
             get {
                 try {
@@ -34,6 +35,7 @@ namespace OutlookGoogleCalendarSync {
                 return instance;
             }
         }
+        public static Boolean OOMsecurityInfo = false;
         public PushSyncTimer OgcsPushTimer;
         private String currentUserSMTP {
             get { return IOutlook.CurrentUserSMTP(); }
@@ -59,9 +61,9 @@ namespace OutlookGoogleCalendarSync {
             AlternativeMailbox,
             SharedCalendar
         }
-        
+
         public OutlookCalendar() {
-            IOutlook = OutlookFactory.getOutlookInterface();
+            IOutlook = OutlookFactory.GetOutlookInterface();
             if (InstanceConnect) IOutlook.Connect();
         }
 
@@ -70,7 +72,7 @@ namespace OutlookGoogleCalendarSync {
             if (IOutlook != null) IOutlook.Disconnect();
             instance = new OutlookCalendar();
         }
-        
+
         #region Push Sync
         //Multi-threaded, so need to protect against registering events more than once
         //Simply removing an event handler before adding isn't safe enough
@@ -198,6 +200,7 @@ namespace OutlookGoogleCalendarSync {
                 string filter = "[End] >= '" + min.ToString(Settings.Instance.OutlookDateFormat) +
                     "' AND [Start] < '" + max.ToString(Settings.Instance.OutlookDateFormat) + "'";
                 log.Fine("Filter string: " + filter);
+                Int32 categoryFiltered = 0;
                 foreach (Object obj in OutlookItems.Restrict(filter)) {
                     AppointmentItem ai;
                     try {
@@ -225,21 +228,23 @@ namespace OutlookGoogleCalendarSync {
                     if (filterCategories) {
                         if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include) {
                             if (Settings.Instance.Categories.Count() > 0 && ai.Categories != null &&
-                                ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0) 
+                                ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)
                             {
                                 result.Add(ai);
-                            }
+                            } else categoryFiltered++;
+
                         } else if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Exclude) {
                             if (Settings.Instance.Categories.Count() == 0 || ai.Categories == null ||
-                                ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0) 
+                                ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0)
                             {
                                 result.Add(ai);
-                            }
+                            } else categoryFiltered++;
                         }
                     } else {
                         result.Add(ai);
                     }
                 }
+                if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
             }
             log.Fine("Filtered down to " + result.Count);
             return result;
@@ -257,7 +262,7 @@ namespace OutlookGoogleCalendarSync {
                         if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
                         MainForm.Instance.Logboxout(ex.Message);
                         continue;
-                        
+
                     } catch (System.Exception ex) {
                         if (!Settings.Instance.VerboseOutput) MainForm.Instance.Logboxout(GoogleCalendar.GetEventSummary(ev));
                         MainForm.Instance.Logboxout("WARNING: Appointment creation failed.\r\n" + ex.Message);
@@ -719,12 +724,12 @@ namespace OutlookGoogleCalendarSync {
 
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
                 AppointmentItem ai = oAppointments[o];
-                
+
                 //Find entries with no Google ID
                 if (!GetOGCSproperty(ai, MetadataId.gEventID)) {
                     unclaimedAi.Add(ai);
 
-                    for (int g = gEvents.Count -1; g >=0 ; g--) {
+                    for (int g = gEvents.Count - 1; g >= 0; g--) {
                         Event ev = gEvents[g];
                         String sigEv = GoogleCalendar.signature(ev);
                         if (String.IsNullOrEmpty(sigEv)) {
@@ -804,15 +809,49 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     oApp = System.Runtime.InteropServices.Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
                 } catch (System.Exception ex) {
-                    log.Warn("Attachment failed. Is Outlook running fully, or perhaps just the 'reminders' window?");
-                    OGCSexception.Analyse(ex);
-                    if (openOutlookOnFail) openOutlook(ref oApp, withSystemCall);
+                    if (OGCSexception.GetErrorCode(ex) == "0x800401E3") { //MK_E_UNAVAILABLE
+                        log.Warn("Attachment failed - Outlook is running without GUI for programmatic access.");
+                    } else {
+                        log.Warn("Attachment failed.");
+                        OGCSexception.Analyse(ex);
+                    }
+                    if (openOutlookOnFail) openOutlookHandler(ref oApp, withSystemCall);
                 }
             } else {
-                if (openOutlookOnFail) openOutlook(ref oApp, withSystemCall);
+                log.Warn("No Outlook process available to attach to.");
+                if (openOutlookOnFail) openOutlookHandler(ref oApp, withSystemCall);
             }
         }
 
+        private static void openOutlookHandler(ref Microsoft.Office.Interop.Outlook.Application oApp, Boolean withSystemCall = false) {
+            int openAttempts = 1;
+            int maxAttempts = 3;
+            while (openAttempts <= maxAttempts) {
+                try {
+                    openOutlook(ref oApp, withSystemCall);
+                    openAttempts = maxAttempts;
+                } catch (ApplicationException aex) {
+                    if (aex.Message == "Outlook is busy.") {
+                        log.Warn(aex.Message + " Attempt " + openAttempts + "/" + maxAttempts);
+                        if (openAttempts == maxAttempts) {
+                            String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
+                                "Please try running OGCS again later" +
+                                (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
+
+                            if (aex.InnerException.Message.Contains("CO_E_SERVER_EXEC_FAILURE"))
+                                message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator'.";
+                            
+                            throw new ApplicationException(message);                            
+                        }
+                        System.Threading.Thread.Sleep(10000);
+                    } else {
+                        log.Error("openOutlookHandler: " + aex.Message);
+                        throw aex;
+                    }
+                }
+                openAttempts++;
+            }
+        }
         private static void openOutlook(ref Microsoft.Office.Interop.Outlook.Application oApp, Boolean withSystemCall = false) {
             log.Info("Starting a new instance of Outlook.");
             try {
@@ -827,8 +866,12 @@ namespace OutlookGoogleCalendarSync {
                     int maxWaits = 8;
                     while (maxWaits > 0 && oApp == null) {
                         if (maxWaits % 2 == 0) log.Info("Waiting for Outlook to start...");
-                        oProcess.WaitForInputIdle(15);
+                        oProcess.WaitForInputIdle(15000);
                         OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
+                        if (oApp == null) {
+                            log.Debug("Reattempting starting Outlook without system call.");
+                            try { oApp = new Microsoft.Office.Interop.Outlook.Application(); } catch (System.Exception ex) { log.Debug("Errored with: " + ex.Message); }
+                        }
                         maxWaits--;
                     }
                     if (oApp == null) {
@@ -838,18 +881,35 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Runtime.InteropServices.COMException ex) {
                 oApp = null;
+                String hResult = OGCSexception.GetErrorCode(ex);
+
                 if (ex.ErrorCode == -2147221164) {
-                    log.Error(ex.Message);
+                    OGCSexception.Analyse(ex);
                     throw new ApplicationException("Outlook does not appear to be installed!\nThis is a pre-requisite for this software.");
+
+                } else if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
+                    (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
+                    (hResult == "0x800706BA" || hResult == "0x800706BE") ) //Remote Procedure Call failed.
+                {
+                    log.Warn(ex.Message);
+                    throw new ApplicationException("Outlook is busy.", ex);
+
+                } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                    log.Warn(ex.Message);
+                    log.Debug("OGCS is not able to run as Outlook is not properly connected to the Exchange server?");
+                    throw new ApplicationException("Outlook is busy.", ex);
+
                 } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x000702E4") {
+                    log.Error(ex.Message);
                     throw new ApplicationException("Outlook and OGCS are running in different security elevations.\n" +
                         "Both must be running in Standard or Administrator mode.");
+
                 } else {
                     log.Error("COM Exception encountered.");
                     OGCSexception.Analyse(ex);
-                    System.Diagnostics.Process.Start(@Program.UserFilePath);
-                    System.Diagnostics.Process.Start("https://github.com/phw198/outlookgooglecalendarsync/issues");
-                    throw new ApplicationException("COM exception encountered. Please log an Issue on GitHub and upload your OGcalsync.log file.");
+                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
+                    throw new ApplicationException("COM error " + OGCSexception.GetErrorCode(ex) + " encountered.\r\n" +
+                        "Please check if there is a published solution on the OGCS wiki.");
                 }
             } catch (System.Exception ex) {
                 log.Warn("Early binding to Outlook appears to have failed.");
@@ -928,7 +988,7 @@ namespace OutlookGoogleCalendarSync {
             String googleIdValue;
             GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
             GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
-            
+
             return csv.ToString();
         }
 
@@ -965,7 +1025,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
 
                 if (GetOGCSproperty(outlook[o], MetadataId.gEventID, out compare_oEventID)) {
-                    Boolean googleIDmissing = GoogleIdMissing(outlook[o]); 
+                    Boolean googleIDmissing = GoogleIdMissing(outlook[o]);
 
                     for (int g = google.Count - 1; g >= 0; g--) {
                         log.UltraFine("Checking " + GoogleCalendar.GetEventSummary(google[g]));
@@ -1019,7 +1079,7 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean ItemIDsMatch(AppointmentItem ai, Event ev) {
             //For format of Entry ID : https://msdn.microsoft.com/en-us/library/ee201952(v=exchg.80).aspx
             //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
-            
+
             String oCompareID;
             log.Fine("Comparing Google Event ID");
             if (GetOGCSproperty(ai, MetadataId.gEventID, out oCompareID) && oCompareID == ev.Id) {
@@ -1104,7 +1164,7 @@ namespace OutlookGoogleCalendarSync {
                 default: return "googleEventID";
             }
         }
-        
+
         public static Boolean GoogleIdMissing(AppointmentItem ai) {
             //Make sure Outlook appointment has all Google IDs stored
             String missingIds = "";
@@ -1114,13 +1174,13 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Found Outlook item missing Google IDs (" + missingIds.TrimEnd('|') + "). " + GetEventSummary(ai));
             return !string.IsNullOrEmpty(missingIds);
         }
-        
+
         public static Boolean HasOgcsProperty(AppointmentItem ai) {
             if (GetOGCSproperty(ai, MetadataId.gEventID)) return true;
             if (GetOGCSproperty(ai, MetadataId.gCalendarId)) return true;
             return false;
         }
-        
+
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
             //Add the Google event IDs into Outlook appointment.
             addOGCSproperty(ref ai, MetadataId.gEventID, ev.Id);

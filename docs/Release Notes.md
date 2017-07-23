@@ -1,6 +1,21 @@
 | Release Notes |
 |:---|
 
+# v2.5.3.0 - Alpha
+
+**Enhancements**
+- Reset settings to default if XML file corrupted.
+- Notification bubble help for Outlook security pop-up.
+- Handle startup errors better when Outlook is too busy to attach to.
+- Suggest startup delay if Outlook still unresponsive after timeout.
+- Push users to wiki for COM errors for known fixes.
+- Updated bit.ly links to point to GitHub.
+
+**Bugfix**
+- Handle Outlook calendars with the same name in a mailbox.
+- Only set annual recurrence if INTERVAL > 1
+- Subject obfuscation failing
+
 # v2.5.2.0 - Alpha
 
 **Enhancements**

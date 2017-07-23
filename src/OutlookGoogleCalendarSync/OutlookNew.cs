@@ -46,15 +46,40 @@ namespace OutlookGoogleCalendarSync {
 
                 Recipient currentUser = null;
                 try {
+                    DateTime triggerOOMsecurity = DateTime.Now;
                     try {
                         currentUser = oNS.CurrentUser;
-                    } catch {
+                        if (!MainForm.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
+                            log.Warn(">1s delay possibly due to Outlook security popup.");
+                            OutlookCalendar.OOMsecurityInfo = true;
+                        }
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex);
                         log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
                         oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
                         Disconnect();
                         OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
                         oNS = oApp.GetNamespace("mapi");
-                        currentUser = oNS.CurrentUser;
+                        int maxDelay = 5;
+                        int delay = 1;
+                        while (delay <= maxDelay) {
+                            log.Debug("Sleeping..." + delay + "/" + maxDelay);
+                            System.Threading.Thread.Sleep(10000);
+                            try {
+                                currentUser = oNS.CurrentUser;
+                                delay = maxDelay;
+                            } catch (System.Exception ex2) {
+                                if (delay == maxDelay) {
+                                    log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
+                                    OGCSexception.Analyse(ex2, true);
+                                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/287");
+                                    throw new ApplicationException("OGCS is unable to communicate with Outlook, possibly due to anti-virus or corporate policies."+
+                                        "\r\nPlease register your interest on GitHub if you would like to see a workaround provided.");
+                                } else
+                                    OGCSexception.Analyse(ex2);
+                            }
+                            delay++;
+                        }
                     }
                     
                     //Issue 402
@@ -108,7 +133,7 @@ namespace OutlookGoogleCalendarSync {
 
             } finally {
                 // Done. Log off.
-                oNS.Logoff();
+                if (oNS != null) oNS.Logoff();
                 oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
             }
         }
@@ -311,9 +336,8 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     OlItemType defaultItemType = folder.DefaultItemType;
                     if (defaultItemType == OlItemType.olAppointmentItem) {
-                        if (defaultCalendar == null ||
-                            (folder.EntryID != defaultCalendar.EntryID))
-                            calendarFolders.Add(folder.Name, folder);
+                        if (defaultCalendar == null || (folder.EntryID != defaultCalendar.EntryID))
+                            calendarFolderAdd(folder.Name, folder);
                     }
                     if (folder.EntryID != excludeDeletedFolder && folder.Folders.Count > 0) {
                         findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
@@ -338,6 +362,31 @@ namespace OutlookGoogleCalendarSync {
             try { g.Clear(System.Drawing.Color.White); } catch { }
             g.Dispose();
             System.Windows.Forms.Application.DoEvents();
+        }
+
+        /// <summary>
+        /// Handles non-unique calendar names by recursively adding parent folders to the name
+        /// </summary>
+        /// <param name="name">Name/path of calendar (dictionary key)</param>
+        /// <param name="folder">The target folder (dictionary value)</param>
+        /// <param name="parentFolder">Recursive parent folder - leave null on initial call</param>
+        private void calendarFolderAdd(String name, MAPIFolder folder, MAPIFolder parentFolder = null) {
+            try {
+                calendarFolders.Add(name, folder);
+            } catch (System.ArgumentException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80070057") {
+                    //An item with the same key has already been added.
+                    //Let's recurse up to the parent folder, looking to make it unique
+                    object parentObj = (parentFolder != null ? parentFolder.Parent : folder.Parent);
+                    if (parentObj is NameSpace) {
+                        //We've traversed all the way up the folder path to the root and still not unique
+                        log.Warn("MAPIFolder " + name + " does not have a unique name - so cannot use!");
+                    } else if (parentObj is MAPIFolder) {
+                        String parentFolderName = (parentObj as MAPIFolder).FolderPath.Split('\\').Last();
+                        calendarFolderAdd(System.IO.Path.Combine(parentFolderName, name), folder, parentObj as MAPIFolder);
+                    }
+                }
+            }
         }
 
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {

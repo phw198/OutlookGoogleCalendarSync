@@ -42,11 +42,12 @@ namespace OutlookGoogleCalendarSync
             try {
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
             } catch (System.Exception ex) {
-                log.Error("Failed to import settings");
                 OGCSexception.Analyse(ex);
                 if (MainForm.Instance != null) MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
+                throw new ApplicationException("Failed to import settings.");
+            } finally {
+                fs.Close();
             }
-            fs.Close();
             return result;
         }
 

@@ -1435,7 +1435,7 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean SignaturesMatch(String sigEv, String sigAi) {
             //Use simple matching on start,end,subject,location to pair events
             if (Settings.Instance.Obfuscation.Enabled) {
-                if (Settings.Instance.Obfuscation.Direction == SyncDirection.OutlookToGoogle)
+                if (Settings.Instance.Obfuscation.Direction.Id == SyncDirection.OutlookToGoogle.Id)
                     sigAi = Obfuscate.ApplyRegex(sigAi, SyncDirection.OutlookToGoogle);
                 else
                     sigEv = Obfuscate.ApplyRegex(sigEv, SyncDirection.GoogleToOutlook);

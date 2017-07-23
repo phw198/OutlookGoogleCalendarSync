@@ -9,6 +9,10 @@ namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
         private NotifyIcon icon;
+        public Object Tag {
+            get { return icon.Tag; }
+            set { icon.Tag = value; }
+        }
         private Boolean exitEventFired = false;
         public Boolean Exited {
             get { return this.exitEventFired; }
@@ -23,6 +27,11 @@ namespace OutlookGoogleCalendarSync {
             this.icon.BalloonTipClicked += notifyIcon_BubbleClick;
             this.icon.Visible = true;
             buildMenu();
+
+            if (OutlookCalendar.OOMsecurityInfo) {
+                ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
+                    "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
+            }
         }
 
         private void buildMenu() {
@@ -187,6 +196,11 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.ShowBubbleWhenMinimising = false;
                 XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile);
                 notifyIcon.Tag = "";
+
+            } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {
+                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
+                notifyIcon.Tag = "";
+
             } else {
                 MainForm.Instance.MainFormShow();
                 MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Sync;
@@ -199,7 +213,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.Info) {
+        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.Info, String tagValue = "") {
             if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
                 this.icon.ShowBalloonTip(
                     500,
@@ -208,6 +222,7 @@ namespace OutlookGoogleCalendarSync {
                     iconType
                 );
             }
+            this.icon.Tag = tagValue;
         }
     }
 }

@@ -279,8 +279,23 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool VerboseOutput { get; set; }
 
         public static void Load(string XMLfile = null) {
-            Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
-            log.Fine("User settings loaded.");
+            try {
+                Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
+                log.Fine("User settings loaded.");
+            } catch (ApplicationException ex) {
+                log.Error(ex.Message);
+                System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
+                    "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                log.Warn("Resetting settings.xml file to defaults.");
+                Settings.Instance.Save(XMLfile ?? Program.SettingsFile);
+                try {
+                    Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
+                    log.Debug("User settings loaded successfully this time.");
+                } catch (System.Exception ex2) {
+                    log.Error("Still failed to load settings!");
+                    OGCSexception.Analyse(ex2);
+                }
+            }
         }
 
         public void Save(string XMLfile = null) {

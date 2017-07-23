@@ -167,13 +167,12 @@ namespace OutlookGoogleCalendarSync {
                 var migrator = new ClickOnceToSquirrelMigrator.InSquirrelAppMigrator(Application.ProductName);
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
-            } catch (System.InvalidOperationException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
-                    log.Debug("No ClickOnce install found.");
+            } catch (System.AggregateException ae) {
+                foreach (System.Exception ex in ae.InnerExceptions) {
+                    clickOnceUninstallError(ex);
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed removing ClickOnce install.");
-                OGCSexception.Analyse(ex, true);
+                clickOnceUninstallError(ex);
             }
         }
         private static void onInitialInstall(Version version) {
@@ -231,7 +230,7 @@ namespace OutlookGoogleCalendarSync {
         /// Prepares CLI arguments for use by SquirrelAwareApp.HandleEvents().
         /// </summary>
         /// <returns>SemVer string with any trailing "-prerelease" detail removed.</returns>
-        public static String[] fixCliArgs() {
+        private static String[] fixCliArgs() {
             //Seems to be a bug with SquirrelAwareApp: 2.5.0-beta is a valid SemanticVersion (semver.org), 
             //but HandleEvents() fails if eg "-beta" is present.
             //"C:\Users\username\AppData\Local\OutlookGoogleCalendarSync\app-2.5.0-beta\OutlookGoogleCalendarSync.exe" --squirrel-uninstall 2.5.0-beta
@@ -245,6 +244,14 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 log.Error("Failed processing CLI arguments. " + ex.Message);
                 return null;
+            }
+        }
+        private static void clickOnceUninstallError(System.Exception ex) {
+            if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
+                log.Debug("No ClickOnce install found.");
+            } else {
+                log.Error("Failed removing ClickOnce install.");
+                OGCSexception.Analyse(ex, true);
             }
         }
         #endregion

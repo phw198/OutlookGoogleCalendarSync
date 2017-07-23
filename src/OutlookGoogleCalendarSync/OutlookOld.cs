@@ -39,15 +39,38 @@ namespace OutlookGoogleCalendarSync {
 
                 Recipient currentUser = null;
                 try {
+                    DateTime triggerOOMsecurity = DateTime.Now;
                     try {
                         currentUser = oNS.CurrentUser;
-                    } catch {
+                        if (!MainForm.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
+                            log.Warn(">1s delay possibly due to Outlook security popup.");
+                            OutlookCalendar.OOMsecurityInfo = true;
+                        }
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex);
                         log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
                         oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
                         Disconnect();
                         OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
                         oNS = oApp.GetNamespace("mapi");
-                        currentUser = oNS.CurrentUser;
+                        int maxDelay = 5;
+                        int delay = 1;
+                        while (delay <= maxDelay) {
+                            log.Debug("Sleeping..." + delay + "/" + maxDelay);
+                            System.Threading.Thread.Sleep(10000);
+                            try {
+                                currentUser = oNS.CurrentUser;
+                                delay = maxDelay;
+                            } catch (System.Exception ex2) {
+                                if (delay == maxDelay) {
+                                    log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
+                                    OGCSexception.Analyse(ex2, true);
+                                    throw new ApplicationException("OGCS is unable to communicate with Outlook, possibly due to anti-virus or corporate policies.");
+                                } else
+                                    OGCSexception.Analyse(ex2);
+                            }
+                            delay++;
+                        }
                     }
                     currentUserSMTP = GetRecipientEmail(currentUser);
                     currentUserName = currentUser.Name;
@@ -79,7 +102,7 @@ namespace OutlookGoogleCalendarSync {
 
             } finally {
                 // Done. Log off.
-                oNS.Logoff();
+                if (oNS != null) oNS.Logoff();
                 oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
             }
         }
