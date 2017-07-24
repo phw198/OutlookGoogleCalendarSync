@@ -3,8 +3,7 @@
 > Offers calendar synchronisation between Outlook and Google, including attendees and reminders.  
 > Completely free, no install necessary, works behind web proxies and actively developed.
 
-<p align="center">:sparkles: We're new here, having just moved over <a href="https://outlookgooglecalendarsync.codeplex.com" target="_blank">from Codeplex</a>. Hi! :sparkles:<br/>
-Watch this space for updates as we busily get things moved over.</p>
+<p align="center">:sparkles: We're new here, having just moved over <a href="https://outlookgooglecalendarsync.codeplex.com" target="_blank">from Codeplex</a>. Hi! :sparkles:</p>
 
 ### Continually Improving
 <img src="https://campbowiedistrict.com/wp-content/uploads/2016/08/page0-under-construction1.png" v
@@ -38,13 +37,15 @@ If you would like to support this tool and its further development please [![don
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.5.0-beta/Portable_OGCS_v2.5.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.5.0-beta/Portable_OGCS_v2.5.0.zip)
  
 ## Functionality
+<img align="right" width="35%" src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/supported_sync_configs.png" alt="Supported configurations"/>
 
 - Supports all versions of Outlook from 2003 to 2016 64-bit!
 - Installable and portable options - even runs from a USB thumbdrive
-- Synchronises items in any calendar folder from
+- Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
    - Outlook :arrow_left: Google
    - Outlook :left_right_arrow: Google (two-way/bidirectional sync)
+   - :gear: See diagram on the right for supported configurations
 - Includes the following event attributes:
    - Subject
    - Description
@@ -53,22 +54,18 @@ If you would like to support this tool and its further development please [![don
    - Reminder events
    - Availability (free/busy)
    - Privacy (public/private)
+- Differential comparison updates only attributes that have changed
 - Customisable date range to synchronise, past and future
-- Frequency of automatic syncs, including push from Outlook
+- Frequency of automatic syncs, including push-sync from Outlook
 - Configurable proxy settings, or use Internet Explorer's
 - Merge new events into existing on destination calendar
 - Prompt on deletion of items
-- Can run unobtrusively in the system tray, with bubble notifications on sync
 - Ability to obfuscate custom words for privacy/security
+- Option to force items as private in target calendar
 - Syncs recurring items properly as a series
+- Can run unobtrusively in the system tray, with bubble notifications on sync
+- Application can start on login, with delay if required
 
-**Improvements**
-- Match entries on multiple ID keys (not a just a "signature" string)
-- Differential comparison and update only attributes that have changed.
-- Sync non-default Outlook calendars
-- Keep application responsive whilst synchronising
-- Full CSV exports
-
-![](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png)
-![](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen2.png)
-![](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen3.png)
+![Screenshot1](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png)
+![Screenshot2](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen2.png)
+![Screenshot3](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen3.png)
