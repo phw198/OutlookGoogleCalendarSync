@@ -14,7 +14,6 @@ namespace OutlookGoogleCalendarSync {
         MAPIFolder UseOutlookCalendar();
         void UseOutlookCalendar(MAPIFolder set);
         String CurrentUserSMTP();
-        String CurrentUserName();
         Boolean Offline();
         object GetCategories();
 

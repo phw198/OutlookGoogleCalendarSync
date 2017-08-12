@@ -1,6 +1,26 @@
 | Release Notes |
 |:---|
 
+# v2.6.0.0 - Beta
+
+:boom: This release completes the migration to GitHub.
+
+**Enhancements Rolled in from Alphas**
+- Handle startup errors better when Outlook is too busy to attach to.
+- Option to delay start of application upon login.
+- Suggest startup delay if Outlook still unresponsive after timeout.
+- Option to force all items as private in target calendar.
+- Notification bubble help for Outlook security pop-up.
+- Push users to wiki for COM errors for known fixes.
+- Updated bit.ly links to point to GitHub.
+- Added animated logo during installation.
+- Added logo to Control Panel > Uninstall Programs.
+- Reset settings to default if XML file corrupted.
+- Option to provide feedback when uninstalling.
+- Uninstalls CodePlex ClickOnce app.
+- All references to CodePlex removed.
+- Improved management of API keys.
+----
 # v2.5.3.0 - Alpha
 
 **Enhancements**

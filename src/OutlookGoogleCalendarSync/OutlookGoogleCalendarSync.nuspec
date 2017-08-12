@@ -2,24 +2,24 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.5.3-alpha</version>
+    <version>2.6.0-beta</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
-    <licenseUrl>https://outlookgooglecalendarsync.codeplex.com/license</licenseUrl>
-    <projectUrl>https://outlookgooglecalendarsync.codeplex.com</projectUrl>
+    <licenseUrl>https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/license.md</licenseUrl>
+    <projectUrl>https://github.com/phw198/OutlookGoogleCalendarSync</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/images/ogcs64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
-    <releaseNotes>v2.5.3 OGCS release on GitHub!</releaseNotes>
+    <releaseNotes>v2.6.0 OGCS release on GitHub!</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>
-    <!--<file src="bin\Release\*.*" target="lib\net45\"></file>-->
-		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\"></file>
-		<file src="bin\Release\*.dll" target="lib\net45\"></file>
-		<file src="bin\Release\*.xml" target="lib\net45\"></file>
-		<file src="bin\Release\tzdb.nzd" target="lib\net45\"></file>
+    <!--<file src="bin\Release\*.*" target="lib\net45\" />-->
+		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
+		<file src="bin\Release\*.dll" target="lib\net45\" />
+		<file src="bin\Release\*.xml" target="lib\net45\" />
+		<file src="bin\Release\tzdb.nzd" target="lib\net45\" />
   </files>
 </package>

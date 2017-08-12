@@ -37,12 +37,6 @@ namespace OutlookGoogleCalendarSync {
         }
         public static Boolean OOMsecurityInfo = false;
         public PushSyncTimer OgcsPushTimer;
-        private String currentUserSMTP {
-            get { return IOutlook.CurrentUserSMTP(); }
-        }
-        public String CurrentUserName {
-            get { return IOutlook.CurrentUserName(); }
-        }
         public MAPIFolder UseOutlookCalendar {
             get { return IOutlook.UseOutlookCalendar(); }
             set {
@@ -1189,12 +1183,12 @@ namespace OutlookGoogleCalendarSync {
 
         private static void addOGCSproperty(ref AppointmentItem ai, MetadataId key, String value) {
             if (!GetOGCSproperty(ai, key))
-                ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olText);
+                ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olText, false);
             ai.UserProperties[MetadataIdKeyName(key)].Value = value;
         }
         private static void addOGCSproperty(ref AppointmentItem ai, MetadataId key, DateTime value) {
             if (!GetOGCSproperty(ai, key))
-                ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime);
+                ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime, false);
             ai.UserProperties[MetadataIdKeyName(key)].Value = value;
         }
 
