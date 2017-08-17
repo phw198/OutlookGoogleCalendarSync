@@ -27,6 +27,7 @@ If you would like to support this tool and its further development please [![don
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.0-beta/OutlookGoogleCalendarSync-2.6.0-beta-full.nupkg.svg)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.0-beta/OutlookGoogleCalendarSync-2.6.0-beta-delta.nupkg.svg)
 
+:gear: See the wiki for [configuration guides](https://github.com/phw198/OutlookGoogleCalendarSync/wiki) and more.
 
 ## Functionality
 <img align="right" width="35%" src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/supported_sync_configs.png" alt="Supported configurations"/>
