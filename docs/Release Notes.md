@@ -1,6 +1,21 @@
 | Release Notes |
 |:---|
 
+# v2.6.1.0 - Alpha
+
+:spiral_notepad: This release will require you to reauthorise OGCS to make changes to your Google calendar.
+
+**Enhancements**
+- If Outlook address book (GAL) blocked by corporate policy, remove OGCS features in order that basic sync works.
+- Only access GAL on start-up if user requested sync of meeting attendees (which can trigger Outlook security pop-up).
+- Code refactor into new Authenticator class.
+- Google authentication no longer needs manual copy+paste of code.
+- GoogleAuthorizationCode form removed.
+- Replaced deprecated method to retrieve email address from authenticator's account.
+- Removed CodePlex to Squirrel migration code.
+- Update Google Auth libraries to v1.6.0
+- Update Google Calendar library to v1.5.0.55
+
 # v2.6.0.0 - Beta
 
 :boom: This release completes the migration to GitHub.

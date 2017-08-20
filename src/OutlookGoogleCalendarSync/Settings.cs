@@ -47,9 +47,9 @@ namespace OutlookGoogleCalendarSync {
             CategoriesRestrictBy = RestrictBy.Exclude;
             Categories = new System.Collections.Generic.List<String>();
             OutlookDateFormat = "g";
+            outlookGalBlocked = false;
 
             UseGoogleCalendar = new MyGoogleCalendarListEntry();
-            RefreshToken = "";
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
@@ -124,6 +124,14 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
         [DataMember] public System.Collections.Generic.List<string> Categories { get; set; }
         [DataMember] public string OutlookDateFormat { get; set; }
+        private Boolean outlookGalBlocked;
+        [DataMember] public Boolean OutlookGalBlocked {
+            get { return outlookGalBlocked; }
+            set {
+                outlookGalBlocked = value;
+                if (!loading() && MainForm.Instance.IsHandleCreated) MainForm.Instance.FeaturesBlockedByCorpPolicy(value);
+            }
+        }
         #endregion
         #region Google
         private String assignedClientIdentifier;
@@ -156,7 +164,6 @@ namespace OutlookGoogleCalendarSync {
             return !string.IsNullOrEmpty(PersonalClientIdentifier) && !string.IsNullOrEmpty(PersonalClientSecret);
         }
         [DataMember] public MyGoogleCalendarListEntry UseGoogleCalendar { get; set; }
-        [DataMember] public string RefreshToken { get; set; }
         [DataMember] public Boolean APIlimit_inEffect {
             get { return apiLimit_inEffect; }
             set {
@@ -173,6 +180,7 @@ namespace OutlookGoogleCalendarSync {
         }
         [DataMember] public String GaccountEmail { get; set; }
         public String GaccountEmail_masked() {
+            if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
             return EmailAddress.maskAddress(GaccountEmail);
         }
         #endregion
@@ -325,6 +333,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Filter String: " + OutlookDateFormat);
+            log.Info("  GAL Blocked: " + OutlookGalBlocked);
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + UseGoogleCalendar.Name);

@@ -92,6 +92,8 @@ namespace OutlookGoogleCalendarSync {
 
                 UpdateInfo updates = await updateManager.CheckForUpdate();
                 if (updates.ReleasesToApply.Any()) {
+                    if (updates.CurrentlyInstalledVersion != null)
+                        log.Info("Currently installed version: " + updates.CurrentlyInstalledVersion.Version.ToString());
                     log.Info("Found " + updates.ReleasesToApply.Count() + " new releases available.");
 
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
@@ -103,18 +105,18 @@ namespace OutlookGoogleCalendarSync {
                         DialogResult dr = MessageBox.Show("A " + update.Version.SpecialVersion + " update for OGCS is available.\nWould you like to update the application to v" +
                             update.Version.Version.ToString() + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                         if (dr == DialogResult.Yes) {
+                            log.Debug("Download started...");
+                            updateManager.DownloadReleases(updates.ReleasesToApply).Wait();
+                            log.Debug("Download complete.");
+                            //System.Collections.Generic.Dictionary<ReleaseEntry, String> notes = updates.FetchReleaseNotes();
+                            //String notes = update.GetReleaseNotes(updateManager.RootAppDirectory +"\\packages");
+                            log.Info("Applying the updated release...");
+                            updateManager.ApplyReleases(updates).Wait();
                             /* 
                             new System.Net.WebClient().DownloadFile("https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6-beta/OutlookGoogleCalendarSync-2.5.0-beta-full.nupkg", "OutlookGoogleCalendarSync-2.5.0-beta-full.nupkg");
                             String notes = update.GetReleaseNotes("");
                             //if (!string.IsNullOrEmpty(notes)) log.Debug(notes);
                             */
-                            log.Info("Beginning the migration to Squirrel/github release...");
-                            var migrator = new ClickOnceToSquirrelMigrator.InClickOnceAppMigrator(updateManager, Application.ProductName);
-                            log.Info("RootAppDirectory: " + updateManager.RootAppDirectory);
-                            await migrator.Execute();
-
-                            log.Debug("Moving the Update.exe file");
-                            System.IO.File.Move("..\\Update.exe", updateManager.RootAppDirectory + "\\Update.exe");
 
                             log.Info("The application has been successfully updated.");
                             MessageBox.Show("The application has been updated and will now restart.",

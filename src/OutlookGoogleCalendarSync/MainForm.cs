@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync {
             for (int fld = 1; fld <= OutlookCalendar.Instance.Folders.Count; fld++) {
                 MAPIFolder theFolder = theFolders[fld];
                 try {
-                    if (theFolder.Name != OutlookCalendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder
+                    if (theFolder.Name != OutlookCalendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
                         //Create a dictionary of folder names and a list of their ID(s)
                         if (!folderIDs.ContainsKey(theFolder.Name)) {
                             folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
@@ -368,6 +368,7 @@ namespace OutlookGoogleCalendarSync {
 
             cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
             #endregion
+            FeaturesBlockedByCorpPolicy(Settings.Instance.OutlookGalBlocked);
             this.ResumeLayout();
         }
 
@@ -393,6 +394,26 @@ namespace OutlookGoogleCalendarSync {
             txtProxyPassword.Enabled = cbProxyAuthRequired.Checked;
         }
         
+        public void FeaturesBlockedByCorpPolicy(Boolean isTrue) {
+            String tooltip = "Your corporate policy is blocking the ability to use this feature.";
+            ToolTips.SetToolTip(cbAddAttendees, isTrue ? tooltip : "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+            ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
+            ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
+            if (isTrue) {
+                cbAddDescription.Checked = false;
+                cbAddAttendees.Checked = false;
+                rbOutlookSharedCal.Checked = false;
+                //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
+                cbAddAttendees.ForeColor = SystemColors.GrayText;
+                cbAddDescription.ForeColor = SystemColors.GrayText;
+                rbOutlookSharedCal.ForeColor = SystemColors.GrayText;
+            } else {
+                cbAddAttendees.ForeColor = SystemColors.ControlText;
+                cbAddDescription.ForeColor = SystemColors.ControlText;
+                rbOutlookSharedCal.ForeColor = SystemColors.ControlText;
+            }
+        }
+
         private void applyProxy() {
             if (rbProxyNone.Checked) Settings.Instance.Proxy.Type = rbProxyNone.Tag.ToString();
             else if (rbProxyCustom.Checked) Settings.Instance.Proxy.Type = rbProxyCustom.Tag.ToString();
@@ -434,6 +455,8 @@ namespace OutlookGoogleCalendarSync {
         public void Sync_Click(object sender, EventArgs e) {
             try {
                 Sync_Requested(sender, e);
+            } catch (System.AggregateException ex) {
+                OGCSexception.AnalyseAggregate(ex, false);
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("WARNING: Problem encountered during synchronisation.\r\n" + ex.Message);
                 OGCSexception.Analyse(ex, true);
@@ -650,16 +673,13 @@ namespace OutlookGoogleCalendarSync {
             List<Event> googleEntries = null;
             try {
                 googleEntries = GoogleCalendar.Instance.GetCalendarEntriesInRange();
-            } catch (DotNetOpenAuth.Messaging.ProtocolException ex) {
-                Logboxout("ERROR: Unable to connect to the Google calendar.");
-                if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
-                    "Test it now? If successful, please retry synchronising your calendar.",
-                    "Test Internet Access",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                    System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
-                }
-                throw ex;
+            } catch (AggregateException agex) {
+                OGCSexception.AnalyseAggregate(agex);
+            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+                OGCSexception.AnalyseTokenResponse(ex, false);
+                return false;
             } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
                 Logboxout("ERROR: Unable to connect to the Google calendar.");
                 throw ex;
             }
@@ -1049,6 +1069,19 @@ namespace OutlookGoogleCalendarSync {
             if (verbose) log.Debug(s.TrimEnd());
             else log.Info(s.TrimEnd());
         }
+        /// <summary>
+        /// Write to Logboxout from async process without deadlocking
+        /// </summary>
+        /// <param name="output">Text to display</param>
+        public void AsyncLogboxout(String output, Boolean notifyBubble = false) {
+            try {
+                System.Threading.Thread thrd = new System.Threading.Thread(x => { MainForm.Instance.Logboxout(output, notifyBubble: notifyBubble); });
+                thrd.Start();
+            } catch (System.Exception ex) {
+                log.Error("Failed sending output to logbox.");
+                OGCSexception.Analyse(ex);
+            }
+        }
 
         public enum SyncNotes {
             QuotaExhaustedInfo,
@@ -1186,8 +1219,8 @@ namespace OutlookGoogleCalendarSync {
                        "Would you like to do that now?", "Proceed with authorisation?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (authorise == DialogResult.Yes) {
                         log.Debug("Resetting Google account access.");
-                        GoogleCalendar.Instance.Reset();
-                        GoogleCalendar.Instance.UserSubscriptionCheck();
+                        GoogleCalendar.Instance.Authenticator.Reset();
+                        GoogleCalendar.Instance.Authenticator.UserSubscriptionCheck();
                     }
                 } else {
                     System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
@@ -1268,6 +1301,10 @@ namespace OutlookGoogleCalendarSync {
 
         private void rbOutlookSharedCal_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
+            if (rbOutlookSharedCal.Checked && Settings.Instance.OutlookGalBlocked) {
+                rbOutlookSharedCal.Checked = false;
+                return;
+            }
             if (rbOutlookSharedCal.Checked) {
                 Settings.Instance.OutlookService = OutlookCalendar.Service.SharedCalendar;
                 OutlookCalendar.Instance.Reset();
@@ -1387,7 +1424,12 @@ namespace OutlookGoogleCalendarSync {
                 calendars = GoogleCalendar.Instance.GetCalendars();
             } catch (ApplicationException ex) {
                 if (!String.IsNullOrEmpty(ex.Message)) Logboxout(ex.Message);
+            } catch (AggregateException agex) {
+                OGCSexception.AnalyseAggregate(agex, false);
+            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+                OGCSexception.AnalyseTokenResponse(ex, false);
             } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
                 MessageBox.Show("Failed to retrieve Google calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1431,7 +1473,7 @@ namespace OutlookGoogleCalendarSync {
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
-                GoogleCalendar.Instance.Reset();
+                GoogleCalendar.Instance.Authenticator.Reset();
             }
         }
 
@@ -1649,6 +1691,10 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbAddDescription_CheckedChanged(object sender, EventArgs e) {
+            if (cbAddDescription.Checked && Settings.Instance.OutlookGalBlocked) {
+                cbAddDescription.Checked = false;
+                return;
+            }
             Settings.Instance.AddDescription = cbAddDescription.Checked;
             cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
             showWhatPostit();
@@ -1680,7 +1726,14 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
+            if (cbAddAttendees.Checked && Settings.Instance.OutlookGalBlocked) {
+                cbAddAttendees.Checked = false;
+                return;
+            }
             Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookCalendar.Instance.IOutlook.CurrentUserSMTP())) {
+                OutlookCalendar.Instance.IOutlook.GetCurrentUser(null);
+            }
         }
         #endregion
         #endregion
