@@ -3,7 +3,8 @@
 
 # v2.6.1.0 - Alpha
 
-:spiral_notepad: This release will require you to reauthorise OGCS to make changes to your Google calendar.
+:spiral_notepad: This release will require you to reauthorise OGCS to make changes to your Google calendar.  
+:pushpin: If you are using your own API key, you will need to enable Google+ in your project.
 
 **Enhancements**
 - If Outlook address book (GAL) blocked by corporate policy, remove OGCS features in order that basic sync works.
