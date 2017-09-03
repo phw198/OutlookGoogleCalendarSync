@@ -984,10 +984,13 @@ namespace OutlookGoogleCalendarSync {
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((oGlobalID.StartsWith("040000008200E00074C5B7101A82E008") && 
-                    gCompareID.StartsWith("040000008200E00074C5B7101A82E008") && //We've got bonafide Global IDs
-                    gCompareID.Substring(72) == oGlobalID.Substring(72)) || 
-                    gCompareID.Remove(gCompareID.Length-16) == oGlobalID.Remove(oGlobalID.Length-16)) //Or it's really a Entry ID (failsafe)
+                if ((oGlobalID.StartsWith(OutlookCalendar.GlobalIdPattern) &&
+                    gCompareID.StartsWith(OutlookCalendar.GlobalIdPattern) &&
+                    gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                    ||
+                    (!oGlobalID.StartsWith(OutlookCalendar.GlobalIdPattern) &&
+                    !gCompareID.StartsWith(OutlookCalendar.GlobalIdPattern) &&
+                    gCompareID.Remove(gCompareID.Length-16) == oGlobalID.Remove(oGlobalID.Length-16))) //Or it's really a Entry ID (failsafe match)
                 {
                     log.Fine("Comparing Outlook CalendarID");
                     if (GetOGCSproperty(ev, MetadataId.oCalendarId, out gCompareID) &&
@@ -1001,10 +1004,19 @@ namespace OutlookGoogleCalendarSync {
                         } else if (!string.IsNullOrEmpty(gCompareID) && 
                             gCompareID.Remove(gCompareID.Length-16) == ai.EntryID.Remove(ai.EntryID.Length-16)) 
                         {
-                            log.Fine("Organiser changed time of appointment."); //MessageGlobalCounter bytes change (last 8-bytes)
-                            AddOutlookIDs(ref ev, ai); //update EntryID
-                            addOGCSproperty(ref ev, MetadataId.forceSave, "True");
-                            return true;
+                            //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
+                            //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
+                            //The former is identified by ExplorerWatcher adding a special flag
+                            String copiedAi = false.ToString();
+                            if (OutlookCalendar.GetOGCSproperty(ai, OutlookCalendar.MetadataId.locallyCopied, out copiedAi) && (copiedAi == true.ToString())) {
+                                log.Fine("This appointment was copied by the user. Incorrect match avoided.");
+                                return false;
+                            } else {
+                                log.Fine("Organiser changed time of appointment.");
+                                AddOutlookIDs(ref ev, ai); //update EntryID
+                                addOGCSproperty(ref ev, MetadataId.forceSave, "True");
+                                return true;
+                            }
 
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
@@ -1039,14 +1051,15 @@ namespace OutlookGoogleCalendarSync {
                     log.Fine("Comparing Outlook recipient: " + recipient.Name);
                     String recipientSMTP = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);
                     foreach (EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<EventAttendee>()) {
-                        if (attendee.Email != null && (recipientSMTP.ToLower() == attendee.Email.ToLower())) {
+                        GoogleOgcs.EventAttendee ogcsAttendee = new GoogleOgcs.EventAttendee(attendee);
+                        if (ogcsAttendee.Email != null && (recipientSMTP.ToLower() == ogcsAttendee.Email.ToLower())) {
                             foundAttendee = true;
                             removeAttendee.Remove(attendee);
 
                             //Optional attendee
                             bool oOptional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
                             bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
-                            String attendeeIdentifier = (attendee.DisplayName == null) ? attendee.Email : attendee.DisplayName;
+                            String attendeeIdentifier = (attendee.DisplayName == null) ? ogcsAttendee.Email : attendee.DisplayName;
                             if (MainForm.CompareAttribute("Attendee " + attendeeIdentifier + " - Optional Check",
                                 SyncDirection.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
                                 attendee.Optional = oOptional;
@@ -1096,10 +1109,11 @@ namespace OutlookGoogleCalendarSync {
                 }
             } //more than just 1 (me) recipients
 
-            foreach (EventAttendee ea in removeAttendee) {
+            foreach (EventAttendee gea in removeAttendee) {
+                GoogleOgcs.EventAttendee ea = new GoogleOgcs.EventAttendee(gea);
                 log.Fine("Attendee removed: " + (ea.DisplayName ?? ea.Email), ea.Email);
                 sb.AppendLine("Attendee removed: " + (ea.DisplayName ?? ea.Email));
-                ev.Attendees.Remove(ea);
+                ev.Attendees.Remove(gea);
                 itemModified++;
             }
             return (itemModified > 0);
@@ -1142,7 +1156,7 @@ namespace OutlookGoogleCalendarSync {
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"
         public static string GoogleTimeFrom(DateTime dt) {
-            return dt.ToString("yyyy-MM-ddTHH:mm:sszzz", new System.Globalization.CultureInfo("en-US"));
+            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
         }
 
         public static string signature(Event ev) {
@@ -1292,7 +1306,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static EventAttendee CreateAttendee(Recipient recipient) {
-            EventAttendee ea = new EventAttendee();
+            GoogleOgcs.EventAttendee ea = new GoogleOgcs.EventAttendee();
             log.Fine("Creating attendee " + recipient.Name);
             ea.DisplayName = recipient.Name;
             ea.Email = OutlookCalendar.Instance.IOutlook.GetRecipientEmail(recipient);

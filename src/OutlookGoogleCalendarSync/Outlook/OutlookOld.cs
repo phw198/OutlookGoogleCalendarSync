@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync {
                 return oApp.GetNamespace("mapi").Offline;
             } catch {
                 OutlookCalendar.Instance.Reset();
-                return oApp.GetNamespace("mapi").Offline;
+                return false;
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {

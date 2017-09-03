@@ -53,6 +53,7 @@ namespace OutlookGoogleCalendarSync {
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
+            CloakEmail = true;
 
             SyncDirection = SyncDirection.OutlookToGoogle;
             DaysInThePast = 1;
@@ -183,6 +184,7 @@ namespace OutlookGoogleCalendarSync {
             if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
             return EmailAddress.maskAddress(GaccountEmail);
         }
+        [DataMember] public Boolean CloakEmail { get; set; }
         #endregion
         #region Sync Options
         //Main
@@ -307,6 +309,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void Save(string XMLfile = null) {
+            log.Info("Saving settings.");
             XMLManager.Export(this, XMLfile ?? Program.SettingsFile);
         }
 
@@ -345,6 +348,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  API attendee limit in effect: " + APIlimit_inEffect);
             log.Info("  API attendee limit last reached: " + APIlimit_lastHit);
             log.Info("  Assigned API key: " + AssignedClientIdentifier);
+            log.Info("  Cloak Email: " + CloakEmail);
         
             log.Info("SYNC OPTIONS:-");
             log.Info(" Main");

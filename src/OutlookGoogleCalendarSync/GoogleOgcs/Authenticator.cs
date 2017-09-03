@@ -127,6 +127,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         private void getGaccountEmail(String accessToken) {
             String jsonString = "";
+            log.Debug("Retrieving email address associated with Google account.");
             try {
                 System.Net.WebClient wc = new System.Net.WebClient();
                 wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
@@ -143,6 +144,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } catch (System.Net.WebException ex) {
                 if (ex.Message.Contains("The remote server returned an error: (403) Forbidden.") || ex.Message == "Insufficient Permission") {
+                    log.Warn(ex.Message);
                     String msg = ApiKeyring.ChangeKeys();
                     throw new System.ApplicationException(msg);
                 }

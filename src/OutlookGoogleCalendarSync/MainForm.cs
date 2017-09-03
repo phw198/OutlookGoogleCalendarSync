@@ -98,6 +98,9 @@ namespace OutlookGoogleCalendarSync {
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+            ToolTips.SetToolTip(cbCloakEmail,
+                "Google has been known to send meeting updates to attendees without your consent.\n" +
+                "This option safeguards against that by appending '"+ GoogleOgcs.EventAttendee.EmailCloak +"' to their email address.");
             ToolTips.SetToolTip(cbReminderDND,
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             
@@ -277,6 +280,7 @@ namespace OutlookGoogleCalendarSync {
                 if (Settings.Instance.PrivateCalendar == SyncDirection.GoogleToOutlook) tbPrivateCalendar.SelectedIndex = 1;
             } else 
                 tbPrivateCalendar.SelectedIndex = 2;
+            tbPrivateCalendar_SelectedItemChanged(null, null);
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 SyncDirection sd = (cbObfuscateDirection.Items[i] as SyncDirection);
@@ -311,6 +315,8 @@ namespace OutlookGoogleCalendarSync {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
+            cbCloakEmail.Checked = Settings.Instance.CloakEmail;
+            cbCloakEmail.Visible = cbAddAttendees.Checked && Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbUseGoogleDefaultReminder.Checked = Settings.Instance.UseGoogleDefaultReminder;
             cbUseGoogleDefaultReminder.Enabled = Settings.Instance.AddReminders;
@@ -457,6 +463,10 @@ namespace OutlookGoogleCalendarSync {
                 Sync_Requested(sender, e);
             } catch (System.AggregateException ex) {
                 OGCSexception.AnalyseAggregate(ex, false);
+            } catch (System.ApplicationException ex) {
+                if (ex.Message.ToLower().Contains("try again") && sender != null) {
+                    Sync_Click(null, null);
+                }
             } catch (System.Exception ex) {
                 MainForm.Instance.Logboxout("WARNING: Problem encountered during synchronisation.\r\n" + ex.Message);
                 OGCSexception.Analyse(ex, true);
@@ -660,6 +670,13 @@ namespace OutlookGoogleCalendarSync {
             List<AppointmentItem> outlookEntries = null;
             try {
                 outlookEntries = OutlookCalendar.Instance.GetCalendarEntriesInRange();
+            } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
+                    log.Warn(ex.Message);
+                    try { OutlookCalendar.Instance.Reset(); } catch { }
+                    ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
+                    throw ex;
+                }
             } catch (System.Exception ex) {
                 Logboxout("Unable to access the Outlook calendar.");
                 throw ex;
@@ -1331,6 +1348,11 @@ namespace OutlookGoogleCalendarSync {
             if (!this.Visible) return;
             Settings.Instance.CategoriesRestrictBy = (cbCategoryFilter.SelectedItem.ToString() == "Include") ?
                 Settings.RestrictBy.Include : Settings.RestrictBy.Exclude;
+            //Invert selection
+            for (int i = 0; i < clbCategories.Items.Count; i++) {
+                clbCategories.SetItemChecked(i, !clbCategories.CheckedIndices.Contains(i));
+            }
+            clbCategories_SelectedIndexChanged(null, null);
         }
 
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1345,6 +1367,7 @@ namespace OutlookGoogleCalendarSync {
         private void refreshCategories() {
             clbCategories.BeginUpdate();
             clbCategories.Items.Clear();
+            clbCategories.Items.Add("<No category assigned>");
             foreach (Category cat in OutlookCalendar.Instance.IOutlook.GetCategories() as Categories) {
                 clbCategories.Items.Add(cat.Name);
             }
@@ -1547,7 +1570,8 @@ namespace OutlookGoogleCalendarSync {
                 this.lDNDand.Visible = true;
                 cbAddReminders_CheckedChanged(null, null);
             }
-            showWhatPostit();
+            cbAddAttendees_CheckedChanged(null, null);
+            showWhatPostit("Description");
         }
 
         private void cbMergeItems_CheckedChanged(object sender, EventArgs e) {
@@ -1683,11 +1707,32 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region What
-        private void showWhatPostit() {
-            Boolean visible = (Settings.Instance.AddDescription &&
-                Settings.Instance.SyncDirection == SyncDirection.Bidirectional);
-            WhatPostit.Visible = visible && !Settings.Instance.AddDescription_OnlyToGoogle;
-            cbAddDescription_OnlyToGoogle.Visible = visible;
+        private void lWhatInfo_MouseHover(object sender, EventArgs e) {
+            showWhatPostit("AffectedItems");
+        }
+        private void lWhatInfo_MouseLeave(object sender, EventArgs e) {
+            showWhatPostit("Description");
+        }
+        private void showWhatPostit(String info) {
+            switch (info) {
+                case "Description": {
+                        tbWhatHelp.Text = "Google event descriptions don't support rich text (RTF) and truncate at 8Kb. So make sure you REALLY want to 2-way sync descriptions!";
+                        Boolean visible = (Settings.Instance.AddDescription &&
+                            Settings.Instance.SyncDirection == SyncDirection.Bidirectional);
+                        WhatPostit.Visible = visible && !Settings.Instance.AddDescription_OnlyToGoogle;
+                        cbAddDescription_OnlyToGoogle.Visible = visible;
+                        break;
+                    }
+                case "AffectedItems": {
+                        tbWhatHelp.Text = "Changes will only affect items synced hereon in.\r" +
+                            "To update ALL items, click the Sync button whilst pressing the shift key.";
+                        WhatPostit.Visible = true;
+                        break;
+                    }
+            }
+            tbWhatHelp.SelectAll();
+            tbWhatHelp.SelectionAlignment = HorizontalAlignment.Center;
+            tbWhatHelp.DeselectAll();
         }
 
         private void cbAddDescription_CheckedChanged(object sender, EventArgs e) {
@@ -1697,11 +1742,11 @@ namespace OutlookGoogleCalendarSync {
             }
             Settings.Instance.AddDescription = cbAddDescription.Checked;
             cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
-            showWhatPostit();
+            showWhatPostit("Description");
         }
         private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddDescription_OnlyToGoogle = cbAddDescription_OnlyToGoogle.Checked;
-            showWhatPostit();
+            showWhatPostit("Description");
         }
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
@@ -1728,12 +1773,18 @@ namespace OutlookGoogleCalendarSync {
         private void cbAddAttendees_CheckedChanged(object sender, EventArgs e) {
             if (cbAddAttendees.Checked && Settings.Instance.OutlookGalBlocked) {
                 cbAddAttendees.Checked = false;
+                cbCloakEmail.Enabled = false;
                 return;
             }
             Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            cbCloakEmail.Visible = Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook;
+            cbCloakEmail.Enabled = cbAddAttendees.Checked;
             if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookCalendar.Instance.IOutlook.CurrentUserSMTP())) {
                 OutlookCalendar.Instance.IOutlook.GetCurrentUser(null);
             }
+        }
+        private void cbCloakEmail_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.CloakEmail = cbCloakEmail.Checked;
         }
         #endregion
         #endregion
@@ -1953,6 +2004,5 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #endregion
-
     }
 }

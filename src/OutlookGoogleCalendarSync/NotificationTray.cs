@@ -77,15 +77,18 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void UpdateItem(String itemName, String itemText = null, Boolean enabled = true) {
-            ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find(itemName, true);
-            if (items.Count() > 0) {
-                ToolStripItem item = items.First();
-                item.Text = itemText ?? item.Text;
-                item.Enabled = enabled;
-            } else {
-                log.Warn("Could not find menu item with name \"" + itemName + "\"");
+            try {
+                ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find(itemName, true);
+                if (items.Count() > 0) {
+                    ToolStripItem item = items.First();
+                    item.Text = itemText ?? item.Text;
+                    item.Enabled = enabled;
+                } else {
+                    log.Warn("Could not find menu item with name \"" + itemName + "\"");
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex, true);
             }
-            return;
         }
 
         public void UpdateAutoSyncItems() {

@@ -11,6 +11,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookNew));
         
         private Microsoft.Office.Interop.Outlook.Application oApp;
+        private Outlook.ExplorerWatcher explorerWatcher;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
@@ -84,6 +85,9 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged += MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
 
+                //Set up event handlers
+                explorerWatcher = new Outlook.ExplorerWatcher(oApp.Explorers);
+                
             } finally {
                 // Done. Log off.
                 if (oNS != null) oNS.Logoff();
@@ -133,7 +137,7 @@ namespace OutlookGoogleCalendarSync {
                 return oApp.GetNamespace("mapi").Offline;
             } catch {
                 OutlookCalendar.Instance.Reset();
-                return oApp.GetNamespace("mapi").Offline;
+                return false;
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -513,7 +517,7 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
 
-                    } else if (addressEntryType.ToUpper() == "NOTES") {
+                    } else if (addressEntryType != null && addressEntryType.ToUpper() == "NOTES") {
                         log.Fine("From Lotus Notes");
                         //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
                         retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);

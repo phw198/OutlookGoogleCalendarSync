@@ -48,7 +48,13 @@ namespace OutlookGoogleCalendarSync {
                         } catch (System.Exception ex) {
                             OGCSexception.Analyse(ex, true);
                         }
-                        MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
+                        try {
+                            MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
+                        } catch (System.Exception ex) {
+                            log.Error("Failed to exit via the notification tray icon. "+ ex.Message);
+                            log.Debug("NotificationTray is " + (MainForm.Instance.NotificationTray == null ? "null" : "not null"));
+                            MainForm.Instance.Close();
+                        }
                     }
                     if (isManualCheck) updateButton.Text = "Check For Update";
                 } else {
@@ -70,8 +76,11 @@ namespace OutlookGoogleCalendarSync {
                     isSquirrelInstall = updateManager.IsInstalledApp;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed to determine if app is a Squirrel install. Assuming not.");
-                OGCSexception.Analyse(ex);
+                log.Warn("Failed to determine if app is a Squirrel install. Assuming not.");
+                if (OGCSexception.GetErrorCode(ex) == "0x80131500") //Update.exe not found
+                    log.Debug(ex.Message);
+                else
+                    OGCSexception.Analyse(ex);
             }
             
             log.Info("This " + (isSquirrelInstall ? "is" : "is not") + " a Squirrel " + (Program.IsClickOnceInstall ? "aware ClickOnce " : "") + "install.");
@@ -86,7 +95,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 if (string.IsNullOrEmpty(nonGitHubReleaseUri))
-                    updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir);
+                    updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir, prerelease: true);
                 else
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
 

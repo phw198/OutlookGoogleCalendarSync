@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="lAboutMain.Text" xml:space="preserve">
-    <value>Project forked by Paul Woolcock (2014-2017)
+    <value>Project forked by Paul Woolcock (2014-20xx)
 A continuation of initial efforts by Zissis Siantidis (2012-2013)
 
 If you wish to show your appreciation for this free utility 
@@ -128,6 +128,14 @@ any donations would be greatly appreciated!</value>
   <metadata name="msCategories.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>112, 5</value>
   </metadata>
+  <data name="lGoogleAPIInstructions.Text" xml:space="preserve">
+    <value>To change the Client ID and secret, first disconnect your account
+by clicking "Disconnect Account" above. 
+
+Obtain new values from the Google Developer Console.
+You'll need to enable Calendar and Google+ APIs in your project:
+</value>
+  </data>
   <metadata name="regexFind.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
