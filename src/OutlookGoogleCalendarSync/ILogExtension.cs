@@ -4,7 +4,7 @@ using log4net;
 namespace OutlookGoogleCalendarSync {
     public static class ILogExtentions {
         
-        private static void Fine(this ILog log, string message, Exception exception) {
+        private static void Fine(this ILog log, string message, System.Exception exception) {
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
                 Program.MyFineLevel, message, exception);
         }
@@ -21,7 +21,7 @@ namespace OutlookGoogleCalendarSync {
             return log.Logger.IsEnabledFor(Program.MyFineLevel);
         }
 
-        private static void UltraFine(this ILog log, string message, Exception exception) {
+        private static void UltraFine(this ILog log, string message, System.Exception exception) {
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
                 Program.MyUltraFineLevel, message, exception);
         }

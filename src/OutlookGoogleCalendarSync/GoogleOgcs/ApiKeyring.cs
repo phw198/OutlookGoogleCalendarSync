@@ -117,7 +117,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             string html = "";
             try {
                 html = new System.Net.WebClient().DownloadString(keyringURL);
-            } catch (Exception ex) {
+            } catch (System.Exception ex) {
                 log.Error("Failed to retrieve data: " + ex.Message);
             }
             if (!string.IsNullOrEmpty(html)) {
@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String msg = "Your Google authorisation token needs updating.\r\n" +
                         "The process to reauthorise access to your Google account will now begin...";
             System.Windows.Forms.MessageBox.Show(msg, "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-            GoogleCalendar.Instance.Authenticator.Reset();
+            GoogleOgcs.Calendar.Instance.Authenticator.Reset();
             return msg;
         }
 

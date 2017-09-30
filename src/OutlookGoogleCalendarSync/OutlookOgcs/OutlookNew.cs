@@ -1,18 +1,17 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
-using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync {
-    class OutlookOld : OutlookInterface {
-        private static readonly ILog log = LogManager.GetLogger(typeof(OutlookOld));
+namespace OutlookGoogleCalendarSync.OutlookOgcs {
+    class OutlookNew : Interface {
+        private static readonly ILog log = LogManager.GetLogger(typeof(OutlookNew));
         
         private Microsoft.Office.Interop.Outlook.Application oApp;
+        private ExplorerWatcher explorerWatcher;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
@@ -21,7 +20,7 @@ namespace OutlookGoogleCalendarSync {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
-            OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
+            OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
             // Get the NameSpace and Logon information.
@@ -29,12 +28,21 @@ namespace OutlookGoogleCalendarSync {
             try {
                 oNS = oApp.GetNamespace("mapi");
 
+                //Log on by using a dialog box to choose the profile.
+                //oNS.Logon("", Type.Missing, true, true); 
+
                 //Implicit logon to default profile, with no dialog box
                 //If 1< profile, a dialogue is forced unless implicit login used
                 exchangeConnectionMode = oNS.ExchangeConnectionMode;
                 if (exchangeConnectionMode != OlExchangeConnectionMode.olNoExchange) {
-                    log.Info("Exchange server version: Unknown");
+                    log.Info("Exchange server version: " + oNS.ExchangeMailboxServerVersion.ToString());
                 }
+
+                //Logon using a specific profile. Can't see a use case for this when using OGsync
+                //If using this logon method, change the profile name to an appropriate value:
+                //HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles
+                //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
+
                 log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
 
                 oNS = GetCurrentUser(oNS);
@@ -77,10 +85,13 @@ namespace OutlookGoogleCalendarSync {
                     MainForm.Instance.cbOutlookCalendars.SelectedIndexChanged += MainForm.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
 
+                //Set up event handlers
+                explorerWatcher = new ExplorerWatcher(oApp.Explorers);
+                
             } finally {
                 // Done. Log off.
                 if (oNS != null) oNS.Logoff();
-                oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
+                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
@@ -89,11 +100,11 @@ namespace OutlookGoogleCalendarSync {
             {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
-                    folders = (Folders)OutlookCalendar.ReleaseObject(folders);
-                    useOutlookCalendar = (MAPIFolder)OutlookCalendar.ReleaseObject(useOutlookCalendar);
+                    folders = (Folders)OutlookOgcs.Calendar.ReleaseObject(folders);
+                    useOutlookCalendar = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(useOutlookCalendar);
                     for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
                         MAPIFolder mFld = calendarFolders.ElementAt(fld).Value;
-                        mFld = (MAPIFolder)OutlookCalendar.ReleaseObject(mFld);
+                        mFld = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(mFld);
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
@@ -125,7 +136,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 return oApp.GetNamespace("mapi").Offline;
             } catch {
-                OutlookCalendar.Instance.Reset();
+                OutlookOgcs.Calendar.Instance.Reset();
                 return false;
             }
         }
@@ -134,6 +145,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private const String gEventID = "googleEventID";
+        private const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
+        private const String EMAIL1ADDRESS = "http://schemas.microsoft.com/mapi/id/{00062004-0000-0000-C000-000000000046}/8084001F";
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
 
         public NameSpace GetCurrentUser(NameSpace oNS) {
@@ -151,7 +164,7 @@ namespace OutlookGoogleCalendarSync {
                     currentUser = oNS.CurrentUser;
                     if (!MainForm.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
                         log.Warn(">1s delay possibly due to Outlook security popup.");
-                        OutlookCalendar.OOMsecurityInfo = true;
+                        OutlookOgcs.Calendar.OOMsecurityInfo = true;
                     }
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
@@ -160,9 +173,9 @@ namespace OutlookGoogleCalendarSync {
                         return oNS;
                     }
                     log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
-                    oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
+                    oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
                     Disconnect();
-                    OutlookCalendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
+                    OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
                     oNS = oApp.GetNamespace("mapi");
 
                     int maxDelay = 5;
@@ -189,18 +202,92 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if (Settings.Instance.OutlookGalBlocked) log.Debug("GAL is no longer blocked!");
                 Settings.Instance.OutlookGalBlocked = false;
+
+                //Issue 402
+                log.Debug("Getting active window inspector");
+                Inspector inspector = oApp.ActiveInspector();
+                inspector = (Inspector)OutlookOgcs.Calendar.ReleaseObject(inspector);
+                log.Debug("Done.");
+
                 currentUserSMTP = GetRecipientEmail(currentUser);
                 currentUserName = currentUser.Name;
             } finally {
-                currentUser = (Recipient)OutlookCalendar.ReleaseObject(currentUser);
-                if (releaseNamespace) oNS = (NameSpace)OutlookCalendar.ReleaseObject(oNS);
+                currentUser = (Recipient)OutlookOgcs.Calendar.ReleaseObject(currentUser);
+                if (releaseNamespace) oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
             return oNS;
         }
 
         private MAPIFolder getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            if (Settings.Instance.OutlookService == OutlookCalendar.Service.DefaultMailbox) {
+            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && Settings.Instance.MailboxName != "") {
+                log.Debug("Finding Alternative Mailbox calendar folders");
+                Folders binFolders = null;
+                Store binStore = null;
+                PropertyAccessor pa = null;
+                try {
+                    binFolders = oNS.Folders;
+                    binStore = binFolders[Settings.Instance.MailboxName].Store;
+                    pa = binStore.PropertyAccessor;
+                    object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
+                    string excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
+
+                    MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
+                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
+                    findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
+                    MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
+                    MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
+                } catch (System.Exception ex) {
+                    log.Error("Failed to find calendar folders in alternate mailbox '" + Settings.Instance.MailboxName + "'.");
+                    log.Debug(ex.Message);
+                } finally {
+                    pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                    binStore = (Store)OutlookOgcs.Calendar.ReleaseObject(binStore);
+                    binFolders = (Folders)OutlookOgcs.Calendar.ReleaseObject(binFolders);
+                }
+
+                //Default to first calendar in drop down
+                defaultCalendar = calendarFolders.FirstOrDefault().Value;
+                if (defaultCalendar == null) {
+                    log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
+                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
+                    getDefaultCalendar(oNS, ref defaultCalendar);
+                    MainForm.Instance.ddMailboxName.Text = "";
+                }
+
+            } else if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
+                log.Debug("Finding shared calendar");
+                if (MainForm.Instance.Visible) {
+                    SelectNamesDialog snd;
+                    try {
+                        snd = oNS.GetSelectNamesDialog();
+                        snd.NumberOfRecipientSelectors = OlRecipientSelectors.olShowNone;
+                        snd.ForceResolution = true;
+                        snd.AllowMultipleSelection = false;
+                        snd.Display();
+                        if (snd.Recipients.Count == 0) {
+                            log.Info("No shared calendar selected.");
+                            getDefaultCalendar(oNS, ref defaultCalendar);
+                        } else {
+                            String sharedURI = snd.Recipients[1].Address;
+                            MAPIFolder sharedCalendar = getSharedCalendar(oNS, sharedURI);
+                            if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
+                            else {
+                                Settings.Instance.SharedCalendar = sharedURI;
+                                return sharedCalendar;
+                            }
+                        }
+                    } finally {
+                        snd = null;
+                    }
+                } else {
+                    defaultCalendar = getSharedCalendar(oNS, Settings.Instance.SharedCalendar);
+                    if (defaultCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
+                    else return defaultCalendar;
+                }
+
+            } else {
                 getDefaultCalendar(oNS, ref defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
@@ -232,7 +319,7 @@ namespace OutlookGoogleCalendarSync {
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return null;
             } finally {
-                sharer = (Recipient)OutlookCalendar.ReleaseObject(sharer);
+                sharer = (Recipient)OutlookOgcs.Calendar.ReleaseObject(sharer);
             }
         }
 
@@ -241,7 +328,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 MainForm.Instance.rbOutlookDefaultMB.CheckedChanged -= MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
                 MainForm.Instance.rbOutlookDefaultMB.Checked = true;
-                Settings.Instance.OutlookService = OutlookCalendar.Service.DefaultMailbox;
+                Settings.Instance.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
                 MainForm.Instance.rbOutlookDefaultMB.CheckedChanged += MainForm.Instance.rbOutlookDefaultMB_CheckedChanged;
 
                 defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
@@ -250,7 +337,9 @@ namespace OutlookGoogleCalendarSync {
 
                 MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
                 MainForm.Instance.lOutlookCalendar.Text = "Getting calendars";
-                findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
+
+                findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
+
                 MainForm.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
                 MainForm.Instance.lOutlookCalendar.Text = "Select calendar";
             } catch (System.Exception ex) {
@@ -333,7 +422,7 @@ namespace OutlookGoogleCalendarSync {
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = oApp.GetNamespace("mapi");
             ai = ns.GetItemFromID(entryID) as AppointmentItem;
-            ns = (NameSpace)OutlookCalendar.ReleaseObject(ns);
+            ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
         }
 
         public String GetRecipientEmail(Recipient recipient) {
@@ -362,8 +451,73 @@ namespace OutlookGoogleCalendarSync {
                     log.Fine("AddressEntry Type: " + addressEntryType);
                     if (addressEntryType == "EX") { //Exchange
                         log.Fine("Address is from Exchange");
-                        retEmail = ADX_GetSMTPAddress(addressEntry.Address);
-                    } else if (addressEntry.Type != null && addressEntry.Type.ToUpper() == "NOTES") {
+                        if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeUserAddressEntry ||
+                            addressEntry.AddressEntryUserType == OlAddressEntryUserType.olExchangeRemoteUserAddressEntry) {
+                            ExchangeUser eu = null;
+                            try {
+                                eu = addressEntry.GetExchangeUser();
+                                if (eu != null && eu.PrimarySmtpAddress != null)
+                                    retEmail = eu.PrimarySmtpAddress;
+                                else {
+                                    log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
+                                    Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                                    try {
+                                        //Should I try PR_EMS_AB_PROXY_ADDRESSES next to cater for cached mode?
+                                        pa = recipient.PropertyAccessor;
+                                        retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                                        log.Debug("Retrieved from PropertyAccessor instead.");
+                                    } catch {
+                                        log.Warn("Also failed to retrieve email from PropertyAccessor.");
+                                        retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                                    } finally {
+                                        pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                                    }
+                                }
+                            } finally {
+                                eu = (ExchangeUser)OutlookOgcs.Calendar.ReleaseObject(eu);
+                            }
+
+                        } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOutlookContactAddressEntry) {
+                            log.Fine("This is an Outlook contact");
+                            ContactItem contact = null;
+                            try {
+                                try {
+                                    contact = addressEntry.GetContact();
+                                } catch {
+                                    log.Warn("Doesn't seem to be a valid contact object. Maybe this account is no longer in Exchange.");
+                                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                                }
+                                if (contact != null) {
+                                    if (contact.Email1AddressType == "EX") {
+                                        log.Fine("Address is from Exchange.");
+                                        log.Fine("Using PropertyAccessor to get email address.");
+                                        Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                                        try {
+                                            pa = contact.PropertyAccessor;
+                                            retEmail = pa.GetProperty(EMAIL1ADDRESS).ToString();
+                                        } finally {
+                                            pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                                        }
+                                    } else {
+                                        retEmail = contact.Email1Address;
+                                    }
+                                }
+                            } finally {
+                                contact = (ContactItem)OutlookOgcs.Calendar.ReleaseObject(contact);
+                            }
+                        } else {
+                            log.Fine("Exchange type: " + addressEntry.AddressEntryUserType.ToString());
+                            log.Fine("Using PropertyAccessor to get email address.");
+                            Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
+                            try {
+                                pa = recipient.PropertyAccessor;
+                                retEmail = pa.GetProperty(OutlookNew.PR_SMTP_ADDRESS).ToString();
+                            } finally {
+                                pa = (Microsoft.Office.Interop.Outlook.PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                            }
+                        }
+
+                    } else if (addressEntryType != null && addressEntryType.ToUpper() == "NOTES") {
                         log.Fine("From Lotus Notes");
                         //Migrated contacts from notes, have weird "email addresses" eg: "James T. Kirk/US-Corp03/enterprise/US"
                         retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
@@ -385,11 +539,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
 
-                if (string.IsNullOrEmpty(retEmail) || retEmail == "Unknown") {
-                    log.Error("Failed to get email address through Addin MAPI access!");
-                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
-                }
-
                 if (retEmail != null && retEmail.IndexOf("<") > 0) {
                     retEmail = retEmail.Substring(retEmail.IndexOf("<") + 1);
                     retEmail = retEmail.TrimEnd(Convert.ToChar(">"));
@@ -405,280 +554,46 @@ namespace OutlookGoogleCalendarSync {
                 }
                 return retEmail;
             } finally {
-                addressEntry = (AddressEntry)OutlookCalendar.ReleaseObject(addressEntry);
+                addressEntry = (AddressEntry)OutlookOgcs.Calendar.ReleaseObject(addressEntry);
             }
         }
 
         public String GetGlobalApptID(AppointmentItem ai) {
-            return ai.EntryID;
+            try {
+                if (ai.GlobalAppointmentID == null)
+                    throw new System.Exception("GlobalAppointmentID is null - this shouldn't happen! Falling back to EntryID.");
+                return ai.GlobalAppointmentID;
+            } catch (System.Exception ex) {
+                log.Warn(ex.Message);
+                return ai.EntryID;
+            }
         }
 
         public object GetCategories() {
-            return null;
+            return oApp.Session.Categories;
         }
-        
-        #region Addin Express Code
-        //This code has been sourced from:
-        //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/
-        //https://www.add-in-express.com/files/howtos/blog/adx-ol-smtp-address-cs.zip
-        public static string ADX_GetSMTPAddress(string exchangeAddress) {
-            string smtpAddress = string.Empty;
-            IAddrBook addrBook = ADX_GetAddrBook();
-            if (addrBook != null)
-                try {
-                    IntPtr szPtr = IntPtr.Zero;
-                    IntPtr propValuePtr = Marshal.AllocHGlobal(16);
-                    IntPtr adrListPtr = Marshal.AllocHGlobal(16);
-
-                    Marshal.WriteInt32(propValuePtr, (int)MAPI.PR_DISPLAY_NAME);
-                    Marshal.WriteInt32(new IntPtr(propValuePtr.ToInt32() + 4), 0);
-                    szPtr = Marshal.StringToHGlobalAnsi(exchangeAddress);
-                    Marshal.WriteInt64(new IntPtr(propValuePtr.ToInt32() + 8), szPtr.ToInt32());
-
-                    Marshal.WriteInt32(adrListPtr, 1);
-                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 4), 0);
-                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 8), 1);
-                    Marshal.WriteInt32(new IntPtr(adrListPtr.ToInt32() + 12), propValuePtr.ToInt32());
-                    try {
-                        if (addrBook.ResolveName(0, MAPI.MAPI_DIALOG, null, adrListPtr) == MAPI.S_OK) {
-                            SPropValue spValue = new SPropValue();
-                            int pcount = Marshal.ReadInt32(new IntPtr(adrListPtr.ToInt32() + 8));
-                            IntPtr props = new IntPtr(Marshal.ReadInt32(new IntPtr(adrListPtr.ToInt32() + 12)));
-                            for (int i = 0; i < pcount; i++) {
-                                spValue = (SPropValue)Marshal.PtrToStructure(
-                                    new IntPtr(props.ToInt32() + (16 * i)), typeof(SPropValue));
-                                if (spValue.ulPropTag == MAPI.PR_ENTRYID) {
-                                    IntPtr addrEntryPtr = IntPtr.Zero;
-                                    IntPtr propAddressPtr = IntPtr.Zero;
-                                    uint objType = 0;
-                                    uint cb = (uint)(spValue.Value & 0xFFFFFFFF);
-                                    IntPtr entryID = new IntPtr((int)(spValue.Value >> 32));
-                                    if (addrBook.OpenEntry(cb, entryID, IntPtr.Zero, 0, out objType, out addrEntryPtr) == MAPI.S_OK)
-                                        try {
-                                            if (MAPI.HrGetOneProp(addrEntryPtr, MAPI.PR_EMS_AB_PROXY_ADDRESSES, out propAddressPtr) == MAPI.S_OK) {
-                                                IntPtr emails = IntPtr.Zero;
-                                                SPropValue addrValue = (SPropValue)Marshal.PtrToStructure(propAddressPtr, typeof(SPropValue));
-                                                int acount = (int)(addrValue.Value & 0xFFFFFFFF);
-                                                IntPtr pemails = new IntPtr((int)(addrValue.Value >> 32));
-                                                for (int j = 0; j < acount; j++) {
-                                                    emails = new IntPtr(Marshal.ReadInt32(new IntPtr(pemails.ToInt32() + (4 * j))));
-                                                    smtpAddress = Marshal.PtrToStringAnsi(emails);
-                                                    if (smtpAddress.IndexOf("SMTP:") == 0) {
-                                                        smtpAddress = smtpAddress.Substring(5, smtpAddress.Length - 5);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        finally {
-                                            if (propAddressPtr != IntPtr.Zero)
-                                                Marshal.Release(propAddressPtr);
-                                            if (addrEntryPtr != IntPtr.Zero)
-                                                Marshal.Release(addrEntryPtr);
-                                        }
-                                }
-                            }
-                        }
-                    }
-                    finally {
-                        Marshal.FreeHGlobal(szPtr);
-                        Marshal.FreeHGlobal(propValuePtr);
-                        Marshal.FreeHGlobal(adrListPtr);
-                    }
-                }
-                finally {
-                    Marshal.ReleaseComObject(addrBook);
-                }
-            return smtpAddress;
-        }
-
-        private static IAddrBook ADX_GetAddrBook() {
-            if (MAPI.MAPIInitialize(IntPtr.Zero) == MAPI.S_OK) {
-                IntPtr sessionPtr = IntPtr.Zero;
-                MAPI.MAPILogonEx(0, null, null, MAPI.MAPI_EXTENDED | MAPI.MAPI_ALLOW_OTHERS, out sessionPtr);
-                if (sessionPtr == IntPtr.Zero)
-                    MAPI.MAPILogonEx(0, null, null, MAPI.MAPI_EXTENDED | MAPI.MAPI_NEW_SESSION | MAPI.MAPI_USE_DEFAULT, out sessionPtr);
-                if (sessionPtr != IntPtr.Zero)
-                    try {
-                        object sessionObj = Marshal.GetObjectForIUnknown(sessionPtr);
-                        if (sessionObj != null)
-                            try {
-                                IMAPISession session = sessionObj as IMAPISession;
-                                if (session != null) {
-                                    IntPtr addrBookPtr = IntPtr.Zero;
-                                    session.OpenAddressBook(0, IntPtr.Zero, MAPI.AB_NO_DIALOG, out addrBookPtr);
-                                    if (addrBookPtr != IntPtr.Zero)
-                                        try {
-                                            object addrBookObj = Marshal.GetObjectForIUnknown(addrBookPtr);
-                                            if (addrBookObj != null)
-                                                return addrBookObj as IAddrBook;
-                                        }
-                                        finally {
-                                            Marshal.Release(addrBookPtr);
-                                        }
-                                }
-                            }
-                            finally {
-                                Marshal.ReleaseComObject(sessionObj);
-                            }
-                    }
-                    finally {
-                        Marshal.Release(sessionPtr);
-                    }
-            } else
-                throw new ApplicationException("MAPI can not be initialized.");
-            return null;
-        }
-
-        #region Extended MAPI routines
-
-        internal class MAPI {
-            public const int S_OK = 0;
-
-            public const uint MV_FLAG = 0x1000;
-
-            public const uint PT_UNSPECIFIED = 0;
-            public const uint PT_NULL = 1;
-            public const uint PT_I2 = 2;
-            public const uint PT_LONG = 3;
-            public const uint PT_R4 = 4;
-            public const uint PT_DOUBLE = 5;
-            public const uint PT_CURRENCY = 6;
-            public const uint PT_APPTIME = 7;
-            public const uint PT_ERROR = 10;
-            public const uint PT_BOOLEAN = 11;
-            public const uint PT_OBJECT = 13;
-            public const uint PT_I8 = 20;
-            public const uint PT_STRING8 = 30;
-            public const uint PT_UNICODE = 31;
-            public const uint PT_SYSTIME = 64;
-            public const uint PT_CLSID = 72;
-            public const uint PT_BINARY = 258;
-            public const uint PT_MV_TSTRING = (MV_FLAG | PT_STRING8);
-
-            public const uint PR_SENDER_ADDRTYPE = (PT_STRING8 | (0x0C1E << 16));
-            public const uint PR_SENDER_EMAIL_ADDRESS = (PT_STRING8 | (0x0C1F << 16));
-            public const uint PR_SENDER_NAME = (PT_STRING8 | (0x0C1A << 16));
-            public const uint PR_ADDRTYPE = (PT_STRING8 | (0x3002 << 16));
-            public const uint PR_ADDRTYPE_W = (PT_UNICODE | (0x3002 << 16));
-            public const uint PR_EMAIL_ADDRESS = (PT_STRING8 | (0x3003 << 16));
-            public const uint PR_EMAIL_ADDRESS_W = (PT_UNICODE | (0x3003 << 16));
-            public const uint PR_DISPLAY_NAME = (PT_STRING8 | (0x3001 << 16));
-            public const uint PR_DISPLAY_NAME_W = (PT_UNICODE | (0x3001 << 16));
-            public const uint PR_ENTRYID = (PT_BINARY | (0x0FFF << 16));
-            public const uint PR_EMS_AB_PROXY_ADDRESSES = unchecked((uint)(PT_MV_TSTRING | (0x800F << 16)));
-
-            public const uint PR_SMTP_ADDRESS = (PT_STRING8 | (0x39FE << 16));
-            public const uint PR_SMTP_ADDRESS_W = (PT_UNICODE | (0x39FE << 16));
-
-            public const uint MAPI_NEW_SESSION = 0x00000002;
-            public const uint MAPI_FORCE_DOWNLOAD = 0x00001000;
-            public const uint MAPI_LOGON_UI = 0x00000001;
-            public const uint MAPI_ALLOW_OTHERS = 0x00000008;
-            public const uint MAPI_EXPLICIT_PROFILE = 0x00000010;
-            public const uint MAPI_EXTENDED = 0x00000020;
-            public const uint MAPI_SERVICE_UI_ALWAYS = 0x00002000;
-            public const uint MAPI_NO_MAIL = 0x00008000;
-            public const uint MAPI_USE_DEFAULT = 0x00000040;
-
-            public const uint AB_NO_DIALOG = 0x00000001;
-            public const uint MAPI_DIALOG = 0x00000008;
-
-            public const string IID_IMAPIProp = "00020303-0000-0000-C000-000000000046";
-
-            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "HrGetOneProp@12")]
-            public static extern int HrGetOneProp(IntPtr pmp, uint ulPropTag, out IntPtr ppProp);
-
-            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPIFreeBuffer@4")]
-            public static extern void MAPIFreeBuffer(IntPtr lpBuffer);
-
-            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPIInitialize@4")]
-            public static extern int MAPIInitialize(IntPtr lpMapiInit);
-
-            [DllImport("MAPI32.DLL", CharSet = CharSet.Ansi, EntryPoint = "MAPILogonEx@20")]
-            public static extern int MAPILogonEx(uint ulUIParam, [MarshalAs(UnmanagedType.LPWStr)] string lpszProfileName,
-                [MarshalAs(UnmanagedType.LPWStr)] string lpszPassword, uint flFlags, out IntPtr lppSession);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SPropValue {
-            public uint ulPropTag;
-            public uint dwAlignPad;
-            public long Value;
-        }
-
-        [ComImport, ComVisible(false), InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
-        Guid("00020300-0000-0000-C000-000000000046")]
-        public interface IMAPISession {
-            int GetLastError(int hResult, uint ulFlags, out IntPtr lppMAPIError);
-            int GetMsgStoresTable(uint ulFlags, out IntPtr lppTable);
-            int OpenMsgStore(uint ulUIParam, uint cbEntryID, IntPtr lpEntryID, ref Guid lpInterface, uint ulFlags, out IntPtr lppMDB);
-            int OpenAddressBook(uint ulUIParam, IntPtr lpInterface, uint ulFlags, out IntPtr lppAdrBook);
-            int OpenProfileSection(ref Guid lpUID, ref Guid lpInterface, uint ulFlags, out IntPtr lppProfSect);
-            int GetStatusTable(uint ulFlags, out IntPtr lppTable);
-            int OpenEntry(uint cbEntryID, IntPtr lpEntryID, ref Guid lpInterface, uint ulFlags, out uint lpulObjType, out IntPtr lppUnk);
-            int CompareEntryIDs(uint cbEntryID1, IntPtr lpEntryID1, uint cbEntryID2, IntPtr lpEntryID2, uint ulFlags, out uint lpulResult);
-            int Advise(uint cbEntryID, IntPtr lpEntryID, uint ulEventMask, IntPtr lpAdviseSink, out uint lpulConnection);
-            int Unadvise(uint ulConnection);
-            int MessageOptions(uint ulUIParam, uint ulFlags, [MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, IntPtr lpMessage);
-            int QueryDefaultMessageOpt([MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, uint ulFlags, out uint lpcValues, out IntPtr lppOptions);
-            int EnumAdrTypes(uint ulFlags, out uint lpcAdrTypes, out IntPtr lpppszAdrTypes);
-            int QueryIdentity(out uint lpcbEntryID, out IntPtr lppEntryID);
-            int Logoff(uint ulUIParam, uint ulFlags, uint ulReserved);
-            int SetDefaultStore(uint ulFlags, uint cbEntryID, IntPtr lpEntryID);
-            int AdminServices(uint ulFlags, out IntPtr lppServiceAdmin);
-            int ShowForm(uint ulUIParam, IntPtr lpMsgStore, IntPtr lpParentFolder, ref Guid lpInterface, uint ulMessageToken,
-                IntPtr lpMessageSent, uint ulFlags, uint ulMessageStatus, uint ulMessageFlags, uint ulAccess, [MarshalAs(UnmanagedType.LPWStr)] string lpszMessageClass);
-            int PrepareForm(ref Guid lpInterface, IntPtr lpMessage, out uint lpulMessageToken);
-        }
-
-        [ComImport, ComVisible(false), InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
-        Guid("00020309-0000-0000-C000-000000000046")]
-        public interface IAddrBook {
-            int GetLastError(int hResult, uint ulFlags, out IntPtr lppMAPIError);
-            int SaveChanges(uint ulFlags);
-            int GetProps(IntPtr lpPropTagArray, uint ulFlags, out uint lpcValues, out IntPtr lppPropArray);
-            int GetPropList(uint ulFlags, out IntPtr lppPropTagArray);
-            int OpenProperty(uint ulPropTag, ref Guid lpiid, uint ulInterfaceOptions, uint ulFlags, out IntPtr lppUnk);
-            int SetProps(uint cValues, IntPtr lpPropArray, out IntPtr lppProblems);
-            int DeleteProps(IntPtr lpPropTagArray, out IntPtr lppProblems);
-            int CopyTo(uint ciidExclude, ref Guid rgiidExclude, IntPtr lpExcludeProps, uint ulUIParam,
-                IntPtr lpProgress, ref Guid lpInterface, IntPtr lpDestObj, uint ulFlags, out IntPtr lppProblems);
-            int CopyProps(IntPtr lpIncludeProps, uint ulUIParam, IntPtr lpProgress, ref Guid lpInterface,
-                IntPtr lpDestObj, uint ulFlags, out IntPtr lppProblems);
-            int GetNamesFromIDs(out IntPtr lppPropTags, ref Guid lpPropSetGuid, uint ulFlags,
-                out uint lpcPropNames, out IntPtr lpppPropNames);
-            int GetIDsFromNames(uint cPropNames, ref IntPtr lppPropNames, uint ulFlags, out IntPtr lppPropTags);
-            int OpenEntry(uint cbEntryID, IntPtr lpEntryID, IntPtr lpInterface, uint ulFlags, out uint lpulObjType, out IntPtr lppUnk);
-            int CompareEntryIDs(uint cbEntryID1, IntPtr lpEntryID1, uint cbEntryID2, IntPtr lpEntryID2, uint ulFlags, out uint lpulResult);
-            int Advise(uint cbEntryID, IntPtr lpEntryID, uint ulEventMask, IntPtr lpAdviseSink, out uint lpulConnection);
-            int Unadvise(uint ulConnection);
-            int CreateOneOff([MarshalAs(UnmanagedType.LPWStr)] string lpszName, [MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType,
-                [MarshalAs(UnmanagedType.LPWStr)] string lpszAddress, uint ulFlags, out uint lpcbEntryID, out IntPtr lppEntryID);
-            int NewEntry(uint ulUIParam, uint ulFlags, uint cbEIDContainer, IntPtr lpEIDContainer, uint cbEIDNewEntryTpl, IntPtr lpEIDNewEntryTpl, out uint lpcbEIDNewEntry, out IntPtr lppEIDNewEntry);
-            int ResolveName(uint ulUIParam, uint ulFlags, [MarshalAs(UnmanagedType.LPWStr)] string lpszNewEntryTitle, IntPtr lpAdrList);
-            int Address(out uint lpulUIParam, IntPtr lpAdrParms, out IntPtr lppAdrList);
-            int Details(out uint lpulUIParam, IntPtr lpfnDismiss, IntPtr lpvDismissContext, uint cbEntryID, IntPtr lpEntryID,
-                IntPtr lpfButtonCallback, IntPtr lpvButtonContext, [MarshalAs(UnmanagedType.LPWStr)] string lpszButtonText, uint ulFlags);
-            int RecipOptions(uint ulUIParam, uint ulFlags, IntPtr lpRecip);
-            int QueryDefaultRecipOpt([MarshalAs(UnmanagedType.LPWStr)] string lpszAdrType, uint ulFlags, out uint lpcValues, out IntPtr lppOptions);
-            int GetPAB(out uint lpcbEntryID, out IntPtr lppEntryID);
-            int SetPAB(uint cbEntryID, IntPtr lpEntryID);
-            int GetDefaultDir(out uint lpcbEntryID, out IntPtr lppEntryID);
-            int SetDefaultDir(uint cbEntryID, IntPtr lpEntryID);
-            int GetSearchPath(uint ulFlags, out IntPtr lppSearchPath);
-            int SetSearchPath(uint ulFlags, IntPtr lpSearchPath);
-            int PrepareRecips(uint ulFlags, IntPtr lpSPropTagArray, IntPtr lpRecipList);
-        }
-
-        #endregion
-
-        #endregion
 
         #region TimeZone Stuff
+        //http://stackoverflow.com/questions/17348807/how-to-translate-between-windows-and-iana-time-zones
+        //https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
-            ev.Start.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
-            ev.End.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
+            try {
+                try {
+                    ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                    throw new ApplicationException("Failed to set start timezone. [" + ai.StartTimeZone.ID + ", " + ai.StartTimeZone.Name + "]");
+                }
+                try {
+                    ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+                } catch (System.Exception ex) {
+                    log.Debug(ex.Message);
+                    throw new ApplicationException("Failed to set end timezone. [" + ai.EndTimeZone.ID + ", " + ai.EndTimeZone.Name + "]");
+                }
+            } catch (ApplicationException ex) {
+                log.Warn(ex.Message);
+            }
             return ev;
         }
 
@@ -699,26 +614,68 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
-            startTz = "UTC";
-            endTz = "UTC";
+            Microsoft.Office.Interop.Outlook.TimeZone _startTz = null;
+            Microsoft.Office.Interop.Outlook.TimeZone _endTz = null;
+            try {
+                _startTz = ai.StartTimeZone;
+                _endTz = ai.EndTimeZone;
+                startTz = _startTz.ID;
+                endTz = _endTz.ID;
+            } finally {
+                _startTz = (Microsoft.Office.Interop.Outlook.TimeZone)OutlookOgcs.Calendar.ReleaseObject(_startTz);
+                _endTz = (Microsoft.Office.Interop.Outlook.TimeZone)OutlookOgcs.Calendar.ReleaseObject(_endTz);
+            }
         }
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false) {
-            ai.Start = WindowsTimeZone(ev.Start);
-            ai.End = WindowsTimeZone(ev.End);
+            if ("Both,Start".Contains(attr)) {
+                if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
+                    log.Fine("Has starting timezone: " + ev.Start.TimeZone);
+                    ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+                }
+                if (!onlyTZattribute) ai.Start = DateTime.Parse(ev.Start.DateTime ?? ev.Start.Date);
+            }
+            if ("Both,End".Contains(attr)) {
+                if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
+                    log.Fine("Has ending timezone: " + ev.End.TimeZone);
+                    ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+                }
+                if (!onlyTZattribute) ai.End = DateTime.Parse(ev.End.DateTime ?? ev.End.Date);
+            }
             return ai;
         }
 
-        private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = DateTime.Parse(time.DateTime ?? time.Date);
-            if (time.TimeZone == null) return theDate;
+        private Microsoft.Office.Interop.Outlook.TimeZone WindowsTimeZone(string ianaZoneId) {
+            ianaZoneId = TimezoneDB.FixAlexa(ianaZoneId);
 
-            LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);
-            DateTimeZone zone = DateTimeZoneProviders.Tzdb[TimezoneDB.FixAlexa(time.TimeZone)];
-            ZonedDateTime zonedTime = local.InZoneLeniently(zone);
-            DateTime zonedUTC = zonedTime.ToDateTimeUtc();
-            log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));
-            return zonedUTC;
+            Microsoft.Office.Interop.Outlook.TimeZones tzs = oApp.TimeZones;
+            var utcZones = new[] { "Etc/UTC", "Etc/UCT", "UTC", "Etc/GMT" };
+            if (utcZones.Contains(ianaZoneId, StringComparer.OrdinalIgnoreCase)) {
+                log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"UTC\"");
+                return tzs["UTC"];
+            }
+
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
+            
+            // resolve any link, since the CLDR doesn't necessarily use canonical IDs
+            var links = tzDBsource.CanonicalIdMap
+              .Where(x => x.Value.Equals(ianaZoneId, StringComparison.OrdinalIgnoreCase))
+              .Select(x => x.Key);
+
+            // resolve canonical zones, and include original zone as well
+            var possibleZones = tzDBsource.CanonicalIdMap.ContainsKey(ianaZoneId)
+                ? links.Concat(new[] { tzDBsource.CanonicalIdMap[ianaZoneId], ianaZoneId })
+                : links;
+
+            // map the windows zone
+            var mappings = tzDBsource.WindowsMapping.MapZones;
+            var item = mappings.FirstOrDefault(x => x.TzdbIds.Any(possibleZones.Contains));
+            if (item == null) {
+                throw new System.ApplicationException("Timezone \"" + ianaZoneId + "\" has no mapping.");
+            }
+            log.Fine("Timezone \"" + ianaZoneId + "\" mapped to \"" + item.WindowsId + "\"");
+
+            return tzs[item.WindowsId];
         }
         #endregion
     }

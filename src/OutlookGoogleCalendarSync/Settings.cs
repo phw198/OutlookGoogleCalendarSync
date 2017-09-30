@@ -39,17 +39,17 @@ namespace OutlookGoogleCalendarSync {
             assignedClientIdentifier = "";
             assignedClientSecret = "";
             PersonalClientIdentifier = "";
-            PersonalClientSecret = ""; 
-            OutlookService = OutlookCalendar.Service.DefaultMailbox;
+            PersonalClientSecret = "";
+            OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
             MailboxName = "";
             SharedCalendar = "";
-            UseOutlookCalendar = new MyOutlookCalendarListEntry();
+            UseOutlookCalendar = new OutlookCalendarListEntry();
             CategoriesRestrictBy = RestrictBy.Exclude;
             Categories = new System.Collections.Generic.List<String>();
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
 
-            UseGoogleCalendar = new MyGoogleCalendarListEntry();
+            UseGoogleCalendar = new GoogleCalendarListEntry();
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
@@ -113,15 +113,15 @@ namespace OutlookGoogleCalendarSync {
             }
 
         }
-                
+        
         #region Outlook
         public enum RestrictBy {
             Include, Exclude
-        }   
-        [DataMember] public OutlookCalendar.Service OutlookService { get; set; }
+        }
+        [DataMember] public OutlookOgcs.Calendar.Service OutlookService { get; set; }
         [DataMember] public string MailboxName { get; set; }
         [DataMember] public string SharedCalendar { get; set; }
-        [DataMember] public MyOutlookCalendarListEntry UseOutlookCalendar { get; set; }
+        [DataMember] public OutlookCalendarListEntry UseOutlookCalendar { get; set; }
         [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
         [DataMember] public System.Collections.Generic.List<string> Categories { get; set; }
         [DataMember] public string OutlookDateFormat { get; set; }
@@ -153,28 +153,28 @@ namespace OutlookGoogleCalendarSync {
         }
         private String personalClientIdentifier;
         private String personalClientSecret;
-        [DataMember] public String PersonalClientIdentifier { 
+        [DataMember] public String PersonalClientIdentifier {
             get { return personalClientIdentifier; }
-            set { personalClientIdentifier = value.Trim(); } 
+            set { personalClientIdentifier = value.Trim(); }
         }
-        [DataMember] public String PersonalClientSecret { 
+        [DataMember] public String PersonalClientSecret {
             get { return personalClientSecret; }
-            set { personalClientSecret = value.Trim(); } 
+            set { personalClientSecret = value.Trim(); }
         }
         public Boolean UsingPersonalAPIkeys() {
             return !string.IsNullOrEmpty(PersonalClientIdentifier) && !string.IsNullOrEmpty(PersonalClientSecret);
         }
-        [DataMember] public MyGoogleCalendarListEntry UseGoogleCalendar { get; set; }
+        [DataMember] public GoogleCalendarListEntry UseGoogleCalendar { get; set; }
         [DataMember] public Boolean APIlimit_inEffect {
             get { return apiLimit_inEffect; }
             set {
                 apiLimit_inEffect = value;
                 if (!loading()) XMLManager.ExportElement("APIlimit_inEffect", value, Program.SettingsFile);
-            } 
+            }
         }
-        [DataMember] public DateTime APIlimit_lastHit { 
+        [DataMember] public DateTime APIlimit_lastHit {
             get { return apiLimit_lastHit; }
-            set { 
+            set {
                 apiLimit_lastHit = value;
                 if (!loading()) XMLManager.ExportElement("APIlimit_lastHit", value, Program.SettingsFile);
             }
@@ -297,6 +297,7 @@ namespace OutlookGoogleCalendarSync {
                 System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
                     "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                 log.Warn("Resetting settings.xml file to defaults.");
+                System.IO.File.Delete(XMLfile ?? Program.SettingsFile);
                 Settings.Instance.Save(XMLfile ?? Program.SettingsFile);
                 try {
                     Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
@@ -327,7 +328,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info(Program.SettingsFile);
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
-            if (OutlookService == OutlookCalendar.Service.SharedCalendar) {
+            if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
                 log.Info("  Shared Calendar: " + SharedCalendar);
             } else {
                 log.Info("  Mailbox/FolderStore Name: " + MailboxName);

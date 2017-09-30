@@ -105,13 +105,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Debug("Access token expires " + credential.Token.Issued.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
             }
 
-            GoogleCalendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
+            GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
 
             if (credential.Token.Issued.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.Now.AddMinutes(-1)) {
                 log.Debug("Access token needs refreshing.");
                 //This will happen automatically when using the calendar service
                 //But we need a valid token before we call getGaccountEmail() which doesn't use the service
-                GoogleCalendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
                 log.Debug("Access token refreshed.");
             }
             
@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
             if (tokenFileExists) File.Delete(tokenFullPath);
-            GoogleCalendar.Instance.Authenticator = new Authenticator();
+            GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
         }
 
         private void getGaccountEmail(String accessToken) {
@@ -181,7 +181,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all subscribers from past year.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleCalendar.Instance.Service.Events.List("pqeo689qhvpl1g09bcnma1uaoo@group.calendar.google.com");
+                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("pqeo689qhvpl1g09bcnma1uaoo@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
@@ -259,7 +259,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all donors.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleCalendar.Instance.Service.Events.List("codejbnbj3dp71bj63ingjii9g@group.calendar.google.com");
+                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("codejbnbj3dp71bj63ingjii9g@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;

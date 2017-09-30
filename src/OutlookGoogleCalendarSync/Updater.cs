@@ -286,7 +286,7 @@ namespace OutlookGoogleCalendarSync {
             string html = "";
             try {
                 html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
-            } catch (Exception ex) {
+            } catch (System.Exception ex) {
                 log.Error("Failed to retrieve data: " + ex.Message);
             }
 

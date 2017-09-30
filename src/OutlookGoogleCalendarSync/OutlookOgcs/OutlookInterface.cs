@@ -5,8 +5,8 @@ using System.Text;
 using Microsoft.Office.Interop.Outlook;
 using Google.Apis.Calendar.v3.Data;
 
-namespace OutlookGoogleCalendarSync {
-    public interface OutlookInterface {
+namespace OutlookGoogleCalendarSync.OutlookOgcs {
+    public interface Interface {
         void Connect();
         void Disconnect(Boolean onlyWhenNoGUI = false);
         Folders Folders();

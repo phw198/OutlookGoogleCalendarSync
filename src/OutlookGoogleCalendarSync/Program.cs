@@ -80,9 +80,9 @@ namespace OutlookGoogleCalendarSync {
                 }
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 try {
-                    if (!OutlookCalendar.IsInstanceNull) {
-                        OutlookCalendar.InstanceConnect = false;
-                        OutlookCalendar.Instance.IOutlook.Disconnect();
+                    if (!OutlookOgcs.Calendar.IsInstanceNull) {
+                        OutlookOgcs.Calendar.InstanceConnect = false;
+                        OutlookOgcs.Calendar.Instance.IOutlook.Disconnect();
                     }
                 } catch { }
             }

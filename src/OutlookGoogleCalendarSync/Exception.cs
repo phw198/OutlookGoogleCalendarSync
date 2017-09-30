@@ -1,13 +1,12 @@
 ﻿using log4net;
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
-    class UserCancelledSyncException : Exception {
+    class UserCancelledSyncException : System.Exception {
         public UserCancelledSyncException() { }
         public UserCancelledSyncException(string message) : base(message) { }
-        public UserCancelledSyncException(string message, Exception inner) : base(message, inner) { }
+        public UserCancelledSyncException(string message, System.Exception inner) : base(message, inner) { }
     }
 
     class OGCSexception {
@@ -57,7 +56,7 @@ namespace OutlookGoogleCalendarSync {
                 } else Analyse(ex);
             }
         }
-
+        
         public static void AnalyseTokenResponse(Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 

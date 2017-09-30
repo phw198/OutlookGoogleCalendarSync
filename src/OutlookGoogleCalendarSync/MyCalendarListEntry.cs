@@ -8,16 +8,16 @@ namespace OutlookGoogleCalendarSync {
     /// </summary>
     
     [DataContract]
-    public class MyGoogleCalendarListEntry {
+    public class GoogleCalendarListEntry {
         [DataMember]
         public string Name { get; internal set; }
         [DataMember]
         public string Id { get; internal set; }
 
-        public MyGoogleCalendarListEntry() {
+        public GoogleCalendarListEntry() {
         }
 
-        public MyGoogleCalendarListEntry(CalendarListEntry init) {
+        public GoogleCalendarListEntry(CalendarListEntry init) {
             Id = init.Id;
             Name = init.Summary;
         }
@@ -28,16 +28,16 @@ namespace OutlookGoogleCalendarSync {
     }
 
     [DataContract]
-    public class MyOutlookCalendarListEntry {
+    public class OutlookCalendarListEntry {
         [DataMember]
         public string Name { get; internal set; }
         [DataMember]
         public string Id { get; internal set; }
 
-        public MyOutlookCalendarListEntry() {
+        public OutlookCalendarListEntry() {
         }
 
-        public MyOutlookCalendarListEntry(MAPIFolder calendarFolder) {
+        public OutlookCalendarListEntry(MAPIFolder calendarFolder) {
             Id = calendarFolder.EntryID;
             Name = calendarFolder.Name;
         }

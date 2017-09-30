@@ -47,7 +47,7 @@ namespace OutlookGoogleCalendarSync {
             if (System.Diagnostics.Debugger.IsAttached) return;
 
             string analytics = null;
-            switch (OutlookFactory.OutlookVersion) {
+            switch (OutlookOgcs.Factory.OutlookVersion) {
                 case 11: analytics = "http://goo.gl/LMf6HT"; break; //2003
                 case 12: analytics = "http://goo.gl/Xpqzua"; break; //2007
                 case 14: analytics = "http://goo.gl/VM9Yaz"; break; //2010
@@ -72,7 +72,7 @@ namespace OutlookGoogleCalendarSync {
         public static void TrackSync() {
             //Use an API that isn't used anywhere else - can use to see how many syncs are happening
             if (System.Diagnostics.Debugger.IsAttached) return;
-            GoogleCalendar.Instance.GetSetting("locale");
+            GoogleOgcs.Calendar.Instance.GetSetting("locale");
         }
         #endregion
     }

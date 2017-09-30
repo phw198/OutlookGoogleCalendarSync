@@ -1,13 +1,8 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
-using log4net;
 using System.Windows.Forms;
-
-//[assembly: ContractNamespaceAttribute("http://www.cohowinery.com/employees",
-//    ClrNamespace = "OutlookGoogleCalendarSync")]
 
 namespace OutlookGoogleCalendarSync {
     [DataContract]

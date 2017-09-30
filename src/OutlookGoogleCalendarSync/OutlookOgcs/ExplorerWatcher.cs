@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Office.Interop.Outlook;
 using log4net;
 
-namespace OutlookGoogleCalendarSync.Outlook {
+namespace OutlookGoogleCalendarSync.OutlookOgcs {
     class ExplorerWatcher {
         private static readonly ILog log = LogManager.GetLogger(typeof(ExplorerWatcher));
         
@@ -64,15 +64,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             throw new ApplicationException("The item is not an appointment item.");
                         }
-                        log.Debug(OutlookCalendar.GetEventSummary(copiedAi));
-                        if (OutlookCalendar.GetOGCSproperty(copiedAi, OutlookCalendar.MetadataId.gEventID, out gEventID)) {
+                        log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
+                        if (OutlookOgcs.Calendar.GetOGCSproperty(copiedAi, OutlookOgcs.Calendar.MetadataId.gEventID, out gEventID)) {
                             gEventIDs.Add(gEventID);
                         } else {
                             log.Debug("This item isn't managed by OGCS.");
                             //But we still need to tag it as a "copied" item to avoid bad matches on Google events.
                             //We'll identify the Outlook item by GlobalApptID (if available) and EntryID
-                            oApptID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(copiedAi);
-                            if (!oApptID.StartsWith(OutlookCalendar.GlobalIdPattern)) oApptID = "";
+                            oApptID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(copiedAi);
+                            if (!oApptID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern)) oApptID = "";
                             oApptID += "~" + copiedAi.EntryID;
                             oApptIDs.Add(oApptID);
                         }
@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         OGCSexception.Analyse(ex);
 
                     } finally {
-                        copiedAi = (AppointmentItem)OutlookCalendar.ReleaseObject(copiedAi);
+                        copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
                     }
                 }
 
@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 foreach (String gEventID in gEventIDs) {
                     List<AppointmentItem> filtered = new List<AppointmentItem>();
                     try {
-                        filtered = OutlookCalendar.Instance.FilterCalendarEntries(OutlookCalendar.Instance.UseOutlookCalendar.Items,
+                        filtered = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items,
                             filterCategories: false, noDateFilter: true,
                             extraFilter: " AND [googleEventID] = '" + gEventID + "' AND [Modified] >= '" + asOfRounded.ToString(Settings.Instance.OutlookDateFormat) + "'");
                     } catch (System.Exception ex) {
@@ -126,11 +126,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         log.Warn("We've got back " + filtered.Count + " items for " + gEventID + "! Only expected one - attempting to filter further...");
                         for (int i = filtered.Count - 1; i >= 0; i--) {
                             AppointmentItem ai = filtered[i];
-                            log.Debug(OutlookCalendar.GetEventSummary(ai));
+                            log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
                             if (ai.LastModificationTime < asOfRounded) {
                                 log.Debug("Removed");
                                 filtered.Remove(ai);
-                                ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                             } else
                                 log.Debug("Not removed.");
                         }
@@ -140,19 +140,19 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         log.Error("We've still got " + filtered.Count + " items for " + gEventID + "! Impossible to determine which one was pasted.");
                         for (int i = 0; i < filtered.Count; i++) {
                             AppointmentItem ai = filtered[i];
-                            ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                            ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         }
                     } else if (filtered.Count == 1) {
                         AppointmentItem ai = null;
                         try {
                             ai = filtered[0];
                             log.Info("Removing OGCS properties from copied Outlook appointment item.");
-                            log.Debug(OutlookCalendar.GetEventSummary(ai));
-                            OutlookCalendar.RemoveOGCSproperties(ref ai);
-                            OutlookCalendar.AddOGCSproperty(ref ai, OutlookCalendar.MetadataId.locallyCopied, true.ToString());
+                            log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                            OutlookOgcs.Calendar.RemoveOGCSproperties(ref ai);
+                            OutlookOgcs.Calendar.AddOGCSproperty(ref ai, OutlookOgcs.Calendar.MetadataId.locallyCopied, true.ToString());
                             ai.Save();
                         } finally {
-                            ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                            ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         }
                     } else if (filtered.Count == 0) {
                         log.Warn("Could not find Outlook item with googleEventID " + gEventID + " for post-processing.");
@@ -175,7 +175,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 foreach (String oApptID in oApptIDs) {
                     try {
                         List<AppointmentItem> filtered = new List<AppointmentItem>();
-                        filtered = OutlookCalendar.Instance.FilterCalendarEntries(OutlookCalendar.Instance.UseOutlookCalendar.Items,
+                        filtered = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items,
                             filterCategories: false, noDateFilter: true,
                             extraFilter: " AND [Modified] >= '" + asOfRounded.ToString(Settings.Instance.OutlookDateFormat) + "'");
 
@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             log.Warn("We've got back " + filtered.Count + " items. Filtering further...");
                             for (int i = filtered.Count - 1; i >= 0; i--) {
                                 AppointmentItem ai = filtered[i];
-                                log.Debug(OutlookCalendar.GetEventSummary(ai));
+                                log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
                                 Boolean isMatched = false;
                                 if (ai.LastModificationTime < asOfRounded) {
                                     isMatched = false;
@@ -192,9 +192,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                     String[] ids = oApptID.Split(new char[] { '~' }, StringSplitOptions.None);
                                     if (ids[0] == String.Empty) isMatched = true; //No GlobalID available, so continue matching on Entry ID
                                     else {
-                                        String aiGlobalID = OutlookCalendar.Instance.IOutlook.GetGlobalApptID(ai);
-                                        isMatched = (aiGlobalID.StartsWith(OutlookCalendar.GlobalIdPattern) &&
-                                            ids[0].StartsWith(OutlookCalendar.GlobalIdPattern) &&
+                                        String aiGlobalID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
+                                        isMatched = (aiGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                                            ids[0].StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                                             ids[0].Substring(72) == aiGlobalID.Substring(72));
                                     }
                                     if (isMatched)
@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 if (!isMatched) {
                                     log.Debug("Removed");
                                     filtered.Remove(ai);
-                                    ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                                 } else
                                     log.Debug("Not removed.");
                             }
@@ -215,11 +215,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 AppointmentItem ai = null;
                                 try {
                                     ai = filtered[0];
-                                    log.Debug(OutlookCalendar.GetEventSummary(ai));
-                                    OutlookCalendar.AddOGCSproperty(ref ai, OutlookCalendar.MetadataId.locallyCopied, true.ToString());
+                                    log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                                    OutlookOgcs.Calendar.AddOGCSproperty(ref ai, OutlookOgcs.Calendar.MetadataId.locallyCopied, true.ToString());
                                     ai.Save();
                                 } finally {
-                                    ai = (AppointmentItem)OutlookCalendar.ReleaseObject(ai);
+                                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                                 }
                             }
                         } else if (filtered.Count == 0) {

@@ -6,8 +6,7 @@ using System.Xml;
 using System.Xml.Linq;
 using log4net;
 
-namespace OutlookGoogleCalendarSync
-{
+namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Exports or imports any object to/from XML.
     /// </summary>
@@ -90,7 +89,7 @@ namespace OutlookGoogleCalendarSync
                 xe.SetValue(nodeValue);
                 xml.Save(filename);
                 log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
-            } catch (Exception ex) {
+            } catch (System.Exception ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
                     log.Debug("Adding Setting " + nodeName + " to settings.xml");
                     //This appends to the end, which won't import properly. 

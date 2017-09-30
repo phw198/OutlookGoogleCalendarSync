@@ -28,7 +28,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.Visible = true;
             buildMenu();
 
-            if (OutlookCalendar.OOMsecurityInfo) {
+            if (OutlookOgcs.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
             }
@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync {
                 if (MainForm.Instance.OgcsTimer == null) MainForm.Instance.OgcsTimer = new SyncTimer();
                 MainForm.Instance.OgcsTimer.Switch(true);
                 MainForm.Instance.lNextSyncVal.Font = new System.Drawing.Font(MainForm.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Regular);
-                if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForPushSync();
+                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
                 UpdateAutoSyncItems();
             } else {
                 if (MainForm.Instance.OgcsTimer == null) {
@@ -135,7 +135,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 MainForm.Instance.OgcsTimer.Switch(false);
                 MainForm.Instance.lNextSyncVal.Font = new System.Drawing.Font(MainForm.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Strikeout);
-                if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.DeregisterForPushSync();
+                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
                 UpdateAutoSyncItems();
             }
         }
@@ -146,7 +146,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             MainForm.Instance.OgcsTimer.SetNextSync(60, fromNow: true);
-            OutlookCalendar.Instance.DeregisterForPushSync();
+            OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync2Hr_Click(object sender, EventArgs e) {
@@ -156,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             } 
             MainForm.Instance.OgcsTimer.SetNextSync(2 * 60, fromNow: true);
-            OutlookCalendar.Instance.DeregisterForPushSync();
+            OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync4Hr_Click(object sender, EventArgs e) {
@@ -166,7 +166,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             MainForm.Instance.OgcsTimer.SetNextSync(4 * 60, fromNow: true);
-            OutlookCalendar.Instance.DeregisterForPushSync();
+            OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySyncRemove_Click(object sender, EventArgs e) {
@@ -176,7 +176,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             MainForm.Instance.OgcsTimer.SetNextSync();
-            if (Settings.Instance.OutlookPush) OutlookCalendar.Instance.RegisterForPushSync();
+            if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
             UpdateItem("delayRemove", enabled: false);
         }
 

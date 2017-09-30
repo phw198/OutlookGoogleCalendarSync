@@ -6,9 +6,9 @@ using System.Windows.Forms;
 using Microsoft.Office.Interop.Outlook;
 using log4net;
 
-namespace OutlookGoogleCalendarSync {
-    class OutlookFactory {
-        private static readonly ILog log = LogManager.GetLogger(typeof(OutlookFactory));
+namespace OutlookGoogleCalendarSync.OutlookOgcs {
+    class Factory {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
         private static String outlookVersionFull;
         private static int outlookVersion;
         public static int OutlookVersion {
@@ -19,7 +19,7 @@ namespace OutlookGoogleCalendarSync {
         }
         private const Boolean testing2003 = false;
 
-        public static OutlookInterface GetOutlookInterface() {
+        public static OutlookOgcs.Interface GetOutlookInterface() {
             if (OutlookVersion >= 12) { //2007 or newer
                 return new OutlookNew();
             } else {
@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
             try {
-                OutlookCalendar.AttachToOutlook(ref oApp);
+                OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 outlookVersionFull = oApp.Version;
 
                 log.Info("Outlook Version: " + outlookVersionFull);
