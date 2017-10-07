@@ -1,0 +1,37 @@
+/* Custom OGCS styles and modifications */
+
+table {
+  border: 0px solid #ebebeb;
+}
+
+td {
+  border: 0px solid #ebebeb;
+}
+
+header h1 {
+  font-size: 50px;
+}
+
+#main-content li {
+  list-style: none;
+  text-indent: -20px;
+}
+
+#main-content li:before {
+  color: #2879d0;
+  content: '\2022';
+  font-size: 20px;
+  line-height: 0px;
+  top: 2px;
+  padding-right: 7px;
+  position: relative;
+}
+
+#main-content ul {
+  margin-bottom: 4px;
+}
+
+img.emoji {
+  top: 3px;
+  position: relative;
+}

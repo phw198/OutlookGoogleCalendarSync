@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 name: Outlook ↔ Google Calendar Sync
-title: Your awesome title
+title: OGCS
 email: ogcs@paulwoolcock.co.uk
 description: #> # this means to ignore newlines until "baseurl:"
   Sync your Outlook and Google calendars securely and for free!
@@ -27,7 +27,10 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: OGcalsync
 github_username:  phw198
 
+google_analytics: UA-19426033-4
+
 # Current software releases
+show_alpha_downloads: true
 beta-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Setup.exe"
 beta-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Portable_OGCS_v2.6.0.zip"
 alpha-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.2-alpha/Setup.exe"

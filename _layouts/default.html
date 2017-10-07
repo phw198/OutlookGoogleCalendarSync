@@ -8,12 +8,26 @@
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/print.css" media="print" />
-
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/ogcs.css" media="screen" />
+    
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    
+    {% if site.google_analytics %}
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-    <title> {{ page.title }} </title>
+      gtag('config', '{{ site.google_analytics }}');
+    </script>
+    {% endif %}
+    
+    <title>{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   </head>
 
   <body>
@@ -65,6 +79,7 @@
             Portable Zip
           </a>
           
+          {% if site.show_alpha_downloads == true %}
           <br/>
           <table>
             <tr>
@@ -83,6 +98,7 @@
             <small>Download File</small>
             Portable Zip
           </a>
+          {% endif %}
           
           <br/>
           <hr/>
@@ -114,7 +130,6 @@
             (function () { _dmBootstrap('cdn1.DeveloperMedia.com/a.min.js'); setTimeout(_dmFollowup, 2000); })();
           </script> 
 
-          <!--div data-type="ad" data-publisher="" data-zone="ron" data-site="C-outlookgooglecalendarsync" data-format="300x250" style="width: 300px; height: 250px; margin: 0px auto;"></div>-->
           <div data-type="ad" data-publisher="github.OutlookGoogleCalendarSync" data-zone="ros" data-format="160x600" style="width: 160px; height: 600px; margin: 0px auto;"></div>
           
           <br/>
