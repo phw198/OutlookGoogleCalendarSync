@@ -459,7 +459,7 @@ header h1 {
   width: 540px;
   margin-top: 0;
   margin-bottom: 0.2em;
-  font-size: 72px;
+  font-size: 50px;
   font-weight: normal;
   line-height: 1;
   color: #fff;
@@ -589,7 +589,7 @@ hr {
 
 table {
   width: 100%;
-  border: 1px solid #ebebeb;
+  border: 0px solid #ebebeb;
 }
 
 th {
@@ -599,7 +599,7 @@ th {
 td {
   font-weight: 300;
   text-align: center;
-  border: 1px solid #ebebeb;
+  border: 0px solid #ebebeb;
 }
 
 form {
@@ -735,6 +735,30 @@ ol {
   list-style: decimal;
   padding-left: 3px;
 }
+
+/* Custom OGCS bullet colour */
+#main-content li {
+  list-style: none;
+  text-indent: -20px;
+}
+#main-content li:before {
+  color: #2879d0;
+  content: '\2022';
+  font-size: 20px;
+  line-height: 0px;
+  top: 2px;
+  padding-right: 7px;
+  position: relative;
+}
+#main-content ul {
+  margin-bottom: 4px;
+}
+img.emoji {
+  top: 3px;
+  position: relative;
+}
+
+/* END OGCS custom */
 
 dl dd {
   font-style: italic;

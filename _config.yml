@@ -36,7 +36,7 @@ alpha-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/downloa
 # Build settings
 markdown: kramdown
 #theme: minima
-theme: architect
+theme: jekyll-theme-architect
 plugins:
   - jekyll-feed
   - jemoji
@@ -52,5 +52,4 @@ exclude:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
-  - build.txt
   - jekyll-architect-theme.gemspec
