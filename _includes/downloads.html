@@ -1,0 +1,56 @@
+<h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Downloads</h1>
+
+<table class="download">
+  <tr>
+    <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Beta</h2></td>
+    <td style="text-align:right">
+      <img src="https://img.shields.io/badge/release-v2.6.0--beta-blue.svg" />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:left">
+      <b>Stable version</b>
+      <a href={{ site.beta-exe }} class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe');">
+        <small>Download Install File</small>
+        Setup.exe
+      </a>
+    </td>
+  </tr>
+   <tr>
+    <td colspan="2">
+      <a href={{ site.beta-zip }} class="button" onClick="handleClickEvent('download', 'Beta Zip');">
+        <small>Download File</small>
+        Portable Zip
+      </a>          
+    </td>
+  </tr>
+</table>
+
+{% if site.show_alpha_downloads == true %}
+<br/>
+<table class="download">
+  <tr>
+    <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Alpha</h2></td>
+    <td  style="text-align:right">
+      <img src="https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg" />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:left">  
+      <b>Latest version</b>        
+      <a href={{ site.alpha-exe }} class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Alpha Exe');">
+        <small>Download Install File</small>
+        Setup.Exe
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <a href={{ site.alpha-zip }} class="button" onClick="handleClickEvent('download', 'Alpha Zip');">
+        <small>Download File</small>
+        Portable Zip
+      </a>
+    </td>
+  </tr>
+</table>
+{% endif %}

@@ -12,6 +12,41 @@ header h1 {
   font-size: 50px;
 }
 
+#main-content a.button {
+  padding-left: 75px;
+  display: inline-block;
+  text-align: left;
+  background: transparent url(../images/maincontent-github-button.png) 0 0 no-repeat;
+}
+
+#section-buttons {
+  width: fit-content;
+}
+
+#section-buttons a.button {
+  position: relative;
+  top: -25px;
+  margin-right:20px;
+  display: inline-block;
+  width: auto;
+  height: initial;
+  padding: 7px 20px;
+  margin-top: 15px;
+  font-size: 17px;
+  line-height: 1;
+  color: #2879d0;
+  text-align: center;
+  background-color: #9ddcff;
+  background-image: none;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+
+#content-wrapper {
+  padding-top: unset;
+}
+
 #main-content li {
   list-style: none;
   text-indent: -20px;
@@ -34,4 +69,19 @@ header h1 {
 img.emoji {
   top: 3px;
   position: relative;
+}
+
+aside#sidebar table.download a.button {
+  text-align: left;
+}
+
+/* All Mobile Sizes (devices and browser) */
+@media only screen and (max-width: 767px) {
+  aside#sidebar table.download {
+    width: 200px;
+    margin: auto; /* center */
+  }
+  aside#sidebar a.button {
+    display: inherit; /* Still want buttons to display */
+  }
 }

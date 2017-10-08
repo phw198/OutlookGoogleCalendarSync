@@ -24,6 +24,11 @@
 
       gtag('config', '{{ site.google_analytics }}');
     </script>
+    <script>
+      function handleClickEvent(category, label) {
+        gtag('event', 'click', {'event_category': category, 'event_label': label});
+      }
+    </script>
     {% endif %}
     
     <title>{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
@@ -31,25 +36,7 @@
   </head>
 
   <body>
-    <header>
-      <div class="inner">
-        <table style="width:75%">
-          <tr>
-            <td style="text-align:left">
-              <h1> {{ site.name }} </h1>
-            </td>
-            <td rowspan="2" style="text-align:left" valign="middle">
-              <img src="{{ site.baseurl }}/images/ogcs128x128.png" width="100"/>
-            </td>
-          </tr>
-          <tr>
-            <td style="text-align:left"><h2>Feature Packed, Open Source .... and Free!</h2></td>
-          </tr>
-        </table>    
-        
-        <a href="https://github.com/phw198/outlookgooglecalendarsync" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
+    {% include header.html %}
 
     <div id="content-wrapper">
       <div class="inner clearfix">
@@ -61,44 +48,7 @@
         
         <aside id="sidebar">
           
-          <table>
-            <tr>
-              <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Beta</h2></td>
-              <td align="right">
-                <img src="https://img.shields.io/badge/release-v2.6.0--beta-blue.svg" />
-              </td>
-            </tr>
-          </table>
-          
-          <a href={{ site.beta-exe }} class="button" style="margin-bottom:5px">
-            <small>Download Install File</small>
-            Setup.exe
-          </a>
-          <a href={{ site.beta-zip }} class="button">
-            <small>Download File</small>
-            Portable Zip
-          </a>
-          
-          {% if site.show_alpha_downloads == true %}
-          <br/>
-          <table>
-            <tr>
-              <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Alpha</h2></td>
-              <td align="right">
-                <img src="https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg" />
-              </td>
-            </tr>
-          </table>
-          
-          <a href={{ site.alpha-exe }} class="button" style="margin-bottom:5px">
-            <small>Download Install File</small>
-            Setup.Exe
-          </a>
-          <a href={{ site.alpha-zip }} class="button">
-            <small>Download File</small>
-            Portable Zip
-          </a>
-          {% endif %}
+          {% include downloads.html %}          
           
           <br/>
           <hr/>
@@ -108,7 +58,7 @@
             <p><h3 class="repo-owner">Finding it useful?</h3>
             Buy me a beer or 3!<br/>
             :pizza: + :beer: = :grinning:<br/>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section">
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section" onClick="handleClickEvent('outbound', 'Donate');">
               <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal – The safer, easier way to pay online." border="0" style="padding-top:4px">
             </a><br/>
             <small>£10 or more hides splash screen</small>
@@ -132,6 +82,7 @@
 
           <div data-type="ad" data-publisher="github.OutlookGoogleCalendarSync" data-zone="ros" data-format="160x600" style="width: 160px; height: 600px; margin: 0px auto;"></div>
           
+          <p></p>
           <br/>
           <hr/>
           <br/>
