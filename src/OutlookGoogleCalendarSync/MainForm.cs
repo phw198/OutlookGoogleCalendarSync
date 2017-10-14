@@ -1776,7 +1776,7 @@ namespace OutlookGoogleCalendarSync {
                 cbCloakEmail.Enabled = false;
                 return;
             }
-            Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            if (this.Visible) Settings.Instance.AddAttendees = cbAddAttendees.Checked;
             cbCloakEmail.Visible = Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
             if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
