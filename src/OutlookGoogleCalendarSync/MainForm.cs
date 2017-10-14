@@ -497,7 +497,15 @@ namespace OutlookGoogleCalendarSync {
             } else { //Manual sync
                 if (bSyncNow.Text == "Start Sync") {
                     log.Info("Manual sync started.");
-                    if (Control.ModifierKeys == Keys.Shift) { ManualForceCompare = true; log.Info("Shift-click has forced a compare of all items"); }
+                    if (Control.ModifierKeys == Keys.Shift) {
+                        if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
+                            MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
+                                "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                            return;
+                        }
+                        log.Info("Shift-click has forced a compare of all items");
+                        ManualForceCompare = true;
+                    }
                     sync_Start(updateSyncSchedule: false);
 
                 } else if (bSyncNow.Text == "Stop Sync") {
@@ -1173,8 +1181,22 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
                 if (cbStartOnStartup.Checked) Program.ManageStartupRegKey(true);
             }
-            Settings.Instance.Save();
-            Settings.Instance.LogSettings();
+            bSave.Enabled = false;
+            bSave.Text = "Saving...";
+            try {
+                Settings.Instance.Save();
+                Settings.Instance.LogSettings();
+                bSave.Enabled = true;
+                bSave.Text = "Saved";
+                DateTime saved = DateTime.Now;
+                while (saved.AddSeconds(2) > DateTime.Now) {
+                    System.Threading.Thread.Sleep(250);
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            } finally {
+                bSave.Enabled = true;
+                bSave.Text = "Save";
+            }
         }
 
         public void MainFormShow() {
