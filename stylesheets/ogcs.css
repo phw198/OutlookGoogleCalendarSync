@@ -8,6 +8,10 @@ td {
   border: 0px solid #ebebeb;
 }
 
+#main-content .sans-bullet:before {
+  content: none;
+}
+
 header h1 {
   font-size: 50px;
 }
