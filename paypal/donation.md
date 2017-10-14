@@ -13,6 +13,8 @@ title: Donation
 
 <br/>
 
+Your transaction has been completed and PayPal will have emailed you a receipt. You may log in to your account at <a href="https://www.paypal.com" target="_blank">www.paypal.com</a> to view details of this transaction.
+
 ## Splash Screen
 If you have donated enough to hide the splash screen, please allow up to 30 minutes for it to be processed. 
 
