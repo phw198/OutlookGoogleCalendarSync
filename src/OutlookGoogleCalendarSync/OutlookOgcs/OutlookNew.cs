@@ -610,7 +610,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
             String tzID = tzDBsource.MapTimeZoneId(tzi);
             log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
-            return tzDBsource.CanonicalIdMap[tzID];
+
+            //Google bug as logged at https://issuetracker.google.com/67170002; GitHub issue #349
+            //Until fixed, transpose Kolkata timezone to old Calcutta value
+            return tzDBsource.CanonicalIdMap[tzID].Replace("Asia/Kolkata", "Asia/Calcutta");
         }
 
         public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
