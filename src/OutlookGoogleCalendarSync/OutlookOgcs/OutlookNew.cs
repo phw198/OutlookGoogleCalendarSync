@@ -132,6 +132,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public String CurrentUserSMTP() {
             return currentUserSMTP;
         }
+        public String CurrentUserName() {
+            if (string.IsNullOrEmpty(currentUserName)) {
+                GetCurrentUser(null);
+            }
+            return currentUserName;
+        }
         public Boolean Offline() {
             try {
                 return oApp.GetNamespace("mapi").Offline;

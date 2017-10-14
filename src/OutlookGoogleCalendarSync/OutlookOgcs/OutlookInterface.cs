@@ -15,6 +15,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         void UseOutlookCalendar(MAPIFolder set);
         NameSpace GetCurrentUser(NameSpace oNS);
         String CurrentUserSMTP();
+        String CurrentUserName();
         Boolean Offline();
         object GetCategories();
 

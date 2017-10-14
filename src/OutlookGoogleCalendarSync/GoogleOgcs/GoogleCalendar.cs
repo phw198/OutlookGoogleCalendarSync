@@ -1012,10 +1012,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
-                                log.Fine("Organiser changed time of appointment.");
-                                AddOutlookIDs(ref ev, ai); //update EntryID
-                                addOGCSproperty(ref ev, MetadataId.forceSave, "True");
-                                return true;
+                                if (ai.Organizer != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                    log.Fine("Organiser changed time of appointment.");
+                                    AddOutlookIDs(ref ev, ai); //update EntryID
+                                    addOGCSproperty(ref ev, MetadataId.forceSave, "True");
+                                    return true;
+                                } else {
+                                    log.Warn("Organiser changed time of appointment...but the organiser is you! (Shouldn't have ended up here)");
+                                    return false;
+                                }
                             }
 
                         } else {
