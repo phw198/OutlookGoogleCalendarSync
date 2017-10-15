@@ -319,7 +319,7 @@ namespace OutlookGoogleCalendarSync {
             settingsFile = Path.Combine(dstDir, settingsFilename);
 
             foreach (string file in Directory.GetFiles(srcDir)) {
-                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv")) {
+                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file == GoogleOgcs.Authenticator.TokenFile) {
                     dstFile = Path.Combine(dstDir, Path.GetFileName(file));
                     File.Delete(dstFile);
                     log.Debug("  " + Path.GetFileName(file));

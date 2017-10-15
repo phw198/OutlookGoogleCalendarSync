@@ -15,7 +15,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
-        private const String tokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
+        public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
         String tokenFullPath;
         Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
 
