@@ -72,8 +72,10 @@ namespace OutlookGoogleCalendarSync {
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
+            TargetCalendar = SyncDirection.OutlookToGoogle;
+            CreatedItemsOnly = true;
             SetEntriesPrivate = false;
-            PrivateCalendar = SyncDirection.OutlookToGoogle;
+            SetEntriesAvailable = false;
             Obfuscation = new Obfuscate();
 
             ShowBubbleTooltipWhenSyncing = true;
@@ -207,8 +209,10 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
+        [DataMember] public SyncDirection TargetCalendar { get; set; }
+        [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
-        [DataMember] public SyncDirection PrivateCalendar { get; set; }
+        [DataMember] public bool SetEntriesAvailable { get; set; }
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
 
@@ -368,8 +372,11 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
-            if (SetEntriesPrivate && SyncDirection == SyncDirection.Bidirectional)
-                log.Info("    PrivateCalendar: " + PrivateCalendar.Name);
+            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
+            if ((SetEntriesPrivate || SetEntriesAvailable) && SyncDirection == SyncDirection.Bidirectional) {
+                log.Info("    TargetCalendar: " + TargetCalendar.Name);
+                log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
+            }
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {
                 if (Settings.Instance.Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");

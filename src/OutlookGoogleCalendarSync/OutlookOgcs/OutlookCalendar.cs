@@ -318,8 +318,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, SyncDirection.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
             ai.Location = ev.Location;
-            ai.Sensitivity = getPrivacy(ev.Visibility, SyncDirection.GoogleToOutlook);
-            ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+            ai.Sensitivity = getPrivacy(ev.Visibility, null);
+            ai.BusyStatus = getAvailability(ev.Transparency, null);
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                 foreach (EventAttendee ea in ev.Attendees) {
@@ -533,15 +533,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
                 ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) 
             {
-                OlSensitivity gPrivacy = getPrivacy(ev.Visibility, SyncDirection.GoogleToOutlook);
+                OlSensitivity gPrivacy = getPrivacy(ev.Visibility, ai.Sensitivity);
                 if (MainForm.CompareAttribute("Privacy", SyncDirection.GoogleToOutlook, gPrivacy.ToString(), ai.Sensitivity.ToString(), sb, ref itemModified)) {
                     ai.Sensitivity = gPrivacy;
                 }
             }
-            String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
-            String gFreeBusy = ev.Transparency ?? "opaque";
-            if (MainForm.CompareAttribute("Free/Busy", SyncDirection.GoogleToOutlook, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
-                ai.BusyStatus = (ev.Transparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+            OlBusyStatus gFreeBusy = getAvailability(ev.Transparency ?? "opaque", ai.BusyStatus);
+            if (MainForm.CompareAttribute("Free/Busy", SyncDirection.GoogleToOutlook, gFreeBusy.ToString(), ai.BusyStatus.ToString(), sb, ref itemModified)) {
+                ai.BusyStatus = gFreeBusy;
             }
 
             if (Settings.Instance.AddAttendees) {
@@ -796,13 +795,58 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Determine Appointment Item's privacy setting
         /// </summary>
-        /// <param name="visibility">Google's current setting</param>
-        /// <param name="direction">Direction of sync</param>
-        private OlSensitivity getPrivacy(String visibility, SyncDirection direction) {
-            if (Settings.Instance.SetEntriesPrivate && direction == Settings.Instance.PrivateCalendar) {
+        /// <param name="gVisibility">Google's current setting</param>
+        /// <param name="oSensitivity">Outlook's current setting</param>
+        private OlSensitivity getPrivacy(String gVisibility, OlSensitivity ?oSensitivity) {
+            if (!Settings.Instance.SetEntriesPrivate)
+                return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+
+            if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                 return OlSensitivity.olPrivate;
             } else {
-                return (visibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                if (Settings.Instance.TargetCalendar == SyncDirection.OutlookToGoogle) { //Privacy enforcement is in other direction
+                    if (oSensitivity == null)
+                        return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                    else if (oSensitivity == OlSensitivity.olPrivate && gVisibility != "private") {
+                        log.Fine("Source of truth for enforced privacy is already set private and target is NOT - so syncing this back.");
+                        return OlSensitivity.olNormal;
+                    } else
+                        return (OlSensitivity)oSensitivity;
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oSensitivity == null))
+                        return OlSensitivity.olPrivate;
+                    else
+                        return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determine Appointment's availability setting
+        /// </summary>
+        /// <param name="gTransparency">Google's current setting</param>
+        /// <param name="oBusyStatus">Outlook's current setting</param>
+        private OlBusyStatus getAvailability(String gTransparency, OlBusyStatus ?oBusyStatus) {
+            if (!Settings.Instance.SetEntriesAvailable)
+                return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+
+            if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                return OlBusyStatus.olFree;
+            } else {
+                if (Settings.Instance.TargetCalendar == SyncDirection.OutlookToGoogle) { //Availability enforcement is in other direction
+                    if (oBusyStatus == null)
+                        return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                    else if (oBusyStatus == OlBusyStatus.olFree && gTransparency != "transparent") {
+                        log.Fine("Source of truth for Availability is already set available and target is NOT - so syncing this back.");
+                        return OlBusyStatus.olBusy;
+                    } else
+                        return (OlBusyStatus)oBusyStatus;
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oBusyStatus == null))
+                        return OlBusyStatus.olFree;
+                    else
+                        return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                }
             }
         }
 

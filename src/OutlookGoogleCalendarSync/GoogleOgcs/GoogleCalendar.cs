@@ -322,8 +322,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev.Summary = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
             if (Settings.Instance.AddDescription) ev.Description = ai.Body;
             ev.Location = ai.Location;
-            ev.Visibility = getPrivacy(ai.Sensitivity, SyncDirection.OutlookToGoogle);
-            ev.Transparency = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+            ev.Visibility = getPrivacy(ai.Sensitivity, null);
+            ev.Transparency = getAvailability(ai.BusyStatus, null);
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
@@ -600,13 +600,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
 
-            String oPrivacy = getPrivacy(ai.Sensitivity, SyncDirection.OutlookToGoogle);
             String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
+            String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
             if (MainForm.CompareAttribute("Privacy", SyncDirection.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
                 ev.Visibility = oPrivacy;
             }
-            String oFreeBusy = (ai.BusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+
             String gFreeBusy = ev.Transparency ?? "opaque";
+            String oFreeBusy = getAvailability(ai.BusyStatus, gFreeBusy);
             if (MainForm.CompareAttribute("Free/Busy", SyncDirection.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
                 ev.Transparency = oFreeBusy;
             }
@@ -1147,16 +1148,62 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <summary>
         /// Determine Event's privacy setting
         /// </summary>
-        /// <param name="sensitivity">Outlook's current setting</param>
+        /// <param name="oSensitivity">Outlook's current setting</param>
+        /// <param name="gVisibility">Google's current setting</param>
         /// <param name="direction">Direction of sync</param>
-        private String getPrivacy(OlSensitivity sensitivity, SyncDirection direction) {
-            if (Settings.Instance.SetEntriesPrivate && direction == Settings.Instance.PrivateCalendar) {
+        private String getPrivacy(OlSensitivity oSensitivity, String gVisibility) {
+            if (!Settings.Instance.SetEntriesPrivate)
+                return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+
+            if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
                 return "private";
             } else {
-                return (sensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                if (Settings.Instance.TargetCalendar == SyncDirection.GoogleToOutlook) { //Privacy enforcement is in other direction
+                    if (gVisibility == null)
+                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                    else if (gVisibility == "private" && oSensitivity != OlSensitivity.olPrivate) {
+                        log.Fine("Source of truth for privacy is already set private and target is NOT - so syncing this back.");
+                        return "default";
+                    } else
+                        return gVisibility;
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && gVisibility == null))
+                        return "private";
+                    else
+                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                }
             }
         }
 
+        /// <summary>
+        /// Determine Event's availability setting
+        /// </summary>
+        /// <param name="oSsensitivity">Outlook's current setting</param>
+        /// <param name="gTransparency">Google's current setting</param>
+        private String getAvailability(OlBusyStatus oBusyStatus, String gTransparency) {
+            if (!Settings.Instance.SetEntriesAvailable)
+                return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+
+            if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                return "transparent";
+            } else {
+                if (Settings.Instance.TargetCalendar == SyncDirection.GoogleToOutlook) { //Availability enforcement is in other direction
+                    if (gTransparency == null)
+                        return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                    else if (gTransparency == "transparent" && oBusyStatus != OlBusyStatus.olFree) {
+                        log.Fine("Source of truth for Availability is already set available and target is NOT - so syncing this back.");
+                        return "opaque";
+                    } else
+                        return gTransparency;
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && gTransparency == null))
+                        return "transparent";
+                    else
+                        return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                }
+            }
+        }
+        
         #region STATIC FUNCTIONS
         //returns the Google Time Format String of a given .Net DateTime value
         //Google Time Format = "2012-08-20T00:00:00+02:00"

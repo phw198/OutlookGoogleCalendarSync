@@ -274,13 +274,18 @@ namespace OutlookGoogleCalendarSync {
             cbOfuscate.Checked = Settings.Instance.Obfuscation.Enabled;
             //More Options
             howMorePanel.Visible = false;
-            cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
-                if (Settings.Instance.PrivateCalendar == SyncDirection.OutlookToGoogle) tbPrivateCalendar.SelectedIndex = 0;
-                if (Settings.Instance.PrivateCalendar == SyncDirection.GoogleToOutlook) tbPrivateCalendar.SelectedIndex = 1;
-            } else 
-                tbPrivateCalendar.SelectedIndex = 2;
-            tbPrivateCalendar_SelectedItemChanged(null, null);
+                tbCreatedItemsOnly.SelectedIndex = Settings.Instance.CreatedItemsOnly ? 1 : 0;
+                if (Settings.Instance.TargetCalendar.Id == SyncDirection.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
+                if (Settings.Instance.TargetCalendar.Id == SyncDirection.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
+            } else {
+                tbCreatedItemsOnly.SelectedIndex = 0;
+                tbTargetCalendar.SelectedIndex = 2;
+            }
+            tbCreatedItemsOnly_SelectedItemChanged(null, null);
+            tbTargetCalendar_SelectedItemChanged(null, null);
+            cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
+            cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 SyncDirection sd = (cbObfuscateDirection.Items[i] as SyncDirection);
@@ -1082,6 +1087,13 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
+        /// <summary>
+        /// Send text to the main form's log box
+        /// </summary>
+        /// <param name="s">Output string</param>
+        /// <param name="newLine">Append a line break to the output.</param>
+        /// <param name="verbose">Only print output if the Verbose option is active</param>
+        /// <param name="notifyBubble">Also display the output as a notification bubble.</param>
         public void Logboxout(string s, bool newLine = true, bool verbose = false, bool notifyBubble = false) {
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
                 String existingText = GetControlPropertyThreadSafe(LogBox, "Text") as String;
@@ -1513,6 +1525,7 @@ namespace OutlookGoogleCalendarSync {
             if (MessageBox.Show("This will reset the Google account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
                 "Reset Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+                log.Info("User requested reset of Google authentication details.");
                 Settings.Instance.UseGoogleCalendar.Id = null;
                 Settings.Instance.UseGoogleCalendar.Name = null;
                 this.cbGoogleCalendars.Items.Clear();
@@ -1560,18 +1573,25 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = SyncDirection.OutlookToGoogle.Id - 1;
-                if (tbPrivateCalendar.Items.Contains("target calendar"))
-                    tbPrivateCalendar.Items.Remove("target calendar");
-                tbPrivateCalendar.SelectedIndex = 0;
-                tbPrivateCalendar.Enabled = cbPrivate.Checked;
+
+                tbCreatedItemsOnly.Enabled = true;
+
+                if (tbTargetCalendar.Items.Contains("target calendar"))
+                    tbTargetCalendar.Items.Remove("target calendar");
+                tbTargetCalendar.SelectedIndex = 0;
+                tbTargetCalendar.Enabled = cbPrivate.Checked || cbAvailable.Checked;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id - 1;
-                if (!tbPrivateCalendar.Items.Contains("target calendar"))
-                    tbPrivateCalendar.Items.Add("target calendar");
-                if (tbPrivateCalendar.SelectedIndex == 2) tbPrivateCalendar_SelectedItemChanged(null, null);
-                tbPrivateCalendar.SelectedIndex = 2;
-                tbPrivateCalendar.Enabled = false;
+
+                tbCreatedItemsOnly.Enabled = false;
+                tbCreatedItemsOnly.SelectedIndex = 0;
+
+                if (!tbTargetCalendar.Items.Contains("target calendar"))
+                    tbTargetCalendar.Items.Add("target calendar");
+                if (tbTargetCalendar.SelectedIndex == 2) tbTargetCalendar_SelectedItemChanged(null, null);
+                tbTargetCalendar.SelectedIndex = 2;
+                tbTargetCalendar.Enabled = false;
             }
             if (Settings.Instance.SyncDirection == SyncDirection.GoogleToOutlook) {
                 OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
@@ -1632,7 +1652,7 @@ namespace OutlookGoogleCalendarSync {
                 this.howObfuscatePanel.Visible = false;
                 this.btHowMore.Text = "Less...";
             }
-            gbSyncOptions_HowExpand(show, 134);
+            gbSyncOptions_HowExpand(show, 170);
             if (!show) {
                 this.howMorePanel.Visible = false;
                 this.howObfuscatePanel.Visible = false;
@@ -1662,16 +1682,32 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         #region More Options Panel
+        private void tbCreatedItemsOnly_SelectedItemChanged(object sender, EventArgs e) {
+            Settings.Instance.CreatedItemsOnly = tbCreatedItemsOnly.SelectedIndex == 1;
+            if (tbCreatedItemsOnly.SelectedIndex == 0)
+                lTargetSyncCondition.Text = "synced to";
+            else
+                lTargetSyncCondition.Text = "by sync in";
+        }
+
+        private void tbTargetCalendar_SelectedItemChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
+            switch (tbTargetCalendar.Text) {
+                case "Google calendar": Settings.Instance.TargetCalendar = SyncDirection.OutlookToGoogle; break;
+                case "Outlook calendar": Settings.Instance.TargetCalendar = SyncDirection.GoogleToOutlook; break;
+                case "target calendar": Settings.Instance.TargetCalendar = Settings.Instance.SyncDirection; break;
+            }
+        }
+
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesPrivate = cbPrivate.Checked;
-            tbPrivateCalendar.Enabled = cbPrivate.Checked && Settings.Instance.SyncDirection == SyncDirection.Bidirectional;
+            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == SyncDirection.Bidirectional;
         }
-        private void tbPrivateCalendar_SelectedItemChanged(object sender, EventArgs e) {
-            switch (tbPrivateCalendar.Text) {
-                case "Google calendar": Settings.Instance.PrivateCalendar = SyncDirection.OutlookToGoogle; break;
-                case "Outlook calendar": Settings.Instance.PrivateCalendar = SyncDirection.GoogleToOutlook; break;
-                case "target calendar": Settings.Instance.PrivateCalendar = Settings.Instance.SyncDirection; break;
-            }
+
+        private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.SetEntriesAvailable = cbAvailable.Checked;
+            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == SyncDirection.Bidirectional;
         }
         #endregion
 
