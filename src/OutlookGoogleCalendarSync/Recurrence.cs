@@ -678,7 +678,7 @@ namespace OutlookGoogleCalendarSync {
                                 }
                             }
                         } else {
-                            MainForm.Instance.Logboxout(OutlookOgcs.Calendar.GetEventSummary(ai) + "\r\nDeleted.");
+                            MainForm.Instance.Logboxout(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "\r\nDeleted.");
                             newAiExcp.Delete();
                         }
                     } finally {

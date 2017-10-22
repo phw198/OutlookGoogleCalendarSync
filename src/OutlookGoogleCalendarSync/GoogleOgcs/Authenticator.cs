@@ -66,7 +66,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Authenticating with Google calendar service...");
 
             FileDataStore tokenStore = new FileDataStore(Program.UserFilePath);
-            tokenFullPath = Path.Combine(tokenStore.FolderPath, tokenFile);
+            tokenFullPath = Path.Combine(tokenStore.FolderPath, TokenFile);
 
             log.Debug("Google credential file location: " + tokenFullPath);
             if (!tokenFileExists)

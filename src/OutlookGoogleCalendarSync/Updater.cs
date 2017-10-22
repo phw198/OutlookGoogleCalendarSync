@@ -42,7 +42,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 if (IsSquirrelInstall()) {
                     if (await githubCheck()) {
-                        log.Debug("Restarting");
+                        log.Info("Restarting OGCS.");
                         try {
                             System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
                         } catch (System.Exception ex) {
@@ -99,6 +99,7 @@ namespace OutlookGoogleCalendarSync {
                 else
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
 
+                Boolean userHasLatest = false;
                 UpdateInfo updates = await updateManager.CheckForUpdate();
                 if (updates.ReleasesToApply.Any()) {
                     if (updates.CurrentlyInstalledVersion != null)
@@ -109,9 +110,11 @@ namespace OutlookGoogleCalendarSync {
                         log.Info("Found a new " + update.Version.SpecialVersion + " version: " + update.Version.Version.ToString());
                         if (update.Version.SpecialVersion == "alpha" && !Settings.Instance.AlphaReleases) {
                             log.Debug("User doesn't want alpha releases.");
+                            userHasLatest = true;
                             continue;
                         }
-                        DialogResult dr = MessageBox.Show("A " + update.Version.SpecialVersion + " update for OGCS is available.\nWould you like to update the application to v" +
+                        DialogResult dr = MessageBox.Show((update.Version.SpecialVersion == "beta" ? "A" : "An") + update.Version.SpecialVersion +
+                            " update for OGCS is available.\nWould you like to update the application to v" +
                             update.Version.Version.ToString() + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                         if (dr == DialogResult.Yes) {
                             log.Debug("Download started...");
@@ -130,7 +133,6 @@ namespace OutlookGoogleCalendarSync {
                             log.Info("The application has been successfully updated.");
                             MessageBox.Show("The application has been updated and will now restart.",
                                 "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            log.Info("Restarting OGCS.");
                             restartUpdateExe = updateManager.RootAppDirectory + "\\Update.exe";
                             return true;
                         } else {
@@ -140,9 +142,10 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else {
                     log.Info("Already running the latest version of OGCS.");
-                    if (this.isManualCheck) { //Was a manual check, so give feedback
-                        MessageBox.Show("You are already running the latest version of OGCS.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                    userHasLatest = true;
+                }
+                if (userHasLatest && this.isManualCheck) { //Was a manual check, so give feedback
+                    MessageBox.Show("You are already running the latest version of OGCS.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
             } catch (System.Exception ex) {

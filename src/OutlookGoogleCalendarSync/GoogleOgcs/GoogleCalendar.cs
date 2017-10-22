@@ -320,7 +320,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
             ev.Summary = Obfuscate.ApplyRegex(ai.Subject, SyncDirection.OutlookToGoogle);
-            if (Settings.Instance.AddDescription) ev.Description = ai.Body;
+            if (Settings.Instance.AddDescription) {
+                try {
+                    ev.Description = ai.Body;
+                } catch (System.Exception ex) {
+                    if (OGCSexception.GetErrorCode(ex) == "0x80004004") {
+                        MainForm.Instance.Logboxout("WARN: You do not have the rights to programmatically access Outlook appointment descriptions.\r\n" +
+                            "It may be best to stop syncing the Description attribute.");
+                    } else throw ex;
+                }
+            }
             ev.Location = ai.Location;
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
@@ -1046,8 +1055,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
-            List<EventAttendee> removeAttendee = new List<EventAttendee>();
-            foreach (EventAttendee ea in ev.Attendees ?? Enumerable.Empty<Google.Apis.Calendar.v3.Data.EventAttendee>()) {
+            List<Google.Apis.Calendar.v3.Data.EventAttendee> removeAttendee = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
+            foreach (Google.Apis.Calendar.v3.Data.EventAttendee ea in ev.Attendees ?? Enumerable.Empty<Google.Apis.Calendar.v3.Data.EventAttendee>()) {
                 removeAttendee.Add(ea);
             }
             if (ai.Recipients.Count > 1) {
@@ -1056,7 +1065,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Recipient recipient = ai.Recipients[o];
                     log.Fine("Comparing Outlook recipient: " + recipient.Name);
                     String recipientSMTP = OutlookOgcs.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
-                    foreach (EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<Google.Apis.Calendar.v3.Data.EventAttendee>()) {
+                    foreach (Google.Apis.Calendar.v3.Data.EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<Google.Apis.Calendar.v3.Data.EventAttendee>()) {
                         GoogleOgcs.EventAttendee ogcsAttendee = new GoogleOgcs.EventAttendee(attendee);
                         if (ogcsAttendee.Email != null && (recipientSMTP.ToLower() == ogcsAttendee.Email.ToLower())) {
                             foundAttendee = true;
@@ -1115,7 +1124,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } //more than just 1 (me) recipients
 
-            foreach (EventAttendee gea in removeAttendee) {
+            foreach (Google.Apis.Calendar.v3.Data.EventAttendee gea in removeAttendee) {
                 GoogleOgcs.EventAttendee ea = new GoogleOgcs.EventAttendee(gea);
                 log.Fine("Attendee removed: " + (ea.DisplayName ?? ea.Email), ea.Email);
                 sb.AppendLine("Attendee removed: " + (ea.DisplayName ?? ea.Email));
