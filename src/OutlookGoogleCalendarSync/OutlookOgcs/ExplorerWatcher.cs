@@ -106,6 +106,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private void cleanIDs(List<String> gEventIDs, DateTime asOf) {
             //Allow time for pasted item to complete
             System.Threading.Thread.Sleep(2000);
+            log.Debug("Cleaning IDs from copied Outlook items");
 
             try {
                 DateTime asOfRounded = asOf.AddTicks(-(asOf.Ticks % TimeSpan.TicksPerMillisecond)); //Get rid of fractional milliseconds
@@ -167,6 +168,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private void tagAsCopied(List<String> oApptIDs, DateTime asOf) {
             //Allow time for pasted item to complete
             System.Threading.Thread.Sleep(2000);
+            log.Debug("Tagging copied Outlook items");
 
             try {
                 DateTime asOfRounded = asOf.AddTicks(-(asOf.Ticks % TimeSpan.TicksPerMillisecond)); //Get rid of fractional milliseconds
@@ -177,7 +179,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         List<AppointmentItem> filtered = new List<AppointmentItem>();
                         filtered = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items,
                             filterCategories: false, noDateFilter: true,
-                            extraFilter: " AND [Modified] >= '" + asOfRounded.ToString(Settings.Instance.OutlookDateFormat) + "'");
+                            extraFilter: " AND [Modified] >= '" + asOfRounded.AddSeconds(-1).ToString(Settings.Instance.OutlookDateFormat) + "'");
 
                         if (filtered.Count > 1) {
                             log.Warn("We've got back " + filtered.Count + " items. Filtering further...");
@@ -187,18 +189,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 Boolean isMatched = false;
                                 if (ai.LastModificationTime < asOfRounded) {
                                     isMatched = false;
+                                    log.Debug("Last modified: " + ai.LastModificationTime.ToString("dd/MM/yyyy hh:mm:ss"));
+                                    log.Debug("Modified before paste event caught.");
                                 } else {
                                     //Run the same checks as GoogleOgcs.ItemIDsMatch()
                                     String[] ids = oApptID.Split(new char[] { '~' }, StringSplitOptions.None);
-                                    if (ids[0] == String.Empty) isMatched = true; //No GlobalID available, so continue matching on Entry ID
-                                    else {
+                                    if (ids[0] == String.Empty) {
+                                        isMatched = true;
+                                        log.Debug("No GlobalID available, so continue matching on Entry ID");
+                                    } else {
+                                        log.Debug("Comparing GlobalIDs");
                                         String aiGlobalID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                                         isMatched = (aiGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                                             ids[0].StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                                             ids[0].Substring(72) == aiGlobalID.Substring(72));
                                     }
-                                    if (isMatched)
+                                    if (isMatched) {
+                                        log.Debug("Comparing EntryIDs");
                                         isMatched = (ids[1].Remove(ids[1].Length - 16) == ai.EntryID.Remove(ai.EntryID.Length - 16));
+                                    }
                                 }
                                 if (!isMatched) {
                                     log.Debug("Removed");
