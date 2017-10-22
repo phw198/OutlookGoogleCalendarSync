@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
-    /// Description of MyCalendarListEntry.
+    /// Description of CalendarListEntry.
     /// </summary>
     
     [DataContract]

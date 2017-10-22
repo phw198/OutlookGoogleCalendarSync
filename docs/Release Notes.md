@@ -1,6 +1,22 @@
 | Release Notes |
 |:---|
 
+# v2.6.3.0 - Alpha
+
+**Enhancements**
+- Ability to set all synced items as "Available" in target calendar
+- Choose if all synced items or just created items are enforced as available and/or private.
+- Feedback on settings `Save` button
+- Skip sync of appointment body/description, if access is denied
+- Cope with Google still using obsolete Calcutta timezone.
+
+**Breaking Change**
+- If items were already configured to sync as "Private", this may need reconfiguring.
+
+**Bugfix**
+- Forgetting `Add attendees` setting
+- Give user feedback when manually checking for update
+
 # v2.6.2.0 - Alpha
 
 **Enhancements**
