@@ -34,8 +34,8 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
 :floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Setup.exe)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.3-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Setup.exe)
  
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Portable_OGCS_v2.6.2.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.3-alpha/Portable_OGCS_v2.6.2.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Portable_OGCS_v2.6.2.zip)
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Portable_OGCS_v2.6.3.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.3-alpha/Portable_OGCS_v2.6.3.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Portable_OGCS_v2.6.3.zip)
 
 :information_source: Upgrades to this release  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.6.3-alpha/OutlookGoogleCalendarSync-2.6.3-alpha-full.nupkg.svg)  
