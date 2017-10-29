@@ -34,8 +34,13 @@
     <title>{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   </head>
-
+  
+  {% if page.onload %}
+  <body onload="{{ page.onload }}();">
+  {% else %}
   <body>
+  {% endif %}
+  
     {% include header.html %}
 
     <div id="content-wrapper">
