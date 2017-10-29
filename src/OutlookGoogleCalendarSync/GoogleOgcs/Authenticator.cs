@@ -99,7 +99,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 MainForm.Instance.AsyncLogboxout("Unable to authenticate with Google. The following error occurred:");
                 MainForm.Instance.AsyncLogboxout(ex.Message);
             }
-            
+
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
                 log.Info("Refresh and Access token successfully retrieved.");
                 log.Debug("Access token expires " + credential.Token.Issued.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
                 log.Debug("Access token refreshed.");
             }
-            
+
             getGaccountEmail(credential.Token.AccessToken);
         }
 
@@ -163,6 +163,27 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
+        private static String getMd5(String input) {
+            log.Debug("Getting MD5 hash for '" + input + "'");
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
+
+            try {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hash = md5.ComputeHash(inputBytes);
+
+                //Convert byte array to hex string
+                for (int i = 0; i < hash.Length; i++) {
+                    sb.Append(hash[i].ToString("x2"));
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to create MD5 for '" + input + "'");
+                OGCSexception.Analyse(ex);
+            }
+            return sb.ToString();
+        }
+
         #region OGCS user status
         public void OgcsUserStatus() {
             if (!checkedOgcsUserStatus) {
@@ -181,7 +202,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all subscribers from past year.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("pqeo689qhvpl1g09bcnma1uaoo@group.calendar.google.com");
+                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("hahospj0gkekqentakho0vv224@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
@@ -209,7 +230,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for subscription for: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> subscriptions = result.Where(x => x.Summary.Equals(Settings.Instance.GaccountEmail)).ToList();
+            List<Event> subscriptions = result.Where(x => x.Summary.Equals(getMd5(Settings.Instance.GaccountEmail))).ToList();
             if (subscriptions.Count == 0) {
                 log.Fine("This user has never subscribed.");
                 Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
@@ -259,7 +280,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all donors.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("codejbnbj3dp71bj63ingjii9g@group.calendar.google.com");
+                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("toiqu5lfdklneh5aqq509jhhk8@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
@@ -289,7 +310,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for donation from: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> donations = result.Where(x => x.Summary.Equals(Settings.Instance.GaccountEmail)).ToList();
+            List<Event> donations = result.Where(x => x.Summary.Equals(getMd5(Settings.Instance.GaccountEmail))).ToList();
             if (donations.Count == 0) {
                 log.Fine("No donation found for user.");
                 Settings.Instance.Donor = false;
