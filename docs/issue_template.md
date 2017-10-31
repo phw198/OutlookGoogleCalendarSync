@@ -1,19 +1,18 @@
-|Question|Answer|
-|:---|:---|
-|OGCS version | v1.2.3.4 |
-|Installed or Portable | Installed |
+:memo: Please use the below template to report your issue.
 
-**Expected Behaviour**  
-Update here
+----
 
-**Actual Behaviour**  
-Update here
+**OGCS Version**: v1.2.3.4  
+**Installed or Portable**: Installed
+
+**Problem Description**  
+\<Update here>
 
 **Steps to Reproduce the Issue**  
-1. Step 1
-1. Step 2 
+1. \<Update>
+1. 
 
 **Any other information**  
-Update here
+\<Update here>
 
 :spiral_notepad: To aid investigation of this issue, please provide your OGcalsync.log file ([see instructions](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#posting-your-ogcalsynclog-file)).
