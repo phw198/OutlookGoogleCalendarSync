@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private Event createCalendarEntry(AppointmentItem ai) {
             string itemSummary = OutlookOgcs.Calendar.GetEventSummary(ai);
             log.Debug("Processing >> " + itemSummary);
-            MainForm.Instance.Logboxout(itemSummary, verbose: true);
+            MainForm.Instance.Console.Update(":date:" + itemSummary, verbose: true);
 
             Event ev = new Event();
             //Add the Outlook appointment ID into Google event
@@ -689,8 +689,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
             if (itemModified > 0) {
-                MainForm.Instance.Logboxout(sb.ToString(), false, verbose: true);
-                MainForm.Instance.Logboxout(itemModified + " attributes updated.", verbose: true);
+                MainForm.Instance.Console.FormatEventChanges(sb);
+                MainForm.Instance.Console.Update(itemModified + " attributes updated.", verbose: true);
                 System.Windows.Forms.Application.DoEvents();
             }
             return ev;
@@ -781,12 +781,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (MessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
                     doDelete = false;
-                    MainForm.Instance.Logboxout("Not deleted: " + eventSummary);
+                    MainForm.Instance.Console.Update(":date:Not deleted: " + eventSummary);
                 } else {
-                    MainForm.Instance.Logboxout("Deleted: " + eventSummary);
+                    MainForm.Instance.Console.Update(":date:Deleted: " + eventSummary);
                 }
             } else {
-                MainForm.Instance.Logboxout(eventSummary, verbose:true);
+                MainForm.Instance.Console.Update(":date:" + eventSummary, verbose:true);
             }
             return doDelete;
         }

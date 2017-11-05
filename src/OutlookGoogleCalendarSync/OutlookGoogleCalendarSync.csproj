@@ -239,6 +239,7 @@
     <Compile Include="AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Console.cs" />
     <Compile Include="GoogleOgcs\ApiKeyring.cs" />
     <Compile Include="EmailAddress.cs" />
     <Compile Include="Exception.cs" />
