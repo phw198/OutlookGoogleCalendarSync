@@ -1328,50 +1328,67 @@ namespace OutlookGoogleCalendarSync {
             g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
         }
         #region Outlook settings
+        private void enableOutlookSettingsUI(Boolean enable) {
+            this.clbCategories.Enabled = enable;
+            this.cbOutlookCalendars.Enabled = enable;
+            this.ddMailboxName.Enabled = enable;
+        }
+
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
+
             if (rbOutlookDefaultMB.Checked) {
+                enableOutlookSettingsUI(false);
                 Settings.Instance.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
+                refreshCategories();
             }
         }
 
         private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
+
             if (rbOutlookAltMB.Checked) {
+                enableOutlookSettingsUI(false);
                 Settings.Instance.OutlookService = OutlookOgcs.Calendar.Service.AlternativeMailbox;
                 Settings.Instance.MailboxName = ddMailboxName.Text;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
+                refreshCategories();
             }
             Settings.Instance.MailboxName = (rbOutlookAltMB.Checked ? ddMailboxName.Text : "");
         }
 
         private void rbOutlookSharedCal_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
+
             if (rbOutlookSharedCal.Checked && Settings.Instance.OutlookGalBlocked) {
                 rbOutlookSharedCal.Checked = false;
                 return;
             }
             if (rbOutlookSharedCal.Checked) {
+                enableOutlookSettingsUI(false);
                 Settings.Instance.OutlookService = OutlookOgcs.Calendar.Service.SharedCalendar;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
+                refreshCategories();
             }
         }
 
         private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.Visible && Settings.Instance.MailboxName != ddMailboxName.Text) {
-                Settings.Instance.MailboxName = ddMailboxName.Text;
-                OutlookOgcs.Calendar.Instance.Reset();
                 rbOutlookAltMB.Checked = true;
+                Settings.Instance.MailboxName = ddMailboxName.Text;
+                enableOutlookSettingsUI(false);
+                OutlookOgcs.Calendar.Instance.Reset();
+                refreshCategories();
             }
         }
-        
+
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookOgcs.Calendar.Instance.UseOutlookCalendar = calendar.Value;
@@ -1411,6 +1428,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch { /* Category "cat" no longer exists */ }
             }
             clbCategories.EndUpdate();
+            enableOutlookSettingsUI(true);
         }
         
         private void miCatRefresh_Click(object sender, EventArgs e) {
