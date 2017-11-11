@@ -8,8 +8,8 @@ namespace OutlookGoogleCalendarSync {
     [DataContract]
     public class Obfuscate {
         private static readonly ILog log = LogManager.GetLogger(typeof(Obfuscate));
-        public const int FindCol = 0;
-        public const int ReplaceCol = 1;
+        private const int findCol = 0;
+        private const int replaceCol = 1;
             
         public Obfuscate() {
             setDefaults();
@@ -44,11 +44,11 @@ namespace OutlookGoogleCalendarSync {
             findReplace = new List<FindReplace>();
 
             foreach (DataGridViewRow row in data.Rows) {
-                if (row.Cells[FindCol].Value != null) {
+                if (row.Cells[findCol].Value != null) {
                     this.findReplace.Add(
                         new FindReplace(
-                            row.Cells[FindCol].Value.ToString(), 
-                            row.Cells[ReplaceCol].Value == null ? "" : row.Cells[ReplaceCol].Value.ToString() 
+                            row.Cells[findCol].Value.ToString(), 
+                            row.Cells[replaceCol].Value == null ? "" : row.Cells[replaceCol].Value.ToString() 
                         ));
                     
                 }
@@ -58,8 +58,8 @@ namespace OutlookGoogleCalendarSync {
         public void LoadRegex(DataGridView data) {
             int dataRow = 0;
             foreach (FindReplace regex in findReplace) {
-                data.Rows[dataRow].Cells[FindCol].Value = regex.find;
-                data.Rows[dataRow].Cells[ReplaceCol].Value = regex.replace;
+                data.Rows[dataRow].Cells[findCol].Value = regex.find;
+                data.Rows[dataRow].Cells[replaceCol].Value = regex.replace;
                 data.CurrentCell = data.Rows[dataRow].Cells[0];
                 data.NotifyCurrentCellDirty(true);
                 data.NotifyCurrentCellDirty(false);
@@ -73,15 +73,15 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.Obfuscation.Enabled && direction.Id == Settings.Instance.Obfuscation.Direction.Id) {
                 foreach (DataGridViewRow row in MainForm.Instance.dgObfuscateRegex.Rows) {
                     DataGridViewCellCollection cells = row.Cells;
-                    if (cells[Obfuscate.FindCol].Value != null) {
+                    if (cells[Obfuscate.findCol].Value != null) {
                         System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
-                            cells[Obfuscate.FindCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                            cells[Obfuscate.findCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                         System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
                         if (matches.Count > 0) {
-                            log.Debug("Regex has matched and altered string: " + cells[Obfuscate.FindCol].Value.ToString());
-                            if (cells[Obfuscate.ReplaceCol].Value == null) cells[Obfuscate.ReplaceCol].Value = "";
-                            retStr = rgx.Replace(retStr, cells[Obfuscate.ReplaceCol].Value.ToString());
+                            log.Debug("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
+                            if (cells[Obfuscate.replaceCol].Value == null) cells[Obfuscate.replaceCol].Value = "";
+                            retStr = rgx.Replace(retStr, cells[Obfuscate.replaceCol].Value.ToString());
                         }
                     }
                 }

@@ -225,16 +225,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         continue;
                     }
                     if (filterCategories) {
+                        String categoryDelimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
                         if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include) {
                             if (Settings.Instance.Categories.Count() > 0 && ((ai.Categories == null && Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)))
+                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)))
                             {
                                 result.Add(ai);
                             } else categoryFiltered++;
 
                         } else if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Exclude) {
                             if (Settings.Instance.Categories.Count() == 0 || (ai.Categories == null && !Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { ", " }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0))
+                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0))
                             {
                                 result.Add(ai);
                             } else categoryFiltered++;

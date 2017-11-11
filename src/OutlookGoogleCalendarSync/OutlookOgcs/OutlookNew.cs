@@ -576,7 +576,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public object GetCategories() {
-            return oApp.Session.Categories;
+            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) 
+                return oApp.Session.Categories;
+
+            Store store = null;
+            try {
+                store = useOutlookCalendar.Store;
+                return store.GetType().GetProperty("Categories").GetValue(store, null);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex, true);
+                return oApp.Session.Categories;
+            } finally {
+                store = (Store)OutlookOgcs.Calendar.ReleaseObject(store);
+            }
         }
 
         #region TimeZone Stuff
