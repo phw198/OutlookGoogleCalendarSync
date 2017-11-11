@@ -93,7 +93,7 @@ namespace OutlookGoogleCalendarSync {
             ToolTips.SetToolTip(cbOfuscate,
                 "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
             ToolTips.SetToolTip(dgObfuscateRegex,
-                "All rules are applied using AND logic");
+                "All rules are applied in order provided using AND logic.\nSupports use of regular expressions.");
             ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
