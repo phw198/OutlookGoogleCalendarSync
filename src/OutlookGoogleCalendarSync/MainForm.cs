@@ -482,6 +482,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
         }
+
         public void Sync_Requested(object sender = null, EventArgs e = null) {
             ManualForceCompare = false;
             if (sender != null && sender.GetType().ToString().EndsWith("Timer")) { //Automated sync
@@ -530,117 +531,132 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void sync_Start(Boolean updateSyncSchedule = true) {
-            LogBox.Clear();
-            
-            if (Settings.Instance.UseGoogleCalendar == null ||
-                Settings.Instance.UseGoogleCalendar.Id == null ||
-                Settings.Instance.UseGoogleCalendar.Id == "") {
-                MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
-                return;
-            }
-            //Check network availability
-            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
-                Logboxout("There does not appear to be any network available! Sync aborted.", notifyBubble: true);
-                return;
-            }
-            //Check if Outlook is Online
             try {
-                if (OutlookOgcs.Calendar.Instance.IOutlook.Offline() && Settings.Instance.AddAttendees) {
-                    Logboxout("You have selected to sync attendees but Outlook is currently offline.");
-                    Logboxout("Either put Outlook online or do not sync attendees.", notifyBubble: true);
+                DateTime syncStarted = DateTime.Now;
+                String cacheNextSync = lNextSyncVal.Text;
+
+                LogBox.Clear();
+            
+                if (Settings.Instance.UseGoogleCalendar == null ||
+                    Settings.Instance.UseGoogleCalendar.Id == null ||
+                    Settings.Instance.UseGoogleCalendar.Id == "") {
+                    MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                     return;
                 }
-            } catch (System.Exception ex) {
-                Logboxout(ex.Message, notifyBubble: true);
-                OGCSexception.Analyse(ex, true);
-                return;
-            }
-            GoogleOgcs.Calendar.APIlimitReached_attendee = false;
-            MainForm.Instance.syncNote(SyncNotes.QuotaExhaustedInfo, null, false);
-            bSyncNow.Text = "Stop Sync";
-            NotificationTray.UpdateItem("sync", "&Stop Sync");
-
-            String cacheNextSync = lNextSyncVal.Text;
-            lNextSyncVal.Text = "In progress...";
-
-            DateTime SyncStarted = DateTime.Now;
-            log.Info("Sync version: " + System.Windows.Forms.Application.ProductVersion);
-            Logboxout("Sync started at " + SyncStarted.ToString());
-            Logboxout("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
-                " to " + Settings.Instance.SyncEnd.ToShortDateString());
-            Logboxout(Settings.Instance.SyncDirection.Name);
-            Logboxout("--------------------------------------------------");
-            System.Windows.Forms.Application.DoEvents();
-
-            if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
-
-            Boolean syncOk = false;
-            int failedAttempts = 0;
-            Social.TrackSync();
-            GoogleOgcs.Calendar.Instance.GetCalendarSettings();
-            while (!syncOk) {
-                if (failedAttempts > 0) {
-                    if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) 
-                        break;
-                    else log.Info("User opted to retry sync straight away.");
+                //Check network availability
+                if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
+                    Logboxout("There does not appear to be any network available! Sync aborted.", notifyBubble: true);
+                    sync_SetNext(syncStarted, false, updateSyncSchedule, cacheNextSync);
+                    return;
                 }
-
-                //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
-                bwSync = new AbortableBackgroundWorker();
-                //Don't need thread to report back. The logbox is updated from the thread anyway.
-                bwSync.WorkerReportsProgress = false;
-                bwSync.WorkerSupportsCancellation = true;
-
-                //Kick off the sync in the background thread
-                bwSync.DoWork += new DoWorkEventHandler(
-                    delegate(object o, DoWorkEventArgs args) {
-                        BackgroundWorker b = o as BackgroundWorker;
-                        try {
-                            syncOk = synchronize();
-                        } catch (System.Exception ex) {
-                            MainForm.Instance.Logboxout("The following error was encountered during sync:-");
-                            if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
-                                MainForm.Instance.Logboxout(ex.Data["OGCS"].ToString(), notifyBubble: true);
-                            } else {
-                                MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
-                            }
-                            OGCSexception.Analyse(ex, true);
-                            syncOk = false;
-                        }
-                    }
-                );
-
-                bwSync.RunWorkerAsync();
-                while (bwSync != null && (bwSync.IsBusy || bwSync.CancellationPending)) {
-                    System.Windows.Forms.Application.DoEvents();
-                    System.Threading.Thread.Sleep(100);
-                }
+                //Check if Outlook is Online
                 try {
-                    //Get Logbox text - this is a little bit dirty!
-                    if (!syncOk && LogBox.Text.Contains("The RPC server is unavailable.")) {
-                        Logboxout("Attempting to reconnect to Outlook...");
-                        try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                    if (OutlookOgcs.Calendar.Instance.IOutlook.Offline() && Settings.Instance.AddAttendees) {
+                        Logboxout("You have selected to sync attendees but Outlook is currently offline.");
+                        Logboxout("Either put Outlook online or do not sync attendees.", notifyBubble: true);
+                        sync_SetNext(syncStarted, false, updateSyncSchedule, cacheNextSync);
+                        return;
                     }
-                } finally {
-                    failedAttempts += !syncOk ? 1 : 0;
+                } catch (System.Exception ex) {
+                    Logboxout(ex.Message, notifyBubble: true);
+                    OGCSexception.Analyse(ex, true);
+                    return;
                 }
+                GoogleOgcs.Calendar.APIlimitReached_attendee = false;
+                MainForm.Instance.syncNote(SyncNotes.QuotaExhaustedInfo, null, false);
+                bSyncNow.Text = "Stop Sync";
+                NotificationTray.UpdateItem("sync", "&Stop Sync");
+
+                lNextSyncVal.Text = "In progress...";
+
+                log.Info("Sync version: " + System.Windows.Forms.Application.ProductVersion);
+                Logboxout("Sync started at " + syncStarted.ToString());
+                Logboxout("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
+                   " to " + Settings.Instance.SyncEnd.ToShortDateString());
+                Logboxout(Settings.Instance.SyncDirection.Name);
+                Logboxout("--------------------------------------------------");
+                System.Windows.Forms.Application.DoEvents();
+
+                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
+
+                Boolean syncOk = false;
+                int failedAttempts = 0;
+                Social.TrackSync();
+                GoogleOgcs.Calendar.Instance.GetCalendarSettings();
+                while (!syncOk) {
+                    if (failedAttempts > 0) {
+                        if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No)
+                            break;
+                        else log.Info("User opted to retry sync straight away.");
+                    }
+
+                    //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
+                    bwSync = new AbortableBackgroundWorker();
+                    //Don't need thread to report back. The logbox is updated from the thread anyway.
+                    bwSync.WorkerReportsProgress = false;
+                    bwSync.WorkerSupportsCancellation = true;
+
+                    //Kick off the sync in the background thread
+                    bwSync.DoWork += new DoWorkEventHandler(
+                        delegate(object o, DoWorkEventArgs args) {
+                            BackgroundWorker b = o as BackgroundWorker;
+                            try {
+                                syncOk = synchronize();
+                            } catch (System.Exception ex) {
+                                MainForm.Instance.Logboxout("The following error was encountered during sync:-");
+                                if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
+                                    MainForm.Instance.Logboxout(ex.Data["OGCS"].ToString(), notifyBubble: true);
+                                } else {
+                                    MainForm.Instance.Logboxout(ex.Message, notifyBubble: true);
+                                }
+                                OGCSexception.Analyse(ex, true);
+                                syncOk = false;
+                            }
+                        }
+                    );
+
+                    bwSync.RunWorkerAsync();
+                    while (bwSync != null && (bwSync.IsBusy || bwSync.CancellationPending)) {
+                        System.Windows.Forms.Application.DoEvents();
+                        System.Threading.Thread.Sleep(100);
+                    }
+                    try {
+                        //Get Logbox text - this is a little bit dirty!
+                        if (!syncOk && LogBox.Text.Contains("The RPC server is unavailable.")) {
+                            Logboxout("Attempting to reconnect to Outlook...");
+                            try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                        }
+                    } finally {
+                        failedAttempts += !syncOk ? 1 : 0;
+                    }
+                }
+                Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
+                Logboxout(syncOk ? "Sync finished with success!" : "Sync aborted after " + failedAttempts + " failed attempts!");
+                sync_SetNext(syncStarted, syncOk, updateSyncSchedule, cacheNextSync);
+
+                checkSyncMilestone();
+
+            } finally {
+                bSyncNow.Text = "Start Sync";
+                NotificationTray.UpdateItem("sync", "&Sync Now");
+
+                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
+
+                //Release Outlook reference if GUI not available. 
+                //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
+                OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
             }
-            Settings.Instance.CompletedSyncs += syncOk ? 1 : 0;
-            bSyncNow.Text = "Start Sync";
-            NotificationTray.UpdateItem("sync", "&Sync Now");
+        }
 
-            Logboxout(syncOk ? "Sync finished with success!" : "Operation aborted after " + failedAttempts + " failed attempts!");
-
-            if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
-
-            lLastSyncVal.Text = SyncStarted.ToLongDateString() + " - " + SyncStarted.ToLongTimeString();
-            Settings.Instance.LastSyncDate = SyncStarted;
+        private void sync_SetNext(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
+            lLastSyncVal.Text = syncStarted.ToLongDateString() + " - " + syncStarted.ToLongTimeString();
+            Settings.Instance.LastSyncDate = syncStarted;
             if (!updateSyncSchedule) {
                 lNextSyncVal.Text = cacheNextSync;
             } else {
-                if (syncOk) {
-                    OgcsTimer.LastSyncDate = SyncStarted;
+                if (syncedOk) {
+                    OgcsTimer.LastSyncDate = syncStarted;
                     OgcsTimer.SetNextSync();
                 } else {
                     if (Settings.Instance.SyncInterval != 0) {
@@ -652,12 +668,6 @@ namespace OutlookGoogleCalendarSync {
             bSyncNow.Enabled = true;
             if (OutlookOgcs.Calendar.Instance.OgcsPushTimer != null)
                 OutlookOgcs.Calendar.Instance.OgcsPushTimer.ItemsQueued = 0; //Reset Push flag regardless of success (don't want it trying every 2 mins)
-
-            //Release Outlook reference if GUI not available. 
-            //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
-            OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
-
-            checkSyncMilestone();
         }
 
         private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
