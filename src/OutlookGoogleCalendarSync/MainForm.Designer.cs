@@ -42,6 +42,8 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
+            this.consolePanel = new System.Windows.Forms.Panel();
+            this.consoleWebBrowser = new System.Windows.Forms.WebBrowser();
             this.cbShowConsole = new System.Windows.Forms.CheckBox();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
             this.panelSyncNote = new System.Windows.Forms.Panel();
@@ -219,10 +221,10 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.consolePanel = new System.Windows.Forms.Panel();
-            this.consoleWebBrowser = new System.Windows.Forms.WebBrowser();
+            this.cbMuteClicks = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
+            this.consolePanel.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
             this.tabAppSettings.SuspendLayout();
             this.tabOutlook.SuspendLayout();
@@ -254,7 +256,6 @@
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
-            this.consolePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabApp
@@ -277,6 +278,7 @@
             // tabPage_Sync
             // 
             this.tabPage_Sync.BackColor = System.Drawing.Color.White;
+            this.tabPage_Sync.Controls.Add(this.cbMuteClicks);
             this.tabPage_Sync.Controls.Add(this.consolePanel);
             this.tabPage_Sync.Controls.Add(this.cbShowConsole);
             this.tabPage_Sync.Controls.Add(this.tbSyncNote);
@@ -295,11 +297,33 @@
             this.tabPage_Sync.TabIndex = 0;
             this.tabPage_Sync.Text = "Sync";
             // 
+            // consolePanel
+            // 
+            this.consolePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.consolePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.consolePanel.Controls.Add(this.consoleWebBrowser);
+            this.consolePanel.Location = new System.Drawing.Point(3, 57);
+            this.consolePanel.Name = "consolePanel";
+            this.consolePanel.Size = new System.Drawing.Size(478, 421);
+            this.consolePanel.TabIndex = 38;
+            // 
+            // consoleWebBrowser
+            // 
+            this.consoleWebBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.consoleWebBrowser.Location = new System.Drawing.Point(0, 0);
+            this.consoleWebBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.consoleWebBrowser.Name = "consoleWebBrowser";
+            this.consoleWebBrowser.ScriptErrorsSuppressed = true;
+            this.consoleWebBrowser.Size = new System.Drawing.Size(474, 417);
+            this.consoleWebBrowser.TabIndex = 38;
+            // 
             // cbShowConsole
             // 
             this.cbShowConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cbShowConsole.AutoSize = true;
-            this.cbShowConsole.Location = new System.Drawing.Point(383, 507);
+            this.cbShowConsole.Location = new System.Drawing.Point(383, 500);
             this.cbShowConsole.Name = "cbShowConsole";
             this.cbShowConsole.Size = new System.Drawing.Size(82, 17);
             this.cbShowConsole.TabIndex = 37;
@@ -2617,27 +2641,17 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
-            // consolePanel
+            // cbMuteClicks
             // 
-            this.consolePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.consolePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.consolePanel.Controls.Add(this.consoleWebBrowser);
-            this.consolePanel.Location = new System.Drawing.Point(3, 57);
-            this.consolePanel.Name = "consolePanel";
-            this.consolePanel.Size = new System.Drawing.Size(478, 421);
-            this.consolePanel.TabIndex = 38;
-            // 
-            // consoleWebBrowser
-            // 
-            this.consoleWebBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.consoleWebBrowser.Location = new System.Drawing.Point(0, 0);
-            this.consoleWebBrowser.MinimumSize = new System.Drawing.Size(20, 20);
-            this.consoleWebBrowser.Name = "consoleWebBrowser";
-            this.consoleWebBrowser.ScriptErrorsSuppressed = true;
-            this.consoleWebBrowser.Size = new System.Drawing.Size(474, 417);
-            this.consoleWebBrowser.TabIndex = 38;
+            this.cbMuteClicks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbMuteClicks.AutoSize = true;
+            this.cbMuteClicks.Location = new System.Drawing.Point(383, 516);
+            this.cbMuteClicks.Name = "cbMuteClicks";
+            this.cbMuteClicks.Size = new System.Drawing.Size(80, 17);
+            this.cbMuteClicks.TabIndex = 39;
+            this.cbMuteClicks.Text = "Mute clicks";
+            this.cbMuteClicks.UseVisualStyleBackColor = true;
+            this.cbMuteClicks.CheckedChanged += new System.EventHandler(this.cbMuteClicks_CheckedChanged);
             // 
             // MainForm
             // 
@@ -2655,6 +2669,7 @@
             this.tabApp.ResumeLayout(false);
             this.tabPage_Sync.ResumeLayout(false);
             this.tabPage_Sync.PerformLayout();
+            this.consolePanel.ResumeLayout(false);
             this.tabPage_Settings.ResumeLayout(false);
             this.tabPage_Settings.PerformLayout();
             this.tabAppSettings.ResumeLayout(false);
@@ -2701,7 +2716,6 @@
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
-            this.consolePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -2886,5 +2900,6 @@
         private System.Windows.Forms.CheckBox cbShowConsole;
         private System.Windows.Forms.Panel consolePanel;
         public System.Windows.Forms.WebBrowser consoleWebBrowser;
+        private System.Windows.Forms.CheckBox cbMuteClicks;
     }
 }

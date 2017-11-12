@@ -230,7 +230,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for subscription for: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> subscriptions = result.Where(x => x.Summary.Equals(getMd5(Settings.Instance.GaccountEmail))).ToList();
+            String hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
+            List<Event> subscriptions = result.Where(x => x.Summary.Equals(hashedGmailAccount)).ToList();
             if (subscriptions.Count == 0) {
                 log.Fine("This user has never subscribed.");
                 Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
@@ -310,7 +311,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for donation from: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> donations = result.Where(x => x.Summary.Equals(getMd5(Settings.Instance.GaccountEmail))).ToList();
+            String hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
+            List<Event> donations = result.Where(x => x.Summary.Equals(hashedGmailAccount)).ToList();
             if (donations.Count == 0) {
                 log.Fine("No donation found for user.");
                 Settings.Instance.Donor = false;

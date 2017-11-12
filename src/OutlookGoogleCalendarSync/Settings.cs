@@ -78,6 +78,7 @@ namespace OutlookGoogleCalendarSync {
             SetEntriesAvailable = false;
             Obfuscation = new Obfuscate();
 
+            MuteClickSounds = false;
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = false;
             StartupDelay = 0;
@@ -228,7 +229,7 @@ namespace OutlookGoogleCalendarSync {
                 hideSplashScreen = value;
             }
         }
-        
+
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
@@ -291,6 +292,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         [DataMember] public bool VerboseOutput { get; set; }
+        [DataMember] public bool MuteClickSounds { get; set; }
 
         public static void Load(string XMLfile = null) {
             try {
@@ -409,6 +411,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  CreateCSVFiles: " + CreateCSVFiles);
 
             log.Info("  VerboseOutput: " + VerboseOutput);
+            log.Info("  MuteClickSounds: " + MuteClickSounds);
             //To pick up from settings.xml file:
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
