@@ -345,7 +345,7 @@ namespace OutlookGoogleCalendarSync {
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable;
-            cbPortable.Enabled = !Program.IsClickOnceInstall;
+            cbPortable.Enabled = !Program.IsInstalled;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
