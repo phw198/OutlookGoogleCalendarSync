@@ -33,8 +33,8 @@ google_analytics: UA-19426033-4
 show_alpha_downloads: true
 beta-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Setup.exe"
 beta-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Portable_OGCS_v2.6.0.zip"
-alpha-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Setup.exe"
-alpha-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.3-alpha/Portable_OGCS_v2.6.3.zip"
+alpha-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.4-alpha/Setup.exe"
+alpha-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.4-alpha/Portable_OGCS_v2.6.4.zip"
 
 # Build settings
 markdown: kramdown
