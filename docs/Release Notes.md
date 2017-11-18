@@ -1,6 +1,19 @@
 | Release Notes |
 |:---|
 
+# v2.6.4.0 - Alpha
+
+**Enhancements**
+- Show categories from alternative mailboxes
+- More reliable setting of next sync + restarting push sync.
+- Improved upgrade experience + error handling
+- Remove user configuration files upon uninstall
+- Better calendar security
+
+**Bugfix**
+- Forgetting obfuscation rules
+- Filter on items with multiple categories may not work
+
 # v2.6.3.0 - Alpha
 
 **Enhancements**
