@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
@@ -352,7 +352,7 @@ namespace OutlookGoogleCalendarSync {
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable;
-            cbPortable.Enabled = !Program.IsClickOnceInstall;
+            cbPortable.Enabled = !Program.IsInstalled;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
@@ -580,7 +580,7 @@ namespace OutlookGoogleCalendarSync {
 
                 lNextSyncVal.Text = "In progress...";
 
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
                 Console.BuildOutput("Sync started at " + syncStarted.ToString(), ref sb);
                 Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
@@ -620,7 +620,7 @@ namespace OutlookGoogleCalendarSync {
                             try {
                                 syncOk = synchronize();
                             } catch (System.Exception ex) {
-                                sb = new System.Text.StringBuilder();
+                                sb = new StringBuilder();
                                 console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                     console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
@@ -890,7 +890,7 @@ namespace OutlookGoogleCalendarSync {
                 throw ex;
             }
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
             console.BuildOutput(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.", ref sb, false);
             console.BuildOutput(googleEntriesToBeCreated.Count + " Google calendar entries to be created.", ref sb, false);
             console.BuildOutput(entriesToBeCompared.Count + " calendar entries to be compared.", ref sb, false);
@@ -991,7 +991,7 @@ namespace OutlookGoogleCalendarSync {
                 throw ex;
             }
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
             console.BuildOutput(outlookEntriesToBeDeleted.Count + " Outlook calendar entries to be deleted.", ref sb, false);
             console.BuildOutput(outlookEntriesToBeCreated.Count + " Outlook calendar entries to be created.", ref sb, false);
             console.BuildOutput(entriesToBeCompared.Count + " calendar entries to be compared.", ref sb, false);
@@ -1082,7 +1082,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region Compare Event Attributes
-        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, String googleAttr, String outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, String googleAttr, String outlookAttr, StringBuilder sb, ref int itemModified) {
             if (googleAttr == null) googleAttr = "";
             if (outlookAttr == null) outlookAttr = "";
             //Truncate long strings
@@ -1103,7 +1103,7 @@ namespace OutlookGoogleCalendarSync {
             }
             return false;
         }
-        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, Boolean googleAttr, Boolean outlookAttr, System.Text.StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareAttribute(String attrDesc, SyncDirection fromTo, Boolean googleAttr, Boolean outlookAttr, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);
@@ -1552,7 +1552,7 @@ namespace OutlookGoogleCalendarSync {
                 MessageBox.Show("Failed to retrieve Google calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
                 console.BuildOutput(ex.Message, ref sb, false);
                 if (ex.InnerException != null) console.BuildOutput(ex.InnerException.Message, ref sb, false);

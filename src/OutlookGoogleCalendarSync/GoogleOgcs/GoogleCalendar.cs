@@ -690,7 +690,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (itemModified > 0) {
                 MainForm.Instance.Console.FormatEventChanges(sb);
-                MainForm.Instance.Console.Update(itemModified + " attributes updated.", verbose: true);
+                MainForm.Instance.Console.Update(":appointmentEnd:" + itemModified + " attributes updated.", verbose: true, newLine: false);
                 System.Windows.Forms.Application.DoEvents();
             }
             return ev;

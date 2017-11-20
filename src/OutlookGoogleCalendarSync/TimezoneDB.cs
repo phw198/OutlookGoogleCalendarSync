@@ -70,10 +70,10 @@ namespace OutlookGoogleCalendarSync {
                             log.Debug("There is a new version " + remoteVersion);
                             try {
                                 new System.Net.WebClient().DownloadFile(html, tzdbFilename);
-                                log.Debug("New version downloaded - disposing of reference to old db data.");
+                                log.Debug("New TZDB version downloaded - disposing of reference to old db data.");
                                 instance = null;
                             } catch (System.Exception ex) {
-                                log.Error("Failed to download new database from " + html);
+                                log.Error("Failed to download new TZDB database from " + html);
                                 OGCSexception.Analyse(ex);
                             }
                         }

@@ -223,6 +223,10 @@ namespace OutlookGoogleCalendarSync {
                 MatchCollection matches = rgx.Matches(allDocument);
 
                 String contentInnerHtml = "";
+                if (matches.Count == 0) {
+                    log.Error("empty doc!");
+                    System.Windows.Forms.Application.DoEvents();
+                }
                 if (matches.Count > 0) {
                     contentInnerHtml = matches[0].Result("$1");
                 }

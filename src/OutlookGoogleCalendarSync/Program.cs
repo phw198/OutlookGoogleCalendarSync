@@ -22,10 +22,16 @@ namespace OutlookGoogleCalendarSync {
         public static String SettingsFile {
             get { return settingsFile; }
         }
+
         private static String startingTab = null;
         private static String roamingOGCS;
-        public static Boolean IsClickOnceInstall {
-            get { return System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed; }
+
+        private static Boolean? isInstalled = null;
+        public static Boolean IsInstalled {
+            get {
+                isInstalled = isInstalled ?? Updater.IsSquirrelInstall();
+                return (Boolean)isInstalled;
+            }
         }
         public static Updater Updater;
 
@@ -45,7 +51,7 @@ namespace OutlookGoogleCalendarSync {
             Settings.Load();
 
             Updater = new Updater();
-            isNewVersion(Updater.IsSquirrelInstall()); 
+            isNewVersion(Program.IsInstalled); 
             Updater.CheckForUpdate();
 
             TimezoneDB.Instance.CheckForUpdate();
@@ -116,6 +122,8 @@ namespace OutlookGoogleCalendarSync {
                     log.Info("No settings.xml file found in " + appFilePath);
                     Settings.Instance.Save(Path.Combine(appFilePath, settingsFilename));
                     log.Info("New blank template created.");
+                    if (!Program.IsInstalled)
+                        XMLManager.ExportElement("Portable", true, Path.Combine(appFilePath, settingsFilename));
                     startingTab = "Help";
                 }
             }
