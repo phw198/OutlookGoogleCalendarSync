@@ -90,14 +90,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
-                    MainForm.Instance.AsyncLogboxout("Unable to authenticate with Google. The following error occurred:");
-                    MainForm.Instance.AsyncLogboxout(ex.Message);
+                    MainForm.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
                 }
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                MainForm.Instance.AsyncLogboxout("Unable to authenticate with Google. The following error occurred:");
-                MainForm.Instance.AsyncLogboxout(ex.Message);
+                MainForm.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
             }
 
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
@@ -150,8 +148,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
                 OGCSexception.Analyse(ex);
                 if (ex.Message.ToLower().Contains("access denied")) {
-                    MainForm.Instance.Logboxout("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
-                       + "\r\nTry disconnecting your Google account and reauthenticating.");
+                    MainForm.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
+                       + "<br/>Try disconnecting your Google account and reauthenticating.", Console.Markup.error);
                 }
                 throw ex;
 

@@ -44,7 +44,7 @@ namespace OutlookGoogleCalendarSync {
             Instance = this;
 
             console = new Console(consoleWebBrowser);
-            Social.TrackVersion();
+            Social.TrackVersions();
             updateGUIsettings();
             Settings.Instance.LogSettings();
             NotificationTray = new NotificationTray(this.trayIcon);
@@ -1120,42 +1120,6 @@ namespace OutlookGoogleCalendarSync {
             return false;
         }
         #endregion
-
-        /// <summary>
-        /// Send text to the main form's log box
-        /// </summary>
-        /// <param name="s">Output string</param>
-        /// <param name="newLine">Append a line break to the output.</param>
-        /// <param name="verbose">Only print output if the Verbose option is active</param>
-        /// <param name="notifyBubble">Also display the output as a notification bubble.</param>
-        public void Logboxout(string s, bool newLine = true, bool verbose = false, bool notifyBubble = false, bool consoleOutput = true) {
-            if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
-                String existingText = GetControlPropertyThreadSafe(LogBox, "Text") as String;
-                SetControlPropertyThreadSafe(LogBox, "Text", existingText + s + (newLine ? Environment.NewLine : ""));
-            }
-            if (consoleOutput) {
-                console.Update(s, newLine: newLine, verbose: verbose);
-            }
-            if (NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
-                NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
-                    "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
-            }
-            if (verbose) log.Debug(s.TrimEnd());
-            else log.Info(s.TrimEnd());
-        }
-        /// <summary>
-        /// Write to Logboxout from async process without deadlocking
-        /// </summary>
-        /// <param name="output">Text to display</param>
-        public void AsyncLogboxout(String output, Boolean notifyBubble = false) {
-            try {
-                System.Threading.Thread thrd = new System.Threading.Thread(x => { MainForm.Instance.Logboxout(output, notifyBubble: notifyBubble); });
-                thrd.Start();
-            } catch (System.Exception ex) {
-                log.Error("Failed sending output to logbox.");
-                OGCSexception.Analyse(ex);
-            }
-        }
 
         public enum SyncNotes {
             QuotaExhaustedInfo,

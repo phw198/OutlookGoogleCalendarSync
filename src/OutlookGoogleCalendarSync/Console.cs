@@ -32,7 +32,6 @@ namespace OutlookGoogleCalendarSync {
         <style> 
             p {
                 margin: auto;
-                padding-left: 5px;
             }
             div#content {
                 font-family: Arial;
@@ -49,10 +48,11 @@ namespace OutlookGoogleCalendarSync {
                 padding-right: 0px;
 				margin-left: 0px;
 			}
-            .info, .error {
+            .info, .error, .warning {
                 margin-top: 8px;
 				padding-bottom: 4px;
 				margin-bottom: 10px;
+				padding-left: 5px;
 				border-left-width: 10px;
 				border-left-style: solid;
 				border-bottom-left-radius: 5px;
@@ -66,6 +66,10 @@ namespace OutlookGoogleCalendarSync {
             .error {
 				background-color: pink;
 				border-left-color: red;
+			}
+			.warning {
+				background-color: lightgoldenrodyellow;
+				border-left-color: yellow;
 			}
 			h2.sectionHeader {
                 font-size: 14px;
@@ -192,11 +196,13 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public enum Markup {
+            calendar,
             checkered_flag,
             error,
             h2,
             info,
             mag_right,
+            appointmentEnd,
             sectionEnd, //Add horizontal rule below the line
             warning
         }
@@ -248,7 +254,11 @@ namespace OutlookGoogleCalendarSync {
                         logLines.ToList().ForEach(l => log.Info(l));
                 }
 
+                //Don't add append line break to Markup that's already wrapped in <div> tags
+                if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.error }.ToList()).Contains((Markup)markupPrefix))
+                    newLine = false;
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
+                
                 this.wb.DocumentText = header + contentInnerHtml + footer;
                 System.Windows.Forms.Application.DoEvents();
                 
@@ -264,16 +274,17 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 //div
-                output = output.Replace(":info:<p>", "<div class='info'><p><span class='em em-information_source'></span>");
-                output = output.Replace(":warning:<p>", "<div class='warning'><p><span class='em em-warning'></span>");
-                output = output.Replace(":error:<p>", "<div class='error'><p><span class='em em-collision'></span>");
+                output = Regex.Replace(output, ":info:(<p>)*", "<div class='info'>$1<span class='em em-information_source'></span>");
+                output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
+                output = Regex.Replace(output, ":error:(<p>)*", "<div class='error'>$1<span class='em em-collision'></span>");
+                
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(output);
                 if (matches.Count > 0) {
                     String clockTime = matches[0].Result("$1");
-                    output = output.Replace(":clock"+ clockTime +":<p>", "<div class='info'><p><span class='em em-clock" + clockTime + "'></span>") + "</div>";
+                    output = output.Replace(":clock" + clockTime + ":<p>", "<div class='info'><p><span class='em em-clock" + clockTime + "'></span>") + "</div>";
                 }
 
                 //h2
@@ -289,7 +300,7 @@ namespace OutlookGoogleCalendarSync {
                 output = output.Replace(":appointmentEnd:", "<p class='appointmentEnd'>");
                 if (output.StartsWith("<p")) output += "</p>";
                 
-                output = output.Replace(":date:", "<span class='em em-date' style='margin-top:5px'></span>");
+                output = output.Replace(":calendar:", "<span class='em em-date' style='margin-top:5px'></span>");
                 output = output.Replace("(R)", "<span class='em em-repeat'></span>");
                 output = output.Replace("=>", "");
 
@@ -301,7 +312,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void FormatEventChanges(StringBuilder sb) {
-            sb.Insert(0, ":date:");
+            sb.Insert(0, ":" + Markup.calendar + ":");
 
             String[] lines = sb.ToString().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (lines.Count() == 1) return;
@@ -310,13 +321,13 @@ namespace OutlookGoogleCalendarSync {
             table.Append("<tr><th class='eventChanges'>Attribute</th><th class='eventChanges'>Change</th></tr>");
             for (int l = 1; l < lines.Count(); l++) {
                 String newRow = "<tr>";
-                newRow += Regex.Replace(lines[l], "^(\\w+|(Start|End) \\w+|Attendee.*?Status|Reminder Default):\\s*", "<td class='eventChanges'>$1</td><td>");
+                newRow += Regex.Replace(lines[l], @"^(\w+|(Start|End) \w+|Attendee (added|removed|.*?Status)|Reminder Default):\s*", "<td class='eventChanges'>$1</td><td>");
                 newRow = newRow.Replace("=>", "→");
                 table.Append(newRow + "</td></tr>");
             }
             table.Append("</table>");
 
-            Update(lines[0] +"<br/>"+ table.ToString(), verbose: true, newLine: false);
+            Update(lines[0] + "<br/>" + table.ToString(), verbose: true, newLine: false);
         }
 
         #region Mute webbrowser navigation click sounds
@@ -357,13 +368,13 @@ namespace OutlookGoogleCalendarSync {
             try {
                 if (mute) {
                     log.Fine("Muting navigation click sounds.");
-                    Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath +".Current", true).SetValue(defaultKeyName, "");
+                    Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Current", true).SetValue(defaultKeyName, "");
                 } else {
                     log.Fine("Unmuting navigation click sounds.");
-                    soundRegKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath +".Default", false);
+                    soundRegKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Default", false);
                     if (soundRegKey != null) {
                         String defaultSound = soundRegKey.GetValue(defaultKeyName) as String;
-                        Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath +".Current", true).SetValue(defaultKeyName, defaultSound);
+                        Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Current", true).SetValue(defaultKeyName, defaultSound);
                     } else
                         log.Warn("Could not find default navigation sound.");
                 }
