@@ -963,6 +963,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
 
             if (Settings.Instance.DisableDelete) {
+                if (google.Count > 0)
+                    MainForm.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
                 google = new List<Event>();
             }
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
