@@ -13,7 +13,7 @@ namespace OutlookGoogleCalendarSync {
         }
         public static void Fine(this ILog log, string message, String containsEmail) {
             if (Settings.Instance.LoggingLevel != "ULTRA-FINE") {
-                message = message.Replace(containsEmail, EmailAddress.maskAddress(containsEmail));
+                message = message.Replace(containsEmail, EmailAddress.MaskAddress(containsEmail));
             }
             log.Fine(message);
         }
