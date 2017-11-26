@@ -43,30 +43,51 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         #region Analytics
-        public static void TrackVersion() {
+        public static void TrackVersions() {
             if (System.Diagnostics.Debugger.IsAttached) return;
 
-            string analytics = null;
-            switch (OutlookOgcs.Factory.OutlookVersion) {
-                case 11: analytics = "http://goo.gl/LMf6HT"; break; //2003
-                case 12: analytics = "http://goo.gl/Xpqzua"; break; //2007
-                case 14: analytics = "http://goo.gl/VM9Yaz"; break; //2010
-                case 15: analytics = "http://goo.gl/LvIiQd"; break; //2013
-                case 16: analytics = "http://goo.gl/Jhyzo5"; break; //2016
-                default: analytics = "http://goo.gl/mzHcHj"; break; //9999 (Unknown)
+            String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
+            
+            //OUTLOOK CLIENT
+            String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid="+ cid +"&ea=version";
+            String analyticsUrl = baseAnalyticsUrl + "&ec=outlook&el=";
+            try {
+                switch (OutlookOgcs.Factory.OutlookVersion) {
+                    case 11: analyticsUrl += "2003"; break;
+                    case 12: analyticsUrl += "2007"; break;
+                    case 14: analyticsUrl += "2010"; break;
+                    case 15: analyticsUrl += "2013"; break;
+                    case 16: analyticsUrl += "2016"; break;
+                    case 17: analyticsUrl += "2019"; break;
+                    default: analyticsUrl += "Unknown-" + OutlookOgcs.Factory.OutlookVersion; break;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed setting Outlook client analytics URL.");
+                OGCSexception.Analyse(ex);
+                analyticsUrl = "https://phw198.github.io/OutlookGoogleCalendarSync/track/ogcs?version=Unknown";
             }
-            if (analytics != null) {
-                log.Debug("Retrieving URL: " + analytics);
+            sendVersion(analyticsUrl);
+
+            //OGCS APPLICATION
+            analyticsUrl = baseAnalyticsUrl + "&ec=ogcs&el=" + System.Windows.Forms.Application.ProductVersion;
+            sendVersion(analyticsUrl);
+        }
+
+        private static void sendVersion(String analyticsUrl) {
+            if (analyticsUrl != null) {
+                log.Debug("Retrieving URL: " + analyticsUrl);
                 WebClient wc = new WebClient();
                 wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
                 wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
-                wc.DownloadStringAsync(new Uri(analytics));
+                wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
             }
         }
 
         private static void trackVersion_completed(object sender, DownloadStringCompletedEventArgs e) {
-            if (e.Error != null)
-                log.Error("Failed to access URL: " + e.Error.Message);
+            if (e.Error != null) {
+                log.Warn("Failed to access URL " + e.UserState.ToString());
+                log.Error(e.Error.Message);
+            }
         }
 
         public static void TrackSync() {

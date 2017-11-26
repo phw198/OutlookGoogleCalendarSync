@@ -184,7 +184,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public String GaccountEmail { get; set; }
         public String GaccountEmail_masked() {
             if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
-            return EmailAddress.maskAddress(GaccountEmail);
+            return EmailAddress.MaskAddress(GaccountEmail);
         }
         [DataMember] public Boolean CloakEmail { get; set; }
         #endregion
