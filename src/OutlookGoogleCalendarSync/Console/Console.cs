@@ -14,7 +14,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean awaitingRefresh;
         
         #region Notes
-        //If we don't want to depend on the emoji-css project, we /could/ store the images as resources and reference as:
+        //If we don't want to depend on the emoji-css project, we could store the images as resources and reference as:
         //  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='file:///C:\Users\Paul\Git\OutlookGoogleCalendarSync\src\OutlookGoogleCalendarSync\bin\Debug\images\warning.png', sizingMethod='scale');
 
         //Also, the default CSS style "background-size: contain;" is not understood by IE8, which is the version of the webbrowser control
@@ -24,11 +24,13 @@ namespace OutlookGoogleCalendarSync {
         // - an override css for each emoji using AlphaImageLoader
         #endregion
 
+        #region HTML head code
         private String header = @"
 <html>
     <head>
         <meta http-equiv='X-UA-Compatible' content='IE=edge' /> <!-- Make webbrowser control display IE7< content -->
-        <link href='https://afeld.github.io/emoji-css/emoji.css' rel='stylesheet'>
+        <!--- <link href='https://afeld.github.io/emoji-css/emoji.css' rel='stylesheet'> -->
+        <link href='"+ System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) + @"\Console\emoji.css' rel='stylesheet'>
         <style> 
             p {
                 margin: auto;
@@ -81,9 +83,6 @@ namespace OutlookGoogleCalendarSync {
 				padding-bottom: 6px;
 				margin-bottom: 10px;
 			}
-            .appointmentStart {
-                margin-top: 5px;
-            }
             .appointmentEnd {
                 margin-bottom: 10px;
                 margin-top: 5px;
@@ -124,11 +123,18 @@ namespace OutlookGoogleCalendarSync {
     </head>
     <body onLoad='scrollToBottom();'>
         <div id='content'>";
-        
-        private String footer = @"</div></body></html>";
-        private Boolean isNavigating = false;
-        private DateTime startedNavigating;
+        #endregion
 
+        private String footer = @"</div></body></html>";
+
+        private NavigationStatus? navigationStatus = null;
+        private enum NavigationStatus {
+            navigating,
+            navigated,
+            completed,
+            cleared
+        }
+        
         public Console(WebBrowser wb) {
             if (this.wb != null) return;
             this.wb = wb;
@@ -145,27 +151,30 @@ namespace OutlookGoogleCalendarSync {
             
             awaitRefresh();
             disableClickSounds();
-            log.Debug("Console initialised.");
+            log.Fine("Console initialised.");
         }
 
         private void console_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-            wb.DocumentCompleted -= console_DocumentCompleted;
+            if (!MainForm.Instance.Visible) return;
+
             this.awaitingRefresh = false;
-            isNavigating = false;
+            navigationStatus = NavigationStatus.completed;
         }
 
+        private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
+            if (!MainForm.Instance.Visible) return;
+
+            navigationStatus = NavigationStatus.navigating;
+            log.Fine("Console navigating.");
+        }
         private void console_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
             if (this.wb.ReadyState != WebBrowserReadyState.Complete) {
-                log.Debug("Navigated, but not completely ready yet.");
+                log.Fine("Navigated status = " + this.wb.ReadyState.ToString());
                 return;
             }
-            log.Debug("Console finished navigating");
-            isNavigating = false;
-        }
-        private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
-            log.Debug("Console started navigating");
-            isNavigating = true;
-            startedNavigating = DateTime.Now;
+
+            navigationStatus = NavigationStatus.navigated;
+            log.Fine("Console finished navigating");
         }
 
         private void awaitRefresh() {
@@ -174,7 +183,6 @@ namespace OutlookGoogleCalendarSync {
                 System.Threading.Thread.Sleep(100);
             }
             this.awaitingRefresh = false;
-            isNavigating = false;
         }
 
         private Boolean isCleared() {
@@ -188,6 +196,8 @@ namespace OutlookGoogleCalendarSync {
             awaitingRefresh = true;
             wb.Refresh(WebBrowserRefreshOption.Completely);
             awaitRefresh();
+            navigationStatus = NavigationStatus.cleared;
+            log.Fine("Document cleared.");
         }
 
         public void BuildOutput(string s, ref System.Text.StringBuilder sb, Boolean logit = true) {
@@ -202,9 +212,9 @@ namespace OutlookGoogleCalendarSync {
             h2,
             info,
             mag_right,
-            appointmentEnd,
-            sectionEnd, //Add horizontal rule below the line
-            warning
+            warning,
+            appointmentEnd, //margin top and bottom
+            sectionEnd //Add horizontal rule below the line
         }
 
         public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, bool notifyBubble = false, Boolean logit = false) {
@@ -218,11 +228,6 @@ namespace OutlookGoogleCalendarSync {
             ///HtmlElement element = doc.All["content"]; //Slightly faster
 
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
-                while (isNavigating && startedNavigating > DateTime.Now.AddSeconds(-2)) {
-                    System.Threading.Thread.Sleep(250);
-                    System.Windows.Forms.Application.DoEvents();
-                }
-
                 //Let's grab the 'content' div with regex
                 String allDocument = MainForm.Instance.GetControlPropertyThreadSafe(this.wb, "DocumentText") as String;
                 Regex rgx = new Regex("<div id=\'content\'>(.*)</div>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -260,6 +265,11 @@ namespace OutlookGoogleCalendarSync {
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
                 
                 this.wb.DocumentText = header + contentInnerHtml + footer;
+                
+                while (navigationStatus != NavigationStatus.completed) {
+                    System.Threading.Thread.Sleep(250);
+                    System.Windows.Forms.Application.DoEvents();
+                }
                 System.Windows.Forms.Application.DoEvents();
                 
                 if (MainForm.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {

@@ -542,7 +542,6 @@ namespace OutlookGoogleCalendarSync {
                 DateTime syncStarted = DateTime.Now;
                 String cacheNextSync = lNextSyncVal.Text;
 
-                LogBox.Clear();
                 console.Clear();
 
                 if (Settings.Instance.UseGoogleCalendar == null ||
@@ -1137,32 +1136,32 @@ namespace OutlookGoogleCalendarSync {
             String cr = "\r\n";
             switch (syncNote) {
                 case SyncNotes.QuotaExhaustedInfo:
-                    note = "  Google's daily free calendar quota is exhausted!" + cr +
+                    note =  "  Google's daily free calendar quota is exhausted!" + cr +
                             "     Either wait for new quota at 08:00GMT or     " + cr +
                             "  get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
                     break;
                 case SyncNotes.RecentSubscription:
-                    note = "                                                  " + cr +
+                    note =  "                                                  " + cr +
                             "   Thank you for your subscription and support!   " + cr +
                             "                                                  ";
                     break;
                 case SyncNotes.SubscriptionPendingExpire:
                     DateTime expiration = (DateTime)extraData;
-                    note = "  Your annual subscription for guaranteed quota   " + cr +
+                    note =  "  Your annual subscription for guaranteed quota   " + cr +
                             "  for Google calendar usage is expiring on " + expiration.ToString("dd-MMM") + "." + cr +
                             "         Click to renew for just £1/month.        ";
                     url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy") + " for " + Settings.Instance.GaccountEmail;
                     break;
                 case SyncNotes.SubscriptionExpired:
                     expiration = (DateTime)extraData;
-                    note = "  Your annual subscription for guaranteed quota   " + cr +
+                    note =  "  Your annual subscription for guaranteed quota   " + cr +
                             "    for Google calendar usage expired on " + expiration.ToString("dd-MMM") + "." + cr +
                             "         Click to renew for just £1/month.        ";
                     url = urlStub + "OGCS Premium renewal for " + Settings.Instance.GaccountEmail;
                     break;
                 case SyncNotes.NotLogFile:
-                    note = "                       This is not the log file. " + cr +
+                    note =  "                       This is not the log file. " + cr +
                             "                                     --------- " + cr +
                             "  Click here to open the folder with OGcalsync.log ";
                     url = "file://" + Program.UserFilePath;
@@ -1233,16 +1232,12 @@ namespace OutlookGoogleCalendarSync {
 
         #region Anti "Log" File
         //Try and stop people pasting the sync summary text as their log file!!!
-        private void LogBox_KeyDown(object sender, KeyEventArgs e) {
+        private void Console_KeyDown(object sender, PreviewKeyDownEventArgs e) {
             if (e.KeyData == (Keys.Control | Keys.C) || e.KeyData == (Keys.Control | Keys.A)) {
-                notLogFile();
-                e.SuppressKeyPress = false;
-            } else {
-                e.SuppressKeyPress = true;
-            }
-        }
-        private void LogBox_MouseDown(object sender, MouseEventArgs e) {
-            if (e.Button == System.Windows.Forms.MouseButtons.Right) {
+                if (e.KeyData == (Keys.Control | Keys.A))
+                    consoleWebBrowser.Document.ExecCommand("SelectAll", false, null);
+                if (e.KeyData == (Keys.Control | Keys.C))
+                    Clipboard.SetText(consoleWebBrowser.Document.Body.InnerText);
                 notLogFile();
             }
         }
@@ -2090,9 +2085,5 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #endregion
-
-        private void cbShowConsole_CheckedChanged(object sender, EventArgs e) {
-            this.consolePanel.Visible = !this.cbShowConsole.Checked;
-        }
     }
 }

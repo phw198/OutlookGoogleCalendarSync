@@ -42,9 +42,9 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
+            this.cbMuteClicks = new System.Windows.Forms.CheckBox();
             this.consolePanel = new System.Windows.Forms.Panel();
             this.consoleWebBrowser = new System.Windows.Forms.WebBrowser();
-            this.cbShowConsole = new System.Windows.Forms.CheckBox();
             this.tbSyncNote = new System.Windows.Forms.RichTextBox();
             this.panelSyncNote = new System.Windows.Forms.Panel();
             this.cbVerboseOutput = new System.Windows.Forms.CheckBox();
@@ -52,7 +52,6 @@
             this.lLastSyncVal = new System.Windows.Forms.Label();
             this.lNextSync = new System.Windows.Forms.Label();
             this.lLastSync = new System.Windows.Forms.Label();
-            this.LogBox = new System.Windows.Forms.TextBox();
             this.bSyncNow = new System.Windows.Forms.Button();
             this.tabPage_Settings = new System.Windows.Forms.TabPage();
             this.lSettingInfo = new System.Windows.Forms.Label();
@@ -221,7 +220,6 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.cbMuteClicks = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -280,7 +278,6 @@
             this.tabPage_Sync.BackColor = System.Drawing.Color.White;
             this.tabPage_Sync.Controls.Add(this.cbMuteClicks);
             this.tabPage_Sync.Controls.Add(this.consolePanel);
-            this.tabPage_Sync.Controls.Add(this.cbShowConsole);
             this.tabPage_Sync.Controls.Add(this.tbSyncNote);
             this.tabPage_Sync.Controls.Add(this.panelSyncNote);
             this.tabPage_Sync.Controls.Add(this.cbVerboseOutput);
@@ -288,7 +285,6 @@
             this.tabPage_Sync.Controls.Add(this.lLastSyncVal);
             this.tabPage_Sync.Controls.Add(this.lNextSync);
             this.tabPage_Sync.Controls.Add(this.lLastSync);
-            this.tabPage_Sync.Controls.Add(this.LogBox);
             this.tabPage_Sync.Controls.Add(this.bSyncNow);
             this.tabPage_Sync.Location = new System.Drawing.Point(4, 22);
             this.tabPage_Sync.Name = "tabPage_Sync";
@@ -311,25 +307,16 @@
             // 
             // consoleWebBrowser
             // 
+            this.consoleWebBrowser.AllowWebBrowserDrop = false;
             this.consoleWebBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.consoleWebBrowser.IsWebBrowserContextMenuEnabled = false;
             this.consoleWebBrowser.Location = new System.Drawing.Point(0, 0);
             this.consoleWebBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.consoleWebBrowser.Name = "consoleWebBrowser";
             this.consoleWebBrowser.ScriptErrorsSuppressed = true;
             this.consoleWebBrowser.Size = new System.Drawing.Size(474, 417);
             this.consoleWebBrowser.TabIndex = 38;
-            // 
-            // cbShowConsole
-            // 
-            this.cbShowConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbShowConsole.AutoSize = true;
-            this.cbShowConsole.Location = new System.Drawing.Point(383, 500);
-            this.cbShowConsole.Name = "cbShowConsole";
-            this.cbShowConsole.Size = new System.Drawing.Size(82, 17);
-            this.cbShowConsole.TabIndex = 37;
-            this.cbShowConsole.Text = "Old console";
-            this.cbShowConsole.UseVisualStyleBackColor = true;
-            this.cbShowConsole.CheckedChanged += new System.EventHandler(this.cbShowConsole_CheckedChanged);
+            this.consoleWebBrowser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Console_KeyDown);
             // 
             // tbSyncNote
             // 
@@ -402,21 +389,6 @@
             this.lLastSync.Size = new System.Drawing.Size(251, 14);
             this.lLastSync.TabIndex = 2;
             this.lLastSync.Text = "Last successful:-";
-            // 
-            // LogBox
-            // 
-            this.LogBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LogBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LogBox.Location = new System.Drawing.Point(3, 57);
-            this.LogBox.Multiline = true;
-            this.LogBox.Name = "LogBox";
-            this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.LogBox.Size = new System.Drawing.Size(478, 421);
-            this.LogBox.TabIndex = 1;
-            this.LogBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.LogBox_KeyDown);
-            this.LogBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LogBox_MouseDown);
             // 
             // bSyncNow
             // 
@@ -2645,7 +2617,7 @@
             // 
             this.cbMuteClicks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cbMuteClicks.AutoSize = true;
-            this.cbMuteClicks.Location = new System.Drawing.Point(383, 516);
+            this.cbMuteClicks.Location = new System.Drawing.Point(383, 500);
             this.cbMuteClicks.Name = "cbMuteClicks";
             this.cbMuteClicks.Size = new System.Drawing.Size(80, 17);
             this.cbMuteClicks.TabIndex = 39;
@@ -2723,7 +2695,6 @@
         private System.Windows.Forms.TabPage tabPage_About;
         private System.Windows.Forms.NotifyIcon trayIcon;
         private System.Windows.Forms.Label lAboutMain;
-        private System.Windows.Forms.TextBox LogBox;
         private System.Windows.Forms.Button bSave;
         private System.Windows.Forms.Label lLastSync;
         private System.Windows.Forms.Label lNextSync;
@@ -2897,7 +2868,6 @@
         private System.Windows.Forms.Label lTargetSyncCondition;
         private System.Windows.Forms.DomainUpDown tbCreatedItemsOnly;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.CheckBox cbShowConsole;
         private System.Windows.Forms.Panel consolePanel;
         public System.Windows.Forms.WebBrowser consoleWebBrowser;
         private System.Windows.Forms.CheckBox cbMuteClicks;
