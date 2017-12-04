@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
 
             Instance = this;
 
-            Social.TrackVersion();
+            Social.TrackVersions();
             updateGUIsettings();
             Settings.Instance.LogSettings();
             NotificationTray = new NotificationTray(this.trayIcon);
@@ -501,7 +501,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } else { //Manual sync
-                if (bSyncNow.Text == "Start Sync") {
+                if (bSyncNow.Text == "Start Sync" || bSyncNow.Text == "Start Full Sync") {
                     log.Info("Manual sync started.");
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
@@ -570,7 +570,7 @@ namespace OutlookGoogleCalendarSync {
                 lNextSyncVal.Text = "In progress...";
 
                 log.Info("Sync version: " + System.Windows.Forms.Application.ProductVersion);
-                Logboxout("Sync started at " + syncStarted.ToString());
+                Logboxout((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString());
                 Logboxout("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
                    " to " + Settings.Instance.SyncEnd.ToShortDateString());
                 Logboxout(Settings.Instance.SyncDirection.Name);
@@ -1198,6 +1198,21 @@ namespace OutlookGoogleCalendarSync {
 
         #region EVENTS
         #region Form actions
+        Boolean shiftKeyPressed = false;
+        private void tabApp_KeyDown(object sender, KeyEventArgs e) {
+            if (e.Shift && bSyncNow.Text == "Start Sync") {
+                bSyncNow.Text = "Start Full Sync";
+                shiftKeyPressed = true;
+            }
+        }
+
+        private void tabApp_KeyUp(object sender, KeyEventArgs e) {
+            if (shiftKeyPressed && bSyncNow.Text == "Start Full Sync") {
+                bSyncNow.Text = "Start Sync";
+                shiftKeyPressed = false;
+            }
+        }
+
         void Save_Click(object sender, EventArgs e) {
             if (tbStartupDelay.Value != Settings.Instance.StartupDelay) {
                 Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
