@@ -155,11 +155,18 @@ namespace OutlookGoogleCalendarSync {
                 buildOutlookPattern(ev, evAI, out evOpattern);
                 log.Fine("Comparing Google recurrence to Outlook equivalent");
 
+                //Some versions of Outlook are erroring when 2-way syncing weekday recurring series.
+                //Even though Outlook has Interval of zero, which is illegal, when this is updated, it won't save. Issue #398
+                Boolean skipIntervalCheck = false;
+                if (aiOpattern.RecurrenceType == OlRecurrenceType.olRecursWeekly && aiOpattern.DayOfWeekMask == getDOWmask("BYDAY=MO,TU,WE,TH,FR") && aiOpattern.Interval == 0 &&
+                    evOpattern.RecurrenceType == aiOpattern.RecurrenceType && evOpattern.DayOfWeekMask == aiOpattern.DayOfWeekMask && evOpattern.Interval == 1)
+                    skipIntervalCheck = true;
+
                 if (MainForm.CompareAttribute("Recurrence Type", syncDirection,
                     evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
                     aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
                 }
-                if (MainForm.CompareAttribute("Recurrence Interval", syncDirection,
+                if (!skipIntervalCheck && MainForm.CompareAttribute("Recurrence Interval", syncDirection,
                     evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
                     aiOpattern.Interval = evOpattern.Interval;
                 }

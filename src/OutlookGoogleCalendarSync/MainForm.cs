@@ -508,7 +508,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } else { //Manual sync
-                if (bSyncNow.Text == "Start Sync") {
+                if (bSyncNow.Text == "Start Sync" || bSyncNow.Text == "Start Full Sync") {
                     log.Info("Manual sync started.");
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
@@ -581,7 +581,7 @@ namespace OutlookGoogleCalendarSync {
 
                 StringBuilder sb = new StringBuilder();
                 Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                Console.BuildOutput("Sync started at " + syncStarted.ToString(), ref sb);
+                Console.BuildOutput((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString(), ref sb);
                 Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
                     " to " + Settings.Instance.SyncEnd.ToShortDateString(), ref sb);
                 Console.BuildOutput(Settings.Instance.SyncDirection.Name, ref sb);
@@ -1188,6 +1188,21 @@ namespace OutlookGoogleCalendarSync {
 
         #region EVENTS
         #region Form actions
+        Boolean shiftKeyPressed = false;
+        private void tabApp_KeyDown(object sender, KeyEventArgs e) {
+            if (e.Shift && bSyncNow.Text == "Start Sync") {
+                bSyncNow.Text = "Start Full Sync";
+                shiftKeyPressed = true;
+            }
+        }
+
+        private void tabApp_KeyUp(object sender, KeyEventArgs e) {
+            if (shiftKeyPressed && bSyncNow.Text == "Start Full Sync") {
+                bSyncNow.Text = "Start Sync";
+                shiftKeyPressed = false;
+            }
+        }
+
         void Save_Click(object sender, EventArgs e) {
             if (tbStartupDelay.Value != Settings.Instance.StartupDelay) {
                 Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
