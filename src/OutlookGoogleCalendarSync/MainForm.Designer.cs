@@ -269,6 +269,8 @@
             this.tabApp.SelectedIndex = 0;
             this.tabApp.Size = new System.Drawing.Size(495, 568);
             this.tabApp.TabIndex = 0;
+            this.tabApp.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tabApp_KeyDown);
+            this.tabApp.KeyUp += new System.Windows.Forms.KeyEventHandler(this.tabApp_KeyUp);
             // 
             // tabPage_Sync
             // 
