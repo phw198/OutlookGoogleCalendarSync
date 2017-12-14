@@ -627,7 +627,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
                 if (ai.Recipients.Count >= 200) {
-                    MainForm.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
+                    MainForm.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>Attendees will not be synced for this meeting as it has " +
                         "more than 200, which Google does not allow.", Console.Markup.warning);
                     ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
                 } else {

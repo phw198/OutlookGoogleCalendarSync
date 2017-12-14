@@ -12,6 +12,7 @@ namespace OutlookGoogleCalendarSync {
 
         private WebBrowser wb;
         private Boolean awaitingRefresh;
+        private String content = "";
         
         #region Notes
         //If we don't want to depend on the emoji-css project, we could store the images as resources and reference as:
@@ -159,6 +160,7 @@ namespace OutlookGoogleCalendarSync {
 
             this.awaitingRefresh = false;
             navigationStatus = NavigationStatus.completed;
+            log.Fine("Document completed.");
         }
 
         private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
@@ -191,8 +193,9 @@ namespace OutlookGoogleCalendarSync {
 
         public void Clear() {
             if (isCleared()) return;
-            
-            this.wb.DocumentText = header + footer;
+
+            content = header + footer;
+            this.wb.DocumentText = content;
             awaitingRefresh = true;
             wb.Refresh(WebBrowserRefreshOption.Completely);
             awaitRefresh();
@@ -229,7 +232,7 @@ namespace OutlookGoogleCalendarSync {
 
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
                 //Let's grab the 'content' div with regex
-                String allDocument = MainForm.Instance.GetControlPropertyThreadSafe(this.wb, "DocumentText") as String;
+                String allDocument = content;
                 Regex rgx = new Regex("<div id=\'content\'>(.*)</div>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                 MatchCollection matches = rgx.Matches(allDocument);
 
@@ -263,8 +266,9 @@ namespace OutlookGoogleCalendarSync {
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
-                
-                this.wb.DocumentText = header + contentInnerHtml + footer;
+
+                content = header + contentInnerHtml + footer;
+                this.wb.DocumentText = content;
                 
                 while (navigationStatus != NavigationStatus.completed) {
                     System.Threading.Thread.Sleep(250);
@@ -322,7 +326,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void FormatEventChanges(StringBuilder sb) {
-            sb.Insert(0, ":" + Markup.calendar + ":");
+            sb.Insert(0, ":" + Markup.calendar.ToString() + ":");
 
             String[] lines = sb.ToString().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (lines.Count() == 1) return;
@@ -331,7 +335,7 @@ namespace OutlookGoogleCalendarSync {
             table.Append("<tr><th class='eventChanges'>Attribute</th><th class='eventChanges'>Change</th></tr>");
             for (int l = 1; l < lines.Count(); l++) {
                 String newRow = "<tr>";
-                newRow += Regex.Replace(lines[l], @"^(\w+|(Start|End) \w+|Attendee (added|removed|.*?Status)|Reminder Default):\s*", "<td class='eventChanges'>$1</td><td>");
+                newRow += Regex.Replace(lines[l], @"^(\w+|(Start|End) \w+|Attendee (added|removed|.*?Status)|Reminder Default|Free/Busy):\s*", "<td class='eventChanges'>$1</td><td>");
                 newRow = newRow.Replace("=>", "→");
                 table.Append(newRow + "</td></tr>");
             }

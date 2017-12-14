@@ -87,6 +87,9 @@
 .em-collision {
   background-image: url('emoji/collision.png');
 }
+.em-date {
+  background-image: url('emoji/date.png');
+}
 .em-information_source {
   background-image: url('emoji/information_source.png');
 }

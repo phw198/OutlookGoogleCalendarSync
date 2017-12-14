@@ -544,6 +544,10 @@ namespace OutlookGoogleCalendarSync {
 
                 console.Clear();
 
+                if (System.Diagnostics.Debugger.IsAttached) {
+                    consoleWebBrowser.IsWebBrowserContextMenuEnabled = true;
+                }
+
                 if (Settings.Instance.UseGoogleCalendar == null ||
                     Settings.Instance.UseGoogleCalendar.Id == null ||
                     Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -1085,8 +1089,8 @@ namespace OutlookGoogleCalendarSync {
             if (googleAttr == null) googleAttr = "";
             if (outlookAttr == null) outlookAttr = "";
             //Truncate long strings
-            String googleAttr_stub = (googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr;
-            String outlookAttr_stub = (outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr;
+            String googleAttr_stub = ((googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr).Replace("\r\n", " ");
+            String outlookAttr_stub = ((outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr).Replace("\r\n", " ");
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);
