@@ -1,6 +1,15 @@
 | Release Notes |
 |:---|
 
+# v2.6.5.0 - Alpha
+
+**Enhancements**
+- Sync output now HTML, not plain text!
+- Change Sync button text when shift-clicking.
+
+**Bugfix**
+- Updating weekday recurrence interval back into Outlook.
+
 # v2.6.4.0 - Alpha
 
 **Enhancements**

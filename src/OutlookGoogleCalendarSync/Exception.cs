@@ -47,8 +47,8 @@ namespace OutlookGoogleCalendarSync {
         public static void AnalyseAggregate(AggregateException agex, Boolean throwError = true) {
             foreach (System.Exception ex in agex.InnerExceptions) {
                 if (ex is ApplicationException) {
-                    if (!String.IsNullOrEmpty(ex.Message)) MainForm.Instance.Logboxout(ex.Message);
-                    else log.Error(ex.Message);
+                    if (!String.IsNullOrEmpty(ex.Message)) MainForm.Instance.Console.Update(ex.Message, Console.Markup.error);
+                    else log.Error(agex.Message);
 
                 } else if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
                     AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
@@ -61,19 +61,18 @@ namespace OutlookGoogleCalendarSync {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
             log.Warn("Token response error: " + ex.Message);
-            if (ex.Error.Error == "access_denied") {
-                MainForm.Instance.AsyncLogboxout("Failed to obtain Calendar access from Google - it's possible your access has been revoked.\r\n" + instructions, true);
+            if (ex.Error.Error == "access_denied")
+                MainForm.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked.<br/>" + instructions, Console.Markup.error, notifyBubble: true);
 
-            } else if ("invalid_client;unauthorized_client".Contains(ex.Error.Error))
-                MainForm.Instance.AsyncLogboxout("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, true);
+            else if ("invalid_client;unauthorized_client".Contains(ex.Error.Error))
+                MainForm.Instance.Console.Update("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, Console.Markup.error, notifyBubble: true);
 
             else if (ex.Error.Error == "invalid_grant")
-                MainForm.Instance.AsyncLogboxout("Google has revoked your authentication token. Account requires reauthorising.\r\n" + instructions, true);
+                MainForm.Instance.Console.Update("Google has revoked your authentication token. Account requires reauthorising.<br/>" + instructions, Console.Markup.error, notifyBubble: true);
 
             else {
                 log.Warn("Unknown web exception.");
-                MainForm.Instance.AsyncLogboxout("Unable to communicate with Google. The following error occurred:");
-                MainForm.Instance.AsyncLogboxout(ex.Message);
+                MainForm.Instance.Console.Update("Unable to communicate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error, notifyBubble: true);
             }
             if (throwError) throw ex;
         }

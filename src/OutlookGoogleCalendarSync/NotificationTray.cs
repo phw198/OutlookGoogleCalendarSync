@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync {
 
         private void autoSyncToggle_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            MainForm.Instance.Logboxout("Automatic sync "+ menuItemText.ToLower() +"d.");
+            MainForm.Instance.Console.Update("Automatic sync "+ menuItemText.ToLower() +"d.");
             if (menuItemText == "Enable") {
                 if (Settings.Instance.SyncInterval == 0) {
                     log.Debug("Switching on automatic syncing - hourly.");
@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         private void delaySync1Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Logboxout("Next sync delayed for 1 hour.");
+            MainForm.Instance.Console.Update("Next sync delayed for 1 hour.");
             if (MainForm.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
@@ -150,7 +150,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync2Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Logboxout("Next sync delayed for 2 hours.");
+            MainForm.Instance.Console.Update("Next sync delayed for 2 hours.");
             if (MainForm.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
@@ -160,7 +160,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync4Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Logboxout("Next sync delayed for 4 hours.");
+            MainForm.Instance.Console.Update("Next sync delayed for 4 hours.");
             if (MainForm.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
@@ -170,7 +170,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySyncRemove_Click(object sender, EventArgs e) {
-            MainForm.Instance.Logboxout("Next sync delay removed.");
+            MainForm.Instance.Console.Update("Next sync delay removed.");
             if (MainForm.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;

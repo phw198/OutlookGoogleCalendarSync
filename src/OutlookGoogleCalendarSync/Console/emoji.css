@@ -1,0 +1,104 @@
+.em {
+  height: 1.5em;
+  width: 1.5em;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.em-checkered_flag {
+  background-image: url('emoji/checkered_flag.png');
+}
+.em-clock1 {
+  background-image: url('emoji/clock1.png');
+}
+.em-clock2 {
+  background-image: url('emoji/clock2.png');
+}
+.em-clock3 {
+  background-image: url('emoji/clock3.png');
+}
+.em-clock4 {
+  background-image: url('emoji/clock4.png');
+}
+.em-clock5 {
+  background-image: url('emoji/clock5.png');
+}
+.em-clock6 {
+  background-image: url('emoji/clock6.png');
+}
+.em-clock7 {
+  background-image: url('emoji/clock7.png');
+}
+.em-clock8 {
+  background-image: url('emoji/clock8.png');
+}
+.em-clock9 {
+  background-image: url('emoji/clock9.png');
+}
+.em-clock10 {
+  background-image: url('emoji/clock10.png');
+}
+.em-clock11 {
+  background-image: url('emoji/clock11.png');
+}
+.em-clock12 {
+  background-image: url('emoji/clock12.png');
+}
+.em-clock130 {
+  background-image: url('emoji/clock130.png');
+}
+.em-clock230 {
+  background-image: url('emoji/clock230.png');
+}
+.em-clock330 {
+  background-image: url('emoji/clock330.png');
+}
+.em-clock430 {
+  background-image: url('emoji/clock430.png');
+}
+.em-clock530 {
+  background-image: url('emoji/clock530.png');
+}
+.em-clock630 {
+  background-image: url('emoji/clock630.png');
+}
+.em-clock730 {
+  background-image: url('emoji/clock730.png');
+}
+.em-clock830 {
+  background-image: url('emoji/clock830.png');
+}
+.em-clock930 {
+  background-image: url('emoji/clock930.png');
+}
+.em-clock1030 {
+  background-image: url('emoji/clock1030.png');
+}
+.em-clock1130 {
+  background-image: url('emoji/clock1130.png');
+}
+.em-clock1230 {
+  background-image: url('emoji/clock1230.png');
+}
+.em-collision {
+  background-image: url('emoji/collision.png');
+}
+.em-date {
+  background-image: url('emoji/date.png');
+}
+.em-information_source {
+  background-image: url('emoji/information_source.png');
+}
+.em-mag_right {
+  background-image: url('emoji/mag_right.png');
+}
+.em-repeat {
+  background-image: url('emoji/repeat.png');
+}
+.em-warning {
+  background-image: url('emoji/warning.png');
+}

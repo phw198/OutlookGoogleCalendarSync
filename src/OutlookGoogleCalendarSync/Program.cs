@@ -176,7 +176,7 @@ namespace OutlookGoogleCalendarSync {
 
         #region Application Behaviour
         #region Startup Registry Key
-        private static String startupKeyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+        private static String startupKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
         public static void ManageStartupRegKey(Boolean recreate = false) {
             //Check for legacy Startup menu shortcut <=v2.1.4

@@ -55,7 +55,7 @@ namespace OutlookGoogleCalendarSync {
             return match.Groups[1].Value + domainName;
         }
 
-        public static String maskAddress(String emailAddress) {
+        public static String MaskAddress(String emailAddress) {
             try {
                 int at = emailAddress.IndexOf('@');
                 String masked = emailAddress.Substring(0, 2) + "".PadRight(at - 3, '*') + emailAddress.Substring(at - 1);

@@ -155,11 +155,18 @@ namespace OutlookGoogleCalendarSync {
                 buildOutlookPattern(ev, evAI, out evOpattern);
                 log.Fine("Comparing Google recurrence to Outlook equivalent");
 
+                //Some versions of Outlook are erroring when 2-way syncing weekday recurring series.
+                //Even though Outlook has Interval of zero, which is illegal, when this is updated, it won't save. Issue #398
+                Boolean skipIntervalCheck = false;
+                if (aiOpattern.RecurrenceType == OlRecurrenceType.olRecursWeekly && aiOpattern.DayOfWeekMask == getDOWmask("BYDAY=MO,TU,WE,TH,FR") && aiOpattern.Interval == 0 &&
+                    evOpattern.RecurrenceType == aiOpattern.RecurrenceType && evOpattern.DayOfWeekMask == aiOpattern.DayOfWeekMask && evOpattern.Interval == 1)
+                    skipIntervalCheck = true;
+
                 if (MainForm.CompareAttribute("Recurrence Type", syncDirection,
                     evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
                     aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
                 }
-                if (MainForm.CompareAttribute("Recurrence Interval", syncDirection,
+                if (!skipIntervalCheck && MainForm.CompareAttribute("Recurrence Interval", syncDirection,
                     evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
                     aiOpattern.Interval = evOpattern.Interval;
                 }
@@ -496,8 +503,8 @@ namespace OutlookGoogleCalendarSync {
                                 }
                                 if (oExcp.OriginalDate == DateTime.Parse(gDate)) {
                                     if (isDeleted) {
-                                        MainForm.Instance.Logboxout(GoogleOgcs.Calendar.GetEventSummary(ev));
-                                        MainForm.Instance.Logboxout("Recurrence deleted.");
+                                        MainForm.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                                        MainForm.Instance.Console.Update("Recurrence deleted.");
                                         ev.Status = "cancelled";
                                         GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                                     } else {
@@ -580,7 +587,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            MainForm.Instance.Logboxout("WARNING: Updated event exception failed to save.\r\n" + ex.Message);
+                                            MainForm.Instance.Console.Update("Updated event exception failed to save.<br/>" + ex.Message, Console.Markup.error);
                                             log.Error(ex.StackTrace);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
@@ -672,13 +679,13 @@ namespace OutlookGoogleCalendarSync {
                                 } catch (System.Exception ex) {
                                     OGCSexception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
-                                        MainForm.Instance.Logboxout("Uh oh! Outlook wasn't able to save this recurrence exception! " +
-                                            "You may have two occurences on the same day, which it doesn't allow.");
+                                        MainForm.Instance.Console.Update("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                            "You may have two occurences on the same day, which it doesn't allow.", Console.Markup.warning);
                                     }
                                 }
                             }
                         } else {
-                            MainForm.Instance.Logboxout(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "\r\nDeleted.");
+                            MainForm.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
                             newAiExcp.Delete();
                         }
                     } finally {
@@ -717,8 +724,7 @@ namespace OutlookGoogleCalendarSync {
                                         break;
                                     }
                                 } catch (System.Exception ex) {
-                                    MainForm.Instance.Logboxout(ex.Message);
-                                    MainForm.Instance.Logboxout("If this keeps happening, please restart OGCS.");
+                                    MainForm.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
                                     break;
                                 } finally {
                                     OutlookOgcs.Calendar.ReleaseObject(oExcp);
