@@ -1,11 +1,22 @@
 /* Custom OGCS styles and modifications */
 
 table {
-  border: 0px solid #ebebeb;
+  
+}
+
+th {
+  #font-weight: bold;
+  font-size: larger;
+  color: #2879d0;
+  background-color: #9ddcff;
+  padding: 5px;
+  font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+  border-left: white 2px solid;
 }
 
 td {
-  border: 0px solid #ebebeb;
+  border: #9ddcff 2px solid;
+  padding: 3px;
 }
 
 #main-content .sans-bullet:before {
@@ -14,6 +25,10 @@ td {
 
 header h1 {
   font-size: 50px;
+}
+header table, header td, table.download, .download td {
+  border: 0px;
+  padding: 0px;
 }
 
 #main-content a.button {
@@ -51,12 +66,12 @@ header h1 {
   padding-top: unset;
 }
 
-#main-content li {
+#main-content ul li {
   list-style: none;
   text-indent: -20px;
 }
 
-#main-content li:before {
+#main-content ul li:before {
   color: #2879d0;
   content: '\2022';
   font-size: 20px;
@@ -77,6 +92,23 @@ img.emoji {
 
 aside#sidebar table.download a.button {
   text-align: left;
+}
+
+.tip {
+  background-color: lightyellow;
+  font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+  border: bsolid 1px;
+  border: solid 1px cadetblue;
+  padding-left: 5px;
+  padding-bottom: 5px;
+  margin-top: -20px;
+}
+.tip.a {
+  cursor: hand;
+}
+.tip img.emoji {
+    margin-left: -30px;
+    margin-right: 5px;
 }
 
 /* All Mobile Sizes (devices and browser) */
