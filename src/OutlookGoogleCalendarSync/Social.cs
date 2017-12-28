@@ -87,6 +87,7 @@ namespace OutlookGoogleCalendarSync {
             if (e.Error != null) {
                 log.Warn("Failed to access URL " + e.UserState.ToString());
                 log.Error(e.Error.Message);
+                if (e.Error.InnerException != null) log.Error(e.Error.InnerException.Message);
             }
         }
 

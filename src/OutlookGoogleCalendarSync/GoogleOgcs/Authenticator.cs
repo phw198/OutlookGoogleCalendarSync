@@ -15,6 +15,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
+        private Boolean authenticated = false;
+        public Boolean Authenticated { get { return authenticated; } }
+
         public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
         String tokenFullPath;
         Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
@@ -33,14 +36,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public Authenticator() {
             ClientSecrets cs = getCalendarClientSecrets();
-            try {
-                //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
-                var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
-                task.Wait();
-            } catch (System.Exception) {
-                log.Error("Problem encountered instantiating Authenticator.");
-                throw;
-            }
+            MainForm.Instance.Console.Update("Authenticating with Google...", verbose: true);
+
+            //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
+            var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
+            task.Wait();
         }
 
         private static ClientSecrets getCalendarClientSecrets() {
@@ -81,8 +81,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Google credential file location: " + tokenFullPath);
             if (!tokenFileExists)
                 log.Info("No Google credentials file available - need user authorisation for OGCS to manage their calendar.");
-
-            //string[] scopes = new[] { "https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/userinfo.email" };
+            
             string[] scopes = new[] { "https://www.googleapis.com/auth/calendar", "email" };
 
             UserCredential credential = null;
@@ -119,11 +118,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Debug("Access token needs refreshing.");
                 //This will happen automatically when using the calendar service
                 //But we need a valid token before we call getGaccountEmail() which doesn't use the service
-                GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                try {
+                    GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse(ex);
+                    MainForm.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                    authenticated = false;
+                    return;
+                }
                 log.Debug("Access token refreshed.");
             }
 
             getGaccountEmail(credential.Token.AccessToken);
+            authenticated = true;
         }
 
         public void Reset() {

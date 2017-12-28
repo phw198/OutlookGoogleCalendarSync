@@ -22,7 +22,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (instance == null) {
                     instance = new GoogleOgcs.Calendar();
                     instance.Authenticator = new GoogleOgcs.Authenticator();
-                    instance.Authenticator.OgcsUserStatus();
+                    if (instance.Authenticator.Authenticated)
+                        instance.Authenticator.OgcsUserStatus();
+                    else {
+                        instance = null;
+                        throw new ApplicationException("Google handshake failed.");
+                    }
                 }
                 return instance;
             }
@@ -34,8 +39,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public CalendarService Service {
             get {
                 if (service == null) {
+                    log.Debug("Google service not yet instantiated.");
                     Authenticator = new GoogleOgcs.Authenticator();
-                    Authenticator.OgcsUserStatus();
+                    if (Authenticator.Authenticated)
+                        Authenticator.OgcsUserStatus();
+                    else {
+                        service = null;
+                        throw new ApplicationException("Google handshake failed.");
+                    }
                 }
                 return service;
             }
@@ -215,7 +226,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } catch (Google.GoogleApiException ex) {
                         switch (handleAPIlimits(ex, null)) {
                             case apiException.throwException: throw;
-                            case apiException.freeAPIexhausted: 
+                            case apiException.freeAPIexhausted:
                                 throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
 
                             case apiException.backoffThenRetry: {

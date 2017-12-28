@@ -219,7 +219,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
 
                         if (filtered.Count >= 1) {
-                            log.Error("We've still got " + filtered.Count + " items to mark as copied.");
+                            log.Warn("We've still got " + filtered.Count + " items to mark as copied.");
                             for (int i = 0; i < filtered.Count; i++) {
                                 AppointmentItem ai = null;
                                 try {

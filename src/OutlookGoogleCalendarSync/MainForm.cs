@@ -537,6 +537,14 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        private enum SyncResult {
+            OK,
+            Fail,
+            Abandon,
+            AutoRetry
+        }
+        private int consecutiveSyncFails = 0;
+
         private void sync_Start(Boolean updateSyncSchedule = true) {
             try {
                 DateTime syncStarted = DateTime.Now;
@@ -598,16 +606,23 @@ namespace OutlookGoogleCalendarSync {
 
                 if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
 
-                Boolean syncOk = false;
+                SyncResult syncResult = SyncResult.Fail;
                 int failedAttempts = 0;
                 Social.TrackSync();
-                GoogleOgcs.Calendar.Instance.GetCalendarSettings();
-                while (!syncOk) {
+                try {
+                    GoogleOgcs.Calendar.Instance.GetCalendarSettings();
+                } catch (System.Exception ex) {
+                    log.Warn(ex.Message);
+                    syncResult = SyncResult.AutoRetry;
+                }
+                while (syncResult == SyncResult.Fail) {
                     if (failedAttempts > 0) {
                         if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No)
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
+                            syncResult = SyncResult.Abandon;
                             break;
-                        else log.Info("User opted to retry sync straight away.");
+                        } else
+                            log.Info("User opted to retry sync straight away.");
                     }
 
                     //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
@@ -621,18 +636,21 @@ namespace OutlookGoogleCalendarSync {
                         delegate(object o, DoWorkEventArgs args) {
                             BackgroundWorker b = o as BackgroundWorker;
                             try {
-                                syncOk = synchronize();
+                                syncResult = synchronize();
                             } catch (System.Exception ex) {
                                 sb = new StringBuilder();
                                 console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                     console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
                                     console.Update(sb, Console.Markup.error, notifyBubble: true); 
+                                    if (ex.Data["OGCS"].ToString().Contains("Please try again")) {
+                                        syncResult = SyncResult.AutoRetry;
+                                    }
                                 } else {
+                                    OGCSexception.Analyse(ex, true);
                                     console.Update(ex.Message, Console.Markup.error, notifyBubble: true);
+                                    syncResult = SyncResult.Fail;
                                 }
-                                OGCSexception.Analyse(ex, true);
-                                syncOk = false;
                             }
                         }
                     );
@@ -644,22 +662,28 @@ namespace OutlookGoogleCalendarSync {
                     }
                     try {
                         //Get Logbox text - this is a little bit dirty!
-                        if (!syncOk && consoleWebBrowser.DocumentText.Contains("The RPC server is unavailable.")) {
+                        if (syncResult != SyncResult.OK && consoleWebBrowser.DocumentText.Contains("The RPC server is unavailable.")) {
                             console.Update("Attempting to reconnect to Outlook...");
                             try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
                         }
                     } finally {
-                        failedAttempts += !syncOk ? 1 : 0;
+                        failedAttempts += (syncResult != SyncResult.OK) ? 1 : 0;
                     }
                 }
 
-                if (syncOk) {
+                if (syncResult == SyncResult.OK) {
                     Settings.Instance.CompletedSyncs++;
+                    consecutiveSyncFails = 0;
                     console.Update("Sync finished with success!", Console.Markup.checkered_flag);
-                } else
+                } else if (syncResult == SyncResult.AutoRetry) {
+                    consecutiveSyncFails++;
+                    console.Update("Sync encountered a problem and did not complete successfully.<br/>"+ consecutiveSyncFails +" consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
+                } else {
+                    consecutiveSyncFails += failedAttempts;
                     console.Update("Operation aborted after " + failedAttempts + " failed attempts!", Console.Markup.error);
+                }
 
-                sync_SetNext(syncStarted, syncOk, updateSyncSchedule, cacheNextSync);
+                sync_SetNext(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
                 checkSyncMilestone();
 
             } finally {
@@ -686,8 +710,8 @@ namespace OutlookGoogleCalendarSync {
                     OgcsTimer.SetNextSync();
                 } else {
                     if (Settings.Instance.SyncInterval != 0) {
-                        console.Update("Another sync has been scheduled to automatically run in 5 minutes time.");
-                        OgcsTimer.SetNextSync(5, fromNow: true);
+                        console.Update("Another sync has been scheduled to automatically run in "+ minSyncMinutes +" minutes time.");
+                        OgcsTimer.SetNextSync(minSyncMinutes, fromNow: true);
                     }
                 }
             }
@@ -715,7 +739,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private Boolean synchronize() {
+        private SyncResult synchronize() {
             console.Update("Finding Calendar Entries", Console.Markup.mag_right, newLine: false);
 
             #region Read Outlook items
@@ -746,10 +770,16 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.AnalyseAggregate(agex);
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 OGCSexception.AnalyseTokenResponse(ex, false);
-                return false;
+                return SyncResult.Fail;
+            } catch (System.Net.Http.HttpRequestException ex) {
+                OGCSexception.Analyse(ex);
+                ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
+                throw ex;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                console.Update("Unable to connect to the Google calendar.", Console.Markup.error);
+                ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
+                if (OGCSexception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
+                    ex.Data["OGCS"] += " Please try again.";
                 throw ex;
             }
             Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
@@ -858,7 +888,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook) {
                 success = sync_outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
             }
-            if (!success) return false;
+            if (!success) return SyncResult.Fail;
             if (Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) {
                 if (bubbleText != "") bubbleText += "\r\n";
                 success = sync_googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
@@ -869,7 +899,7 @@ namespace OutlookGoogleCalendarSync {
                 outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
                 outlookEntries.RemoveAt(o);
             }
-            return success;
+            return SyncResult.OK;
         }
 
         private Boolean sync_outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries, ref String bubbleText) {
@@ -1763,6 +1793,8 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region When
+        private int minSyncMinutes = System.Diagnostics.Debugger.IsAttached ? 1 : 10;
+
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInThePast = (int)tbDaysInThePast.Value;
             if (this.Visible && !Settings.Instance.UsingPersonalAPIkeys() && tbDaysInThePast.Value == tbDaysInThePast.Maximum) {
@@ -1778,11 +1810,11 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
-            if ((int)tbInterval.Value > 0 && (int)tbInterval.Value < 10 && cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
+            if ((int)tbInterval.Value > 0 && (int)tbInterval.Value < minSyncMinutes && cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
                 if (tbInterval.Value < Convert.ToInt16(tbInterval.Text))
                     tbInterval.Value = 0;
                 else
-                    tbInterval.Value = 10;
+                    tbInterval.Value = minSyncMinutes;
             }
             Settings.Instance.SyncInterval = (int)tbInterval.Value;
             OgcsTimer.SetNextSync();
@@ -1790,8 +1822,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbIntervalUnit_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < 10) {
-                tbInterval.Value = 10;
+            if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < minSyncMinutes) {
+                tbInterval.Value = minSyncMinutes;
             }
             Settings.Instance.SyncIntervalUnit = cbIntervalUnit.Text;
             OgcsTimer.SetNextSync();

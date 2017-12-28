@@ -2364,7 +2364,7 @@
             this.lAboutURL.Size = new System.Drawing.Size(475, 23);
             this.lAboutURL.TabIndex = 2;
             this.lAboutURL.TabStop = true;
-            this.lAboutURL.Text = "https://github.com/phw198/OutlookGoogleCalendarSync";
+            this.lAboutURL.Text = "https://phw198.github.io/OutlookGoogleCalendarSync";
             this.lAboutURL.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lAboutURL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lAboutURL_LinkClicked);
             // 

@@ -232,15 +232,10 @@ namespace OutlookGoogleCalendarSync {
 
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
                 //Let's grab the 'content' div with regex
-                String allDocument = content;
                 Regex rgx = new Regex("<div id=\'content\'>(.*)</div>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                MatchCollection matches = rgx.Matches(allDocument);
+                MatchCollection matches = rgx.Matches(content);
 
                 String contentInnerHtml = "";
-                if (matches.Count == 0) {
-                    log.Error("empty doc!");
-                    System.Windows.Forms.Application.DoEvents();
-                }
                 if (matches.Count > 0) {
                     contentInnerHtml = matches[0].Result("$1");
                 }
