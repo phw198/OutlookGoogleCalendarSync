@@ -156,8 +156,6 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void console_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-            if (!MainForm.Instance.Visible) return;
-
             this.awaitingRefresh = false;
             navigationStatus = NavigationStatus.completed;
             log.Fine("Document completed.");
