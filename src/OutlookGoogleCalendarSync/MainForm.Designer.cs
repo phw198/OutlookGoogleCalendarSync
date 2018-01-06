@@ -220,6 +220,7 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.GappBrowser = new System.Windows.Forms.WebBrowser();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2095,10 +2096,10 @@
             this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label20.Location = new System.Drawing.Point(74, 38);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(347, 26);
+            this.label20.Size = new System.Drawing.Size(349, 26);
             this.label20.TabIndex = 40;
             this.label20.Text = "All the configuration is defined on the \"Settings\" tab above.\r\nTry hovering the m" +
-    "ouse over individual settings for extra tips, if available.";
+    "ouse over individual settings for extra tips, or press F1.";
             this.label20.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // tableLayoutPanel1
@@ -2272,6 +2273,7 @@
             this.tabPage_About.Controls.Add(this.lAboutURL);
             this.tabPage_About.Controls.Add(this.lAboutMain);
             this.tabPage_About.Controls.Add(this.pbDonate);
+            this.tabPage_About.Controls.Add(this.GappBrowser);
             this.tabPage_About.Location = new System.Drawing.Point(4, 22);
             this.tabPage_About.Name = "tabPage_About";
             this.tabPage_About.Padding = new System.Windows.Forms.Padding(3);
@@ -2627,6 +2629,16 @@
             this.cbMuteClicks.UseVisualStyleBackColor = true;
             this.cbMuteClicks.CheckedChanged += new System.EventHandler(this.cbMuteClicks_CheckedChanged);
             // 
+            // GappBrowser
+            // 
+            this.GappBrowser.Location = new System.Drawing.Point(30, 207);
+            this.GappBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.GappBrowser.Name = "GappBrowser";
+            this.GappBrowser.ScriptErrorsSuppressed = true;
+            this.GappBrowser.Size = new System.Drawing.Size(250, 51);
+            this.GappBrowser.TabIndex = 45;
+            this.GappBrowser.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2871,7 +2883,8 @@
         private System.Windows.Forms.DomainUpDown tbCreatedItemsOnly;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Panel consolePanel;
-        public System.Windows.Forms.WebBrowser consoleWebBrowser;
+        private System.Windows.Forms.WebBrowser consoleWebBrowser;
         private System.Windows.Forms.CheckBox cbMuteClicks;
+        public System.Windows.Forms.WebBrowser GappBrowser;
     }
 }

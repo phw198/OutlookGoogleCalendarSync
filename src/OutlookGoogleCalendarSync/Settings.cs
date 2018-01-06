@@ -93,6 +93,7 @@ namespace OutlookGoogleCalendarSync {
             Proxy = new SettingsProxy();
 
             alphaReleases = false;
+            SkipVersion = null;
             Subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
             hideSplashScreen = false;
@@ -293,6 +294,7 @@ namespace OutlookGoogleCalendarSync {
         }
         [DataMember] public bool VerboseOutput { get; set; }
         [DataMember] public bool MuteClickSounds { get; set; }
+        [DataMember] public String SkipVersion { get; set; }
 
         public static void Load(string XMLfile = null) {
             try {
@@ -418,6 +420,7 @@ namespace OutlookGoogleCalendarSync {
 
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);
+            log.Info("  Skip Version: " + SkipVersion);
             log.Info("  Subscribed: " + Subscribed.ToString("dd-MMM-yyyy"));
             log.Info("  Timezone Database: " + TimezoneDB.Instance.Version);
             

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.6.5-alpha</version>
+    <version>2.6.6-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -11,8 +11,20 @@
     <iconUrl>https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/images/ogcs64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
-    <releaseNotes>v2.6.5 OGCS release on GitHub!</releaseNotes>
-    <copyright>Copyright 2017</copyright>
+    <releaseNotes>
+# What's New In v2.6?
+&lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
+
+- New upgrade alert window containing "What's New?" improvement details.  
+- Option to skip a release.  
+- Help/F1 to see online user guide.  
+- Continue switch to MD5.  
+
+&lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
+
+- Updating weekday recurrence interval back into Outlook.  
+	</releaseNotes>
+    <copyright>Copyright 2018</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>

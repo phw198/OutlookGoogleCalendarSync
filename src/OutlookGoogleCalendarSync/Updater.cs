@@ -41,22 +41,25 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 if (Program.IsInstalled) {
-                    if (await githubCheck()) {
-                        log.Info("Restarting OGCS.");
-                        try {
-                            System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
-                        } catch (System.Exception ex) {
-                            OGCSexception.Analyse(ex, true);
-                        }
-                        try {
-                            MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
-                        } catch (System.Exception ex) {
-                            log.Error("Failed to exit via the notification tray icon. " + ex.Message);
-                            log.Debug("NotificationTray is " + (MainForm.Instance.NotificationTray == null ? "null" : "not null"));
-                            MainForm.Instance.Close();
-                        }
+                    try {
+                       if (await githubCheck()) {
+                           log.Info("Restarting OGCS.");
+                           try {
+                               System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
+                           } catch (System.Exception ex) {
+                               OGCSexception.Analyse(ex, true);
+                           }
+                           try {
+                               MainForm.Instance.NotificationTray.ExitItem_Click(null, null);
+                           } catch (System.Exception ex) {
+                               log.Error("Failed to exit via the notification tray icon. " + ex.Message);
+                               log.Debug("NotificationTray is " + (MainForm.Instance.NotificationTray == null ? "null" : "not null"));
+                               MainForm.Instance.Close();
+                           }
+                       }
+                    } finally {
+                        if (isManualCheck) updateButton.Text = "Check For Update";
                     }
-                    if (isManualCheck) updateButton.Text = "Check For Update";
                 } else {
                     zipChecker();
                 }
@@ -117,10 +120,34 @@ namespace OutlookGoogleCalendarSync {
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("Found a new " + update.Version.SpecialVersion + " version: " + update.Version.Version.ToString());
 
-                        DialogResult dr = MessageBox.Show((update.Version.SpecialVersion == "beta" ? "A " : "An ") + update.Version.SpecialVersion +
-                            " update for OGCS is available.\nWould you like to update the application to v" +
-                            update.Version.Version.ToString() + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                        if (dr == DialogResult.Yes) {
+                        if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion) {
+                            log.Info("The user has previously requested to skip this version.");
+                            break;
+                        }
+
+                        String releaseNotes = "";                        
+                        if (nonGitHubReleaseUri != null) {
+                            releaseNotes = update.GetReleaseNotes(nonGitHubReleaseUri);
+                        } else {
+                            //Somewhat annoyingly we have to download the release in order to get the release notes, as they are embedded in the .nupkg upgrade file(s)
+                            try {
+                                updateManager.DownloadReleases(new[] { update }).Wait(30 * 1000);
+                                System.Collections.Generic.Dictionary<ReleaseEntry, String> allReleaseNotes = updates.FetchReleaseNotes();
+                                releaseNotes = allReleaseNotes[update];
+                            } catch (System.Exception ex) {
+                                log.Error("Failed pre-fetching release notes. " + ex.Message);
+                                releaseNotes = null;
+                            }
+                        }
+
+                        DialogResult dr = DialogResult.Cancel;
+                        if (!string.IsNullOrEmpty(releaseNotes)) log.Debug("Release notes retrieved.");
+                        var t = new System.Threading.Thread(() => new Forms.UpdateInfo(update.Version.Version.ToString(), update.Version.SpecialVersion, releaseNotes, out dr));
+                        t.SetApartmentState(System.Threading.ApartmentState.STA);
+                        t.Start();
+                        t.Join();
+
+                        if (dr == DialogResult.OK || dr == DialogResult.Yes) {
                             log.Debug("Download started...");
                             if (!updateManager.DownloadReleases(new[] { update }).Wait(60 * 1000)) {
                                 log.Warn("The download failed to completed within 60 seconds.");
@@ -141,15 +168,8 @@ namespace OutlookGoogleCalendarSync {
 
                             try {
                                 log.Debug("Download complete.");
-                                //System.Collections.Generic.Dictionary<ReleaseEntry, String> notes = updates.FetchReleaseNotes();
-                                //String notes = update.GetReleaseNotes(updateManager.RootAppDirectory +"\\packages");
                                 log.Info("Applying the updated release...");
                                 updateManager.ApplyReleases(updates).Wait();
-                                /* 
-                                new System.Net.WebClient().DownloadFile("https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6-beta/OutlookGoogleCalendarSync-2.5.0-beta-full.nupkg", "OutlookGoogleCalendarSync-2.5.0-beta-full.nupkg");
-                                String notes = update.GetReleaseNotes("");
-                                //if (!string.IsNullOrEmpty(notes)) log.Debug(notes);
-                                */
 
                                 log.Info("The application has been successfully updated.");
                                 MessageBox.Show("The application has been updated and will now restart.",

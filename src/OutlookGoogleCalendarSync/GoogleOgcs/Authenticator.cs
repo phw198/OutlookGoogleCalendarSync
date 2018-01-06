@@ -222,6 +222,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
                     lr.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+                    lr.Q = (Settings.Instance.GaccountEmail == null) ? "" : HashedGmailAccount;
                     request = lr.Execute();
                     log.Debug("Page " + pageNum + " received.");
 
@@ -235,8 +236,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (String.IsNullOrEmpty(Settings.Instance.GaccountEmail)) { //This gets retrieved via the above lr.Execute()
                     log.Warn("User's Google account username is not present - cannot check if they have subscribed.");
                     return false;
-                } else {
-                    hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
                 }
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 OGCSexception.AnalyseTokenResponse(ex);
@@ -247,7 +246,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for subscription for: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> subscriptions = result.Where(x => x.Summary.Equals(hashedGmailAccount)).ToList();
+            List<Event> subscriptions = result.Where(x => x.Summary == HashedGmailAccount).ToList();
             if (subscriptions.Count == 0) {
                 log.Fine("This user has never subscribed.");
                 Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
@@ -278,6 +277,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     log.Info("User has no active subscription.");
                     Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
                 }
+
+                MainForm.Instance.Console.CallGappScript("subscriber");
+
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
                     if (prevSubscriptionStart == DateTime.Parse("01-Jan-2000")            //No longer a subscriber
                         || Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) //New subscriber
@@ -302,6 +304,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
                     lr.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
+                    lr.Q = (Settings.Instance.GaccountEmail == null) ? "" : HashedGmailAccount;
                     request = lr.Execute();
                     log.Debug("Page " + pageNum + " received.");
 
@@ -315,8 +318,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (String.IsNullOrEmpty(Settings.Instance.GaccountEmail)) { //This gets retrieved via the above lr.Fetch()
                     log.Warn("User's Google account username is not present - cannot check if they have donated.");
                     return false;
-                } else {
-                    hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
                 }
 
             } catch (System.ApplicationException ex) {
@@ -329,7 +330,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             log.Debug("Searching for donation from: " + Settings.Instance.GaccountEmail_masked());
-            List<Event> donations = result.Where(x => x.Summary.Equals(hashedGmailAccount)).ToList();
+            List<Event> donations = result.Where(x => x.Summary == HashedGmailAccount).ToList();
             if (donations.Count == 0) {
                 log.Fine("No donation found for user.");
                 Settings.Instance.Donor = false;
@@ -337,6 +338,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 log.Fine("User has kindly donated.");
                 Settings.Instance.Donor = true;
+
+                MainForm.Instance.Console.CallGappScript("donor");
+
                 return true;
             }
         }

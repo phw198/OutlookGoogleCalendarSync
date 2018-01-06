@@ -1222,6 +1222,82 @@ namespace OutlookGoogleCalendarSync {
 
         #region EVENTS
         #region Form actions
+        /// <summary>
+        /// Navigates up the parents of a control to the first TabControl control
+        /// </summary>
+        private static Control findFocusedTab(Control control) {
+            Control parentControl = control.Parent as Control;
+            while (parentControl != null && !(control is TabControl)) {
+                control = control.Parent;
+                parentControl = control.Parent;
+            }
+            return control;
+        }
+
+        /// <summary>
+        /// Detect when F1 is pressed for help
+        /// </summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+            try {
+                if (keyData == Keys.F1) {
+                    try {
+                        log.Fine("Active control: " + this.ActiveControl.ToString());
+
+                        Control focusedTab = null;
+                        Control focusedPage = null;
+
+                        focusedTab = findFocusedTab(this.ActiveControl);
+
+                        if (focusedTab is TabControl)
+                            focusedPage = (focusedTab as TabControl).SelectedTab;
+
+                        if (focusedPage == null) {
+                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                            return true;
+                        }
+
+                        if (focusedPage.Name == "tabPage_Sync")
+                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/sync");
+
+                        else if (focusedPage.Name == "tabPage_Settings") {
+                            if (this.tabAppSettings.SelectedTab.Name == "tabOutlook")
+                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/outlook");
+                            else if (this.tabAppSettings.SelectedTab.Name == "tabGoogle")
+                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/google");
+                            else if (this.tabAppSettings.SelectedTab.Name == "tabSyncOptions")
+                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/syncoptions");
+                            else if (this.tabAppSettings.SelectedTab.Name == "tabAppBehaviour")
+                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/appbehaviour");
+                            else
+                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/settings");
+
+                        } else if (focusedPage.Name == "tabPage_Help")
+                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/help");
+
+                        else if (focusedPage.Name == "tabPage_About")
+                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/about");
+
+                        else
+                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+
+                        return true; //This keystroke was handled, don't pass to the control with the focus
+
+                    } catch (System.Exception ex) {
+                        log.Warn("Failed to process captured F1 key.");
+                        OGCSexception.Analyse(ex);
+                        System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                        return true;
+                    }
+                }
+
+            } catch (System.Exception ex) {
+                log.Warn("Failed to process captured command key.");
+                OGCSexception.Analyse(ex);
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         Boolean shiftKeyPressed = false;
         private void tabApp_KeyDown(object sender, KeyEventArgs e) {
             if (e.Shift && bSyncNow.Text == "Start Sync") {
@@ -1285,7 +1361,7 @@ namespace OutlookGoogleCalendarSync {
             if (e.KeyData == (Keys.Control | Keys.C) || e.KeyData == (Keys.Control | Keys.A)) {
                 if (e.KeyData == (Keys.Control | Keys.A))
                     consoleWebBrowser.Document.ExecCommand("SelectAll", false, null);
-                if (e.KeyData == (Keys.Control | Keys.C))
+                if (e.KeyData == (Keys.Control | Keys.C) && consoleWebBrowser.Document.Body.InnerText != null)
                     Clipboard.SetText(consoleWebBrowser.Document.Body.InnerText);
                 notLogFile();
             }
