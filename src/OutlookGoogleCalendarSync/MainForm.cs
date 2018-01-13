@@ -1861,7 +1861,8 @@ namespace OutlookGoogleCalendarSync {
 
         #region Obfuscation Panel
         private void cbObfuscateDirection_SelectedIndexChanged(object sender, EventArgs e) {
-            Settings.Instance.Obfuscation.Direction = (SyncDirection)cbObfuscateDirection.SelectedItem;
+            if (this.Visible)
+                Settings.Instance.Obfuscation.Direction = (SyncDirection)cbObfuscateDirection.SelectedItem;
         }
 
         private void dgObfuscateRegex_Leave(object sender, EventArgs e) {
