@@ -240,6 +240,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Console\Console.cs" />
+    <Compile Include="Forms\UpdateInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateInfo.Designer.cs">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="GoogleOgcs\ApiKeyring.cs" />
     <Compile Include="EmailAddress.cs" />
     <Compile Include="Exception.cs" />
@@ -288,6 +294,9 @@
     <Compile Include="XMLManager.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\UpdateInfo.resx">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
