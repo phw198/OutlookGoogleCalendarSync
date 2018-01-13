@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio Express 14 for Windows Desktop
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync\OutlookGoogleCalendarSync.csproj", "{B35C9DB2-79BC-46A3-9BE4-BCE33BC3721E}"
 EndProject
 Global

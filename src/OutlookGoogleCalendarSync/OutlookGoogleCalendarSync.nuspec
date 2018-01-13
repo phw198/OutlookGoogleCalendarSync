@@ -12,17 +12,22 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.6?
+# What's New In v2.6.6?
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
 - New upgrade alert window containing "What's New?" improvement details.  
 - Option to skip a release.  
 - Help/F1 to see online user guide.  
+- Don't block subsequent scheduled syncs if network drop out caused transient failure.  
 - Continue switch to MD5.  
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Updating weekday recurrence interval back into Outlook.  
+- Remember obfuscation sync direction.  
+- Sync freezes if OGCS starts in notification tray.  
+
+_This is a release candidate for the next Beta, v2.7_
 	</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
@@ -33,5 +38,7 @@
 		<file src="bin\Release\*.dll" target="lib\net45\" />
 		<file src="bin\Release\logger.xml" target="lib\net45\" />
 		<file src="bin\Release\tzdb.nzd" target="lib\net45\" />
+		<file src="bin\Release\Console\*.*" target="lib\net45\Console\" />
+		<file src="bin\Release\Console\emoji\*.*" target="lib\net45\Console\emoji\" />
   </files>
 </package>
