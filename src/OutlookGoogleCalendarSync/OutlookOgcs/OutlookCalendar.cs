@@ -382,10 +382,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     if (itemModified > 0) {
                         try {
-                            updateCalendarEntry_save(ai);
+                            updateCalendarEntry_save(ref ai);
                             entriesUpdated++;
                         } catch (System.Exception ex) {
                             String evSummary = "";
+                            if (!Settings.Instance.VerboseOutput) evSummary = GoogleOgcs.Calendar.GetEventSummary(compare.Value) + "<br/>";
                             MainForm.Instance.Console.Update(evSummary + "Updated appointment failed to save.<br/>" + ex.Message, Console.Markup.error);
                             log.Error(ex.StackTrace);
                             if (MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -393,15 +394,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             else
                                 throw new UserCancelledSyncException("User chose not to continue sync.");
                         }
-                        if (!aiWasRecurring && ai.IsRecurring) {
-                            log.Debug("Appointment has changed from single instance to recurring, so exceptions may need processing.");
-                            Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value);
+                        if (ai.IsRecurring) {
+                            if (!aiWasRecurring) log.Debug("Appointment has changed from single instance to recurring.");
+                            log.Debug("Recurring master appointment has been updated, so now checking if exceptions need reinstating.");
+                            Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: true);
                         }
-                    } else if ((needsUpdating && ai.RecurrenceState != OlRecurrenceState.olApptMaster) //Master events are always compared anyway
-                        || GetOGCSproperty(ai, MetadataId.forceSave)) {
-                        log.Debug("Doing a dummy update in order to update the last modified date.");
-                        setOGCSlastModified(ref ai);
-                        updateCalendarEntry_save(ai);
+
+                    } else {
+                        if (ai.RecurrenceState == OlRecurrenceState.olApptMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
+                            log.Debug(GoogleOgcs.Calendar.GetEventSummary(compare.Value));
+                            Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
+
+                        } else if (needsUpdating || GetOGCSproperty(ai, MetadataId.forceSave)) {
+                            log.Debug("Doing a dummy update in order to update the last modified date.");
+                            setOGCSlastModified(ref ai);
+                            updateCalendarEntry_save(ref ai);
+                        }
                     }
                 } finally {
                     ai = (AppointmentItem)ReleaseObject(ai);
@@ -410,23 +418,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public Boolean UpdateCalendarEntry(ref AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
-            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) { //The exception child objects might have changed
-                log.Debug("Processing recurring master appointment.");
-            } else {
-                if (!(MainForm.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
-                    if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
-                        if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                            return false;
-                    } else {
-                        if (GoogleOgcs.Calendar.GetOGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
-                            //Google last modified by OGCS
-                            return false;
-                        if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
-                            return false;
-                    }
+            if (!(MainForm.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
+                if (Settings.Instance.SyncDirection != SyncDirection.Bidirectional) {
+                    if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                        return false;
+                } else {
+                    if (GoogleOgcs.Calendar.GetOGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
+                        //Google last modified by OGCS
+                        return false;
+                    if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                        return false;
                 }
             }
 
+            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster)
+                log.Debug("Processing recurring master appointment.");
+            
             String evSummary = GoogleOgcs.Calendar.GetEventSummary(ev);
             log.Debug("Processing >> " + evSummary);
 
@@ -506,8 +513,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Debug("Converting to non-recurring events.");
                     ai.ClearRecurrencePattern();
                     itemModified++;
-                } else {
-                    Recurrence.Instance.UpdateOutlookExceptions(ref ai, ev);
                 }
             } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
                 if (!ai.IsRecurring && ev.Recurrence != null && ev.RecurringEventId == null) {
@@ -649,7 +654,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return true;
         }
 
-        private void updateCalendarEntry_save(AppointmentItem ai) {
+        private void updateCalendarEntry_save(ref AppointmentItem ai) {
             if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 setOGCSlastModified(ref ai);
@@ -744,7 +749,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                         if (GoogleOgcs.Calendar.SignaturesMatch(sigEv, sigAi)) {
                             AddGoogleIDs(ref ai, ev);
-                            updateCalendarEntry_save(ai);
+                            updateCalendarEntry_save(ref ai);
                             unclaimedAi.Remove(ai);
                             MainForm.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
                             break;

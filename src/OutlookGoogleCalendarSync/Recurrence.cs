@@ -651,8 +651,8 @@ namespace OutlookGoogleCalendarSync {
         public void CreateOutlookExceptions(ref AppointmentItem ai, Event ev) {
             processOutlookExceptions(ref ai, ev, forceCompare: true);
         }
-        public void UpdateOutlookExceptions(ref AppointmentItem ai, Event ev) {
-            processOutlookExceptions(ref ai, ev, forceCompare: false);
+        public void UpdateOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
+            processOutlookExceptions(ref ai, ev, forceCompare);
         }
 
         private void processOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
