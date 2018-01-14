@@ -134,7 +134,7 @@ namespace OutlookGoogleCalendarSync {
             get { return outlookGalBlocked; }
             set {
                 outlookGalBlocked = value;
-                if (!loading() && MainForm.Instance.IsHandleCreated) MainForm.Instance.FeaturesBlockedByCorpPolicy(value);
+                if (!loading() && Forms.Main.Instance.IsHandleCreated) Forms.Main.Instance.FeaturesBlockedByCorpPolicy(value);
             }
         }
         #endregion
@@ -225,7 +225,7 @@ namespace OutlookGoogleCalendarSync {
             set {
                 if (!loading() && hideSplashScreen != value) {
                     XMLManager.ExportElement("HideSplashScreen", value, Program.SettingsFile);
-                    if (MainForm.Instance != null) MainForm.Instance.cbHideSplash.Checked = value;
+                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value;
                 }
                 hideSplashScreen = value;
             }

@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync {
+namespace OutlookGoogleCalendarSync.Forms {
     public partial class Splash : Form {
         private static readonly ILog log = LogManager.GetLogger(typeof(Splash));
         
@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (cbHideSplash.Checked) {
                 this.Visible = false;
-                while (!Settings.InstanceInitialiased() && !MainForm.Instance.IsHandleCreated) {
+                while (!Settings.InstanceInitialiased() && !Forms.Main.Instance.IsHandleCreated) {
                     log.Debug("Waiting for settings and form to initialise in order to save HideSplashScreen preference.");
                     System.Threading.Thread.Sleep(2000);
                 }

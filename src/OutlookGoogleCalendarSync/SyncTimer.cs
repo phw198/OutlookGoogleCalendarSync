@@ -10,17 +10,17 @@ namespace OutlookGoogleCalendarSync {
         public DateTime? NextSyncDate { 
             get {
                 try {
-                    if (MainForm.Instance.NextSyncVal == "Inactive" || !ogcsTimer.Enabled || 
-                        MainForm.Instance.NextSyncVal == "Push Sync Active") {
+                    if (Forms.Main.Instance.NextSyncVal == "Inactive" || !ogcsTimer.Enabled || 
+                        Forms.Main.Instance.NextSyncVal == "Push Sync Active") {
                         return null;
                     } else {
-                        return DateTime.ParseExact(MainForm.Instance.NextSyncVal,
+                        return DateTime.ParseExact(Forms.Main.Instance.NextSyncVal,
                             System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " - " +
                             System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
                             System.Globalization.CultureInfo.CurrentCulture);
                     }
                 } catch (System.Exception ex) {
-                    log.Warn("Failed to determine next sync date from '" + MainForm.Instance.NextSyncVal +"'");
+                    log.Warn("Failed to determine next sync date from '" + Forms.Main.Instance.NextSyncVal +"'");
                     log.Error(ex.Message);
                     return null;
                 }
@@ -34,14 +34,14 @@ namespace OutlookGoogleCalendarSync {
 
             //Refresh synchronizations (last and next)
             LastSyncDate = Settings.Instance.LastSyncDate;
-            MainForm.Instance.LastSyncVal = LastSyncDate.ToLongDateString() + " - " + LastSyncDate.ToLongTimeString();
+            Forms.Main.Instance.LastSyncVal = LastSyncDate.ToLongDateString() + " - " + LastSyncDate.ToLongTimeString();
             SetNextSync(getResyncInterval());
         }
 
         private void ogcsTimer_Tick(object sender, EventArgs e) {
             log.Debug("Scheduled sync triggered.");
 
-            MainForm frm = MainForm.Instance;
+            Forms.Main frm = Forms.Main.Instance;
             frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
             if (!frm.SyncingNow) {
                 frm.Sync_Click(sender, null);
@@ -79,10 +79,10 @@ namespace OutlookGoogleCalendarSync {
                     }
                     ogcsTimer.Start();
                 }
-                MainForm.Instance.NextSyncVal = nextSyncDate.ToLongDateString() + " - " + nextSyncDate.ToLongTimeString();
-                log.Info("Next sync scheduled for " + MainForm.Instance.NextSyncVal);
+                Forms.Main.Instance.NextSyncVal = nextSyncDate.ToLongDateString() + " - " + nextSyncDate.ToLongTimeString();
+                log.Info("Next sync scheduled for " + Forms.Main.Instance.NextSyncVal);
             } else {
-                MainForm.Instance.NextSyncVal = "Inactive";
+                Forms.Main.Instance.NextSyncVal = "Inactive";
                 ogcsTimer.Stop();
                 log.Info("Schedule disabled.");
             }
@@ -110,13 +110,13 @@ namespace OutlookGoogleCalendarSync {
             ogcsTimer.Tag = "PushTimer";
             ogcsTimer.Interval = 2 * 60000;
             ogcsTimer.Tick += new EventHandler(ogcsPushTimer_Tick);
-            MainForm.Instance.NextSyncVal = "Push Sync Active";
+            Forms.Main.Instance.NextSyncVal = "Push Sync Active";
         }
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (ItemsQueued != 0) {
                 log.Debug("Push sync triggered.");
-                MainForm frm = MainForm.Instance;
+                Forms.Main frm = Forms.Main.Instance;
                 frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
                 if (!frm.SyncingNow) {
                     frm.Sync_Click(sender, null);
@@ -132,10 +132,10 @@ namespace OutlookGoogleCalendarSync {
         public void Switch(Boolean enable) {
             if (enable && !ogcsTimer.Enabled) {
                 ogcsTimer.Start();
-                MainForm.Instance.NextSyncVal = "Push Sync Active";
+                Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!enable && ogcsTimer.Enabled) {
                 ogcsTimer.Stop();
-                MainForm.Instance.OgcsTimer.SetNextSync();
+                Forms.Main.Instance.OgcsTimer.SetNextSync();
             }
         }
         public Boolean Running() {

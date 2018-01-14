@@ -1,4 +1,4 @@
-﻿namespace OutlookGoogleCalendarSync {
+﻿namespace OutlookGoogleCalendarSync.Forms {
     partial class Splash {
         /// <summary>
         /// Required designer variable.

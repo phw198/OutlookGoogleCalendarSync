@@ -166,7 +166,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
-            if (!MainForm.Instance.Visible) return;
+            if (!Forms.Main.Instance.Visible) return;
 
             navigationStatus = NavigationStatus.navigating;
             log.Fine("Console navigating.");
@@ -228,7 +228,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true) {
             ///Accessing the DOM is terribly slow, so not using this method.
-            ///HtmlDocument doc = MainForm.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
+            ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
             ///HtmlElement element = doc.GetElementById("content");
             ///HtmlElement element = doc.All["content"]; //Slightly faster
 
@@ -273,8 +273,8 @@ namespace OutlookGoogleCalendarSync {
                 }
                 System.Windows.Forms.Application.DoEvents();
                 
-                if (MainForm.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
-                    MainForm.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
+                if (Forms.Main.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
             }
@@ -398,8 +398,8 @@ namespace OutlookGoogleCalendarSync {
         public void CallGappScript(String type) {
             log.Debug("Switching to MD5 for " + type);
             try {
-                MainForm.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/AKfycbwWILS02uGDgR5rSWEkzOS5FHc1N3MEPpIaMz0zOGIDhQRbhAw/exec?action=makePrivate&accountType="+ type +"&gmailAccount="+ Settings.Instance.GaccountEmail);
-                while (MainForm.Instance.GappBrowser.ReadyState != WebBrowserReadyState.Complete) {
+                Forms.Main.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/AKfycbwWILS02uGDgR5rSWEkzOS5FHc1N3MEPpIaMz0zOGIDhQRbhAw/exec?action=makePrivate&accountType="+ type +"&gmailAccount="+ Settings.Instance.GaccountEmail);
+                while (Forms.Main.Instance.GappBrowser.ReadyState != WebBrowserReadyState.Complete) {
                     System.Windows.Forms.Application.DoEvents();
                     System.Threading.Thread.Sleep(100);
                 }

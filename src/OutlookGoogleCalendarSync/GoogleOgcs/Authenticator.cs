@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public Authenticator() {
             ClientSecrets cs = getCalendarClientSecrets();
-            MainForm.Instance.Console.Update("Authenticating with Google...", verbose: true);
+            Forms.Main.Instance.Console.Update("Authenticating with Google...", verbose: true);
 
             //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
             var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
@@ -99,12 +99,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
-                    MainForm.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
+                    Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
                 }
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                MainForm.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
+                Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
             }
 
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
-                    MainForm.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                    Forms.Main.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
                     authenticated = false;
                     return;
                 }
@@ -165,7 +165,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
                 OGCSexception.Analyse(ex);
                 if (ex.Message.ToLower().Contains("access denied")) {
-                    MainForm.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
+                    Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
                        + "<br/>Try disconnecting your Google account and reauthenticating.", Console.Markup.error);
                 }
                 throw ex;
@@ -259,13 +259,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {
                     if (subscriptionRemaining > 360)
-                        MainForm.Instance.syncNote(MainForm.SyncNotes.RecentSubscription, null);
+                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.RecentSubscription, null);
                     if (subscriptionRemaining < 28)
-                        MainForm.Instance.syncNote(MainForm.SyncNotes.SubscriptionPendingExpire, subscriptionStart.AddYears(1));
+                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.SubscriptionPendingExpire, subscriptionStart.AddYears(1));
                     subscribed = true;
                 } else {
                     if (subscriptionRemaining > -14)
-                        MainForm.Instance.syncNote(MainForm.SyncNotes.SubscriptionExpired, subscriptionStart.AddYears(1));
+                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.SubscriptionExpired, subscriptionStart.AddYears(1));
                     subscribed = false;
                 }
 
@@ -278,7 +278,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
                 }
 
-                MainForm.Instance.Console.CallGappScript("subscriber");
+                Forms.Main.Instance.Console.CallGappScript("subscriber");
 
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
                     if (prevSubscriptionStart == DateTime.Parse("01-Jan-2000")            //No longer a subscriber
@@ -339,7 +339,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Fine("User has kindly donated.");
                 Settings.Instance.Donor = true;
 
-                MainForm.Instance.Console.CallGappScript("donor");
+                Forms.Main.Instance.Console.CallGappScript("donor");
 
                 return true;
             }

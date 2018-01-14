@@ -258,18 +258,18 @@
     <Compile Include="Recurrence.cs" />
     <Compile Include="SettingsProxy.cs" />
     <Compile Include="Social.cs" />
-    <Compile Include="Splash.cs">
+    <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Splash.Designer.cs">
+    <Compile Include="Forms\Splash.Designer.cs">
       <DependentUpon>Splash.cs</DependentUpon>
     </Compile>
     <Compile Include="ILogExtension.cs" />
     <Compile Include="GoogleOgcs\GoogleCalendar.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CalendarListEntry.cs" />
@@ -297,7 +297,7 @@
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -306,7 +306,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Splash.resx">
+    <EmbeddedResource Include="Forms\Splash.resx">
       <DependentUpon>Splash.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>

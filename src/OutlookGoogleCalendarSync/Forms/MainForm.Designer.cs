@@ -1,5 +1,5 @@
-﻿namespace OutlookGoogleCalendarSync {
-    partial class MainForm {
+﻿namespace OutlookGoogleCalendarSync.Forms {
+    partial class Main {
         /// <summary>
         /// Designer variable used to keep track of non-visual components.
         /// </summary>
@@ -12,7 +12,7 @@
         protected override void Dispose(bool disposing) {
             System.Boolean notificationTrayExited = false;
             try {
-                notificationTrayExited = MainForm.Instance.NotificationTray.Exited;
+                notificationTrayExited = Forms.Main.Instance.NotificationTray.Exited;
             } catch {
                 notificationTrayExited = true;
             }
@@ -36,7 +36,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Forms.Main));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();

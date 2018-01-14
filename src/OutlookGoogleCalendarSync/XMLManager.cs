@@ -42,7 +42,7 @@ namespace OutlookGoogleCalendarSync {
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                if (MainForm.Instance != null) MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Settings;
+                if (Forms.Main.Instance != null) Forms.Main.Instance.tabApp.SelectedTab = Forms.Main.Instance.tabPage_Settings;
                 throw new ApplicationException("Failed to import settings.");
             } finally {
                 fs.Close();

@@ -92,9 +92,9 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void UpdateAutoSyncItems() {
-            Boolean autoSyncing = (MainForm.Instance.OgcsTimer == null 
+            Boolean autoSyncing = (Forms.Main.Instance.OgcsTimer == null 
                 ? Settings.Instance.SyncInterval != 0 || Settings.Instance.OutlookPush
-                : MainForm.Instance.OgcsTimer.Running());
+                : Forms.Main.Instance.OgcsTimer.Running());
 
             UpdateItem("autoSyncToggle", autoSyncing ? "Disable" : "Enable");
             UpdateItem("delay1hr", null, autoSyncing);
@@ -109,88 +109,88 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void syncItem_Click(object sender, EventArgs e) {
-            MainForm.Instance.Sync_Requested();
+            Forms.Main.Instance.Sync_Requested();
         }
 
         private void autoSyncToggle_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            MainForm.Instance.Console.Update("Automatic sync "+ menuItemText.ToLower() +"d.");
+            Forms.Main.Instance.Console.Update("Automatic sync "+ menuItemText.ToLower() +"d.");
             if (menuItemText == "Enable") {
                 if (Settings.Instance.SyncInterval == 0) {
                     log.Debug("Switching on automatic syncing - hourly.");
-                    MainForm.Instance.cbIntervalUnit.SelectedItem = "Hours";
-                    MainForm.Instance.tbInterval.Value = 1;
+                    Forms.Main.Instance.cbIntervalUnit.SelectedItem = "Hours";
+                    Forms.Main.Instance.tbInterval.Value = 1;
                     XMLManager.ExportElement("SyncInterval", 1, Program.SettingsFile);
                     XMLManager.ExportElement("SyncIntervalUnit", "Hours", Program.SettingsFile);
                 }
-                if (MainForm.Instance.OgcsTimer == null) MainForm.Instance.OgcsTimer = new SyncTimer();
-                MainForm.Instance.OgcsTimer.Switch(true);
-                MainForm.Instance.lNextSyncVal.Font = new System.Drawing.Font(MainForm.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Regular);
+                if (Forms.Main.Instance.OgcsTimer == null) Forms.Main.Instance.OgcsTimer = new SyncTimer();
+                Forms.Main.Instance.OgcsTimer.Switch(true);
+                Forms.Main.Instance.lNextSyncVal.Font = new System.Drawing.Font(Forms.Main.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Regular);
                 if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
                 UpdateAutoSyncItems();
             } else {
-                if (MainForm.Instance.OgcsTimer == null) {
+                if (Forms.Main.Instance.OgcsTimer == null) {
                     log.Warn("Auto sync timer not initialised.");
                     return;
                 }
-                MainForm.Instance.OgcsTimer.Switch(false);
-                MainForm.Instance.lNextSyncVal.Font = new System.Drawing.Font(MainForm.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Strikeout);
+                Forms.Main.Instance.OgcsTimer.Switch(false);
+                Forms.Main.Instance.lNextSyncVal.Font = new System.Drawing.Font(Forms.Main.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Strikeout);
                 if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
                 UpdateAutoSyncItems();
             }
         }
         private void delaySync1Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Console.Update("Next sync delayed for 1 hour.");
-            if (MainForm.Instance.OgcsTimer == null) {
+            Forms.Main.Instance.Console.Update("Next sync delayed for 1 hour.");
+            if (Forms.Main.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
             }
-            MainForm.Instance.OgcsTimer.SetNextSync(60, fromNow: true);
+            Forms.Main.Instance.OgcsTimer.SetNextSync(60, fromNow: true);
             OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync2Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Console.Update("Next sync delayed for 2 hours.");
-            if (MainForm.Instance.OgcsTimer == null) {
+            Forms.Main.Instance.Console.Update("Next sync delayed for 2 hours.");
+            if (Forms.Main.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
             } 
-            MainForm.Instance.OgcsTimer.SetNextSync(2 * 60, fromNow: true);
+            Forms.Main.Instance.OgcsTimer.SetNextSync(2 * 60, fromNow: true);
             OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync4Hr_Click(object sender, EventArgs e) {
-            MainForm.Instance.Console.Update("Next sync delayed for 4 hours.");
-            if (MainForm.Instance.OgcsTimer == null) {
+            Forms.Main.Instance.Console.Update("Next sync delayed for 4 hours.");
+            if (Forms.Main.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
             }
-            MainForm.Instance.OgcsTimer.SetNextSync(4 * 60, fromNow: true);
+            Forms.Main.Instance.OgcsTimer.SetNextSync(4 * 60, fromNow: true);
             OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySyncRemove_Click(object sender, EventArgs e) {
-            MainForm.Instance.Console.Update("Next sync delay removed.");
-            if (MainForm.Instance.OgcsTimer == null) {
+            Forms.Main.Instance.Console.Update("Next sync delay removed.");
+            if (Forms.Main.Instance.OgcsTimer == null) {
                 log.Warn("Auto sync timer not initialised.");
                 return;
             }
-            MainForm.Instance.OgcsTimer.SetNextSync();
+            Forms.Main.Instance.OgcsTimer.SetNextSync();
             if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
             UpdateItem("delayRemove", enabled: false);
         }
 
         private void showItem_Click(object sender, EventArgs e) {
-            MainForm.Instance.MainFormShow();
+            Forms.Main.Instance.MainFormShow();
         }
         
         private void notifyIcon_Click(object sender, MouseEventArgs e) { 
             if (e.Button == MouseButtons.Left)
-                MainForm.Instance.MainFormShow(); 
+                Forms.Main.Instance.MainFormShow(); 
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Left && !MainForm.Instance.SyncingNow)
-                MainForm.Instance.Sync_Requested();
+            if (e.Button == MouseButtons.Left && !Forms.Main.Instance.SyncingNow)
+                Forms.Main.Instance.Sync_Requested();
         }
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
@@ -205,14 +205,14 @@ namespace OutlookGoogleCalendarSync {
                 notifyIcon.Tag = "";
 
             } else {
-                MainForm.Instance.MainFormShow();
-                MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Sync;
+                Forms.Main.Instance.MainFormShow();
+                Forms.Main.Instance.tabApp.SelectedTab = Forms.Main.Instance.tabPage_Sync;
             }
         }
 
         public void ExitItem_Click(object sender, EventArgs e) {
             exitEventFired = true;
-            MainForm.Instance.Close();
+            Forms.Main.Instance.Close();
         }
         #endregion
 

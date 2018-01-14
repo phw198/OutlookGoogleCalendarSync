@@ -45,7 +45,7 @@ namespace OutlookGoogleCalendarSync {
             Application.SetCompatibleTextRenderingDefault(false);
 
             delayStartup();
-            Splash.ShowMe();
+            Forms.Splash.ShowMe();
             
             log.Debug("Loading settings from file.");
             Settings.Load();
@@ -58,7 +58,7 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 try {
-                    Application.Run(new MainForm(startingTab));
+                    Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
                     log.Fatal(ex.Message);
                     MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -92,7 +92,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } catch { }
             }
-            Splash.CloseMe();
+            Forms.Splash.CloseMe();
             GC.Collect();
             GC.WaitForPendingFinalizers();
             while (Updater.IsBusy) {

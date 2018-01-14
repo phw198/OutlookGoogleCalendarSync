@@ -99,7 +99,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         
         public ApiKeyring() {
-            MainForm.Instance.Console.Update("Preparing to authenticate with Google.", verbose: true);
+            Forms.Main.Instance.Console.Update("Preparing to authenticate with Google.", verbose: true);
 
             List<ApiKey> allKeys = getKeyRing();
             if (allKeys == null) return;

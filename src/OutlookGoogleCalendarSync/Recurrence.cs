@@ -162,31 +162,31 @@ namespace OutlookGoogleCalendarSync {
                     evOpattern.RecurrenceType == aiOpattern.RecurrenceType && evOpattern.DayOfWeekMask == aiOpattern.DayOfWeekMask && evOpattern.Interval == 1)
                     skipIntervalCheck = true;
 
-                if (MainForm.CompareAttribute("Recurrence Type", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence Type", syncDirection,
                     evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
                     aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
                 }
-                if (!skipIntervalCheck && MainForm.CompareAttribute("Recurrence Interval", syncDirection,
+                if (!skipIntervalCheck && Forms.Main.CompareAttribute("Recurrence Interval", syncDirection,
                     evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
                     aiOpattern.Interval = evOpattern.Interval;
                 }
-                if (MainForm.CompareAttribute("Recurrence Instance", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence Instance", syncDirection,
                     evOpattern.Instance.ToString(), aiOpattern.Instance.ToString(), sb, ref itemModified)) {
                     aiOpattern.Instance = evOpattern.Instance;
                 }
-                if (MainForm.CompareAttribute("Recurrence DoW", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence DoW", syncDirection,
                     evOpattern.DayOfWeekMask.ToString(), aiOpattern.DayOfWeekMask.ToString(), sb, ref itemModified)) {
                     aiOpattern.DayOfWeekMask = evOpattern.DayOfWeekMask;
                 }
-                if (MainForm.CompareAttribute("Recurrence MoY", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence MoY", syncDirection,
                     evOpattern.MonthOfYear.ToString(), aiOpattern.MonthOfYear.ToString(), sb, ref itemModified)) {
                     aiOpattern.MonthOfYear = evOpattern.MonthOfYear;
                 }
-                if (MainForm.CompareAttribute("Recurrence NoEndDate", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence NoEndDate", syncDirection,
                     evOpattern.NoEndDate, aiOpattern.NoEndDate, sb, ref itemModified)) {
                     aiOpattern.NoEndDate = evOpattern.NoEndDate;
                 }
-                if (MainForm.CompareAttribute("Recurrence Occurences", syncDirection,
+                if (Forms.Main.CompareAttribute("Recurrence Occurences", syncDirection,
                     evOpattern.Occurrences.ToString(), aiOpattern.Occurrences.ToString(), sb, ref itemModified)) {
                     aiOpattern.Occurrences = evOpattern.Occurrences;
                 }
@@ -503,8 +503,8 @@ namespace OutlookGoogleCalendarSync {
                                 }
                                 if (oExcp.OriginalDate == DateTime.Parse(gDate)) {
                                     if (isDeleted) {
-                                        MainForm.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
-                                        MainForm.Instance.Console.Update("Recurrence deleted.");
+                                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                                        Forms.Main.Instance.Console.Update("Recurrence deleted.");
                                         ev.Status = "cancelled";
                                         GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                                     } else {
@@ -587,7 +587,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            MainForm.Instance.Console.Update("Updated event exception failed to save.<br/>" + ex.Message, Console.Markup.error);
+                                            Forms.Main.Instance.Console.Update("Updated event exception failed to save.<br/>" + ex.Message, Console.Markup.error);
                                             log.Error(ex.StackTrace);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
@@ -679,13 +679,13 @@ namespace OutlookGoogleCalendarSync {
                                 } catch (System.Exception ex) {
                                     OGCSexception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
-                                        MainForm.Instance.Console.Update("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                        Forms.Main.Instance.Console.Update("Uh oh! Outlook wasn't able to save this recurrence exception! " +
                                             "You may have two occurences on the same day, which it doesn't allow.", Console.Markup.warning);
                                     }
                                 }
                             }
                         } else {
-                            MainForm.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
                             newAiExcp.Delete();
                         }
                     } finally {
@@ -724,7 +724,7 @@ namespace OutlookGoogleCalendarSync {
                                         break;
                                     }
                                 } catch (System.Exception ex) {
-                                    MainForm.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
+                                    Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
                                     break;
                                 } finally {
                                     OutlookOgcs.Calendar.ReleaseObject(oExcp);

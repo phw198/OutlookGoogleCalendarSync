@@ -9,12 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync {
+namespace OutlookGoogleCalendarSync.Forms {
     /// <summary>
     /// Description of MainForm.
     /// </summary>
-    public partial class MainForm : Form {
-        public static MainForm Instance;
+    public partial class Main : Form {
+        public static Main Instance;
         public NotificationTray NotificationTray { get; set; }
         public ToolTip ToolTips;
         private Console console;
@@ -31,11 +31,11 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public Boolean ManualForceCompare = false;
-        private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
+        private static readonly ILog log = LogManager.GetLogger(typeof(Main));
         private Rectangle tabAppSettings_background = new Rectangle();
         private float magnification = Graphics.FromHwnd(IntPtr.Zero).DpiY / 96; //Windows Display Magnifier (96DPI = 100%)
 
-        public MainForm(string startingTab = null) {
+        public Main(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
 
@@ -381,7 +381,7 @@ namespace OutlookGoogleCalendarSync {
             dgAbout.Rows[r].Cells[1].Value = TimezoneDB.Instance.Version;
             dgAbout.Height = (dgAbout.Rows[r].Height * (r + 1)) + 2;
 
-            MainForm.Instance.lAboutMain.Text = MainForm.Instance.lAboutMain.Text.Replace("20xx",
+            this.lAboutMain.Text = this.lAboutMain.Text.Replace("20xx",
                 (new DateTime(2000, 1, 1).Add(new TimeSpan(TimeSpan.TicksPerDay * System.Reflection.Assembly.GetEntryAssembly().GetName().Version.Build))).Year.ToString());
 
             cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
@@ -585,7 +585,7 @@ namespace OutlookGoogleCalendarSync {
                     return;
                 }
                 GoogleOgcs.Calendar.APIlimitReached_attendee = false;
-                MainForm.Instance.syncNote(SyncNotes.QuotaExhaustedInfo, null, false);
+                this.syncNote(SyncNotes.QuotaExhaustedInfo, null, false);
                 bSyncNow.Text = "Stop Sync";
                 NotificationTray.UpdateItem("sync", "&Stop Sync");
 
@@ -642,7 +642,7 @@ namespace OutlookGoogleCalendarSync {
                                 console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                     console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
-                                    console.Update(sb, Console.Markup.error, notifyBubble: true); 
+                                    console.Update(sb, Console.Markup.error, notifyBubble: true);
                                     if (ex.Data["OGCS"].ToString().Contains("Please try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
@@ -2045,8 +2045,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
-            Settings.configureLoggingLevel(MainForm.Instance.cbLoggingLevel.Text);
-            Settings.Instance.LoggingLevel = MainForm.Instance.cbLoggingLevel.Text.ToUpper();
+            Settings.configureLoggingLevel(this.cbLoggingLevel.Text);
+            Settings.Instance.LoggingLevel = this.cbLoggingLevel.Text.ToUpper();
         }
 
         private void btLogLocation_Click(object sender, EventArgs e) {
@@ -2181,7 +2181,7 @@ namespace OutlookGoogleCalendarSync {
                 case 1000: isMilestone = true; break;
             }
             if (isMilestone) {
-                if (MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
+                if (MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
                     tabApp.SelectedTab = tabPage_Social;
             }
         }
@@ -2211,7 +2211,6 @@ namespace OutlookGoogleCalendarSync {
         private void btSocialLinkedin_Click(object sender, EventArgs e) {
             Social.Linkedin_share();
         }
-
         #endregion
     }
 }
