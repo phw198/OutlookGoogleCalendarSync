@@ -9,4 +9,4 @@
 **Mute Clicks:** On some systems, when the output pane is updated during sync, Windows produces the sound of a mouse clicking. To prevent this, check the box.
 
 **Start Sync:** Perform a manual, on-demand sync. The default will be a differential sync - only changes since the last sync.
-<div class="tip">:bulb:To perform a full sync, press and hold a shift key whilst clicking the button. You may never need to do this, or very rarely, but it may be helpful after making a change to OGCS settings. For example, if you decide not to sync meeting attendees this will only stop syncing them from that point onwards. To remove previously synced attendees, perform a full sync.</div>
+<div class="tip">:bulb:To perform a full sync, press and hold a shift key whilst clicking the button. You may never need to do this, or very rarely, but it may be helpful after making a change to OGCS settings. For example, if you decide to sync meeting attendees this will only start syncing them from that point onwards. To add attendees to previously synced meetings, perform a full sync.</div>

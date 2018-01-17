@@ -16,7 +16,7 @@ These next configuration items help you manage what should happen with items tha
 
 <img src="options-how-regex.png" alt="Word Obfuscation Screenshot" align="right" />
 **Word obfuscation:** Through the use of [regular expressions](https://www.regular-expressions.info), certain letters, words or phrases in the calendar item’s subject can be altered. By clicking the `Rules` button, you will see a table with `Find` and `Replace` columns; each row of regular expression rules would be applied in the order given using AND logic.
-<div class="tip">:memo: If two-way sync is configured, the obfuscation can only work in on direction - choose which from the drop down menu.</div>
+<div class="tip">:memo: If two-way sync is configured, the obfuscation can only work in one direction - choose which from the drop down menu.</div>
 <br/>
 
 <img src="options-how-more.png" alt="More Options Screenshot" align="right" />
@@ -51,6 +51,8 @@ Setting it to zero turns off automated syncs, relying upon on-demand manual sync
 ## What
 
 _Specify which attributes to include in the sync._
+
+With all of these settings, when turned **on** they will only sync from that point forward. To sync them for all calendar items, press and hold `Shift` while clicking the `Sync` button. When turning sync **off** data already synced will not be removed - this will need to be done manually and is to protect against loss of data should two-way sync ever be configured.
 
 **Description:** The body of the appointment.
 <p style="margin-left:40px; margin-top:-20px"><b>One-way to Google:</b> If two-way sync is configured, optionally only sync the description to Google. Because has a maximum of 8kb held in plain text, it may cause information or formatting to be lost if subsequently synced back from Google.</p>
