@@ -1,3 +1,10 @@
+---
+layout: page
+next: Settings
+next-url: settings
+---
+{% include navigation-buttons.html %}
+
 # Sync
 
 ![Sync Screenshot](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png)
@@ -10,3 +17,8 @@
 
 **Start Sync:** Perform a manual, on-demand sync. The default will be a differential sync - only changes since the last sync.
 <div class="tip">:bulb:To perform a full sync, press and hold a shift key whilst clicking the button. You may never need to do this, or very rarely, but it may be helpful after making a change to OGCS settings. For example, if you decide to sync meeting attendees this will only start syncing them from that point onwards. To add attendees to previously synced meetings, perform a full sync.</div>
+
+
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
+<p>&nbsp;</p>

@@ -1,3 +1,12 @@
+---
+layout: page
+previous: Application Behaviour
+previous-url: appbehaviour
+next: About
+next-url: about
+---
+{% include navigation-buttons.html %}
+
 # Help
 
 This tab contains a brief guide to help get started using OGCS. A slightly more detailed version can be found in the [Quick Start Guide](quickstart).
@@ -10,3 +19,8 @@ If you have found a problem or bug, there is also some information on how to rep
 
 <br/>
 See the [Project Wiki](https://github.com/phw198/outlookgooglecalendarsync/wiki/Reporting-Problems) for more details around problem reporting.
+
+
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
+<p>&nbsp;</p>

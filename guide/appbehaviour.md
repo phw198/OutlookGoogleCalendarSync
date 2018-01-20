@@ -1,3 +1,12 @@
+---
+layout: page
+previous: Sync Options
+previous-url: syncoptions
+next: Help
+next-url: help
+---
+{% include navigation-buttons.html %}
+
 # Application Behaviour
 
 ![Application Behaviour Settings Screenshot](options-appbehaviour.png)
@@ -21,3 +30,8 @@
 **No Proxy:** When there is a direct connection to the internet, for example, using home broadband.
 Inherit from Internet Explorer: Use the same settings as configured in Internet Explorer. Normally the best option if connecting through a corporate proxy, or use a PAC file etc.  
 **Custom Settings:** Manually enter the proxy server and port, plus your proxy credentials if required.
+
+
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
+<p>&nbsp;</p>
