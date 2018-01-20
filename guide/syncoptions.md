@@ -1,3 +1,12 @@
+---
+layout: page
+previous: Google
+previous-url: google
+next: Application Behaviour
+next-url: appbehaviour
+---
+{% include navigation-buttons.html %}
+
 # Sync Options
 
 This is where you configure **[how](#how), [when](#when)** and **[what](#what)** is synced between your calendars.
@@ -68,4 +77,6 @@ With all of these settings, when turned **on** they will only sync from that poi
 <p style="margin-left:40px; margin-top:-20px"><b>DND between hours x and y:</b> Syncing from Outlook to Google is the most popular option, usually in order to see work commitments on an Android phone. For all-day appointments especially, this can mean an unnecessary midnight alert (thanks to the default Microsoft reminder of 15 minutes)! To avoid this, configure a “do not disturb” window in which reminders will not be synced.</p>
 
 
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
 <p>&nbsp;</p>

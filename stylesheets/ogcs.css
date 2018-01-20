@@ -1,9 +1,5 @@
 /* Custom OGCS styles and modifications */
 
-table {
-  
-}
-
 th {
   #font-weight: bold;
   font-size: larger;
@@ -64,6 +60,7 @@ header table, header td, table.download, .download td {
 
 #content-wrapper {
   padding-top: unset;
+  border-top: 0px;
 }
 
 #main-content ul li {

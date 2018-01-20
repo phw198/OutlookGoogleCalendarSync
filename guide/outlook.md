@@ -1,3 +1,12 @@
+---
+layout: page
+previous: Settings
+previous-url: settings
+next: Google
+next-url: google
+---
+{% include navigation-buttons.html %}
+
 # Outlook Settings
 
 This is where you configure the Outlook calendar you wish to sync. 
@@ -23,4 +32,7 @@ Having altered the date format, check if it returns the correct number of items 
 <br/> 
 <div class="tip">:memo: If the test returns the correct number of items, but the sync doesn’t, make sure you are not unintentionally <a href="#filtering">excluding items through the category filter</a>.</div>
 
+
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
 <p>&nbsp;</p>

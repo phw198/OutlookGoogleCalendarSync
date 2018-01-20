@@ -1,3 +1,12 @@
+---
+layout: page
+previous: Outlook
+previous-url: outlook
+next: Sync Options
+next-url: syncoptions
+---
+{% include navigation-buttons.html %}
+
 # Google Settings
 
 This is where you configure the Google calendar you wish to sync. 
@@ -17,3 +26,8 @@ If you wish to revoke authorisation from OGCS for accessing your calendar, navig
 
 ### Advanced/developer options
 This section allows users to utilise their own personal Google API quota. You will need to know the client ID and secret as provided within your Google developer console. Google Plus and Calendar APIs must be enabled for OGCS to work.
+
+
+<p>&nbsp;</p>
+{% include navigation-buttons.html %}
+<p>&nbsp;</p>

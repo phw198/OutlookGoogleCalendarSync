@@ -1,0 +1,16 @@
+<div id="section-buttons" style="width:unset">
+  <table style="border:unset" width="100%">
+    <tr>
+      <td style="text-align:left; border:unset">
+        {% if page.previous %}
+          <a href="{{ page.previous-url }}" class="button"><< {{ page.previous }}</a>
+        {% endif %}
+      </td>
+      <td style="text-align:right; border:unset">
+        {% if page.next %}
+          <a href="{{ page.next-url }}" class="button" style="margin-right:0px">{{ page.next }} >></a>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+</div>
