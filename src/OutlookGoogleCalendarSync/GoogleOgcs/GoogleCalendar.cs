@@ -610,16 +610,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (MainForm.CompareAttribute("Subject", SyncDirection.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
             }
-            if (!Settings.Instance.AddDescription) ai.Body = "";
-            String outlookBody = ai.Body;
-            //Check for Google description truncated @ 8Kb
-            if (!string.IsNullOrEmpty(ai.Body) && !string.IsNullOrEmpty(ev.Description)
-                && ev.Description.Length == 8 * 1024
-                && ai.Body.Length > 8 * 1024) {
-                outlookBody = ai.Body.Substring(0, 8 * 1024);
+            if (Settings.Instance.AddDescription) {
+                String outlookBody = ai.Body;
+                //Check for Google description truncated @ 8Kb
+                if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
+                    && ev.Description.Length == 8 * 1024
+                    && outlookBody.Length > 8 * 1024) {
+                    outlookBody = outlookBody.Substring(0, 8 * 1024);
+                }
+                if (MainForm.CompareAttribute("Description", SyncDirection.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
+                    ev.Description = outlookBody;
             }
-            if (MainForm.CompareAttribute("Description", SyncDirection.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
-                ev.Description = outlookBody;
 
             if (MainForm.CompareAttribute("Location", SyncDirection.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
