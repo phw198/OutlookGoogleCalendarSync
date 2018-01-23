@@ -22,6 +22,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (instance == null) {
                     instance = new GoogleOgcs.Calendar();
                     instance.Authenticator = new GoogleOgcs.Authenticator();
+                    instance.Authenticator.GetAuthenticated();
                     if (instance.Authenticator.Authenticated)
                         instance.Authenticator.OgcsUserStatus();
                     else {
@@ -41,6 +42,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (service == null) {
                     log.Debug("Google service not yet instantiated.");
                     Authenticator = new GoogleOgcs.Authenticator();
+                    Authenticator.GetAuthenticated();
                     if (Authenticator.Authenticated)
                         Authenticator.OgcsUserStatus();
                     else {
