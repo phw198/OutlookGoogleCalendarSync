@@ -23,6 +23,9 @@ namespace OutlookGoogleCalendarSync {
             setDefaults();
         }
 
+        public String DefaultBrowserAgent {
+            get { return "Mozilla / 5.0(Windows NT 6.1; WOW64; Trident / 7.0; rv: 11.0) like Gecko"; }
+        }
         private void setDefaults() {
             //Default values for new class
             this.Type = "IE";
@@ -30,7 +33,7 @@ namespace OutlookGoogleCalendarSync {
 
             //Browser agent can cause "HTTP-403 Forbidden" if target server/URL doesn't like it.
             //"Other" can be used as a fallback
-            this.BrowserUserAgent = "Mozilla / 5.0(Windows NT 6.1; WOW64; Trident / 7.0; rv: 11.0) like Gecko";
+            this.BrowserUserAgent = DefaultBrowserAgent;
         }
         
         [DataMember]

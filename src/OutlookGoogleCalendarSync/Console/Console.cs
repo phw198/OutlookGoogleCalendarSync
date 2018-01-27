@@ -238,7 +238,7 @@ namespace OutlookGoogleCalendarSync {
                 MatchCollection matches = rgx.Matches(content);
 
                 String contentInnerHtml = "";
-                if (matches.Count > 0) {
+                if (matches != null && matches.Count > 0) {
                     contentInnerHtml = matches[0].Result("$1");
                 }
 

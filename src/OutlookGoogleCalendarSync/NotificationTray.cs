@@ -185,8 +185,11 @@ namespace OutlookGoogleCalendarSync {
         }
         
         private void notifyIcon_Click(object sender, MouseEventArgs e) { 
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left) {
+                MainForm.Instance.TopMost = true;
                 MainForm.Instance.MainFormShow(); 
+                MainForm.Instance.TopMost = false;
+            } 
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left && !MainForm.Instance.SyncingNow)
@@ -205,7 +208,9 @@ namespace OutlookGoogleCalendarSync {
                 notifyIcon.Tag = "";
 
             } else {
+                MainForm.Instance.TopMost = true;
                 MainForm.Instance.MainFormShow();
+                MainForm.Instance.TopMost = false;
                 MainForm.Instance.tabApp.SelectedTab = MainForm.Instance.tabPage_Sync;
             }
         }

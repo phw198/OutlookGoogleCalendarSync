@@ -64,7 +64,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 log.Error("Failed setting Outlook client analytics URL.");
                 OGCSexception.Analyse(ex);
-                analyticsUrl = "https://phw198.github.io/OutlookGoogleCalendarSync/track/ogcs?version=Unknown";
+                analyticsUrl = baseAnalyticsUrl + "Unknown";
             }
             sendVersion(analyticsUrl);
 

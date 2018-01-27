@@ -47,8 +47,10 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Checking for new timezone database...");
             String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";
             String html = "";
+            System.Net.WebClient wc = new System.Net.WebClient();
+            wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
             try {
-                html = new System.Net.WebClient().DownloadString(nodatimeURL);
+                html = wc.DownloadString(nodatimeURL);
             } catch (System.Exception ex) {
                 log.Error("Failed to get latest NodaTime db version.");
                 OGCSexception.Analyse(ex);
@@ -69,7 +71,7 @@ namespace OutlookGoogleCalendarSync {
                         if (string.Compare(localVersion, remoteVersion, System.StringComparison.InvariantCultureIgnoreCase) < 0) {
                             log.Debug("There is a new version " + remoteVersion);
                             try {
-                                new System.Net.WebClient().DownloadFile(html, tzdbFilename);
+                                wc.DownloadFile(html, tzdbFilename);
                                 log.Debug("New TZDB version downloaded - disposing of reference to old db data.");
                                 instance = null;
                             } catch (System.Exception ex) {
