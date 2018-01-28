@@ -64,7 +64,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 log.Error("Failed setting Outlook client analytics URL.");
                 OGCSexception.Analyse(ex);
-                analyticsUrl = "https://phw198.github.io/OutlookGoogleCalendarSync/track/ogcs?version=Unknown";
+                analyticsUrl = baseAnalyticsUrl + "Unknown";
             }
             sendVersion(analyticsUrl);
 
@@ -77,7 +77,7 @@ namespace OutlookGoogleCalendarSync {
             if (analyticsUrl != null) {
                 log.Debug("Retrieving URL: " + analyticsUrl);
                 WebClient wc = new WebClient();
-                wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
+                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
                 wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
                 wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
             }
@@ -88,6 +88,15 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Failed to access URL " + e.UserState.ToString());
                 log.Error(e.Error.Message);
                 if (e.Error.InnerException != null) log.Error(e.Error.InnerException.Message);
+                if (e.Error is WebException) {
+                    WebException we = e.Error as WebException;
+                    if (we.Response != null) {
+                        log.Debug("Reading response.");
+                        System.IO.Stream stream = we.Response.GetResponseStream();
+                        System.IO.StreamReader sr = new System.IO.StreamReader(stream);
+                        log.Error(sr.ReadToEnd());
+                    }
+                }
             }
         }
 

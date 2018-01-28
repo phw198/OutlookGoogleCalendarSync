@@ -60,8 +60,13 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
-                    log.Fatal(ex.Message);
-                    MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    String reportError = ex.Message;
+                    log.Fatal(reportError);
+                    if (ex.InnerException != null) {
+                        reportError = ex.InnerException.Message;
+                        log.Fatal(reportError);
+                    }
+                    MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {

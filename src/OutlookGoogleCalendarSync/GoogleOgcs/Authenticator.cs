@@ -35,9 +35,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public Authenticator() {
-            ClientSecrets cs = getCalendarClientSecrets();
+        }
+
+        public void GetAuthenticated() {
+            if (this.authenticated) return;
+
             Forms.Main.Instance.Console.Update("Authenticating with Google...", verbose: true);
 
+            ClientSecrets cs = getCalendarClientSecrets();
             //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
             var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
             task.Wait();
@@ -133,19 +138,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             authenticated = true;
         }
 
-        public void Reset() {
+        public void Reset(Boolean reauthorise = true) {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
+            authenticated = false;
+            GoogleOgcs.Calendar.Instance.Authenticator = null;
+            GoogleOgcs.Calendar.Instance.Service = null;
             if (tokenFileExists) File.Delete(tokenFullPath);
-            GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
+            if (reauthorise) {
+                GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
+                GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+            }
         }
 
+        private Int16 getEmailAttempts = 0;
         private void getGaccountEmail(String accessToken) {
             String jsonString = "";
             log.Debug("Retrieving email address associated with Google account.");
             try {
                 System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0");
+                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
                 jsonString = wc.DownloadString("https://www.googleapis.com/plus/v1/people/me?fields=emails&access_token=" + accessToken);
                 JObject jo = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
                 JToken jtEmail = jo["emails"].Where(e => e.Value<String>("type") == "account").First();
@@ -157,16 +169,43 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Settings.Instance.GaccountEmail = email;
                     log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
                 }
+                getEmailAttempts = 0;
             } catch (System.Net.WebException ex) {
-                if (ex.Message.Contains("The remote server returned an error: (403) Forbidden.") || ex.Message == "Insufficient Permission") {
+                getEmailAttempts++;
+                if (ex.InnerException != null) log.Error("Inner exception: "+ ex.InnerException.Message);
+                if (ex.Response != null) {
+                    log.Debug("Reading response.");
+                    System.IO.Stream stream = ex.Response.GetResponseStream();
+                    System.IO.StreamReader sr = new System.IO.StreamReader(stream);
+                    log.Error(sr.ReadToEnd());
+                }
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
                     log.Warn(ex.Message);
-                    String msg = ApiKeyring.ChangeKeys();
-                    throw new System.ApplicationException(msg);
+                    System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\b(403|Forbidden|Prohibited|Insufficient Permission)\b", 
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    if (rgx.IsMatch(ex.Message)) {
+                        if (Settings.Instance.UsingPersonalAPIkeys()) {
+                            String msg = "If you are using your own API keys, you must also enable the Google+ API.";
+                            MessageBox.Show(msg, "Missing API Service", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            throw new System.ApplicationException(msg);
+                        } else {
+                            if (getEmailAttempts > 1) {
+                                log.Error("Failed to retrieve Google account username.");
+                                log.Debug("Using previously retrieved username: " + Settings.Instance.GaccountEmail_masked());
+                            } else {
+                                ApiKeyring.ChangeKeys();
+                                return;
+                            }
+                        }
+                    } else {
+                        throw ex;
+                    }
                 }
                 OGCSexception.Analyse(ex);
                 if (ex.Message.ToLower().Contains("access denied")) {
                     Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
-                       + "<br/>Try disconnecting your Google account and reauthenticating.", Console.Markup.error);
+                       + "<br/>Try disconnecting your Google account and reauthorising OGCS.", Console.Markup.error);
                 } else if (ex.Message.ToLower().Contains("prohibited") && Settings.Instance.UsingPersonalAPIkeys()) {
                     Forms.Main.Instance.Console.Update("If you are using your own API keys, you must also enable the Google+ API.", Console.Markup.warning);
                 }
@@ -282,7 +321,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 //Check for any unmigrated entries
                 if (subscriptions.Where(s => s.ExtendedProperties != null && s.ExtendedProperties.Shared != null
-                    && s.ExtendedProperties.Shared.ContainsKey("migrated") && s.ExtendedProperties.Shared["migrated"] == "true").Count() < subscriptions.Count()) 
+                    && s.ExtendedProperties.Shared.ContainsKey("migrated") && s.ExtendedProperties.Shared["migrated"] == "true").Count() < subscriptions.Count())
                     Forms.Main.Instance.Console.CallGappScript("subscriber");
 
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {

@@ -528,10 +528,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.GoogleToOutlook, summaryObfuscated, ai.Subject, sb, ref itemModified)) {
                 ai.Subject = summaryObfuscated;
             }
-            if (!Settings.Instance.AddDescription) ev.Description = "";
-            if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook || !Settings.Instance.AddDescription_OnlyToGoogle) {
-                if (Sync.Engine.CompareAttribute("Description", Sync.Direction.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified))
-                    ai.Body = ev.Description;
+            if (Settings.Instance.AddDescription) {
+                if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook || !Settings.Instance.AddDescription_OnlyToGoogle) {
+                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified))
+                        ai.Body = ev.Description;
+                }
             }
 
             if (Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))

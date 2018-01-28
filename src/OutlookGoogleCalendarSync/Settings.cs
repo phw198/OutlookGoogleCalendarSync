@@ -92,7 +92,7 @@ namespace OutlookGoogleCalendarSync {
             portable = false;
             Proxy = new SettingsProxy();
 
-            alphaReleases = false;
+            alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
             Subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
@@ -392,6 +392,8 @@ namespace OutlookGoogleCalendarSync {
 
             log.Info("PROXY:-");
             log.Info("  Type: " + Proxy.Type);
+            if (Proxy.BrowserUserAgent != Proxy.DefaultBrowserAgent)
+                log.Info("  Browser Agent: " + Proxy.BrowserUserAgent);
             if (Proxy.Type == "Custom") {
                 log.Info("  Server Name: " + Proxy.ServerName);
                 log.Info("  Port: " + Proxy.Port.ToString());

@@ -16,6 +16,11 @@ namespace OutlookGoogleCalendarSync {
             log.Error(ex.GetType().FullName + ": " + ex.Message);
             int errorCode = getErrorCode(ex);
             log.Error("Code: 0x" + errorCode.ToString("X8") + ";" + errorCode.ToString());
+
+            if (ex.InnerException != null) {
+                log.Error("InnerException:-");
+                Analyse(ex.InnerException, false);
+            }
             if (includeStackTrace) log.Error(ex.StackTrace);
         }
 

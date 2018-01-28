@@ -153,6 +153,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Social.TrackSync();
                 try {
                     GoogleOgcs.Calendar.Instance.GetCalendarSettings();
+                } catch (System.AggregateException ae) {
+                    OGCSexception.AnalyseAggregate(ae);
+                    syncResult = SyncResult.AutoRetry;
                 } catch (System.Exception ex) {
                     log.Warn(ex.Message);
                     syncResult = SyncResult.AutoRetry;

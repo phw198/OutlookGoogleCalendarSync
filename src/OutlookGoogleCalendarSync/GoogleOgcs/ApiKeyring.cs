@@ -142,13 +142,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             return keyRing;
         }
 
-        public static String ChangeKeys() {
+        public static void ChangeKeys() {
             log.Info("Google API keys and refresh token are being updated.");
-            String msg = "Your Google authorisation token needs updating.\r\n" +
-                        "The process to reauthorise access to your Google account will now begin...";
-            System.Windows.Forms.MessageBox.Show(msg, "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+            System.Windows.Forms.MessageBox.Show("Your Google authorisation token needs updating.\r\n" +
+                "The process to reauthorise access to your Google account will now begin...",
+                "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
             GoogleOgcs.Calendar.Instance.Authenticator.Reset();
-            return msg;
         }
 
         private static MatchCollection findText(string source, string pattern) {

@@ -1005,7 +1005,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
-                GoogleOgcs.Calendar.Instance.Authenticator.Reset();
+                GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
             }
         }
 

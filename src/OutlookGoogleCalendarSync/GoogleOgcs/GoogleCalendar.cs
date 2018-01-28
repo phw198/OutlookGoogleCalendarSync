@@ -22,6 +22,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (instance == null) {
                     instance = new GoogleOgcs.Calendar();
                     instance.Authenticator = new GoogleOgcs.Authenticator();
+                    instance.Authenticator.GetAuthenticated();
                     if (instance.Authenticator.Authenticated)
                         instance.Authenticator.OgcsUserStatus();
                     else {
@@ -41,6 +42,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (service == null) {
                     log.Debug("Google service not yet instantiated.");
                     Authenticator = new GoogleOgcs.Authenticator();
+                    Authenticator.GetAuthenticated();
                     if (Authenticator.Authenticated)
                         Authenticator.OgcsUserStatus();
                     else {
@@ -610,16 +612,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
             }
-            if (!Settings.Instance.AddDescription) ai.Body = "";
-            String outlookBody = ai.Body;
-            //Check for Google description truncated @ 8Kb
-            if (!string.IsNullOrEmpty(ai.Body) && !string.IsNullOrEmpty(ev.Description)
-                && ev.Description.Length == 8 * 1024
-                && ai.Body.Length > 8 * 1024) {
-                outlookBody = ai.Body.Substring(0, 8 * 1024);
+            if (Settings.Instance.AddDescription) {
+                String outlookBody = ai.Body;
+                //Check for Google description truncated @ 8Kb
+                if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
+                    && ev.Description.Length == 8 * 1024
+                    && outlookBody.Length > 8 * 1024) 
+                {
+                    outlookBody = outlookBody.Substring(0, 8 * 1024);
+                }
+                if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
+                    ev.Description = outlookBody;
             }
-            if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
-                ev.Description = outlookBody;
 
             if (Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
