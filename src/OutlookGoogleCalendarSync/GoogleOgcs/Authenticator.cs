@@ -167,6 +167,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (ex.Message.ToLower().Contains("access denied")) {
                     Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
                        + "<br/>Try disconnecting your Google account and reauthenticating.", Console.Markup.error);
+                } else if (ex.Message.ToLower().Contains("prohibited") && Settings.Instance.UsingPersonalAPIkeys()) {
+                    Forms.Main.Instance.Console.Update("If you are using your own API keys, you must also enable the Google+ API.", Console.Markup.warning);
                 }
                 throw ex;
 
@@ -259,13 +261,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {
                     if (subscriptionRemaining > 360)
-                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.RecentSubscription, null);
+                        Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.RecentSubscription, null);
                     if (subscriptionRemaining < 28)
-                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.SubscriptionPendingExpire, subscriptionStart.AddYears(1));
+                        Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.SubscriptionPendingExpire, subscriptionStart.AddYears(1));
                     subscribed = true;
                 } else {
                     if (subscriptionRemaining > -14)
-                        Forms.Main.Instance.syncNote(Forms.Main.SyncNotes.SubscriptionExpired, subscriptionStart.AddYears(1));
+                        Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.SubscriptionExpired, subscriptionStart.AddYears(1));
                     subscribed = false;
                 }
 
@@ -278,7 +280,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
                 }
 
-                Forms.Main.Instance.Console.CallGappScript("subscriber");
+                //Check for any unmigrated entries
+                if (subscriptions.Where(s => s.ExtendedProperties != null && s.ExtendedProperties.Shared != null
+                    && s.ExtendedProperties.Shared.ContainsKey("migrated") && s.ExtendedProperties.Shared["migrated"] == "true").Count() < subscriptions.Count()) 
+                    Forms.Main.Instance.Console.CallGappScript("subscriber");
 
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
                     if (prevSubscriptionStart == DateTime.Parse("01-Jan-2000")            //No longer a subscriber
@@ -339,7 +344,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Fine("User has kindly donated.");
                 Settings.Instance.Donor = true;
 
-                Forms.Main.Instance.Console.CallGappScript("donor");
+                //Check for any unmigrated entries
+                if (donations.Where(d => d.ExtendedProperties != null && d.ExtendedProperties.Shared != null
+                    && d.ExtendedProperties.Shared.ContainsKey("migrated") && d.ExtendedProperties.Shared["migrated"] == "true").Count() < donations.Count())
+                    Forms.Main.Instance.Console.CallGappScript("donor");
 
                 return true;
             }

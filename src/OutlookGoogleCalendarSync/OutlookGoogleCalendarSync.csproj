@@ -236,7 +236,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbortableBackgroundWorker.cs">
+    <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Console\Console.cs" />
@@ -252,6 +252,7 @@
     <Compile Include="GoogleOgcs\Authenticator.cs" />
     <Compile Include="GoogleOgcs\EventAttendee.cs" />
     <Compile Include="OutlookOgcs\ExplorerWatcher.cs" />
+    <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
@@ -286,8 +287,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="SyncDirection.cs" />
-    <Compile Include="SyncTimer.cs">
+    <Compile Include="Sync\Direction.cs" />
+    <Compile Include="Sync\Timer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Updater.cs" />

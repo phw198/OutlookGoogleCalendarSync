@@ -13,6 +13,11 @@ namespace OutlookGoogleCalendarSync {
         private WebBrowser wb;
         private Boolean awaitingRefresh;
         private String content = "";
+        public String DocumentText {
+            get {
+                return (this.wb == null ? null : this.wb.DocumentText);
+            }
+        }
         
         #region Notes
         //If we don't want to depend on the emoji-css project, we could store the images as resources and reference as:

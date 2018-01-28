@@ -143,7 +143,7 @@ namespace OutlookGoogleCalendarSync {
             #endregion
         }
 
-        public void CompareOutlookPattern(Event ev, ref RecurrencePattern aiOpattern, SyncDirection syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
+        public void CompareOutlookPattern(Event ev, ref RecurrencePattern aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
             if (ev.Recurrence == null) return;
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
@@ -162,31 +162,31 @@ namespace OutlookGoogleCalendarSync {
                     evOpattern.RecurrenceType == aiOpattern.RecurrenceType && evOpattern.DayOfWeekMask == aiOpattern.DayOfWeekMask && evOpattern.Interval == 1)
                     skipIntervalCheck = true;
 
-                if (Forms.Main.CompareAttribute("Recurrence Type", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence Type", syncDirection,
                     evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
                     aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
                 }
-                if (!skipIntervalCheck && Forms.Main.CompareAttribute("Recurrence Interval", syncDirection,
+                if (!skipIntervalCheck && Sync.Engine.CompareAttribute("Recurrence Interval", syncDirection,
                     evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
                     aiOpattern.Interval = evOpattern.Interval;
                 }
-                if (Forms.Main.CompareAttribute("Recurrence Instance", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence Instance", syncDirection,
                     evOpattern.Instance.ToString(), aiOpattern.Instance.ToString(), sb, ref itemModified)) {
                     aiOpattern.Instance = evOpattern.Instance;
                 }
-                if (Forms.Main.CompareAttribute("Recurrence DoW", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence DoW", syncDirection,
                     evOpattern.DayOfWeekMask.ToString(), aiOpattern.DayOfWeekMask.ToString(), sb, ref itemModified)) {
                     aiOpattern.DayOfWeekMask = evOpattern.DayOfWeekMask;
                 }
-                if (Forms.Main.CompareAttribute("Recurrence MoY", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence MoY", syncDirection,
                     evOpattern.MonthOfYear.ToString(), aiOpattern.MonthOfYear.ToString(), sb, ref itemModified)) {
                     aiOpattern.MonthOfYear = evOpattern.MonthOfYear;
                 }
-                if (Forms.Main.CompareAttribute("Recurrence NoEndDate", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence NoEndDate", syncDirection,
                     evOpattern.NoEndDate, aiOpattern.NoEndDate, sb, ref itemModified)) {
                     aiOpattern.NoEndDate = evOpattern.NoEndDate;
                 }
-                if (Forms.Main.CompareAttribute("Recurrence Occurences", syncDirection,
+                if (Sync.Engine.CompareAttribute("Recurrence Occurences", syncDirection,
                     evOpattern.Occurrences.ToString(), aiOpattern.Occurrences.ToString(), sb, ref itemModified)) {
                     aiOpattern.Occurrences = evOpattern.Occurrences;
                 }

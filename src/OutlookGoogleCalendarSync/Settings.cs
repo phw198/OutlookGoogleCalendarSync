@@ -55,7 +55,7 @@ namespace OutlookGoogleCalendarSync {
             GaccountEmail = "";
             CloakEmail = true;
 
-            SyncDirection = SyncDirection.OutlookToGoogle;
+            SyncDirection = Sync.Direction.OutlookToGoogle;
             DaysInThePast = 1;
             DaysInTheFuture = 60;
             SyncInterval = 0;
@@ -72,7 +72,7 @@ namespace OutlookGoogleCalendarSync {
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
-            TargetCalendar = SyncDirection.OutlookToGoogle;
+            TargetCalendar = Sync.Direction.OutlookToGoogle;
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
             SetEntriesAvailable = false;
@@ -115,7 +115,6 @@ namespace OutlookGoogleCalendarSync {
             set {
                 instance = value;
             }
-
         }
         
         #region Outlook
@@ -194,7 +193,7 @@ namespace OutlookGoogleCalendarSync {
         //Main
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
-        [DataMember] public SyncDirection SyncDirection { get; set; }
+        [DataMember] public Sync.Direction SyncDirection { get; set; }
         [DataMember] public int DaysInThePast { get; set; }
         [DataMember] public int DaysInTheFuture { get; set; }
         [DataMember] public int SyncInterval { get; set; }
@@ -211,7 +210,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
-        [DataMember] public SyncDirection TargetCalendar { get; set; }
+        [DataMember] public Sync.Direction TargetCalendar { get; set; }
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
@@ -377,7 +376,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
-            if ((SetEntriesPrivate || SetEntriesAvailable) && SyncDirection == SyncDirection.Bidirectional) {
+            if ((SetEntriesPrivate || SetEntriesAvailable) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
                 log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
             }

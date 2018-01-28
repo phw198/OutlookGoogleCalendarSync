@@ -2,7 +2,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync {
+namespace OutlookGoogleCalendarSync.Sync {
     public class SyncTimer : Timer {
         private static readonly ILog log = LogManager.GetLogger(typeof(SyncTimer));
         private Timer ogcsTimer;
@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync {
 
             Forms.Main frm = Forms.Main.Instance;
             frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
-            if (!frm.SyncingNow) {
+            if (!Sync.Engine.Instance.SyncingNow) {
                 frm.Sync_Click(sender, null);
             } else {
                 log.Debug("Busy syncing already. Rescheduled for 5 mins time.");
@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Push sync triggered.");
                 Forms.Main frm = Forms.Main.Instance;
                 frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
-                if (!frm.SyncingNow) {
+                if (!Sync.Engine.Instance.SyncingNow) {
                     frm.Sync_Click(sender, null);
                 } else {
                     log.Debug("Busy syncing already. No need to push.");
@@ -135,7 +135,7 @@ namespace OutlookGoogleCalendarSync {
                 Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!enable && ogcsTimer.Enabled) {
                 ogcsTimer.Stop();
-                Forms.Main.Instance.OgcsTimer.SetNextSync();
+                Sync.Engine.Instance.OgcsTimer.SetNextSync();
             }
         }
         public Boolean Running() {

@@ -2,7 +2,7 @@
 using System.Threading;
 using log4net;
 
-namespace OutlookGoogleCalendarSync {
+namespace OutlookGoogleCalendarSync.Sync {
     public class AbortableBackgroundWorker : BackgroundWorker {
         private static readonly ILog log = LogManager.GetLogger(typeof(AbortableBackgroundWorker));
 
