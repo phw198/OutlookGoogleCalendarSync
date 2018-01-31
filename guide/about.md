@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | About
 previous: Help
 previous-url: help
 ---

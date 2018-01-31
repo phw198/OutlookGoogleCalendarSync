@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings | Sync Options
 previous: Google
 previous-url: google
 next: Application Behaviour

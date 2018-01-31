@@ -30,9 +30,9 @@ github_username:  phw198
 google_analytics: UA-19426033-4
 
 # Current software releases
-show_alpha_downloads: true
-beta-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Setup.exe"
-beta-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.0-beta/Portable_OGCS_v2.6.0.zip"
+show_alpha_downloads: false
+beta-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Setup.exe"
+beta-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Portable_OGCS_v2.7.0.zip"
 alpha-exe: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.6-alpha/Setup.exe"
 alpha-zip: "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.6.6-alpha/Portable_OGCS_v2.6.6.zip"
 

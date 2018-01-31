@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings | Application Behaviour
 previous: Sync Options
 previous-url: syncoptions
 next: Help

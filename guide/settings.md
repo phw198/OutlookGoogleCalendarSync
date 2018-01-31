@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings
 previous: Sync
 previous-url: sync
 next: Outlook

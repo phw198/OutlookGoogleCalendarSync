@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings | Outlook
 previous: Settings
 previous-url: settings
 next: Google

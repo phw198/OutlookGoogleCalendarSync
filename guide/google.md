@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings | Google
 previous: Outlook
 previous-url: outlook
 next: Sync Options

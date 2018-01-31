@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Help
 previous: Application Behaviour
 previous-url: appbehaviour
 next: About

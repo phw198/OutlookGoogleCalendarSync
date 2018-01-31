@@ -1,5 +1,6 @@
 ---
 layout: page
+title: User Guide | Settings | Sync
 next: Settings
 next-url: settings
 ---
