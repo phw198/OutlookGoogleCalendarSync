@@ -213,8 +213,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             do {
                 EventsResource.ListRequest lr = Service.Events.List(Settings.Instance.UseGoogleCalendar.Id);
 
-                lr.TimeMin = GoogleTimeFrom(from);
-                lr.TimeMax = GoogleTimeFrom(to);
+                lr.TimeMin = from;
+                lr.TimeMax = to;
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
@@ -329,8 +329,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start);
-                ev.End.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.End);
+                ev.Start.DateTime = ai.Start;
+                ev.End.DateTime = ai.End;
             }
             ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
@@ -516,13 +516,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                     if (Settings.Instance.SyncDirection != Sync.Direction.Bidirectional) {
-                        if (DateTime.Parse(ev.Updated) > ai.LastModificationTime)
+                        if (ev.Updated > ai.LastModificationTime)
                             return null;
                     } else {
                         if (OutlookOgcs.Calendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
                             //Outlook last modified by OGCS
                             return null;
-                        if (DateTime.Parse(ev.Updated) > ai.LastModificationTime)
+                        if (ev.Updated > ai.LastModificationTime)
                             return null;
                     }
                 }
@@ -535,37 +535,32 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             sb.AppendLine(aiSummary);
 
             //Handle an event's all-day attribute being toggled
-            String evStart = ev.Start.Date ?? ev.Start.DateTime;
-            String evEnd = ev.End.Date ?? ev.End.DateTime;
+            DateTime evStart = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+            DateTime evEnd = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0,0,0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
                     ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.ToString("yyyy-MM-dd"), sb, ref itemModified)) {
+                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
                     ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                 }
             } else {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.Start.Date != null &&
-                    GoogleOgcs.Calendar.GoogleTimeFrom(DateTime.Parse(evStart)) == GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start) &&
-                    GoogleOgcs.Calendar.GoogleTimeFrom(DateTime.Parse(evEnd)) == GoogleOgcs.Calendar.GoogleTimeFrom(ai.End)) 
-                {
+                if (ev.Start.DateTime == null && evStart == ai.Start && evEnd == ai.End) {
                     sb.AppendLine("All-Day: true => false");
-                    ev.Start.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start);
-                    ev.End.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.End);
+                    ev.Start.DateTime = ai.Start;
+                    ev.End.DateTime = ai.End;
                     itemModified++;
                 }
                 ev.Start.Date = null;
                 ev.End.Date = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle,
-                    GoogleOgcs.Calendar.GoogleTimeFrom(DateTime.Parse(evStart)), GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start), sb, ref itemModified)) {
-                    ev.Start.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start);
+                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start, sb, ref itemModified)) {
+                    ev.Start.DateTime = ai.Start;
                 }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle,
-                    GoogleOgcs.Calendar.GoogleTimeFrom(DateTime.Parse(evEnd)), GoogleOgcs.Calendar.GoogleTimeFrom(ai.End), sb, ref itemModified)) {
-                    ev.End.DateTime = GoogleOgcs.Calendar.GoogleTimeFrom(ai.End);
+                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
+                    ev.End.DateTime = ai.End;
                 }
             }
 
@@ -991,7 +986,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (!GetOGCSproperty(google[g], MetadataId.oEntryId) ||
-                        DateTime.Parse(google[g].Updated) > Settings.Instance.LastSyncDate)
+                        google[g].Updated > Settings.Instance.LastSyncDate)
                         google.Remove(google[g]);
                 }
             }
@@ -1237,31 +1232,25 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         
         #region STATIC FUNCTIONS
-        //returns the Google Time Format String of a given .Net DateTime value
-        //Google Time Format = "2012-08-20T00:00:00+02:00"
-        public static string GoogleTimeFrom(DateTime dt) {
-            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
-        }
-
         public static string signature(Event ev) {
             String signature = "";
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
                     signature += (ev.Summary ?? "[cancelled]");
-                    signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.OriginalStartTime.Date ?? ev.OriginalStartTime.DateTime));
+                    signature += ";" + (ev.OriginalStartTime.DateTime ?? DateTime.Parse(ev.OriginalStartTime.Date)).ToPreciseString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + GoogleTimeFrom(DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime)) + ";";
+                    signature += ";" + (ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date)).ToPreciseString() + ";";
                     if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += GoogleTimeFrom(DateTime.Parse(ev.End.Date ?? ev.End.DateTime));
+                        signature += (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)).ToPreciseString();
                     }
                 }
             } catch {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.Date ?? ev.Start.DateTime)); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.Date ?? ev.End.DateTime)); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -1319,8 +1308,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append((ev.Start == null ? "null" : (ev.Start.Date ?? ev.Start.DateTime)) + ",");
-            csv.Append((ev.End == null ? "null" : (ev.End.Date ?? ev.End.DateTime)) + ",");
+            csv.Append((ev.Start == null ? "null" : (string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)) + ",");
+            csv.Append((ev.End == null ? "null" : (string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");
@@ -1371,7 +1360,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String eventSummary = "";
             try {
                 if (ev.Start.DateTime != null) {
-                    DateTime gDate = DateTime.Parse(ev.Start.DateTime);
+                    DateTime gDate = (DateTime)ev.Start.DateTime;
                     eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                 } else
                     eventSummary += DateTime.Parse(ev.Start.Date).ToShortDateString();
@@ -1382,8 +1371,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Warn("Failed to create Event summary: " + eventSummary);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.Date ?? ev.Start.DateTime)); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.Date ?? ev.End.DateTime)); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
             }

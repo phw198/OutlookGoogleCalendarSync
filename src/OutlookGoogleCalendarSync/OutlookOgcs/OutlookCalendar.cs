@@ -420,13 +420,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Boolean UpdateCalendarEntry(ref AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
             if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                 if (Settings.Instance.SyncDirection != Sync.Direction.Bidirectional) {
-                    if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                    if (ai.LastModificationTime > ev.Updated)
                         return false;
                 } else {
-                    if (GoogleOgcs.Calendar.GetOGCSlastModified(ev).AddSeconds(5) >= DateTime.Parse(ev.Updated))
+                    if (GoogleOgcs.Calendar.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
                         //Google last modified by OGCS
                         return false;
-                    if (DateTime.Parse(GoogleOgcs.Calendar.GoogleTimeFrom(ai.LastModificationTime)) > DateTime.Parse(ev.Updated))
+                    if (ai.LastModificationTime > ev.Updated)
                         return false;
                 }
             }
@@ -461,15 +461,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             #endregion
 
             #region Start/End & Recurrence
-            DateTime evStartParsedDate = DateTime.Parse(ev.Start.Date ?? ev.Start.DateTime);
-            Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook,
-                GoogleOgcs.Calendar.GoogleTimeFrom(evStartParsedDate),
-                GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start), sb, ref itemModified);
+            DateTime evStartParsedDate = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+            Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, evStartParsedDate, ai.Start, sb, ref itemModified);
 
-            DateTime evEndParsedDate = DateTime.Parse(ev.End.Date ?? ev.End.DateTime);
-            Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook,
-                GoogleOgcs.Calendar.GoogleTimeFrom(evEndParsedDate),
-                GoogleOgcs.Calendar.GoogleTimeFrom(ai.End), sb, ref itemModified);
+            DateTime evEndParsedDate = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+            Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, evEndParsedDate, ai.End, sb, ref itemModified);
 
             RecurrencePattern oPattern = null;
             try {
@@ -994,7 +990,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public static string signature(AppointmentItem ai) {
-            return (ai.Subject + ";" + GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start) + ";" + GoogleOgcs.Calendar.GoogleTimeFrom(ai.End)).Trim();
+            return (ai.Subject + ";" + ai.Start.ToPreciseString() + ";" + ai.End.ToPreciseString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
@@ -1034,8 +1030,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static string exportToCSV(AppointmentItem ai) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append(GoogleOgcs.Calendar.GoogleTimeFrom(ai.Start) + ",");
-            csv.Append(GoogleOgcs.Calendar.GoogleTimeFrom(ai.End) + ",");
+            csv.Append(ai.Start.ToPreciseString() + ",");
+            csv.Append(ai.End.ToPreciseString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");

@@ -406,7 +406,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             if (cachedEv == null) {
                                 googleEntries.Add(masterEv);
                             } else {
-                                if (DateTime.Parse(masterEv.Updated) > DateTime.Parse(cachedEv.Updated)) {
+                                if (masterEv.Updated > cachedEv.Updated) {
                                     log.Debug("Refreshing cache for this Event.");
                                     googleEntries.Remove(cachedEv);
                                     googleEntries.Add(masterEv);
@@ -685,6 +685,22 @@ namespace OutlookGoogleCalendarSync.Sync {
             return false;
         }
         public static Boolean CompareAttribute(String attrDesc, Direction fromTo, Boolean googleAttr, Boolean outlookAttr, StringBuilder sb, ref int itemModified) {
+            log.Fine("Comparing " + attrDesc);
+            log.UltraFine("Google  attribute: " + googleAttr);
+            log.UltraFine("Outlook attribute: " + outlookAttr);
+            if (googleAttr != outlookAttr) {
+                if (fromTo == Direction.GoogleToOutlook) {
+                    sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
+                } else {
+                    sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
+                }
+                itemModified++;
+                log.Fine("Attributes differ.");
+                return true;
+            }
+            return false;
+        }
+        public static Boolean CompareAttribute(String attrDesc, Direction fromTo, DateTime googleAttr, DateTime outlookAttr, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);

@@ -716,7 +716,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = DateTime.Parse(time.DateTime ?? time.Date);
+            DateTime theDate = time.DateTime ?? DateTime.Parse(time.Date);
             if (time.TimeZone == null) return theDate;
 
             LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);

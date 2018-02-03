@@ -127,23 +127,28 @@
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.PatchApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis">
+    <Reference Include="Google.Apis, Version=1.7.0.34454, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Auth, Version=1.6.0.16898, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Auth, Version=1.7.0.34456, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Auth.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.6.0.16904, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>lib\CalendarService\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.7.0.34464, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>lib\Google.Apis.Auth.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.5.0.55, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>lib\CalendarService\Google.Apis.Calendar.v3.dll</HintPath>
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.7.0.71, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>lib\Google.Apis.Calendar.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.PlatformServices, Version=1.6.0.16900, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>lib\CalendarService\Google.Apis.PlatformServices.dll</HintPath>
+    <Reference Include="Google.Apis.Core, Version=1.7.0.34453, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>lib\Google.Apis.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.Apis.PlatformServices, Version=1.7.0.34457, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>lib\Google.Apis.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -236,6 +241,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\DateTime.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
