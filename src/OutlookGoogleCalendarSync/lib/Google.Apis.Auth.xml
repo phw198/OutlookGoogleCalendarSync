@@ -149,6 +149,21 @@
         <member name="T:Google.Apis.Auth.JsonWebSignature.Payload">
             <summary>JWS Payload.</summary>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.Requests.GoogleRevokeTokenRequest">
+            <summary>
+            Google OAuth 2.0 request to revoke an access token as specified in 
+            https://developers.google.com/accounts/docs/OAuth2WebServer#tokenrevoke.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Requests.GoogleRevokeTokenRequest.Build">
+            <summary>Creates a <see cref="T:System.Uri"/> which is used to request the authorization code.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.GoogleRevokeTokenRequest.RevokeTokenUrl">
+            <summary>Gets the URI for token revocation.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.GoogleRevokeTokenRequest.Token">
+            <summary>Gets or sets the token to revoke.</summary>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.Web.AuthorizationCodeWebApp">
             <summary>
             Thread safe OAuth 2.0 authorization code flow for a web application that persists end-user credentials.
@@ -249,33 +264,52 @@
             <summary>OAuth 2.0 authorization code flow that manages and persists end-user credentials.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.LoadTokenAsync(System.String,System.Threading.CancellationToken)">
-            <summary>Asynchronously loads the user's token using the flow's <seealso cref="T:Google.Apis.Util.Store.IDataStore"/>.</summary>
+            <summary>
+            Asynchronously loads the user's token using the flow's
+            <see cref="T:Google.Apis.Util.Store.IDataStore"/>.
+            </summary>
             <param name="userId">User identifier</param>
             <param name="taskCancellationToken">Cancellation token to cancel operation</param>
             <returns>Token response</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.DeleteTokenAsync(System.String,System.Threading.CancellationToken)">
-            <summary>Asynchronously deletes the user's token using the flow's <seealso cref="T:Google.Apis.Util.Store.IDataStore"/>.</summary>
-            <param name="userId">User identifier</param>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
+            <summary>
+            Asynchronously deletes the user's token using the flow's
+            <see cref="T:Google.Apis.Util.Store.IDataStore"/>.
+            </summary>
+            <param name="userId">User identifier.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.CreateAuthorizationCodeRequest(System.String)">
             <summary>Creates an authorization code request with the specified redirect URI.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.ExchangeCodeForTokenAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
             <summary>Asynchronously exchanges code with a token.</summary>
-            <param name="userId">User identifier</param>
-            <param name="code">Authorization code received from the authorization server</param>
-            <param name="redirectUri">Redirect URI which is used in the token request</param>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
-            <returns>Token response which contains the access token</returns>
+            <param name="userId">User identifier.</param>
+            <param name="code">Authorization code received from the authorization server.</param>
+            <param name="redirectUri">Redirect URI which is used in the token request.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
+            <returns>Token response which contains the access token.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.RefreshTokenAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>Asynchronously refreshes an access token using a refresh token.</summary>
-            <param name="userId">User identifier</param>
-            <param name="refreshToken">Refresh token which is used to get a new access token</param>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
-            <returns>Token response which contains the access token and the input refresh token</returns>
+            <param name="userId">User identifier.</param>
+            <param name="refreshToken">Refresh token which is used to get a new access token.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
+            <returns>Token response which contains the access token and the input refresh token.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.RevokeTokenAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously revokes the specified token. This method disconnects the user's account from the OAuth 2.0
+            application. It should be called upon removing the user account from the site.</summary>
+            <remarks>
+            If revoking the token succeeds, the user's credential is removed from the data store and the user MUST
+            authorize the application again before the application can access the user's private resources.
+            </remarks>
+            <param name="userId">User identifier.</param>
+            <param name="token">Access token to be revoked.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
+            <returns><c>true</c> if the token was revoked successfully.</returns>        
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.AccessMethod">
             <summary>Gets the method for presenting the access token to the resource server.</summary>
@@ -354,20 +388,21 @@
             </summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Requests.TokenRequestExtenstions">
-            <summary>Extension methods to <seealso cref="T:Google.Apis.Auth.OAuth2.Requests.TokenRequest"/>.</summary>
+            <summary>Extension methods to <see cref="T:Google.Apis.Auth.OAuth2.Requests.TokenRequest"/>.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Requests.TokenRequestExtenstions.ExecuteAsync(Google.Apis.Auth.OAuth2.Requests.TokenRequest,System.Net.Http.HttpClient,System.String,System.Threading.CancellationToken,Google.Apis.Util.IClock)">
             <summary>
             Executes the token request in order to receive a 
-            <seealso cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponse"/>. In case the token server returns an 
-            error, a <seealso cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponseException"/> is thrown.
+            <see cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponse"/>. In case the token server returns an 
+            error, a <see cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponseException"/> is thrown.
             </summary>
             <param name="request">The token request.</param>
             <param name="httpClient">The HTTP client used to create an HTTP request.</param>
             <param name="tokenServerUrl">The token server URL.</param>
             <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
             <param name="clock">
-            The clock which is used to set the <seealso cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.Issued"/> property.
+            The clock which is used to set the
+            <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.Issued"/> property.
             </param>
             <returns>Token response with the new access token.</returns>
         </member>
@@ -379,24 +414,42 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.#ctor(Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow,System.String,Google.Apis.Auth.OAuth2.Responses.TokenResponse)">
             <summary>Constructs a new credential instance.</summary>
-            <param name="flow">Authorization code flow</param>
-            <param name="userId">User identifier</param>
-            <param name="token">An initial token for the user</param>
+            <param name="flow">Authorization code flow.</param>
+            <param name="userId">User identifier.</param>
+            <param name="token">An initial token for the user.</param>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.InterceptAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
             <summary>
             Default implementation is to try to refresh the access token if there is no access token or if we are 1 
             minute away from expiration. If token server is unavailable, it will try to use the access token even if 
-            has expired. If successful, it will call <seealso cref="M:Google.Apis.Auth.OAuth2.IAccessMethod.Intercept(System.Net.Http.HttpRequestMessage,System.String)"/>.
+            has expired. If successful, it will call <see cref="M:Google.Apis.Auth.OAuth2.IAccessMethod.Intercept(System.Net.Http.HttpRequestMessage,System.String)"/>.
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.RefreshTokenAsync(System.Threading.CancellationToken)">
             <summary>
-            Refreshes the token by calling to <seealso cref="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.RefreshTokenAsync(System.String,System.String,System.Threading.CancellationToken)"/>. Then it 
-            updates the <see cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponse"/> with the new token instance.
+            Refreshes the token by calling to
+            <see cref="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.RefreshTokenAsync(System.String,System.String,System.Threading.CancellationToken)"/>.
+            Then it updates the <see cref="T:Google.Apis.Auth.OAuth2.Responses.TokenResponse"/> with the new token instance.
             </summary>
-            <param name="taskCancellationToken">Cancellation token to cancel an operation</param>
-            <returns><c>true</c> if the token was refreshed</returns>
+            <param name="taskCancellationToken">Cancellation token to cancel an operation.</param>
+            <returns><c>true</c> if the token was refreshed.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.RevokeTokenAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously revokes the token by calling
+            <see cref="M:Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow.RevokeTokenAsync(System.String,System.String,System.Threading.CancellationToken)"/>.
+            </summary>
+            <param name="taskCancellationToken">Cancellation token to cancel an operation.</param>
+            <returns><c>true</c> if the token was revoked successfully.</returns>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.Token">
+            <summary>Gets or sets the token response which contains the access token.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.Flow">
+            <summary>Gets the authorization code flow.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.UderId">
+            <summary>Gets the user identity.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow">
             <summary>
@@ -413,16 +466,16 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.StoreTokenAsync(System.String,Google.Apis.Auth.OAuth2.Responses.TokenResponse,System.Threading.CancellationToken)">
             <summary>Stores the token in the <see cref="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.DataStore"/>.</summary>
-            <param name="userId">User identifier</param>
-            <param name="token">Token to store</param>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
+            <param name="userId">User identifier.</param>
+            <param name="token">Token to store.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.FetchTokenAsync(System.String,Google.Apis.Auth.OAuth2.Requests.TokenRequest,System.Threading.CancellationToken)">
             <summary>Retrieve a new token from the server using the specified request.</summary>
-            <param name="userId">User identifier</param>
-            <param name="request">Token request</param>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
-            <returns>Token response with the new access token</returns>
+            <param name="userId">User identifier.</param>
+            <param name="request">Token request.</param>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
+            <returns>Token response with the new access token.</returns>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.TokenServerUrl">
             <summary>Gets the token server URL.</summary>
@@ -453,7 +506,8 @@
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer.AccessMethod">
             <summary>
             Gets or sets the method for presenting the access token to the resource server.
-            The default value is <seealso cref="T:Google.Apis.Auth.OAuth2.BearerToken.AuthorizationHeaderAccessMethod"/>.
+            The default value is
+            <see cref="T:Google.Apis.Auth.OAuth2.BearerToken.AuthorizationHeaderAccessMethod"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer.TokenServerUrl">
@@ -480,7 +534,7 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer.HttpClientFactory">
-            <summary> 
+            <summary>
             Gets or sets the factory for creating <see cref="T:System.Net.Http.HttpClient"/> instance.
             </summary>
         </member>
@@ -489,15 +543,15 @@
             Get or sets the exponential back-off policy. Default value is  <c>UnsuccessfulResponse503</c>, which 
             means that exponential back-off is used on 503 abnormal HTTP responses.
             If the value is set to <c>None</c>, no exponential back-off policy is used, and it's up to user to
-            configure the <seealso cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
-            <seealso cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
-            implementation (using <seealso cref="T:Google.Apis.Http.BackOffHandler"/>).
+            configure the <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
+            <see cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
+            implementation (using <see cref="T:Google.Apis.Http.BackOffHandler"/>).
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer.Clock">
             <summary>
             Gets or sets the clock. The clock is used to determine if the token has expired, if so we will try to
-            refresh it. The default value is <seealso cref="F:Google.Apis.Util.SystemClock.Default"/>.
+            refresh it. The default value is <see cref="F:Google.Apis.Util.SystemClock.Default"/>.
             </summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.ClientSecrets">
@@ -511,11 +565,14 @@
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow">
             <summary>
-            Google specific authorization code flow which inherits from <seealso cref="T:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow"/>.
+            Google specific authorization code flow which inherits from <see cref="T:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow"/>.
             </summary>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.#ctor(Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer)">
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.#ctor(Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer)">
             <summary>Constructs a new Google authorization code flow.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.RevokeTokenUrl">
+            <summary>Gets the token revocation URL.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer">
             <summary>An initializer class for Google authorization code flow. </summary>
@@ -523,9 +580,12 @@
         <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer.#ctor">
             <summary>
             Constructs a new initializer. Sets Authorization server URL to 
-            <seealso cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.AuthorizationUrl"/>, and Token server URL to 
-            <seealso cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.TokenUrl"/>.
+            <see cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.AuthorizationUrl"/>, and Token server URL to 
+            <see cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.TokenUrl"/>.
             </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer.RevokeTokenUrl">
+            <summary>Gets or sets the token revocation URL.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.ICodeReceiver">
             <summary>OAuth 2.0 verification code receiver.</summary>
@@ -594,7 +654,7 @@
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Requests.AuthorizationCodeRequestUrl.Build">
-            <summary>Creates a <seealso cref="T:System.Uri"/> which is used to request the authorization code.</summary>
+            <summary>Creates a <see cref="T:System.Uri"/> which is used to request the authorization code.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Requests.AuthorizationCodeTokenRequest">
             <summary>
@@ -756,10 +816,13 @@
             <summary>The authorization code server URL.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.ApprovalUrl">
-            <summary>The approval URL (used in the WinRT solution as a callback).</summary>
+            <summary>The approval URL (used in the Windows solution as a callback).</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.TokenUrl">
             <summary>The authorization token server URL</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.RevokeTokenUrl">
+            <summary>The path to the Google revocation endpoint.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.InstalledAppRedirectUri">
             <summary>Installed application redirect URI.</summary>

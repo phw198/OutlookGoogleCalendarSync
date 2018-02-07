@@ -14,8 +14,13 @@
             <summary>Type of the collection ("calendar#acl").</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Acl.NextPageToken">
-            <summary>Token used to access the next page of this result. Omitted if no further results are
-            available.</summary>
+            <summary>Token used to access the next page of this result. Omitted if no further results are available, in
+            which case nextSyncToken is provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Acl.NextSyncToken">
+            <summary>Token used at a later point in time to retrieve only the entries that have changed since this
+            result was returned. Omitted if further results are available, in which case nextPageToken is
+            provided.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.AclRule.ETag">
             <summary>ETag of the resource.</summary>
@@ -81,7 +86,13 @@
             <summary>Type of the collection ("calendar#calendarList").</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.NextPageToken">
-            <summary>Token used to access the next page of this result.</summary>
+            <summary>Token used to access the next page of this result. Omitted if no further results are available, in
+            which case nextSyncToken is provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarList.NextSyncToken">
+            <summary>Token used at a later point in time to retrieve only the entries that have changed since this
+            result was returned. Omitted if further results are available, in which case nextPageToken is
+            provided.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.AccessRole">
             <summary>The effective access role that the authenticated user has on the calendar. Read-only. Possible
@@ -93,15 +104,19 @@
             ACLs.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.BackgroundColor">
-            <summary>The main color of the calendar in the format '#0088aa'. This property supersedes the index-based
-            colorId property. Optional.</summary>
+            <summary>The main color of the calendar in the hexadecimal format "#0088aa". This property supersedes the
+            index-based colorId property. Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.ColorId">
-            <summary>The color of the calendar. This is an ID referring to an entry in the "calendar" section of the
-            colors definition (see the "colors" endpoint). Optional.</summary>
+            <summary>The color of the calendar. This is an ID referring to an entry in the calendar section of the
+            colors definition (see the colors endpoint). Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.DefaultReminders">
             <summary>The default reminders that the authenticated user has for this calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Deleted">
+            <summary>Whether this calendar list entry has been deleted from the calendar list. Read-only. Optional. The
+            default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Description">
             <summary>Description of the calendar. Optional. Read-only.</summary>
@@ -110,8 +125,8 @@
             <summary>ETag of the resource.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.ForegroundColor">
-            <summary>The foreground color of the calendar in the format '#ffffff'. This property supersedes the index-
-            based colorId property. Optional.</summary>
+            <summary>The foreground color of the calendar in the hexadecimal format "#ffffff". This property supersedes
+            the index-based colorId property. Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Hidden">
             <summary>Whether the calendar has been hidden from the list. Optional. The default is False.</summary>
@@ -124,6 +139,9 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Location">
             <summary>Geographic location of the calendar as free-form text. Optional. Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.NotificationSettings">
+            <summary>The notifications that the authenticated user is receiving for this calendar.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.Primary">
             <summary>Whether the calendar is the primary calendar of the authenticated user. Read-only. Optional. The
@@ -140,6 +158,27 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.TimeZone">
             <summary>The time zone of the calendar. Optional. Read-only.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.CalendarListEntry.NotificationSettingsData">
+            <summary>The notifications that the authenticated user is receiving for this calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.NotificationSettingsData.Notifications">
+            <summary>The list of notifications set for this calendar.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.Method">
+            <summary>The method used to deliver the notification. Possible values are: - "email" - Reminders are sent
+            via email. - "sms" - Reminders are sent via SMS. This value is read-only and is ignored on inserts and
+            updates.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.Type">
+            <summary>The type of notification. Possible values are: - "eventCreation" - Notification sent when a new
+            event is put on the calendar. - "eventChange" - Notification sent when an event is changed. -
+            "eventCancellation" - Notification sent when an event is cancelled. - "eventResponse" - Notification sent
+            when an event is changed. - "agenda" - An agenda with the events of the day (sent out in the
+            morning).</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.ETag">
+            <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Channel.Address">
             <summary>The address where notifications are delivered for this channel.</summary>
@@ -189,18 +228,21 @@
             <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.Calendar">
-            <summary>Palette of calendar colors, mapping from the color ID to its definition. An 'calendarListEntry'
-            resource refers to one of these color IDs in its 'color' field. Read-only.</summary>
+            <summary>Palette of calendar colors, mapping from the color ID to its definition. A calendarListEntry
+            resource refers to one of these color IDs in its color field. Read-only.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.Event">
-            <summary>Palette of event colors, mapping from the color ID to its definition. An 'event' resource may refer
-            to one of these color IDs in its 'color' field. Read-only.</summary>
+            <summary>Palette of event colors, mapping from the color ID to its definition. An event resource may refer
+            to one of these color IDs in its color field. Read-only.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.Kind">
             <summary>Type of the resource ("calendar#colors").</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Updated">
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedRaw">
             <summary>Last modification time of the color palette (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.Updated">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.ETag">
             <summary>The ETag of the item.</summary>
@@ -227,15 +269,18 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.AttendeesOmitted">
             <summary>Whether attendees may have been omitted from the event's representation. When retrieving an event,
-            this may be due to a restriction specified by the 'maxAttendee' query parameter. When updating an event,
-            this can be used to only update the participant's response. Optional. The default is False.</summary>
+            this may be due to a restriction specified by the maxAttendee query parameter. When updating an event, this
+            can be used to only update the participant's response. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.ColorId">
-            <summary>The color of the event. This is an ID referring to an entry in the "event" section of the colors
-            definition (see the "colors" endpoint). Optional.</summary>
+            <summary>The color of the event. This is an ID referring to an entry in the event section of the colors
+            definition (see the  colors endpoint). Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw">
+            <summary>Creation time of the event (as a RFC 3339 timestamp). Read-only.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Created">
-            <summary>Creation time of the event (as a RFC 3339 timestamp). Read-only.</summary>
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Creator">
             <summary>The creator of the event. Read-only.</summary>
@@ -282,7 +327,13 @@
             <summary>Event ID in the iCalendar format.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Id">
-            <summary>Identifier of the event.</summary>
+            <summary>Identifier of the event. When creating new single or recurring events, you can specify their IDs.
+            Provided IDs must follow these rules: - characters allowed in the ID are those used in base32hex encoding,
+            i.e. lowercase letters a-v and digits 0-9, see section 3.1.2 in RFC2938 - the length of the ID must be
+            between 5 and 1024 characters - the ID must be unique per calendar  Due to the globally distributed nature
+            of the system, we cannot guarantee that ID collisions will be detected at event creation time. To minimize
+            the risk of collisions we recommend using an established UUID algorithm such as one described in
+            RFC4122.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Kind">
             <summary>Type of the resource ("calendar#event").</summary>
@@ -297,8 +348,8 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Organizer">
             <summary>The organizer of the event. If the organizer is also an attendee, this is indicated with a separate
-            entry in 'attendees' with the 'organizer' field set to True. To change the organizer, use the "move"
-            operation. Read-only, except when importing an event.</summary>
+            entry in attendees with the organizer field set to True. To change the organizer, use the move operation.
+            Read-only, except when importing an event.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.OriginalStartTime">
             <summary>For an instance of a recurring event, this is the time at which this event would start according to
@@ -344,8 +395,11 @@
             event blocks time on the calendar. This is the default value. - "transparent" - The event does not block
             time on the calendar.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.Event.Updated">
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.UpdatedRaw">
             <summary>Last modification time of the event (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.Updated">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.UpdatedRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Visibility">
             <summary>Visibility of the event. Optional. Possible values are: - "default" - Uses the default visibility
@@ -410,8 +464,8 @@
         </member>
         <member name="T:Google.Apis.Calendar.v3.Data.Event.OrganizerData">
             <summary>The organizer of the event. If the organizer is also an attendee, this is indicated with a separate
-            entry in 'attendees' with the 'organizer' field set to True. To change the organizer, use the "move"
-            operation. Read-only, except when importing an event.</summary>
+            entry in attendees with the organizer field set to True. To change the organizer, use the move operation.
+            Read-only, except when importing an event.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.DisplayName">
             <summary>The organizer's name, if available.</summary>
@@ -488,13 +542,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.Date">
             <summary>The date, in the format "yyyy-mm-dd", if this is an all-day event.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTime">
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTimeRaw">
             <summary>The time, as a combined date-time value (formatted according to RFC 3339). A time zone offset is
-            required unless a time zone is explicitly specified in 'timeZone'.</summary>
+            required unless a time zone is explicitly specified in timeZone.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTime">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTimeRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.TimeZone">
-            <summary>The name of the time zone in which the time is specified (e.g. "Europe/Zurich"). Optional. The
-            default is the time zone of the calendar.</summary>
+            <summary>The name of the time zone in which the time is specified (e.g. "Europe/Zurich"). For recurring
+            events this field is required and specifies the time zone in which the recurrence is expanded. For single
+            events this field is optional and indicates a custom time zone for the event start/end.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.ETag">
             <summary>The ETag of the item.</summary>
@@ -520,8 +578,8 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.DefaultReminders">
             <summary>The default reminders on the calendar for the authenticated user. These reminders apply to all
-            events on this calendar that do not explicitly override them (i.e. do not have 'reminders.useDefault' set to
-            'true').</summary>
+            events on this calendar that do not explicitly override them (i.e. do not have reminders.useDefault set to
+            True).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.Description">
             <summary>Description of the calendar. Read-only.</summary>
@@ -536,8 +594,13 @@
             <summary>Type of the collection ("calendar#events").</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.NextPageToken">
-            <summary>Token used to access the next page of this result. Omitted if no further results are
-            available.</summary>
+            <summary>Token used to access the next page of this result. Omitted if no further results are available, in
+            which case nextSyncToken is provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.NextSyncToken">
+            <summary>Token used at a later point in time to retrieve only the entries that have changed since this
+            result was returned. Omitted if further results are available, in which case nextPageToken is
+            provided.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.Summary">
             <summary>Title of the calendar. Read-only.</summary>
@@ -545,8 +608,11 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Events.TimeZone">
             <summary>The time zone of the calendar. Read-only.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.Events.Updated">
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.UpdatedRaw">
             <summary>Last modification time of the calendar (as a RFC 3339 timestamp). Read-only.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.Updated">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Events.UpdatedRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyCalendar.Busy">
             <summary>List of time ranges during which this calendar should be regarded as busy.</summary>
@@ -576,11 +642,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.Items">
             <summary>List of calendars and/or groups to query.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMax">
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw">
             <summary>The end of the interval for the query.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMin">
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMax">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw"/>.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw">
             <summary>The start of the interval for the query.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMin">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeZone">
             <summary>Time zone used in the response. Optional. The default is UTC.</summary>
@@ -603,11 +675,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.Kind">
             <summary>Type of the resource ("calendar#freeBusy").</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMax">
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxRaw">
             <summary>The end of the interval.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMin">
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMax">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxRaw"/>.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinRaw">
             <summary>The start of the interval.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMin">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.ETag">
             <summary>The ETag of the item.</summary>
@@ -616,13 +694,14 @@
             <summary>ETag of the resource.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Setting.Id">
-            <summary>Name of the user setting.</summary>
+            <summary>The id of the user setting.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Setting.Kind">
             <summary>Type of the resource ("calendar#setting").</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Setting.Value">
-            <summary>Value of the user setting. The format of the value depends on the ID of the setting.</summary>
+            <summary>Value of the user setting. The format of the value depends on the ID of the setting. It must always
+            be a UTF-8 string of length up to 1024 characters.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Settings.ETag">
             <summary>Etag of the collection.</summary>
@@ -633,11 +712,26 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Settings.Kind">
             <summary>Type of the collection ("calendar#settings").</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.End">
+        <member name="P:Google.Apis.Calendar.v3.Data.Settings.NextPageToken">
+            <summary>Token used to access the next page of this result. Omitted if no further results are available, in
+            which case nextSyncToken is provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Settings.NextSyncToken">
+            <summary>Token used at a later point in time to retrieve only the entries that have changed since this
+            result was returned. Omitted if further results are available, in which case nextPageToken is
+            provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndRaw">
             <summary>The (exclusive) end of the time period.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.Start">
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.End">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndRaw"/>.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartRaw">
             <summary>The (inclusive) start of the time period.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.Start">
+            <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.ETag">
             <summary>The ETag of the item.</summary>
@@ -694,13 +788,13 @@
         <member name="P:Google.Apis.Calendar.v3.CalendarService.Settings">
             <summary>Gets the Settings resource.</summary>
         </member>
-        <member name="T:Google.Apis.Calendar.v3.CalendarService.Scopes">
+        <member name="T:Google.Apis.Calendar.v3.CalendarService.Scope">
             <summary>Available OAuth 2.0 scopes for use with the Calendar API.</summary>
         </member>
-        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scopes.Calendar">
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.Calendar">
             <summary>Manage your calendars</summary>
         </member>
-        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scopes.CalendarReadonly">
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarReadonly">
             <summary>View your calendars</summary>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarBaseServiceRequest`1">
@@ -748,7 +842,7 @@
             <summary>The "acl" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.AclResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.AclResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -783,6 +877,11 @@
             <param name="body">The body of the request.</param>
             <param name="calendarId">Calendar identifier.</param>
             <param name="ruleId">ACL rule identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.Watch(Google.Apis.Calendar.v3.Data.Channel,System.String)">
+            <summary>Watch for changes to ACL resources.</summary>
+            <param name="body">The body of the request.</param>
+            <param name="calendarId">Calendar identifier.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.AclResource.DeleteRequest">
             <summary>Deletes an access control rule.</summary>
@@ -871,6 +970,28 @@
         <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.CalendarId">
             <summary>Calendar identifier.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. All entries deleted since the previous list request will always be in the result set and it
+            is not allowed to set showDeleted to False. If the syncToken expires, the server will respond with a 410
+            GONE response code and the client should clear its storage and perform a full synchronization without
+            any syncToken. Learn more about incremental synchronization. Optional. The default is to return all
+            entries.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.ShowDeleted">
+            <summary>Whether to include deleted ACLs in the result. Deleted ACLs are represented by role equal to
+            "none". Deleted ACLs will always be included if syncToken is provided. Optional. The default is
+            False.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.AclResource.ListRequest.MethodName">
             <summary>Gets the method name.</summary>
         </member>
@@ -940,11 +1061,60 @@
         <member name="P:Google.Apis.Calendar.v3.AclResource.UpdateRequest.RestPath">
             <summary>Gets the REST path.</summary>
         </member>
+        <member name="T:Google.Apis.Calendar.v3.AclResource.WatchRequest">
+            <summary>Watch for changes to ACL resources.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.WatchRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.Channel,System.String)">
+            <summary>Constructs a new Watch request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.WatchRequest.GetBody">
+            <summary>Returns the body of the request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.AclResource.WatchRequest.InitParameters">
+            <summary>Initializes Watch parameter list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.CalendarId">
+            <summary>Calendar identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. All entries deleted since the previous list request will always be in the result set and it
+            is not allowed to set showDeleted to False. If the syncToken expires, the server will respond with a 410
+            GONE response code and the client should clear its storage and perform a full synchronization without
+            any syncToken. Learn more about incremental synchronization. Optional. The default is to return all
+            entries.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.ShowDeleted">
+            <summary>Whether to include deleted ACLs in the result. Deleted ACLs are represented by role equal to
+            "none". Deleted ACLs will always be included if syncToken is provided. Optional. The default is
+            False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.Body">
+            <summary>Gets or sets the body of this request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.MethodName">
+            <summary>Gets the method name.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.HttpMethod">
+            <summary>Gets the HTTP method.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.AclResource.WatchRequest.RestPath">
+            <summary>Gets the REST path.</summary>
+        </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource">
             <summary>The "calendarList" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarListResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -973,6 +1143,10 @@
             <summary>Updates an entry on the user's calendar list.</summary>
             <param name="body">The body of the request.</param>
             <param name="calendarId">Calendar identifier.</param>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Watch(Google.Apis.Calendar.v3.Data.Channel)">
+            <summary>Watch for changes to CalendarList resources.</summary>
+            <param name="body">The body of the request.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest">
             <summary>Deletes an entry on the user's calendar list.</summary>
@@ -1029,8 +1203,8 @@
             <summary>Initializes Insert parameter list.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.ColorRgbFormat">
-            <summary>Whether to use the 'foregroundColor' and 'backgroundColor' fields to write the calendar colors
-            (RGB). If this feature is used, the index-based 'colorId' field will be set to the best matching option
+            <summary>Whether to use the foregroundColor and backgroundColor fields to write the calendar colors
+            (RGB). If this feature is used, the index-based colorId field will be set to the best matching option
             automatically. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.Body">
@@ -1054,19 +1228,35 @@
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.InitParameters">
             <summary>Initializes List parameter list.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. If only read-only fields such as calendar properties or ACLs have changed, the entry won't
+            be returned. All entries deleted and hidden since the previous list request will always be in the result
+            set and it is not allowed to set showDeleted neither showHidden to False. To ensure client state
+            consistency minAccessRole query parameter cannot be specified together with nextSyncToken. If the
+            syncToken expires, the server will respond with a 410 GONE response code and the client should clear its
+            storage and perform a full synchronization without any syncToken. Learn more about incremental
+            synchronization. Optional. The default is to return all entries.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.ShowDeleted">
+            <summary>Whether to include deleted calendar list entries in the result. Optional. The default is
+            False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MinAccessRole">
+            <summary>The minimum access role for the user in the returned entires. Optional. The default is no
+            restriction.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.PageToken">
             <summary>Token specifying which result page to return. Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.ShowHidden">
             <summary>Whether to show hidden entries. Optional. The default is False.</summary>
-        </member>
-        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MaxResults">
-            <summary>Maximum number of entries returned on one result page. Optional.</summary>
-            [minimum: 1]
-        </member>
-        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MinAccessRole">
-            <summary>The minimum access role for the user in the returned entires. Optional. The default is no
-            restriction.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.MethodName">
             <summary>Gets the method name.</summary>
@@ -1109,8 +1299,8 @@
             <summary>Calendar identifier.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.ColorRgbFormat">
-            <summary>Whether to use the 'foregroundColor' and 'backgroundColor' fields to write the calendar colors
-            (RGB). If this feature is used, the index-based 'colorId' field will be set to the best matching option
+            <summary>Whether to use the foregroundColor and backgroundColor fields to write the calendar colors
+            (RGB). If this feature is used, the index-based colorId field will be set to the best matching option
             automatically. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.Body">
@@ -1141,8 +1331,8 @@
             <summary>Calendar identifier.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.ColorRgbFormat">
-            <summary>Whether to use the 'foregroundColor' and 'backgroundColor' fields to write the calendar colors
-            (RGB). If this feature is used, the index-based 'colorId' field will be set to the best matching option
+            <summary>Whether to use the foregroundColor and backgroundColor fields to write the calendar colors
+            (RGB). If this feature is used, the index-based colorId field will be set to the best matching option
             automatically. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.Body">
@@ -1157,11 +1347,81 @@
         <member name="P:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.RestPath">
             <summary>Gets the REST path.</summary>
         </member>
+        <member name="T:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest">
+            <summary>Watch for changes to CalendarList resources.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.Channel)">
+            <summary>Constructs a new Watch request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.GetBody">
+            <summary>Returns the body of the request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.InitParameters">
+            <summary>Initializes Watch parameter list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. If only read-only fields such as calendar properties or ACLs have changed, the entry won't
+            be returned. All entries deleted and hidden since the previous list request will always be in the result
+            set and it is not allowed to set showDeleted neither showHidden to False. To ensure client state
+            consistency minAccessRole query parameter cannot be specified together with nextSyncToken. If the
+            syncToken expires, the server will respond with a 410 GONE response code and the client should clear its
+            storage and perform a full synchronization without any syncToken. Learn more about incremental
+            synchronization. Optional. The default is to return all entries.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.ShowDeleted">
+            <summary>Whether to include deleted calendar list entries in the result. Optional. The default is
+            False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRole">
+            <summary>The minimum access role for the user in the returned entires. Optional. The default is no
+            restriction.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.ShowHidden">
+            <summary>Whether to show hidden entries. Optional. The default is False.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.Body">
+            <summary>Gets or sets the body of this request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MethodName">
+            <summary>Gets the method name.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.HttpMethod">
+            <summary>Gets the HTTP method.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.RestPath">
+            <summary>Gets the REST path.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRoleEnum">
+            <summary>The minimum access role for the user in the returned entires. Optional. The default is no
+            restriction.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRoleEnum.FreeBusyReader">
+            <summary>The user can read free/busy information.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRoleEnum.Owner">
+            <summary>The user can read and modify events and access control lists.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRoleEnum.Reader">
+            <summary>The user can read events that are not private.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarListResource.WatchRequest.MinAccessRoleEnum.Writer">
+            <summary>The user can read and modify events.</summary>
+        </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarsResource">
             <summary>The "calendars" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarsResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarsResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -1339,7 +1599,7 @@
             <summary>The "channels" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.ChannelsResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.ChannelsResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -1376,7 +1636,7 @@
             <summary>The "colors" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.ColorsResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.ColorsResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -1406,7 +1666,7 @@
             <summary>The "events" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -1521,10 +1781,10 @@
             calendar.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.GetRequest.MaxAttendees">
             <summary>The maximum number of attendees to include in the response. If there are more than the
@@ -1620,22 +1880,23 @@
             <summary>Recurring event identifier.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.ShowDeleted">
-            <summary>Whether to include deleted events (with 'status' equals 'cancelled') in the result. Cancelled
-            instances of recurring events will still be included if 'singleEvents' is False. Optional. The default
-            is False.</summary>
+            <summary>Whether to include deleted events (with status equals "cancelled") in the result. Cancelled
+            instances of recurring events will still be included if singleEvents is False. Optional. The default is
+            False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMax">
             <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
             filter by start time.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.MaxResults">
-            <summary>Maximum number of events returned on one result page. Optional.</summary>
+            <summary>Maximum number of events returned on one result page. By default the value is 250 events. The
+            page size can never be larger than 2500 events. Optional.</summary>
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.PageToken">
@@ -1685,33 +1946,51 @@
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ShowHiddenInvitations">
             <summary>Whether to include hidden invitations in the result. Optional. The default is False.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.SyncToken">
+             <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+             previous list request. It makes the result of this list request contain only entries that have changed
+             since then. All events deleted since the previous list request will always be in the result set and it
+             is not allowed to set showDeleted to False. There are several query parameters that cannot be specified
+             together with nextSyncToken to ensure consistency of the client state.
+            
+             These are: - iCalUID - orderBy - privateExtendedProperty - q - sharedExtendedProperty - timeMin -
+             timeMax - updatedMin If the syncToken expires, the server will respond with a 410 GONE response code and
+             the client should clear its storage and perform a full synchronization without any syncToken. Learn more
+             about incremental synchronization. Optional. The default is to return all entries.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ShowDeleted">
-            <summary>Whether to include deleted events (with 'status' equals 'cancelled') in the result. Cancelled
+            <summary>Whether to include deleted events (with status equals "cancelled") in the result. Cancelled
             instances of recurring events (but not the underlying recurring event) will still be included if
-            'showDeleted' and 'singleEvents' are both False. If 'showDeleted' and 'singleEvents' are both True, only
-            single instances of deleted events (but not the underlying recurring events) are returned. Optional. The
+            showDeleted and singleEvents are both False. If showDeleted and singleEvents are both True, only single
+            instances of deleted events (but not the underlying recurring events) are returned. Optional. The
             default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ICalUID">
-            <summary>Specifies iCalendar UID (iCalUID) of events to be included in the response. Optional.</summary>
+            <summary>Specifies event ID in the iCalendar format to be included in the response. Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMin">
-            <summary>Lower bound for an event's last modification time (as a RFC 3339 timestamp) to filter by.
-            Optional. The default is not to filter by last modification time.</summary>
+            <summary>Lower bound for an event's last modification time (as a RFC 3339 timestamp) to filter by. When
+            specified, entries deleted since this time will always be included regardless of showDeleted. Optional.
+            The default is not to filter by last modification time.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.SingleEvents">
             <summary>Whether to expand recurring events into instances and only return single one-off events and
             instances of recurring events, but not the underlying recurring events themselves. Optional. The default
             is False.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
+            <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
+            filter by start time.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxResults">
-            <summary>Maximum number of events returned on one result page. Optional.</summary>
+            <summary>Maximum number of events returned on one result page. By default the value is 250 events. The
+            page size can never be larger than 2500 events. Optional.</summary>
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.Q">
@@ -1729,9 +2008,15 @@
             <summary>Time zone used in the response. Optional. The default is the time zone of the
             calendar.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
-            <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
-            filter by start time.</summary>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.PrivateExtendedProperty">
+            <summary>Extended properties constraint specified as propertyName=value. Matches only private
+            properties. This parameter might be repeated multiple times to return events that match all given
+            constraints.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.SharedExtendedProperty">
+            <summary>Extended properties constraint specified as propertyName=value. Matches only shared properties.
+            This parameter might be repeated multiple times to return events that match all given
+            constraints.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxAttendees">
             <summary>The maximum number of attendees to include in the response. If there are more than the
@@ -1753,7 +2038,7 @@
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.OrderByEnum.StartTime">
             <summary>Order by the start date/time (ascending). This is only available when querying single
-            events (i.e. the parameter "singleEvents" is True)</summary>
+            events (i.e. the parameter singleEvents is True)</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.OrderByEnum.Updated">
             <summary>Order by last modification time (ascending).</summary>
@@ -1812,10 +2097,10 @@
             etc.). Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.MaxAttendees">
             <summary>The maximum number of attendees to include in the response. If there are more than the
@@ -1885,10 +2170,10 @@
             etc.). Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.MaxAttendees">
             <summary>The maximum number of attendees to include in the response. If there are more than the
@@ -1929,33 +2214,51 @@
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.ShowHiddenInvitations">
             <summary>Whether to include hidden invitations in the result. Optional. The default is False.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.SyncToken">
+             <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+             previous list request. It makes the result of this list request contain only entries that have changed
+             since then. All events deleted since the previous list request will always be in the result set and it
+             is not allowed to set showDeleted to False. There are several query parameters that cannot be specified
+             together with nextSyncToken to ensure consistency of the client state.
+            
+             These are: - iCalUID - orderBy - privateExtendedProperty - q - sharedExtendedProperty - timeMin -
+             timeMax - updatedMin If the syncToken expires, the server will respond with a 410 GONE response code and
+             the client should clear its storage and perform a full synchronization without any syncToken. Learn more
+             about incremental synchronization. Optional. The default is to return all entries.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.ShowDeleted">
-            <summary>Whether to include deleted events (with 'status' equals 'cancelled') in the result. Cancelled
+            <summary>Whether to include deleted events (with status equals "cancelled") in the result. Cancelled
             instances of recurring events (but not the underlying recurring event) will still be included if
-            'showDeleted' and 'singleEvents' are both False. If 'showDeleted' and 'singleEvents' are both True, only
-            single instances of deleted events (but not the underlying recurring events) are returned. Optional. The
+            showDeleted and singleEvents are both False. If showDeleted and singleEvents are both True, only single
+            instances of deleted events (but not the underlying recurring events) are returned. Optional. The
             default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.ICalUID">
-            <summary>Specifies iCalendar UID (iCalUID) of events to be included in the response. Optional.</summary>
+            <summary>Specifies event ID in the iCalendar format to be included in the response. Optional.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMin">
-            <summary>Lower bound for an event's last modification time (as a RFC 3339 timestamp) to filter by.
-            Optional. The default is not to filter by last modification time.</summary>
+            <summary>Lower bound for an event's last modification time (as a RFC 3339 timestamp) to filter by. When
+            specified, entries deleted since this time will always be included regardless of showDeleted. Optional.
+            The default is not to filter by last modification time.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.SingleEvents">
             <summary>Whether to expand recurring events into instances and only return single one-off events and
             instances of recurring events, but not the underlying recurring events themselves. Optional. The default
             is False.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMax">
+            <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
+            filter by start time.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.AlwaysIncludeEmail">
-            <summary>Whether to always include a value in the "email" field for the organizer, creator and
-            attendees, even if no real email is available (i.e. a generated, non-working value will be provided).
-            The use of this option is discouraged and should only be used by clients which cannot handle the absence
-            of an email address value in the mentioned places. Optional. The default is False.</summary>
+            <summary>Whether to always include a value in the email field for the organizer, creator and attendees,
+            even if no real email is available (i.e. a generated, non-working value will be provided). The use of
+            this option is discouraged and should only be used by clients which cannot handle the absence of an
+            email address value in the mentioned places. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.MaxResults">
-            <summary>Maximum number of events returned on one result page. Optional.</summary>
+            <summary>Maximum number of events returned on one result page. By default the value is 250 events. The
+            page size can never be larger than 2500 events. Optional.</summary>
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.Q">
@@ -1973,9 +2276,15 @@
             <summary>Time zone used in the response. Optional. The default is the time zone of the
             calendar.</summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMax">
-            <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
-            filter by start time.</summary>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.PrivateExtendedProperty">
+            <summary>Extended properties constraint specified as propertyName=value. Matches only private
+            properties. This parameter might be repeated multiple times to return events that match all given
+            constraints.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.SharedExtendedProperty">
+            <summary>Extended properties constraint specified as propertyName=value. Matches only shared properties.
+            This parameter might be repeated multiple times to return events that match all given
+            constraints.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.MaxAttendees">
             <summary>The maximum number of attendees to include in the response. If there are more than the
@@ -2000,7 +2309,7 @@
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.OrderByEnum.StartTime">
             <summary>Order by the start date/time (ascending). This is only available when querying single
-            events (i.e. the parameter "singleEvents" is True)</summary>
+            events (i.e. the parameter singleEvents is True)</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.OrderByEnum.Updated">
             <summary>Order by last modification time (ascending).</summary>
@@ -2009,7 +2318,7 @@
             <summary>The "freebusy" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.FreebusyResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.FreebusyResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
@@ -2046,17 +2355,21 @@
             <summary>The "settings" collection of methods.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.SettingsResource.service">
-            <summary> The service whih this resource is belong to.</summary>
+            <summary>The service which this resource belongs to.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.SettingsResource.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new resource.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.SettingsResource.Get(System.String)">
             <summary>Returns a single user setting.</summary>
-            <param name="setting">Name of the user setting.</param>
+            <param name="setting">The id of the user setting.</param>
         </member>
         <member name="M:Google.Apis.Calendar.v3.SettingsResource.List">
             <summary>Returns all user settings for the authenticated user.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.Watch(Google.Apis.Calendar.v3.Data.Channel)">
+            <summary>Watch for changes to Settings resources.</summary>
+            <param name="body">The body of the request.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.SettingsResource.GetRequest">
             <summary>Returns a single user setting.</summary>
@@ -2068,7 +2381,7 @@
             <summary>Initializes Get parameter list.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.Setting">
-            <summary>Name of the user setting.</summary>
+            <summary>The id of the user setting.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.SettingsResource.GetRequest.MethodName">
             <summary>Gets the method name.</summary>
@@ -2088,6 +2401,21 @@
         <member name="M:Google.Apis.Calendar.v3.SettingsResource.ListRequest.InitParameters">
             <summary>Initializes List parameter list.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. If the syncToken expires, the server will respond with a 410 GONE response code and the
+            client should clear its storage and perform a full synchronization without any syncToken. Learn more
+            about incremental synchronization. Optional. The default is to return all entries.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.MethodName">
             <summary>Gets the method name.</summary>
         </member>
@@ -2095,6 +2423,45 @@
             <summary>Gets the HTTP method.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.SettingsResource.ListRequest.RestPath">
+            <summary>Gets the REST path.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.SettingsResource.WatchRequest">
+            <summary>Watch for changes to Settings resources.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.Channel)">
+            <summary>Constructs a new Watch request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.GetBody">
+            <summary>Returns the body of the request.</summary>
+        </member>
+        <member name="M:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.InitParameters">
+            <summary>Initializes Watch parameter list.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.PageToken">
+            <summary>Token specifying which result page to return. Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.MaxResults">
+            <summary>Maximum number of entries returned on one result page. By default the value is 100 entries. The
+            page size can never be larger than 250 entries. Optional.</summary>
+            [minimum: 1]
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.SyncToken">
+            <summary>Token obtained from the nextSyncToken field returned on the last page of results from the
+            previous list request. It makes the result of this list request contain only entries that have changed
+            since then. If the syncToken expires, the server will respond with a 410 GONE response code and the
+            client should clear its storage and perform a full synchronization without any syncToken. Learn more
+            about incremental synchronization. Optional. The default is to return all entries.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.Body">
+            <summary>Gets or sets the body of this request.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.MethodName">
+            <summary>Gets the method name.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.HttpMethod">
+            <summary>Gets the HTTP method.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.SettingsResource.WatchRequest.RestPath">
             <summary>Gets the REST path.</summary>
         </member>
     </members>

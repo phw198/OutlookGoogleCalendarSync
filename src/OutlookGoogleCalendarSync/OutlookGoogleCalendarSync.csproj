@@ -127,31 +127,31 @@
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.PatchApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis, Version=1.7.0.34454, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis, Version=1.9.0.26011, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Auth, Version=1.7.0.34456, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Auth, Version=1.9.0.26011, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Auth.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.7.0.34464, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.9.0.26016, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Auth.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.7.0.71, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.9.0.99, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Calendar.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Core, Version=1.7.0.34453, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Core, Version=1.9.0.26010, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.PlatformServices, Version=1.7.0.34457, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.PlatformServices, Version=1.9.0.26013, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>lib\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -169,7 +169,7 @@
       <HintPath>lib\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop, Version=1.0.166.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop, Version=1.0.168.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -189,7 +189,7 @@
       <HintPath>lib\Squirrel\Mono.Cecil.Rocks.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -224,11 +224,11 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Extensions, Version=2.1.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.22.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\System.Net.Http.Extensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Net.Http.Primitives, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.22.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\System.Net.Http.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -239,7 +239,7 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Zlib.Portable, Version=1.9.1.9000, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Zlib.Portable, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Zlib.Portable.dll</HintPath>
       <Private>True</Private>
     </Reference>

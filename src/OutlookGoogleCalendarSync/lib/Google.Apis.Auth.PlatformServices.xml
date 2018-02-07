@@ -8,12 +8,16 @@
             <summary>A helper utility to manage the authorization code flow.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.Folder">
-            <summary>The folder which is used by the <seealso cref="T:Google.Apis.Util.Store.FileDataStore"/>.</summary>
+            <summary>The folder which is used by the <see cref="T:Google.Apis.Util.Store.FileDataStore"/>.</summary>
+            <remarks>
+            The reason that this is not 'private const' is that a user can change it and store the credentials in a
+            different location.
+            </remarks>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.AuthorizeAsync(Google.Apis.Auth.OAuth2.ClientSecrets,System.Collections.Generic.IEnumerable{System.String},System.String,System.Threading.CancellationToken,Google.Apis.Util.Store.IDataStore)">
             <summary>Asynchronously authorizes the specified user.</summary>
             <remarks>
-            In case no data store is specified, <seealso cref="T:Google.Apis.Util.Store.FileDataStore"/> will be used by 
+            In case no data store is specified, <see cref="T:Google.Apis.Util.Store.FileDataStore"/> will be used by 
             default.
             </remarks>
             <param name="clientSecrets">The client secrets.</param>
@@ -28,7 +32,7 @@
         <member name="M:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.AuthorizeAsync(System.IO.Stream,System.Collections.Generic.IEnumerable{System.String},System.String,System.Threading.CancellationToken,Google.Apis.Util.Store.IDataStore)">
             <summary>Asynchronously authorizes the specified user.</summary>
             <remarks>
-            In case no data store is specified, <seealso cref="T:Google.Apis.Util.Store.FileDataStore"/> will be used by 
+            In case no data store is specified, <see cref="T:Google.Apis.Util.Store.FileDataStore"/> will be used by 
             default.
             </remarks>
             <param name="clientSecretsStream">
@@ -42,7 +46,16 @@
             <param name="dataStore">The data store, if not specified a file data store will be used.</param>
             <returns>User credential.</returns>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.AuthorizeAsyncCore(Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer,System.Collections.Generic.IEnumerable{System.String},System.String,System.Threading.CancellationToken,Google.Apis.Util.Store.IDataStore)">
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.ReauthorizeAsync(Google.Apis.Auth.OAuth2.UserCredential,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously reauthorizes the user. This method should be called if the users want to authorize after 
+            they revoked the token.
+            </summary>
+            <param name="userCredential">The current user credential. Its <see cref="P:Google.Apis.Auth.OAuth2.UserCredential.Token"/> will be
+            updated. </param>
+            <param name="taskCancellationToken">Cancellation token to cancel an operation.</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.AuthorizeAsyncCore(Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer,System.Collections.Generic.IEnumerable{System.String},System.String,System.Threading.CancellationToken,Google.Apis.Util.Store.IDataStore)">
             <summary>The core logic for asynchronously authorizing the specified user.</summary>
             <param name="initializer">The authorization code initializer.</param>
             <param name="scopes">
@@ -86,13 +99,13 @@
             <summary>Constructs a new service account credential using the given initializer.</summary>
             <param name="initializer"></param>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.RequestAccessToken(System.Threading.CancellationToken)">
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.RequestAccessTokenAsync(System.Threading.CancellationToken)">
             <summary>
             Requests a new token as specified in 
             https://developers.google.com/accounts/docs/OAuth2ServiceAccount#makingrequest.
             </summary>
-            <param name="taskCancellationToken">Cancellation token to cancel operation</param>
-            <returns><c>true</c> if a new token was received successfully</returns>
+            <param name="taskCancellationToken">Cancellation token to cancel operation.</param>
+            <returns><c>true</c> if a new token was received successfully.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.CreateSerializedHeader">
             <summary>
@@ -103,18 +116,18 @@
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.GetSerializedPayload">
             <summary>
             Creates a serialized claim set as specified in 
-            https://developers.google.com/accounts/docs/OAuth2ServiceAccount#formingclaimset
+            https://developers.google.com/accounts/docs/OAuth2ServiceAccount#formingclaimset.
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UrlSafeBase64Encode(System.String)">
             <summary>Encodes the provided UTF8 string into an URL safe base64 string.</summary>
-            <param name="value">Value to encode</param>
-            <returns>The URL safe base64 string</returns>
+            <param name="value">Value to encode.</param>
+            <returns>The URL safe base64 string.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UrlSafeBase64Encode(System.Byte[])">
             <summary>Encodes the byte array into an URL safe base64 string.</summary>
-            <param name="bytes">Byte array to encode</param>
-            <returns>The URL safe base64 string</returns>
+            <param name="bytes">Byte array to encode.</param>
+            <returns>The URL safe base64 string.</returns>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Id">
             <summary>Gets the service account ID (typically an e-mail address).</summary>
@@ -181,7 +194,7 @@
         <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.Clock">
             <summary>
             Gets or sets the clock. The clock is used to determine if the token has expired, if so we will try to
-            refresh it. The default value is <seealso cref="F:Google.Apis.Util.SystemClock.Default"/>.
+            refresh it. The default value is <see cref="F:Google.Apis.Util.SystemClock.Default"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.Key">
@@ -193,11 +206,11 @@
         <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.AccessMethod">
             <summary>
             Gets or sets the method for presenting the access token to the resource server.
-            The default value is <seealso cref="T:Google.Apis.Auth.OAuth2.BearerToken.AuthorizationHeaderAccessMethod"/>.
+            The default value is <see cref="T:Google.Apis.Auth.OAuth2.BearerToken.AuthorizationHeaderAccessMethod"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.HttpClientFactory">
-            <summary> 
+            <summary>
             Gets or sets the factory for creating a <see cref="T:System.Net.Http.HttpClient"/> instance.
             </summary>
         </member>
@@ -206,9 +219,9 @@
             Get or sets the exponential back-off policy. Default value is  <c>UnsuccessfulResponse503</c>, which 
             means that exponential back-off is used on 503 abnormal HTTP responses.
             If the value is set to <c>None</c>, no exponential back-off policy is used, and it's up to the user to
-            configure the <seealso cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
-            <seealso cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
-            implementation (using <seealso cref="T:Google.Apis.Http.BackOffHandler"/>).
+            configure the <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
+            <see cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
+            implementation (using <see cref="T:Google.Apis.Http.BackOffHandler"/>).
             </summary>
         </member>
     </members>
