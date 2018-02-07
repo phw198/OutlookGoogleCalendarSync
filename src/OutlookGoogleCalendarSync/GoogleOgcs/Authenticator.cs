@@ -142,12 +142,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
             authenticated = false;
-            GoogleOgcs.Calendar.Instance.Authenticator = null;
-            GoogleOgcs.Calendar.Instance.Service = null;
             if (tokenFileExists) File.Delete(tokenFullPath);
-            if (reauthorise) {
-                GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
-                GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+            if (!GoogleOgcs.Calendar.IsInstanceNull) {
+                GoogleOgcs.Calendar.Instance.Authenticator = null;
+                GoogleOgcs.Calendar.Instance.Service = null;
+                if (reauthorise) {
+                    GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
+                    GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+                }
             }
         }
 

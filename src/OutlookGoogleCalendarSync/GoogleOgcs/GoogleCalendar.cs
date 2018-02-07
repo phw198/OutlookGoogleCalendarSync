@@ -17,6 +17,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
         private static Calendar instance;
+        public static Boolean IsInstanceNull { get { return instance == null; } }
         public static Calendar Instance {
             get {
                 if (instance == null) {
