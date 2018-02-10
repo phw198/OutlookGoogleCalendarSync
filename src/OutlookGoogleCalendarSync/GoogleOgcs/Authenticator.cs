@@ -114,12 +114,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
                 log.Info("Refresh and Access token successfully retrieved.");
-                log.Debug("Access token expires " + credential.Token.Issued.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
+                log.Debug("Access token expires " + credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
             }
 
             GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
 
-            if (credential.Token.Issued.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.Now.AddMinutes(-1)) {
+            if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.Now.AddMinutes(-1)) {
                 log.Debug("Access token needs refreshing.");
                 //This will happen automatically when using the calendar service
                 //But we need a valid token before we call getGaccountEmail() which doesn't use the service

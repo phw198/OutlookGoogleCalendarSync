@@ -16,6 +16,16 @@
               archive files.
             </remarks>
         </member>
+        <member name="P:Ionic.Crc.CRC32.TotalBytesRead">
+            <summary>
+              Indicates the total number of bytes applied to the CRC.
+            </summary>
+        </member>
+        <member name="P:Ionic.Crc.CRC32.Crc32Result">
+            <summary>
+            Indicates the current CRC for all blocks slurped in.
+            </summary>
+        </member>
         <member name="M:Ionic.Crc.CRC32.GetCrc32(System.IO.Stream)">
             <summary>
             Returns the CRC32 for the specified stream.
@@ -147,16 +157,6 @@
               </para>
             </remarks>
         </member>
-        <member name="P:Ionic.Crc.CRC32.TotalBytesRead">
-            <summary>
-              Indicates the total number of bytes applied to the CRC.
-            </summary>
-        </member>
-        <member name="P:Ionic.Crc.CRC32.Crc32Result">
-            <summary>
-            Indicates the current CRC for all blocks slurped in.
-            </summary>
-        </member>
         <member name="T:Ionic.Crc.CrcCalculatorStream">
              <summary>
              A Stream that calculates a CRC32 (a checksum) on all bytes read,
@@ -259,44 +259,6 @@
             open upon close of the <c>CrcCalculatorStream</c>; false otherwise.</param>
             <param name="crc32">the CRC32 instance to use to calculate the CRC32</param>
         </member>
-        <member name="M:Ionic.Crc.CrcCalculatorStream.Read(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Read from the stream
-            </summary>
-            <param name="buffer">the buffer to read</param>
-            <param name="offset">the offset at which to start</param>
-            <param name="count">the number of bytes to read</param>
-            <returns>the number of bytes actually read</returns>
-        </member>
-        <member name="M:Ionic.Crc.CrcCalculatorStream.Write(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Write to the stream.
-            </summary>
-            <param name="buffer">the buffer from which to write</param>
-            <param name="offset">the offset at which to start writing</param>
-            <param name="count">the number of bytes to write</param>
-        </member>
-        <member name="M:Ionic.Crc.CrcCalculatorStream.Flush">
-            <summary>
-            Flush the stream.
-            </summary>
-        </member>
-        <member name="M:Ionic.Crc.CrcCalculatorStream.Seek(System.Int64,System.IO.SeekOrigin)">
-            <summary>
-            Seeking is not supported on this stream. This method always throws
-            <see cref="T:System.NotSupportedException"/>
-            </summary>
-            <param name="offset">N/A</param>
-            <param name="origin">N/A</param>
-            <returns>N/A</returns>
-        </member>
-        <member name="M:Ionic.Crc.CrcCalculatorStream.SetLength(System.Int64)">
-            <summary>
-            This method always throws
-            <see cref="T:System.NotSupportedException"/>
-            </summary>
-            <param name="value">N/A</param>
-        </member>
         <member name="P:Ionic.Crc.CrcCalculatorStream.TotalBytesSlurped">
              <summary>
                Gets the total number of bytes run through the CRC32 calculator.
@@ -330,6 +292,23 @@
               </para>
             </remarks>
         </member>
+        <member name="M:Ionic.Crc.CrcCalculatorStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read from the stream
+            </summary>
+            <param name="buffer">the buffer to read</param>
+            <param name="offset">the offset at which to start</param>
+            <param name="count">the number of bytes to read</param>
+            <returns>the number of bytes actually read</returns>
+        </member>
+        <member name="M:Ionic.Crc.CrcCalculatorStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Write to the stream.
+            </summary>
+            <param name="buffer">the buffer from which to write</param>
+            <param name="offset">the offset at which to start writing</param>
+            <param name="count">the number of bytes to write</param>
+        </member>
         <member name="P:Ionic.Crc.CrcCalculatorStream.CanRead">
             <summary>
             Indicates whether the stream supports reading.
@@ -350,6 +329,11 @@
             Indicates whether the stream supports writing.
             </summary>
         </member>
+        <member name="M:Ionic.Crc.CrcCalculatorStream.Flush">
+            <summary>
+            Flush the stream.
+            </summary>
+        </member>
         <member name="P:Ionic.Crc.CrcCalculatorStream.Length">
             <summary>
               Returns the length of the underlying stream.
@@ -362,6 +346,22 @@
             <see cref="T:System.NotSupportedException"/>.
             </summary>
         </member>
+        <member name="M:Ionic.Crc.CrcCalculatorStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            Seeking is not supported on this stream. This method always throws
+            <see cref="T:System.NotSupportedException"/>
+            </summary>
+            <param name="offset">N/A</param>
+            <param name="origin">N/A</param>
+            <returns>N/A</returns>
+        </member>
+        <member name="M:Ionic.Crc.CrcCalculatorStream.SetLength(System.Int64)">
+            <summary>
+            This method always throws
+            <see cref="T:System.NotSupportedException"/>
+            </summary>
+            <param name="value">N/A</param>
+        </member>
         <member name="T:Ionic.Zlib.DeflateStream">
              <summary>
              A class for compressing and decompressing streams using the Deflate algorithm.
@@ -370,7 +370,9 @@
              <remarks>
             
              <para>
-               The DeflateStream is a <see href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a <see cref="T:System.IO.Stream"/>.  It adds DEFLATE compression or decompression to any
+               The DeflateStream is a <see
+               href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a <see
+               cref="T:System.IO.Stream"/>.  It adds DEFLATE compression or decompression to any
                stream.
              </para>
             
@@ -378,7 +380,8 @@
                Using this stream, applications can compress or decompress data via stream
                <c>Read</c> and <c>Write</c> operations.  Either compresssion or decompression
                can occur through either reading or writing. The compression format used is
-               DEFLATE, which is documented in <see href="http://www.ietf.org/rfc/rfc1951.txt">IETF RFC 1951</see>, "DEFLATE
+               DEFLATE, which is documented in <see
+               href="http://www.ietf.org/rfc/rfc1951.txt">IETF RFC 1951</see>, "DEFLATE
                Compressed Data Format Specification version 1.3.".
              </para>
             
@@ -392,8 +395,8 @@
             
              </remarks>
             
-             <seealso cref="T:Ionic.Zlib.ZlibStream"/>
-             <seealso cref="T:Ionic.Zlib.GZipStream"/>
+             <seealso cref="T:Ionic.Zlib.ZlibStream" />
+             <seealso cref="T:Ionic.Zlib.GZipStream" />
         </member>
         <member name="M:Ionic.Zlib.DeflateStream.#ctor(System.IO.Stream,Ionic.Zlib.CompressionMode)">
              <summary>
@@ -623,6 +626,48 @@
              <param name="leaveOpen">true if the application would like the stream to remain open after inflation/deflation.</param>
              <param name="level">A tuning knob to trade speed for effectiveness.</param>
         </member>
+        <member name="P:Ionic.Zlib.DeflateStream.FlushMode">
+            <summary>
+            This property sets the flush behavior on the stream.
+            </summary>
+            <remarks> See the ZLIB documentation for the meaning of the flush behavior.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.BufferSize">
+             <summary>
+               The size of the working buffer for the compression codec.
+             </summary>
+            
+             <remarks>
+             <para>
+               The working buffer is used for all stream operations.  The default size is
+               1024 bytes.  The minimum size is 128 bytes. You may get better performance
+               with a larger buffer.  Then again, you might not.  You would have to test
+               it.
+             </para>
+            
+             <para>
+               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
+               stream. If you try to set it afterwards, it will throw.
+             </para>
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.Strategy">
+             <summary>
+               The ZLIB strategy to be used during compression.
+             </summary>
+            
+             <remarks>
+               By tweaking this parameter, you may be able to optimize the compression for
+               data with particular characteristics.
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.TotalIn">
+            <summary> Returns the total number of bytes input so far.</summary>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.TotalOut">
+            <summary> Returns the total number of bytes output so far.</summary>
+        </member>
         <member name="M:Ionic.Zlib.DeflateStream.Dispose(System.Boolean)">
             <summary>
               Dispose the stream.
@@ -649,10 +694,52 @@
               true if the Dispose method was invoked by user code.
             </param>
         </member>
+        <member name="P:Ionic.Zlib.DeflateStream.CanRead">
+            <summary>
+            Indicates whether the stream can be read.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports reading.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.CanSeek">
+            <summary>
+            Indicates whether the stream supports Seek operations.
+            </summary>
+            <remarks>
+            Always returns false.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.CanWrite">
+            <summary>
+            Indicates whether the stream can be written.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports writing.
+            </remarks>
+        </member>
         <member name="M:Ionic.Zlib.DeflateStream.Flush">
             <summary>
             Flush the stream.
             </summary>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.Length">
+            <summary>
+            Reading this property always throws a <see cref="T:System.NotImplementedException"/>.
+            </summary>
+        </member>
+        <member name="P:Ionic.Zlib.DeflateStream.Position">
+             <summary>
+             The position of the stream pointer.
+             </summary>
+            
+             <remarks>
+               Setting this property always throws a <see
+               cref="T:System.NotImplementedException"/>. Reading will return the total bytes
+               written out, if used in writing, or the total bytes read in, if used in
+               reading.  The count may refer to compressed bytes or uncompressed bytes,
+               depending on how you've used the stream.
+             </remarks>
         </member>
         <member name="M:Ionic.Zlib.DeflateStream.Read(System.Byte[],System.Int32,System.Int32)">
              <summary>
@@ -800,89 +887,6 @@
             
              <returns>The data in uncompressed form</returns>
         </member>
-        <member name="P:Ionic.Zlib.DeflateStream.FlushMode">
-            <summary>
-            This property sets the flush behavior on the stream.
-            </summary>
-            <remarks> See the ZLIB documentation for the meaning of the flush behavior.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.BufferSize">
-             <summary>
-               The size of the working buffer for the compression codec.
-             </summary>
-            
-             <remarks>
-             <para>
-               The working buffer is used for all stream operations.  The default size is
-               1024 bytes.  The minimum size is 128 bytes. You may get better performance
-               with a larger buffer.  Then again, you might not.  You would have to test
-               it.
-             </para>
-            
-             <para>
-               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
-               stream. If you try to set it afterwards, it will throw.
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.Strategy">
-             <summary>
-               The ZLIB strategy to be used during compression.
-             </summary>
-            
-             <remarks>
-               By tweaking this parameter, you may be able to optimize the compression for
-               data with particular characteristics.
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.TotalIn">
-            <summary> Returns the total number of bytes input so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.TotalOut">
-            <summary> Returns the total number of bytes output so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.CanRead">
-            <summary>
-            Indicates whether the stream can be read.
-            </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports reading.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.CanSeek">
-            <summary>
-            Indicates whether the stream supports Seek operations.
-            </summary>
-            <remarks>
-            Always returns false.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.CanWrite">
-            <summary>
-            Indicates whether the stream can be written.
-            </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports writing.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.Length">
-            <summary>
-            Reading this property always throws a <see cref="T:System.NotImplementedException"/>.
-            </summary>
-        </member>
-        <member name="P:Ionic.Zlib.DeflateStream.Position">
-             <summary>
-             The position of the stream pointer.
-             </summary>
-            
-             <remarks>
-               Setting this property always throws a <see cref="T:System.NotImplementedException"/>. Reading will return the total bytes
-               written out, if used in writing, or the total bytes read in, if used in
-               reading.  The count may refer to compressed bytes or uncompressed bytes,
-               depending on how you've used the stream.
-             </remarks>
-        </member>
         <member name="T:Ionic.Zlib.GZipStream">
              <summary>
                A class for compressing and decompressing GZIP streams.
@@ -890,7 +894,8 @@
              <remarks>
             
              <para>
-               The <c>GZipStream</c> is a <see href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a
+               The <c>GZipStream</c> is a <see
+               href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a
                <see cref="T:System.IO.Stream"/>. It adds GZIP compression or decompression to any
                stream.
              </para>
@@ -930,8 +935,55 @@
             
              </remarks>
             
-             <seealso cref="T:Ionic.Zlib.DeflateStream"/>
-             <seealso cref="T:Ionic.Zlib.ZlibStream"/>
+             <seealso cref="T:Ionic.Zlib.DeflateStream" />
+             <seealso cref="T:Ionic.Zlib.ZlibStream" />
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.Comment">
+             <summary>
+               The comment on the GZIP stream.
+             </summary>
+            
+             <remarks>
+             <para>
+               The GZIP format allows for each file to optionally have an associated
+               comment stored with the file.  The comment is encoded with the ISO-8859-1
+               code page.  To include a comment in a GZIP stream you create, set this
+               property before calling <c>Write()</c> for the first time on the
+               <c>GZipStream</c>.
+             </para>
+            
+             <para>
+               When using <c>GZipStream</c> to decompress, you can retrieve this property
+               after the first call to <c>Read()</c>.  If no comment has been set in the
+               GZIP bytestream, the Comment property will return <c>null</c>
+               (<c>Nothing</c> in VB).
+             </para>
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.FileName">
+             <summary>
+               The FileName for the GZIP stream.
+             </summary>
+            
+             <remarks>
+            
+             <para>
+               The GZIP format optionally allows each file to have an associated
+               filename.  When compressing data (through <c>Write()</c>), set this
+               FileName before calling <c>Write()</c> the first time on the <c>GZipStream</c>.
+               The actual filename is encoded into the GZIP bytestream with the
+               ISO-8859-1 code page, according to RFC 1952. It is the application's
+               responsibility to insure that the FileName can be encoded and decoded
+               correctly with this code page.
+             </para>
+            
+             <para>
+               When decompressing (through <c>Read()</c>), you can retrieve this value
+               any time after the first <c>Read()</c>.  In the case where there was no filename
+               encoded into the GZIP bytestream, the property will return <c>null</c> (<c>Nothing</c>
+               in VB).
+             </para>
+             </remarks>
         </member>
         <member name="F:Ionic.Zlib.GZipStream.LastModified">
              <summary>
@@ -944,6 +996,14 @@
                <c>Write()</c>.  When decompressing, you can retrieve this value any time
                after the first call to <c>Read()</c>.
              </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.Crc32">
+            <summary>
+            The CRC on the GZIP stream.
+            </summary>
+            <remarks>
+            This is used for internal error checking. You probably don't need to look at this property.
+            </remarks>
         </member>
         <member name="M:Ionic.Zlib.GZipStream.#ctor(System.IO.Stream,Ionic.Zlib.CompressionMode)">
              <summary>
@@ -1243,6 +1303,36 @@
              <param name="leaveOpen">true if the application would like the stream to remain open after inflation/deflation.</param>
              <param name="level">A tuning knob to trade speed for effectiveness.</param>
         </member>
+        <member name="P:Ionic.Zlib.GZipStream.FlushMode">
+            <summary>
+            This property sets the flush behavior on the stream.
+            </summary>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.BufferSize">
+             <summary>
+               The size of the working buffer for the compression codec.
+             </summary>
+            
+             <remarks>
+             <para>
+               The working buffer is used for all stream operations.  The default size is
+               1024 bytes.  The minimum size is 128 bytes. You may get better performance
+               with a larger buffer.  Then again, you might not.  You would have to test
+               it.
+             </para>
+            
+             <para>
+               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
+               stream. If you try to set it afterwards, it will throw.
+             </para>
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.TotalIn">
+            <summary> Returns the total number of bytes input so far.</summary>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.TotalOut">
+            <summary> Returns the total number of bytes output so far.</summary>
+        </member>
         <member name="M:Ionic.Zlib.GZipStream.Dispose(System.Boolean)">
             <summary>
               Dispose the stream.
@@ -1268,10 +1358,52 @@
               indicates whether the Dispose method was invoked by user code.
             </param>
         </member>
+        <member name="P:Ionic.Zlib.GZipStream.CanRead">
+            <summary>
+            Indicates whether the stream can be read.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports reading.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.CanSeek">
+            <summary>
+            Indicates whether the stream supports Seek operations.
+            </summary>
+            <remarks>
+            Always returns false.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.CanWrite">
+            <summary>
+            Indicates whether the stream can be written.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports writing.
+            </remarks>
+        </member>
         <member name="M:Ionic.Zlib.GZipStream.Flush">
             <summary>
             Flush the stream.
             </summary>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.Length">
+            <summary>
+            Reading this property always throws a <see cref="T:System.NotImplementedException"/>.
+            </summary>
+        </member>
+        <member name="P:Ionic.Zlib.GZipStream.Position">
+             <summary>
+               The position of the stream pointer.
+             </summary>
+            
+             <remarks>
+               Setting this property always throws a <see
+               cref="T:System.NotImplementedException"/>. Reading will return the total bytes
+               written out, if used in writing, or the total bytes read in, if used in
+               reading.  The count may refer to compressed bytes or uncompressed bytes,
+               depending on how you've used the stream.
+             </remarks>
         </member>
         <member name="M:Ionic.Zlib.GZipStream.Read(System.Byte[],System.Int32,System.Int32)">
              <summary>
@@ -1409,225 +1541,6 @@
             
              <returns>The data in uncompressed form</returns>
         </member>
-        <member name="P:Ionic.Zlib.GZipStream.Comment">
-             <summary>
-               The comment on the GZIP stream.
-             </summary>
-            
-             <remarks>
-             <para>
-               The GZIP format allows for each file to optionally have an associated
-               comment stored with the file.  The comment is encoded with the ISO-8859-1
-               code page.  To include a comment in a GZIP stream you create, set this
-               property before calling <c>Write()</c> for the first time on the
-               <c>GZipStream</c>.
-             </para>
-            
-             <para>
-               When using <c>GZipStream</c> to decompress, you can retrieve this property
-               after the first call to <c>Read()</c>.  If no comment has been set in the
-               GZIP bytestream, the Comment property will return <c>null</c>
-               (<c>Nothing</c> in VB).
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.FileName">
-             <summary>
-               The FileName for the GZIP stream.
-             </summary>
-            
-             <remarks>
-            
-             <para>
-               The GZIP format optionally allows each file to have an associated
-               filename.  When compressing data (through <c>Write()</c>), set this
-               FileName before calling <c>Write()</c> the first time on the <c>GZipStream</c>.
-               The actual filename is encoded into the GZIP bytestream with the
-               ISO-8859-1 code page, according to RFC 1952. It is the application's
-               responsibility to insure that the FileName can be encoded and decoded
-               correctly with this code page.
-             </para>
-            
-             <para>
-               When decompressing (through <c>Read()</c>), you can retrieve this value
-               any time after the first <c>Read()</c>.  In the case where there was no filename
-               encoded into the GZIP bytestream, the property will return <c>null</c> (<c>Nothing</c>
-               in VB).
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.Crc32">
-            <summary>
-            The CRC on the GZIP stream.
-            </summary>
-            <remarks>
-            This is used for internal error checking. You probably don't need to look at this property.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.FlushMode">
-            <summary>
-            This property sets the flush behavior on the stream.
-            </summary>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.BufferSize">
-             <summary>
-               The size of the working buffer for the compression codec.
-             </summary>
-            
-             <remarks>
-             <para>
-               The working buffer is used for all stream operations.  The default size is
-               1024 bytes.  The minimum size is 128 bytes. You may get better performance
-               with a larger buffer.  Then again, you might not.  You would have to test
-               it.
-             </para>
-            
-             <para>
-               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
-               stream. If you try to set it afterwards, it will throw.
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.TotalIn">
-            <summary> Returns the total number of bytes input so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.TotalOut">
-            <summary> Returns the total number of bytes output so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.CanRead">
-            <summary>
-            Indicates whether the stream can be read.
-            </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports reading.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.CanSeek">
-            <summary>
-            Indicates whether the stream supports Seek operations.
-            </summary>
-            <remarks>
-            Always returns false.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.CanWrite">
-            <summary>
-            Indicates whether the stream can be written.
-            </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports writing.
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.Length">
-            <summary>
-            Reading this property always throws a <see cref="T:System.NotImplementedException"/>.
-            </summary>
-        </member>
-        <member name="P:Ionic.Zlib.GZipStream.Position">
-             <summary>
-               The position of the stream pointer.
-             </summary>
-            
-             <remarks>
-               Setting this property always throws a <see cref="T:System.NotImplementedException"/>. Reading will return the total bytes
-               written out, if used in writing, or the total bytes read in, if used in
-               reading.  The count may refer to compressed bytes or uncompressed bytes,
-               depending on how you've used the stream.
-             </remarks>
-        </member>
-        <member name="T:Ionic.Encoding.Iso8859Dash1Encoding">
-            <summary>
-            Provides a text encoder for the iso-8859-1 encoding, aka Latin1 encoding,
-            for platforms that do not support it, for example on Silverlight or some
-            Compact Framework platforms.
-            </summary>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetBytes(System.Char[],System.Int32,System.Int32,System.Byte[],System.Int32)">
-            <summary>
-            Encodes a set of characters from a character array into
-            a byte array.
-            </summary>
-            <returns>
-            The actual number of bytes written into <paramref name="bytes"/>.
-            </returns>
-            <param name="chars">The character array containing the set of characters to encode.
-            </param><param name="start">The index of the first character to encode.
-            </param><param name="count">The number of characters to encode.
-            </param><param name="bytes">The byte array to contain the resulting sequence of bytes.
-            </param><param name="byteIndex">The index at which to start writing the resulting sequence of bytes.
-            </param>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetChars(System.Byte[],System.Int32,System.Int32,System.Char[],System.Int32)">
-            <summary>
-            Decodes a sequence of bytes from the specified byte array into the specified character array.
-            </summary>
-            <returns>
-            The actual number of characters written into <paramref name="chars"/>.
-            </returns>
-            <param name="bytes">The byte array containing the sequence of bytes to decode.
-            </param><param name="start">The index of the first byte to decode.
-            </param><param name="count">The number of bytes to decode.
-            </param><param name="chars">The character array to contain the resulting set of characters.
-            </param><param name="charIndex">The index at which to start writing the resulting set of characters.
-            </param>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetByteCount(System.Char[],System.Int32,System.Int32)">
-            <summary>
-            Calculates the number of bytes produced by encoding a set of characters
-            from the specified character array.
-            </summary>
-            <returns>
-            The number of bytes produced by encoding the specified characters. This class
-            alwas returns the value of <paramref name="count"/>.
-            </returns>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetCharCount(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Calculates the number of characters produced by decoding a sequence
-            of bytes from the specified byte array.
-            </summary>
-            <returns>
-            The number of characters produced by decoding the specified sequence of bytes. This class
-            alwas returns the value of <paramref name="count"/>.
-            </returns>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetMaxByteCount(System.Int32)">
-            <summary>
-            Calculates the maximum number of bytes produced by encoding the specified number of characters.
-            </summary>
-            <returns>
-            The maximum number of bytes produced by encoding the specified number of characters. This
-            class alwas returns the value of <paramref name="charCount"/>.
-            </returns>
-            <param name="charCount">The number of characters to encode.
-            </param>
-        </member>
-        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetMaxCharCount(System.Int32)">
-            <summary>
-            Calculates the maximum number of characters produced by decoding the specified number of bytes.
-            </summary>
-            <returns>
-            The maximum number of characters produced by decoding the specified number of bytes. This class
-            alwas returns the value of <paramref name="byteCount"/>.
-            </returns>
-            <param name="byteCount">The number of bytes to decode.</param>
-        </member>
-        <member name="P:Ionic.Encoding.Iso8859Dash1Encoding.WebName">
-            <summary>
-            Gets the name registered with the
-            Internet Assigned Numbers Authority (IANA) for the current encoding.
-            </summary>
-            <returns>
-            Always returns "iso-8859-1".
-            </returns>
-        </member>
-        <member name="P:Ionic.Encoding.Iso8859Dash1Encoding.CharacterCount">
-            <summary>
-            Gets the number of characters that are supported by this encoding.
-            This property returns a maximum value of 256, as the encoding class
-            only supports single byte encodings (1 byte == 256 possible values).
-            </summary>
-        </member>
         <member name="T:Ionic.Zlib.ParallelDeflateOutputStream">
              <summary>
                A class for compressing streams using the
@@ -1665,7 +1578,7 @@
              </para>
             
              </remarks>
-             <seealso cref="T:Ionic.Zlib.DeflateStream"/>
+             <seealso cref="T:Ionic.Zlib.DeflateStream" />
         </member>
         <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.#ctor(System.IO.Stream)">
              <summary>
@@ -1801,6 +1714,143 @@
                true if the application would like the stream to remain open after inflation/deflation.
             </param>
         </member>
+        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.Strategy">
+             <summary>
+               The ZLIB strategy to be used during compression.
+             </summary>
+            
+        </member>
+        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.MaxBufferPairs">
+             <summary>
+               The maximum number of buffer pairs to use.
+             </summary>
+            
+             <remarks>
+             <para>
+               This property sets an upper limit on the number of memory buffer
+               pairs to create.  The implementation of this stream allocates
+               multiple buffers to facilitate parallel compression.  As each buffer
+               fills up, this stream uses <see
+               cref="M:System.Threading.ThreadPool.QueueUserWorkItem(System.Threading.WaitCallback)">
+               ThreadPool.QueueUserWorkItem()</see>
+               to compress those buffers in a background threadpool thread. After a
+               buffer is compressed, it is re-ordered and written to the output
+               stream.
+             </para>
+            
+             <para>
+               A higher number of buffer pairs enables a higher degree of
+               parallelism, which tends to increase the speed of compression on
+               multi-cpu computers.  On the other hand, a higher number of buffer
+               pairs also implies a larger memory consumption, more active worker
+               threads, and a higher cpu utilization for any compression. This
+               property enables the application to limit its memory consumption and
+               CPU utilization behavior depending on requirements.
+             </para>
+            
+             <para>
+               For each compression "task" that occurs in parallel, there are 2
+               buffers allocated: one for input and one for output.  This property
+               sets a limit for the number of pairs.  The total amount of storage
+               space allocated for buffering will then be (N*S*2), where N is the
+               number of buffer pairs, S is the size of each buffer (<see
+               cref="P:Ionic.Zlib.ParallelDeflateOutputStream.BufferSize"/>).  By default, DotNetZip allocates 4 buffer
+               pairs per CPU core, so if your machine has 4 cores, and you retain
+               the default buffer size of 128k, then the
+               ParallelDeflateOutputStream will use 4 * 4 * 2 * 128kb of buffer
+               memory in total, or 4mb, in blocks of 128kb.  If you then set this
+               property to 8, then the number will be 8 * 2 * 128kb of buffer
+               memory, or 2mb.
+             </para>
+            
+             <para>
+               CPU utilization will also go up with additional buffers, because a
+               larger number of buffer pairs allows a larger number of background
+               threads to compress in parallel. If you find that parallel
+               compression is consuming too much memory or CPU, you can adjust this
+               value downward.
+             </para>
+            
+             <para>
+               The default value is 16. Different values may deliver better or
+               worse results, depending on your priorities and the dynamic
+               performance characteristics of your storage and compute resources.
+             </para>
+            
+             <para>
+               This property is not the number of buffer pairs to use; it is an
+               upper limit. An illustration: Suppose you have an application that
+               uses the default value of this property (which is 16), and it runs
+               on a machine with 2 CPU cores. In that case, DotNetZip will allocate
+               4 buffer pairs per CPU core, for a total of 8 pairs.  The upper
+               limit specified by this property has no effect.
+             </para>
+            
+             <para>
+               The application can set this value at any time, but it is effective
+               only before the first call to Write(), which is when the buffers are
+               allocated.
+             </para>
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.BufferSize">
+             <summary>
+               The size of the buffers used by the compressor threads.
+             </summary>
+             <remarks>
+            
+             <para>
+               The default buffer size is 128k. The application can set this value
+               at any time, but it is effective only before the first Write().
+             </para>
+            
+             <para>
+               Larger buffer sizes implies larger memory consumption but allows
+               more efficient compression. Using smaller buffer sizes consumes less
+               memory but may result in less effective compression.  For example,
+               using the default buffer size of 128k, the compression delivered is
+               within 1% of the compression delivered by the single-threaded <see
+               cref="T:Ionic.Zlib.DeflateStream"/>.  On the other hand, using a
+               BufferSize of 8k can result in a compressed data stream that is 5%
+               larger than that delivered by the single-threaded
+               <c>DeflateStream</c>.  Excessively small buffer sizes can also cause
+               the speed of the ParallelDeflateOutputStream to drop, because of
+               larger thread scheduling overhead dealing with many many small
+               buffers.
+             </para>
+            
+             <para>
+               The total amount of storage space allocated for buffering will be
+               (N*S*2), where N is the number of buffer pairs, and S is the size of
+               each buffer (this property). There are 2 buffers used by the
+               compressor, one for input and one for output.  By default, DotNetZip
+               allocates 4 buffer pairs per CPU core, so if your machine has 4
+               cores, then the number of buffer pairs used will be 16. If you
+               accept the default value of this property, 128k, then the
+               ParallelDeflateOutputStream will use 16 * 2 * 128kb of buffer memory
+               in total, or 4mb, in blocks of 128kb.  If you set this property to
+               64kb, then the number will be 16 * 2 * 64kb of buffer memory, or
+               2mb.
+             </para>
+            
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.Crc32">
+            <summary>
+            The CRC32 for the data that was written out, prior to compression.
+            </summary>
+            <remarks>
+            This value is meaningful only after a call to Close().
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.BytesProcessed">
+            <summary>
+            The total number of uncompressed bytes processed by the ParallelDeflateOutputStream.
+            </summary>
+            <remarks>
+            This value is meaningful only after a call to Close().
+            </remarks>
+        </member>
         <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.Write(System.Byte[],System.Int32,System.Int32)">
              <summary>
                Write data to the stream.
@@ -1895,182 +1945,6 @@
              </code>
              </example>
         </member>
-        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.Read(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            This method always throws a NotSupportedException.
-            </summary>
-            <param name="buffer">
-              The buffer into which data would be read, IF THIS METHOD
-              ACTUALLY DID ANYTHING.
-            </param>
-            <param name="offset">
-              The offset within that data array at which to insert the
-              data that is read, IF THIS METHOD ACTUALLY DID
-              ANYTHING.
-            </param>
-            <param name="count">
-              The number of bytes to write, IF THIS METHOD ACTUALLY DID
-              ANYTHING.
-            </param>
-            <returns>nothing.</returns>
-        </member>
-        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.Seek(System.Int64,System.IO.SeekOrigin)">
-            <summary>
-            This method always throws a NotSupportedException.
-            </summary>
-            <param name="offset">
-              The offset to seek to....
-              IF THIS METHOD ACTUALLY DID ANYTHING.
-            </param>
-            <param name="origin">
-              The reference specifying how to apply the offset....  IF
-              THIS METHOD ACTUALLY DID ANYTHING.
-            </param>
-            <returns>nothing. It always throws.</returns>
-        </member>
-        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.SetLength(System.Int64)">
-            <summary>
-            This method always throws a NotSupportedException.
-            </summary>
-            <param name="value">
-              The new value for the stream length....  IF
-              THIS METHOD ACTUALLY DID ANYTHING.
-            </param>
-        </member>
-        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.Strategy">
-             <summary>
-               The ZLIB strategy to be used during compression.
-             </summary>
-            
-        </member>
-        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.MaxBufferPairs">
-             <summary>
-               The maximum number of buffer pairs to use.
-             </summary>
-            
-             <remarks>
-             <para>
-               This property sets an upper limit on the number of memory buffer
-               pairs to create.  The implementation of this stream allocates
-               multiple buffers to facilitate parallel compression.  As each buffer
-               fills up, this stream uses <see cref="M:System.Threading.ThreadPool.QueueUserWorkItem(System.Threading.WaitCallback)">
-               ThreadPool.QueueUserWorkItem()</see>
-               to compress those buffers in a background threadpool thread. After a
-               buffer is compressed, it is re-ordered and written to the output
-               stream.
-             </para>
-            
-             <para>
-               A higher number of buffer pairs enables a higher degree of
-               parallelism, which tends to increase the speed of compression on
-               multi-cpu computers.  On the other hand, a higher number of buffer
-               pairs also implies a larger memory consumption, more active worker
-               threads, and a higher cpu utilization for any compression. This
-               property enables the application to limit its memory consumption and
-               CPU utilization behavior depending on requirements.
-             </para>
-            
-             <para>
-               For each compression "task" that occurs in parallel, there are 2
-               buffers allocated: one for input and one for output.  This property
-               sets a limit for the number of pairs.  The total amount of storage
-               space allocated for buffering will then be (N*S*2), where N is the
-               number of buffer pairs, S is the size of each buffer (<see cref="P:Ionic.Zlib.ParallelDeflateOutputStream.BufferSize"/>).  By default, DotNetZip allocates 4 buffer
-               pairs per CPU core, so if your machine has 4 cores, and you retain
-               the default buffer size of 128k, then the
-               ParallelDeflateOutputStream will use 4 * 4 * 2 * 128kb of buffer
-               memory in total, or 4mb, in blocks of 128kb.  If you then set this
-               property to 8, then the number will be 8 * 2 * 128kb of buffer
-               memory, or 2mb.
-             </para>
-            
-             <para>
-               CPU utilization will also go up with additional buffers, because a
-               larger number of buffer pairs allows a larger number of background
-               threads to compress in parallel. If you find that parallel
-               compression is consuming too much memory or CPU, you can adjust this
-               value downward.
-             </para>
-            
-             <para>
-               The default value is 16. Different values may deliver better or
-               worse results, depending on your priorities and the dynamic
-               performance characteristics of your storage and compute resources.
-             </para>
-            
-             <para>
-               This property is not the number of buffer pairs to use; it is an
-               upper limit. An illustration: Suppose you have an application that
-               uses the default value of this property (which is 16), and it runs
-               on a machine with 2 CPU cores. In that case, DotNetZip will allocate
-               4 buffer pairs per CPU core, for a total of 8 pairs.  The upper
-               limit specified by this property has no effect.
-             </para>
-            
-             <para>
-               The application can set this value at any time, but it is effective
-               only before the first call to Write(), which is when the buffers are
-               allocated.
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.BufferSize">
-             <summary>
-               The size of the buffers used by the compressor threads.
-             </summary>
-             <remarks>
-            
-             <para>
-               The default buffer size is 128k. The application can set this value
-               at any time, but it is effective only before the first Write().
-             </para>
-            
-             <para>
-               Larger buffer sizes implies larger memory consumption but allows
-               more efficient compression. Using smaller buffer sizes consumes less
-               memory but may result in less effective compression.  For example,
-               using the default buffer size of 128k, the compression delivered is
-               within 1% of the compression delivered by the single-threaded <see cref="T:Ionic.Zlib.DeflateStream"/>.  On the other hand, using a
-               BufferSize of 8k can result in a compressed data stream that is 5%
-               larger than that delivered by the single-threaded
-               <c>DeflateStream</c>.  Excessively small buffer sizes can also cause
-               the speed of the ParallelDeflateOutputStream to drop, because of
-               larger thread scheduling overhead dealing with many many small
-               buffers.
-             </para>
-            
-             <para>
-               The total amount of storage space allocated for buffering will be
-               (N*S*2), where N is the number of buffer pairs, and S is the size of
-               each buffer (this property). There are 2 buffers used by the
-               compressor, one for input and one for output.  By default, DotNetZip
-               allocates 4 buffer pairs per CPU core, so if your machine has 4
-               cores, then the number of buffer pairs used will be 16. If you
-               accept the default value of this property, 128k, then the
-               ParallelDeflateOutputStream will use 16 * 2 * 128kb of buffer memory
-               in total, or 4mb, in blocks of 128kb.  If you set this property to
-               64kb, then the number will be 16 * 2 * 64kb of buffer memory, or
-               2mb.
-             </para>
-            
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.Crc32">
-            <summary>
-            The CRC32 for the data that was written out, prior to compression.
-            </summary>
-            <remarks>
-            This value is meaningful only after a call to Close().
-            </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.BytesProcessed">
-            <summary>
-            The total number of uncompressed bytes processed by the ParallelDeflateOutputStream.
-            </summary>
-            <remarks>
-            This value is meaningful only after a call to Close().
-            </remarks>
-        </member>
         <member name="P:Ionic.Zlib.ParallelDeflateOutputStream.CanSeek">
             <summary>
             Indicates whether the stream supports Seek operations.
@@ -2112,26 +1986,47 @@
               </para>
             </remarks>
         </member>
-        <member name="F:System.IO.Path2.DirectorySeparatorChar">
-            <summary>Provides a platform-specific character used to separate directory levels in a path string that reflects a hierarchical file system organization.</summary>
-            <filterpriority>1</filterpriority>
+        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            This method always throws a NotSupportedException.
+            </summary>
+            <param name="buffer">
+              The buffer into which data would be read, IF THIS METHOD
+              ACTUALLY DID ANYTHING.
+            </param>
+            <param name="offset">
+              The offset within that data array at which to insert the
+              data that is read, IF THIS METHOD ACTUALLY DID
+              ANYTHING.
+            </param>
+            <param name="count">
+              The number of bytes to write, IF THIS METHOD ACTUALLY DID
+              ANYTHING.
+            </param>
+            <returns>nothing.</returns>
         </member>
-        <member name="F:System.IO.Path2.AltDirectorySeparatorChar">
-            <summary>Provides a platform-specific alternate character used to separate directory levels in a path string that reflects a hierarchical file system organization.</summary>
-            <filterpriority>1</filterpriority>
+        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            This method always throws a NotSupportedException.
+            </summary>
+            <param name="offset">
+              The offset to seek to....
+              IF THIS METHOD ACTUALLY DID ANYTHING.
+            </param>
+            <param name="origin">
+              The reference specifying how to apply the offset....  IF
+              THIS METHOD ACTUALLY DID ANYTHING.
+            </param>
+            <returns>nothing. It always throws.</returns>
         </member>
-        <member name="F:System.IO.Path2.VolumeSeparatorChar">
-            <summary>Provides a platform-specific volume separator character.</summary>
-            <filterpriority>1</filterpriority>
-        </member>
-        <member name="F:System.IO.Path2.InvalidPathChars">
-            <summary>Provides a platform-specific array of characters that cannot be specified in path string arguments passed to members of the <see cref="T:System.IO.Path" /> class.</summary>
-            <returns>A character array of invalid path characters for the current platform.</returns>
-            <filterpriority>1</filterpriority>
-        </member>
-        <member name="F:System.IO.Path2.PathSeparator">
-            <summary>A platform-specific separator character used to separate path strings in environment variables.</summary>
-            <filterpriority>1</filterpriority>
+        <member name="M:Ionic.Zlib.ParallelDeflateOutputStream.SetLength(System.Int64)">
+            <summary>
+            This method always throws a NotSupportedException.
+            </summary>
+            <param name="value">
+              The new value for the stream length....  IF
+              THIS METHOD ACTUALLY DID ANYTHING.
+            </param>
         </member>
         <member name="M:Ionic.Zlib.Tree.DistanceCode(System.Int32)">
             <summary>
@@ -2469,6 +2364,11 @@
             different strategy options and evaluates them on different file types. If you do that,
             let me know your results.
             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibCodec.Adler32">
+            <summary>
+            The Adler32 checksum on the data transferred through the codec so far. You probably don't need to look at this.
+            </summary>
         </member>
         <member name="M:Ionic.Zlib.ZlibCodec.#ctor">
             <summary>
@@ -2827,11 +2727,6 @@
             <param name="dictionary">The dictionary bytes to use.</param>
             <returns>Z_OK if all goes well.</returns>
         </member>
-        <member name="P:Ionic.Zlib.ZlibCodec.Adler32">
-            <summary>
-            The Adler32 checksum on the data transferred through the codec so far. You probably don't need to look at this.
-            </summary>
-        </member>
         <member name="T:Ionic.Zlib.ZlibConstants">
             <summary>
             A bunch of constants used in the Zlib interface.
@@ -2894,16 +2789,20 @@
              <remarks>
             
              <para>
-             The ZlibStream is a <see href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a <see cref="T:System.IO.Stream"/>.  It adds ZLIB compression or decompression to any
+             The ZlibStream is a <see
+             href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a <see
+             cref="T:System.IO.Stream"/>.  It adds ZLIB compression or decompression to any
              stream.
              </para>
             
              <para> Using this stream, applications can compress or decompress data via
              stream <c>Read()</c> and <c>Write()</c> operations.  Either compresssion or
              decompression can occur through either reading or writing. The compression
-             format used is ZLIB, which is documented in <see href="http://www.ietf.org/rfc/rfc1950.txt">IETF RFC 1950</see>, "ZLIB Compressed
+             format used is ZLIB, which is documented in <see
+             href="http://www.ietf.org/rfc/rfc1950.txt">IETF RFC 1950</see>, "ZLIB Compressed
              Data Format Specification version 3.3". This implementation of ZLIB always uses
-             DEFLATE as the compression method.  (see <see href="http://www.ietf.org/rfc/rfc1951.txt">IETF RFC 1951</see>, "DEFLATE
+             DEFLATE as the compression method.  (see <see
+             href="http://www.ietf.org/rfc/rfc1951.txt">IETF RFC 1951</see>, "DEFLATE
              Compressed Data Format Specification version 1.3.") </para>
             
              <para>
@@ -2919,8 +2818,8 @@
              <see cref="T:Ionic.Zlib.GZipStream"/>.
              </para>
              </remarks>
-             <seealso cref="T:Ionic.Zlib.DeflateStream"/>
-             <seealso cref="T:Ionic.Zlib.GZipStream"/>
+             <seealso cref="T:Ionic.Zlib.DeflateStream" />
+             <seealso cref="T:Ionic.Zlib.GZipStream" />
         </member>
         <member name="M:Ionic.Zlib.ZlibStream.#ctor(System.IO.Stream,Ionic.Zlib.CompressionMode)">
              <summary>
@@ -3089,7 +2988,8 @@
                default, after <c>Close()</c> is called on the stream, the captive
                stream is also closed. In some cases this is not desired, for example
                if the stream is a <see cref="T:System.IO.MemoryStream"/> that will be
-               re-read after compression.  Specify true for the <paramref name="leaveOpen"/> parameter to leave the stream open.
+               re-read after compression.  Specify true for the <paramref
+               name="leaveOpen"/> parameter to leave the stream open.
              </para>
             
              <para>
@@ -3156,6 +3056,37 @@
              effective only when mode is <c>CompressionMode.Compress</c>.
              </param>
         </member>
+        <member name="P:Ionic.Zlib.ZlibStream.FlushMode">
+            <summary>
+            This property sets the flush behavior on the stream.
+            Sorry, though, not sure exactly how to describe all the various settings.
+            </summary>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.BufferSize">
+             <summary>
+               The size of the working buffer for the compression codec.
+             </summary>
+            
+             <remarks>
+             <para>
+               The working buffer is used for all stream operations.  The default size is
+               1024 bytes. The minimum size is 128 bytes. You may get better performance
+               with a larger buffer.  Then again, you might not.  You would have to test
+               it.
+             </para>
+            
+             <para>
+               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
+               stream. If you try to set it afterwards, it will throw.
+             </para>
+             </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.TotalIn">
+            <summary> Returns the total number of bytes input so far.</summary>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.TotalOut">
+            <summary> Returns the total number of bytes output so far.</summary>
+        </member>
         <member name="M:Ionic.Zlib.ZlibStream.Dispose(System.Boolean)">
             <summary>
               Dispose the stream.
@@ -3181,10 +3112,52 @@
               indicates whether the Dispose method was invoked by user code.
             </param>
         </member>
+        <member name="P:Ionic.Zlib.ZlibStream.CanRead">
+            <summary>
+            Indicates whether the stream can be read.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports reading.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.CanSeek">
+            <summary>
+            Indicates whether the stream supports Seek operations.
+            </summary>
+            <remarks>
+            Always returns false.
+            </remarks>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.CanWrite">
+            <summary>
+            Indicates whether the stream can be written.
+            </summary>
+            <remarks>
+            The return value depends on whether the captive stream supports writing.
+            </remarks>
+        </member>
         <member name="M:Ionic.Zlib.ZlibStream.Flush">
             <summary>
             Flush the stream.
             </summary>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.Length">
+            <summary>
+            Reading this property always throws a <see cref="T:System.NotSupportedException"/>.
+            </summary>
+        </member>
+        <member name="P:Ionic.Zlib.ZlibStream.Position">
+             <summary>
+               The position of the stream pointer.
+             </summary>
+            
+             <remarks>
+               Setting this property always throws a <see
+               cref="T:System.NotSupportedException"/>. Reading will return the total bytes
+               written out, if used in writing, or the total bytes read in, if used in
+               reading.  The count may refer to compressed bytes or uncompressed bytes,
+               depending on how you've used the stream.
+             </remarks>
         </member>
         <member name="M:Ionic.Zlib.ZlibStream.Read(System.Byte[],System.Int32,System.Int32)">
              <summary>
@@ -3339,77 +3312,119 @@
             
              <returns>The data in uncompressed form</returns>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.FlushMode">
+        <member name="T:Ionic.Encoding.Iso8859Dash1Encoding">
             <summary>
-            This property sets the flush behavior on the stream.
-            Sorry, though, not sure exactly how to describe all the various settings.
+            Provides a text encoder for the iso-8859-1 encoding, aka Latin1 encoding,
+            for platforms that do not support it, for example on Silverlight or some
+            Compact Framework platforms.
             </summary>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.BufferSize">
-             <summary>
-               The size of the working buffer for the compression codec.
-             </summary>
-            
-             <remarks>
-             <para>
-               The working buffer is used for all stream operations.  The default size is
-               1024 bytes. The minimum size is 128 bytes. You may get better performance
-               with a larger buffer.  Then again, you might not.  You would have to test
-               it.
-             </para>
-            
-             <para>
-               Set this before the first call to <c>Read()</c> or <c>Write()</c> on the
-               stream. If you try to set it afterwards, it will throw.
-             </para>
-             </remarks>
-        </member>
-        <member name="P:Ionic.Zlib.ZlibStream.TotalIn">
-            <summary> Returns the total number of bytes input so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.ZlibStream.TotalOut">
-            <summary> Returns the total number of bytes output so far.</summary>
-        </member>
-        <member name="P:Ionic.Zlib.ZlibStream.CanRead">
+        <member name="P:Ionic.Encoding.Iso8859Dash1Encoding.WebName">
             <summary>
-            Indicates whether the stream can be read.
+            Gets the name registered with the
+            Internet Assigned Numbers Authority (IANA) for the current encoding.
             </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports reading.
-            </remarks>
+            <returns>
+            Always returns "iso-8859-1".
+            </returns>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.CanSeek">
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetBytes(System.Char[],System.Int32,System.Int32,System.Byte[],System.Int32)">
             <summary>
-            Indicates whether the stream supports Seek operations.
+            Encodes a set of characters from a character array into
+            a byte array.
             </summary>
-            <remarks>
-            Always returns false.
-            </remarks>
+            <returns>
+            The actual number of bytes written into <paramref name="bytes"/>.
+            </returns>
+            <param name="chars">The character array containing the set of characters to encode.
+            </param><param name="start">The index of the first character to encode.
+            </param><param name="count">The number of characters to encode.
+            </param><param name="bytes">The byte array to contain the resulting sequence of bytes.
+            </param><param name="byteIndex">The index at which to start writing the resulting sequence of bytes.
+            </param>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.CanWrite">
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetChars(System.Byte[],System.Int32,System.Int32,System.Char[],System.Int32)">
             <summary>
-            Indicates whether the stream can be written.
+            Decodes a sequence of bytes from the specified byte array into the specified character array.
             </summary>
-            <remarks>
-            The return value depends on whether the captive stream supports writing.
-            </remarks>
+            <returns>
+            The actual number of characters written into <paramref name="chars"/>.
+            </returns>
+            <param name="bytes">The byte array containing the sequence of bytes to decode.
+            </param><param name="start">The index of the first byte to decode.
+            </param><param name="count">The number of bytes to decode.
+            </param><param name="chars">The character array to contain the resulting set of characters.
+            </param><param name="charIndex">The index at which to start writing the resulting set of characters.
+            </param>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.Length">
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetByteCount(System.Char[],System.Int32,System.Int32)">
             <summary>
-            Reading this property always throws a <see cref="T:System.NotSupportedException"/>.
+            Calculates the number of bytes produced by encoding a set of characters
+            from the specified character array.
+            </summary>
+            <returns>
+            The number of bytes produced by encoding the specified characters. This class
+            alwas returns the value of <paramref name="count"/>.
+            </returns>
+        </member>
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetCharCount(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Calculates the number of characters produced by decoding a sequence
+            of bytes from the specified byte array.
+            </summary>
+            <returns>
+            The number of characters produced by decoding the specified sequence of bytes. This class
+            alwas returns the value of <paramref name="count"/>.
+            </returns>
+        </member>
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetMaxByteCount(System.Int32)">
+            <summary>
+            Calculates the maximum number of bytes produced by encoding the specified number of characters.
+            </summary>
+            <returns>
+            The maximum number of bytes produced by encoding the specified number of characters. This
+            class alwas returns the value of <paramref name="charCount"/>.
+            </returns>
+            <param name="charCount">The number of characters to encode.
+            </param>
+        </member>
+        <member name="M:Ionic.Encoding.Iso8859Dash1Encoding.GetMaxCharCount(System.Int32)">
+            <summary>
+            Calculates the maximum number of characters produced by decoding the specified number of bytes.
+            </summary>
+            <returns>
+            The maximum number of characters produced by decoding the specified number of bytes. This class
+            alwas returns the value of <paramref name="byteCount"/>.
+            </returns>
+            <param name="byteCount">The number of bytes to decode.</param>
+        </member>
+        <member name="P:Ionic.Encoding.Iso8859Dash1Encoding.CharacterCount">
+            <summary>
+            Gets the number of characters that are supported by this encoding.
+            This property returns a maximum value of 256, as the encoding class
+            only supports single byte encodings (1 byte == 256 possible values).
             </summary>
         </member>
-        <member name="P:Ionic.Zlib.ZlibStream.Position">
-             <summary>
-               The position of the stream pointer.
-             </summary>
-            
-             <remarks>
-               Setting this property always throws a <see cref="T:System.NotSupportedException"/>. Reading will return the total bytes
-               written out, if used in writing, or the total bytes read in, if used in
-               reading.  The count may refer to compressed bytes or uncompressed bytes,
-               depending on how you've used the stream.
-             </remarks>
+        <member name="F:System.IO.Path2.DirectorySeparatorChar">
+            <summary>Provides a platform-specific character used to separate directory levels in a path string that reflects a hierarchical file system organization.</summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="F:System.IO.Path2.AltDirectorySeparatorChar">
+            <summary>Provides a platform-specific alternate character used to separate directory levels in a path string that reflects a hierarchical file system organization.</summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="F:System.IO.Path2.VolumeSeparatorChar">
+            <summary>Provides a platform-specific volume separator character.</summary>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="F:System.IO.Path2.InvalidPathChars">
+            <summary>Provides a platform-specific array of characters that cannot be specified in path string arguments passed to members of the <see cref="T:System.IO.Path" /> class.</summary>
+            <returns>A character array of invalid path characters for the current platform.</returns>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="F:System.IO.Path2.PathSeparator">
+            <summary>A platform-specific separator character used to separate path strings in environment variables.</summary>
+            <filterpriority>1</filterpriority>
         </member>
     </members>
 </doc>

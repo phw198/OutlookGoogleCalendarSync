@@ -1496,11 +1496,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static void addOGCSproperty(ref Event ev, MetadataId id, String value) {
             String key = MetadataIdKeyName(id);
             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
-            if (ev.ExtendedProperties.Private == null) ev.ExtendedProperties.Private = new Dictionary<String, String>();
-            if (ev.ExtendedProperties.Private.ContainsKey(key))
-                ev.ExtendedProperties.Private[key] = value;
+            if (ev.ExtendedProperties.Private__ == null) ev.ExtendedProperties.Private__ = new Dictionary<String, String>();
+            if (ev.ExtendedProperties.Private__.ContainsKey(key))
+                ev.ExtendedProperties.Private__[key] = value;
             else
-                ev.ExtendedProperties.Private.Add(key, value);
+                ev.ExtendedProperties.Private__.Add(key, value);
         }
         private static void addOGCSproperty(ref Event ev, MetadataId key, DateTime value) {
             addOGCSproperty(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
@@ -1513,9 +1513,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static Boolean GetOGCSproperty(Event ev, MetadataId id, out String value) {
             String key = MetadataIdKeyName(id);
             if (ev.ExtendedProperties != null &&
-                ev.ExtendedProperties.Private != null &&
-                ev.ExtendedProperties.Private.ContainsKey(key)) {
-                value = ev.ExtendedProperties.Private[key];
+                ev.ExtendedProperties.Private__ != null &&
+                ev.ExtendedProperties.Private__.ContainsKey(key)) {
+                value = ev.ExtendedProperties.Private__[key];
                 return true;
             } else {
                 value = null;
@@ -1525,7 +1525,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         
         private static void removeOGCSproperty(ref Event ev, MetadataId key) {
             if (GetOGCSproperty(ev, key))
-                ev.ExtendedProperties.Private.Remove(MetadataIdKeyName(key));
+                ev.ExtendedProperties.Private__.Remove(MetadataIdKeyName(key));
         }
 
         public static DateTime GetOGCSlastModified(Event ev) {
