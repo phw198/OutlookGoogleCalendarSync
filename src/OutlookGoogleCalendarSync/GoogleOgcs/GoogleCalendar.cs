@@ -253,11 +253,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (request.Items != null) result.AddRange(request.Items);
                 }
             } while (pageToken != null);
-
-            if (Settings.Instance.CreateCSVFiles) {
-                ExportToCSV("Outputting all Events to CSV", "google_events.csv", result);
-            }
-
+            
             //Remove cancelled non-recurring Events - don't know how these exist, but some users have them!
             List<Event> cancelled = result.Where(ev =>
                 ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
@@ -1287,6 +1283,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public static void ExportToCSV(String action, String filename, List<Event> events) {
+            if (!Settings.Instance.CreateCSVFiles) return;
+
             log.Debug(action);
 
             TextWriter tw;
@@ -1343,7 +1341,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             System.Text.StringBuilder required = new System.Text.StringBuilder();
             System.Text.StringBuilder optional = new System.Text.StringBuilder();
             if (ev.Attendees != null) {
-                foreach (EventAttendee ea in ev.Attendees) {
+                foreach (Google.Apis.Calendar.v3.Data.EventAttendee ea in ev.Attendees) {
                     if (ea.Optional != null && (bool)ea.Optional) { optional.Append(ea.DisplayName + ";"); }
                     else { required.Append(ea.DisplayName + ";"); }
                 }

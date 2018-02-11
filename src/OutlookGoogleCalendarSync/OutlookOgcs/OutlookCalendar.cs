@@ -172,10 +172,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public List<AppointmentItem> GetCalendarEntriesInRange() {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             filtered = FilterCalendarEntries(UseOutlookCalendar.Items);
-
-            if (Settings.Instance.CreateCSVFiles) {
-                ExportToCSV("Outputting all Appointments to CSV", "outlook_appointments.csv", filtered);
-            }
             return filtered;
         }
 
@@ -1004,6 +1000,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
+            if (!Settings.Instance.CreateCSVFiles) return;
+
             log.Debug(action);
 
             TextWriter tw;

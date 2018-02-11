@@ -906,6 +906,8 @@ namespace OutlookGoogleCalendarSync {
                 }
                 console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count, newLine: false);
 
+                GoogleOgcs.Calendar.ExportToCSV("Outputting all Events to CSV", "google_events.csv", googleEntries);
+                OutlookOgcs.Calendar.ExportToCSV("Outputting all Appointments to CSV", "outlook_appointments.csv", outlookEntries);
                 if (CancellationPending) return SyncResult.UserCancelled;
                 #endregion
 
