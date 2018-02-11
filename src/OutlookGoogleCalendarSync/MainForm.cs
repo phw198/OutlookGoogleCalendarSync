@@ -532,6 +532,7 @@ namespace OutlookGoogleCalendarSync {
                     sync_Start(updateSyncSchedule: false);
 
                 } else if (bSyncNow.Text == "Stop Sync") {
+                    GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {
@@ -1665,8 +1666,13 @@ namespace OutlookGoogleCalendarSync {
         #endregion
         #region Google settings
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
-            this.bGetGoogleCalendars.Text = "Retrieving Calendars...";
-            bGetGoogleCalendars.Enabled = false;
+            if (bGetGoogleCalendars.Text == "Cancel retrieval") {
+                log.Warn("User cancelled retrieval of Google calendars.");
+                GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                return;
+            }
+
+            this.bGetGoogleCalendars.Text = "Cancel retrieval";
             cbGoogleCalendars.Enabled = false;
             List<GoogleCalendarListEntry> calendars = null;
             try {
@@ -1725,7 +1731,8 @@ namespace OutlookGoogleCalendarSync {
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
-                GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                if (!GoogleOgcs.Calendar.IsInstanceNull && GoogleOgcs.Calendar.Instance.Authenticator != null)
+                    GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
             }
         }
 
