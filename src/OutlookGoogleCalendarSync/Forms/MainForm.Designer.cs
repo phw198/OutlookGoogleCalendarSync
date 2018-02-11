@@ -927,14 +927,13 @@
             // 
             // lGoogleHelp
             // 
-            this.lGoogleHelp.AutoSize = true;
-            this.lGoogleHelp.Location = new System.Drawing.Point(155, 41);
-            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(200, 0);
+            this.lGoogleHelp.Location = new System.Drawing.Point(155, 37);
+            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
             this.lGoogleHelp.Name = "lGoogleHelp";
-            this.lGoogleHelp.Size = new System.Drawing.Size(172, 39);
+            this.lGoogleHelp.Size = new System.Drawing.Size(199, 52);
             this.lGoogleHelp.TabIndex = 9;
             this.lGoogleHelp.Text = "If this is the first time, you\'ll need to authorise the app to connect.\r\nJust tak" +
-    "es a few clicks :)";
+    "es a few clicks and your password is never exposed.";
             // 
             // lGoogleCalendar
             // 

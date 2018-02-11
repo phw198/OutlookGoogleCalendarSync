@@ -172,10 +172,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public List<AppointmentItem> GetCalendarEntriesInRange() {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             filtered = FilterCalendarEntries(UseOutlookCalendar.Items);
-
-            if (Settings.Instance.CreateCSVFiles) {
-                ExportToCSV("Outputting all Appointments to CSV", "outlook_appointments.csv", filtered);
-            }
             return filtered;
         }
 
@@ -257,6 +253,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         #region Create
         public void CreateCalendarEntries(List<Event> events) {
             for (int g = 0; g < events.Count; g++) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 Event ev = events[g];
                 AppointmentItem newAi = IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
                 try {
@@ -362,6 +360,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 int itemModified = 0;
                 AppointmentItem ai = compare.Key;
                 try {
@@ -664,6 +664,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         #region Delete
         public void DeleteCalendarEntries(List<AppointmentItem> oAppointments) {
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 AppointmentItem ai = oAppointments[o];
                 Boolean doDelete = false;
                 try {
@@ -994,6 +996,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
+            if (!Settings.Instance.CreateCSVFiles) return;
+
             log.Debug(action);
 
             TextWriter tw;
@@ -1053,8 +1057,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append(OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
             csv.Append(ai.EntryID + "," + OutlookOgcs.Calendar.instance.UseOutlookCalendar.EntryID + ",");
             String googleIdValue;
-            GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
-            GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
+            GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append((googleIdValue ?? "") + ",");
+            GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "");
 
             return csv.ToString();
         }

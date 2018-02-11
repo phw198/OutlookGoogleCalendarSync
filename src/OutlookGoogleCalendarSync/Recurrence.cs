@@ -249,11 +249,23 @@ namespace OutlookGoogleCalendarSync {
                     }
 
                 case OlRecurrenceType.olRecursYearNth: {
+                        //Issue 445: Outlook incorrectly surfaces 12 monthly recurrences as olRecursYearNth, so we'll undo that.
+                        //In addition, many apps, indeed even the Google webapp, doesn't display a yearly recurrence rule properly 
+                        //despite actually showing the events on the right dates.
+                        //So to make OGCS work better with apps that aren't providing full iCal functionality, we'll translate this 
+                        //into a monthly recurrence instead.
+                        addRule(rrule, "FREQ", "MONTHLY");
+                        addRule(rrule, "INTERVAL", oPattern.Interval.ToString());
+                        
+                        /*Strictly, what we /should/ be doing is:
                         addRule(rrule, "FREQ", "YEARLY");
+                        if (oPattern.Interval != 12)
+                            addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
+                        addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
+                        */
                         if (oPattern.DayOfWeekMask != (OlDaysOfWeek)127) { //If not every day of week, define which ones
                             addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
                         }
-                        addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
                         break;
                     }
@@ -576,7 +588,11 @@ namespace OutlookGoogleCalendarSync {
                                     } else {
                                         try {
                                             aiExcp = oExcp.AppointmentItem;
-                                            GoogleOgcs.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified);
+                                            //Force a compare of the exception if both G and O have been modified in last 24 hours
+                                            TimeSpan modifiedDiff = (TimeSpan)(gExcp.Updated - aiExcp.LastModificationTime);
+                                            log.Fine("Difference in days between G and O exception: " + modifiedDiff);
+                                            Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
+                                            GoogleOgcs.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);
                                         } catch (System.Exception ex) {
                                             log.Error(ex.Message);
                                             log.Error(ex.StackTrace);

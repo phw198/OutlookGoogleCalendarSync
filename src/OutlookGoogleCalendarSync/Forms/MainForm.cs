@@ -473,7 +473,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 console.Update("Problem encountered during synchronisation.\r\n" + ex.Message, Console.Markup.error);
                 OGCSexception.Analyse(ex, true);
             } finally {
-                if (bSyncNow.Text != "Start Sync") {
+                if (!Sync.Engine.Instance.SyncingNow) {
                     bSyncNow.Text = "Start Sync";
                     NotificationTray.UpdateItem("sync", "&Sync Now");
                 }
@@ -945,8 +945,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #region Google settings
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
-            this.bGetGoogleCalendars.Text = "Retrieving Calendars...";
-            bGetGoogleCalendars.Enabled = false;
+            if (bGetGoogleCalendars.Text == "Cancel retrieval") {
+                log.Warn("User cancelled retrieval of Google calendars.");
+                GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                return;
+            }
+
+            this.bGetGoogleCalendars.Text = "Cancel retrieval";
             cbGoogleCalendars.Enabled = false;
             List<GoogleCalendarListEntry> calendars = null;
             try {
@@ -1005,7 +1010,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
-                GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                if (!GoogleOgcs.Calendar.IsInstanceNull && GoogleOgcs.Calendar.Instance.Authenticator != null)
+                    GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
             }
         }
 

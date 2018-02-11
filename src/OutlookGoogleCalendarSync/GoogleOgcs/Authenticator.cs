@@ -22,6 +22,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         String tokenFullPath;
         Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
 
+        public System.Threading.CancellationTokenSource CancelTokenSource;
+
         private Boolean checkedOgcsUserStatus = false;
         private static String hashedGmailAccount = null;
         public static String HashedGmailAccount {
@@ -35,6 +37,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public Authenticator() {
+            CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
         public void GetAuthenticated() {
@@ -42,10 +45,25 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             Forms.Main.Instance.Console.Update("Authenticating with Google...", verbose: true);
 
+            System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
+            oAuth.Start();
+            while (oAuth.IsAlive) {
+                System.Windows.Forms.Application.DoEvents();
+                System.Threading.Thread.Sleep(100);
+            }
+        }
+
+        private void spawnOauth() {
             ClientSecrets cs = getCalendarClientSecrets();
             //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
             var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
-            task.Wait();
+            try {
+                task.Wait(CancelTokenSource.Token);
+            } catch (System.OperationCanceledException) {
+                Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
 
         private static ClientSecrets getCalendarClientSecrets() {
@@ -92,9 +110,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             UserCredential credential = null;
             try {
                 //This will open the authorisation process in a browser, if required
-                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", System.Threading.CancellationToken.None, tokenStore);
-                if (!tokenFileExists)
-                    log.Debug("User has provided authentication code and credential file saved.");
+                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
+                if (tokenFileExists)
+                    log.Debug("User has provided authorisation and credential file saved.");
 
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
@@ -142,12 +160,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
             authenticated = false;
-            GoogleOgcs.Calendar.Instance.Authenticator = null;
-            GoogleOgcs.Calendar.Instance.Service = null;
             if (tokenFileExists) File.Delete(tokenFullPath);
-            if (reauthorise) {
-                GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
-                GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+            if (!GoogleOgcs.Calendar.IsInstanceNull) {
+                GoogleOgcs.Calendar.Instance.Authenticator = null;
+                GoogleOgcs.Calendar.Instance.Service = null;
+                if (reauthorise) {
+                    GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
+                    GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+                }
             }
         }
 

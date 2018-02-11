@@ -17,6 +17,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
         private static Calendar instance;
+        public static Boolean IsInstanceNull { get { return instance == null; } }
         public static Calendar Instance {
             get {
                 if (instance == null) {
@@ -252,11 +253,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (request.Items != null) result.AddRange(request.Items);
                 }
             } while (pageToken != null);
-
-            if (Settings.Instance.CreateCSVFiles) {
-                ExportToCSV("Outputting all Events to CSV", "google_events.csv", result);
-            }
-
+            
             //Remove cancelled non-recurring Events - don't know how these exist, but some users have them!
             List<Event> cancelled = result.Where(ev =>
                 ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
@@ -272,6 +269,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         #region Create
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 Event newEvent = new Event();
                 try {
                     newEvent = createCalendarEntry(ai);
@@ -444,6 +443,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
                 Boolean eventExceptionCacheDirty = false;
@@ -756,6 +757,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         #region Delete
         public void DeleteCalendarEntries(List<Event> events) {
             for (int g = events.Count - 1; g >= 0; g--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+
                 Event ev = events[g];
                 Boolean doDelete = false;
                 try {
@@ -1270,6 +1273,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public static void ExportToCSV(String action, String filename, List<Event> events) {
+            if (!Settings.Instance.CreateCSVFiles) return;
+
             log.Debug(action);
 
             TextWriter tw;
@@ -1326,7 +1331,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             System.Text.StringBuilder required = new System.Text.StringBuilder();
             System.Text.StringBuilder optional = new System.Text.StringBuilder();
             if (ev.Attendees != null) {
-                foreach (EventAttendee ea in ev.Attendees) {
+                foreach (Google.Apis.Calendar.v3.Data.EventAttendee ea in ev.Attendees) {
                     if (ea.Optional != null && (bool)ea.Optional) { optional.Append(ea.DisplayName + ";"); }
                     else { required.Append(ea.DisplayName + ";"); }
                 }
@@ -1347,10 +1352,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (!foundReminder) csv.Append(",,");
 
-            csv.Append(ev.Id + "," + Settings.Instance.UseGoogleCalendar.Id);
+            csv.Append(ev.Id + "," + Settings.Instance.UseGoogleCalendar.Id + ",");
             String gMetadata;
-            GetOGCSproperty(ev, MetadataId.oEntryId, out gMetadata); csv.Append(gMetadata ?? "" + ",");
-            GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gMetadata); csv.Append(gMetadata ?? "" + ",");
+            GetOGCSproperty(ev, MetadataId.oEntryId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
+            GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
             GetOGCSproperty(ev, MetadataId.oCalendarId, out gMetadata); csv.Append(gMetadata ?? "");
             
             return csv.ToString();
