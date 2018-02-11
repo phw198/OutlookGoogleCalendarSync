@@ -273,6 +273,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         #region Create
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
+                if (MainForm.Instance.CancellationPending) return;
+
                 Event newEvent = new Event();
                 try {
                     newEvent = createCalendarEntry(ai);
@@ -445,6 +447,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
+                if (MainForm.Instance.CancellationPending) return;
+
                 KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
                 Boolean eventExceptionCacheDirty = false;
@@ -761,6 +765,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         #region Delete
         public void DeleteCalendarEntries(List<Event> events) {
             for (int g = events.Count - 1; g >= 0; g--) {
+                if (MainForm.Instance.CancellationPending) return;
+
                 Event ev = events[g];
                 Boolean doDelete = false;
                 try {

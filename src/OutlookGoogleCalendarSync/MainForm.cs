@@ -30,6 +30,11 @@ namespace OutlookGoogleCalendarSync {
                 else return bwSync.IsBusy;
             }
         }
+        public Boolean CancellationPending {
+            get {
+                return (bwSync != null && bwSync.CancellationPending);
+            }
+        }
         public Boolean ManualForceCompare = false;
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         private Rectangle tabAppSettings_background = new Rectangle();
@@ -483,7 +488,7 @@ namespace OutlookGoogleCalendarSync {
                 console.Update("Problem encountered during synchronisation.\r\n" + ex.Message, Console.Markup.error);
                 OGCSexception.Analyse(ex, true);
             } finally {
-                if (bSyncNow.Text != "Start Sync") {
+                if (!SyncingNow) {
                     bSyncNow.Text = "Start Sync";
                     NotificationTray.UpdateItem("sync", "&Sync Now");
                 }
@@ -509,7 +514,12 @@ namespace OutlookGoogleCalendarSync {
 
             } else { //Manual sync
                 if (bSyncNow.Text == "Start Sync" || bSyncNow.Text == "Start Full Sync") {
-                    log.Info("Manual sync started.");
+                    log.Info("Manual sync requested.");
+                    if (SyncingNow) {
+                        log.Info("Already busy syncing, cannot accept another sync request.");
+                        MessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        return;
+                    }
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Settings.Instance.SyncDirection == SyncDirection.Bidirectional) {
                             MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
@@ -522,11 +532,13 @@ namespace OutlookGoogleCalendarSync {
                     sync_Start(updateSyncSchedule: false);
 
                 } else if (bSyncNow.Text == "Stop Sync") {
-                    if (bwSync != null && !bwSync.CancellationPending) {
-                        log.Warn("Sync cancellation requested.");
+                    if (!SyncingNow) return;
+
+                    if (!bwSync.CancellationPending) {
+                        console.Update("Sync cancellation requested.", Console.Markup.warning);
                         bwSync.CancelAsync();
                     } else {
-                        console.Update("Repeated cancellation requested - forcefully aborting thread!", Console.Markup.warning);
+                        console.Update("Repeated cancellation requested - forcefully aborting sync!", Console.Markup.warning);
                         try {
                             bwSync.Abort();
                             bwSync.Dispose();
@@ -541,7 +553,8 @@ namespace OutlookGoogleCalendarSync {
             OK,
             Fail,
             Abandon,
-            AutoRetry
+            AutoRetry,
+            UserCancelled
         }
         private int consecutiveSyncFails = 0;
 
@@ -680,10 +693,12 @@ namespace OutlookGoogleCalendarSync {
                     console.Update("Sync finished with success!", Console.Markup.checkered_flag);
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
-                    console.Update("Sync encountered a problem and did not complete successfully.<br/>"+ consecutiveSyncFails +" consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
+                    console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
+                } else if (syncResult == SyncResult.UserCancelled) {
+                    console.Update("Sync cancelled!", Console.Markup.error);
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    console.Update("Operation aborted after " + failedAttempts + " failed attempts!", Console.Markup.error);
+                    console.Update("Sync aborted after " + failedAttempts + " failed attempts!", Console.Markup.error);
                 }
 
                 sync_SetNext(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
@@ -745,164 +760,176 @@ namespace OutlookGoogleCalendarSync {
         private SyncResult synchronize() {
             console.Update("Finding Calendar Entries", Console.Markup.mag_right, newLine: false);
 
-            #region Read Outlook items
-            console.Update("Scanning Outlook calendar...");
             List<AppointmentItem> outlookEntries = null;
-            try {
-                outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
-            } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
-                    log.Warn(ex.Message);
-                    try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
-                    ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
-                    throw ex;
-                }
-            } catch (System.Exception ex) {
-                console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
-                throw ex;
-            }
-            console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
-            #endregion
-
-            #region Read Google items
-            console.Update("Scanning Google calendar...");
             List<Event> googleEntries = null;
             try {
-                googleEntries = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange();
-            } catch (AggregateException agex) {
-                OGCSexception.AnalyseAggregate(agex);
-            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                OGCSexception.AnalyseTokenResponse(ex, false);
-                return SyncResult.Fail;
-            } catch (System.Net.Http.HttpRequestException ex) {
-                OGCSexception.Analyse(ex);
-                ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
-                throw ex;
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-                ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
-                if (OGCSexception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
-                    ex.Data["OGCS"] += " Please try again.";
-                throw ex;
-            }
-            Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
-            if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) {
-                console.Update(googleEntries.Count + " Google calendar entries found.");
-                console.Update(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
-            } else
-                console.Update(googleEntries.Count + " Google calendar entries found.", Console.Markup.sectionEnd, newLine: false);
-            #endregion
-
-            #region Normalise recurring items in sync window
-            console.Update("Total inc. recurring items spanning sync date range...");
-            //Outlook returns recurring items that span the sync date range, Google doesn't
-            //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
-            for (int o = outlookEntries.Count - 1; o >= 0; o--) {
-                log.Fine("Processing " + (o + 1) + "/" + outlookEntries.Count);
-                AppointmentItem ai = null;
+                #region Read Outlook items
+                console.Update("Scanning Outlook calendar...");
                 try {
-                    if (outlookEntries[o] is AppointmentItem) ai = outlookEntries[o];
-                    else if (outlookEntries[o] is MeetingItem) {
-                        log.Info("Calendar object appears to be a MeetingItem, so retrieving associated AppointmentItem.");
-                        MeetingItem mi = outlookEntries[o] as MeetingItem;
-                        outlookEntries[o] = mi.GetAssociatedAppointment(false);
-                        ai = outlookEntries[o];
-                    } else {
-                        log.Warn("Unknown calendar object type - cannot sync it.");
-                        skipCorruptedItem(ref outlookEntries, outlookEntries[o], "Unknown object type.");
-                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
-                        continue;
+                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
+                } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
+                    if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
+                        log.Warn(ex.Message);
+                        try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                        ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
+                        throw ex;
                     }
                 } catch (System.Exception ex) {
-                    log.Warn("Encountered error casting calendar object to AppointmentItem - cannot sync it.");
-                    log.Debug(ex.Message);
-                    skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
-                    outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
-                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
-                    continue;
+                    console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
+                    throw ex;
                 }
+                console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
-                //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
-                String entryID;
+                if (CancellationPending) return SyncResult.UserCancelled;
+                #endregion
+
+                #region Read Google items
+                console.Update("Scanning Google calendar...");
                 try {
-                    entryID = outlookEntries[o].EntryID;
-                    DateTime checkDates = ai.Start;
-                    checkDates = ai.End;
+                    googleEntries = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange();
+                } catch (AggregateException agex) {
+                    OGCSexception.AnalyseAggregate(agex);
+                } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+                    OGCSexception.AnalyseTokenResponse(ex, false);
+                    return SyncResult.Fail;
+                } catch (System.Net.Http.HttpRequestException ex) {
+                    OGCSexception.Analyse(ex);
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
+                    throw ex;
                 } catch (System.Exception ex) {
-                    log.Warn("Calendar item does not have a proper date range - cannot sync it.");
-                    log.Debug(ex.Message);
-                    skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
-                    outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
-                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
-                    continue;
+                    OGCSexception.Analyse(ex);
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
+                    if (OGCSexception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
+                        ex.Data["OGCS"] += " Please try again.";
+                    throw ex;
                 }
+                Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
+                if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) {
+                    console.Update(googleEntries.Count + " Google calendar entries found.");
+                    console.Update(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
+                } else
+                    console.Update(googleEntries.Count + " Google calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
-                if (ai.IsRecurring && ai.Start.Date < Settings.Instance.SyncStart && ai.End.Date < Settings.Instance.SyncStart) {
-                    //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
-                    //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
-                    RecurrencePattern oPattern = ai.GetRecurrencePattern();
+                if (CancellationPending) return SyncResult.UserCancelled;
+                #endregion
+
+                #region Normalise recurring items in sync window
+                console.Update("Total inc. recurring items spanning sync date range...");
+                //Outlook returns recurring items that span the sync date range, Google doesn't
+                //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
+                for (int o = outlookEntries.Count - 1; o >= 0; o--) {
+                    log.Fine("Processing " + (o + 1) + "/" + outlookEntries.Count);
+                    AppointmentItem ai = null;
                     try {
-                        if (oPattern.RecurrenceType.ToString().Contains("Year")) {
-                            log.Fine("It's an annual event.");
-                            Boolean monthInSyncRange = false;
-                            DateTime monthMarker = Settings.Instance.SyncStart;
-                            while (Convert.ToInt32(monthMarker.ToString("yyyyMM")) <= Convert.ToInt32(Settings.Instance.SyncEnd.ToString("yyyyMM"))
-                                && !monthInSyncRange) 
-                            {
-                                if (monthMarker.Month == ai.Start.Month) {
-                                    monthInSyncRange = true;
-                                }
-                                monthMarker = monthMarker.AddMonths(1);
-                            }
-                            log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
-                            if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
-
-                        }
-                        Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
-                        if (masterEv != null && masterEv.Status != "cancelled") {
-                            Event cachedEv = googleEntries.Find(x => x.Id == masterEv.Id);
-                            if (cachedEv == null) {
-                                googleEntries.Add(masterEv);
-                            } else {
-                                if (DateTime.Parse(masterEv.Updated) > DateTime.Parse(cachedEv.Updated)) {
-                                    log.Debug("Refreshing cache for this Event.");
-                                    googleEntries.Remove(cachedEv);
-                                    googleEntries.Add(masterEv);
-                                }
-                            }
+                        if (outlookEntries[o] is AppointmentItem) ai = outlookEntries[o];
+                        else if (outlookEntries[o] is MeetingItem) {
+                            log.Info("Calendar object appears to be a MeetingItem, so retrieving associated AppointmentItem.");
+                            MeetingItem mi = outlookEntries[o] as MeetingItem;
+                            outlookEntries[o] = mi.GetAssociatedAppointment(false);
+                            ai = outlookEntries[o];
+                        } else {
+                            log.Warn("Unknown calendar object type - cannot sync it.");
+                            skipCorruptedItem(ref outlookEntries, outlookEntries[o], "Unknown object type.");
+                            outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
+                            continue;
                         }
                     } catch (System.Exception ex) {
-                        console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Console.Markup.error);
-                        throw ex;
-                    } finally {
-                        oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);
+                        log.Warn("Encountered error casting calendar object to AppointmentItem - cannot sync it.");
+                        log.Debug(ex.Message);
+                        skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
+                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
+                        ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                        continue;
                     }
+
+                    //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
+                    String entryID;
+                    try {
+                        entryID = outlookEntries[o].EntryID;
+                        DateTime checkDates = ai.Start;
+                        checkDates = ai.End;
+                    } catch (System.Exception ex) {
+                        log.Warn("Calendar item does not have a proper date range - cannot sync it.");
+                        log.Debug(ex.Message);
+                        skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
+                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
+                        ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                        continue;
+                    }
+
+                    if (ai.IsRecurring && ai.Start.Date < Settings.Instance.SyncStart && ai.End.Date < Settings.Instance.SyncStart) {
+                        //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
+                        //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
+                        RecurrencePattern oPattern = ai.GetRecurrencePattern();
+                        try {
+                            if (oPattern.RecurrenceType.ToString().Contains("Year")) {
+                                log.Fine("It's an annual event.");
+                                Boolean monthInSyncRange = false;
+                                DateTime monthMarker = Settings.Instance.SyncStart;
+                                while (Convert.ToInt32(monthMarker.ToString("yyyyMM")) <= Convert.ToInt32(Settings.Instance.SyncEnd.ToString("yyyyMM"))
+                                    && !monthInSyncRange) 
+                                {
+                                    if (monthMarker.Month == ai.Start.Month) {
+                                        monthInSyncRange = true;
+                                    }
+                                    monthMarker = monthMarker.AddMonths(1);
+                                }
+                                log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
+                                if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
+
+                            }
+                            Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                            if (masterEv != null && masterEv.Status != "cancelled") {
+                                Event cachedEv = googleEntries.Find(x => x.Id == masterEv.Id);
+                                if (cachedEv == null) {
+                                    googleEntries.Add(masterEv);
+                                } else {
+                                    if (DateTime.Parse(masterEv.Updated) > DateTime.Parse(cachedEv.Updated)) {
+                                        log.Debug("Refreshing cache for this Event.");
+                                        googleEntries.Remove(cachedEv);
+                                        googleEntries.Add(masterEv);
+                                    }
+                                }
+                            }
+                        } catch (System.Exception ex) {
+                            console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Console.Markup.error);
+                            throw ex;
+                        } finally {
+                            oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);
+                        }
+                    }
+                    //Completely dereference object and retrieve afresh (due to GetRecurrencePattern earlier) 
+                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                    OutlookOgcs.Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out ai);
+                    outlookEntries[o] = ai;
                 }
-                //Completely dereference object and retrieve afresh (due to GetRecurrencePattern earlier) 
-                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
-                OutlookOgcs.Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out ai);
-                outlookEntries[o] = ai;
-            }
-            console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count, newLine: false);
-            #endregion
+                console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count, newLine: false);
 
-            Boolean success = true;
-            String bubbleText = "";
-            if (Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook) {
-                success = sync_outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
-            }
-            if (!success) return SyncResult.Fail;
-            if (Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) {
-                if (bubbleText != "") bubbleText += "\r\n";
-                success = sync_googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
-            }
-            if (bubbleText != "") NotificationTray.ShowBubbleInfo(bubbleText);
+                if (CancellationPending) return SyncResult.UserCancelled;
+                #endregion
 
-            for (int o = outlookEntries.Count() - 1; o >= 0; o--) {
-                outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
-                outlookEntries.RemoveAt(o);
+                Boolean success = true;
+                String bubbleText = "";
+                if (Settings.Instance.SyncDirection != SyncDirection.GoogleToOutlook) {
+                    success = sync_outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
+                    if (CancellationPending) return SyncResult.UserCancelled;
+                }
+                if (!success) return SyncResult.Fail;
+
+                if (Settings.Instance.SyncDirection != SyncDirection.OutlookToGoogle) {
+                    if (bubbleText != "") bubbleText += "\r\n";
+                    success = sync_googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
+                    if (CancellationPending) return SyncResult.UserCancelled;
+                }
+                if (bubbleText != "") NotificationTray.ShowBubbleInfo(bubbleText);
+
+                return SyncResult.OK;
+            } finally {
+                for (int o = outlookEntries.Count() - 1; o >= 0; o--) {
+                    outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
+                    outlookEntries.RemoveAt(o);
+                }
             }
-            return SyncResult.OK;
         }
 
         private Boolean sync_outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries, ref String bubbleText) {
@@ -915,12 +942,14 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
+                if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
                 throw ex;
             }
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
+                if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
                 throw ex;
@@ -959,6 +988,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     log.Info("Done.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
                 #region Create Google Entries
@@ -975,6 +1006,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     log.Info("Done.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
                 #region Update Google Entries
@@ -991,6 +1024,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     console.Update(entriesUpdated + " entries updated.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
             } finally {
@@ -1016,12 +1051,14 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref outlookEntriesToBeCreated);
+                if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to reclaim orphan calendar entries in Outlook calendar.", Console.Markup.error);
                 throw ex;
             }
             try {
                 OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
+                if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to identify differences in Outlook calendar.", Console.Markup.error);
                 throw ex;
@@ -1063,6 +1100,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     log.Info("Done.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
                 #region Create Outlook Entries
@@ -1079,6 +1118,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     log.Info("Done.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
                 #region Update Outlook Entries
@@ -1095,6 +1136,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     console.Update(entriesUpdated + " entries updated.");
                 }
+
+                if (CancellationPending) return false;
                 #endregion
 
             } finally {
