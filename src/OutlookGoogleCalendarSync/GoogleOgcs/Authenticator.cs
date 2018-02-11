@@ -110,10 +110,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             UserCredential credential = null;
             try {
                 //This will open the authorisation process in a browser, if required
-                MainForm.Instance.Console.Update("Obtaining authorisation to manage your Google calendar...");
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
-                if (!tokenFileExists)
-                    log.Debug("User has provided authentication code and credential file saved.");
+                if (tokenFileExists)
+                    log.Debug("User has provided authorisation and credential file saved.");
 
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);

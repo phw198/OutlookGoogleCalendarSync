@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         /// <param name="updateButton">The button that triggered this, if manually called.</param>
         public async void CheckForUpdate(Button updateButton = null) {
-            if (System.Diagnostics.Debugger.IsAttached) return;
+            if (string.IsNullOrEmpty(nonGitHubReleaseUri) && System.Diagnostics.Debugger.IsAttached) return;
 
             bt = updateButton;
             log.Debug((isManualCheck ? "Manual" : "Automatic") + " update check requested.");
@@ -40,7 +40,7 @@ namespace OutlookGoogleCalendarSync {
             Settings.Instance.Proxy.Configure();
 
             try {
-                if (Program.IsInstalled) {
+                if (!string.IsNullOrEmpty(nonGitHubReleaseUri) || Program.IsInstalled) {
                     try {
                        if (await githubCheck()) {
                            log.Info("Restarting OGCS.");

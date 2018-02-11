@@ -1061,8 +1061,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append(OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
             csv.Append(ai.EntryID + "," + OutlookOgcs.Calendar.instance.UseOutlookCalendar.EntryID + ",");
             String googleIdValue;
-            GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
-            GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "" + ",");
+            GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append((googleIdValue ?? "") + ",");
+            GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "");
 
             return csv.ToString();
         }

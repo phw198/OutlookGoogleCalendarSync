@@ -588,7 +588,11 @@ namespace OutlookGoogleCalendarSync {
                                     } else {
                                         try {
                                             aiExcp = oExcp.AppointmentItem;
-                                            GoogleOgcs.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified);
+                                            //Force a compare of the exception if both G and O have been modified in last 24 hours
+                                            TimeSpan modifiedDiff = (DateTime.Parse(gExcp.Updated) - aiExcp.LastModificationTime);
+                                            log.Fine("Difference in days between G and O exception: " + modifiedDiff);
+                                            Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
+                                            GoogleOgcs.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);
                                         } catch (System.Exception ex) {
                                             log.Error(ex.Message);
                                             log.Error(ex.StackTrace);

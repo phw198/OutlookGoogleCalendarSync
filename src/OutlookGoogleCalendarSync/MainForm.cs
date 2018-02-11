@@ -904,7 +904,7 @@ namespace OutlookGoogleCalendarSync {
                     OutlookOgcs.Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out ai);
                     outlookEntries[o] = ai;
                 }
-                console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count, newLine: false);
+                console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
 
                 GoogleOgcs.Calendar.ExportToCSV("Outputting all Events to CSV", "google_events.csv", googleEntries);
                 OutlookOgcs.Calendar.ExportToCSV("Outputting all Appointments to CSV", "outlook_appointments.csv", outlookEntries);

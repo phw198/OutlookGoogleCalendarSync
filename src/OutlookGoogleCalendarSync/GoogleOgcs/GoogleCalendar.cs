@@ -1364,8 +1364,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             csv.Append(ev.Id + "," + Settings.Instance.UseGoogleCalendar.Id);
             String gMetadata;
-            GetOGCSproperty(ev, MetadataId.oEntryId, out gMetadata); csv.Append(gMetadata ?? "" + ",");
-            GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gMetadata); csv.Append(gMetadata ?? "" + ",");
+            GetOGCSproperty(ev, MetadataId.oEntryId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
+            GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
             GetOGCSproperty(ev, MetadataId.oCalendarId, out gMetadata); csv.Append(gMetadata ?? "");
             
             return csv.ToString();
