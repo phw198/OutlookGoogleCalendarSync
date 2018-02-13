@@ -187,7 +187,7 @@
     </Compile>
     <Compile Include="GoogleOgcs\ApiKeyring.cs" />
     <Compile Include="EmailAddress.cs" />
-    <Compile Include="Exception.cs" />
+    <Compile Include="Extensions\Exception.cs" />
     <Compile Include="GoogleOgcs\Authenticator.cs" />
     <Compile Include="GoogleOgcs\EventAttendee.cs" />
     <Compile Include="OutlookOgcs\ExplorerWatcher.cs" />
@@ -204,7 +204,7 @@
     <Compile Include="Forms\Splash.Designer.cs">
       <DependentUpon>Splash.cs</DependentUpon>
     </Compile>
-    <Compile Include="ILogExtension.cs" />
+    <Compile Include="Extensions\ILogExtension.cs" />
     <Compile Include="GoogleOgcs\GoogleCalendar.cs" />
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
