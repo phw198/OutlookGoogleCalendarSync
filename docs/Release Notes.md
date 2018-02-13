@@ -1,6 +1,20 @@
 | Release Notes |
 |:---|
 
+# v2.7.1.0 - Alpha
+
+**Enhancements**
+- Google DLLs updated to latest releases; extraneous DLLs removed
+- Better ability to cancel a running sync
+- OGCS stays responsive whilst Oauth process takes place; can be cancelled
+- Code refactor to better prepare for future developments
+
+**Bugfix**
+- Translate annual recurrences into 12 monthly recurrences (Google apps work with this better)
+- Disconnection of Google account
+- Increase tolerance of when to compare recurring series exceptions
+- Fixed CSV file creation and format issues
+
 # v2.7.0.0 - Beta
 
 :spiral_notepad: If upgrading from v2.6.0, this release will require you to reauthorise OGCS to make changes to your Google calendar.  

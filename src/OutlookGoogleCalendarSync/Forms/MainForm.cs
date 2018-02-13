@@ -1012,6 +1012,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.tbClientSecret.ReadOnly = false;
                 if (!GoogleOgcs.Calendar.IsInstanceNull && GoogleOgcs.Calendar.Instance.Authenticator != null)
                     GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                else {
+                    Settings.Instance.AssignedClientIdentifier = "";
+                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
+                }
             }
         }
 
