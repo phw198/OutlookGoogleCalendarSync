@@ -116,7 +116,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     List<AppointmentItem> filtered = new List<AppointmentItem>();
                     try {
                         filtered = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items,
-                            filterCategories: false, noDateFilter: true,
+                            filterBySettings: false, noDateFilter: true,
                             extraFilter: " AND [googleEventID] = '" + gEventID + "' AND [Modified] >= '" + asOfRounded.ToString(Settings.Instance.OutlookDateFormat) + "'");
                     } catch (System.Exception ex) {
                         log.Debug("Filter for Outlook items failed. Could be because googleEventID is not searchable.");
@@ -178,7 +178,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         List<AppointmentItem> filtered = new List<AppointmentItem>();
                         filtered = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items,
-                            filterCategories: false, noDateFilter: true,
+                            filterBySettings: false, noDateFilter: true,
                             extraFilter: " AND [Modified] >= '" + asOfRounded.AddSeconds(-1).ToString(Settings.Instance.OutlookDateFormat) + "'");
 
                         if (filtered.Count > 1) {

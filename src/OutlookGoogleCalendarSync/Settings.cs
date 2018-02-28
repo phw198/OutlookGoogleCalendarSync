@@ -46,6 +46,7 @@ namespace OutlookGoogleCalendarSync {
             UseOutlookCalendar = new OutlookCalendarListEntry();
             CategoriesRestrictBy = RestrictBy.Exclude;
             Categories = new System.Collections.Generic.List<String>();
+            OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
 
@@ -127,6 +128,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public OutlookCalendarListEntry UseOutlookCalendar { get; set; }
         [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
         [DataMember] public System.Collections.Generic.List<string> Categories { get; set; }
+        [DataMember] public Boolean OnlyRespondedInvites { get; set; }
         [DataMember] public string OutlookDateFormat { get; set; }
         private Boolean outlookGalBlocked;
         [DataMember] public Boolean OutlookGalBlocked {
@@ -343,6 +345,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
+            log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
             

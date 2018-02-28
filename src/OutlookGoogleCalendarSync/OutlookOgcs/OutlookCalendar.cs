@@ -175,7 +175,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterCategories = true, Boolean noDateFilter = false, String extraFilter = "") {
+        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true, Boolean noDateFilter = false, String extraFilter = "") {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
 
             List<AppointmentItem> result = new List<AppointmentItem>();
@@ -196,6 +196,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     "' AND [Start] < '" + max.ToString(Settings.Instance.OutlookDateFormat) + "'" + extraFilter;
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
+                Int32 responseFiltered = 0;
                 foreach (Object obj in OutlookItems.Restrict(filter)) {
                     AppointmentItem ai;
                     try {
@@ -220,31 +221,36 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         continue;
                     }
-                    if (filterCategories) {
+
+                    if (!filterBySettings) result.Add(ai);
+                    else {
+                        Boolean unfiltered = true;
+
                         String categoryDelimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
                         if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include) {
-                            if (Settings.Instance.Categories.Count() > 0 && ((ai.Categories == null && Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)))
-                            {
-                                result.Add(ai);
-                            } else categoryFiltered++;
+                            unfiltered = (Settings.Instance.Categories.Count() > 0 && ((ai.Categories == null && Settings.Instance.Categories.Contains("<No category assigned>")) ||
+                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)));
 
                         } else if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Exclude) {
-                            if (Settings.Instance.Categories.Count() == 0 || (ai.Categories == null && !Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0))
-                            {
-                                result.Add(ai);
-                            } else categoryFiltered++;
+                            unfiltered = (Settings.Instance.Categories.Count() == 0 || (ai.Categories == null && !Settings.Instance.Categories.Contains("<No category assigned>")) ||
+                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0));
                         }
-                    } else {
-                        result.Add(ai);
+                        if (!unfiltered) categoryFiltered++;
+
+                        if (Settings.Instance.OnlyRespondedInvites) {
+                            if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded) {
+                                unfiltered = false;
+                                responseFiltered++;
+                            }
+                        }
+                        if (unfiltered) result.Add(ai);
                     }
                 }
-                if (categoryFiltered > 0) {
-                    log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
-                    if (result.Count == 0)
-                        Forms.Main.Instance.Console.Update("Due to your category settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
-                }
+                if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items excluded due to only syncing invites you responded to.");
+
+                if (result.Count == 0 && (categoryFiltered + responseFiltered > 0))
+                    Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
             }
             log.Fine("Filtered down to " + result.Count);
             return result;

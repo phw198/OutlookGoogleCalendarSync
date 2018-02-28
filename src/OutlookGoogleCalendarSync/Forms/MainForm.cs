@@ -199,6 +199,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 refreshCategories();
             }
             #endregion
+            cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
             #region DateTime Format / Locale
             Dictionary<string, string> customDates = new Dictionary<string, string>();
             customDates.Add("Default", "g");
@@ -901,6 +902,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             clbCategories_SelectedIndexChanged(null, null);
         }
         #endregion
+
+        private void cbOnlyRespondedInvites_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.OnlyRespondedInvites = cbOnlyRespondedInvites.Checked;
+        }
 
         #region Datetime Format
         private void cbOutlookDateFormat_SelectedIndexChanged(object sender, EventArgs e) {
