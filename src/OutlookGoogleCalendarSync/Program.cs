@@ -1,6 +1,7 @@
 ﻿using log4net;
 using log4net.Config;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,18 +14,16 @@ namespace OutlookGoogleCalendarSync {
         public static string UserFilePath;
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
         private const string logSettingsFile = "logger.xml";
+        private const string defaultLogFilename = "OGcalsync.log";
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
-        private const String settingsFilename = "settings.xml";
-        private static String settingsFile;
-        public static String SettingsFile {
-            get { return settingsFile; }
-        }
-
-        private static String startingTab = null;
-        private static String roamingOGCS;
+        public static Boolean StartedWithFileArgs = false;
+        /// <summary>
+        /// The OGCS directory within user's roaming profile
+        /// </summary>
+        public static String RoamingProfileOGCS;
 
         private static Boolean? isInstalled = null;
         public static Boolean IsInstalled {
@@ -37,14 +36,14 @@ namespace OutlookGoogleCalendarSync {
 
         [STAThread]
         private static void Main(string[] args) {
-            initialiseFiles();
+            RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+            parseArgumentsAndInitialise(args);
 
             Updater.MakeSquirrelAware();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            delayStartup();
             Forms.Splash.ShowMe();
             
             log.Debug("Loading settings from file.");
@@ -58,6 +57,7 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 try {
+                    String startingTab = Settings.Instance.LastSyncDate == new DateTime(0) ? "Help" : null;
                     Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
                     String reportError = ex.Message;
@@ -107,54 +107,96 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Application closed.");
         }
 
-        private static void initialiseFiles() {
-            string appFilePath = System.Windows.Forms.Application.StartupPath;
-            string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            roamingOGCS = Path.Combine(roamingAppData, Application.ProductName);
+        private static void parseArgumentsAndInitialise(string[] args) {
+            //We're interested in non-Squirrel arguments here, ie ones which don't start with Linux-esque dashes (--squirrel)
+            StartedWithFileArgs = (args.Length != 0 && args.Count(a => a.StartsWith("/") && !a.StartsWith("/d")) != 0);
 
-            //Don't know where to write log file to yet. If settings.xml exists in Roaming profile, 
-            //then log should go there too.
-            if (File.Exists(Path.Combine(roamingOGCS, settingsFilename))) {
-                UserFilePath = roamingOGCS;
-                initialiseLogger(UserFilePath, true);
-                log.Info("Storing user files in roaming directory: " + UserFilePath);
-            } else {
-                UserFilePath = appFilePath;
-                initialiseLogger(UserFilePath, true);
-                log.Info("Storing user files in application directory: " + appFilePath);
-
-                if (!File.Exists(Path.Combine(appFilePath, settingsFilename))) {
-                    log.Info("No settings.xml file found in " + appFilePath);
-                    Settings.Instance.Save(Path.Combine(appFilePath, settingsFilename));
-                    log.Info("New blank template created.");
-                    if (!Program.IsInstalled)
-                        XMLManager.ExportElement("Portable", true, Path.Combine(appFilePath, settingsFilename));
-                    startingTab = "Help";
-                }
+            if (args.Contains("/?") || args.Contains("/help", StringComparer.OrdinalIgnoreCase)) {
+                MessageBox.Show("Command line parameters:-\r\n" +
+                    "  /?\t\tShow options\r\n" +
+                    "  /l:OGcalsync.log\tFile to log to\r\n" +
+                    "  /s:settings.xml\tSettings file to use.\r\n\t\tFile created with defaults if it doesn't exist\r\n" +
+                    "  /d:60\t\tSeconds startup delay",
+                    "OGCS command line parameters", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Environment.Exit(0);
             }
-            log.Info("Running from " + System.Windows.Forms.Application.ExecutablePath);
 
-            //Now let's confirm the actual setting
-            settingsFile = Path.Combine(UserFilePath, settingsFilename);
-            Boolean keepPortable = (XMLManager.ImportElement("Portable", settingsFile) ?? "false").Equals("true");
-            if (keepPortable) {
-                if (UserFilePath != appFilePath) {
-                    log.Info("File storage location is incorrect according to " + settingsFilename);
-                    MakePortable(true);
-                }
-            } else {
-                if (UserFilePath != roamingOGCS) {
-                    log.Info("File storage location is incorrect according to " + settingsFilename);
-                    MakePortable(false);
+            Dictionary<String, String> loggingArg = parseArgument(args, 'l');
+            initialiseLogger(loggingArg["Filename"], loggingArg["Directory"], bootstrap: true);
+
+            Dictionary<String, String> settingsArg = parseArgument(args, 's');
+            Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
+
+            log.Info("Storing user files in directory: " + UserFilePath);
+
+            if (!StartedWithFileArgs) {
+                //Now let's confirm files are actually in the right place
+                Boolean keepPortable = (XMLManager.ImportElement("Portable", Settings.ConfigFile) ?? "false").Equals("true");
+                if (keepPortable) {
+                    if (UserFilePath != System.Windows.Forms.Application.StartupPath) {
+                        log.Info("File storage location is incorrect according to " + Settings.ConfigFile);
+                        MakePortable(true);
+                    }
+                } else {
+                    if (UserFilePath != Program.RoamingProfileOGCS) {
+                        log.Info("File storage location is incorrect according to " + Settings.ConfigFile);
+                        MakePortable(false);
+                    }
                 }
             }
 
-            string logLevel = XMLManager.ImportElement("LoggingLevel", settingsFile);
+            string logLevel = XMLManager.ImportElement("LoggingLevel", Settings.ConfigFile);
             Settings.configureLoggingLevel(logLevel ?? "FINE");
-            purgeLogFiles(30);
+
+            if (args.Contains("--delay")) { //Format up to and including v2.7.1
+                log.Info("Converting old --delay parameter to /d");
+                try {
+                    String delay = args[Array.IndexOf(args, "--delay") + 1];
+                    log.Debug("Delay of " + delay + "s being migrated.");
+                    addRegKey(delay);
+                    delayStartup(delay);
+                } catch (System.Exception ex) {
+                    log.Error(ex.Message);
+                }
+            }
+            Dictionary<String, String> delayArg = parseArgument(args, 'd');
+            if (delayArg["Value"] != null) delayStartup(delayArg["Value"]);
         }
 
-        private static void initialiseLogger(string logPath, Boolean bootstrap = false) {
+        private static Dictionary<String, String> parseArgument(String[] args, char arg) {
+            Dictionary<String, String> details = new Dictionary<String, String>();
+            details.Add("Value", null);
+            details.Add("Directory", null);
+            details.Add("Filename", null);
+
+            try {
+                String argVal = args.Where(a => a.ToLower().StartsWith("/" + arg + ":")).FirstOrDefault();
+                if (argVal != null) {
+                    details["Value"] = argVal.Split(':')[1];
+                    if (arg == 'l' || arg == 's') {
+                        details["Filename"] = System.IO.Path.GetFileName(argVal);
+                        if (string.IsNullOrEmpty(details["Filename"]) || !Path.HasExtension(details["Filename"])) {
+                            throw new ApplicationException("The /" + arg + " parameter must be used with a filename.");
+                        }
+                        details["Directory"] = System.IO.Path.GetDirectoryName(argVal.TrimStart(("/" + arg + ":").ToCharArray()));
+                    }
+                }
+            } catch (System.Exception ex) {
+                throw new ApplicationException("Failed processing /" + arg + " parameter. " + ex.Message);
+            }
+            return details;
+        }
+
+        private static void initialiseLogger(string logFilename, string logPath = null, Boolean bootstrap = false) {
+            if (string.IsNullOrEmpty(logFilename)) logFilename = defaultLogFilename;
+            log4net.GlobalContext.Properties["LogFilename"] = logFilename;
+            if (string.IsNullOrEmpty(logPath)) {
+                if (Program.IsInstalled || File.Exists(Path.Combine(RoamingProfileOGCS, logFilename)))
+                    logPath = RoamingProfileOGCS;
+                else
+                    logPath = Application.StartupPath;
+            }
+            UserFilePath = logPath;
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
@@ -165,7 +207,11 @@ namespace OutlookGoogleCalendarSync {
             if (bootstrap) {
                 log.Info("Program started: v" + Application.ProductVersion);
                 log.Info("Started " + (isCLIstartup() ? "automatically" : "interactively") + ".");
+                if (Environment.GetCommandLineArgs().Count() > 1)
+                    log.Info("Invoked with arguments: "+ string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
             }
+            log.Info("Logging to: " + logPath + "\\" + logFilename);
+            purgeLogFiles(30);
         }
 
         private static void purgeLogFiles(Int16 retention) {
@@ -206,17 +252,20 @@ namespace OutlookGoogleCalendarSync {
             return regKeys.Contains(Application.ProductName);
         }
 
-        private static void addRegKey() {
+        private static void addRegKey(String startupDelay = null) {
             Microsoft.Win32.RegistryKey startupKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(startupKeyPath, true);
             String keyValue = startupKey.GetValue(Application.ProductName, "").ToString();
             String delayedStartup = "";
-            if (Settings.Instance.StartupDelay > 0)
-                delayedStartup = " --delay " + Settings.Instance.StartupDelay.ToString();
-            
-            if (keyValue == "" || keyValue != (Application.ExecutablePath + delayedStartup)) {
+            if (Convert.ToInt16(startupDelay ?? Settings.Instance.StartupDelay.ToString()) > 0)
+                delayedStartup = " /d:" + (startupDelay ?? Settings.Instance.StartupDelay.ToString());
+
+            String cliArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1).Where(a => "l,s".Contains(a.Substring(1, 1).ToLower())));
+            cliArgs = (" " + cliArgs).TrimEnd();
+
+            if (keyValue == "" || keyValue != (Application.ExecutablePath + delayedStartup + cliArgs)) {
                 log.Debug("Startup registry key "+ (keyValue == "" ? "created" : "updated") +".");
                 try {
-                    startupKey.SetValue(Application.ProductName, Application.ExecutablePath + delayedStartup);
+                    startupKey.SetValue(Application.ProductName, Application.ExecutablePath + delayedStartup + cliArgs);
                 } catch (System.UnauthorizedAccessException ex) {
                     log.Warn("Could not create/update registry key. " + ex.Message);
                     Settings.Instance.StartOnStartup = false;
@@ -237,19 +286,15 @@ namespace OutlookGoogleCalendarSync {
             startupKey.DeleteValue(Application.ProductName, false);
         }
         #endregion
-        private static void delayStartup() {
-            String[] cliArgs = { "" };
+        private static void delayStartup(String seconds) {
             try {
-                cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
-                if (cliArgs.Length == 2 && cliArgs[0].ToLower() == "--delay") {
-                    DateTime delayUntil = DateTime.Now.AddSeconds(Convert.ToInt32(cliArgs[1]));
-                    log.Info("Startup delay configured until " + delayUntil.ToString("HH:mm:ss"));
-                    while (DateTime.Now < delayUntil) {
-                        System.Threading.Thread.Sleep(250);
-                    }
+                DateTime delayUntil = DateTime.Now.AddSeconds(Convert.ToInt32(seconds));
+                log.Info("Startup delay configured until " + delayUntil.ToString("HH:mm:ss"));
+                while (DateTime.Now < delayUntil) {
+                    System.Threading.Thread.Sleep(250);
                 }
             } catch (System.Exception ex) {
-                log.Error("Failure in delayStartup(). Args: "+ string.Join(" ", cliArgs));
+                log.Warn("Failure in delayStartup(). Seconds: " + seconds);
                 log.Error(ex.Message);
             }
         }
@@ -299,6 +344,11 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         public static void MakePortable(Boolean portable) {
+            if (StartedWithFileArgs) {
+                log.Warn("Cannot move user files when OGCS is started with CLI arguments.");
+                return;
+            }
+
             if (portable) {
                 log.Info("Making the application portable...");
                 string appFilePath = System.Windows.Forms.Application.StartupPath;
@@ -310,14 +360,14 @@ namespace OutlookGoogleCalendarSync {
 
             } else {
                 log.Info("Making the application non-portable...");
-                if (roamingOGCS == UserFilePath) {
+                if (RoamingProfileOGCS == UserFilePath) {
                     log.Info("It already is!");
                     return;
                 }
-                if (!Directory.Exists(roamingOGCS))
-                    Directory.CreateDirectory(roamingOGCS);
+                if (!Directory.Exists(RoamingProfileOGCS))
+                    Directory.CreateDirectory(RoamingProfileOGCS);
 
-                moveFiles(UserFilePath, roamingOGCS);
+                moveFiles(UserFilePath, RoamingProfileOGCS);
             }
         }
 
@@ -325,11 +375,11 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Moving files from " + srcDir + " to " + dstDir + ":-");
             if (!Directory.Exists(dstDir)) Directory.CreateDirectory(dstDir);
 
-            string dstFile = Path.Combine(dstDir, settingsFilename);
+            string dstFile = Path.Combine(dstDir, Settings.ConfigFilename);
             File.Delete(dstFile);
-            log.Debug("  " + settingsFilename);
-            File.Move(SettingsFile, dstFile);
-            settingsFile = Path.Combine(dstDir, settingsFilename);
+            log.Debug("  " + Settings.ConfigFilename);
+            File.Move(Settings.ConfigFile, dstFile);
+            Settings.ConfigDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {
                 if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file == GoogleOgcs.Authenticator.TokenFile) {

@@ -2059,7 +2059,7 @@
             this.tbTS4.Name = "tbTS4";
             this.tbTS4.Size = new System.Drawing.Size(158, 13);
             this.tbTS4.TabIndex = 53;
-            this.tbTS4.Text = "  - attach your OGcalsync.log file";
+            this.tbTS4.Text = "  - attach your ";
             // 
             // linkTShoot_issue
             // 

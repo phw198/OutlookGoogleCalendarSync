@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -8,10 +9,45 @@ namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of Settings.
     /// </summary>
-    
+
     [DataContract]
     public class Settings {
         private static readonly ILog log = LogManager.GetLogger(typeof(Settings));
+
+        private static String configFilename = "settings.xml";
+        public static String ConfigFilename {
+            get { return configFilename; }
+        }
+        public static String ConfigDirectory;
+        /// <summary>
+        /// Absolute path to config file, eg C:\foo\bar\settings.xml
+        /// </summary>
+        public static String ConfigFile {
+            get { return Path.Combine(ConfigDirectory, ConfigFilename); }
+        }
+
+        public static void InitialiseConfigFile(String filename, String directory = null) {
+            if (!string.IsNullOrEmpty(filename)) configFilename = filename;
+            ConfigDirectory = directory;
+
+            if (string.IsNullOrEmpty(ConfigDirectory)) {
+                if (Program.IsInstalled || File.Exists(Path.Combine(Program.RoamingProfileOGCS, ConfigFilename)))
+                    ConfigDirectory = Program.RoamingProfileOGCS;
+                else
+                    ConfigDirectory = System.Windows.Forms.Application.StartupPath;
+            }
+
+            if (!File.Exists(ConfigFile)) {
+                log.Info("No settings.xml file found in " + ConfigDirectory);
+                Settings.Instance.Save(ConfigFile);
+                log.Info("New blank template created.");
+                if (!Program.IsInstalled)
+                    XMLManager.ExportElement("Portable", true, ConfigFile);
+            }
+
+            log.Info("Running OGCS from " + System.Windows.Forms.Application.ExecutablePath);
+        }
+
         private static Settings instance;
         //Settings saved immediately
         private Boolean apiLimit_inEffect;
@@ -145,7 +181,7 @@ namespace OutlookGoogleCalendarSync {
             get { return assignedClientIdentifier; }
             set {
                 assignedClientIdentifier = value.Trim();
-                if (!loading()) XMLManager.ExportElement("AssignedClientIdentifier", value.Trim(), Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("AssignedClientIdentifier", value.Trim(), ConfigFile);
             }
         }
         private String assignedClientSecret;
@@ -153,7 +189,7 @@ namespace OutlookGoogleCalendarSync {
             get { return assignedClientSecret; }
             set {
                 assignedClientSecret = value.Trim();
-                if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), ConfigFile);
             }
         }
         private String personalClientIdentifier;
@@ -174,14 +210,14 @@ namespace OutlookGoogleCalendarSync {
             get { return apiLimit_inEffect; }
             set {
                 apiLimit_inEffect = value;
-                if (!loading()) XMLManager.ExportElement("APIlimit_inEffect", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("APIlimit_inEffect", value, ConfigFile);
             }
         }
         [DataMember] public DateTime APIlimit_lastHit {
             get { return apiLimit_lastHit; }
             set {
                 apiLimit_lastHit = value;
-                if (!loading()) XMLManager.ExportElement("APIlimit_lastHit", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("APIlimit_lastHit", value, ConfigFile);
             }
         }
         [DataMember] public String GaccountEmail { get; set; }
@@ -225,7 +261,7 @@ namespace OutlookGoogleCalendarSync {
             get { return hideSplashScreen; }
             set {
                 if (!loading() && hideSplashScreen != value) {
-                    XMLManager.ExportElement("HideSplashScreen", value, Program.SettingsFile);
+                    XMLManager.ExportElement("HideSplashScreen", value, ConfigFile);
                     if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value;
                 }
                 hideSplashScreen = value;
@@ -243,7 +279,7 @@ namespace OutlookGoogleCalendarSync {
             get { return portable; }
             set {
                 portable = value;
-                if (!loading()) XMLManager.ExportElement("Portable", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("Portable", value, ConfigFile);
             }
         }
 
@@ -257,7 +293,7 @@ namespace OutlookGoogleCalendarSync {
             get { return version; }
             set {
                 if (version != null && version != value) {
-                    XMLManager.ExportElement("Version", value, Program.SettingsFile);
+                    XMLManager.ExportElement("Version", value, ConfigFile);
                 }
                 version = value;
             }
@@ -266,7 +302,7 @@ namespace OutlookGoogleCalendarSync {
             get { return alphaReleases; }
             set {
                 alphaReleases = value;
-                if (!loading()) XMLManager.ExportElement("AlphaReleases", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("AlphaReleases", value, ConfigFile);
             }
         }
         [DataMember] public DateTime Subscribed { get; set; }
@@ -274,7 +310,7 @@ namespace OutlookGoogleCalendarSync {
             get { return donor; }
             set {
                 donor = value;
-                if (!loading()) XMLManager.ExportElement("Donor", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("Donor", value, ConfigFile);
             }
         }
         #endregion
@@ -283,14 +319,14 @@ namespace OutlookGoogleCalendarSync {
             get { return lastSyncDate; }
             set {
                 lastSyncDate = value;
-                if (!loading()) XMLManager.ExportElement("LastSyncDate", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("LastSyncDate", value, ConfigFile);
             }
         }
         [DataMember] public Int32 CompletedSyncs {
             get { return completedSyncs; }
             set {
                 completedSyncs = value;
-                if (!loading()) XMLManager.ExportElement("CompletedSyncs", value, Program.SettingsFile);
+                if (!loading()) XMLManager.ExportElement("CompletedSyncs", value, ConfigFile);
             }
         }
         [DataMember] public bool VerboseOutput { get; set; }
@@ -299,17 +335,17 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Load(string XMLfile = null) {
             try {
-                Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
+                Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
                     "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                 log.Warn("Resetting settings.xml file to defaults.");
-                System.IO.File.Delete(XMLfile ?? Program.SettingsFile);
-                Settings.Instance.Save(XMLfile ?? Program.SettingsFile);
+                System.IO.File.Delete(XMLfile ?? ConfigFile);
+                Settings.Instance.Save(XMLfile ?? ConfigFile);
                 try {
-                    Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? Program.SettingsFile);
+                    Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                     log.Debug("User settings loaded successfully this time.");
                 } catch (System.Exception ex2) {
                     log.Error("Still failed to load settings!");
@@ -320,7 +356,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void Save(string XMLfile = null) {
             log.Info("Saving settings.");
-            XMLManager.Export(this, XMLfile ?? Program.SettingsFile);
+            XMLManager.Export(this, XMLfile ?? ConfigFile);
         }
 
         private Boolean loading() {
@@ -334,7 +370,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void LogSettings() {
-            log.Info(Program.SettingsFile);
+            log.Info(ConfigFile);
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {

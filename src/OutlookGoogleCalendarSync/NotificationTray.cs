@@ -120,8 +120,8 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("Switching on automatic syncing - hourly.");
                     Forms.Main.Instance.cbIntervalUnit.SelectedItem = "Hours";
                     Forms.Main.Instance.tbInterval.Value = 1;
-                    XMLManager.ExportElement("SyncInterval", 1, Program.SettingsFile);
-                    XMLManager.ExportElement("SyncIntervalUnit", "Hours", Program.SettingsFile);
+                    XMLManager.ExportElement("SyncInterval", 1, Settings.ConfigFile);
+                    XMLManager.ExportElement("SyncIntervalUnit", "Hours", Settings.ConfigFile);
                 }
                 if (Sync.Engine.Instance.OgcsTimer == null) Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
                 Sync.Engine.Instance.OgcsTimer.Switch(true);
@@ -200,7 +200,7 @@ namespace OutlookGoogleCalendarSync {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
             if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
                 Settings.Instance.ShowBubbleWhenMinimising = false;
-                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Program.SettingsFile);
+                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Settings.ConfigFile);
                 notifyIcon.Tag = "";
 
             } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {

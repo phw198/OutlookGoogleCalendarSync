@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     splash = new Splash();
 
                 splash.lVersion.Text = "v" + Application.ProductVersion;
-                String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Program.SettingsFile) ?? "0";
+                String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Settings.ConfigFile) ?? "0";
                 if (completedSyncs == "0")
                     splash.lSyncCount.Visible = false;
                 else {
@@ -43,12 +43,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                     splash.lSyncCount.Left = (splash.panel1.Width - (splash.lSyncCount.Width)) / 2;
                 }
                 //Load settings directly from XML
-                donor = (XMLManager.ImportElement("Donor", Program.SettingsFile) ?? "false") == "true";
+                donor = (XMLManager.ImportElement("Donor", Settings.ConfigFile) ?? "false") == "true";
 
-                String subscribedDate = XMLManager.ImportElement("Subscribed", Program.SettingsFile);
+                String subscribedDate = XMLManager.ImportElement("Subscribed", Settings.ConfigFile);
                 if (string.IsNullOrEmpty(subscribedDate)) subscribedDate = "01-Jan-2000";
                 subscribed = DateTime.Parse(subscribedDate);
-                Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Program.SettingsFile) ?? "false") == "true";
+                Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Settings.ConfigFile) ?? "false") == "true";
                 initialised = true;
 
                 splash.cbHideSplash.Checked = hideSplash;

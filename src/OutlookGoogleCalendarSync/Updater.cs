@@ -292,11 +292,11 @@ namespace OutlookGoogleCalendarSync {
                 } else {
                     log.Debug("User opted not to give feedback.");
                 }
-                log.Info("Deleting directory " + Path.GetDirectoryName(Program.SettingsFile));
+                log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
                 try {
                     log.Logger.Repository.Shutdown();
                     log4net.LogManager.Shutdown();
-                    Directory.Delete(Path.GetDirectoryName(Program.SettingsFile), true);
+                    Directory.Delete(Path.GetDirectoryName(Settings.ConfigFile), true);
                 } catch (System.Exception ex) {
                     try { log.Error(ex.Message); } catch { }
                 }

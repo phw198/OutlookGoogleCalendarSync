@@ -5,7 +5,7 @@
 		</layout>
 	</appender>
 	<appender name="RollingFile" type="log4net.Appender.RollingFileAppender">
-		<file type="log4net.Util.PatternString" value="%property{LogPath}OGcalsync.log" />
+		<file type="log4net.Util.PatternString" value="%property{LogPath}%property{LogFilename}" />
 		<encoding value="utf-8" />
 		<appendToFile value="true" />
 		<maximumFileSize value="2MB" />

@@ -353,6 +353,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             updateGUIsettings_Proxy();
             #endregion
+            linkTShoot_logfile.Text = log4net.GlobalContext.Properties["LogFilename"] + " file";
             #region About
             int r = 0;
             dgAbout.Rows.Add();
@@ -363,7 +364,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dgAbout.Rows[r].Cells[1].Value = System.Windows.Forms.Application.ExecutablePath;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Config In";
-            dgAbout.Rows[r].Cells[1].Value = Program.SettingsFile;
+            dgAbout.Rows[r].Cells[1].Value = Settings.ConfigFile;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Subscription";
             dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
@@ -1376,8 +1377,13 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPortable_CheckedChanged(object sender, EventArgs e) {
             if (this.Visible) {
-                Settings.Instance.Portable = cbPortable.Checked;
-                Program.MakePortable(cbPortable.Checked);
+                if (Program.StartedWithFileArgs)
+                    MessageBox.Show("It is not possible to change portability of OGCS when it is started with command line parameters.",
+                        "Cannot change portability", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                else {
+                    Settings.Instance.Portable = cbPortable.Checked;
+                    Program.MakePortable(cbPortable.Checked);
+                }
             }
         }
 
