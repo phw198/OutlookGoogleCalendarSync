@@ -12,7 +12,7 @@ namespace OutlookGoogleCalendarSync {
         private String tzdbFilename = "tzdb.nzd";
 
         public static TimezoneDB Instance {
-            get {   
+            get {
                 if (instance == null) instance = new TimezoneDB();
                 return instance;
             }
@@ -35,6 +35,13 @@ namespace OutlookGoogleCalendarSync {
                 source = TzdbDateTimeZoneSource.Default;
             }
             log.Info("Using NodaTime "+ source.VersionId);
+
+            Microsoft.Win32.SystemEvents.TimeChanged += SystemEvents_TimeChanged;
+        }
+
+        private static void SystemEvents_TimeChanged(object sender, EventArgs e) {
+            log.Info("Detected system timezone change.");
+            System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
         }
 
         public void CheckForUpdate() {
