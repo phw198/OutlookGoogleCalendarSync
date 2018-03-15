@@ -36,6 +36,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
         public static Boolean OOMsecurityInfo = false;
+        private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
         public Sync.PushSyncTimer OgcsPushTimer;
         public MAPIFolder UseOutlookCalendar {
@@ -968,8 +969,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } else {
                     log.Error("COM Exception encountered.");
                     OGCSexception.Analyse(ex);
-                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
-                    throw new ApplicationException("COM error " + OGCSexception.GetErrorCode(ex) + " encountered.\r\n" +
+                    if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
+                        alreadyRedirectedToWikiForComError.Add(hResult);
+                    }
+                    throw new ApplicationException("COM error " + hResult + " encountered.\r\n" +
                         "Please check if there is a published solution on the OGCS wiki.");
                 }
 
@@ -980,7 +984,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         "Please perform an Office Repair and then try running OGCS again.");
                 } else if (ex.Message.Contains("0x80040155")) {
                     log.Warn(ex.Message);
-                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040155---interface-not-registered");
+                    if (!alreadyRedirectedToWikiForComError.Contains("0x80040155")) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040155---interface-not-registered");
+                        alreadyRedirectedToWikiForComError.Add("0x80040155");
+                    }
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                         "Please see the wiki for a solution.");
                 } else
