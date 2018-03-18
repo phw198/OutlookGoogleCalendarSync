@@ -579,7 +579,13 @@ namespace OutlookGoogleCalendarSync {
                                     log.Debug("Matching Google Event recurrence found.");
                                     if (gExcp.Status == "cancelled") {
                                         log.Debug("It is deleted in Google, so cannot compare items.");
-                                        if (!oIsDeleted) log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
+                                        if (!oIsDeleted) {
+                                            log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
+                                            String syncDirectionTip = (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
+                                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>" +
+                                                "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook. " +
+                                                "The suggested fix is to delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, Console.Markup.warning);
+                                        }
                                         continue;
                                     } else if (oIsDeleted && gExcp.Status != "cancelled") {
                                         gExcp.Status = "cancelled";
