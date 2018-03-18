@@ -476,9 +476,9 @@
             this.tabOutlook.Controls.Add(this.lOutlookCalendar);
             this.tabOutlook.Controls.Add(this.rbOutlookDefaultMB);
             this.tabOutlook.Controls.Add(this.rbOutlookSharedCal);
-            this.tabOutlook.Controls.Add(this.rbOutlookAltMB);
             this.tabOutlook.Controls.Add(this.ddMailboxName);
             this.tabOutlook.Controls.Add(this.cbOnlyRespondedInvites);
+            this.tabOutlook.Controls.Add(this.rbOutlookAltMB);
             this.tabOutlook.Location = new System.Drawing.Point(79, 4);
             this.tabOutlook.Name = "tabOutlook";
             this.tabOutlook.Padding = new System.Windows.Forms.Padding(3);
@@ -712,7 +712,7 @@
             // 
             this.rbOutlookDefaultMB.AutoSize = true;
             this.rbOutlookDefaultMB.Checked = true;
-            this.rbOutlookDefaultMB.Location = new System.Drawing.Point(12, 46);
+            this.rbOutlookDefaultMB.Location = new System.Drawing.Point(14, 46);
             this.rbOutlookDefaultMB.Name = "rbOutlookDefaultMB";
             this.rbOutlookDefaultMB.Size = new System.Drawing.Size(97, 17);
             this.rbOutlookDefaultMB.TabIndex = 18;
@@ -1233,7 +1233,7 @@
             this.dgObfuscateRegex.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -1245,8 +1245,8 @@
             this.regexReplace});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.InactiveBorder;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
@@ -1327,7 +1327,7 @@
             this.tbInterval.ForeColor = System.Drawing.SystemColors.ControlText;
             this.tbInterval.Location = new System.Drawing.Point(74, 66);
             this.tbInterval.Maximum = new decimal(new int[] {
-            120,
+            121,
             0,
             0,
             0});
@@ -2171,7 +2171,7 @@
             this.label21.AutoSize = true;
             this.label21.Location = new System.Drawing.Point(40, 22);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(0, 13);
+            this.label21.Size = new System.Drawing.Size(389, 78);
             this.label21.TabIndex = 41;
             this.label21.Text = resources.GetString("label21.Text");
             // 
@@ -2215,7 +2215,7 @@
             this.label23.AutoSize = true;
             this.label23.Location = new System.Drawing.Point(40, 110);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(0, 13);
+            this.label23.Size = new System.Drawing.Size(379, 104);
             this.label23.TabIndex = 43;
             this.label23.Text = resources.GetString("label23.Text");
             // 
@@ -2224,7 +2224,7 @@
             this.label25.AutoSize = true;
             this.label25.Location = new System.Drawing.Point(40, 225);
             this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(0, 13);
+            this.label25.Size = new System.Drawing.Size(391, 104);
             this.label25.TabIndex = 45;
             this.label25.Text = resources.GetString("label25.Text");
             // 

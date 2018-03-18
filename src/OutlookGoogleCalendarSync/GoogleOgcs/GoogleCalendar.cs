@@ -520,9 +520,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (ev.Updated > ai.LastModificationTime)
                             return null;
                     } else {
-                        if (OutlookOgcs.Calendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime)
-                            //Outlook last modified by OGCS
+                        if (OutlookOgcs.Calendar.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
+                            log.Fine("Outlook last modified by OGCS.");
                             return null;
+                        }
                         if (ev.Updated > ai.LastModificationTime)
                             return null;
                     }
@@ -1293,7 +1294,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static void ExportToCSV(String action, String filename, List<Event> events) {
             if (!Settings.Instance.CreateCSVFiles) return;
 
-            log.Debug(action);
+            log.Debug("CSV export: " + action);
 
             TextWriter tw;
             try {
@@ -1326,7 +1327,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } finally {
                 if (tw != null) tw.Close();
             }
-            log.Debug("CSV export done.");
+            log.Fine("CSV export done.");
         }
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();

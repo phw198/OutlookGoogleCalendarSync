@@ -1011,7 +1011,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
             if (!Settings.Instance.CreateCSVFiles) return;
 
-            log.Debug(action);
+            log.Debug("CSV export: " + action);
 
             TextWriter tw;
             try {
@@ -1042,7 +1042,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } finally {
                 if (tw != null) tw.Close();
             }
-            log.Debug("Done.");
+            log.Fine("CSV export done.");
         }
         private static string exportToCSV(AppointmentItem ai) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
@@ -1177,7 +1177,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     return true;
                 }
             } else {
-                log.Warn("Could not find Google event ID against Outlook appointment item.");
+                if (Settings.Instance.MergeItems)
+                    log.Fine("Could not find Google event ID against Outlook appointment item.");
+                else
+                    log.Warn("Could not find Google event ID against Outlook appointment item.");
             }
             return false;
         }

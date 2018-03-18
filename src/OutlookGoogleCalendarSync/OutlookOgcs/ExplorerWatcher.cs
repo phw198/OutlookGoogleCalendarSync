@@ -173,7 +173,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 DateTime asOfRounded = asOf.AddTicks(-(asOf.Ticks % TimeSpan.TicksPerMillisecond)); //Get rid of fractional milliseconds
 
-                log.Debug("Finding " + oApptIDs.Count + " recently copied and pasted item(s) since " + asOf.ToString("dd/MM/yyyy hh:mm:ss.fff") + "...");
+                log.Debug("Finding " + oApptIDs.Count + " recently copied and pasted item(s) since " + asOf.ToString("dd/MM/yyyy HH:mm:ss.fff") + "...");
                 foreach (String oApptID in oApptIDs) {
                     try {
                         List<AppointmentItem> filtered = new List<AppointmentItem>();

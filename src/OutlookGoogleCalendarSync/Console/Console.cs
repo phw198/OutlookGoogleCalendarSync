@@ -167,18 +167,18 @@ namespace OutlookGoogleCalendarSync {
         private void console_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
             this.awaitingRefresh = false;
             navigationStatus = NavigationStatus.completed;
-            log.Fine("Document completed.");
+            log.UltraFine("Document completed.");
         }
 
         private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
             if (!Forms.Main.Instance.Visible) return;
 
             navigationStatus = NavigationStatus.navigating;
-            log.Fine("Console navigating.");
+            log.UltraFine("Console navigating.");
         }
         private void console_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
             if (this.wb.ReadyState != WebBrowserReadyState.Complete) {
-                log.Fine("Navigated status = " + this.wb.ReadyState.ToString());
+                log.UltraFine("Navigated status = " + this.wb.ReadyState.ToString());
                 return;
             }
 
