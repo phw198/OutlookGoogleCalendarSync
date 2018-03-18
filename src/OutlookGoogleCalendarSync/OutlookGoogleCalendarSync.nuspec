@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.7.1-alpha</version>
+    <version>2.7.2-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,20 +12,18 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.7.1?
+# What's New In v2.7.2?
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**
 
-- Google DLLs updated to latest releases; extraneous DLLs removed
-- Better ability to cancel a running sync
-- OGCS stays responsive whilst Oauth process takes place; can be cancelled
-- Code refactor to better prepare for future developments
+- Handle Apple iCloud changing immutable Outlook IDs
+- Option to not sync Outlook invites you have yet to responded to
+- Command line parameters to support multi-instance OGCS
+- Detect Windows system timezone changes
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**
 
-- Translate annual recurrences into 12 monthly recurrences (Google apps work with this better)
-- Disconnection of Google account
-- Increase tolerance of when to compare recurring series exceptions
-- Fixed CSV file creation and format issues
+- Only redirect to wiki once per COM error
+- Turn on support for TLS1.1 and 1.2 (GitHub removed support for TLS1.0)
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

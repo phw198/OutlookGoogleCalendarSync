@@ -1,6 +1,18 @@
 | Release Notes |
 |:---|
 
+# v2.7.2.0 - Alpha
+
+**Enhancements**
+- Handle Apple iCloud changing immutable Outlook IDs
+- Option to not sync Outlook invites you have yet to responded to
+- Command line parameters to support multi-instance OGCS
+- Detect Windows system timezone changes
+
+**Bugfix**
+- Only redirect to wiki once per COM error
+- Turn on support for TLS1.1 and 1.2 (GitHub removed support for TLS1.0)
+
 # v2.7.1.0 - Alpha
 
 **Enhancements**
