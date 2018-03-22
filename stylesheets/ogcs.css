@@ -89,6 +89,7 @@ img.emoji {
 
 aside#sidebar table.download a.button {
   text-align: left;
+  margin-bottom: 5px;
 }
 
 .tip {
