@@ -412,7 +412,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             log.Debug(GoogleOgcs.Calendar.GetEventSummary(compare.Value));
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
 
-                        } else if (needsUpdating || GetOGCSproperty(ai, MetadataId.forceSave)) {
+                        } else if (needsUpdating || ExistsOGCSproperty(ai, MetadataId.forceSave)) {
                             log.Debug("Doing a dummy update in order to update the last modified date.");
                             setOGCSlastModified(ref ai);
                             updateCalendarEntry_save(ref ai);
@@ -663,7 +663,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 setOGCSlastModified(ref ai);
             }
-            removeOGCSproperty(ref ai, MetadataId.forceSave);
+            RemoveOGCSproperty(ref ai, MetadataId.forceSave);
             ai.Save();
         }
         #endregion
@@ -742,7 +742,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 String sigAi = signature(ai);
 
                 //Find entries with no Google ID
-                if (!GetOGCSproperty(ai, MetadataId.gEventID)) {
+                if (!ExistsOGCSproperty(ai, MetadataId.gEventID)) {
                     unclaimedAi.Add(ai);
 
                     for (int g = gEvents.Count - 1; g >= 0; g--) {
@@ -1026,7 +1026,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
                 CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
-                CSVheader += "Google EventID,Google CalendarID";
+                CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Copied";
                 tw.WriteLine(CSVheader);
                 foreach (AppointmentItem ai in ais) {
                     try {
@@ -1069,9 +1069,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
             csv.Append(OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
             csv.Append(ai.EntryID + "," + OutlookOgcs.Calendar.instance.UseOutlookCalendar.EntryID + ",");
-            String googleIdValue;
-            GetOGCSproperty(ai, MetadataId.gEventID, out googleIdValue); csv.Append((googleIdValue ?? "") + ",");
-            GetOGCSproperty(ai, MetadataId.gCalendarId, out googleIdValue); csv.Append(googleIdValue ?? "");
+            csv.Append((GetOGCSproperty(ai, MetadataId.gEventID) ?? "") + ",");
+            csv.Append((GetOGCSproperty(ai, MetadataId.gCalendarId) ?? "") + ",");
+            csv.Append(GetOGCSlastModified(ai).ToString() + ",");
+            csv.Append((GetOGCSproperty(ai, MetadataId.forceSave) ?? "") + ",");
+            csv.Append(GetOGCSproperty(ai, MetadataId.locallyCopied) ?? "");
 
             return csv.ToString();
         }
@@ -1103,12 +1105,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Comparing Google events to Outlook items...");
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
-            String compare_oEventID;
             int metadataEnhanced = 0;
             for (int o = outlook.Count - 1; o >= 0; o--) {
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
 
-                if (GetOGCSproperty(outlook[o], MetadataId.gEventID, out compare_oEventID)) {
+                if (ExistsOGCSproperty(outlook[o], MetadataId.gEventID)) {
+                    String compare_oEventID = GetOGCSproperty(outlook[o], MetadataId.gEventID);
                     Boolean googleIDmissing = GoogleIdMissing(outlook[o]);
 
                     for (int g = google.Count - 1; g >= 0; g--) {
@@ -1146,12 +1148,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (GoogleOgcs.Calendar.GetOGCSproperty(google[g], GoogleOgcs.Calendar.MetadataId.oEntryId))
+                    if (GoogleOgcs.Calendar.ExistsOGCSproperty(google[g], GoogleOgcs.Calendar.MetadataId.oEntryId))
                         google.Remove(google[g]);
                 }
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (!GetOGCSproperty(outlook[o], MetadataId.gEventID) ||
+                    if (!ExistsOGCSproperty(outlook[o], MetadataId.gEventID) ||
                         outlook[o].LastModificationTime > Settings.Instance.LastSyncDate)
                         outlook.Remove(outlook[o]);
                 }
@@ -1166,12 +1168,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             //For format of Entry ID : https://msdn.microsoft.com/en-us/library/ee201952(v=exchg.80).aspx
             //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
 
-            String oCompareID;
             log.Fine("Comparing Google Event ID");
-            if (GetOGCSproperty(ai, MetadataId.gEventID, out oCompareID) && oCompareID == ev.Id) {
+            if (GetOGCSproperty(ai, MetadataId.gEventID) == ev.Id) {
                 log.Fine("Comparing Google Calendar ID");
-                if (GetOGCSproperty(ai, MetadataId.gCalendarId, out oCompareID) &&
-                    oCompareID == Settings.Instance.UseGoogleCalendar.Id) return true;
+                if (GetOGCSproperty(ai, MetadataId.gCalendarId) == Settings.Instance.UseGoogleCalendar.Id)
+                    return true;
                 else {
                     log.Warn("Could not find Google calendar ID against Outlook appointment item.");
                     return true;
@@ -1260,16 +1261,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Boolean GoogleIdMissing(AppointmentItem ai) {
             //Make sure Outlook appointment has all Google IDs stored
             String missingIds = "";
-            if (!GetOGCSproperty(ai, MetadataId.gEventID)) missingIds += MetadataIdKeyName(MetadataId.gEventID) + "|";
-            if (!GetOGCSproperty(ai, MetadataId.gCalendarId)) missingIds += MetadataIdKeyName(MetadataId.gCalendarId) + "|";
+            if (!ExistsOGCSproperty(ai, MetadataId.gEventID)) missingIds += MetadataIdKeyName(MetadataId.gEventID) + "|";
+            if (!ExistsOGCSproperty(ai, MetadataId.gCalendarId)) missingIds += MetadataIdKeyName(MetadataId.gCalendarId) + "|";
             if (!string.IsNullOrEmpty(missingIds))
                 log.Warn("Found Outlook item missing Google IDs (" + missingIds.TrimEnd('|') + "). " + GetEventSummary(ai));
             return !string.IsNullOrEmpty(missingIds);
         }
 
         public static Boolean HasOgcsProperty(AppointmentItem ai) {
-            if (GetOGCSproperty(ai, MetadataId.gEventID)) return true;
-            if (GetOGCSproperty(ai, MetadataId.gCalendarId)) return true;
+            if (ExistsOGCSproperty(ai, MetadataId.gEventID)) return true;
+            if (ExistsOGCSproperty(ai, MetadataId.gCalendarId)) return true;
             return false;
         }
 
@@ -1280,72 +1281,134 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public static void AddOGCSproperty(ref AppointmentItem ai, MetadataId key, String value) {
-            if (!GetOGCSproperty(ai, key)) {
-                try {
-                    ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olText);
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
-                    ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olText, false);
+            UserProperties ups = null;
+            try {
+                if (!ExistsOGCSproperty(ai, key)) {
+                    try {
+                        ups = ai.UserProperties;
+                        ups.Add(MetadataIdKeyName(key), OlUserPropertyType.olText);
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex);
+                        ups.Add(MetadataIdKeyName(key), OlUserPropertyType.olText, false);
+                    } finally {
+                        ups = (UserProperties)ReleaseObject(ups);
+                    }
                 }
+                ups = ai.UserProperties;
+                ups[MetadataIdKeyName(key)].Value = value;
+                log.Fine("Added " + key.ToString() + " property.");
+            } finally {
+                ups = (UserProperties)ReleaseObject(ups);
             }
-            ai.UserProperties[MetadataIdKeyName(key)].Value = value;
         }
-        private static void addOGCSproperty(ref AppointmentItem ai, MetadataId key, DateTime value) {
-            if (!GetOGCSproperty(ai, key)) {
-                try {
-                    ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime);
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
-                    ai.UserProperties.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime, false);
+        public static void AddOGCSproperty(ref AppointmentItem ai, MetadataId key, DateTime value) {
+            UserProperties ups = null;
+            try {
+                if (!ExistsOGCSproperty(ai, key)) {
+                    try {
+                        ups = ai.UserProperties;
+                        ups.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime);
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex);
+                        ups.Add(MetadataIdKeyName(key), OlUserPropertyType.olDateTime, false);
+                    } finally {
+                        ups = (UserProperties)ReleaseObject(ups);
+                    }
                 }
+                ups = ai.UserProperties;
+                ups[MetadataIdKeyName(key)].Value = value;
+                log.Fine("Added " + key.ToString() + " property.");
+            } finally {
+                ups = (UserProperties)ReleaseObject(ups);
             }
-            ai.UserProperties[MetadataIdKeyName(key)].Value = value;
         }
 
-        public static Boolean GetOGCSproperty(AppointmentItem ai, MetadataId key) {
-            String throwAway;
-            return GetOGCSproperty(ai, key, out throwAway);
-        }
-        public static Boolean GetOGCSproperty(AppointmentItem ai, MetadataId key, out String value) {
-            UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
-            if (prop == null) {
-                value = null;
+        public static Boolean ExistsOGCSproperty(AppointmentItem ai, MetadataId key) {
+            UserProperties ups = null;
+            UserProperty prop = null;
+            try {
+                ups = ai.UserProperties;
+                prop = ups.Find(MetadataIdKeyName(key));
+                return (prop != null);
+            } catch {
                 return false;
-            } else {
-                value = prop.Value.ToString();
-                return true;
+            } finally {
+                prop = (UserProperty)ReleaseObject(prop);
+                ups = (UserProperties)ReleaseObject(ups);
             }
         }
-        private static Boolean getOGCSproperty(AppointmentItem ai, MetadataId key, out DateTime value) {
-            UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
-            if (prop == null) {
-                value = new DateTime();
-                return false;
-            } else {
-                value = (DateTime)prop.Value;
-                return true;
+
+        public static String GetOGCSproperty(AppointmentItem ai, MetadataId key) {
+            String retVal = null;
+            UserProperties ups = null;
+            UserProperty prop = null;
+            try {
+                ups = ai.UserProperties;
+                prop = ups.Find(MetadataIdKeyName(key));
+                if (prop != null) {
+                    if (prop.Type != OlUserPropertyType.olText) log.Warn("Non-string property " + key.ToString() + " being retrieved as String.");
+                    return prop.Value.ToString();
+                }
+            } finally {
+                prop = (UserProperty)ReleaseObject(prop);
+                ups = (UserProperties)ReleaseObject(ups);
             }
+            return retVal;
+        }
+        private static DateTime getOGCSproperty_datetime(AppointmentItem ai, MetadataId key) {
+            DateTime retVal = new DateTime();
+            UserProperties ups = null;
+            UserProperty prop = null;
+            try {
+                ups = ai.UserProperties;
+                prop = ups.Find(MetadataIdKeyName(key));
+                if (prop != null) {
+                    try {
+                        if (prop.Type != OlUserPropertyType.olDateTime) {
+                            log.Warn("Non-datetime property " + key.ToString() + " being retrieved as DateTime.");
+                            retVal = DateTime.Parse(prop.Value.ToString());
+                        } else
+                            retVal = (DateTime)prop.Value;
+                    } catch (System.Exception ex) {
+                        log.Error("Failed to retrieve DateTime value for property " + key.ToString());
+                        OGCSexception.Analyse(ex);
+                    }
+                }
+            } finally {
+                prop = (UserProperty)ReleaseObject(prop);
+                ups = (UserProperties)ReleaseObject(ups);
+            }
+            return retVal;
         }
 
         public static void RemoveOGCSproperties(ref AppointmentItem ai) {
-            removeOGCSproperty(ref ai, MetadataId.gEventID);
-            removeOGCSproperty(ref ai, MetadataId.gCalendarId);
+            RemoveOGCSproperty(ref ai, MetadataId.gEventID);
+            RemoveOGCSproperty(ref ai, MetadataId.gCalendarId);
+            RemoveOGCSproperty(ref ai, MetadataId.forceSave);
+            RemoveOGCSproperty(ref ai, MetadataId.locallyCopied);
+            RemoveOGCSproperty(ref ai, MetadataId.ogcsModified);
         }
-        private static void removeOGCSproperty(ref AppointmentItem ai, MetadataId key) {
-            if (GetOGCSproperty(ai, key)) {
-                UserProperty prop = ai.UserProperties.Find(MetadataIdKeyName(key));
-                prop.Delete();
-                log.Debug("Removed " + MetadataIdKeyName(key) + " property.");
+        public static void RemoveOGCSproperty(ref AppointmentItem ai, MetadataId key) {
+            UserProperties ups = null;
+            UserProperty prop = null;
+            try {
+                if (ExistsOGCSproperty(ai, key)) {
+                    ups = ai.UserProperties;
+                    prop = ups.Find(MetadataIdKeyName(key));
+                    prop.Delete();
+                    log.Debug("Removed " + MetadataIdKeyName(key) + " property.");
+                }
+            } finally {
+                prop = (UserProperty)ReleaseObject(prop);
+                ups = (UserProperties)ReleaseObject(ups);
             }
         }
 
         public static DateTime GetOGCSlastModified(AppointmentItem ai) {
-            DateTime lastModded;
-            getOGCSproperty(ai, MetadataId.ogcsModified, out lastModded);
-            return lastModded;
+            return getOGCSproperty_datetime(ai, MetadataId.ogcsModified);
         }
         private static void setOGCSlastModified(ref AppointmentItem ai) {
-            addOGCSproperty(ref ai, MetadataId.ogcsModified, DateTime.Now);
+            AddOGCSproperty(ref ai, MetadataId.ogcsModified, DateTime.Now);
         }
         #endregion
         #endregion
