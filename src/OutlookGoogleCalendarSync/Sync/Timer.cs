@@ -102,10 +102,11 @@ namespace OutlookGoogleCalendarSync.Sync {
     public class PushSyncTimer : Timer {
         private static readonly ILog log = LogManager.GetLogger(typeof(PushSyncTimer));
         private Timer ogcsTimer;
-        public Int16 ItemsQueued { get; set; }
+        private DateTime lastRunTime;
+        private Int32 lastRunItemCount;
 
         public PushSyncTimer() {
-            ItemsQueued = 0;
+            ResetLastRun();
             ogcsTimer = new Timer();
             ogcsTimer.Tag = "PushTimer";
             ogcsTimer.Interval = 2 * 60000;
@@ -113,24 +114,33 @@ namespace OutlookGoogleCalendarSync.Sync {
             Forms.Main.Instance.NextSyncVal = "Push Sync Active";
         }
 
+        public void ResetLastRun() {
+            this.lastRunTime = DateTime.Now;
+            this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange().Count;
+        }
+
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
-            if (ItemsQueued != 0) {
-                log.Debug("Push sync triggered.");
+            log.Fine("Push sync triggered.");
+
+            System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
+
+            if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
+                log.Debug("Changes found for Push sync.");
                 Forms.Main frm = Forms.Main.Instance;
                 frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
                 if (!Sync.Engine.Instance.SyncingNow) {
                     frm.Sync_Click(sender, null);
                 } else {
                     log.Debug("Busy syncing already. No need to push.");
-                    ItemsQueued = 0;
                 }
             } else {
-                log.Fine("Push sync triggered, but no items queued.");
+                log.Fine("No changes found.");
             }
         }
 
         public void Switch(Boolean enable) {
             if (enable && !ogcsTimer.Enabled) {
+                ResetLastRun();
                 ogcsTimer.Start();
                 Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!enable && ogcsTimer.Enabled) {

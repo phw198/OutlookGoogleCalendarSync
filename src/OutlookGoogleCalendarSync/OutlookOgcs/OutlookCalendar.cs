@@ -70,103 +70,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         #region Push Sync
-        //Multi-threaded, so need to protect against registering events more than once
-        //Simply removing an event handler before adding isn't safe enough
-        private int eventHandlerHooks = 0;
-
         public void RegisterForPushSync() {
-            log.Info("Registering for Outlook appointment change events...");
-            if (eventHandlerHooks != 0) purgeOutlookEventHandlers();
-
             if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
                 log.Debug("Create the timer for the push synchronisation");
                 if (OgcsPushTimer == null)
                     OgcsPushTimer = new Sync.PushSyncTimer();
                 if (!OgcsPushTimer.Running())
                     OgcsPushTimer.Switch(true);
-
-                UseOutlookCalendar.Items.ItemAdd += new ItemsEvents_ItemAddEventHandler(appointmentItem_Add);
-                UseOutlookCalendar.Items.ItemChange += new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change);
-                UseOutlookCalendar.Items.ItemRemove += new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove);
-                eventHandlerHooks++;
             }
         }
 
         public void DeregisterForPushSync() {
-            log.Info("Deregistering from Outlook appointment change events...");
-            purgeOutlookEventHandlers();
+            log.Info("Stop monitoring for Outlook appointment changes...");
             if (OgcsPushTimer != null && OgcsPushTimer.Running())
                 OgcsPushTimer.Switch(false);
-        }
-
-        private void purgeOutlookEventHandlers() {
-            log.Debug("Removing " + eventHandlerHooks + " Outlook event handler hooks.");
-            while (eventHandlerHooks > 0) {
-                try { UseOutlookCalendar.Items.ItemAdd -= new ItemsEvents_ItemAddEventHandler(appointmentItem_Add); } catch { }
-                try { UseOutlookCalendar.Items.ItemChange -= new ItemsEvents_ItemChangeEventHandler(appointmentItem_Change); } catch { }
-                try { UseOutlookCalendar.Items.ItemRemove -= new ItemsEvents_ItemRemoveEventHandler(appointmentItem_Remove); } catch { }
-                eventHandlerHooks--;
-            }
-        }
-
-        private void appointmentItem_Add(object Item) {
-            if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) return;
-
-            AppointmentItem ai = null;
-            try {
-                log.Debug("Detected Outlook item added.");
-                ai = Item as AppointmentItem;
-
-                DateTime syncMin = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
-                DateTime syncMax = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
-                if (ai.Start < syncMax && ai.End >= syncMin) {
-                    log.Debug(GetEventSummary(ai));
-                    log.Debug("Item is in sync range, so push sync flagged for Go.");
-                    OgcsPushTimer.ItemsQueued++;
-                    log.Info(OgcsPushTimer.ItemsQueued + " items changed since last sync.");
-                } else {
-                    log.Fine("Item is outside of sync range.");
-                }
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-            } finally {
-                ai = (AppointmentItem)ReleaseObject(ai);
-            }
-        }
-        private void appointmentItem_Change(object Item) {
-            if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) return;
-
-            AppointmentItem ai = null;
-            try {
-                log.Debug("Detected Outlook item changed.");
-                ai = Item as AppointmentItem;
-
-                DateTime syncMin = DateTime.Today.AddDays(-Settings.Instance.DaysInThePast);
-                DateTime syncMax = DateTime.Today.AddDays(+Settings.Instance.DaysInTheFuture + 1);
-                if (ai.Start < syncMax && ai.End >= syncMin) {
-                    log.Debug(GetEventSummary(ai));
-                    log.Debug("Item is in sync range, so push sync flagged for Go.");
-                    OgcsPushTimer.ItemsQueued++;
-                    log.Info(OgcsPushTimer.ItemsQueued + " items changed since last sync.");
-                } else {
-                    log.Fine("Item is outside of sync range.");
-                }
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-            } finally {
-                ai = (AppointmentItem)ReleaseObject(ai);
-            }
-        }
-        private void appointmentItem_Remove() {
-            if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) return;
-
-            try {
-                log.Debug("Detected Outlook item removed, so push sync flagged for Go.");
-                OgcsPushTimer.ItemsQueued++;
-                log.Info(OgcsPushTimer.ItemsQueued + " items changed since last sync.");
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-            }
         }
         #endregion
 

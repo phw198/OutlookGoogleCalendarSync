@@ -276,7 +276,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             Forms.Main.Instance.bSyncNow.Enabled = true;
             if (OutlookOgcs.Calendar.Instance.OgcsPushTimer != null)
-                OutlookOgcs.Calendar.Instance.OgcsPushTimer.ItemsQueued = 0; //Reset Push flag regardless of success (don't want it trying every 2 mins)
+                OutlookOgcs.Calendar.Instance.OgcsPushTimer.ResetLastRun(); //Reset Push flag regardless of success (don't want it trying every 2 mins)
         }
 
         private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
