@@ -36,7 +36,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public Calendar() { }
         public GoogleOgcs.Authenticator Authenticator;
-        public GoogleOgcs.EventColour ColourPalette;
+        private GoogleOgcs.EventColour colourPalette;
+        public GoogleOgcs.EventColour ColourPalette {
+            get {
+                if (colourPalette == null) {
+                    colourPalette = new EventColour();
+                    colourPalette.Get();
+                }
+                return colourPalette;
+            }
+        }
 
         private CalendarService service;
         public CalendarService Service {
@@ -51,8 +60,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         service = null;
                         throw new ApplicationException("Google handshake failed.");
                     }
-                    ColourPalette = new EventColour();
-                    ColourPalette.Get();
                 }
                 return service;
             }
@@ -350,18 +357,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev.Location = ai.Location;
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
-
-            if (!string.IsNullOrEmpty(ai.Categories)) {
-                log.Fine("Categories: " + ai.Categories);
-                String category = ai.Categories.Split(',').FirstOrDefault();
-                OlCategoryColor? categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
-                if (categoryColour == null) log.Warn("Failed to convert '" + category + "' into Outlook category type.");
-                else {
-                    System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
-                    ev.ColorId = ColourPalette.GetClosestColour(color);
-                }
-            }            
-
+            ev.ColorId = getColour(ai.Categories).Id;
+            
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
                 if (ai.Recipients.Count >= 200) {
@@ -649,6 +646,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String oFreeBusy = getAvailability(ai.BusyStatus, gFreeBusy);
             if (Sync.Engine.CompareAttribute("Free/Busy", Sync.Direction.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
                 ev.Transparency = oFreeBusy;
+            }
+
+            Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
+            Palette oColour = getColour(ai.Categories);
+            if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.HexValue, oColour.HexValue, sb, ref itemModified)) {
+                ev.ColorId = oColour.Id;
             }
 
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
@@ -1266,7 +1269,32 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Get the Google palette colour from a list of Outlook categories
+        /// </summary>
+        /// <param name="aiCategories">The appointment item "categories" field</param>
+        /// <returns>A match or a "null" Palette signifying no match</returns>
+        private Palette getColour(String aiCategories) {
+            if (!string.IsNullOrEmpty(aiCategories)) {
+                log.Fine("Categories: " + aiCategories);
+                try {
+                    String category = aiCategories.Split(new[] { OutlookOgcs.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
+                    OlCategoryColor? categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
+                    if (categoryColour == null) log.Warn("Could not convert '" + category + "' into Outlook category type.");
+                    else {
+                        System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
+                        Palette closest = ColourPalette.GetClosestColour(color);
+                        return (closest.Id == "Custom") ? Palette.NullPalette : closest;
+                    }
+                } catch (System.Exception ex) {
+                    log.Error("Failed determining colour for Event.");
+                    OGCSexception.Analyse(ex);
+                }
+            }
+            return Palette.NullPalette;
+        }
+
         #region STATIC FUNCTIONS
         public static string signature(Event ev) {
             String signature = "";

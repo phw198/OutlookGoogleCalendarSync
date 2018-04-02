@@ -232,14 +232,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean unfiltered = true;
 
-                        String categoryDelimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
                         if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include) {
                             unfiltered = (Settings.Instance.Categories.Count() > 0 && ((ai.Categories == null && Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)));
+                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)));
 
                         } else if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Exclude) {
                             unfiltered = (Settings.Instance.Categories.Count() == 0 || (ai.Categories == null && !Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0));
+                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0));
                         }
                         if (!unfiltered) categoryFiltered++;
 

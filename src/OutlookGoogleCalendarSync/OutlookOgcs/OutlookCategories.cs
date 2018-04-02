@@ -11,8 +11,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public class Categories {
         private static readonly ILog log = LogManager.GetLogger(typeof(Categories));
         private Outlook.Categories categories;
+        public String Delimiter { get; }
 
-        public Categories() { }
+        public Categories() {
+            try {
+                Delimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
+            } catch (System.Exception ex) {
+                log.Error("Failed to get system ListSeparator value.");
+                OGCSexception.Analyse(ex);
+                Delimiter = ", ";
+            }
+        }
         
         public void Get(Outlook.Application oApp, Outlook.Store store) {
             if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
@@ -44,6 +53,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="categoryName">The user named Outlook category</param>
         /// <returns>The Outlook category type</returns>
         public Outlook.OlCategoryColor? OutlookColour(String categoryName) {
+            if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
+
             foreach (Outlook.Category category in this.categories) {
                 if (category.Name == categoryName.Trim()) return category.Color;
             }
@@ -109,6 +120,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// Convert from Outlook category colour to Color
         /// </summary>
         public static Color RgbColour(Outlook.OlCategoryColor colour) {
+            log.Fine("Converting " + colour + " to RGB value.");
             return colourMap[colour];
         }
 
