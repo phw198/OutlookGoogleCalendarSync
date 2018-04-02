@@ -21,6 +21,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
+            if (!OutlookOgcs.Calendar.InstanceConnect) return;
+
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
@@ -76,6 +78,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
+
+                OutlookOgcs.Calendar.Categories = null;
 
             } finally {
                 // Done. Log off.
@@ -419,10 +423,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return ai.EntryID;
         }
 
-        public object GetCategories() {
-            return null;
-        }
-        
+        public void RefreshCategories() { }
+
         #region Addin Express Code
         //This code has been sourced from:
         //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/

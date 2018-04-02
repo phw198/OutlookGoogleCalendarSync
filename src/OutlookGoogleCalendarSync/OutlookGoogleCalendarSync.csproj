@@ -140,7 +140,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -175,6 +175,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="GoogleOgcs\EventColour.cs" />
+    <Compile Include="OutlookOgcs\OutlookCategories.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>

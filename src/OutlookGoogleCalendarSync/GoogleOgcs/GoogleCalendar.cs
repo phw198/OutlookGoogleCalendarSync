@@ -36,6 +36,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public Calendar() { }
         public GoogleOgcs.Authenticator Authenticator;
+        public GoogleOgcs.EventColour ColourPalette;
 
         private CalendarService service;
         public CalendarService Service {
@@ -50,6 +51,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         service = null;
                         throw new ApplicationException("Google handshake failed.");
                     }
+                    ColourPalette = new EventColour();
+                    ColourPalette.Get();
                 }
                 return service;
             }
@@ -265,7 +268,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             return result;
         }
-
+        
         #region Create
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
             foreach (AppointmentItem ai in appointments) {
@@ -347,6 +350,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev.Location = ai.Location;
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
+
+            if (!string.IsNullOrEmpty(ai.Categories)) {
+                log.Fine("Categories: " + ai.Categories);
+                String category = ai.Categories.Split(',').FirstOrDefault();
+                OlCategoryColor? categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
+                if (categoryColour == null) log.Warn("Failed to convert '" + category + "' into Outlook category type.");
+                else {
+                    System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
+                    ev.ColorId = ColourPalette.GetClosestColour(color);
+                }
+            }            
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)

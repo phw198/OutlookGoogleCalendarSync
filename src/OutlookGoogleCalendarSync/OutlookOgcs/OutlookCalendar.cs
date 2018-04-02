@@ -24,14 +24,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null || instance.Folders == null) instance = new Calendar();
+                    if (instance == null || instance.Folders == null) {
+                        instance = new Calendar();
+                        instance.IOutlook.Connect();
+                    }
                 } catch (System.ApplicationException ex) {
                     throw ex;
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
-                }
+                    instance.IOutlook.Connect();
+                }            
                 return instance;
             }
         }
@@ -52,6 +56,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Dictionary<string, MAPIFolder> CalendarFolders {
             get { return IOutlook.CalendarFolders(); }
         }
+        public static OutlookOgcs.Categories Categories;
         public enum Service {
             DefaultMailbox,
             AlternativeMailbox,
@@ -60,13 +65,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public Calendar() {
             IOutlook = Factory.GetOutlookInterface();
-            if (InstanceConnect) IOutlook.Connect();
         }
 
         public void Reset() {
             log.Info("Resetting connection to Outlook.");
             if (IOutlook != null) IOutlook.Disconnect();
             instance = new Calendar();
+            instance.IOutlook.Connect();
         }
 
         #region Push Sync

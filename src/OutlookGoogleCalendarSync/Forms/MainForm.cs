@@ -875,8 +875,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             clbCategories.BeginUpdate();
             clbCategories.Items.Clear();
             clbCategories.Items.Add("<No category assigned>");
-            foreach (Category cat in OutlookOgcs.Calendar.Instance.IOutlook.GetCategories() as Categories) {
-                clbCategories.Items.Add(cat.Name);
+            OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+            foreach (String catName in OutlookOgcs.Calendar.Categories.GetNames()) {
+                clbCategories.Items.Add(catName);
             }
             foreach (String cat in Settings.Instance.Categories) {
                 try {

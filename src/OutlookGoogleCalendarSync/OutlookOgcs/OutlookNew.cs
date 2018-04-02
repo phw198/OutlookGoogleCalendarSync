@@ -20,6 +20,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
+            if (!OutlookOgcs.Calendar.InstanceConnect) return;
+
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
@@ -84,6 +86,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
+
+                OutlookOgcs.Calendar.Categories = new OutlookOgcs.Categories();
+                Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
 
                 //Set up event handlers
                 explorerWatcher = new ExplorerWatcher(oApp.Explorers);
@@ -575,20 +580,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        public object GetCategories() {
-            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) 
-                return oApp.Session.Categories;
-
-            Store store = null;
-            try {
-                store = useOutlookCalendar.Store;
-                return store.GetType().GetProperty("Categories").GetValue(store, null);
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex, true);
-                return oApp.Session.Categories;
-            } finally {
-                store = (Store)OutlookOgcs.Calendar.ReleaseObject(store);
-            }
+        public void RefreshCategories() {
+            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
         }
 
         #region TimeZone Stuff
