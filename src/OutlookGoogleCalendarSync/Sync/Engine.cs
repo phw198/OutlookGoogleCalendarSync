@@ -259,7 +259,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         private void setNextSync(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
-            Forms.Main.Instance.lLastSyncVal.Text = syncStarted.ToLongDateString() + " - " + syncStarted.ToLongTimeString();
+            Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
             Settings.Instance.LastSyncDate = syncStarted;
             if (!updateSyncSchedule) {
                 Forms.Main.Instance.lNextSyncVal.Text = cacheNextSync;
@@ -307,19 +307,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
-                try {
-                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
-                } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
-                        log.Warn(ex.Message);
-                        try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
-                        ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
-                        throw ex;
-                    }
-                } catch (System.Exception ex) {
-                    console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
-                    throw ex;
-                }
+                outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(false);
                 console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
                 if (CancellationPending) return SyncResult.UserCancelled;

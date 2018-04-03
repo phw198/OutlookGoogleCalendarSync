@@ -14,8 +14,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Forms.Main.Instance.NextSyncVal == "Push Sync Active") {
                         return null;
                     } else {
-                        return DateTime.ParseExact(Forms.Main.Instance.NextSyncVal,
-                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " - " +
+                        return DateTime.ParseExact(Forms.Main.Instance.NextSyncVal.Replace(" + Push",""),
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " @ " +
                             System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
                             System.Globalization.CultureInfo.CurrentCulture);
                     }
@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             //Refresh synchronizations (last and next)
             LastSyncDate = Settings.Instance.LastSyncDate;
-            Forms.Main.Instance.LastSyncVal = LastSyncDate.ToLongDateString() + " - " + LastSyncDate.ToLongTimeString();
+            Forms.Main.Instance.LastSyncVal = LastSyncDate.ToLongDateString() + " @ " + LastSyncDate.ToLongTimeString();
             SetNextSync(getResyncInterval());
         }
 
@@ -79,7 +79,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                     ogcsTimer.Start();
                 }
-                Forms.Main.Instance.NextSyncVal = nextSyncDate.ToLongDateString() + " - " + nextSyncDate.ToLongTimeString();
+                Forms.Main.Instance.NextSyncVal = nextSyncDate.ToLongDateString() + " @ " + nextSyncDate.ToLongTimeString();
+                if (Settings.Instance.OutlookPush) Forms.Main.Instance.NextSyncVal += " + Push";
                 log.Info("Next sync scheduled for " + Forms.Main.Instance.NextSyncVal);
             } else {
                 Forms.Main.Instance.NextSyncVal = "Inactive";
@@ -104,6 +105,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         private Timer ogcsTimer;
         private DateTime lastRunTime;
         private Int32 lastRunItemCount;
+        private Int16 failures = 0;
 
         public PushSyncTimer() {
             ResetLastRun();
@@ -111,30 +113,40 @@ namespace OutlookGoogleCalendarSync.Sync {
             ogcsTimer.Tag = "PushTimer";
             ogcsTimer.Interval = 2 * 60000;
             ogcsTimer.Tick += new EventHandler(ogcsPushTimer_Tick);
-            Forms.Main.Instance.NextSyncVal = "Push Sync Active";
+            Forms.Main.Instance.NextSyncVal = Settings.Instance.SyncInterval == 0 ? "Push Sync Active" : Forms.Main.Instance.NextSyncVal += " + Push";
         }
 
         public void ResetLastRun() {
             this.lastRunTime = DateTime.Now;
-            this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange().Count;
+            try {
+                log.Fine("Updating calendar item count following Push Sync.");
+                this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true).Count;
+            } catch {
+                log.Error("Failed to update item count following a Push Sync.");
+            }
         }
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             log.Fine("Push sync triggered.");
 
-            System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
+            try {
+                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true);
 
-            if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
-                log.Debug("Changes found for Push sync.");
-                Forms.Main frm = Forms.Main.Instance;
-                frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
-                if (!Sync.Engine.Instance.SyncingNow) {
-                    frm.Sync_Click(sender, null);
+                if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
+                    log.Debug("Changes found for Push sync.");
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
+                    if (!Sync.Engine.Instance.SyncingNow) {
+                        Forms.Main.Instance.Sync_Click(sender, null);
+                    } else {
+                        log.Debug("Busy syncing already. No need to push.");
+                    }
                 } else {
-                    log.Debug("Busy syncing already. No need to push.");
+                    log.Fine("No changes found.");
                 }
-            } else {
-                log.Fine("No changes found.");
+                failures = 0;
+            } catch (System.Exception ex) {
+                failures++;
+                log.Warn("Push Sync failed " + failures + " times to check for changed items. " + ex.Message);
             }
         }
 
@@ -142,7 +154,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (enable && !ogcsTimer.Enabled) {
                 ResetLastRun();
                 ogcsTimer.Start();
-                Forms.Main.Instance.NextSyncVal = "Push Sync Active";
+                if (Settings.Instance.SyncInterval == 0) Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!enable && ogcsTimer.Enabled) {
                 ogcsTimer.Stop();
                 Sync.Engine.Instance.OgcsTimer.SetNextSync();

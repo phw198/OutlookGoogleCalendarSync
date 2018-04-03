@@ -87,13 +87,27 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         #endregion
 
-        public List<AppointmentItem> GetCalendarEntriesInRange() {
+        public List<AppointmentItem> GetCalendarEntriesInRange(Boolean suppressAdvisories) {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
-            filtered = FilterCalendarEntries(UseOutlookCalendar.Items);
+            try {
+                filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+            } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
+                    log.Warn(ex.Message);
+                    try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                    ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
+                    throw ex;
+                }
+            } catch (System.Exception ex) {
+                Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
+                throw ex;
+            }
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true, Boolean noDateFilter = false, String extraFilter = "") {
+        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true, 
+            Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) 
+        {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
 
             List<AppointmentItem> result = new List<AppointmentItem>();
@@ -164,11 +178,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (unfiltered) result.Add(ai);
                     }
                 }
-                if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
-                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items excluded due to only syncing invites you responded to.");
+                if (!suppressAdvisories) {
+                    if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
+                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items excluded due to only syncing invites you responded to.");
 
-                if (result.Count == 0 && (categoryFiltered + responseFiltered > 0))
-                    Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
+                    if (result.Count == 0 && (categoryFiltered + responseFiltered > 0))
+                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
+                }
             }
             log.Fine("Filtered down to " + result.Count);
             return result;
