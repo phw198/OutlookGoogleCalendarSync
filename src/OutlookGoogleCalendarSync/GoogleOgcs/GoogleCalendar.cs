@@ -489,7 +489,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
-                    if (ev == null && GetOGCSproperty(compare.Value, MetadataId.forceSave))
+                    if (ev == null && ExistsOGCSproperty(compare.Value, MetadataId.forceSave))
                         ev = compare.Value;
 
                     if (ev == null) continue;
@@ -512,7 +512,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
-            if (!Settings.Instance.APIlimit_inEffect && GetOGCSproperty(ev, MetadataId.apiLimitHit)) {
+            if (!Settings.Instance.APIlimit_inEffect && ExistsOGCSproperty(ev, MetadataId.apiLimitHit)) {
                 log.Fine("Back processing Event affected by attendee API limit.");
             } else {
                 if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
@@ -849,7 +849,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Event ev = gEvents[g];
 
                 //Find entries with no Outlook ID
-                if (!GetOGCSproperty(ev, MetadataId.oEntryId)) {
+                if (!ExistsOGCSproperty(ev, MetadataId.oEntryId)) {
 
                     //Use simple matching on start,end,subject,location to pair events
                     String sigEv = signature(ev);
@@ -917,12 +917,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Comparing Outlook items to Google events...");
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
-            String compare_gEntryID;
             int metadataEnhanced = 0;
             for (int g = google.Count - 1; g >= 0; g--) {
                 log.Fine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
 
-                if (GetOGCSproperty(google[g], MetadataId.oEntryId, out compare_gEntryID)) {
+                if (ExistsOGCSproperty(google[g], MetadataId.oEntryId)) {
+                    String compare_gEntryID = GetOGCSproperty(google[g], MetadataId.oEntryId);
                     Boolean outlookIDmissing = OutlookIdMissing(google[g]); 
 
                     for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -984,12 +984,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (OutlookOgcs.Calendar.GetOGCSproperty(outlook[o], OutlookOgcs.Calendar.MetadataId.gEventID))
+                    if (OutlookOgcs.Calendar.ExistsOGCSproperty(outlook[o], OutlookOgcs.Calendar.MetadataId.gEventID))
                         outlook.Remove(outlook[o]);
                 }
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (!GetOGCSproperty(google[g], MetadataId.oEntryId) ||
+                    if (!ExistsOGCSproperty(google[g], MetadataId.oEntryId) ||
                         google[g].Updated > Settings.Instance.LastSyncDate)
                         google.Remove(google[g]);
                 }
@@ -1008,9 +1008,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
             log.Fine("Comparing Outlook GlobalID");
 
-            String gCompareID;
-            String oCompareID;
-            if (GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gCompareID)) {
+            if (ExistsOGCSproperty(ev, MetadataId.oGlobalApptId)) {
+                String gCompareID = GetOGCSproperty(ev, MetadataId.oGlobalApptId);
                 String oGlobalID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
 
                 //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
@@ -1026,13 +1025,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     gCompareID.Remove(gCompareID.Length-16) == oGlobalID.Remove(oGlobalID.Length-16))) //Or it's really a Entry ID (failsafe match)
                 {
                     log.Fine("Comparing Outlook CalendarID");
-                    if (GetOGCSproperty(ev, MetadataId.oCalendarId, out gCompareID) &&
-                        gCompareID == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID) {
+                    gCompareID = GetOGCSproperty(ev, MetadataId.oCalendarId);
+                    if (gCompareID == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID) {
 
                         //But...if an appointment is copied within ones own calendar, the DATA part is the same (only the creation time changes)!
                         //So now compare the Entry ID too.
                         log.Fine("Comparing Outlook EntryID");
-                        if (GetOGCSproperty(ev, MetadataId.oEntryId, out gCompareID) && gCompareID == ai.EntryID) {
+                        gCompareID = GetOGCSproperty(ev, MetadataId.oEntryId);
+                        if (gCompareID == ai.EntryID) {
                             return true;
                         } else if (!string.IsNullOrEmpty(gCompareID) &&
                             gCompareID.Remove(gCompareID.Length-16) == ai.EntryID.Remove(ai.EntryID.Length-16)) 
@@ -1040,8 +1040,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
                             //The former is identified by ExplorerWatcher adding a special flag
-                            String copiedAi = false.ToString();
-                            if (OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.locallyCopied, out copiedAi) && (copiedAi == true.ToString())) {
+                            if (OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.locallyCopied) == true.ToString()) {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
@@ -1070,8 +1069,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                     gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                     gCompareID.Substring(72) != oGlobalID.Substring(72) &&
-                    OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID, out oCompareID) &&
-                    oCompareID == ev.Id &&
+                    OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID) == ev.Id &&
                     SignaturesMatch(signature(ev), OutlookOgcs.Calendar.signature(ai))) 
                 {
                     //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
@@ -1309,7 +1307,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                 CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
                 CSVheader += "Google EventID,Google CalendarID,";
-                CSVheader += "Outlook EntryID,Outlook GlobalID,Outlook CalendarID";
+                CSVheader += "Outlook EntryID,Outlook GlobalID,Outlook CalendarID,";
+                CSVheader += "OGCS Modified,Force Save,API Limited";
 
                 tw.WriteLine(CSVheader);
 
@@ -1372,10 +1371,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!foundReminder) csv.Append(",,");
 
             csv.Append(ev.Id + "," + Settings.Instance.UseGoogleCalendar.Id + ",");
-            String gMetadata;
-            GetOGCSproperty(ev, MetadataId.oEntryId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
-            GetOGCSproperty(ev, MetadataId.oGlobalApptId, out gMetadata); csv.Append((gMetadata ?? "") + ",");
-            GetOGCSproperty(ev, MetadataId.oCalendarId, out gMetadata); csv.Append(gMetadata ?? "");
+            csv.Append((GetOGCSproperty(ev, MetadataId.oEntryId) ?? "") + ",");
+            csv.Append((GetOGCSproperty(ev, MetadataId.oGlobalApptId) ?? "") + ",");
+            csv.Append((GetOGCSproperty(ev, MetadataId.oCalendarId) ?? "") + ",");
+            csv.Append((GetOGCSproperty(ev, MetadataId.ogcsModified) ?? "") + ",");
+            csv.Append((GetOGCSproperty(ev, MetadataId.forceSave) ?? "") + ",");
+            csv.Append(GetOGCSproperty(ev, MetadataId.apiLimitHit) ?? "");
             
             return csv.ToString();
         }
@@ -1495,18 +1496,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static Boolean OutlookIdMissing(Event ev) {
             //Make sure Google event has all Outlook IDs stored
             String missingIds = "";
-            if (!GetOGCSproperty(ev, MetadataId.oGlobalApptId)) missingIds += MetadataIdKeyName(MetadataId.oGlobalApptId) + "|";
-            if (!GetOGCSproperty(ev, MetadataId.oCalendarId)) missingIds += MetadataIdKeyName(MetadataId.oCalendarId) + "|";
-            if (!GetOGCSproperty(ev, MetadataId.oEntryId)) missingIds += MetadataIdKeyName(MetadataId.oEntryId) + "|";
+            if (!ExistsOGCSproperty(ev, MetadataId.oGlobalApptId)) missingIds += MetadataIdKeyName(MetadataId.oGlobalApptId) + "|";
+            if (!ExistsOGCSproperty(ev, MetadataId.oCalendarId)) missingIds += MetadataIdKeyName(MetadataId.oCalendarId) + "|";
+            if (!ExistsOGCSproperty(ev, MetadataId.oEntryId)) missingIds += MetadataIdKeyName(MetadataId.oEntryId) + "|";
             if (!string.IsNullOrEmpty(missingIds))
                 log.Warn("Found Google item missing Outlook IDs (" + missingIds.TrimEnd('|') + "). " + GetEventSummary(ev));
             return !string.IsNullOrEmpty(missingIds);
         }
         
         public static Boolean HasOgcsProperty(Event ev) {
-            if (GetOGCSproperty(ev, MetadataId.oEntryId)) return true;
-            if (GetOGCSproperty(ev, MetadataId.oGlobalApptId)) return true;
-            if (GetOGCSproperty(ev, MetadataId.oCalendarId)) return true;
+            if (ExistsOGCSproperty(ev, MetadataId.oEntryId)) return true;
+            if (ExistsOGCSproperty(ev, MetadataId.oGlobalApptId)) return true;
+            if (ExistsOGCSproperty(ev, MetadataId.oCalendarId)) return true;
             return false;
         }
 
@@ -1530,31 +1531,31 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             addOGCSproperty(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        public static Boolean GetOGCSproperty(Event ev, MetadataId key) {
-            String throwAway;
-            return GoogleOgcs.Calendar.GetOGCSproperty(ev, key, out throwAway);
-        }
-        public static Boolean GetOGCSproperty(Event ev, MetadataId id, out String value) {
+        public static Boolean ExistsOGCSproperty(Event ev, MetadataId id) {
             String key = MetadataIdKeyName(id);
             if (ev.ExtendedProperties != null &&
                 ev.ExtendedProperties.Private__ != null &&
                 ev.ExtendedProperties.Private__.ContainsKey(key)) {
-                value = ev.ExtendedProperties.Private__[key];
                 return true;
-            } else {
-                value = null;
+            } else
                 return false;
-            }
+        }
+        public static String GetOGCSproperty(Event ev, MetadataId id) {
+            if (ExistsOGCSproperty(ev, id)) {
+                String key = MetadataIdKeyName(id);
+                return ev.ExtendedProperties.Private__[key];
+            } else
+                return null;
         }
         
         private static void removeOGCSproperty(ref Event ev, MetadataId key) {
-            if (GetOGCSproperty(ev, key))
+            if (ExistsOGCSproperty(ev, key))
                 ev.ExtendedProperties.Private__.Remove(MetadataIdKeyName(key));
         }
 
         public static DateTime GetOGCSlastModified(Event ev) {
-            String lastModded = null;
-            if (GetOGCSproperty(ev, MetadataId.ogcsModified, out lastModded)) {
+            if (ExistsOGCSproperty(ev, MetadataId.ogcsModified)) {
+                String lastModded = GetOGCSproperty(ev, MetadataId.ogcsModified);
                 try {
                     return DateTime.ParseExact(lastModded, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                 } catch (System.FormatException) {
