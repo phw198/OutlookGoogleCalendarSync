@@ -419,18 +419,23 @@ namespace OutlookGoogleCalendarSync {
 
             //Check upgrade to Squirrel release went OK
             try {
-                String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
-                String paddedVersion = "";
-                if (settingsVersion != "Unknown") {
-                    foreach (String versionBit in settingsVersion.Split('.')) {
-                        paddedVersion += versionBit.PadLeft(2, '0');
-                    }
-                    Int32 upgradedFrom = Convert.ToInt32(paddedVersion);
+                if (isSquirrelInstall) {
+                    Analytics.Send("squirrel", "upgrade", "from=" + settingsVersion + ";to=" + Application.ProductVersion);
 
-                    if (isSquirrelInstall &&
-                        (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
-                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) {
+                    Int32 upgradedFrom = Int16.MaxValue;
+                    String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
+                    String paddedVersion = "";
+                    if (settingsVersion != "Unknown") {
+                        foreach (String versionBit in settingsVersion.Split('.')) {
+                            paddedVersion += versionBit.PadLeft(2, '0');
+                        }
+                        upgradedFrom = Convert.ToInt32(paddedVersion);
+
+                    }
+                    if ((settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
+                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) 
+                    {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
                         MessageBox.Show("A suspected improper install location has been detected.\r\n" +
                             "Click 'OK' for further details.", "Improper Install Location",

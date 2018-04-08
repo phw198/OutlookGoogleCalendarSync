@@ -609,7 +609,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            Forms.Main.Instance.Console.Update("Updated event exception failed to save.<br/>" + ex.Message, Console.Markup.error);
+                                            Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
                                             log.Error(ex.StackTrace);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;

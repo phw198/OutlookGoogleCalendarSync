@@ -201,13 +201,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         createCalendarEntry(ev, ref newAi);
                     } catch (System.Exception ex) {
-                        String evSummary = "";
-                        if (!Settings.Instance.VerboseOutput) evSummary = GoogleOgcs.Calendar.GetEventSummary(ev) + "<br/>";
                         if (ex.GetType() == typeof(ApplicationException)) {
-                            Forms.Main.Instance.Console.Update(evSummary + "Appointment creation skipped.", Console.Markup.warning);
+                            Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Appointment creation skipped.", Console.Markup.warning);
                             continue;
                         } else {
-                            Forms.Main.Instance.Console.Update(evSummary + "Appointment creation failed.<br/>" + ex.Message, Console.Markup.error);
+                            Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Appointment creation failed.", ex);
                             log.Error(ex.StackTrace);
                             if (MessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
@@ -220,9 +218,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         createCalendarEntry_save(newAi, ref ev);
                         events[g] = ev;
                     } catch (System.Exception ex) {
-                        String evSummary = "";
-                        if (!Settings.Instance.VerboseOutput) evSummary = GoogleOgcs.Calendar.GetEventSummary(ev) + "<br/>";
-                        Forms.Main.Instance.Console.Update(evSummary + "New appointment failed to save.<br/>" + ex.Message, Console.Markup.error);
+                        Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "New appointment failed to save.", ex);
                         log.Error(ex.StackTrace);
                         if (MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -310,9 +306,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
-                        String evSummary = "";
-                        if (!Settings.Instance.VerboseOutput) evSummary = GoogleOgcs.Calendar.GetEventSummary(compare.Value) + "<br/>";
-                        Forms.Main.Instance.Console.Update(evSummary + "Appointment update failed.<br/>" + ex.Message, Console.Markup.error);
+                        Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Appointment update failed.", ex);
                         log.Error(ex.StackTrace);
                         if (MessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -325,9 +319,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             updateCalendarEntry_save(ref ai);
                             entriesUpdated++;
                         } catch (System.Exception ex) {
-                            String evSummary = "";
-                            if (!Settings.Instance.VerboseOutput) evSummary = GoogleOgcs.Calendar.GetEventSummary(compare.Value) + "<br/>";
-                            Forms.Main.Instance.Console.Update(evSummary + "Updated appointment failed to save.<br/>" + ex.Message, Console.Markup.error);
+                            Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Updated appointment failed to save.", ex);
                             log.Error(ex.StackTrace);
                             if (MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
@@ -612,9 +604,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
-                        String evSummary = "";
-                        if (!Settings.Instance.VerboseOutput) evSummary = OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>";
-                        Forms.Main.Instance.Console.Update(evSummary + "Appointment deletion failed.<br/>" + ex.Message, Console.Markup.error);
+                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Appointment deletion failed.", ex);
                         log.Error(ex.StackTrace);
                         if (MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -626,9 +616,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (doDelete) deleteCalendarEntry_save(ai);
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
-                        String evSummary = "";
-                        if (!Settings.Instance.VerboseOutput) evSummary = OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>";
-                        Forms.Main.Instance.Console.Update(evSummary + "Deleted appointment failed to remove.<br/>" + ex.Message, Console.Markup.error);
+                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Deleted appointment failed to remove.", ex);
                         log.Error(ex.StackTrace);
                         if (MessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -1011,22 +999,31 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return csv.ToString();
         }
 
-        public static string GetEventSummary(AppointmentItem ai) {
+        /// <summary>
+        /// Get the summary of an appointment item.
+        /// </summary>
+        /// <param name="ai">The appointment item</param>
+        /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
+        /// <returns></returns>
+        public static string GetEventSummary(AppointmentItem ai, Boolean onlyIfNotVerbose = false) {
             String eventSummary = "";
-            try {
-                if (ai.AllDayEvent) {
-                    log.Fine("GetSummary - all day event");
-                    eventSummary += ai.Start.Date.ToShortDateString();
-                } else {
-                    log.Fine("GetSummary - not all day event");
-                    eventSummary += ai.Start.ToShortDateString() + " " + ai.Start.ToShortTimeString();
-                }
-                eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
-                eventSummary += '"' + ai.Subject + '"';
+            if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
+                try {
+                    if (ai.AllDayEvent) {
+                        log.Fine("GetSummary - all day event");
+                        eventSummary += ai.Start.Date.ToShortDateString();
+                    } else {
+                        log.Fine("GetSummary - not all day event");
+                        eventSummary += ai.Start.ToShortDateString() + " " + ai.Start.ToShortTimeString();
+                    }
+                    eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
+                    eventSummary += '"' + ai.Subject + '"';
+                    if (onlyIfNotVerbose) eventSummary += "<br/>";
 
-            } catch (System.Exception ex) {
-                log.Warn("Failed to get appointment summary: " + eventSummary);
-                OGCSexception.Analyse(ex, true);
+                } catch (System.Exception ex) {
+                    log.Warn("Failed to get appointment summary: " + eventSummary);
+                    OGCSexception.Analyse(ex, true);
+                }
             }
             return eventSummary;
         }

@@ -122,12 +122,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
-                    Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
+                    Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
                 }
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error);
+                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
             }
 
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
@@ -144,8 +144,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
-                    Forms.Main.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                    if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException)
+                        OGCSexception.AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
+                    else {
+                        OGCSexception.Analyse(ex);
+                        Forms.Main.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                    }
                     authenticated = false;
                     return;
                 }

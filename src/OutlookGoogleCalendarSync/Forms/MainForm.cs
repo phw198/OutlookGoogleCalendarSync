@@ -472,7 +472,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     Sync_Click(null, null);
                 }
             } catch (System.Exception ex) {
-                console.Update("Problem encountered during synchronisation.\r\n" + ex.Message, Console.Markup.error);
+                console.UpdateWithError("Problem encountered during synchronisation.", ex);
                 OGCSexception.Analyse(ex, true);
             } finally {
                 if (!Sync.Engine.Instance.SyncingNow) {
@@ -963,7 +963,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 calendars = GoogleOgcs.Calendar.Instance.GetCalendars();
             } catch (ApplicationException ex) {
-                if (!String.IsNullOrEmpty(ex.Message)) console.Update(ex.Message, Console.Markup.error);
+                if (!String.IsNullOrEmpty(ex.Message)) console.UpdateWithError(null, ex);
             } catch (AggregateException agex) {
                 OGCSexception.AnalyseAggregate(agex, false);
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -975,7 +975,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
                 console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
-                console.BuildOutput(ex.Message, ref sb, false);
+                console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
                 if (ex.InnerException != null) console.BuildOutput(ex.InnerException.Message, ref sb, false);
                 console.Update(sb, Console.Markup.error, logit: true);
                 if (Settings.Instance.Proxy.Type == "IE") {

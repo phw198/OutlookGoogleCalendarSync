@@ -147,6 +147,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             } catch (System.Exception ex) {
                 failures++;
                 log.Warn("Push Sync failed " + failures + " times to check for changed items. " + ex.Message);
+                if (failures == 10)
+                    Forms.Main.Instance.Console.UpdateWithError("Push Sync is failing.", ex, notifyBubble: true);
             }
         }
 

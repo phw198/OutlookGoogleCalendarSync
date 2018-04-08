@@ -136,7 +136,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         return;
                     }
                 } catch (System.Exception ex) {
-                    mainFrm.Console.Update(ex.Message, Console.Markup.error, notifyBubble: true);
+                    mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
                     OGCSexception.Analyse(ex, true);
                     return;
                 }
@@ -207,7 +207,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 } else {
                                     OGCSexception.Analyse(ex, true);
-                                    mainFrm.Console.Update(ex.Message, Console.Markup.error, notifyBubble: true);
+                                    mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
                                     syncResult = SyncResult.Fail;
                                 }
                             }
