@@ -74,7 +74,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
                 log.Debug("Create the timer for the push synchronisation");
                 if (OgcsPushTimer == null)
-                    OgcsPushTimer = new Sync.PushSyncTimer();
+                    OgcsPushTimer = Sync.PushSyncTimer.Instance;
                 if (!OgcsPushTimer.Running())
                     OgcsPushTimer.Switch(true);
             }
@@ -98,8 +98,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw ex;
                 }
+            } catch (System.Runtime.InteropServices.COMException ex) {
+                try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+
             } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
+                if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
                 throw ex;
             }
             return filtered;

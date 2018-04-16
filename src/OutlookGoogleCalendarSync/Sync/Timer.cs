@@ -106,14 +106,25 @@ namespace OutlookGoogleCalendarSync.Sync {
         private DateTime lastRunTime;
         private Int32 lastRunItemCount;
         private Int16 failures = 0;
+        private static PushSyncTimer instance;
+        public static PushSyncTimer Instance {
+            get {
+                if (instance == null) {
+                    instance = new PushSyncTimer();
+                }
+                return instance;
+            }
+        }
 
-        public PushSyncTimer() {
+        private PushSyncTimer() {
             ResetLastRun();
             ogcsTimer = new Timer();
             ogcsTimer.Tag = "PushTimer";
             ogcsTimer.Interval = 2 * 60000;
             ogcsTimer.Tick += new EventHandler(ogcsPushTimer_Tick);
-            Forms.Main.Instance.NextSyncVal = Settings.Instance.SyncInterval == 0 ? "Push Sync Active" : Forms.Main.Instance.NextSyncVal += " + Push";
+            Forms.Main.Instance.NextSyncVal = Settings.Instance.SyncInterval == 0 
+                ? "Push Sync Active" 
+                : Forms.Main.Instance.NextSyncVal = Forms.Main.Instance.NextSyncVal.Replace(" + Push", "") + " + Push";
         }
 
         public void ResetLastRun() {
@@ -146,7 +157,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 failures = 0;
             } catch (System.Exception ex) {
                 failures++;
-                log.Warn("Push Sync failed " + failures + " times to check for changed items. " + ex.Message);
+                log.Warn("Push Sync failed " + failures + " times to check for changed items.");
+                OGCSexception.Analyse(ex);
                 if (failures == 10)
                     Forms.Main.Instance.Console.UpdateWithError("Push Sync is failing.", ex, notifyBubble: true);
             }
