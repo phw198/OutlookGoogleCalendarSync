@@ -42,45 +42,52 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        #region Analytics
         public static void TrackVersions() {
             if (System.Diagnostics.Debugger.IsAttached) return;
 
-            String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
-            
             //OUTLOOK CLIENT
-            String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid="+ cid +"&ea=version";
-            String analyticsUrl = baseAnalyticsUrl + "&ec=outlook&el=";
+            String outlookVersion = "Unknown";
             try {
                 switch (OutlookOgcs.Factory.OutlookVersion) {
-                    case 11: analyticsUrl += "2003"; break;
-                    case 12: analyticsUrl += "2007"; break;
-                    case 14: analyticsUrl += "2010"; break;
-                    case 15: analyticsUrl += "2013"; break;
-                    case 16: analyticsUrl += "2016"; break;
-                    case 17: analyticsUrl += "2019"; break;
-                    default: analyticsUrl += "Unknown-" + OutlookOgcs.Factory.OutlookVersion; break;
+                    case 11: outlookVersion = "2003"; break;
+                    case 12: outlookVersion = "2007"; break;
+                    case 14: outlookVersion = "2010"; break;
+                    case 15: outlookVersion = "2013"; break;
+                    case 16: outlookVersion = "2016"; break;
+                    case 17: outlookVersion = "2019"; break;
+                    default: outlookVersion = "Unknown-" + OutlookOgcs.Factory.OutlookVersion; break;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed setting Outlook client analytics URL.");
+                log.Error("Failed determining Outlook client version.");
                 OGCSexception.Analyse(ex);
-                analyticsUrl = baseAnalyticsUrl + "Unknown";
+                outlookVersion = "Unknown";
             }
-            sendVersion(analyticsUrl);
+            Analytics.Send("outlook", "version", outlookVersion);
 
             //OGCS APPLICATION
-            analyticsUrl = baseAnalyticsUrl + "&ec=ogcs&el=" + System.Windows.Forms.Application.ProductVersion;
-            sendVersion(analyticsUrl);
+            Analytics.Send("ogcs", "version", System.Windows.Forms.Application.ProductVersion);
         }
 
-        private static void sendVersion(String analyticsUrl) {
-            if (analyticsUrl != null) {
-                log.Debug("Retrieving URL: " + analyticsUrl);
-                WebClient wc = new WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-                wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
-                wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
-            }
+        public static void TrackSync() {
+            //Use an API that isn't used anywhere else - can use to see how many syncs are happening
+            if (System.Diagnostics.Debugger.IsAttached) return;
+            GoogleOgcs.Calendar.Instance.GetSetting("locale");
+        }
+    }
+
+    public class Analytics {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Analytics));
+        
+        public static void Send(String category, String action, String label) {
+            String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
+            String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid=" + cid;
+
+            String analyticsUrl = baseAnalyticsUrl + "&ec=" + category + "&ea=" + action + "&el=" + System.Net.WebUtility.UrlEncode(label);
+            log.Debug("Retrieving URL: " + analyticsUrl);
+            WebClient wc = new WebClient();
+            wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+            wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
+            wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
         }
 
         private static void trackVersion_completed(object sender, DownloadStringCompletedEventArgs e) {
@@ -99,12 +106,5 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
         }
-
-        public static void TrackSync() {
-            //Use an API that isn't used anywhere else - can use to see how many syncs are happening
-            if (System.Diagnostics.Debugger.IsAttached) return;
-            GoogleOgcs.Calendar.Instance.GetSetting("locale");
-        }
-        #endregion
     }
 }

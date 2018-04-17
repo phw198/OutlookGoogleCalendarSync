@@ -441,9 +441,9 @@ namespace OutlookGoogleCalendarSync {
         public Event GetGoogleMasterEvent(AppointmentItem ai) {
             log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookOgcs.Calendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
-            String googleIdValue;
             Boolean haveMatchingEv = false;
-            if (OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID, out googleIdValue)) {
+            if (OutlookOgcs.Calendar.ExistsOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID)) {
+                String googleIdValue = OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID);
                 Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
                 if (ev != null) {
                     events.Add(ev);
@@ -458,12 +458,12 @@ namespace OutlookGoogleCalendarSync {
                 GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
             }
             for (int g = 0; g < events.Count(); g++) {
-                String gEntryID = null;
                 Event ev = events[g];
-                if (haveMatchingEv || GoogleOgcs.Calendar.GetOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId, out gEntryID)) {
+                if (haveMatchingEv || GoogleOgcs.Calendar.ExistsOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId)) {
                     if (GoogleOgcs.Calendar.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        if (gEntryID != null && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
+                        String gEntryID = GoogleOgcs.Calendar.GetOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId);
+                        if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
                             compare_oID = ai.EntryID;
@@ -609,7 +609,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            Forms.Main.Instance.Console.Update("Updated event exception failed to save.<br/>" + ex.Message, Console.Markup.error);
+                                            Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
                                             log.Error(ex.StackTrace);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;

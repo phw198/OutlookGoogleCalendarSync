@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync {
         public static void AnalyseAggregate(AggregateException agex, Boolean throwError = true) {
             foreach (System.Exception ex in agex.InnerExceptions) {
                 if (ex is ApplicationException) {
-                    if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.error);
+                    if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
                     else log.Error(agex.Message);
 
                 } else if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
@@ -77,9 +77,18 @@ namespace OutlookGoogleCalendarSync {
 
             else {
                 log.Warn("Unknown web exception.");
-                Forms.Main.Instance.Console.Update("Unable to communicate with Google. The following error occurred:<br/>" + ex.Message, Console.Markup.error, notifyBubble: true);
+                Forms.Main.Instance.Console.UpdateWithError("Unable to communicate with Google. The following error occurred:", ex, notifyBubble: true);
             }
             if (throwError) throw ex;
+        }
+
+        public static String FriendlyMessage(System.Exception ex) {
+            if (ex is Google.GoogleApiException) {
+                Google.GoogleApiException gaex = ex as Google.GoogleApiException;
+                return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
+            } else {
+                return ex.Message;
+            }
         }
     }
 }

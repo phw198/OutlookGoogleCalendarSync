@@ -1,6 +1,17 @@
 | Release Notes |
 |:---|
 
+# v2.7.3.0 - Alpha
+
+**Enhancements**
+- Improved Push sync mechanism
+- General error handling improvements
+- First code-signed release of OGCS! (Should reduce and finally eliminate anti-virus false positives)
+
+**Bugfix**
+- Cope with copy and paste of Outlook appointments
+- Stop Push syncs continually firing
+
 # v2.7.2.0 - Alpha
 
 **Enhancements**

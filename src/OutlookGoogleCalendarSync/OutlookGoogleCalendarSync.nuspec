@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.7.2-alpha</version>
+    <version>2.7.3-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,18 +12,17 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.7.2?
+# What's New In v2.7.3?
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**
 
-- Handle Apple iCloud changing immutable Outlook IDs
-- Option to not sync Outlook invites you have yet to responded to
-- Command line parameters to support multi-instance OGCS
-- Detect Windows system timezone changes
+- Improved Push sync mechanism
+- General error handling improvements
+- First code-signed release of OGCS! (Should reduce and finally eliminate anti-virus false positives)
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**
 
-- Only redirect to wiki once per COM error
-- Turn on support for TLS1.1 and 1.2 (GitHub removed support for TLS1.0)
+- Cope with copy and paste of Outlook appointments
+- Stop Push syncs continually firing
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
