@@ -284,6 +284,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbTargetCalendar_SelectedItemChanged(null, null);
             cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
+            cbColour.Checked = Settings.Instance.SetEntriesColour;
+            foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                    ddCategoryColour.SelectedItem = cInfo;
+                }
+            }
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
@@ -1143,7 +1149,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.howObfuscatePanel.Visible = false;
                 this.btHowMore.Text = "Less...";
             }
-            gbSyncOptions_HowExpand(show, 170);
+            gbSyncOptions_HowExpand(show, 188);
             if (!show) {
                 this.howMorePanel.Visible = false;
                 this.howObfuscatePanel.Visible = false;
@@ -1193,12 +1199,24 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesPrivate = cbPrivate.Checked;
-            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+            tbTargetCalendar.Enabled = cbPrivate.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesAvailable = cbAvailable.Checked;
-            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+            tbTargetCalendar.Enabled = cbAvailable.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+        }
+
+        private void cbColour_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.SetEntriesColour = cbColour.Checked;
+            ddCategoryColour.Enabled = cbColour.Checked;
+            tbTargetCalendar.Enabled = cbColour.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+        }
+
+        private void ddCategoryColour_SelectedIndexChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
+            Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
         }
         #endregion
 

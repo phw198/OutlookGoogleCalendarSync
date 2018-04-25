@@ -1276,23 +1276,29 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="aiCategories">The appointment item "categories" field</param>
         /// <returns>A match or a "null" Palette signifying no match</returns>
         private Palette getColour(String aiCategories) {
-            if (!string.IsNullOrEmpty(aiCategories)) {
+            OlCategoryColor? categoryColour = null;
+
+            if (Settings.Instance.SetEntriesColour) {
+                categoryColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
+                if (categoryColour == null) log.Warn("Could not convert '" + Settings.Instance.SetEntriesColourValue + "' into Outlook category type.");
+
+            } else if (!string.IsNullOrEmpty(aiCategories)) {
                 log.Fine("Categories: " + aiCategories);
                 try {
                     String category = aiCategories.Split(new[] { OutlookOgcs.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
-                    OlCategoryColor? categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
+                    categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
                     if (categoryColour == null) log.Warn("Could not convert '" + category + "' into Outlook category type.");
-                    else {
-                        System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
-                        Palette closest = ColourPalette.GetClosestColour(color);
-                        return (closest.Id == "Custom") ? Palette.NullPalette : closest;
-                    }
                 } catch (System.Exception ex) {
                     log.Error("Failed determining colour for Event.");
                     OGCSexception.Analyse(ex);
                 }
             }
-            return Palette.NullPalette;
+            if (categoryColour == null) return Palette.NullPalette;
+            else {
+                System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
+                Palette closest = ColourPalette.GetClosestColour(color);
+                return (closest.Id == "Custom") ? Palette.NullPalette : closest;
+            }            
         }
 
         #region STATIC FUNCTIONS

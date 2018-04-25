@@ -113,6 +113,8 @@ namespace OutlookGoogleCalendarSync {
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
             SetEntriesAvailable = false;
+            SetEntriesColour = false;
+            SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
             Obfuscation = new Obfuscate();
 
             MuteClickSounds = false;
@@ -252,6 +254,9 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
+        [DataMember] public bool SetEntriesColour { get; set; }
+        [DataMember] public String SetEntriesColourValue { get; set; }
+
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
 
@@ -415,7 +420,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
-            if ((SetEntriesPrivate || SetEntriesAvailable) && SyncDirection == Sync.Direction.Bidirectional) {
+            log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue : ""));
+            if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
                 log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
             }

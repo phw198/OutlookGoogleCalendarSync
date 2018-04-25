@@ -222,6 +222,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
+            this.cbColour = new System.Windows.Forms.CheckBox();
+            this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1023,6 +1025,8 @@
             // 
             // howMorePanel
             // 
+            this.howMorePanel.Controls.Add(this.ddCategoryColour);
+            this.howMorePanel.Controls.Add(this.cbColour);
             this.howMorePanel.Controls.Add(this.tbTargetCalendar);
             this.howMorePanel.Controls.Add(this.tbCreatedItemsOnly);
             this.howMorePanel.Controls.Add(this.cbAvailable);
@@ -1031,7 +1035,7 @@
             this.howMorePanel.Controls.Add(this.label6);
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
             this.howMorePanel.Name = "howMorePanel";
-            this.howMorePanel.Size = new System.Drawing.Size(354, 66);
+            this.howMorePanel.Size = new System.Drawing.Size(354, 85);
             this.howMorePanel.TabIndex = 48;
             // 
             // tbTargetCalendar
@@ -2651,6 +2655,31 @@
             this.cbOnlyRespondedInvites.UseVisualStyleBackColor = true;
             this.cbOnlyRespondedInvites.CheckedChanged += new System.EventHandler(this.cbOnlyRespondedInvites_CheckedChanged);
             // 
+            // cbColour
+            // 
+            this.cbColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbColour.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbColour.Location = new System.Drawing.Point(56, 60);
+            this.cbColour.Name = "cbColour";
+            this.cbColour.Size = new System.Drawing.Size(132, 17);
+            this.cbColour.TabIndex = 44;
+            this.cbColour.Text = "Set colour/category to";
+            this.cbColour.UseVisualStyleBackColor = true;
+            this.cbColour.CheckedChanged += new System.EventHandler(this.cbColour_CheckedChanged);
+            // 
+            // ddCategoryColour
+            // 
+            this.ddCategoryColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.ddCategoryColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddCategoryColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ddCategoryColour.FormattingEnabled = true;
+            this.ddCategoryColour.Location = new System.Drawing.Point(186, 58);
+            this.ddCategoryColour.Name = "ddCategoryColour";
+            this.ddCategoryColour.SelectedItem = null;
+            this.ddCategoryColour.Size = new System.Drawing.Size(121, 21);
+            this.ddCategoryColour.TabIndex = 43;
+            this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2899,5 +2928,7 @@
         public System.Windows.Forms.WebBrowser GappBrowser;
         public System.Windows.Forms.Label lLastSyncVal;
         private System.Windows.Forms.CheckBox cbOnlyRespondedInvites;
+        private Extensions.ColourPicker ddCategoryColour;
+        private System.Windows.Forms.CheckBox cbColour;
     }
 }

@@ -84,9 +84,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static readonly ILog log = LogManager.GetLogger(typeof(CategoryMap));
 
         //Source: https://msdn.microsoft.com/en-us/library/ee203806%28v=exchg.80%29.aspx
-        private static Dictionary<Outlook.OlCategoryColor, Color> colourMap;
+        public static Dictionary<Outlook.OlCategoryColor, Color> Colours { get; }
         static CategoryMap() {
-            colourMap = new Dictionary<Outlook.OlCategoryColor, Color> {
+            Colours = new Dictionary<Outlook.OlCategoryColor, Color> {
                 { Outlook.OlCategoryColor.olCategoryColorBlack, Color.FromArgb(28,28,28) },
                 { Outlook.OlCategoryColor.olCategoryColorBlue, Color.FromArgb(50, 103, 184) },
                 { Outlook.OlCategoryColor.olCategoryColorDarkBlue, Color.FromArgb(42, 81, 145 ) },
@@ -104,7 +104,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 { Outlook.OlCategoryColor.olCategoryColorGray, Color.FromArgb(196, 196, 196) },
                 { Outlook.OlCategoryColor.olCategoryColorGreen, Color.FromArgb(74, 182, 63) },
                 { Outlook.OlCategoryColor.olCategoryColorMaroon, Color.FromArgb(163, 78, 120) },
-                { Outlook.OlCategoryColor.olCategoryColorNone, Color.FromArgb(0, 0, 0) },
+                { Outlook.OlCategoryColor.olCategoryColorNone, Color.FromArgb(255, 255, 255) },
                 { Outlook.OlCategoryColor.olCategoryColorOlive, Color.FromArgb(133, 154, 82) },
                 { Outlook.OlCategoryColor.olCategoryColorOrange, Color.FromArgb(240, 108, 21) },
                 { Outlook.OlCategoryColor.olCategoryColorPeach, Color.FromArgb(255, 202, 76) },
@@ -121,7 +121,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         public static Color RgbColour(Outlook.OlCategoryColor colour) {
             log.Fine("Converting " + colour + " to RGB value.");
-            return colourMap[colour];
+            return Colours[colour];
         }
 
         /// <summary>
