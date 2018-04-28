@@ -1059,6 +1059,7 @@
             // 
             // pbExpandHow
             // 
+            this.pbExpandHow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandHow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
             this.pbExpandHow.Location = new System.Drawing.Point(1, 0);
             this.pbExpandHow.Name = "pbExpandHow";
@@ -1091,6 +1092,8 @@
             // 
             // howMorePanel
             // 
+            this.howMorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.howMorePanel.Controls.Add(this.ddCategoryColour);
             this.howMorePanel.Controls.Add(this.cbColour);
             this.howMorePanel.Controls.Add(this.tbTargetCalendar);
@@ -1101,7 +1104,7 @@
             this.howMorePanel.Controls.Add(this.label6);
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
             this.howMorePanel.Name = "howMorePanel";
-            this.howMorePanel.Size = new System.Drawing.Size(336, 85);
+            this.howMorePanel.Size = new System.Drawing.Size(353, 85);
             this.howMorePanel.TabIndex = 48;
             // 
             // cbColour
@@ -1377,6 +1380,7 @@
             // 
             // pbExpandWhat
             // 
+            this.pbExpandWhat.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandWhat.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
             this.pbExpandWhat.Location = new System.Drawing.Point(1, 280);
             this.pbExpandWhat.Name = "pbExpandWhat";
@@ -1387,6 +1391,7 @@
             // 
             // pbExpandWhen
             // 
+            this.pbExpandWhen.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandWhen.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
             this.pbExpandWhen.Location = new System.Drawing.Point(1, 164);
             this.pbExpandWhen.Name = "pbExpandWhen";
@@ -2742,6 +2747,8 @@
             // 
             // ddCategoryColour
             // 
+            this.ddCategoryColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.ddCategoryColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ddCategoryColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddCategoryColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2749,7 +2756,7 @@
             this.ddCategoryColour.Location = new System.Drawing.Point(178, 58);
             this.ddCategoryColour.Name = "ddCategoryColour";
             this.ddCategoryColour.SelectedItem = null;
-            this.ddCategoryColour.Size = new System.Drawing.Size(121, 21);
+            this.ddCategoryColour.Size = new System.Drawing.Size(158, 21);
             this.ddCategoryColour.TabIndex = 43;
             this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
             // 
@@ -3005,7 +3012,6 @@
         public System.Windows.Forms.WebBrowser GappBrowser;
         public System.Windows.Forms.Label lLastSyncVal;
         private System.Windows.Forms.CheckBox cbOnlyRespondedInvites;
-        private Extensions.ColourPicker ddCategoryColour;
         private System.Windows.Forms.CheckBox cbColour;
         private System.Windows.Forms.Panel panelSyncOptions;
         private System.Windows.Forms.PictureBox pbExpandHow;
@@ -3013,5 +3019,6 @@
         private System.Windows.Forms.PictureBox pbExpandWhen;
         private System.Windows.Forms.CheckBox btCloseRegexRules;
         private System.Windows.Forms.CheckBox cbAddColours;
+        public Extensions.ColourPicker ddCategoryColour;
     }
 }

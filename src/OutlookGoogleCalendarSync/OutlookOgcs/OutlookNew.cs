@@ -582,6 +582,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void RefreshCategories() {
             OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
+            Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
         }
 
         #region TimeZone Stuff

@@ -1,11 +1,9 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
+using System.Linq;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using log4net;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public class Categories {
@@ -23,6 +21,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
         
+        /// <summary>
+        /// Get the categories as configured in Outlook and store in class
+        /// </summary>
+        /// <param name="oApp"></param>
+        /// <param name="store"></param>
         public void Get(Outlook.Application oApp, Outlook.Store store) {
             if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
                 this.categories = oApp.Session.Categories;
@@ -36,19 +39,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        //private static Dictionary<Outlook.OlCategoryColor, Dictionary<String, String>> Index;
-
-        //public void BuildIndex() {
-        //    foreach (Outlook.Category category in Outlook.Categ this.categories) {
-        //        CategoryMap map = new CategoryMap( {
-        //            Name = category.Name,
-        //            OutlookColourNumber = category.Color);
-        //        log.Debug(category.Color.ToString());
-        //    }
-        //}
-
         /// <summary>
-        /// Get the Outlook category type from the name given to the category
+        /// Get the Outlook category from the name given to the category
         /// </summary>
         /// <param name="categoryName">The user named Outlook category</param>
         /// <returns>The Outlook category type</returns>
@@ -61,13 +53,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return null;
         }
 
-        //public void List() {
-        //    foreach (Outlook.Category category in this.categories) {
-        //        log.Debug(category.Name);
-        //        log.Debug(category.Color.ToString());
-        //    }
-        //}
-
         /// <summary>
         /// Return all the category names as a list of strings.
         /// </summary>
@@ -78,8 +63,41 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
             return names;
         }
-    }
 
+        /// <summary>
+        /// Get the Outlook categorys as List of ColourInfo
+        /// </summary>
+        /// <returns>List to be used in dropdown, for example</returns>
+        public List<Extensions.ColourPicker.ColourInfo> DropdownItems() {
+            List<Extensions.ColourPicker.ColourInfo> items = new List<Extensions.ColourPicker.ColourInfo>();
+            foreach (Outlook.Category category in this.categories) {
+                items.Add(new Extensions.ColourPicker.ColourInfo(category.Color, CategoryMap.RgbColour(category.Color), category.Name));
+            }
+            return items;
+        }
+
+        /// <summary>
+        /// Get the Outlook category name for a given category colour.
+        /// If category not yet used, new one added of the form "OGCS [colour]"
+        /// </summary>
+        /// <param name="olCategory">The Outlook category to search by</param>
+        /// <returns>The matching category name</returns>
+        public String FindName(Outlook.OlCategoryColor olCategory) {
+            if (olCategory == Outlook.OlCategoryColor.olCategoryColorNone) return "";
+
+            foreach (Outlook.Category category in this.categories) {
+                if (category.Color == olCategory && category.Name.StartsWith("OGCS ")) return category.Name;
+            }
+
+            Outlook.Category newCategory = categories.Add("OGCS " + FriendlyCategoryName(olCategory), olCategory);
+            return newCategory.Name;
+        }
+
+        public static String FriendlyCategoryName(Outlook.OlCategoryColor olCategory) {
+            return olCategory.ToString().Replace("olCategoryColor", "").Replace("Dark", "Dark ");
+        }
+    }
+    
     public class CategoryMap {
         private static readonly ILog log = LogManager.GetLogger(typeof(CategoryMap));
 
@@ -133,8 +151,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return colour;
         }
 
-        //public String Name { get; set; }
-        //public Int16 OutlookColourNumber { get; set; }
-        //public String GoogleColourHex { get; set; }
+        public static Outlook.OlCategoryColor GetClosestCategory(GoogleOgcs.Palette basePalette) {
+            try {
+                var colourDistance = Colours.Select(x => new { Value = x, Diff = GoogleOgcs.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
+                var minDistance = colourDistance.Min(x => x.Diff);
+                return colourDistance.Find(x => x.Diff == minDistance).Value.Key;
+            } catch (System.Exception ex) {
+                log.Warn("Failed to get closest Outlook category for " + basePalette.ToString());
+                OGCSexception.Analyse(ex);
+                return Outlook.OlCategoryColor.olCategoryColorNone;
+            }
+        }
     }
 }

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
-//using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
@@ -22,6 +19,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             this.HexValue = hexValue;
             this.RgbValue = rgbValue;
         }
+
+        public override String ToString() {
+            return "ID: " + Id + "; HexValue: " + HexValue + "; RgbValue: " + RgbValue;
+        }
     }
 
 
@@ -31,6 +32,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public EventColour() { }
 
+        /// <summary>
+        /// Retrieve calendar's Event colours from Google
+        /// </summary>
         public void Get() {
             log.Debug("Retrieving calendar Event colours.");
             Colors colours = null;
@@ -55,15 +59,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 colourPalette.Add(new Palette("Custom", calendarColour.BackgroundColor, OutlookOgcs.CategoryMap.RgbColour(calendarColour.BackgroundColor)));
         }
 
-        //public static String HexValue(Color rgbColour) {
-        //    String html = ColorTranslator.ToHtml(rgbColour);
-        //    if (rgbColour.IsNamedColor)
-        //        log.Fine(rgbColour.Name + " converted to " + html);
-        //    else
-        //        log.Fine(rgbColour.ToString() + " converted to " + html);
-        //    return html;
-        //}
-
         /// <summary>
         /// Get the Google Palette from its Google ID
         /// </summary>
@@ -82,16 +77,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="colour">The colour to search with.</param>
         public Palette GetClosestColour(Color baseColour) {
             try {
-                var colourDistance = colourPalette.Select(x => new { Value = x, Diff = getDiff(x.RgbValue, baseColour) }).ToList();
+                var colourDistance = colourPalette.Select(x => new { Value = x, Diff = GetDiff(x.RgbValue, baseColour) }).ToList();
                 var minDistance = colourDistance.Min(x => x.Diff);
                 return colourDistance.Find(x => x.Diff == minDistance).Value;
             } catch (System.Exception ex) {
                 log.Warn("Failed to get closest Event colour for " + baseColour.Name);
-                throw ex;
+                OGCSexception.Analyse(ex);
+                return Palette.NullPalette;
             }
         }
 
-        private int getDiff(Color colour, Color baseColour) {
+        public static int GetDiff(Color colour, Color baseColour) {
             int a = colour.A - baseColour.A,
                 r = colour.R - baseColour.R,
                 g = colour.G - baseColour.G,

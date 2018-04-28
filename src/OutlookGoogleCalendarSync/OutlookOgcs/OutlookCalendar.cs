@@ -331,6 +331,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.BusyStatus = getAvailability(ev.Transparency, null);
+            ai.Categories = getColour(ev.ColorId, null); 
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                 foreach (EventAttendee ea in ev.Attendees) {
@@ -556,6 +557,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             OlBusyStatus gFreeBusy = getAvailability(ev.Transparency ?? "opaque", ai.BusyStatus);
             if (Sync.Engine.CompareAttribute("Free/Busy", Sync.Direction.GoogleToOutlook, gFreeBusy.ToString(), ai.BusyStatus.ToString(), sb, ref itemModified)) {
                 ai.BusyStatus = gFreeBusy;
+            }
+
+            List<String> aiCategories = new List<string>();
+            String oCategoryName = "";
+            if (!string.IsNullOrEmpty(ai.Categories)) {
+                aiCategories = ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).ToList();
+                oCategoryName = aiCategories.FirstOrDefault();
+            }
+            String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
+            if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
+                //Only allow one OGCS category at a time (Google Events can only have one colour)
+                aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                aiCategories.Insert(0, gCategoryName);
+                ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
             }
 
             if (Settings.Instance.AddAttendees) {
@@ -866,6 +881,38 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the Outlook category colour name from a Google colour ID
+        /// </summary>
+        /// <param name="gColourId">The Google colour ID</param>
+        /// <param name="oColour">The Outlook category</param>
+        /// <returns>Outlook category name</returns>
+        private String getColour(String gColourId, String oColour) {
+            if (!Settings.Instance.AddColours) return "";
+
+            if (Settings.Instance.SetEntriesColour) {
+                if (Settings.Instance.TargetCalendar == Sync.Direction.OutlookToGoogle) { //Colour forced to sync in other direction
+                    if (oColour == null) //Creating item
+                        return getGoogleCategoryColour(gColourId);
+                    else return oColour;
+
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oColour == null)) {
+                        OlCategoryColor outlookColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
+                        return Categories.FindName(outlookColour);
+                    } else return oColour;
+                }
+
+            } else {
+                return getGoogleCategoryColour(gColourId);
+            }
+        }
+        private String getGoogleCategoryColour(String gColourId) {
+            GoogleOgcs.Palette pallete = GoogleOgcs.Calendar.Instance.ColourPalette.GetColour(gColourId);
+            OlCategoryColor outlookColour = CategoryMap.GetClosestCategory(pallete);
+            return Categories.FindName(outlookColour);
         }
 
         #region STATIC functions
@@ -1353,6 +1400,5 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         #endregion
         #endregion
-
     }
 }
