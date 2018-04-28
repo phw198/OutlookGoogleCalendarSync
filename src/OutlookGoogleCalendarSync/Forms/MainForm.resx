@@ -128,12 +128,6 @@ Obtain new values from the Google Developer Console.
 You'll need to enable Calendar and Google+ APIs in your project:
 </value>
   </data>
-  <metadata name="regexFind.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="regexReplace.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
   <data name="label21.Text" xml:space="preserve">
     <value>On the "Google" tab, select the calendar you wish to synchronise.
 
