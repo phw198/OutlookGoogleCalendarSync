@@ -239,6 +239,7 @@ namespace OutlookGoogleCalendarSync {
                 var migrator = new ClickOnceToSquirrelMigrator.InSquirrelAppMigrator(Application.ProductName);
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
+                Analytics.Send("squirrel", "uninstall", "clickonce");
             } catch (System.AggregateException ae) {
                 foreach (System.Exception ex in ae.InnerExceptions) {
                     clickOnceUninstallError(ex);
@@ -260,6 +261,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Error("Problem encountered on initiall install.");
                 OGCSexception.Analyse(ex, true);
             }
+            Analytics.Send("squirrel", "install", version.ToString());
             onFirstRun();
         }
         private static void onAppUpdate(Version version) {
@@ -285,9 +287,11 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("Removing registry uninstall keys.");
                     mgr.RemoveUninstallerRegistryEntry();
                 }
+                Analytics.Send("squirrel", "uninstall", version.ToString());
                 if (MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     log.Debug("User opted to give feedback.");
+                    Analytics.Send("squirrel", "uninstall", "feedback");
                     System.Diagnostics.Process.Start("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform");
                 } else {
                     log.Debug("User opted not to give feedback.");

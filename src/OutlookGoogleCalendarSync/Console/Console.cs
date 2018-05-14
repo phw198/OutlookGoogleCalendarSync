@@ -285,6 +285,10 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false) {
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), Markup.error, notifyBubble: notifyBubble);
+        }
+
         private String parseEmoji(String output, Markup? markupPrefix = null) {
             if (markupPrefix != null) output = (":" + markupPrefix.ToString() + ":") + output;
 
@@ -337,7 +341,7 @@ namespace OutlookGoogleCalendarSync {
             table.Append("<tr><th class='eventChanges'>Attribute</th><th class='eventChanges'>Change</th></tr>");
             for (int l = 1; l < lines.Count(); l++) {
                 String newRow = "<tr>";
-                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/]\w+|Attendee (added|removed|.*?Status)):\s*", "<td class='eventChanges'>$1</td><td>");
+                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/]\w+|Attendee (added|removed|.*?Status|.*?Optional Check)):\s*", "<td class='eventChanges'>$1</td><td>");
                 newRow = newRow.Replace("=>", "→");
                 table.Append(newRow + "</td></tr>");
             }

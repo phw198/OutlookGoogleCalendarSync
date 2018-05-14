@@ -136,7 +136,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         return;
                     }
                 } catch (System.Exception ex) {
-                    mainFrm.Console.Update(ex.Message, Console.Markup.error, notifyBubble: true);
+                    mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
                     OGCSexception.Analyse(ex, true);
                     return;
                 }
@@ -207,7 +207,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 } else {
                                     OGCSexception.Analyse(ex, true);
-                                    mainFrm.Console.Update(ex.Message, Console.Markup.error, notifyBubble: true);
+                                    mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
                                     syncResult = SyncResult.Fail;
                                 }
                             }
@@ -259,7 +259,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         private void setNextSync(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
-            Forms.Main.Instance.lLastSyncVal.Text = syncStarted.ToLongDateString() + " - " + syncStarted.ToLongTimeString();
+            Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
             Settings.Instance.LastSyncDate = syncStarted;
             if (!updateSyncSchedule) {
                 Forms.Main.Instance.lNextSyncVal.Text = cacheNextSync;
@@ -276,7 +276,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             Forms.Main.Instance.bSyncNow.Enabled = true;
             if (OutlookOgcs.Calendar.Instance.OgcsPushTimer != null)
-                OutlookOgcs.Calendar.Instance.OgcsPushTimer.ItemsQueued = 0; //Reset Push flag regardless of success (don't want it trying every 2 mins)
+                OutlookOgcs.Calendar.Instance.OgcsPushTimer.ResetLastRun(); //Reset Push flag regardless of success (don't want it trying every 2 mins)
         }
 
         private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
@@ -307,19 +307,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
-                try {
-                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange();
-                } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
-                        log.Warn(ex.Message);
-                        try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
-                        ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
-                        throw ex;
-                    }
-                } catch (System.Exception ex) {
-                    console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
-                    throw ex;
-                }
+                outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(false);
                 console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
                 if (CancellationPending) return SyncResult.UserCancelled;

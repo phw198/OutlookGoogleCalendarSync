@@ -229,6 +229,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
+            this.lDonateTip = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2384,6 +2385,7 @@
             // tabPage_About
             // 
             this.tabPage_About.BackColor = System.Drawing.Color.White;
+            this.tabPage_About.Controls.Add(this.lDonateTip);
             this.tabPage_About.Controls.Add(this.dgAbout);
             this.tabPage_About.Controls.Add(this.cbAlphaReleases);
             this.tabPage_About.Controls.Add(this.btCheckForUpdate);
@@ -2760,6 +2762,18 @@
             this.ddCategoryColour.TabIndex = 43;
             this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
             // 
+            // lDonateTip
+            // 
+            this.lDonateTip.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lDonateTip.AutoSize = true;
+            this.lDonateTip.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lDonateTip.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lDonateTip.Location = new System.Drawing.Point(154, 406);
+            this.lDonateTip.Name = "lDonateTip";
+            this.lDonateTip.Size = new System.Drawing.Size(177, 13);
+            this.lDonateTip.TabIndex = 46;
+            this.lDonateTip.Text = "£10 or more hides the splash screen";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3020,5 +3034,6 @@
         private System.Windows.Forms.CheckBox btCloseRegexRules;
         private System.Windows.Forms.CheckBox cbAddColours;
         public Extensions.ColourPicker ddCategoryColour;
+        private System.Windows.Forms.Label lDonateTip;
     }
 }

@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync {
             
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
-            VerboseOutput = false;
+            VerboseOutput = true;
         }
 
         public static Boolean InstanceInitialiased() {
