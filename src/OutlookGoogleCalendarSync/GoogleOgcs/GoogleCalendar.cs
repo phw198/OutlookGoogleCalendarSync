@@ -350,7 +350,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } else throw ex;
                 }
             }
-            ev.Location = ai.Location;
+            if (Settings.Instance.AddLocation)
+                ev.Location = ai.Location;
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
             ev.ColorId = getColour(ai.Categories, null).Id;
@@ -625,7 +626,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev.Description = outlookBody;
             }
 
-            if (Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
+            if (Settings.Instance.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
 
             String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;

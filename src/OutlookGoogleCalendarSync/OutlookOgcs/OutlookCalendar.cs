@@ -261,7 +261,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, Sync.Direction.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
-            ai.Location = ev.Location;
+            if (Settings.Instance.AddLocation) ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.BusyStatus = getAvailability(ev.Transparency, null);
             ai.Categories = getColour(ev.ColorId, null); 
@@ -472,7 +472,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             }
 
-            if (Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
+            if (Settings.Instance.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
                 ai.Location = ev.Location;
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||

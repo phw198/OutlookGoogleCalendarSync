@@ -294,6 +294,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddCategoryColour.SelectedItem = cInfo;
                 }
             }
+            ddCategoryColour.Enabled = cbColour.Checked;
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
@@ -325,6 +326,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #region What
             this.gbSyncOptions_What.SuspendLayout();
+            cbLocation.Checked = Settings.Instance.AddLocation;
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
@@ -1354,6 +1356,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbWhatHelp.SelectAll();
             tbWhatHelp.SelectionAlignment = HorizontalAlignment.Center;
             tbWhatHelp.DeselectAll();
+        }
+
+        private void cbLocation_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddLocation = cbLocation.Checked;
         }
 
         private void cbAddDescription_CheckedChanged(object sender, EventArgs e) {

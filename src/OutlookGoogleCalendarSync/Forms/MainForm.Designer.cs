@@ -202,6 +202,7 @@
             this.tbTS1 = new System.Windows.Forms.TextBox();
             this.tbTS0 = new System.Windows.Forms.TextBox();
             this.tabPage_About = new System.Windows.Forms.TabPage();
+            this.lDonateTip = new System.Windows.Forms.Label();
             this.dgAbout = new System.Windows.Forms.DataGridView();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -229,7 +230,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
-            this.lDonateTip = new System.Windows.Forms.Label();
+            this.cbLocation = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1560,7 +1561,6 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
             this.gbSyncOptions_What.Controls.Add(this.cbCloakEmail);
             this.gbSyncOptions_What.Controls.Add(this.lDNDand);
             this.gbSyncOptions_What.Controls.Add(this.dtDNDend);
@@ -1573,11 +1573,13 @@
             this.gbSyncOptions_What.Controls.Add(this.cbReminderDND);
             this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
             this.gbSyncOptions_What.Controls.Add(this.lWhatInfo);
+            this.gbSyncOptions_What.Controls.Add(this.cbLocation);
+            this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
             this.gbSyncOptions_What.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbSyncOptions_What.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 136);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 150);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
@@ -1586,7 +1588,7 @@
             // 
             this.cbAddColours.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddColours.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddColours.Location = new System.Drawing.Point(45, 114);
+            this.cbAddColours.Location = new System.Drawing.Point(45, 96);
             this.cbAddColours.Name = "cbAddColours";
             this.cbAddColours.Size = new System.Drawing.Size(115, 17);
             this.cbAddColours.TabIndex = 43;
@@ -1600,7 +1602,7 @@
             this.cbCloakEmail.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbCloakEmail.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbCloakEmail.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbCloakEmail.Location = new System.Drawing.Point(126, 60);
+            this.cbCloakEmail.Location = new System.Drawing.Point(126, 78);
             this.cbCloakEmail.Name = "cbCloakEmail";
             this.cbCloakEmail.Size = new System.Drawing.Size(150, 17);
             this.cbCloakEmail.TabIndex = 41;
@@ -1613,7 +1615,7 @@
             this.lDNDand.AutoSize = true;
             this.lDNDand.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDNDand.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDNDand.Location = new System.Drawing.Point(266, 96);
+            this.lDNDand.Location = new System.Drawing.Point(266, 131);
             this.lDNDand.Name = "lDNDand";
             this.lDNDand.Size = new System.Drawing.Size(25, 13);
             this.lDNDand.TabIndex = 40;
@@ -1624,7 +1626,7 @@
             this.dtDNDend.CustomFormat = "HH:mm";
             this.dtDNDend.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtDNDend.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtDNDend.Location = new System.Drawing.Point(291, 93);
+            this.dtDNDend.Location = new System.Drawing.Point(291, 128);
             this.dtDNDend.Name = "dtDNDend";
             this.dtDNDend.ShowUpDown = true;
             this.dtDNDend.Size = new System.Drawing.Size(50, 20);
@@ -1637,7 +1639,7 @@
             this.dtDNDstart.CustomFormat = "HH:mm";
             this.dtDNDstart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtDNDstart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtDNDstart.Location = new System.Drawing.Point(216, 93);
+            this.dtDNDstart.Location = new System.Drawing.Point(216, 128);
             this.dtDNDstart.Name = "dtDNDstart";
             this.dtDNDstart.ShowUpDown = true;
             this.dtDNDstart.Size = new System.Drawing.Size(50, 20);
@@ -1651,7 +1653,7 @@
             this.cbAddDescription_OnlyToGoogle.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbAddDescription_OnlyToGoogle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddDescription_OnlyToGoogle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddDescription_OnlyToGoogle.Location = new System.Drawing.Point(126, 42);
+            this.cbAddDescription_OnlyToGoogle.Location = new System.Drawing.Point(126, 60);
             this.cbAddDescription_OnlyToGoogle.Name = "cbAddDescription_OnlyToGoogle";
             this.cbAddDescription_OnlyToGoogle.Size = new System.Drawing.Size(150, 17);
             this.cbAddDescription_OnlyToGoogle.TabIndex = 34;
@@ -1663,7 +1665,7 @@
             // 
             this.cbAddReminders.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddReminders.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddReminders.Location = new System.Drawing.Point(45, 79);
+            this.cbAddReminders.Location = new System.Drawing.Point(45, 114);
             this.cbAddReminders.Name = "cbAddReminders";
             this.cbAddReminders.Size = new System.Drawing.Size(80, 17);
             this.cbAddReminders.TabIndex = 32;
@@ -1685,7 +1687,7 @@
             // 
             this.cbAddAttendees.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddAttendees.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddAttendees.Location = new System.Drawing.Point(45, 60);
+            this.cbAddAttendees.Location = new System.Drawing.Point(45, 78);
             this.cbAddAttendees.Name = "cbAddAttendees";
             this.cbAddAttendees.Size = new System.Drawing.Size(80, 17);
             this.cbAddAttendees.TabIndex = 30;
@@ -1697,7 +1699,7 @@
             // 
             this.cbAddDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddDescription.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddDescription.Location = new System.Drawing.Point(45, 42);
+            this.cbAddDescription.Location = new System.Drawing.Point(45, 60);
             this.cbAddDescription.Name = "cbAddDescription";
             this.cbAddDescription.Size = new System.Drawing.Size(80, 17);
             this.cbAddDescription.TabIndex = 31;
@@ -1709,7 +1711,7 @@
             // 
             this.cbReminderDND.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbReminderDND.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbReminderDND.Location = new System.Drawing.Point(126, 95);
+            this.cbReminderDND.Location = new System.Drawing.Point(126, 130);
             this.cbReminderDND.Name = "cbReminderDND";
             this.cbReminderDND.Size = new System.Drawing.Size(215, 17);
             this.cbReminderDND.TabIndex = 36;
@@ -1721,7 +1723,7 @@
             // 
             this.cbUseGoogleDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbUseGoogleDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbUseGoogleDefaultReminder.Location = new System.Drawing.Point(126, 79);
+            this.cbUseGoogleDefaultReminder.Location = new System.Drawing.Point(126, 114);
             this.cbUseGoogleDefaultReminder.Name = "cbUseGoogleDefaultReminder";
             this.cbUseGoogleDefaultReminder.Size = new System.Drawing.Size(150, 17);
             this.cbUseGoogleDefaultReminder.TabIndex = 35;
@@ -2401,6 +2403,18 @@
             this.tabPage_About.TabIndex = 2;
             this.tabPage_About.Text = "About";
             // 
+            // lDonateTip
+            // 
+            this.lDonateTip.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lDonateTip.AutoSize = true;
+            this.lDonateTip.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lDonateTip.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lDonateTip.Location = new System.Drawing.Point(154, 406);
+            this.lDonateTip.Name = "lDonateTip";
+            this.lDonateTip.Size = new System.Drawing.Size(177, 13);
+            this.lDonateTip.TabIndex = 46;
+            this.lDonateTip.Text = "£10 or more hides the splash screen";
+            // 
             // dgAbout
             // 
             this.dgAbout.AllowUserToAddRows = false;
@@ -2762,17 +2776,17 @@
             this.ddCategoryColour.TabIndex = 43;
             this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
             // 
-            // lDonateTip
+            // cbLocation
             // 
-            this.lDonateTip.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.lDonateTip.AutoSize = true;
-            this.lDonateTip.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lDonateTip.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lDonateTip.Location = new System.Drawing.Point(154, 406);
-            this.lDonateTip.Name = "lDonateTip";
-            this.lDonateTip.Size = new System.Drawing.Size(177, 13);
-            this.lDonateTip.TabIndex = 46;
-            this.lDonateTip.Text = "£10 or more hides the splash screen";
+            this.cbLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbLocation.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbLocation.Location = new System.Drawing.Point(45, 42);
+            this.cbLocation.Name = "cbLocation";
+            this.cbLocation.Size = new System.Drawing.Size(80, 17);
+            this.cbLocation.TabIndex = 44;
+            this.cbLocation.Text = "Location";
+            this.cbLocation.UseVisualStyleBackColor = true;
+            this.cbLocation.CheckedChanged += new System.EventHandler(this.cbLocation_CheckedChanged);
             // 
             // Main
             // 
@@ -3035,5 +3049,6 @@
         private System.Windows.Forms.CheckBox cbAddColours;
         public Extensions.ColourPicker ddCategoryColour;
         private System.Windows.Forms.Label lDonateTip;
+        private System.Windows.Forms.CheckBox cbLocation;
     }
 }
