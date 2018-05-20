@@ -413,15 +413,15 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 Program.ManageStartupRegKey(recreate: true);
                 Settings.Instance.Version = Application.ProductVersion;
-                if (Application.ProductVersion.EndsWith(".0")) //Release notes not updated for hotfixes.
+                if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
                     System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
+                    if (isSquirrelInstall) Analytics.Send("squirrel", "upgrade", "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                }
             }
 
             //Check upgrade to Squirrel release went OK
             try {
                 if (isSquirrelInstall) {
-                    Analytics.Send("squirrel", "upgrade", "from=" + settingsVersion + ";to=" + Application.ProductVersion);
-
                     Int32 upgradedFrom = Int16.MaxValue;
                     String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                     expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");

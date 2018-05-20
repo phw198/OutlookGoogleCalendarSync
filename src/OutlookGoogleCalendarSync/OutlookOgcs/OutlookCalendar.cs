@@ -24,14 +24,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null || instance.Folders == null) instance = new Calendar();
+                    if (instance == null || instance.Folders == null) {
+                        instance = new Calendar();
+                        instance.IOutlook.Connect();
+                    }
                 } catch (System.ApplicationException ex) {
                     throw ex;
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
-                }
+                    instance.IOutlook.Connect();
+                }            
                 return instance;
             }
         }
@@ -52,6 +56,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Dictionary<string, MAPIFolder> CalendarFolders {
             get { return IOutlook.CalendarFolders(); }
         }
+        public static OutlookOgcs.Categories Categories;
         public enum Service {
             DefaultMailbox,
             AlternativeMailbox,
@@ -60,13 +65,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public Calendar() {
             IOutlook = Factory.GetOutlookInterface();
-            if (InstanceConnect) IOutlook.Connect();
         }
 
         public void Reset() {
             log.Info("Resetting connection to Outlook.");
             if (IOutlook != null) IOutlook.Disconnect();
             instance = new Calendar();
+            instance.IOutlook.Connect();
         }
 
         #region Push Sync
@@ -87,6 +92,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         #endregion
 
+        /// <summary>
+        /// Get all calendar entries within the defined date-range for sync
+        /// </summary>
+        /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
+        /// <returns></returns>
         public List<AppointmentItem> GetCalendarEntriesInRange(Boolean suppressAdvisories) {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             try {
@@ -98,7 +108,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw ex;
                 }
-            } catch (System.Runtime.InteropServices.COMException ex) {
+            } catch (System.Runtime.InteropServices.COMException) {
                 try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
                 filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
 
@@ -162,14 +172,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean unfiltered = true;
 
-                        String categoryDelimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
                         if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include) {
                             unfiltered = (Settings.Instance.Categories.Count() > 0 && ((ai.Categories == null && Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)));
+                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() > 0)));
 
                         } else if (Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Exclude) {
                             unfiltered = (Settings.Instance.Categories.Count() == 0 || (ai.Categories == null && !Settings.Instance.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { categoryDelimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0));
+                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(Settings.Instance.Categories).Count() == 0));
                         }
                         if (!unfiltered) categoryFiltered++;
 
@@ -257,9 +266,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Subject = Obfuscate.ApplyRegex(ev.Summary, Sync.Direction.GoogleToOutlook);
             if (Settings.Instance.AddDescription && ev.Description != null) ai.Body = ev.Description;
-            ai.Location = ev.Location;
+            if (Settings.Instance.AddLocation) ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.BusyStatus = getAvailability(ev.Transparency, null);
+            ai.Categories = getColour(ev.ColorId, null); 
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                 foreach (EventAttendee ea in ev.Attendees) {
@@ -467,7 +477,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             }
 
-            if (Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
+            if (Settings.Instance.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, ev.Location, ai.Location, sb, ref itemModified))
                 ai.Location = ev.Location;
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
@@ -481,6 +491,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             OlBusyStatus gFreeBusy = getAvailability(ev.Transparency ?? "opaque", ai.BusyStatus);
             if (Sync.Engine.CompareAttribute("Free/Busy", Sync.Direction.GoogleToOutlook, gFreeBusy.ToString(), ai.BusyStatus.ToString(), sb, ref itemModified)) {
                 ai.BusyStatus = gFreeBusy;
+            }
+
+            List<String> aiCategories = new List<string>();
+            String oCategoryName = "";
+            if (!string.IsNullOrEmpty(ai.Categories)) {
+                aiCategories = ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).ToList();
+                oCategoryName = aiCategories.FirstOrDefault();
+            }
+            String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
+            if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
+                //Only allow one OGCS category at a time (Google Events can only have one colour)
+                aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                aiCategories.Insert(0, gCategoryName);
+                ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
             }
 
             if (Settings.Instance.AddAttendees) {
@@ -787,6 +811,38 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the Outlook category colour name from a Google colour ID
+        /// </summary>
+        /// <param name="gColourId">The Google colour ID</param>
+        /// <param name="oColour">The Outlook category</param>
+        /// <returns>Outlook category name</returns>
+        private String getColour(String gColourId, String oColour) {
+            if (!Settings.Instance.AddColours) return "";
+
+            if (Settings.Instance.SetEntriesColour) {
+                if (Settings.Instance.TargetCalendar == Sync.Direction.OutlookToGoogle) { //Colour forced to sync in other direction
+                    if (oColour == null) //Creating item
+                        return getGoogleCategoryColour(gColourId);
+                    else return oColour;
+
+                } else {
+                    if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oColour == null)) {
+                        OlCategoryColor outlookColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
+                        return Categories.FindName(outlookColour);
+                    } else return oColour;
+                }
+
+            } else {
+                return getGoogleCategoryColour(gColourId);
+            }
+        }
+        private String getGoogleCategoryColour(String gColourId) {
+            GoogleOgcs.Palette pallete = GoogleOgcs.Calendar.Instance.ColourPalette.GetColour(gColourId);
+            OlCategoryColor outlookColour = CategoryMap.GetClosestCategory(pallete);
+            return Categories.FindName(outlookColour);
         }
 
         #region STATIC functions
@@ -1346,6 +1402,5 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         #endregion
         #endregion
-
     }
 }

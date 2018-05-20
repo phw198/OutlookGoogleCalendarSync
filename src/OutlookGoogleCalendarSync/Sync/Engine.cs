@@ -54,8 +54,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (sender != null && sender.GetType().ToString().EndsWith("Timer")) { //Automated sync
                 Forms.Main.Instance.NotificationTray.UpdateItem("delayRemove", enabled: false);
                 if (Forms.Main.Instance.bSyncNow.Text == "Start Sync") {
-                    log.Info("Scheduled sync started.");
                     Timer aTimer = sender as Timer;
+                    log.Info("Scheduled sync started (" + aTimer.Tag.ToString() + ").");
                     if (aTimer.Tag.ToString() == "PushTimer") Sync.Engine.Instance.Start(updateSyncSchedule: false);
                     else if (aTimer.Tag.ToString() == "AutoSyncTimer") Sync.Engine.Instance.Start(updateSyncSchedule: true);
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {

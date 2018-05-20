@@ -1,6 +1,13 @@
 | Release Notes |
 |:---|
 
+# v2.7.4.0 - Alpha
+
+**Enhancements**
+- Sync colours / categories
+- Option to force particular colour for synced items
+- Collapsible sections added to Sync Options configuration screen
+
 # v2.7.3.0 - Alpha
 
 **Enhancements**

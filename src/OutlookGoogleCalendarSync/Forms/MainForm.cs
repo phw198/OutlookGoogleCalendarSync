@@ -85,6 +85,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If the destination calendar has pre-existing items, don't delete them");
             ToolTips.SetToolTip(cbOutlookPush,
                 "Synchronise changes in Outlook to Google within a few minutes.");
+            ToolTips.SetToolTip(btCloseRegexRules,
+                "Close obfuscation rules.");
             ToolTips.SetToolTip(cbOfuscate,
                 "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
             ToolTips.SetToolTip(dgObfuscateRegex,
@@ -249,8 +251,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             #endregion
             #region Sync Options box
+            syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
+            syncOptionSizing(gbSyncOptions_When, pbExpandWhen, false);
+            syncOptionSizing(gbSyncOptions_What, pbExpandWhat, false);
             #region How
-            this.gbSyncOptions_How.Height = Convert.ToInt16(109 * magnification);
             syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
             syncDirection.Items.Add(Sync.Direction.GoogleToOutlook);
             syncDirection.Items.Add(Sync.Direction.Bidirectional);
@@ -271,7 +275,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
             cbOfuscate.Checked = Settings.Instance.Obfuscation.Enabled;
             //More Options
-            howMorePanel.Visible = false;
+            howObfuscatePanel.Visible = false;
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                 tbCreatedItemsOnly.SelectedIndex = Settings.Instance.CreatedItemsOnly ? 1 : 0;
                 if (Settings.Instance.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
@@ -284,6 +288,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbTargetCalendar_SelectedItemChanged(null, null);
             cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
+            cbColour.Checked = Settings.Instance.SetEntriesColour;
+            foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                    ddCategoryColour.SelectedItem = cInfo;
+                }
+            }
+            ddCategoryColour.Enabled = cbColour.Checked;
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
@@ -315,6 +326,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #region What
             this.gbSyncOptions_What.SuspendLayout();
+            cbLocation.Checked = Settings.Instance.AddLocation;
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
@@ -329,7 +341,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dtDNDend.Enabled = Settings.Instance.AddReminders;
             dtDNDstart.Value = Settings.Instance.ReminderDNDstart;
             dtDNDend.Value = Settings.Instance.ReminderDNDend;
-
+            cbAddColours.Checked = Settings.Instance.AddColours;
             this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #endregion
@@ -875,8 +887,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             clbCategories.BeginUpdate();
             clbCategories.Items.Clear();
             clbCategories.Items.Add("<No category assigned>");
-            foreach (Category cat in OutlookOgcs.Calendar.Instance.IOutlook.GetCategories() as Categories) {
-                clbCategories.Items.Add(cat.Name);
+            OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+            foreach (String catName in OutlookOgcs.Calendar.Categories.GetNames()) {
+                clbCategories.Items.Add(catName);
             }
             foreach (String cat in Settings.Instance.Categories) {
                 try {
@@ -1057,6 +1070,39 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #endregion
         #region Sync options
+        private void syncOptionSizing(GroupBox section, PictureBox sectionImage, Boolean? expand = null) {
+            int minSectionHeight = Convert.ToInt16(22 * magnification);
+            Boolean expandSection = expand ?? false || section.Height - minSectionHeight <= 5;
+            if (expandSection) {
+                if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                switch (section.Name.ToString().Split('_').LastOrDefault()) {
+                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 188; break;
+                    case "When": section.Height = 119; break;
+                    case "What": section.Height = 155; break;
+                }
+                section.Height = Convert.ToInt16(section.Height * magnification);
+            } else {
+                sectionImage.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                section.Height = minSectionHeight;
+            }
+            sectionImage.Refresh();
+
+            gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
+            pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
+            gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
+            pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
+        }
+
+        private void pbExpandHow_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbSyncOptions_How, pbExpandHow);
+        }
+        private void pbExpandWhen_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbSyncOptions_When, pbExpandWhen);
+        }
+        private void pbExpandWhat_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbSyncOptions_What, pbExpandWhat);
+        }
+
         #region How
         private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.SyncDirection = (Sync.Direction)syncDirection.SelectedItem;
@@ -1124,32 +1170,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
-            Boolean show = (sender as CheckBox).Checked;
-            if (show) {
-                this.howObfuscatePanel.Visible = true;
-                this.howMorePanel.Visible = false;
-            }
-            gbSyncOptions_HowExpand(show, 251);
-            if (!show) {
-                this.howObfuscatePanel.Visible = false;
-                this.howMorePanel.Visible = false;
-            }
+            this.howObfuscatePanel.Visible = true;
+            this.howMorePanel.Visible = false;
+            this.btCloseRegexRules.Visible = true;
+            syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
         }
-        private void btHowMore_CheckedChanged(object sender, EventArgs e) {
-            Boolean show = (sender as CheckBox).Checked;
-            if (show) {
-                this.howMorePanel.Visible = true;
-                this.howObfuscatePanel.Visible = false;
-                this.btHowMore.Text = "Less...";
-            }
-            gbSyncOptions_HowExpand(show, 170);
-            if (!show) {
-                this.howMorePanel.Visible = false;
-                this.howObfuscatePanel.Visible = false;
-            }
+        private void btCloseRegexRules_CheckedChanged(object sender, EventArgs e) {
+            this.btCloseRegexRules.Visible = false;
+            this.howMorePanel.Visible = true;
+            this.howObfuscatePanel.Visible = false;
+            syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
         }
         private void gbSyncOptions_HowExpand(Boolean show, Int16 newHeight) {
-            int minPanelHeight = Convert.ToInt16(109 * magnification);
+            int minPanelHeight = Convert.ToInt16(50 * magnification);
             int maxPanelHeight = Convert.ToInt16(newHeight * magnification);
             this.gbSyncOptions_How.BringToFront();
             if (show) {
@@ -1159,6 +1192,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.Threading.Thread.Sleep(1);
                 }
                 this.gbSyncOptions_How.Height = maxPanelHeight;
+                this.gbSyncOptions_What.Height = 20;
             } else {
                 while (this.gbSyncOptions_How.Height > minPanelHeight && this.Visible) {
                     this.gbSyncOptions_How.Height -= 2;
@@ -1166,10 +1200,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.Threading.Thread.Sleep(1);
                 }
                 this.gbSyncOptions_How.Height = minPanelHeight;
+                this.gbSyncOptions_What.Height = 112;
                 this.btHowMore.Text = "More...";
             }
         }
-        #endregion
 
         #region More Options Panel
         private void tbCreatedItemsOnly_SelectedItemChanged(object sender, EventArgs e) {
@@ -1192,12 +1226,24 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesPrivate = cbPrivate.Checked;
-            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+            tbTargetCalendar.Enabled = cbPrivate.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesAvailable = cbAvailable.Checked;
-            tbTargetCalendar.Enabled = (cbPrivate.Checked || cbAvailable.Checked) && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+            tbTargetCalendar.Enabled = cbAvailable.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+        }
+
+        private void cbColour_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.SetEntriesColour = cbColour.Checked;
+            ddCategoryColour.Enabled = cbColour.Checked;
+            tbTargetCalendar.Enabled = cbColour.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
+        }
+
+        private void ddCategoryColour_SelectedIndexChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
+            Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
         }
         #endregion
 
@@ -1211,6 +1257,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.Obfuscation.SaveRegex(dgObfuscateRegex);
         }
         #endregion
+        #endregion
+
         #region When
         public int MinSyncMinutes {
             get {
@@ -1234,7 +1282,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void tbDaysInTheFuture_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInTheFuture = (int)tbDaysInTheFuture.Value;
             if (this.Visible && !Settings.Instance.UsingPersonalAPIkeys() && tbDaysInTheFuture.Value == tbDaysInTheFuture.Maximum) {
-                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInThePast);
+                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInTheFuture);
             }
         }
 
@@ -1280,6 +1328,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
         #endregion
+
         #region What
         private void lWhatInfo_MouseHover(object sender, EventArgs e) {
             showWhatPostit("AffectedItems");
@@ -1307,6 +1356,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbWhatHelp.SelectAll();
             tbWhatHelp.SelectionAlignment = HorizontalAlignment.Center;
             tbWhatHelp.DeselectAll();
+        }
+
+        private void cbLocation_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddLocation = cbLocation.Checked;
         }
 
         private void cbAddDescription_CheckedChanged(object sender, EventArgs e) {
@@ -1359,6 +1412,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbCloakEmail_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CloakEmail = cbCloakEmail.Checked;
+        }
+        private void cbAddColours_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.AddColours = cbAddColours.Checked;
         }
         #endregion
         #endregion

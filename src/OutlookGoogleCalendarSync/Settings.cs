@@ -98,6 +98,7 @@ namespace OutlookGoogleCalendarSync {
             SyncInterval = 0;
             SyncIntervalUnit = "Hours";
             OutlookPush = false;
+            AddLocation = true;
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
             AddReminders = false;
@@ -106,6 +107,7 @@ namespace OutlookGoogleCalendarSync {
             ReminderDNDstart = DateTime.Now.Date.AddHours(22);
             ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
             AddAttendees = false;
+            AddColours = false;
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
@@ -113,6 +115,8 @@ namespace OutlookGoogleCalendarSync {
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
             SetEntriesAvailable = false;
+            SetEntriesColour = false;
+            SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
             Obfuscation = new Obfuscate();
 
             MuteClickSounds = false;
@@ -237,6 +241,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public int SyncInterval { get; set; }
         [DataMember] public String SyncIntervalUnit { get; set; }
         [DataMember] public bool OutlookPush { get; set; }
+        [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
         [DataMember] public bool AddReminders { get; set; }
@@ -245,6 +250,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public DateTime ReminderDNDstart { get; set; }
         [DataMember] public DateTime ReminderDNDend { get; set; }
         [DataMember] public bool AddAttendees { get; set; }
+        [DataMember] public bool AddColours { get; set; }
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
@@ -252,6 +258,9 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
+        [DataMember] public bool SetEntriesColour { get; set; }
+        [DataMember] public String SetEntriesColourValue { get; set; }
+        
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
 
@@ -398,24 +407,15 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Cloak Email: " + CloakEmail);
         
             log.Info("SYNC OPTIONS:-");
-            log.Info(" Main");
+            log.Info(" How");
             log.Info("  SyncDirection: "+ SyncDirection.Name);
-            log.Info("  DaysInThePast: "+ DaysInThePast);
-            log.Info("  DaysInTheFuture:" + DaysInTheFuture);
-            log.Info("  SyncInterval: " + SyncInterval);
-            log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
-            log.Info("  Push Changes: " + OutlookPush);
-            log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddReminders: " + AddReminders);
-            log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
-            log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
-            log.Info("  AddAttendees: " + AddAttendees);
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
-            if ((SetEntriesPrivate || SetEntriesAvailable) && SyncDirection == Sync.Direction.Bidirectional) {
+            log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue : ""));
+            if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
                 log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
             }
@@ -428,7 +428,21 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
-
+            log.Info(" When");
+            log.Info("  DaysInThePast: "+ DaysInThePast);
+            log.Info("  DaysInTheFuture:" + DaysInTheFuture);
+            log.Info("  SyncInterval: " + SyncInterval);
+            log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
+            log.Info("  Push Changes: " + OutlookPush);
+            log.Info(" What");
+            log.Info("  AddLocation: " + AddLocation);
+            log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
+            log.Info("  AddAttendees: " + AddAttendees);
+            log.Info("  AddColours: " + AddColours);
+            log.Info("  AddReminders: " + AddReminders);
+            log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
+            log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
+            
             log.Info("PROXY:-");
             log.Info("  Type: " + Proxy.Type);
             if (Proxy.BrowserUserAgent != Proxy.DefaultBrowserAgent)

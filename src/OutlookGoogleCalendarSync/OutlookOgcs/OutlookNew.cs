@@ -20,6 +20,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
+            if (!OutlookOgcs.Calendar.InstanceConnect) return;
+
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
@@ -46,7 +48,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
 
                 oNS = GetCurrentUser(oNS);
-                
+
                 if (!Settings.Instance.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
                     if (Settings.Instance.AddAttendees) {
@@ -85,9 +87,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
 
+                OutlookOgcs.Calendar.Categories = new OutlookOgcs.Categories();
+                Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
+
                 //Set up event handlers
                 explorerWatcher = new ExplorerWatcher(oApp.Explorers);
-                
+
+            } catch (System.Runtime.InteropServices.COMException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
+                    log.Warn(ex.Message);
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                            "Please perform an Office Repair or reinstall Outlook and then try running OGCS again.");
+                } else throw ex;
+
             } finally {
                 // Done. Log off.
                 if (oNS != null) oNS.Logoff();
@@ -575,19 +587,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        public object GetCategories() {
-            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) 
-                return oApp.Session.Categories;
-
-            Store store = null;
-            try {
-                store = useOutlookCalendar.Store;
-                return store.GetType().GetProperty("Categories").GetValue(store, null);
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex, true);
-                return oApp.Session.Categories;
-            } finally {
-                store = (Store)OutlookOgcs.Calendar.ReleaseObject(store);
+        public void RefreshCategories() {
+            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
+            Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
+            foreach (Extensions.ColourPicker.ColourInfo cInfo in Forms.Main.Instance.ddCategoryColour.Items) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                    Forms.Main.Instance.ddCategoryColour.SelectedItem = cInfo;
+                }
             }
         }
 

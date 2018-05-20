@@ -174,7 +174,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ColourPicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="GoogleOgcs\EventColour.cs" />
+    <Compile Include="OutlookOgcs\OutlookCategories.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -269,6 +274,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\expand.png" />
     <None Include="tzdb.nzd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
