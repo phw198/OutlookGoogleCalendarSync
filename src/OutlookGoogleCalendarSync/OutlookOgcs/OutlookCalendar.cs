@@ -108,7 +108,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw ex;
                 }
-            } catch (System.Runtime.InteropServices.COMException ex) {
+            } catch (System.Runtime.InteropServices.COMException) {
                 try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
                 filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
 
