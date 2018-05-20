@@ -1282,7 +1282,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void tbDaysInTheFuture_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInTheFuture = (int)tbDaysInTheFuture.Value;
             if (this.Visible && !Settings.Instance.UsingPersonalAPIkeys() && tbDaysInTheFuture.Value == tbDaysInTheFuture.Maximum) {
-                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInThePast);
+                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInTheFuture);
             }
         }
 

@@ -92,6 +92,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         #endregion
 
+        /// <summary>
+        /// Get all calendar entries within the defined date-range for sync
+        /// </summary>
+        /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
+        /// <returns></returns>
         public List<AppointmentItem> GetCalendarEntriesInRange(Boolean suppressAdvisories) {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             try {
