@@ -1078,7 +1078,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 188; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 136; break;
+                    case "What": section.Height = 155; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
             } else {
