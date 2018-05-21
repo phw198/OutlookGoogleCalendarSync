@@ -134,6 +134,7 @@ namespace OutlookGoogleCalendarSync {
                                 System.Collections.Generic.Dictionary<ReleaseEntry, String> allReleaseNotes = updates.FetchReleaseNotes();
                                 releaseNotes = allReleaseNotes[update];
                             } catch (System.Exception ex) {
+                                OGCSexception.Analyse(ex);
                                 log.Error("Failed pre-fetching release notes. " + ex.Message);
                                 releaseNotes = null;
                             }
