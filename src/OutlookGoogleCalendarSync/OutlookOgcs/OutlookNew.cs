@@ -168,10 +168,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
 
         public NameSpace GetCurrentUser(NameSpace oNS) {
-            //We only need the current user details when syncing meeting attendees.
-            //If GAL had previously been detected as blocked, let's always try one attempt to see if it's been opened up
-            if (!Settings.Instance.OutlookGalBlocked && !Settings.Instance.AddAttendees) return oNS;
-
             Boolean releaseNamespace = (oNS == null);
             if (releaseNamespace) oNS = oApp.GetNamespace("mapi");
 
@@ -629,7 +625,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
                 return "Etc/UTC";
             }
-
+            
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
             String tzID = tzDBsource.MapTimeZoneId(tzi);

@@ -418,13 +418,20 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void FeaturesBlockedByCorpPolicy(Boolean isTrue) {
             String tooltip = "Your corporate policy is blocking the ability to use this feature.";
-            ToolTips.SetToolTip(cbAddAttendees, isTrue ? tooltip : "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
-            ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
-            ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
+            try {
+                ToolTips.SetToolTip(cbAddAttendees, isTrue ? tooltip : "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+                ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
+                ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
+            } catch (System.InvalidOperationException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Cross-thread operation
+                    log.Warn("Can't set form tooltips from sync thread.");
+                    //Won't worry too much - will work fine on OGCS startup, and will only arrive here if GAL has been blocked *after* startup. Should be very unlikely.
+                }
+            }
             if (isTrue) {
-                cbAddDescription.Checked = false;
-                cbAddAttendees.Checked = false;
-                rbOutlookSharedCal.Checked = false;
+                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
+                SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
+                SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
                 cbAddAttendees.ForeColor = SystemColors.GrayText;
                 cbAddDescription.ForeColor = SystemColors.GrayText;
