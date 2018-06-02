@@ -166,6 +166,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
         private const String EMAIL1ADDRESS = "http://schemas.microsoft.com/mapi/id/{00062004-0000-0000-C000-000000000046}/8084001F";
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
+        private const String PR_ORGANISER_TIMEZONE = "http://schemas.microsoft.com/mapi/id/{00062002-0000-0000-C000-000000000046}/8234001E";
 
         public NameSpace GetCurrentUser(NameSpace oNS) {
             Boolean releaseNamespace = (oNS == null);
@@ -596,17 +597,57 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         #region TimeZone Stuff
         //http://stackoverflow.com/questions/17348807/how-to-translate-between-windows-and-iana-time-zones
         //https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        //https://blogs.technet.microsoft.com/dst2007/ - MS timezone updates
 
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
+            String organiserTZname = null;
+            String organiserTZid = null;
+            if (ai.Organizer != CurrentUserName()) {
+                log.Fine("Meeting organiser is someone else - checking their timezone.");
+                try {
+                    PropertyAccessor pa = null;
+                    try {
+                        pa = ai.PropertyAccessor;
+                        organiserTZname = pa.GetProperty(PR_ORGANISER_TIMEZONE).ToString();
+                    } finally {
+                        pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                    }
+                    if (organiserTZname != ai.StartTimeZone.Name) {
+                        log.Fine("Appointment's timezone: " + ai.StartTimeZone.Name);
+                        log.Fine("Organiser's timezone:   " + organiserTZname);
+                        log.Debug("Retrieving the meeting organiser's timezone ID.");
+                        System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
+                        try {
+                            TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == organiserTZname || t.StandardName == organiserTZname);
+                            if (tzi == null)
+                                throw new ArgumentNullException("No timezone ID exists for organiser's timezone " + organiserTZname);
+                            else
+                                organiserTZid = tzi.Id;
+
+                        } catch (ArgumentNullException ex) {
+                            throw ex as System.Exception;
+                        } catch (System.Exception ex) {
+                            throw new System.Exception("Failed to get the organiser's timezone ID for " + organiserTZname, ex);                            
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
+                        "<br/>Could not determine the organiser's timezone. Google Event will have incorrect time.", Console.Markup.warning);
+                    OGCSexception.Analyse(ex);
+                    organiserTZname = null;
+                    organiserTZid = null;
+                }
+            }
+
             try {
                 try {
-                    ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
+                    ev.Start.TimeZone = IANAtimezone(organiserTZid ?? ai.StartTimeZone.ID, organiserTZname ?? ai.StartTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set start timezone. [" + ai.StartTimeZone.ID + ", " + ai.StartTimeZone.Name + "]");
                 }
                 try {
-                    ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+                    ev.End.TimeZone = IANAtimezone(organiserTZid ?? ai.EndTimeZone.ID, organiserTZname ?? ai.EndTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set end timezone. [" + ai.EndTimeZone.ID + ", " + ai.EndTimeZone.Name + "]");
