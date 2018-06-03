@@ -298,9 +298,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Save();
 
-            if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional || GoogleOgcs.Calendar.HasOgcsProperty(ev)) {
+            if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional || GoogleOgcs.CustomProperty.ExistsAny(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
-                GoogleOgcs.Calendar.AddOutlookIDs(ref ev, ai);
+                GoogleOgcs.CustomProperty.AddOutlookIDs(ref ev, ai);
                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
             }
         }
@@ -369,7 +369,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (ai.LastModificationTime > ev.Updated)
                         return false;
                 } else {
-                    if (GoogleOgcs.Calendar.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
+                    if (GoogleOgcs.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
                         //Google last modified by OGCS
                         return false;
                     if (ai.LastModificationTime > ev.Updated)
@@ -1138,7 +1138,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (GoogleOgcs.Calendar.ExistsOGCSproperty(google[g], GoogleOgcs.Calendar.MetadataId.oEntryId))
+                    if (GoogleOgcs.CustomProperty.Exists(google[g], GoogleOgcs.CustomProperty.MetadataId.oEntryId))
                         google.Remove(google[g]);
                 }
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync

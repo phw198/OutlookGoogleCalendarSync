@@ -459,10 +459,10 @@ namespace OutlookGoogleCalendarSync {
             }
             for (int g = 0; g < events.Count(); g++) {
                 Event ev = events[g];
-                if (haveMatchingEv || GoogleOgcs.Calendar.ExistsOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId)) {
-                    if (GoogleOgcs.Calendar.OutlookIdMissing(ev)) {
+                if (haveMatchingEv || GoogleOgcs.CustomProperty.Exists(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId)) {
+                    if (GoogleOgcs.CustomProperty.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        String gEntryID = GoogleOgcs.Calendar.GetOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId);
+                        String gEntryID = GoogleOgcs.CustomProperty.GetOGCSproperty(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId);
                         if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
@@ -470,7 +470,7 @@ namespace OutlookGoogleCalendarSync {
                         }
                         if (haveMatchingEv || gEntryID == compare_oID) {
                             log.Info("Adding Outlook IDs to Master Google Event...");
-                            GoogleOgcs.Calendar.AddOutlookIDs(ref ev, ai);
+                            GoogleOgcs.CustomProperty.AddOutlookIDs(ref ev, ai);
                             try {
                                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } catch (System.Exception ex) {
