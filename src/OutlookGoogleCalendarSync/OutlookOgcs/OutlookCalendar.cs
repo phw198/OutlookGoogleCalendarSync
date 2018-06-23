@@ -974,6 +974,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } else
                     throw ex;
 
+            } catch (System.UnauthorizedAccessException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
+                    log.Warn(ex.Message);
+                    throw new ApplicationException("OGCS was not permitted to start Outlook.\r\n" +
+                        "Please manually start Outlook and then restart OGCS again.");
+                }
+
             } catch (System.Exception ex) {
                 log.Warn("Early binding to Outlook appears to have failed.");
                 OGCSexception.Analyse(ex, true);
