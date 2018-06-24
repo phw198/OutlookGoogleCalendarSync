@@ -1263,6 +1263,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="aiCategories">The appointment item "categories" field</param>
         /// <returns>A match or a "null" Palette signifying no match</returns>
         private Palette getColour(String aiCategories, Palette gColour) {
+            if (!Settings.Instance.AddColours && !Settings.Instance.SetEntriesColour) return Palette.NullPalette;
+            
             OlCategoryColor? categoryColour = null;
 
             if (Settings.Instance.SetEntriesColour) {
@@ -1289,8 +1291,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }            
         }
         private void getOutlookCategoryColour(String aiCategories, ref OlCategoryColor? categoryColour) {
-            if (!Settings.Instance.AddColours) return;
-
             if (!string.IsNullOrEmpty(aiCategories)) {
                 log.Fine("Categories: " + aiCategories);
                 try {

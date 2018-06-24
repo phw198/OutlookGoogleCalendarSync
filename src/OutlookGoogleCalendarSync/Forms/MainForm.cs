@@ -290,7 +290,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
             cbColour.Checked = Settings.Instance.SetEntriesColour;
             foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
-                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
+                    cInfo.Text == Settings.Instance.SetEntriesColourName) {
                     ddCategoryColour.SelectedItem = cInfo;
                 }
             }
@@ -1251,6 +1252,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!this.Visible) return;
 
             Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
+            Settings.Instance.SetEntriesColourName = ddCategoryColour.SelectedItem.Text;
         }
         #endregion
 

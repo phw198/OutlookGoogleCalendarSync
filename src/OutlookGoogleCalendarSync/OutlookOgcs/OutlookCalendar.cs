@@ -820,7 +820,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="oColour">The Outlook category</param>
         /// <returns>Outlook category name</returns>
         private String getColour(String gColourId, String oColour) {
-            if (!Settings.Instance.AddColours) return "";
+            if (!Settings.Instance.AddColours && !Settings.Instance.SetEntriesColour) return "";
 
             if (Settings.Instance.SetEntriesColour) {
                 if (Settings.Instance.TargetCalendar == Sync.Direction.OutlookToGoogle) { //Colour forced to sync in other direction
@@ -831,7 +831,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } else {
                     if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oColour == null)) {
                         OlCategoryColor outlookColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour);
+                        return Categories.FindName(outlookColour, Settings.Instance.SetEntriesColourName);
                     } else return oColour;
                 }
 
