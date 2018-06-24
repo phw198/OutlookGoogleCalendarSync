@@ -415,7 +415,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
                     System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
-                    if (isSquirrelInstall) Analytics.Send("squirrel", "upgrade", "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                    if (isSquirrelInstall) Analytics.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }
 

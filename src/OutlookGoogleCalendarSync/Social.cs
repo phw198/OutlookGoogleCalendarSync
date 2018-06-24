@@ -62,10 +62,10 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex);
                 outlookVersion = "Unknown";
             }
-            Analytics.Send("outlook", "version", outlookVersion);
+            Analytics.Send(Analytics.Category.outlook, Analytics.Action.version, outlookVersion);
 
             //OGCS APPLICATION
-            Analytics.Send("ogcs", "version", System.Windows.Forms.Application.ProductVersion);
+            Analytics.Send(Analytics.Category.ogcs, Analytics.Action.version, System.Windows.Forms.Application.ProductVersion);
         }
 
         public static void TrackSync() {
@@ -77,13 +77,28 @@ namespace OutlookGoogleCalendarSync {
 
     public class Analytics {
         private static readonly ILog log = LogManager.GetLogger(typeof(Analytics));
+
+        public enum Category {
+            ogcs,
+            outlook,
+            squirrel
+        }
+        public enum Action {
+            download,
+            install,
+            uninstall,
+            upgrade,
+            version
+        }
         
-        public static void Send(String category, String action, String label) {
+        public static void Send(Category category, Action action, String label) {
             String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
             String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid=" + cid;
 
-            String analyticsUrl = baseAnalyticsUrl + "&ec=" + category + "&ea=" + action + "&el=" + System.Net.WebUtility.UrlEncode(label);
+            String analyticsUrl = baseAnalyticsUrl + "&ec=" + category.ToString() + "&ea=" + action.ToString() + "&el=" + System.Net.WebUtility.UrlEncode(label);
             log.Debug("Retrieving URL: " + analyticsUrl);
+            if (System.Diagnostics.Debugger.IsAttached) return;
+
             WebClient wc = new WebClient();
             wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
             wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);

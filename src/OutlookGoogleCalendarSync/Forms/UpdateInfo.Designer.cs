@@ -27,7 +27,7 @@
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.btUpgrade = new System.Windows.Forms.Button();
             this.wbPanel = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btLater = new System.Windows.Forms.Button();
             this.lSummary = new System.Windows.Forms.Label();
             this.lTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -49,7 +49,7 @@
             // btUpgrade
             // 
             this.btUpgrade.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btUpgrade.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btUpgrade.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.btUpgrade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btUpgrade.Location = new System.Drawing.Point(407, 260);
             this.btUpgrade.Name = "btUpgrade";
@@ -70,16 +70,16 @@
             this.wbPanel.Size = new System.Drawing.Size(467, 168);
             this.wbPanel.TabIndex = 2;
             // 
-            // button1
+            // btLater
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button1.Location = new System.Drawing.Point(326, 260);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Later";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btLater.DialogResult = System.Windows.Forms.DialogResult.No;
+            this.btLater.Location = new System.Drawing.Point(326, 260);
+            this.btLater.Name = "btLater";
+            this.btLater.Size = new System.Drawing.Size(75, 23);
+            this.btLater.TabIndex = 3;
+            this.btLater.Text = "Later";
+            this.btLater.UseVisualStyleBackColor = true;
             // 
             // lSummary
             // 
@@ -113,7 +113,7 @@
             // btSkipVersion
             // 
             this.btSkipVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btSkipVersion.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btSkipVersion.DialogResult = System.Windows.Forms.DialogResult.Ignore;
             this.btSkipVersion.Location = new System.Drawing.Point(16, 260);
             this.btSkipVersion.Name = "btSkipVersion";
             this.btSkipVersion.Size = new System.Drawing.Size(104, 23);
@@ -127,13 +127,13 @@
             this.AcceptButton = this.btUpgrade;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.button1;
+            this.CancelButton = this.btLater;
             this.ClientSize = new System.Drawing.Size(494, 295);
             this.Controls.Add(this.btSkipVersion);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lTitle);
             this.Controls.Add(this.lSummary);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btLater);
             this.Controls.Add(this.wbPanel);
             this.Controls.Add(this.btUpgrade);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -154,7 +154,7 @@
         private System.Windows.Forms.WebBrowser webBrowser;
         private System.Windows.Forms.Button btUpgrade;
         private System.Windows.Forms.Panel wbPanel;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btLater;
         private System.Windows.Forms.Label lSummary;
         private System.Windows.Forms.Label lTitle;
         private System.Windows.Forms.Label label1;
