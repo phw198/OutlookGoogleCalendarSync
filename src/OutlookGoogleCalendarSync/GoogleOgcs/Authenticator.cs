@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 if (string.IsNullOrEmpty(hashedGmailAccount)) {
                     if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
-                        hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
+                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail, true);
                 }
                 return hashedGmailAccount;
             }
@@ -243,8 +243,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
-        private static String getMd5(String input) {
-            log.Debug("Getting MD5 hash for '" + EmailAddress.MaskAddress(input) + "'");
+        public static String GetMd5(String input, Boolean isEmailAddress = false) {
+            log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();

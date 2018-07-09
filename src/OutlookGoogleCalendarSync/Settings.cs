@@ -131,6 +131,7 @@ namespace OutlookGoogleCalendarSync {
 
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
+            CloudLogging = null;
             portable = false;
             Proxy = new SettingsProxy();
 
@@ -296,6 +297,7 @@ namespace OutlookGoogleCalendarSync {
 
         [DataMember] public bool CreateCSVFiles { get; set; }
         [DataMember] public String LoggingLevel { get; set; }
+        [DataMember] public bool? CloudLogging { get; set; }
         //Proxy
         [DataMember] public SettingsProxy Proxy { get; set; }
         #endregion
@@ -473,6 +475,7 @@ namespace OutlookGoogleCalendarSync {
             //To pick up from settings.xml file:
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
+            log.Info("  Cloud Logging: " + CloudLogging ?? "Undefined");
 
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);

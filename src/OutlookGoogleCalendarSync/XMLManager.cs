@@ -50,12 +50,13 @@ namespace OutlookGoogleCalendarSync {
             return result;
         }
 
-        public static string ImportElement(string nodeName, string filename) {
+        public static string ImportElement(string nodeName, string filename, Boolean debugLog = true) {
             try {
                 XDocument xml = XDocument.Load(filename);
                 XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
-                log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
+                if (debugLog)
+                    log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
                 return xe.Value;
             } catch (System.InvalidOperationException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements

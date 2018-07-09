@@ -1,0 +1,1420 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Api.Gax</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Api.Gax.BatchingSettings">
+            <summary>
+            Batching settings used to specify the conditions under which a batch of data
+            will be further processed.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.BatchingSettings.#ctor(System.Nullable{System.Int64},System.Nullable{System.Int64},System.Nullable{System.TimeSpan})">
+            <summary>
+            Creates a new instance with the specified settings.
+            </summary>
+            <param name="elementCountThreshold">The element count above which further processing of a batch will occur.</param>
+            <param name="byteCountThreshold">The byte count above which further processing of a batch will occur.</param>
+            <param name="delayThreshold">The batch lifetime above which further processing of a batch will occur.</param>
+        </member>
+        <member name="P:Google.Api.Gax.BatchingSettings.ElementCountThreshold">
+            <summary>
+            The element count above which further processing of a batch will occur.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.BatchingSettings.ByteCountThreshold">
+            <summary>
+            The byte count above which further processing of a batch will occur.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.BatchingSettings.DelayThreshold">
+            <summary>
+            The batch lifetime above which further processing of a batch will occur.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.EmptyDictionary`2">
+            <summary>
+            Provides cached instances of empty dictionaries.
+            </summary>
+            <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+            <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.EmptyDictionary`2.Instance">
+            <summary>
+            Gets a cached empty <see cref="T:System.Collections.Generic.IDictionary`2"/>. The returned dictionary is read-only.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.ExpirationType">
+            <summary>
+            The type of <see cref="T:Google.Api.Gax.Expiration"/>; none, timeout or deadline.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ExpirationType.None">
+            <summary>
+            No expiration; an infinite timeout.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ExpirationType.Timeout">
+            <summary>
+            Expiration is a relative timeout, represented by a <see cref="T:System.TimeSpan"/>.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ExpirationType.Deadline">
+            <summary>
+            Expiration is an absolute deadline, represented by a <see cref="T:System.DateTime"/>.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Expiration">
+            <summary>
+            Expiration specified by relative timeout or absolute deadline.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Expiration.FromTimeout(System.TimeSpan)">
+            <summary>
+            Create an <see cref="T:Google.Api.Gax.Expiration"/> with a relative timeout.
+            </summary>
+            <param name="timeout">The relative timeout.</param>
+            <returns>An <see cref="T:Google.Api.Gax.Expiration"/> with the specified relative timeout.</returns>
+            <remarks>
+            Zero or negative timeouts are valid, and will cause immediate failure of the operation being performed.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Expiration.FromDeadline(System.DateTime)">
+            <summary>
+            Create an <see cref="T:Google.Api.Gax.Expiration"/> with an absolute deadline.
+            </summary>
+            <param name="deadline">The absolute deadline. Should be a UTC datetime.</param>
+            <returns>An <see cref="T:Google.Api.Gax.Expiration"/> with the specified absolute deadline.</returns>
+            <remarks>
+            Deadlines in the past are valid, and will cause immediate failure of the operation being performed.
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Expiration.None">
+            <summary>
+            An <see cref="T:Google.Api.Gax.Expiration"/> with no timeout or deadline.
+            </summary>
+            <remarks>
+            Indicates that no expiration is required.
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Expiration.Timeout">
+            <summary>
+            If not null, the relative timeout of this expiration.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Expiration.Deadline">
+            <summary>
+            If not null, the absolute deadline of this expiration.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Expiration.Type">
+            <summary>
+            What <see cref="T:Google.Api.Gax.ExpirationType"/> is contained in this <see cref="T:Google.Api.Gax.Expiration"/>.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.ExpirationExtensions">
+            <summary>
+            Extension methods for <see cref="T:Google.Api.Gax.Expiration"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ExpirationExtensions.CalculateDeadline(Google.Api.Gax.Expiration,Google.Api.Gax.IClock)">
+            <summary>
+            Calculate a deadline from an <see cref="T:Google.Api.Gax.Expiration"/> and a <see cref="T:Google.Api.Gax.IClock"/>.
+            </summary>
+            <param name="expiration"><see cref="T:Google.Api.Gax.Expiration"/>, may be null.</param>
+            <param name="clock"><see cref="T:Google.Api.Gax.IClock"/> to use for deadline calculation.</param>
+            <returns>The calculated absolute deadline, or null if no deadline should be used.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.FlowControlSettings">
+            <summary>
+            Settings used to control data flow.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.FlowControlSettings.#ctor(System.Nullable{System.Int64},System.Nullable{System.Int64})">
+            <summary>
+            Creates a new instance with the specified settings.
+            </summary>
+            <param name="maxOutstandingElementCount">The maximum number of elements that can be outstanding before data flow is restricted, or
+            null if there is no specified limit.</param>
+            <param name="maxOutstandingByteCount">The maximum number of bytes that can be outstanding before data flow is restricted, or
+            null if there is no specified limit.</param>
+        </member>
+        <member name="P:Google.Api.Gax.FlowControlSettings.MaxOutstandingElementCount">
+            <summary>
+            The maximum number of elements that can be outstanding before data flow is restricted, or
+            null if there is no specified limit.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.FlowControlSettings.MaxOutstandingByteCount">
+            <summary>
+            The maximum number of bytes that can be outstanding before data flow is restricted, or
+            null if there is no specified limit.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.GaxPreconditions">
+            <summary>
+            Preconditions for checking method arguments, state etc.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNotNull``1(``0,System.String)">
+            <summary>
+            Checks that the given argument (to the calling method) is non-null.
+            </summary>
+            <typeparam name="T">The type of the parameter.</typeparam>
+            <param name="argument">The argument provided for the parameter.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="argument"/> is null</exception>
+            <returns><paramref name="argument"/> if it is not null</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNotNullOrEmpty(System.String,System.String)">
+            <summary>
+            Checks that a string argument is neither null, nor an empty string.
+            </summary>
+            <param name="argument">The argument provided for the parameter.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="argument"/> is null</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="argument"/> is empty</exception>
+            <returns><paramref name="argument"/> if it is not null or empty</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgumentRange(System.Int32,System.String,System.Int32,System.Int32)">
+            <summary>
+            Checks that the given argument value is valid.
+            </summary>
+            <remarks>
+            Note that the upper bound (<paramref name="maxInclusive"/>) is inclusive,
+            not exclusive. This is deliberate, to allow the specification of ranges which include
+            <see cref="F:System.Int32.MaxValue"/>.
+            </remarks>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <param name="minInclusive">The smallest valid value.</param>
+            <param name="maxInclusive">The largest valid value.</param>
+            <returns><paramref name="argument"/> if it was in range</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was outside the specified range.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgumentRange``1(``0,System.String,``0,``0)">
+            <summary>
+            Checks that the given argument value is valid.
+            </summary>
+            <remarks>
+            Note that the upper bound (<paramref name="maxInclusive"/>) is inclusive,
+            not exclusive. This is deliberate, to allow the specification of ranges which include
+            <see cref="F:System.Int64.MaxValue"/>.
+            </remarks>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <param name="minInclusive">The smallest valid value.</param>
+            <param name="maxInclusive">The largest valid value.</param>
+            <returns><paramref name="argument"/> if it was in range</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was outside the specified range.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgumentRange``1(System.Nullable{``0},System.String,``0,``0)">
+            <summary>
+            Checks that the given argument value, if not <c>null</c>, is valid.
+            </summary>
+            <remarks>
+            Note that the upper bound (<paramref name="maxInclusive"/>) is inclusive,
+            not exclusive. This is deliberate, to allow the specification of ranges which include
+            <see cref="F:System.Int32.MaxValue"/>.
+            </remarks>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <param name="minInclusive">The smallest valid value.</param>
+            <param name="maxInclusive">The largest valid value.</param>
+            <returns><paramref name="argument"/> if it was in range, or <c>null</c>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was outside the specified range.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Int32,System.String)">
+            <summary>
+            Checks that the given argument value is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Nullable{System.Int32},System.String)">
+            <summary>
+            Checks that the given argument value, if not <c>null</c>, is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative, or <c>null</c>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Int64,System.String)">
+            <summary>
+            Checks that the given argument value is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Nullable{System.Int64},System.String)">
+            <summary>
+            Checks that the given argument value, if not <c>null</c>, is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative, or <c>null</c>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Double,System.String)">
+            <summary>
+            Checks that the given argument value is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegative(System.Nullable{System.Double},System.String)">
+            <summary>
+            Checks that the given argument value, if not <c>null</c>, is not negative.
+            </summary>
+            <param name="argument">The value of the argument passed to the calling method.</param>
+            <param name="paramName">The name of the parameter in the calling method.</param>
+            <returns><paramref name="argument"/> if it was non-negative, or <c>null</c>.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">The argument was negative.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckState(System.Boolean,System.String)">
+            <summary>
+            Checks that given condition is met, throwing an <see cref="T:System.InvalidOperationException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="message">The message to include in the exception, if generated. This should not
+            use interpolation, as the interpolation would be performed regardless of whether or
+            not an exception is thrown.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckState``1(System.Boolean,System.String,``0)">
+            <summary>
+            Checks that given condition is met, throwing an <see cref="T:System.InvalidOperationException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="format">The format string to use to create the exception message if the
+            condition is not met.</param>
+            <param name="arg0">The argument to the format string.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckState``2(System.Boolean,System.String,``0,``1)">
+            <summary>
+            Checks that given condition is met, throwing an <see cref="T:System.InvalidOperationException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="format">The format string to use to create the exception message if the
+            condition is not met.</param>
+            <param name="arg0">The first argument to the format string.</param>
+            <param name="arg1">The second argument to the format string.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgument(System.Boolean,System.String,System.String)">
+            <summary>
+            Checks that given argument-based condition is met, throwing an <see cref="T:System.ArgumentException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="paramName">The name of the parameter whose value is being tested.</param>
+            <param name="message">The message to include in the exception, if generated. This should not
+            use interpolation, as the interpolation would be performed regardless of whether or not an exception
+            is thrown.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgument``1(System.Boolean,System.String,System.String,``0)">
+            <summary>
+            Checks that given argument-based condition is met, throwing an <see cref="T:System.ArgumentException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="paramName">The name of the parameter whose value is being tested.</param>
+            <param name="format">The format string to use to create the exception message if the
+            condition is not met.</param>
+            <param name="arg0">The argument to the format string.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgument``2(System.Boolean,System.String,System.String,``0,``1)">
+            <summary>
+            Checks that given argument-based condition is met, throwing an <see cref="T:System.ArgumentException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="paramName">The name of the parameter whose value is being tested.</param>
+            <param name="format">The format string to use to create the exception message if the
+            condition is not met.</param>
+            <param name="arg0">The first argument to the format string.</param>
+            <param name="arg1">The second argument to the format string.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckEnumValue``1(``0,System.String)">
+            <summary>
+            Checks that the given value is in fact defined in the enum used as the type argument of the method.
+            </summary>
+            <typeparam name="T">The enum type to check the value within.</typeparam>
+            <param name="value">The value to check.</param>
+            <param name="paramName">The name of the parameter whose value is being tested.</param>
+            <returns><paramref name="value"/> if it was a defined value</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckNonNegativeDelay(System.TimeSpan,System.String)">
+            <summary>
+            Checks that the given <see cref="T:System.TimeSpan"/> used as a delay is non-negative. This is a very specific
+            call; most users won't need it.
+            </summary>
+            <param name="value">The value to check.</param>
+            <param name="paramName">The name of the parameter whose value is being tested.</param>
+        </member>
+        <member name="T:Google.Api.Gax.IClock">
+            <summary>
+            An abstraction of the ability to determine the current date and time.
+            </summary>
+            <remarks>
+            This interface primarily exists for testing purposes, allowing test code to
+            isolate itself from the system clock. In production, the <see cref="T:Google.Api.Gax.SystemClock"/>
+            implementation is by far the most likely one to be used, and the only one provided
+            within this library. Code that uses a clock should generally be designed to allow it
+            to be optionally specified, defaulting to <see cref="P:Google.Api.Gax.SystemClock.Instance"/>.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.IClock.GetCurrentDateTimeUtc">
+            <summary>
+            Returns the current date and time in UTC, with a kind of <see cref="F:System.DateTimeKind.Utc"/>.
+            </summary>
+            <returns>A <see cref="T:System.DateTime"/> representing the current date and time in UTC.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.IResourceName">
+            <summary>
+            A resource name.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.IResourceName.Kind">
+            <summary>
+            The kind of resource name.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.IResourceName.ToString">
+            <summary>
+            The string representation of the resource name.
+            </summary>
+            <returns>The string representation of the resource name.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.IScheduler">
+            <summary>
+            Abstraction of scheduler-like operations, used for testability.
+            </summary>
+            <remarks>
+            Note that this is different to <see cref="T:System.Threading.Tasks.TaskScheduler"/>, which is really involved
+            with assigning tasks to threads rather than any sort of delay.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.IScheduler.Delay(System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Returns a task which will complete after the given delay. Whether the returned
+            awaitable is configured to capture the current context or not is implementation-specific.
+            (A test implementation may capture the current context to enable reliable testing.)
+            </summary>
+            <param name="delay">Time to delay for. Must not be negative.</param>
+            <param name="cancellationToken">The cancellation token that will be checked prior to completing the returned task.</param>
+            <returns>A task which will complete after the given delay.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.SchedulerExtensions">
+            <summary>
+            Extension methods for <see cref="T:Google.Api.Gax.IScheduler"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.SchedulerExtensions.Sleep(Google.Api.Gax.IScheduler,System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Simulates a synchronous delay by calling <see cref="M:Google.Api.Gax.IScheduler.Delay(System.TimeSpan,System.Threading.CancellationToken)"/> on
+            <paramref name="scheduler"/>, and unwrapping any exceptions generated (typically cancellation).
+            </summary>
+            <param name="scheduler">The scheduler to use for the sleep operation.</param>
+            <param name="delay">Time to sleep for. Must not be negative.</param>
+            <param name="cancellationToken">The cancellation token that will be watched during the sleep operation.</param>
+            <exception cref="T:System.OperationCanceledException">The cancellation token was cancelled during the sleep.</exception>
+        </member>
+        <member name="T:Google.Api.Gax.Page`1">
+            <summary>
+            A page of resources which will only have fewer results than requested if
+            there is no more data to fetch.
+            </summary>
+            <typeparam name="TResource">The type of resource within the page.</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Page`1.NextPageToken">
+            <summary>
+            The page token to use to fetch the next set of resources.
+            </summary>
+            <remarks>
+            gRPC-based APIs use an empty string as a "no page token", whereas REST-based APIs
+            use a null reference instead. The value here will be consistent with the value returned
+            by the API itself.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Page`1.#ctor(System.Collections.Generic.IEnumerable{`0},System.String)">
+            <summary>
+            Constructs a fixed-size page from the given resource sequence and page token.
+            </summary>
+            <param name="resources">The resources in the page.</param>
+            <param name="nextPageToken">The next page token.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Page`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.Page`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.PagedAsyncEnumerable`2">
+            <summary>
+            An asynchronous sequence of resources obtained via API responses. Application code
+            can treat this as a simple sequence (with API calls automatically being made
+            lazily as more results are required), or call <see cref="M:Google.Api.Gax.PagedAsyncEnumerable`2.AsRawResponses"/> to retrieve
+            one API response at a time, potentially with additional information.
+            </summary>
+            <typeparam name="TResponse">The API response type. Each response contains a page of resources.</typeparam>
+            <typeparam name="TResource">The resource type contained within the response.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.AsRawResponses">
+            <summary>
+            Returns the sequence of raw API responses, each of which contributes a page of
+            resources to this sequence.
+            </summary>
+            <returns>An asynchronous sequence of raw API responses, each containing a page of resources.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.ReadPageAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Eagerly (but asynchronously) reads a single page of results with a fixed maximum size. The returned page is guaranteed
+            to have that many results, unless there is no more data available.
+            </summary>
+            <remarks>
+            "Natural" pages returned by the API may contain a smaller number of resources than requested.
+            For example, a request for a page with 100 resources may return a page with 80 resources but
+            a next page token for more to be retrieved. This is suitable for batch-processing, but not
+            for user-visible paging such as in a web application, where fixed-size pages are expected.
+            This method may make more than one API call in order to fill the page, but after the page has been
+            returned, all the data will have been loaded. (In particular, iterating over the items in the page
+            multiple times will not make any further requests.)
+            </remarks>
+            <param name="pageSize">The page size. Must be greater than 0.</param>
+            <param name="cancellationToken">A token to cancel the operation.</param>
+            <returns>An asynchronous operation, the result of which is a page of resources.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.PagedEnumerable`2">
+            <summary>
+            A sequence of resources obtained via API responses, each of which contributes a page of resources.
+            Application code can treat this as a simple sequence (with API calls automatically being made
+            lazily as more results are required), or call <see cref="M:Google.Api.Gax.PagedEnumerable`2.AsRawResponses"/> to retrieve
+            a page at a time, potentially with additional information.
+            </summary>
+            <typeparam name="TResponse">The API response type. Each response contains a page of resources.</typeparam>
+            <typeparam name="TResource">The resource type contained within the response.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.PagedEnumerable`2.AsRawResponses">
+            <summary>
+            Returns the sequence of raw API responses, each of which contributes a page of
+            resources to this sequence.
+            </summary>
+            <returns>A sequence of raw API responses, each containing a page of resources.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PagedEnumerable`2.ReadPage(System.Int32)">
+            <summary>
+            Eagerly reads a single page of results with a fixed maximum size. The returned page is guaranteed
+            to have that many results, unless there is no more data available.
+            </summary>
+            <remarks>
+            "Natural" pages returned by the API may contain a smaller number of resources than requested.
+            For example, a request for a page with 100 resources may return a page with 80 resources but
+            a next page token for more to be retrieved. This is suitable for batch-processing, but not
+            for user-visible paging such as in a web application, where fixed-size pages are expected.
+            This method may make more than one API call in order to fill the page, but after the page has been
+            returned, all the data will have been loaded. (In particular, iterating over the items in the page
+            multiple times will not make any further requests.)
+            </remarks>
+            <param name="pageSize">The page size. Must be greater than 0.</param>
+            <returns>An asynchronous operation, the result of which is a page of resources.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PagedEnumerable`2.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.PagedEnumerable`2.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.PathTemplate">
+            <summary>
+            Represents a path template used for resource names which may be composed of multiple IDs.
+            </summary>
+            <remarks>
+            <para>
+            Templates use a subset of the syntax of the API platform. See
+            https://github.com/googleapis/googleapis/blob/master/google/api/http.proto
+            for details of the API platform.
+            </para>
+            <para>
+            This class performs no URL escaping or unescaping. It is designed for use within GRPC, where no
+            URL encoding is required.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate.s_slashSplit">
+            <summary>
+            Just an array containing a single slash, to avoid constructing a new array every time we need
+            to split.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate._segments">
+            <summary>
+            List of segments in this template. Never modified after construction.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate._parameterSegments">
+            <summary>
+            List of the segments in this template which are wildcards. Never modified after construction.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.PathTemplate.ParameterNames">
+            <summary>
+            The names of the parameters within the template. This collection has one element per parameter,
+            but unnamed parameters have a name of <c>null</c>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.#ctor(System.String)">
+            <summary>
+            Constructs a template from its textual representation, such as <c>shelves/*/books/**</c>.
+            </summary>
+            <param name="template">The textual representation of the template. Must not be null.</param>
+        </member>
+        <member name="P:Google.Api.Gax.PathTemplate.ParameterCount">
+            <summary>
+            The number of parameter segments (regular wildcards or path wildcards, named or unnamed) in the template.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ValidateServiceName(System.String,System.String)">
+            <summary>
+            Validates a service name, ensuring it is not empty and doesn't contain any slashes.
+            (In the future, we may want to make this stricter, e.g. that it's a valid DNS-like name.)
+            </summary>
+            <param name="serviceName">The name to validate</param>
+            <param name="parameterName">The name of the parameter</param>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ValidateResourceId(System.Int32,System.String)">
+            <summary>
+            Validate a single value from a sequence. This is used in both parsing and instantiating.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ValidateResourceIds(System.String[])">
+            <summary>
+            Validates a whole array of resource IDs, including that the count matches.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.Expand(System.String[])">
+            <summary>
+            Validates that the given resource IDs are valid for this template, and returns a string representation
+            </summary>
+            <remarks>
+            <para>
+            This is equivalent to calling <c>new ResourceName(template, resourceIds).ToString()</c>, but simpler in
+            calling code and more efficient in terms of memory allocation.
+            </para>
+            <para>
+            This method assumes no service name is required. Call <see cref="M:Google.Api.Gax.PathTemplate.ExpandWithService(System.String,System.String[])"/> to specify a service name.
+            </para>
+            </remarks>
+            <param name="resourceIds">The resource IDs to use to populate the parameters in this template. Must not be null.</param>
+            <returns>The string representation of the resource name.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ExpandWithService(System.String,System.String[])">
+            <summary>
+            Validates that the given resource IDs are valid for this template, and returns a string representation
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="resourceIds">The resource IDs to use to populate the parameters in this template. Must not be null.</param>
+            <param name="serviceName">The service name, which may be null.</param>
+            <returns>The string representation of the resource name.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ReplaceParameters(System.String,System.String[])">
+            <summary>
+            Returns a string representation of the template with parameters replaced by resource IDs.
+            </summary>
+            <param name="serviceName">The name of the service, for full resource names. May be null, to produce a relative resource name.</param>
+            <param name="resourceIds">Resource IDs to interpolate the template with. Expected to have been validated already.</param>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.TryParseName(System.String,Google.Api.Gax.TemplatedResourceName@)">
+            <summary>
+            Attempts to parse the given resource name against this template, returning <c>null</c> on failure.
+            </summary>
+            <remarks>
+            Although this method returns <c>null</c> if a name is passed in which doesn't match the template,
+            it still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="name"/> is null, as this would
+            usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="name">The resource name to parse against this template. Must not be null.</param>
+            <param name="result">When this method returns, the parsed resource name or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ParseName(System.String)">
+            <summary>
+            Attempts to parse the given resource name against this template, throwing <see cref="T:System.ArgumentException" /> on failure.
+            </summary>
+            <param name="name">The resource name to parse against this template. Must not be null.</param>
+            <returns>The parsed name as a <see cref="T:Google.Api.Gax.TemplatedResourceName"/>.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.TryParseNameInternal(System.String,Google.Api.Gax.TemplatedResourceName@)">
+            <summary>
+            Implementation of parsing, returning the error message for a FormatException if parsing fails.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PathTemplate.ToString">
+            <summary>
+            Returns the textual representation of this template.
+            </summary>
+            <returns>The same textual representation that this template was initially constructed with.</returns>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate.SegmentKind.Literal">
+            <summary>
+            A literal path segment.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate.SegmentKind.Wildcard">
+            <summary>
+            A simple wildcard ('*').
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PathTemplate.SegmentKind.PathWildcard">
+            <summary>
+            A path wildcard ('**').
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.PathTemplate.Segment">
+            <summary>
+            A segment of a path.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.PathTemplate.Segment.Value">
+            <summary>
+            The literal value or the name of a wildcard.
+            null for unnamed wildcards.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.PlatformType">
+            <summary>
+            Execution platform type.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Unknown">
+            <summary>
+            Unknown execution platform.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gce">
+            <summary>
+            Execution platform is Google Compute Engine.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gae">
+            <summary>
+            Execution platform is Google App Engine.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gke">
+            <summary>
+            Execution platform is Google Container Engine (Kubernetes).
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.GcePlatformDetails">
+            <summary>
+            Google Compute Engine details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GcePlatformDetails"/> from the given metadata.
+            This metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GcePlatformDetails"/> if the metadata represents and GCE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Compute Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="instanceId">The instance ID. Must not be <c>null</c>.</param>
+            <param name="zoneName">The zone name. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.ProjectId">
+            <summary>
+            The Project ID under which this GCE instance is running.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.InstanceId">
+            <summary>
+             The Instance ID of the GCE instance on which this is running.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.ZoneName">
+            <summary>
+            The zone name where this GCE instance is running.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.GaePlatformDetails">
+            <summary>
+            Google App Engine details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google App Engine
+            </summary>
+            <param name="gcloudProject">The Project ID associated with your application,
+            which is visible in the Google Cloud Platform Console. Must not be <c>null</c>.</param>
+            <param name="gaeInstance">The name of the current instance. Must not be <c>null</c>.</param>
+            <param name="gaeService">The service name specified in your application's app.yaml file,
+            or if no service name is specified, it is set to default. Must not be <c>null</c>.</param>
+            <param name="gaeVersion">The version label of the current application. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.ProjectId">
+            <summary>
+            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.InstanceId">
+            <summary>
+            The name of the current instance.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.ServiceId">
+            <summary>
+            The service name specified in your application's app.yaml file, or if no service name is specified, it is set to default.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.VersionId">
+            <summary>
+            The version label of the current application.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaePlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.GkePlatformDetails">
+            <summary>
+            Google Container (Kubernetes) Engine details.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.GkePlatformDetails.KubernetesData">
+            <summary>
+            Data from the Kubernetes API
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodName">
+            <summary>
+            The kubernetes pod name
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceJson">
+            <summary>
+            JSON from https://kubernetes/api/v1/namespaces/{namespace}
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodJson">
+            <summary>
+            JSON from https://kubernetes/api/v1/namespaces/{namespace}/pods/{pod-name}
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.MountInfo">
+            <summary>
+            Lines from /proc/self/mountinfo
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata.
+            This metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String,Google.Api.Gax.GkePlatformDetails.KubernetesData)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata and kubernetes data.
+            The metadata is normally retrieved from the GCE metadata server.
+            The kubernetes data is normally retrieved using the kubernetes API.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <param name="kubernetesData">Kubernetes data, normally retrieved using the kubernetes API.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Container (Kubernetes) Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
+            <param name="location">The location. Must not be <c>null</c>.</param>
+            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Container (Kubernetes) Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
+            <param name="location">The location. Must not be <c>null</c>.</param>
+            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
+            <param name="instanceId">The GCE instance ID. Must not be <c>null</c>.</param>
+            <param name="zone">The zone. Must not be <c>null</c>.</param>
+            <param name="namespaceId">The kubernetes namespace ID. Must not be <c>null</c>.</param>
+            <param name="podId">The kubernetes pod ID. Must not be <c>null</c>.</param>
+            <param name="containerName">The container name. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ProjectId">
+            <summary>
+            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ClusterName">
+            <summary>
+            The cluster name, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.Location">
+            <summary>
+            The cluster location, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.HostName">
+            <summary>
+            The hostname of this instance.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.InstanceId">
+            <summary>
+            The GCE instance this container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.Zone">
+            <summary>
+            The GCE zone in which the instance is running.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.NamespaceId">
+            <summary>
+            The cluster namespace the container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.PodId">
+            <summary>
+            The pos the container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ContainerName">
+            <summary>
+            The name of the container.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.Platform">
+            <summary>
+            Information about the current execution platform.
+            Supported execution platforms are Google App Engine (GAE), Google Container Engine (GKE), and Google Compute Engine (GCE).
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.InstanceAsync">
+            <summary>
+            Asyncrhonously get execution platform information.
+            </summary>
+            <returns>A task containing the execution platform information.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.Instance">
+            <summary>
+            Get execution platform information. This may block for up to one second.
+            </summary>
+            <returns>Execution platform information.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor">
+            <summary>
+            Construct with no details.
+            This leads to a platform <see cref="P:Google.Api.Gax.Platform.Type"/> of <see cref="F:Google.Api.Gax.PlatformType.Unknown"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor(Google.Api.Gax.GcePlatformDetails)">
+            <summary>
+            Construct with details of Google Compute Engine.
+            </summary>
+            <param name="gceDetails">Details of Google Compute Engine.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor(Google.Api.Gax.GaePlatformDetails)">
+            <summary>
+            Construct with details of Google App Engine.
+            </summary>
+            <param name="gaeDetails">Details of Google App Engine.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor(Google.Api.Gax.GkePlatformDetails)">
+            <summary>
+            Construct with details of Google Container (Kubernetes) Engine.
+            </summary>
+            <param name="gkeDetails">Details of Google Container (Kubernetes) Engine.</param>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.GaeDetails">
+            <summary>
+            Google App Engine (GAE) platform details.
+            <c>null</c> if not executing on GAE.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.GceDetails">
+            <summary>
+            Google Compute Engine (GCE) platform details.
+            <c>null</c> if not executing on GCE. 
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.GkeDetails">
+            <summary>
+            Google Container (Kubernetes) Engine (GKE) platform details.
+            <c>null</c> if not executing on GKE. 
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.Type">
+            <summary>
+            The current execution platform.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.ProjectId">
+            <summary>
+            The current Project ID.
+            <c>null</c> if the Project ID cannot be determined on the current execution platform.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Platform.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.Polling">
+            <summary>
+            Helper methods for polling scenarios.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Polling.PollRepeatedly``1(System.Func{System.Nullable{System.DateTime},``0},System.Predicate{``0},Google.Api.Gax.IClock,Google.Api.Gax.IScheduler,Google.Api.Gax.PollSettings,System.Threading.CancellationToken)">
+            <summary>
+            Repeatedly calls the specified polling action, delaying between calls,
+            until a given condition is met in the response.
+            </summary>
+            <typeparam name="TResponse">The response type.</typeparam>
+            <param name="pollAction">The poll action, typically performing an RPC. The value passed to the
+            action is the overall deadline, so that the RPC settings can be adjusted accordingly. A null value
+            indicates no deadline.</param>
+            <param name="completionPredicate">The test for whether to return the response (<c>true</c>) or continue
+            polling (<c>false</c>). Must not be null.</param>
+            <param name="clock">The clock to use for determining deadlines. Must not be null.</param>
+            <param name="scheduler">The scheduler to use for delaying between calls. Must not be null.</param>
+            <param name="pollSettings">The poll settings, controlling timeouts, call settings and delays.</param>
+            <param name="cancellationToken">The cancellation token used to cancel delays, if any.</param>
+            <returns>The completed response.</returns>
+            <exception cref="T:System.TimeoutException">The timeout specified in the poll settings expired.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.Polling.PollRepeatedlyAsync``1(System.Func{System.Nullable{System.DateTime},System.Threading.Tasks.Task{``0}},System.Predicate{``0},Google.Api.Gax.IClock,Google.Api.Gax.IScheduler,Google.Api.Gax.PollSettings,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously repeatedly calls the specified polling action, delaying between calls,
+            until a given condition is met in the response.
+            </summary>
+            <typeparam name="TResponse">The response type.</typeparam>
+            <param name="pollAction">The poll action, typically performing an RPC. The value passed to the
+            action is the overall deadline, so that the RPC settings can be adjusted accordingly. A null
+            value indicates no deadline.</param>
+            <param name="completionPredicate">The test for whether to return the response (<c>true</c>) or continue
+            polling (<c>false</c>). Must not be null.</param>
+            <param name="clock">The clock to use for determining deadlines. Must not be null.</param>
+            <param name="scheduler">The scheduler to use for delaying between calls. Must not be null.</param>
+            <param name="pollSettings">The poll settings, controlling timeouts, call settings and delays.</param>
+            <param name="cancellationToken">The cancellation token used to cancel delays, if any.</param>
+            <returns>A task representing the asynchronous operation. The result of the task will be the completed response.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.PollSettings">
+            <summary>
+            Settings controlling repeated polling, for example when waiting for a long-running operation
+            to complete.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.PollSettings.Expiration">
+            <summary>
+            How long to wait before giving up. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.PollSettings.Delay">
+            <summary>
+            The delay between RPC calls when fetching the operation status. This is never negative.
+            There is no exponential backoff between calls; the same delay is used for each call.
+            </summary>
+            <remarks>
+            This is the delay between the a successful RPC response being received
+            and the next RPC request being sent.
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.PollSettings.DelayMultiplier">
+            <summary>
+            The multiplier to apply to the delay on each iteration; must be greater or equal to 1.0.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.PollSettings.MaxDelay">
+            <summary>
+            The maximum delay to use. If the increasing delay due to the delay multiplier exceeds this,
+            this maximum is used instead.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.PollSettings.#ctor(Google.Api.Gax.Expiration,System.TimeSpan)">
+            <summary>
+            Creates poll settings from the given expiration and constant delay.
+            </summary>
+            <param name="expiration">The expiration to use in order to know when to stop polling. Must not be null.</param>
+            <param name="delay">The constant delay between RPC calls. Must be non-negative.</param>
+        </member>
+        <member name="M:Google.Api.Gax.PollSettings.#ctor(Google.Api.Gax.Expiration,System.TimeSpan,System.Double,System.TimeSpan)">
+            <summary>
+            Creates poll settings from the given expiration, delay, delay multiplier and maximum delay.
+            </summary>
+            <param name="expiration">The expiration to use in order to know when to stop polling. Must not be null.</param>
+            <param name="delay">The delay between RPC calls. Must be non-negative.</param>
+            <param name="delayMultiplier">The multiplier to apply to the delay on each iteration; must be greater or equal to 1.0.</param>
+            <param name="maxDelay">The maximum delay to use.</param>
+        </member>
+        <member name="M:Google.Api.Gax.PollSettings.NextDelay(System.TimeSpan)">
+            <summary>
+            Works out the next delay from the current one, based on the multiplier and maximum.
+            </summary>
+            <param name="currentDelay">The current delay.</param>
+            <returns>The next delay.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.ResourceMismatchException">
+            <summary>
+            Exception used to indicate that an attempt was made to get or create a resource,
+            and the retrieved resource did not match the expected constraints.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceMismatchException.#ctor(System.String)">
+            <summary>
+            Constructs a new instance of the exception.
+            </summary>
+            <param name="message">The error message for the exception.</param>
+        </member>
+        <member name="T:Google.Api.Gax.ResourceNameKind">
+            <summary>
+            The kind of resource name.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNameKind.Simple">
+            <summary>
+            A simple, well-typed, resource name. 
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNameKind.Oneof">
+            <summary>
+            One of a selection of resource names.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNameKind.Fixed">
+            <summary>
+            A fixed string instead of a resource name.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNameKind.Templated">
+            <summary>
+            A <see cref="T:Google.Api.Gax.TemplatedResourceName"/>.  
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNameKind.Unknown">
+            <summary>
+            An <see cref="T:Google.Api.Gax.UnknownResourceName"/>. 
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.ResourceNameList`1">
+            <summary>
+            A list of resource names of a specific type, that delegates all operations to an
+            underlying list of string-based resource names.
+            </summary>
+            <typeparam name="TName">The type of the resource name contained in this list.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.#ctor(System.Collections.Generic.IList{System.String},System.Func{System.String,`0})">
+            <summary>
+            Constructs a <see cref="T:Google.Api.Gax.ResourceNameList`1"/> from an underlying string-based list
+            and a resource name parser.
+            </summary>
+            <param name="underlyingList"></param>
+            <param name="stringToName"></param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNameList`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNameList`1.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNameList`1.Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Add(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Adds all items to this list.
+            </summary>
+            <param name="items">The items to add to this list.</param>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Contains(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.CopyTo(`0[],System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.IndexOf(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Insert(System.Int32,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.Remove(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNameList`1.RemoveAt(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.SystemClock">
+            <summary>
+            A singleton implementation of <see cref="T:Google.Api.Gax.IClock"/> which delegates to the BCL
+            <see cref="P:System.DateTime.UtcNow"/> property.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.SystemClock.Instance">
+            <summary>
+            Retrieves the singleton instance of this type.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.SystemClock.GetCurrentDateTimeUtc">
+            <summary>
+            Returns the current date and time in UTC, using <see cref="P:System.DateTime.UtcNow"/>.
+            </summary>
+            <returns>The current date and time in UTC.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.SystemScheduler">
+            <summary>
+            Singleton implementation of <see cref="T:Google.Api.Gax.IScheduler"/> which uses <see cref="M:System.Threading.Tasks.Task.Delay(System.TimeSpan,System.Threading.CancellationToken)"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.SystemScheduler.Instance">
+            <summary>
+            Retrieves the singleton instance.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.SystemScheduler.Delay(System.TimeSpan,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.TaskExtensions">
+            <summary>
+            Extension methods for tasks.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.ResultWithUnwrappedExceptions``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Synchronously waits for the given task to complete, and returns the result.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <typeparam name="T">The result type of the task</typeparam>
+            <param name="task">The task to wait for.</param>
+            <returns>The result of the completed task.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.WaitWithUnwrappedExceptions(System.Threading.Tasks.Task)">
+            <summary>
+            Synchronously waits for the given task to complete.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <param name="task">The task to wait for.</param>
+        </member>
+        <member name="T:Google.Api.Gax.TemplatedResourceName">
+            <summary>
+            Class for representing and working with resource names.
+            </summary>
+            <remarks>
+            <para>
+            A resource name is represented by a <see cref="T:Google.Api.Gax.PathTemplate"/>, an assignment of resource IDs to parameters in
+            the template, and an optional service name. This class allows the service name and resource IDs to be
+            modified, but only within the same template.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.TemplatedResourceName.Template">
+            <summary>
+            The template this resource name is associated with. Never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.TemplatedResourceName.ServiceName">
+            <summary>
+            The service name part of this resource name, or null if no service name is specified.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.TemplatedResourceName.Item(System.Int32)">
+            <summary>
+            Gets or sets the identifier for the specified parameter index.
+            </summary>
+            <param name="index">The index of the parameter value to retrieve.</param>
+            <returns>The identifier within the resource name at the given parameter index.</returns>
+        </member>
+        <member name="P:Google.Api.Gax.TemplatedResourceName.Item(System.String)">
+            <summary>
+            Gets or sets the identifier for the specified parameter name.
+            </summary>
+            <param name="parameterName">The name of the parameter value to retrieve.</param>
+            <returns>The identifier within the resource name with the given parameter name.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.#ctor(Google.Api.Gax.PathTemplate,System.String[])">
+            <summary>
+            Creates a resource name with the given template and resource IDs.
+            The resource IDs are cloned, so later changes to <paramref name="resourceIds"/>
+            are ignored. This constructor does not populate the <see cref="P:Google.Api.Gax.TemplatedResourceName.ServiceName"/> property,
+            but that can be set after construction.
+            </summary>
+            <param name="template">The template for the new resource name. Must not be null.</param>
+            <param name="resourceIds">The resource IDs to populate template parameters with. Must not be null.</param>
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.Clone">
+            <summary>
+            Creates a clone of this resource name, which is then independent of the original.
+            </summary>
+            <returns>A clone of this resource name.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.#ctor(Google.Api.Gax.PathTemplate,System.String,System.String[],System.Boolean)">
+            <summary>
+            Private constructor used by internal code to avoid repeated cloning and validation.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.TemplatedResourceName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.ToString">
+            <summary>
+            Returns a string representation of this resource name, expanding the template
+            parameters with the resource IDs and prepending the service name (if present).
+            </summary>
+            <returns>A string representation of this resource name.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.Equals(Google.Api.Gax.TemplatedResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.op_Equality(Google.Api.Gax.TemplatedResourceName,Google.Api.Gax.TemplatedResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.TemplatedResourceName.op_Inequality(Google.Api.Gax.TemplatedResourceName,Google.Api.Gax.TemplatedResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.UnknownResourceName">
+            <summary>
+            A resource name in which nothing is known about the name structure.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.Parse(System.String)">
+            <summary>
+            Parse a resource name into an <see cref="T:Google.Api.Gax.UnknownResourceName"/>.
+            Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
+            </summary>
+            <param name="name">A resource name.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is an invalid resource name.</exception>
+            <returns>An <see cref="T:Google.Api.Gax.UnknownResourceName"/> representing the given string.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.TryParse(System.String,Google.Api.Gax.UnknownResourceName@)">
+            <summary>
+            Tries to parse the given resource name into an <see cref="T:Google.Api.Gax.UnknownResourceName"/>.
+            Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
+            </summary>
+            <param name="name">A resource name.</param>
+            <param name="result">The <see cref="T:Google.Api.Gax.UnknownResourceName"/> result if parsing is successful, otherwise <c>null</c>.</param>
+            <returns><c>true</c> if <paramref name="name"/> was successfully parsed, otherwise <c>false</c>.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.#ctor(System.String)">
+            <summary>
+            Creates an unkown resource name from the given resource name string.
+            Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="P:Google.Api.Gax.UnknownResourceName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.Equals(Google.Api.Gax.UnknownResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.op_Equality(Google.Api.Gax.UnknownResourceName,Google.Api.Gax.UnknownResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.UnknownResourceName.op_Inequality(Google.Api.Gax.UnknownResourceName,Google.Api.Gax.UnknownResourceName)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.VersionHeaderBuilder">
+            <summary>
+            Helps build version strings for the x-goog-api-client header.
+            The value is a space-separated list of name/value pairs, where the value
+            should be a semantic version string.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.VersionHeaderBuilder.HeaderName">
+            <summary>
+            The name of the header to set.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.AppendVersion(System.String,System.String)">
+            <summary>
+            Appends the given name/version string to the list.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.AppendAssemblyVersion(System.String,System.Type)">
+            <summary>
+            Appends a name/version string, taking the version from the version of the assembly
+            containing the given type.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.AppendDotNetEnvironment">
+            <summary>
+            Appends the .NET environment information to the list.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.ToString">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

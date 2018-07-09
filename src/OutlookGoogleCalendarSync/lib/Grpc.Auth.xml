@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Grpc.Auth</name>
+    </assembly>
+    <members>
+        <member name="T:Grpc.Auth.GoogleAuthInterceptors">
+            <summary>
+            Factory methods to create authorization interceptors for Google credentials.
+            <seealso cref="T:Grpc.Auth.GoogleGrpcCredentials"/>
+            </summary>
+        </member>
+        <member name="M:Grpc.Auth.GoogleAuthInterceptors.FromCredential(Google.Apis.Auth.OAuth2.ITokenAccess)">
+            <summary>
+            Creates an <see cref="T:Grpc.Core.AsyncAuthInterceptor"/> that will obtain access token from any credential type that implements
+            <c>ITokenAccess</c>. (e.g. <c>GoogleCredential</c>).
+            </summary>
+            <param name="credential">The credential to use to obtain access tokens.</param>
+            <returns>The interceptor.</returns>
+        </member>
+        <member name="M:Grpc.Auth.GoogleAuthInterceptors.FromAccessToken(System.String)">
+            <summary>
+            Creates an <see cref="T:Grpc.Core.AsyncAuthInterceptor"/> that will use given access token as authorization.
+            </summary>
+            <param name="accessToken">OAuth2 access token.</param>
+            <returns>The interceptor.</returns>
+        </member>
+        <member name="T:Grpc.Auth.GoogleGrpcCredentials">
+            <summary>
+            Factory/extension methods to create instances of <see cref="T:Grpc.Core.ChannelCredentials"/> and <see cref="T:Grpc.Core.CallCredentials"/> classes
+            based on credential objects originating from Google auth library.
+            </summary>
+        </member>
+        <member name="M:Grpc.Auth.GoogleGrpcCredentials.GetApplicationDefaultAsync">
+            <summary>
+            Retrieves an instance of Google's Application Default Credentials using
+            <c>GoogleCredential.GetApplicationDefaultAsync()</c> and converts them
+            into a gRPC <see cref="T:Grpc.Core.ChannelCredentials"/> that use the default SSL credentials.
+            </summary>
+            <returns>The <c>ChannelCredentials</c> instance.</returns>
+        </member>
+        <member name="M:Grpc.Auth.GoogleGrpcCredentials.FromAccessToken(System.String)">
+            <summary>
+            Creates an instance of <see cref="T:Grpc.Core.CallCredentials"/> that will use given access token to authenticate
+            with a gRPC service.
+            </summary>
+            <param name="accessToken">OAuth2 access token.</param>
+            /// <returns>The <c>MetadataCredentials</c> instance.</returns>
+        </member>
+        <member name="M:Grpc.Auth.GoogleGrpcCredentials.ToCallCredentials(Google.Apis.Auth.OAuth2.ITokenAccess)">
+            <summary>
+            Converts a <c>ITokenAccess</c> (e.g. <c>GoogleCredential</c>) object
+            into a gRPC <see cref="T:Grpc.Core.CallCredentials"/> object.
+            </summary>
+            <param name="credential">The credential to use to obtain access tokens.</param>
+            <returns>The <c>CallCredentials</c> instance.</returns>
+        </member>
+        <member name="M:Grpc.Auth.GoogleGrpcCredentials.ToChannelCredentials(Google.Apis.Auth.OAuth2.ITokenAccess)">
+            <summary>
+            Converts a <c>ITokenAccess</c> (e.g. <c>GoogleCredential</c>) object
+            into a gRPC <see cref="T:Grpc.Core.ChannelCredentials"/> object.
+            Default SSL credentials are used.
+            </summary>
+            <param name="googleCredential">The credential to use to obtain access tokens.</param>
+            <returns>>The <c>ChannelCredentials</c> instance.</returns>
+        </member>
+    </members>
+</doc>

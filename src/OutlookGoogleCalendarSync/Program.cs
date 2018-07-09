@@ -36,6 +36,8 @@ namespace OutlookGoogleCalendarSync {
 
         [STAThread]
         private static void Main(string[] args) {
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"E:\Outlook Google Calendar Sync-c57f53ce7c32.json");
+
             RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
             parseArgumentsAndInitialise(args);
 
@@ -129,6 +131,8 @@ namespace OutlookGoogleCalendarSync {
 
             log.Info("Storing user files in directory: " + UserFilePath);
 
+            GoogleOgcs.CloudLogging.UpdateLogUuId();
+            
             if (!StartedWithFileArgs) {
                 //Now let's confirm files are actually in the right place
                 Boolean keepPortable = (XMLManager.ImportElement("Portable", Settings.ConfigFile) ?? "false").Equals("true");
@@ -200,6 +204,10 @@ namespace OutlookGoogleCalendarSync {
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
+
+            GoogleOgcs.CloudLogging.LogId = "v" + Application.ProductVersion;
+            GoogleOgcs.CloudLogging.UpdateLogUuId();
+
             XmlConfigurator.Configure(new System.IO.FileInfo(
                 Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
             ));

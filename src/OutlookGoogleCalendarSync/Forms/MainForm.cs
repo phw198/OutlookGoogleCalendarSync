@@ -364,6 +364,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     break;
                 }
             }
+            cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            
             updateGUIsettings_Proxy();
             #endregion
             linkTShoot_logfile.Text = log4net.GlobalContext.Properties["LogFilename"] + " file";
@@ -1492,6 +1494,29 @@ namespace OutlookGoogleCalendarSync.Forms {
                 System.Diagnostics.Process.Start(@logFileLocation);
             } catch {
                 System.Diagnostics.Process.Start(@Program.UserFilePath);
+            }
+        }
+
+        private void cbCloudLogging_CheckedChanged(object sender, EventArgs e) {
+            try {
+                log4net.Appender.BufferingForwardingAppender cloudLogger = (log4net.Appender.BufferingForwardingAppender)LogManager.GetRepository().GetAppenders().Where(a => a.Name == "CloudLogger").FirstOrDefault();
+                if (cloudLogger == null) {
+                    log.Warn("Could not find CloudLogger appender.");
+                    cbCloudLogging.Checked = false;
+                }
+
+                if (cbCloudLogging.CheckState == CheckState.Indeterminate)
+                    Settings.Instance.CloudLogging = null;
+                else {
+                    Settings.Instance.CloudLogging = cbCloudLogging.Checked;
+                    if (cbCloudLogging.Checked)
+                        cloudLogger.Threshold = log4net.Core.Level.All;
+                    else
+                        cloudLogger.Threshold = log4net.Core.Level.Off;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to set cloud logging option.");
+                OGCSexception.Analyse(ex);
             }
         }
 

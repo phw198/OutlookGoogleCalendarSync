@@ -390,10 +390,9 @@
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.ComputeCredential.MetadataServerPingTimeoutInMilliseconds">
             <summary>
-            Originally 1000ms was used as a hopefully-conservative timeout, but this still led to
-            problems very occasionally. (Measuring the time taken showed occasional requests around 800ms,
-            so 1000ms is plausible.) 2000ms should be more reliable, and still unlikely to cause issues -
-            we'd expect not-running-on-GCE cases to fail due to the address not being valid much quicker than that.
+            Originally 1000ms was used without a retry. This proved inadequate; even 2000ms without
+            a retry occasionally failed. We have observed that after a timeout, the next attempt
+            succeeds very quickly (sub-50ms) which suggests that this should be fine.
             </summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.ComputeCredential.MetadataFlavor">
