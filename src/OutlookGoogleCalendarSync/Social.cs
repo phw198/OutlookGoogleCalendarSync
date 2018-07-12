@@ -86,6 +86,7 @@ namespace OutlookGoogleCalendarSync {
         public enum Action {
             download,
             install,
+            setting,
             uninstall,
             upgrade,
             version
@@ -101,11 +102,11 @@ namespace OutlookGoogleCalendarSync {
 
             WebClient wc = new WebClient();
             wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-            wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(trackVersion_completed);
+            wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(sendTelemetry_completed);
             wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
         }
 
-        private static void trackVersion_completed(object sender, DownloadStringCompletedEventArgs e) {
+        private static void sendTelemetry_completed(object sender, DownloadStringCompletedEventArgs e) {
             if (e.Error != null) {
                 log.Warn("Failed to access URL " + e.UserState.ToString());
                 log.Error(e.Error.Message);

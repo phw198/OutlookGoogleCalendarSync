@@ -88,6 +88,8 @@ namespace OutlookGoogleCalendarSync {
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
                 xe.SetValue(nodeValue);
+                if (nodeValue is Boolean && nodeValue != null)
+                    xe.RemoveAttributes(); //Remove nullable attribute 'i:nil="true"'
                 xml.Save(filename);
                 log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
             } catch (System.Exception ex) {

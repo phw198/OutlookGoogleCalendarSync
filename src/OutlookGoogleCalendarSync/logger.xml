@@ -28,9 +28,15 @@
     <bufferSize value="50" />
     <lossy value="true" />
     <evaluator type="log4net.Core.LevelEvaluator">
-      <threshold value="DEBUG" />
+      <threshold value="ERROR" />
     </evaluator>
     <appender-ref ref="GoogleStackdriver" />
+  </appender>
+
+  <appender name="ErrorFlagAppender" type="OutlookGoogleCalendarSync.ErrorFlagAppender,OutlookGoogleCalendarSync" >
+    <filter type="log4net.Filter.LevelRangeFilter">
+      <levelMin value="ERROR"/>
+    </filter>
   </appender>
 	
 	<root>
@@ -38,6 +44,7 @@
 		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
 		<appender-ref ref="CloudLogger" />
+        <appender-ref ref="ErrorFlagAppender" />
 	</root>
 
 	<logger name="DotNetOpenAuth">

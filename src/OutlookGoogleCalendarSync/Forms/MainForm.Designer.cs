@@ -2772,7 +2772,7 @@
             this.cbCloudLogging.Text = "Feedback errors to help improve OGCS";
             this.cbCloudLogging.ThreeState = true;
             this.cbCloudLogging.UseVisualStyleBackColor = true;
-            this.cbCloudLogging.CheckedChanged += new System.EventHandler(this.cbCloudLogging_CheckedChanged);
+            this.cbCloudLogging.CheckStateChanged += new System.EventHandler(this.cbCloudLogging_CheckStateChanged);
             // 
             // ddCategoryColour
             // 
@@ -3063,6 +3063,6 @@
         public Extensions.ColourPicker ddCategoryColour;
         private System.Windows.Forms.Label lDonateTip;
         private System.Windows.Forms.CheckBox cbLocation;
-        private System.Windows.Forms.CheckBox cbCloudLogging;
+        public System.Windows.Forms.CheckBox cbCloudLogging;
     }
 }

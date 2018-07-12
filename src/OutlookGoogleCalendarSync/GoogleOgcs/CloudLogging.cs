@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String uuid = null;
             try {
                 //Check if Settings have been loaded yet and has Gmail account set
-                if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                if (Settings.Instance.IsLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
                     logUuid = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
 
                 } else { //Check if the raw settings file has Gmail account set
@@ -70,6 +70,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } catch {
                 Random random = new Random();
                 logUuid = random.Next().ToString();
+            }
+        }
+
+        public static void SetThreshold(Boolean cloudLoggingEnabled) {
+            try {
+                log4net.Appender.BufferingForwardingAppender cloudLogger = (log4net.Appender.BufferingForwardingAppender)LogManager.GetRepository().GetAppenders().Where(a => a.Name == "CloudLogger").FirstOrDefault();
+                if (cloudLogger == null) {
+                    log.Warn("Could not find CloudLogger appender.");
+                }
+
+                if (cloudLoggingEnabled)
+                    cloudLogger.Threshold = log4net.Core.Level.All;
+                else
+                    cloudLogger.Threshold = log4net.Core.Level.Off;
+
+                log.Info("Turned cloud logging " + (cloudLoggingEnabled ? "ON" : "OFF"));
+
+            } catch (System.Exception ex) {
+                log.Error("Failed to configure cloud logging appender.");
+                OGCSexception.Analyse(ex);
             }
         }
     }

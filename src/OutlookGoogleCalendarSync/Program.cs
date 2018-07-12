@@ -36,18 +36,15 @@ namespace OutlookGoogleCalendarSync {
 
         [STAThread]
         private static void Main(string[] args) {
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"E:\Outlook Google Calendar Sync-c57f53ce7c32.json");
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
             RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
             parseArgumentsAndInitialise(args);
 
             Updater.MakeSquirrelAware();
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
             Forms.Splash.ShowMe();
-            
+
             log.Debug("Loading settings from file.");
             Settings.Load();
 
@@ -131,8 +128,13 @@ namespace OutlookGoogleCalendarSync {
 
             log.Info("Storing user files in directory: " + UserFilePath);
 
+            //Before settings have been loaded, early configure of cloud logging
             GoogleOgcs.CloudLogging.UpdateLogUuId();
-            
+            Boolean cloudLogSetting = false;
+            String cloudLogXmlSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
+            if (!string.IsNullOrEmpty(cloudLogXmlSetting)) cloudLogSetting = Boolean.Parse(cloudLogXmlSetting);
+            GoogleOgcs.CloudLogging.SetThreshold(cloudLogSetting);
+
             if (!StartedWithFileArgs) {
                 //Now let's confirm files are actually in the right place
                 Boolean keepPortable = (XMLManager.ImportElement("Portable", Settings.ConfigFile) ?? "false").Equals("true");
@@ -211,6 +213,8 @@ namespace OutlookGoogleCalendarSync {
             XmlConfigurator.Configure(new System.IO.FileInfo(
                 Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
             ));
+
+            GoogleOgcs.CloudLogging.SetThreshold(false);
 
             if (bootstrap) {
                 log.Info("Program started: v" + Application.ProductVersion);

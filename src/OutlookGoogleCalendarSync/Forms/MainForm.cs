@@ -1497,27 +1497,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void cbCloudLogging_CheckedChanged(object sender, EventArgs e) {
-            try {
-                log4net.Appender.BufferingForwardingAppender cloudLogger = (log4net.Appender.BufferingForwardingAppender)LogManager.GetRepository().GetAppenders().Where(a => a.Name == "CloudLogger").FirstOrDefault();
-                if (cloudLogger == null) {
-                    log.Warn("Could not find CloudLogger appender.");
-                    cbCloudLogging.Checked = false;
-                }
+        private void cbCloudLogging_CheckStateChanged(object sender, EventArgs e) {
+            if (cbCloudLogging.CheckState == CheckState.Indeterminate)
+                Settings.Instance.CloudLogging = null;
+            else
+                Settings.Instance.CloudLogging = cbCloudLogging.Checked;
 
-                if (cbCloudLogging.CheckState == CheckState.Indeterminate)
-                    Settings.Instance.CloudLogging = null;
-                else {
-                    Settings.Instance.CloudLogging = cbCloudLogging.Checked;
-                    if (cbCloudLogging.Checked)
-                        cloudLogger.Threshold = log4net.Core.Level.All;
-                    else
-                        cloudLogger.Threshold = log4net.Core.Level.Off;
-                }
-            } catch (System.Exception ex) {
-                log.Error("Failed to set cloud logging option.");
-                OGCSexception.Analyse(ex);
-            }
+            GoogleOgcs.CloudLogging.SetThreshold(Settings.Instance.CloudLogging ?? false);
         }
 
         #region Proxy

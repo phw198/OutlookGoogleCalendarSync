@@ -346,10 +346,16 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MuteClickSounds { get; set; }
         [DataMember] public String SkipVersion { get; set; }
 
+        private Boolean isLoaded = false;
+        public Boolean IsLoaded {
+            get { return isLoaded; }
+        }
+
         public static void Load(string XMLfile = null) {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
+                Settings.Instance.isLoaded = true;
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
