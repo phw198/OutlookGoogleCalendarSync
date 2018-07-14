@@ -15,6 +15,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
         private const string logSettingsFile = "logger.xml";
         private const string defaultLogFilename = "OGcalsync.log";
+        public static String WorkingFilesDirectory;
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
@@ -39,9 +40,11 @@ namespace OutlookGoogleCalendarSync {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            GoogleOgcs.ErrorReporting.Initialise();
+            
             RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
             parseArgumentsAndInitialise(args);
-
+            
             Updater.MakeSquirrelAware();
             Forms.Splash.ShowMe();
 
@@ -128,12 +131,12 @@ namespace OutlookGoogleCalendarSync {
 
             log.Info("Storing user files in directory: " + UserFilePath);
 
-            //Before settings have been loaded, early configure of cloud logging
-            GoogleOgcs.CloudLogging.UpdateLogUuId();
+            //Before settings have been loaded, early config of cloud logging
+            GoogleOgcs.ErrorReporting.UpdateLogUuId();
             Boolean cloudLogSetting = false;
             String cloudLogXmlSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
             if (!string.IsNullOrEmpty(cloudLogXmlSetting)) cloudLogSetting = Boolean.Parse(cloudLogXmlSetting);
-            GoogleOgcs.CloudLogging.SetThreshold(cloudLogSetting);
+            GoogleOgcs.ErrorReporting.SetThreshold(cloudLogSetting);
 
             if (!StartedWithFileArgs) {
                 //Now let's confirm files are actually in the right place
@@ -207,14 +210,14 @@ namespace OutlookGoogleCalendarSync {
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
 
-            GoogleOgcs.CloudLogging.LogId = "v" + Application.ProductVersion;
-            GoogleOgcs.CloudLogging.UpdateLogUuId();
+            GoogleOgcs.ErrorReporting.LogId = "v" + Application.ProductVersion;
+            GoogleOgcs.ErrorReporting.UpdateLogUuId();
 
             XmlConfigurator.Configure(new System.IO.FileInfo(
                 Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
             ));
 
-            GoogleOgcs.CloudLogging.SetThreshold(false);
+            GoogleOgcs.ErrorReporting.SetThreshold(false);
 
             if (bootstrap) {
                 log.Info("Program started: v" + Application.ProductVersion);
@@ -391,10 +394,10 @@ namespace OutlookGoogleCalendarSync {
             File.Delete(dstFile);
             log.Debug("  " + Settings.ConfigFilename);
             File.Move(Settings.ConfigFile, dstFile);
-            Settings.ConfigDirectory = dstDir;
+            WorkingFilesDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {
-                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file == GoogleOgcs.Authenticator.TokenFile) {
+                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file.EndsWith(".json") || file == GoogleOgcs.Authenticator.TokenFile) {
                     dstFile = Path.Combine(dstDir, Path.GetFileName(file));
                     File.Delete(dstFile);
                     log.Debug("  " + Path.GetFileName(file));

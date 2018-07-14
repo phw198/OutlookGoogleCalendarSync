@@ -1502,8 +1502,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Settings.Instance.CloudLogging = null;
             else
                 Settings.Instance.CloudLogging = cbCloudLogging.Checked;
-
-            GoogleOgcs.CloudLogging.SetThreshold(Settings.Instance.CloudLogging ?? false);
         }
 
         #region Proxy

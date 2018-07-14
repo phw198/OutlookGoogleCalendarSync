@@ -269,7 +269,7 @@
     <Compile Include="Forms\CloudLogging.Designer.cs">
       <DependentUpon>CloudLogging.cs</DependentUpon>
     </Compile>
-    <Compile Include="GoogleOgcs\CloudLogging.cs" />
+    <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
     <Compile Include="OutlookOgcs\OutlookCategories.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
@@ -369,6 +369,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ErrorReportingTemplate.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\expand.png" />
     <None Include="tzdb.nzd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

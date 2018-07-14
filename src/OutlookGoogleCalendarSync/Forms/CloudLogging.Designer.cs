@@ -26,7 +26,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CloudLogging));
             this.btYes = new System.Windows.Forms.Button();
             this.tbPanel = new System.Windows.Forms.Panel();
-            this.tbLog = new System.Windows.Forms.TextBox();
             this.btNo = new System.Windows.Forms.Button();
             this.lTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -34,6 +33,7 @@
             this.txtInfo = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tbNotes = new System.Windows.Forms.TextBox();
+            this.tbLog = new System.Windows.Forms.RichTextBox();
             this.tbPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -43,11 +43,11 @@
             this.btYes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btYes.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.btYes.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btYes.Location = new System.Drawing.Point(600, 378);
+            this.btYes.Location = new System.Drawing.Point(604, 378);
             this.btYes.Name = "btYes";
             this.btYes.Size = new System.Drawing.Size(75, 23);
             this.btYes.TabIndex = 1;
-            this.btYes.Text = "Yes";
+            this.btYes.Text = "OK";
             this.btYes.UseVisualStyleBackColor = true;
             // 
             // tbPanel
@@ -58,26 +58,14 @@
             this.tbPanel.Controls.Add(this.tbLog);
             this.tbPanel.Location = new System.Drawing.Point(15, 216);
             this.tbPanel.Name = "tbPanel";
-            this.tbPanel.Size = new System.Drawing.Size(660, 150);
+            this.tbPanel.Size = new System.Drawing.Size(664, 150);
             this.tbPanel.TabIndex = 2;
-            // 
-            // tbLog
-            // 
-            this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbLog.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbLog.Location = new System.Drawing.Point(0, 0);
-            this.tbLog.Multiline = true;
-            this.tbLog.Name = "tbLog";
-            this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbLog.Size = new System.Drawing.Size(660, 150);
-            this.tbLog.TabIndex = 0;
-            this.tbLog.WordWrap = false;
             // 
             // btNo
             // 
             this.btNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btNo.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.btNo.Location = new System.Drawing.Point(519, 378);
+            this.btNo.Location = new System.Drawing.Point(523, 378);
             this.btNo.Name = "btNo";
             this.btNo.Size = new System.Drawing.Size(75, 23);
             this.btNo.TabIndex = 3;
@@ -90,14 +78,15 @@
             this.lTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lTitle.Location = new System.Drawing.Point(12, 9);
             this.lTitle.Name = "lTitle";
-            this.lTitle.Size = new System.Drawing.Size(303, 18);
+            this.lTitle.Size = new System.Drawing.Size(190, 18);
             this.lTitle.TabIndex = 5;
-            this.lTitle.Text = "Send error details to OGCS developer?";
+            this.lTitle.Text = "Help make OGCS better!";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.Highlight;
             this.label1.Location = new System.Drawing.Point(12, 200);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(80, 13);
@@ -129,9 +118,10 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.tbNotes);
-            this.groupBox1.Location = new System.Drawing.Point(16, 87);
+            this.groupBox1.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.groupBox1.Location = new System.Drawing.Point(25, 87);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(658, 68);
+            this.groupBox1.Size = new System.Drawing.Size(636, 68);
             this.groupBox1.TabIndex = 9;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Notes";
@@ -145,9 +135,23 @@
             this.tbNotes.Location = new System.Drawing.Point(17, 20);
             this.tbNotes.Multiline = true;
             this.tbNotes.Name = "tbNotes";
-            this.tbNotes.Size = new System.Drawing.Size(635, 42);
+            this.tbNotes.Size = new System.Drawing.Size(596, 42);
             this.tbNotes.TabIndex = 0;
             this.tbNotes.Text = resources.GetString("tbNotes.Text");
+            // 
+            // tbLog
+            // 
+            this.tbLog.BackColor = System.Drawing.Color.White;
+            this.tbLog.DetectUrls = false;
+            this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbLog.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbLog.Location = new System.Drawing.Point(0, 0);
+            this.tbLog.Name = "tbLog";
+            this.tbLog.ReadOnly = true;
+            this.tbLog.Size = new System.Drawing.Size(664, 150);
+            this.tbLog.TabIndex = 1;
+            this.tbLog.Text = "";
+            this.tbLog.WordWrap = false;
             // 
             // CloudLogging
             // 
@@ -155,7 +159,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btNo;
-            this.ClientSize = new System.Drawing.Size(687, 413);
+            this.ClientSize = new System.Drawing.Size(691, 413);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btOpenLog);
             this.Controls.Add(this.label1);
@@ -172,8 +176,8 @@
             this.Text = "OGCS Error Encountered";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.CloudLogging_Load);
+            this.Shown += new System.EventHandler(this.CloudLogging_Shown);
             this.tbPanel.ResumeLayout(false);
-            this.tbPanel.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -189,8 +193,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btOpenLog;
         private System.Windows.Forms.TextBox txtInfo;
-        private System.Windows.Forms.TextBox tbLog;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox tbNotes;
+        private System.Windows.Forms.RichTextBox tbLog;
     }
 }

@@ -1,21 +1,19 @@
-﻿using System;
+﻿using log4net;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Linq;
-using log4net;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Exports or imports any object to/from XML.
     /// </summary>
-    public class XMLManager {
+    public static class XMLManager {
         private static readonly ILog log = LogManager.GetLogger(typeof(XMLManager));
         private static XNamespace ns = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync";
-
-        public XMLManager() {
-        }
         
         /// <summary>
         /// Exports any object given in "obj" to an xml file given in "filename"
@@ -95,15 +93,33 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
                     log.Debug("Adding Setting " + nodeName + " to settings.xml");
-                    //This appends to the end, which won't import properly. 
-                    //settingsXE.Add(new XElement(ns + nodeName, nodeValue));
-                    //To save writing a sort method, let's just save everything!
-                    Settings.Instance.Save();
-
+                    settingsXE.Add(new XElement(ns + nodeName, nodeValue));
+                    xml.Root.Sort();
+                    xml.Save(filename);
                 } else {
                     OGCSexception.Analyse(ex);
                     log.Error("Failed to export setting " + nodeName + "=" + nodeValue + " to settings.xml file.");
                 }
+            }
+        }
+
+        public static void Sort(this XElement source, bool bSortAttributes = true) {
+            //Make sure there is a valid source
+            if (source == null) throw new ArgumentNullException("source");
+
+            //Sort attributes if needed
+            if (bSortAttributes) {
+                List<XAttribute> sortedAttributes = source.Attributes().OrderBy(a => a.ToString()).ToList();
+                sortedAttributes.ForEach(a => a.Remove());
+                sortedAttributes.ForEach(a => source.Add(a));
+            }
+
+            //Sort the children if any exist
+            List<XElement> sortedChildren = source.Elements().OrderBy(e => e.Name.ToString()).ToList();
+            if (source.HasElements) {
+                source.RemoveNodes();
+                sortedChildren.ForEach(c => c.Sort(bSortAttributes));
+                sortedChildren.ForEach(c => source.Add(c));
             }
         }
     }

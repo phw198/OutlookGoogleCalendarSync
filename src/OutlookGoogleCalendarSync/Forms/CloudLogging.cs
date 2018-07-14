@@ -17,7 +17,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void CloudLogging_Load(object sender, EventArgs e) {
-            log.Debug("Asking user if they want to upload errors to Google Stackdriver Logging.");
+            log.Debug("Asking user if they want to automatically report errors.");
             List<String> lines = new List<String>();
             using (FileStream logFileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
                 StreamReader logFileReader = new StreamReader(logFileStream);
@@ -26,17 +26,33 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             foreach (String line in lines.Skip(lines.Count - 50).ToList()) {
-                tbLog.Text += line +"\r\n";
+                tbLog.Text += line + "\n";
             }
-
-            tbLog.Text = tbLog.Text.TrimEnd(new char[] { '\r', '\n' });
             tbLog.SelectionStart = tbLog.Text.Length;
             tbLog.ScrollToCaret();
-            System.Windows.Forms.Application.DoEvents();
         }
 
         private void btOpenLog_Click(object sender, EventArgs e) {
             System.Diagnostics.Process.Start(logFile);
+        }
+
+        private void CloudLogging_Shown(object sender, EventArgs e) {
+            try {
+                //Highlight the ERROR text and scroll so it's in view
+                int lastError = tbLog.Text.LastIndexOf(" ERROR ") + 1;
+                int highlightLength = tbLog.Text.Substring(lastError).IndexOf("\n");
+                tbLog.Select(lastError, highlightLength);
+                tbLog.SelectionBackColor = System.Drawing.Color.Yellow;
+
+                int previousLineBreak= tbLog.Text.Substring(0, lastError).LastIndexOf("\n");
+                tbLog.SelectionStart = previousLineBreak;
+                tbLog.ScrollToCaret();
+
+                btYes.Focus();
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
     }
 }

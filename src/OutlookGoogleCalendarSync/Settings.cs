@@ -18,27 +18,26 @@ namespace OutlookGoogleCalendarSync {
         public static String ConfigFilename {
             get { return configFilename; }
         }
-        public static String ConfigDirectory;
         /// <summary>
         /// Absolute path to config file, eg C:\foo\bar\settings.xml
         /// </summary>
         public static String ConfigFile {
-            get { return Path.Combine(ConfigDirectory, ConfigFilename); }
+            get { return Path.Combine(Program.WorkingFilesDirectory, ConfigFilename); }
         }
 
         public static void InitialiseConfigFile(String filename, String directory = null) {
             if (!string.IsNullOrEmpty(filename)) configFilename = filename;
-            ConfigDirectory = directory;
+            Program.WorkingFilesDirectory = directory;
 
-            if (string.IsNullOrEmpty(ConfigDirectory)) {
+            if (string.IsNullOrEmpty(Program.WorkingFilesDirectory)) {
                 if (Program.IsInstalled || File.Exists(Path.Combine(Program.RoamingProfileOGCS, ConfigFilename)))
-                    ConfigDirectory = Program.RoamingProfileOGCS;
+                    Program.WorkingFilesDirectory = Program.RoamingProfileOGCS;
                 else
-                    ConfigDirectory = System.Windows.Forms.Application.StartupPath;
+                    Program.WorkingFilesDirectory = System.Windows.Forms.Application.StartupPath;
             }
 
             if (!File.Exists(ConfigFile)) {
-                log.Info("No settings.xml file found in " + ConfigDirectory);
+                log.Info("No settings.xml file found in " + Program.WorkingFilesDirectory);
                 Settings.Instance.Save(ConfigFile);
                 log.Info("New blank template created.");
                 if (!Program.IsInstalled)
@@ -131,7 +130,6 @@ namespace OutlookGoogleCalendarSync {
 
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
-            CloudLogging = null;
             portable = false;
             Proxy = new SettingsProxy();
 
@@ -297,7 +295,14 @@ namespace OutlookGoogleCalendarSync {
 
         [DataMember] public bool CreateCSVFiles { get; set; }
         [DataMember] public String LoggingLevel { get; set; }
-        [DataMember] public bool? CloudLogging { get; set; }
+        private bool? cloudLogging;
+        [DataMember] public bool? CloudLogging {
+            get { return cloudLogging; }
+            set {
+                cloudLogging = value;
+                GoogleOgcs.ErrorReporting.SetThreshold(value ?? false);
+            }
+        }
         //Proxy
         [DataMember] public SettingsProxy Proxy { get; set; }
         #endregion
@@ -346,8 +351,8 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MuteClickSounds { get; set; }
         [DataMember] public String SkipVersion { get; set; }
 
-        private Boolean isLoaded = false;
-        public Boolean IsLoaded {
+        private static Boolean isLoaded = false;
+        public static Boolean IsLoaded {
             get { return isLoaded; }
         }
 
@@ -355,7 +360,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
-                Settings.Instance.isLoaded = true;
+                Settings.isLoaded = true;
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
