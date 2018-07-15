@@ -1,6 +1,18 @@
 | Release Notes |
 |:---|
 
+# v2.7.5.0 - Alpha
+
+**Enhancements**
+- Properly retrieve meeting organiser's timezone
+- Suggest manual start of Outlook if OGCS not permitted
+- G->O: Allow synced items to be assigned specific category (not just colour)
+- Added option for users to automatically feedback errors
+
+**Bugfix**
+- Google token expiry not calculated in UTC
+- Regression: Properly release Outlook if no Outlook GUI
+
 # v2.7.4.0 - Alpha
 
 **Enhancements**
