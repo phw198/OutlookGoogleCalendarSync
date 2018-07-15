@@ -95,7 +95,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     if (!OutlookOgcs.Calendar.IsInstanceNull) {
                         OutlookOgcs.Calendar.InstanceConnect = false;
-                        OutlookOgcs.Calendar.Instance.IOutlook.Disconnect();
+                        OutlookOgcs.Calendar.Instance.Disconnect();
                     }
                 } catch { }
             }

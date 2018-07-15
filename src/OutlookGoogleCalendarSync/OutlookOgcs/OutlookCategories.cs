@@ -20,22 +20,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Delimiter = ", ";
             }
         }
-        
+
+        public void Dispose() {
+            categories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(categories);
+        }
+
         /// <summary>
         /// Get the categories as configured in Outlook and store in class
         /// </summary>
         /// <param name="oApp"></param>
-        /// <param name="store"></param>
-        public void Get(Outlook.Application oApp, Outlook.Store store) {
-            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
-                this.categories = oApp.Session.Categories;
-            else {
-                try {
-                    this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex, true);
+        /// <param name="calendar"></param>
+        public void Get(Outlook.Application oApp, Outlook.MAPIFolder calendar) {
+            Outlook.Store store = null;
+            try {
+                store = calendar.Store;
+                if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
                     this.categories = oApp.Session.Categories;
+                else {
+                    try {
+                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex, true);
+                        this.categories = oApp.Session.Categories;
+                    }
                 }
+            } finally {
+                store = (Outlook.Store)Calendar.ReleaseObject(store);
             }
         }
 
