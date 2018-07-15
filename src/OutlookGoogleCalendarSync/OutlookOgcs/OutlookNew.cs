@@ -29,7 +29,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             NameSpace oNS = null;
             try {
                 oNS = oApp.GetNamespace("mapi");
-
+                
                 //Log on by using a dialog box to choose the profile.
                 //oNS.Logon("", Type.Missing, true, true); 
 
@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
 
                 log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
-
+                
                 oNS = GetCurrentUser(oNS);
 
                 if (!Settings.Instance.OutlookGalBlocked && currentUserName == "Unknown") {
@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 log.Debug("Get the folders configured in Outlook");
                 folders = oNS.Folders;
-
+                
                 // Get the Calendar folders
                 useOutlookCalendar = getCalendarStore(oNS);
                 if (Forms.Main.Instance.IsHandleCreated) {
@@ -86,13 +86,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
-
+                
                 OutlookOgcs.Calendar.Categories = new OutlookOgcs.Categories();
-                Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
-
+                Calendar.Categories.Get(oApp, useOutlookCalendar);
+                
                 //Set up event handlers
-                explorerWatcher = new ExplorerWatcher(oApp.Explorers);
-
+                explorerWatcher = new ExplorerWatcher(oApp);
+                
             } catch (System.Runtime.InteropServices.COMException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
@@ -120,6 +120,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
+                    Calendar.Categories.Dispose();
+                    explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                 }
@@ -586,7 +588,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void RefreshCategories() {
-            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
+            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
             Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
             foreach (Extensions.ColourPicker.ColourInfo cInfo in Forms.Main.Instance.ddCategoryColour.Items) {
                 if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&

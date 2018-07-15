@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.WindowState = FormWindowState.Minimized;
             }
             if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
-                OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
             }
         }
 
@@ -144,7 +144,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
             Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-            for (int fld = 1; fld <= OutlookOgcs.Calendar.Instance.Folders.Count; fld++) {
+            for (int fld = 1; fld <= theFolders.Count; fld++) {
                 MAPIFolder theFolder = theFolders[fld];
                 try {
                     if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed

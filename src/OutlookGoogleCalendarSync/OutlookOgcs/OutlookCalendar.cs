@@ -69,10 +69,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void Reset() {
             log.Info("Resetting connection to Outlook.");
-            if (IOutlook != null) IOutlook.Disconnect();
+            if (IOutlook != null) Disconnect();
             instance = new Calendar();
             instance.IOutlook.Connect();
         }
+
+        /// <summary>
+        /// Wrapper for IOutlook.Disconnect - cannot dereference fully inside interface
+        /// </summary>
+        public void Disconnect(Boolean onlyWhenNoGUI = false) {
+            Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
 
         #region Push Sync
         public void RegisterForPushSync() {
