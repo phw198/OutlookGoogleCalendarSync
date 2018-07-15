@@ -6,12 +6,12 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
-    public partial class CloudLogging : Form {
-        private static readonly ILog log = LogManager.GetLogger(typeof(CloudLogging));
+    public partial class ErrorReporting : Form {
+        private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 
         private String logFile;
 
-        public CloudLogging() {
+        public ErrorReporting() {
             InitializeComponent();
             logFile = Path.Combine(log4net.GlobalContext.Properties["LogPath"].ToString(), log4net.GlobalContext.Properties["LogFilename"].ToString());
         }

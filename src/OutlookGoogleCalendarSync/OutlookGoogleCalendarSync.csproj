@@ -200,7 +200,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
@@ -263,11 +263,11 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Extensions\DateTime.cs" />
-    <Compile Include="Forms\CloudLogging.cs">
+    <Compile Include="Forms\ErrorReporting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CloudLogging.Designer.cs">
-      <DependentUpon>CloudLogging.cs</DependentUpon>
+    <Compile Include="Forms\ErrorReporting.Designer.cs">
+      <DependentUpon>ErrorReporting.cs</DependentUpon>
     </Compile>
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
@@ -331,8 +331,8 @@
     <Compile Include="XMLManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\CloudLogging.resx">
-      <DependentUpon>CloudLogging.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ErrorReporting.resx">
+      <DependentUpon>ErrorReporting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>
@@ -393,99 +393,99 @@
     <Content Include="Console\emoji.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Console\emoji\checkered_flag.png">
+    <Content Include="Console\emoji\checkered_flag.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock1.png">
+    </Content>
+    <Content Include="Console\emoji\clock1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock10.png">
+    </Content>
+    <Content Include="Console\emoji\clock10.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock1030.png">
+    </Content>
+    <Content Include="Console\emoji\clock1030.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock11.png">
+    </Content>
+    <Content Include="Console\emoji\clock11.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock1130.png">
+    </Content>
+    <Content Include="Console\emoji\clock1130.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock12.png">
+    </Content>
+    <Content Include="Console\emoji\clock12.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock1230.png">
+    </Content>
+    <Content Include="Console\emoji\clock1230.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock130.png">
+    </Content>
+    <Content Include="Console\emoji\clock130.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock2.png">
+    </Content>
+    <Content Include="Console\emoji\clock2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock230.png">
+    </Content>
+    <Content Include="Console\emoji\clock230.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock3.png">
+    </Content>
+    <Content Include="Console\emoji\clock3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock330.png">
+    </Content>
+    <Content Include="Console\emoji\clock330.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock4.png">
+    </Content>
+    <Content Include="Console\emoji\clock4.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock430.png">
+    </Content>
+    <Content Include="Console\emoji\clock430.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock5.png">
+    </Content>
+    <Content Include="Console\emoji\clock5.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock530.png">
+    </Content>
+    <Content Include="Console\emoji\clock530.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock6.png">
+    </Content>
+    <Content Include="Console\emoji\clock6.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock630.png">
+    </Content>
+    <Content Include="Console\emoji\clock630.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock7.png">
+    </Content>
+    <Content Include="Console\emoji\clock7.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock730.png">
+    </Content>
+    <Content Include="Console\emoji\clock730.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock8.png">
+    </Content>
+    <Content Include="Console\emoji\clock8.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock830.png">
+    </Content>
+    <Content Include="Console\emoji\clock830.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock9.png">
+    </Content>
+    <Content Include="Console\emoji\clock9.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\clock930.png">
+    </Content>
+    <Content Include="Console\emoji\clock930.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\collision.png">
+    </Content>
+    <Content Include="Console\emoji\collision.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\date.png">
+    </Content>
+    <Content Include="Console\emoji\date.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\information_source.png">
+    </Content>
+    <Content Include="Console\emoji\information_source.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\mag_right.png">
+    </Content>
+    <Content Include="Console\emoji\mag_right.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\repeat.png">
+    </Content>
+    <Content Include="Console\emoji\repeat.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Console\emoji\warning.png">
+    </Content>
+    <Content Include="Console\emoji\warning.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="logger.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

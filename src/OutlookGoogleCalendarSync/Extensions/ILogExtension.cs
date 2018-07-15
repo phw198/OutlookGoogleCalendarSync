@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync {
             }
 
             //Cloud logging value not set yet - let's ask the user
-            Forms.CloudLogging frm = new Forms.CloudLogging();
+            Forms.ErrorReporting frm = new Forms.ErrorReporting();
             DialogResult dr = frm.ShowDialog();
             if (dr == DialogResult.Cancel) {
                 errorOccurred = false;

@@ -1,5 +1,5 @@
 ﻿namespace OutlookGoogleCalendarSync.Forms {
-    partial class CloudLogging {
+    partial class ErrorReporting {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -23,7 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CloudLogging));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ErrorReporting));
             this.btYes = new System.Windows.Forms.Button();
             this.tbPanel = new System.Windows.Forms.Panel();
             this.btNo = new System.Windows.Forms.Button();
