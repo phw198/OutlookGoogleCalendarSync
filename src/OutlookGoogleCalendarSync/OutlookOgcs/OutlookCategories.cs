@@ -20,22 +20,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Delimiter = ", ";
             }
         }
-        
+
+        public void Dispose() {
+            categories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(categories);
+        }
+
         /// <summary>
         /// Get the categories as configured in Outlook and store in class
         /// </summary>
         /// <param name="oApp"></param>
-        /// <param name="store"></param>
-        public void Get(Outlook.Application oApp, Outlook.Store store) {
-            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
-                this.categories = oApp.Session.Categories;
-            else {
-                try {
-                    this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex, true);
+        /// <param name="calendar"></param>
+        public void Get(Outlook.Application oApp, Outlook.MAPIFolder calendar) {
+            Outlook.Store store = null;
+            try {
+                store = calendar.Store;
+                if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
                     this.categories = oApp.Session.Categories;
+                else {
+                    try {
+                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse(ex, true);
+                        this.categories = oApp.Session.Categories;
+                    }
                 }
+            } finally {
+                store = (Outlook.Store)Calendar.ReleaseObject(store);
             }
         }
 
@@ -81,15 +91,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// If category not yet used, new one added of the form "OGCS [colour]"
         /// </summary>
         /// <param name="olCategory">The Outlook category to search by</param>
+        /// <param name="categoryName">Optional: The Outlook category name to also search by</param>
         /// <returns>The matching category name</returns>
-        public String FindName(Outlook.OlCategoryColor olCategory) {
+        public String FindName(Outlook.OlCategoryColor olCategory, String categoryName = null) {
             if (olCategory == Outlook.OlCategoryColor.olCategoryColorNone) return "";
 
+            Outlook.Category failSafeCategory = null;
             foreach (Outlook.Category category in this.categories) {
-                if (category.Color == olCategory && category.Name.StartsWith("OGCS ")) return category.Name;
+                if (category.Color == olCategory) {
+                    if (categoryName == null) {
+                        if (category.Name.StartsWith("OGCS ")) return category.Name;
+                    } else {
+                        if (category.Name == categoryName) return category.Name;
+                        if (category.Name.StartsWith("OGCS ")) failSafeCategory = category;
+                    }
+                }
             }
 
+            if (failSafeCategory != null) {
+                log.Warn("Failed to find Outlook category " + olCategory.ToString() + " with name '" + categoryName + "'");
+                log.Debug("Using category with name \"" + failSafeCategory.Name + "\" instead.");
+                return failSafeCategory.Name;
+            }
+
+            log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
             Outlook.Category newCategory = categories.Add("OGCS " + FriendlyCategoryName(olCategory), olCategory);
+            log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
             return newCategory.Name;
         }
 

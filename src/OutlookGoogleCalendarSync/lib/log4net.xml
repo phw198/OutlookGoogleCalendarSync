@@ -269,6 +269,41 @@
             </para>
             </remarks>
         </member>
+        <member name="T:log4net.Appender.IFlushable">
+            <summary>
+            Interface that can be implemented by Appenders that buffer logging data and expose a <see cref="M:log4net.Appender.IFlushable.Flush(System.Int32)"/> method.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.IFlushable.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <remarks>
+            Appenders that implement the <see cref="M:log4net.Appender.IFlushable.Flush(System.Int32)"/> method must do so in a thread-safe manner: it can be called concurrently with
+            the <see cref="M:log4net.Appender.IAppender.DoAppend(log4net.Core.LoggingEvent)"/> method.
+            <para>
+            Typically this is done by locking on the Appender instance, e.g.:
+            <code>
+            <![CDATA[
+            public bool Flush(int millisecondsTimeout)
+            {
+                lock(this)
+                {
+                    // Flush buffered logging data
+                    ...
+                }
+            }
+            ]]>
+            </code>
+            </para>
+            <para>
+            The <paramref name="millisecondsTimeout"/> parameter is only relevant for appenders that process logging events asynchronously,
+            such as <see cref="T:log4net.Appender.RemotingAppender"/>.
+            </para>
+            </remarks>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="F:log4net.Appender.AppenderSkeleton.c_renderBufferSize">
             <summary>
             Initial buffer size
@@ -617,6 +652,15 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.AppenderSkeleton.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <remarks>
+            This implementation doesn't flush anything and always returns true
+            </remarks>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="F:log4net.Appender.AppenderSkeleton.m_layout">
             <summary>
             The layout of this appender.
@@ -826,6 +870,13 @@
             <see cref="P:log4net.Appender.BufferingAppenderSkeleton.BufferSize"/> is set to zero, i.e. when no buffering occurs.
             </para>
             </remarks>
+        </member>
+        <member name="M:log4net.Appender.BufferingAppenderSkeleton.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
         </member>
         <member name="M:log4net.Appender.BufferingAppenderSkeleton.Flush">
             <summary>
@@ -1249,23 +1300,10 @@
             </remarks>
             <returns>The <see cref="T:System.Type"/> of the ADO.NET provider</returns>
         </member>
-        <member name="M:log4net.Appender.AdoNetAppender.InitializeDatabaseCommand">
-            <summary>
-            Prepares the database command and initialize the parameters.
-            </summary>
-        </member>
         <member name="M:log4net.Appender.AdoNetAppender.InitializeDatabaseConnection">
             <summary>
             Connects to the database.
             </summary>		
-        </member>
-        <member name="M:log4net.Appender.AdoNetAppender.DisposeCommand(System.Boolean)">
-            <summary>
-            Cleanup the existing command.
-            </summary>
-            <param name="ignoreException">
-            If true, a message will be written using LogLog.Warn if an exception is encountered when calling Dispose.
-            </param>
         </member>
         <member name="M:log4net.Appender.AdoNetAppender.DiposeConnection">
             <summary>
@@ -1273,17 +1311,6 @@
             </summary>
             <remarks>
             Calls the IDbConnection's <see cref="M:System.Data.IDbConnection.Close"/> method.
-            </remarks>
-        </member>
-        <member name="F:log4net.Appender.AdoNetAppender.m_usePreparedCommand">
-            <summary>
-            Flag to indicate if we are using a command object
-            </summary>
-            <remarks>
-            <para>
-            Set to <c>true</c> when the appender is to use a prepared
-            statement or stored procedure to insert into the database.
-            </para>
             </remarks>
         </member>
         <member name="F:log4net.Appender.AdoNetAppender.m_parameters">
@@ -1305,11 +1332,6 @@
             <summary>
             The <see cref="T:System.Data.IDbConnection"/> that will be used
             to insert logging events into a database.
-            </summary>
-        </member>
-        <member name="F:log4net.Appender.AdoNetAppender.m_dbCommand">
-            <summary>
-            The database command.
             </summary>
         </member>
         <member name="F:log4net.Appender.AdoNetAppender.m_connectionString">
@@ -1349,7 +1371,7 @@
         </member>
         <member name="F:log4net.Appender.AdoNetAppender.m_reconnectOnError">
             <summary>
-            Indicates whether to use transactions when writing to the database.
+            Indicates whether to reconnect when a connection is lost.
             </summary>
         </member>
         <member name="F:log4net.Appender.AdoNetAppender.declaringType">
@@ -1450,6 +1472,10 @@
             <para>
             The <see cref="P:log4net.Appender.AdoNetAppender.CommandType"/> property determines if
             this text is a prepared statement or a stored procedure.
+            </para>
+            <para>
+            If this property is not set, the command text is retrieved by invoking
+            <see cref="M:log4net.Appender.AdoNetAppender.GetLogStatement(log4net.Core.LoggingEvent)"/>.
             </para>
             </remarks>
         </member>
@@ -2356,7 +2382,7 @@
             <summary>
             Gets a value indicating whether access to the collection is synchronized (thread-safe).
             </summary>
-            <returns>true if access to the ICollection is synchronized (thread-safe); otherwise, false.</returns>
+            <returns>false, because the backing type is an array, which is never thread-safe.</returns>
         </member>
         <member name="P:log4net.Appender.AppenderCollection.SyncRoot">
             <summary>
@@ -3238,6 +3264,13 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.DebugAppender.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="M:log4net.Appender.DebugAppender.Append(log4net.Core.LoggingEvent)">
             <summary>
             Writes the logging event to the <see cref="T:System.Diagnostics.Debug"/> system.
@@ -3268,6 +3301,11 @@
             The default value is <c>true</c>.</para>
             </remarks>
         </member>
+        <member name="F:log4net.Appender.DebugAppender.m_category">
+            <summary>
+            Defaults to a <see cref="T:log4net.Layout.PatternLayout"/> with %logger as the pattern.
+            </summary>
+        </member>
         <member name="P:log4net.Appender.DebugAppender.ImmediateFlush">
             <summary>
             Gets or sets a value that indicates whether the appender will 
@@ -3286,6 +3324,19 @@
             be recorded on disk when the application exits. This is a high
             price to pay even for a 20% performance gain.
             </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Appender.DebugAppender.Category">
+            <summary>
+            Formats the category parameter sent to the Debug method.
+            </summary>
+            <remarks>
+            <para>
+            Defaults to a <see cref="T:log4net.Layout.PatternLayout"/> with %logger as the pattern which will use the logger name of the current 
+            <see cref="T:log4net.Core.LoggingEvent"/> as the category parameter.
+            </para>
+            <para>
+            </para> 
             </remarks>
         </member>
         <member name="P:log4net.Appender.DebugAppender.RequiresLayout">
@@ -3930,6 +3981,13 @@
             log message.
             </remarks>
         </member>
+        <member name="M:log4net.Appender.TextWriterAppender.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="P:log4net.Appender.TextWriterAppender.ImmediateFlush">
             <summary>
             Gets or set whether the appender will flush at the end 
@@ -4073,6 +4131,11 @@
             Resets the filename and the file stream.
             </para>
             </remarks>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.OnClose">
+            <summary>
+            Close this appender instance. The underlying stream or writer is also closed.
+            </summary>
         </member>
         <member name="M:log4net.Appender.FileAppender.PrepareWriter">
             <summary>
@@ -4461,6 +4524,16 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.FileAppender.LockingModelBase.ActivateOptions">
+            <summary>
+            Initializes all resources used by this locking model.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.LockingModelBase.OnClose">
+            <summary>
+            Disposes all resources that were initialized by this locking model.
+            </summary>
+        </member>
         <member name="M:log4net.Appender.FileAppender.LockingModelBase.AcquireLock">
             <summary>
             Acquire the lock on the file
@@ -4591,6 +4664,16 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.FileAppender.ExclusiveLock.ActivateOptions">
+            <summary>
+            Initializes all resources used by this locking model.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.ExclusiveLock.OnClose">
+            <summary>
+            Disposes all resources that were initialized by this locking model.
+            </summary>
+        </member>
         <member name="T:log4net.Appender.FileAppender.MinimalLock">
             <summary>
             Acquires the file lock for each write
@@ -4654,6 +4737,16 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.FileAppender.MinimalLock.ActivateOptions">
+            <summary>
+            Initializes all resources used by this locking model.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.MinimalLock.OnClose">
+            <summary>
+            Disposes all resources that were initialized by this locking model.
+            </summary>
+        </member>
         <member name="T:log4net.Appender.FileAppender.InterProcessLock">
             <summary>
             Provides cross-process file locking.
@@ -4700,7 +4793,17 @@
         </member>
         <member name="M:log4net.Appender.FileAppender.InterProcessLock.ReleaseLock">
             <summary>
-            
+            Releases the lock and allows others to acquire a lock.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.InterProcessLock.ActivateOptions">
+            <summary>
+            Initializes all resources used by this locking model.
+            </summary>
+        </member>
+        <member name="M:log4net.Appender.FileAppender.InterProcessLock.OnClose">
+            <summary>
+            Disposes all resources that were initialized by this locking model.
             </summary>
         </member>
         <member name="T:log4net.Appender.ForwardingAppender">
@@ -5446,12 +5549,22 @@
             that are appended in an in-memory array.
             </para>
             <para>
-            Use the <see cref="M:log4net.Appender.MemoryAppender.GetEvents"/> method to get
-            the current list of events that have been appended.
+            Use the <see cref="M:PopAllEvents()"/> method to get
+            and clear the current list of events that have been appended.
+            </para>
+            <para>
+            Use the <see cref="M:GetEvents()"/> method to get the current
+            list of events that have been appended.  Note there is a
+            race-condition when calling <see cref="M:GetEvents()"/> and
+            <see cref="M:Clear()"/> in pairs, you better use <see
+            mref="M:PopAllEvents()"/> in that case.
             </para>
             <para>
             Use the <see cref="M:Clear()"/> method to clear the
-            current list of events.
+            current list of events.  Note there is a
+            race-condition when calling <see cref="M:GetEvents()"/> and
+            <see cref="M:Clear()"/> in pairs, you better use <see
+            mref="M:PopAllEvents()"/> in that case.
             </para>
             </remarks>
             <author>Julian Biddle</author>
@@ -5494,6 +5607,17 @@
             </summary>
             <remarks>
             Clear the list of events
+            </remarks>
+        </member>
+        <member name="M:log4net.Appender.MemoryAppender.PopAllEvents">
+            <summary>
+            Gets the events that have been logged and clears the list of events.
+            </summary>
+            <returns>The events that have been logged</returns>
+            <remarks>
+            <para>
+            Gets the events that have been logged and clears the list of events.
+            </para>
             </remarks>
         </member>
         <member name="F:log4net.Appender.MemoryAppender.m_eventsList">
@@ -6709,6 +6833,13 @@
             event handler is allowed to run for.</para>
             </remarks>
         </member>
+        <member name="M:log4net.Appender.RemotingAppender.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="M:log4net.Appender.RemotingAppender.BeginAsyncSend">
             <summary>
             A work item is being queued into the thread pool
@@ -6884,6 +7015,11 @@
             Default constructor.
             </para>
             </remarks>
+        </member>
+        <member name="M:log4net.Appender.RollingFileAppender.Finalize">
+            <summary>
+            Cleans up all resources used by this appender.
+            </summary>
         </member>
         <member name="F:log4net.Appender.RollingFileAppender.declaringType">
             <summary>
@@ -7297,6 +7433,11 @@
             FileName provided in configuration.  Used for rolling properly
             </summary>
         </member>
+        <member name="F:log4net.Appender.RollingFileAppender.m_mutexForRolling">
+            <summary>
+            A mutex that is used to lock rolling of files.
+            </summary>
+        </member>
         <member name="F:log4net.Appender.RollingFileAppender.s_date1970">
             <summary>
             The 1st of January 1970 in UTC
@@ -7695,6 +7836,11 @@
             </summary>
             <param name="messageBody">the body text to include in the mail</param>
         </member>
+        <member name="M:log4net.Appender.SmtpAppender.MaybeTrimSeparators(System.String)">
+            <summary>
+              trims leading and trailing commas or semicolons
+            </summary>
+        </member>
         <member name="P:log4net.Appender.SmtpAppender.To">
             <summary>
             Gets or sets a comma- or semicolon-delimited list of recipient e-mail addresses (use semicolon on .NET 1.1 and comma for later versions).
@@ -8089,6 +8235,19 @@
             </para>
             </remarks>
         </member>
+        <member name="P:log4net.Appender.SmtpPickupDirAppender.FileExtension">
+            <summary>
+            Gets or sets the file extension for the generated files
+            </summary>
+            <value>
+            The file extension for the generated files
+            </value>
+            <remarks>
+            <para>
+            The file extension for the generated files
+            </para>
+            </remarks>
+        </member>
         <member name="P:log4net.Appender.SmtpPickupDirAppender.SecurityContext">
             <summary>
             Gets or sets the <see cref="P:log4net.Appender.SmtpPickupDirAppender.SecurityContext"/> used to write to the pickup directory.
@@ -8432,6 +8591,13 @@
             Defaults to %logger
             </summary>
         </member>
+        <member name="M:log4net.Appender.TraceAppender.Flush(System.Int32)">
+            <summary>
+            Flushes any buffered log data.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="P:log4net.Appender.TraceAppender.ImmediateFlush">
             <summary>
             Gets or sets a value that indicates whether the appender will 
@@ -8614,17 +8780,6 @@
             </para>
             </remarks>
         </member>
-        <member name="M:log4net.Config.BasicConfigurator.Configure(log4net.Appender.IAppender)">
-            <summary>
-            Initializes the log4net system using the specified appender.
-            </summary>
-            <param name="appender">The appender to use to log all logging events.</param>
-            <remarks>
-            <para>
-            Initializes the log4net system using the specified appender.
-            </para>
-            </remarks>
-        </member>
         <member name="M:log4net.Config.BasicConfigurator.Configure(log4net.Appender.IAppender[])">
             <summary>
             Initializes the log4net system using the specified appenders.
@@ -8633,6 +8788,17 @@
             <remarks>
             <para>
             Initializes the log4net system using the specified appenders.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Config.BasicConfigurator.Configure(log4net.Appender.IAppender)">
+            <summary>
+            Initializes the log4net system using the specified appender.
+            </summary>
+            <param name="appender">The appender to use to log all logging events.</param>
+            <remarks>
+            <para>
+            Initializes the log4net system using the specified appender.
             </para>
             </remarks>
         </member>
@@ -9562,28 +9728,6 @@
             Private constructor
             </summary>
         </member>
-        <member name="M:log4net.Config.XmlConfigurator.Configure">
-            <summary>
-            Automatically configures the log4net system based on the 
-            application's configuration settings.
-            </summary>
-            <remarks>
-            <para>
-            Each application has a configuration file. This has the
-            same name as the application with '.config' appended.
-            This file is XML and calling this function prompts the
-            configurator to look in that file for a section called
-            <c>log4net</c> that contains the configuration data.
-            </para>
-            <para>
-            To use this method to configure log4net you must specify 
-            the <see cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/> section
-            handler for the <c>log4net</c> configuration section. See the
-            <see cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/> for an example.
-            </para>
-            </remarks>
-            <seealso cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/>
-        </member>
         <member name="M:log4net.Config.XmlConfigurator.Configure(log4net.Repository.ILoggerRepository)">
             <summary>
             Automatically configures the <see cref="T:log4net.Repository.ILoggerRepository"/> using settings
@@ -9606,6 +9750,28 @@
             </remarks>
             <param name="repository">The repository to configure.</param>
         </member>
+        <member name="M:log4net.Config.XmlConfigurator.Configure">
+            <summary>
+            Automatically configures the log4net system based on the 
+            application's configuration settings.
+            </summary>
+            <remarks>
+            <para>
+            Each application has a configuration file. This has the
+            same name as the application with '.config' appended.
+            This file is XML and calling this function prompts the
+            configurator to look in that file for a section called
+            <c>log4net</c> that contains the configuration data.
+            </para>
+            <para>
+            To use this method to configure log4net you must specify 
+            the <see cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/> section
+            handler for the <c>log4net</c> configuration section. See the
+            <see cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/> for an example.
+            </para>
+            </remarks>
+            <seealso cref="T:log4net.Config.Log4NetConfigurationSectionHandler"/>
+        </member>
         <member name="M:log4net.Config.XmlConfigurator.Configure(System.Xml.XmlElement)">
             <summary>
             Configures log4net using a <c>log4net</c> element
@@ -9616,18 +9782,6 @@
             supplied as <paramref name="element"/>.
             </para>
             </remarks>
-            <param name="element">The element to parse.</param>
-        </member>
-        <member name="M:log4net.Config.XmlConfigurator.Configure(log4net.Repository.ILoggerRepository,System.Xml.XmlElement)">
-            <summary>
-            Configures the <see cref="T:log4net.Repository.ILoggerRepository"/> using the specified XML 
-            element.
-            </summary>
-            <remarks>
-            Loads the log4net configuration from the XML element
-            supplied as <paramref name="element"/>.
-            </remarks>
-            <param name="repository">The repository to configure.</param>
             <param name="element">The element to parse.</param>
         </member>
         <member name="M:log4net.Config.XmlConfigurator.Configure(System.IO.FileInfo)">
@@ -9713,6 +9867,18 @@
             Note that this method will NOT close the stream parameter.
             </para>
             </remarks>
+        </member>
+        <member name="M:log4net.Config.XmlConfigurator.Configure(log4net.Repository.ILoggerRepository,System.Xml.XmlElement)">
+            <summary>
+            Configures the <see cref="T:log4net.Repository.ILoggerRepository"/> using the specified XML 
+            element.
+            </summary>
+            <remarks>
+            Loads the log4net configuration from the XML element
+            supplied as <paramref name="element"/>.
+            </remarks>
+            <param name="repository">The repository to configure.</param>
+            <param name="element">The element to parse.</param>
         </member>
         <member name="M:log4net.Config.XmlConfigurator.Configure(log4net.Repository.ILoggerRepository,System.IO.FileInfo)">
             <summary>
@@ -11610,7 +11776,7 @@
             <summary>
             Gets a value indicating whether access to the collection is synchronized (thread-safe).
             </summary>
-            <value>true if access to the ICollection is synchronized (thread-safe); otherwise, false.</value>
+            <returns>false, because the backing type is an array, which is never thread-safe.</returns>
         </member>
         <member name="P:log4net.Core.LevelCollection.SyncRoot">
             <summary>
@@ -12710,11 +12876,11 @@
         </member>
         <member name="F:log4net.Core.LoggingEventData.TimeStamp">
             <summary>
-            The time the event was logged
+            Gets or sets the local time the event was logged
             </summary>
             <remarks>
             <para>
-            The TimeStamp is stored in the local time zone for this computer.
+            Prefer using the <see cref="P:log4net.Core.LoggingEventData.TimeStampUtc"/> setter, since local time can be ambiguous.
             </para>
             </remarks>
         </member>
@@ -12778,6 +12944,16 @@
             A logger or an appender may attach additional
             properties to specific events. These properties
             have a string key and an object value.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Core.LoggingEventData.TimeStampUtc">
+            <summary>
+            Gets or sets the UTC time the event was logged
+            </summary>
+            <remarks>
+            <para>
+            The TimeStamp is stored in the UTC time zone.
             </para>
             </remarks>
         </member>
@@ -13322,8 +13498,28 @@
             </value>
             <remarks>
             <para>
-            The TimeStamp is stored in the local time zone for this computer.
+            The TimeStamp is stored internally in UTC and converted to the local time zone for this computer.
             </para>
+            <para>
+            Tries to get the start time for the current process.
+            Failing that it returns the time of the first call to
+            this property.
+            </para>
+            <para>
+            Note that AppDomains may be loaded and unloaded within the
+            same process without the process terminating and therefore
+            without the process start time being reset.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Core.LoggingEvent.StartTimeUtc">
+            <summary>
+            Gets the UTC time when the current process started.
+            </summary>
+            <value>
+            This is the UTC time when this process started.
+            </value>
+            <remarks>
             <para>
             Tries to get the start time for the current process.
             Failing that it returns the time of the first call to
@@ -13358,9 +13554,17 @@
             </value>
             <remarks>
             <para>
-            The TimeStamp is stored in the local time zone for this computer.
+            The TimeStamp is stored in UTC and converted to the local time zone for this computer.
             </para>
             </remarks>
+        </member>
+        <member name="P:log4net.Core.LoggingEvent.TimeStampUtc">
+            <summary>
+            Gets UTC the time of the logging event.
+            </summary>
+            <value>
+            The UTC time of the logging event.
+            </value>
         </member>
         <member name="P:log4net.Core.LoggingEvent.LoggerName">
             <summary>
@@ -15870,9 +16074,9 @@
             The time threshold for triggering in seconds. Zero means it won't trigger at all.
             </summary>
         </member>
-        <member name="F:log4net.Core.TimeEvaluator.m_lasttime">
+        <member name="F:log4net.Core.TimeEvaluator.m_lastTimeUtc">
             <summary>
-            The time of last check. This gets updated when the object is created and when the evaluator triggers.
+            The UTC time of last check. This gets updated when the object is created and when the evaluator triggers.
             </summary>
         </member>
         <member name="M:log4net.Core.TimeEvaluator.#ctor">
@@ -20774,7 +20978,7 @@
             <summary>
             Gets a value indicating whether access to the collection is synchronized (thread-safe).
             </summary>
-            <returns>true if access to the ICollection is synchronized (thread-safe); otherwise, false.</returns>
+            <returns>false, because the backing type is an array, which is never thread-safe.</returns>
         </member>
         <member name="P:log4net.Plugin.PluginCollection.SyncRoot">
             <summary>
@@ -22308,6 +22512,14 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Repository.LoggerRepositorySkeleton.Flush(System.Int32)">
+            <summary>
+            Flushes all configured Appenders that implement <see cref="T:log4net.Appender.IFlushable"/>.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time in milliseconds to wait for logging events from asycnhronous appenders to be flushed,
+            or <see cref="F:System.Threading.Timeout.Infinite"/> to wait indefinitely.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="P:log4net.Repository.LoggerRepositorySkeleton.Name">
             <summary>
             The name of the repository
@@ -23470,6 +23682,52 @@
             <remarks>
             <para>
             Writes name of the current AppDomain to the output <paramref name="writer"/>.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:log4net.Util.PatternStringConverters.AppSettingPatternConverter">
+            <summary>
+            AppSetting pattern converter
+            </summary>
+            <remarks>
+            <para>
+            This pattern converter reads appSettings from the application configuration file.
+            </para>
+            <para>
+            If the <see cref="P:log4net.Util.PatternConverter.Option"/> is specified then that will be used to
+            lookup a single appSettings value. If no <see cref="P:log4net.Util.PatternConverter.Option"/> is specified
+            then all appSettings will be dumped as a list of key value pairs.
+            </para>
+            <para>
+            A typical use is to specify a base directory for log files, e.g.
+            <example>
+            <![CDATA[
+            <log4net>
+               <appender name="MyAppender" type="log4net.Appender.RollingFileAppender">
+                 <file type="log4net.Util.PatternString" value="appsetting{LogDirectory}MyApp.log"/>
+                  ...
+              </appender>
+            </log4net>
+            ]]>
+            </example>
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.PatternStringConverters.AppSettingPatternConverter.Convert(System.IO.TextWriter,System.Object)">
+            <summary>
+            Write the property value to the output
+            </summary>
+            <param name="writer"><see cref="T:System.IO.TextWriter"/> that will receive the formatted result.</param>
+            <param name="state">null, state is not set</param>
+            <remarks>
+            <para>
+            Writes out the value of a named property. The property name
+            should be set in the <see cref="P:log4net.Util.PatternConverter.Option"/>
+            property.
+            </para>
+            <para>
+            If the <see cref="P:log4net.Util.PatternConverter.Option"/> is set to <c>null</c>
+            then all the properties are written as key value pairs.
             </para>
             </remarks>
         </member>
@@ -27037,6 +27295,10 @@
             <c>log4net.Util.LogicalThreadContextProperties</c>.
             </para>
             <para>
+            For .NET Standard 1.3 this class uses
+            System.Threading.AsyncLocal rather than <see cref="T:System.Runtime.Remoting.Messaging.CallContext"/>.
+            </para>
+            <para>
             The <see cref="T:System.Runtime.Remoting.Messaging.CallContext"/> requires a link time 
             <see cref="T:System.Security.Permissions.SecurityPermission"/> for the
             <see cref="F:System.Security.Permissions.SecurityPermissionFlag.Infrastructure"/>.
@@ -27096,7 +27358,7 @@
             </para>
             </remarks>
         </member>
-        <member name="M:log4net.Util.LogicalThreadContextProperties.GetCallContextData">
+        <member name="M:log4net.Util.LogicalThreadContextProperties.GetLogicalProperties">
             <summary>
             Gets the call context get data.
             </summary>
@@ -27107,7 +27369,7 @@
             that we can wrap in an exception handler.
             </remarks>
         </member>
-        <member name="M:log4net.Util.LogicalThreadContextProperties.SetCallContextData(log4net.Util.PropertiesDictionary)">
+        <member name="M:log4net.Util.LogicalThreadContextProperties.SetLogicalProperties(log4net.Util.PropertiesDictionary)">
             <summary>
             Sets the call context data.
             </summary>
@@ -27137,6 +27399,294 @@
             <remarks>
             <para>
             Get or set the property value for the <paramref name="key"/> specified.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:log4net.Util.TwoArgAction`2">
+            <summary>
+            Delegate type used for LogicalThreadContextStack's callbacks.
+            </summary>
+        </member>
+        <member name="T:log4net.Util.LogicalThreadContextStack">
+            <summary>
+            Implementation of Stack for the <see cref="T:log4net.LogicalThreadContext"/>
+            </summary>
+            <remarks>
+            <para>
+            Implementation of Stack for the <see cref="T:log4net.LogicalThreadContext"/>
+            </para>
+            </remarks>
+            <author>Nicko Cadell</author>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStack.m_stack">
+            <summary>
+            The stack store.
+            </summary>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStack.m_propertyKey">
+            <summary>
+            The name of this <see cref="T:log4net.Util.LogicalThreadContextStack"/> within the
+            <see cref="T:log4net.Util.LogicalThreadContextProperties"/>.
+            </summary>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStack.m_registerNew">
+            <summary>
+            The callback used to let the <see cref="T:log4net.Util.LogicalThreadContextStacks"/> register a
+            new instance of a <see cref="T:log4net.Util.LogicalThreadContextStack"/>.
+            </summary>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.#ctor(System.String,log4net.Util.TwoArgAction{System.String,log4net.Util.LogicalThreadContextStack})">
+            <summary>
+            Internal constructor
+            </summary>
+            <remarks>
+            <para>
+            Initializes a new instance of the <see cref="T:log4net.Util.LogicalThreadContextStack"/> class. 
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.Clear">
+            <summary>
+            Clears all the contextual information held in this stack.
+            </summary>
+            <remarks>
+            <para>
+            Clears all the contextual information held in this stack.
+            Only call this if you think that this thread is being reused after
+            a previous call execution which may not have completed correctly.
+            You do not need to use this method if you always guarantee to call
+            the <see cref="M:System.IDisposable.Dispose"/> method of the <see cref="T:System.IDisposable"/>
+            returned from <see cref="M:log4net.Util.LogicalThreadContextStack.Push(System.String)"/> even in exceptional circumstances,
+            for example by using the <c>using(log4net.LogicalThreadContext.Stacks["NDC"].Push("Stack_Message"))</c> 
+            syntax.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.Pop">
+            <summary>
+            Removes the top context from this stack.
+            </summary>
+            <returns>The message in the context that was removed from the top of this stack.</returns>
+            <remarks>
+            <para>
+            Remove the top context from this stack, and return
+            it to the caller. If this stack is empty then an
+            empty string (not <see langword="null"/>) is returned.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.Push(System.String)">
+            <summary>
+            Pushes a new context message into this stack.
+            </summary>
+            <param name="message">The new context message.</param>
+            <returns>
+            An <see cref="T:System.IDisposable"/> that can be used to clean up the context stack.
+            </returns>
+            <remarks>
+            <para>
+            Pushes a new context onto this stack. An <see cref="T:System.IDisposable"/>
+            is returned that can be used to clean up this stack. This
+            can be easily combined with the <c>using</c> keyword to scope the
+            context.
+            </para>
+            </remarks>
+            <example>Simple example of using the <c>Push</c> method with the <c>using</c> keyword.
+            <code lang="C#">
+            using(log4net.LogicalThreadContext.Stacks["NDC"].Push("Stack_Message"))
+            {
+            	log.Warn("This should have an ThreadContext Stack message");
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.GetFullMessage">
+            <summary>
+            Gets the current context information for this stack.
+            </summary>
+            <returns>The current context information.</returns>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.ToString">
+            <summary>
+            Gets the current context information for this stack.
+            </summary>
+            <returns>Gets the current context information</returns>
+            <remarks>
+            <para>
+            Gets the current context information for this stack.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.log4net#Core#IFixingRequired#GetFixedObject">
+            <summary>
+            Get a portable version of this object
+            </summary>
+            <returns>the portable instance of this object</returns>
+            <remarks>
+            <para>
+            Get a cross thread portable version of this object
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.LogicalThreadContextStack.Count">
+            <summary>
+            The number of messages in the stack
+            </summary>
+            <value>
+            The current number of messages in the stack
+            </value>
+            <remarks>
+            <para>
+            The current number of messages in the stack. That is
+            the number of times <see cref="M:log4net.Util.LogicalThreadContextStack.Push(System.String)"/> has been called
+            minus the number of times <see cref="M:log4net.Util.LogicalThreadContextStack.Pop"/> has been called.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.LogicalThreadContextStack.InternalStack">
+            <summary>
+            Gets and sets the internal stack used by this <see cref="T:log4net.Util.LogicalThreadContextStack"/>
+            </summary>
+            <value>The internal storage stack</value>
+            <remarks>
+            <para>
+            This property is provided only to support backward compatability 
+            of the <see cref="T:log4net.NDC"/>. Tytpically the internal stack should not
+            be modified.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:log4net.Util.LogicalThreadContextStack.StackFrame">
+            <summary>
+            Inner class used to represent a single context frame in the stack.
+            </summary>
+            <remarks>
+            <para>
+            Inner class used to represent a single context frame in the stack.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.StackFrame.#ctor(System.String,log4net.Util.LogicalThreadContextStack.StackFrame)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="message">The message for this context.</param>
+            <param name="parent">The parent context in the chain.</param>
+            <remarks>
+            <para>
+            Initializes a new instance of the <see cref="T:log4net.Util.LogicalThreadContextStack.StackFrame"/> class
+            with the specified message and parent context.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.LogicalThreadContextStack.StackFrame.Message">
+            <summary>
+            Get the message.
+            </summary>
+            <value>The message.</value>
+            <remarks>
+            <para>
+            Get the message.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.LogicalThreadContextStack.StackFrame.FullMessage">
+            <summary>
+            Gets the full text of the context down to the root level.
+            </summary>
+            <value>
+            The full text of the context down to the root level.
+            </value>
+            <remarks>
+            <para>
+            Gets the full text of the context down to the root level.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame">
+            <summary>
+            Struct returned from the <see cref="M:log4net.Util.LogicalThreadContextStack.Push(System.String)"/> method.
+            </summary>
+            <remarks>
+            <para>
+            This struct implements the <see cref="T:System.IDisposable"/> and is designed to be used
+            with the <see langword="using"/> pattern to remove the stack frame at the end of the scope.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame.m_frameDepth">
+            <summary>
+            The depth to trim the stack to when this instance is disposed
+            </summary>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame.m_logicalThreadContextStack">
+            <summary>
+            The outer LogicalThreadContextStack.
+            </summary>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame.#ctor(log4net.Util.LogicalThreadContextStack,System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="logicalThreadContextStack">The internal stack used by the ThreadContextStack.</param>
+            <param name="frameDepth">The depth to return the stack to when this object is disposed.</param>
+            <remarks>
+            <para>
+            Initializes a new instance of the <see cref="T:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame"/> class with
+            the specified stack and return depth.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStack.AutoPopStackFrame.Dispose">
+            <summary>
+            Returns the stack to the correct depth.
+            </summary>
+            <remarks>
+            <para>
+            Returns the stack to the correct depth.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:log4net.Util.LogicalThreadContextStacks">
+            <summary>
+            Implementation of Stacks collection for the <see cref="T:log4net.LogicalThreadContext"/>
+            </summary>
+            <remarks>
+            <para>
+            Implementation of Stacks collection for the <see cref="T:log4net.LogicalThreadContext"/>
+            </para>
+            </remarks>
+            <author>Nicko Cadell</author>
+        </member>
+        <member name="M:log4net.Util.LogicalThreadContextStacks.#ctor(log4net.Util.LogicalThreadContextProperties)">
+            <summary>
+            Internal constructor
+            </summary>
+            <remarks>
+            <para>
+            Initializes a new instance of the <see cref="T:log4net.Util.ThreadContextStacks"/> class.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:log4net.Util.LogicalThreadContextStacks.declaringType">
+            <summary>
+            The fully qualified type of the ThreadContextStacks class.
+            </summary>
+            <remarks>
+            Used by the internal logger to record the Type of the
+            log message.
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.LogicalThreadContextStacks.Item(System.String)">
+            <summary>
+            Gets the named thread context stack
+            </summary>
+            <value>
+            The named stack
+            </value>
+            <remarks>
+            <para>
+            Gets the named thread context stack
             </para>
             </remarks>
         </member>
@@ -27356,6 +27906,11 @@
         <member name="P:log4net.Util.LogLog.TimeStamp">
             <summary>
             The DateTime stamp of when the internal message was received.
+            </summary>
+        </member>
+        <member name="P:log4net.Util.LogLog.TimeStampUtc">
+            <summary>
+            The UTC DateTime stamp of when the internal message was received.
             </summary>
         </member>
         <member name="P:log4net.Util.LogLog.Prefix">
@@ -28036,9 +28591,9 @@
             </para>
             </remarks>
         </member>
-        <member name="F:log4net.Util.OnlyOnceErrorHandler.m_enabledDate">
+        <member name="F:log4net.Util.OnlyOnceErrorHandler.m_enabledDateUtc">
             <summary>
-            The date the error was recorded.
+            The UTC date the error was recorded.
             </summary>
         </member>
         <member name="F:log4net.Util.OnlyOnceErrorHandler.m_firstTime">
@@ -28088,7 +28643,12 @@
         </member>
         <member name="P:log4net.Util.OnlyOnceErrorHandler.EnabledDate">
             <summary>
-            The date the first error that trigged this error handler occured.
+            The date the first error that trigged this error handler occurred, or <see cref="F:System.DateTime.MinValue"/> if it has not been triggered.
+            </summary>
+        </member>
+        <member name="P:log4net.Util.OnlyOnceErrorHandler.EnabledDateUtc">
+            <summary>
+            The UTC date the first error that trigged this error handler occured, or <see cref="F:System.DateTime.MinValue"/> if it has not been triggered.
             </summary>
         </member>
         <member name="P:log4net.Util.OnlyOnceErrorHandler.ErrorMessage">
@@ -28461,6 +29021,15 @@
                     <description>
                         <para>
                         Used to output the friendly name of the current AppDomain.
+                        </para>
+                    </description>
+                </item>
+                <item>
+                    <term>appsetting</term>
+                    <description>
+                        <para>
+                        Used to output the value of a specific appSetting key in the application
+                        configuration file.
                         </para>
                     </description>
                 </item>
@@ -29677,6 +30246,20 @@
             </para>
             </remarks>
         </member>
+        <member name="M:log4net.Util.SystemInfo.EqualsIgnoringCase(System.String,System.String)">
+            <summary>
+            Tests two strings for equality, the ignoring case.
+            </summary>
+            <remarks>
+            If the platform permits, culture information is ignored completely (ordinal comparison).
+            The aim of this method is to provide a fast comparison that deals with <c>null</c> and ignores different casing.
+            It is not supposed to deal with various, culture-specific habits.
+            Use it to compare against pure ASCII constants, like keywords etc.
+            </remarks>
+            <param name="a">The one string.</param>
+            <param name="b">The other string.</param>
+            <returns><c>true</c> if the strings are equal, <c>false</c> otherwise.</returns>
+        </member>
         <member name="F:log4net.Util.SystemInfo.EmptyTypes">
             <summary>
             Gets an empty array of types.
@@ -29717,7 +30300,7 @@
             Text to output when an unsupported feature is requested.
             </summary>
         </member>
-        <member name="F:log4net.Util.SystemInfo.s_processStartTime">
+        <member name="F:log4net.Util.SystemInfo.s_processStartTimeUtc">
             <summary>
             Start time for the current process.
             </summary>
@@ -29843,6 +30426,28 @@
             <remarks>
             <para>
             This is the time at which the log4net library was loaded into the
+            AppDomain. Due to reports of a hang in the call to <c>System.Diagnostics.Process.StartTime</c>
+            this is not the start time for the current process.
+            </para>
+            <para>
+            The log4net library should be loaded by an application early during its
+            startup, therefore this start time should be a good approximation for
+            the actual start time.
+            </para>
+            <para>
+            Note that AppDomains may be loaded and unloaded within the
+            same process without the process terminating, however this start time
+            will be set per AppDomain.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:log4net.Util.SystemInfo.ProcessStartTimeUtc">
+            <summary>
+            Get the UTC start time for the current process.
+            </summary>
+            <remarks>
+            <para>
+            This is the UTC time at which the log4net library was loaded into the
             AppDomain. Due to reports of a hang in the call to <c>System.Diagnostics.Process.StartTime</c>
             this is not the start time for the current process.
             </para>
@@ -30682,6 +31287,10 @@
             properties with the same name.
             </para>
             <para>
+            For .NET Standard 1.3 this class uses
+            System.Threading.AsyncLocal rather than <see cref="T:System.Runtime.Remoting.Messaging.CallContext"/>.
+            </para>
+            <para>
             The Logical Thread Context has a properties map and a stack.
             The properties and stack can 
             be included in the output of log messages. The <see cref="T:log4net.Layout.PatternLayout"/>
@@ -30823,6 +31432,36 @@
             <param name="name">The fully qualified logger name to look for.</param>
             <returns>The logger found, or <c>null</c> if no logger could be found.</returns>
         </member>
+        <member name="M:log4net.LogManager.GetCurrentLoggers">
+            <overloads>Get the currently defined loggers.</overloads>
+            <summary>
+            Returns all the currently defined loggers in the default repository.
+            </summary>
+            <remarks>
+            <para>The root logger is <b>not</b> included in the returned array.</para>
+            </remarks>
+            <returns>All the defined loggers.</returns>
+        </member>
+        <member name="M:log4net.LogManager.GetLogger(System.String)">
+            <overloads>Get or create a logger.</overloads>
+            <summary>
+            Retrieves or creates a named logger.
+            </summary>
+            <remarks>
+            <para>
+            Retrieves a logger named as the <paramref name="name"/>
+            parameter. If the named logger already exists, then the
+            existing instance will be returned. Otherwise, a new instance is
+            created.
+            </para>
+            <para>By default, loggers do not have a set level but inherit
+            it from the hierarchy. This is one of the central features of
+            log4net.
+            </para>
+            </remarks>
+            <param name="name">The name of the logger to retrieve.</param>
+            <returns>The logger with the name specified.</returns>
+        </member>
         <member name="M:log4net.LogManager.Exists(System.String,System.String)">
             <summary>
             Returns the named logger if it exists.
@@ -30859,16 +31498,6 @@
             assembly's repository.
             </returns>
         </member>
-        <member name="M:log4net.LogManager.GetCurrentLoggers">
-            <overloads>Get the currently defined loggers.</overloads>
-            <summary>
-            Returns all the currently defined loggers in the default repository.
-            </summary>
-            <remarks>
-            <para>The root logger is <b>not</b> included in the returned array.</para>
-            </remarks>
-            <returns>All the defined loggers.</returns>
-        </member>
         <member name="M:log4net.LogManager.GetCurrentLoggers(System.String)">
             <summary>
             Returns all the currently defined loggers in the specified repository.
@@ -30888,26 +31517,6 @@
             The root logger is <b>not</b> included in the returned array.
             </remarks>
             <returns>All the defined loggers.</returns>
-        </member>
-        <member name="M:log4net.LogManager.GetLogger(System.String)">
-            <overloads>Get or create a logger.</overloads>
-            <summary>
-            Retrieves or creates a named logger.
-            </summary>
-            <remarks>
-            <para>
-            Retrieves a logger named as the <paramref name="name"/>
-            parameter. If the named logger already exists, then the
-            existing instance will be returned. Otherwise, a new instance is
-            created.
-            </para>
-            <para>By default, loggers do not have a set level but inherit
-            it from the hierarchy. This is one of the central features of
-            log4net.
-            </para>
-            </remarks>
-            <param name="name">The name of the logger to retrieve.</param>
-            <returns>The logger with the name specified.</returns>
         </member>
         <member name="M:log4net.LogManager.GetLogger(System.String,System.String)">
             <summary>
@@ -31358,6 +31967,13 @@
             </remarks>
             <returns>An array of all the known <see cref="T:log4net.Repository.ILoggerRepository"/> objects.</returns>
         </member>
+        <member name="M:log4net.LogManager.Flush(System.Int32)">
+            <summary>
+            Flushes logging events buffered in all configured appenders in the default repository.
+            </summary>
+            <param name="millisecondsTimeout">The maximum time in milliseconds to wait for logging events from asycnhronous appenders to be flushed.</param>
+            <returns><c>True</c> if all logging events were flushed successfully, else <c>false</c>.</returns>
+        </member>
         <member name="M:log4net.LogManager.WrapLogger(log4net.Core.ILogger)">
             <summary>
             Looks up the wrapper object for the logger specified.
@@ -31652,6 +32268,40 @@
             <example>Simple example of using the <c>Push</c> method with the <c>using</c> keyword.
             <code lang="C#">
             using(log4net.NDC.Push("NDC_Message"))
+            {
+            	log.Warn("This should have an NDC message");
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:log4net.NDC.PushFormat(System.String,System.Object[])">
+            <summary>
+            Pushes a new context message.
+            </summary>
+            <param name="messageFormat">The new context message string format.</param>
+            <param name="args">Arguments to be passed into messageFormat.</param>
+            <returns>
+            An <see cref="T:System.IDisposable"/> that can be used to clean up 
+            the context stack.
+            </returns>
+            <remarks>
+            <note>
+            <para>
+            The NDC is deprecated and has been replaced by the <see cref="P:log4net.ThreadContext.Stacks"/>.
+            The current NDC implementation forwards to the <c>ThreadContext.Stacks["NDC"]</c>.
+            </para>
+            </note>
+            <para>
+            Pushes a new context onto the context stack. An <see cref="T:System.IDisposable"/>
+            is returned that can be used to clean up the context stack. This
+            can be easily combined with the <c>using</c> keyword to scope the
+            context.
+            </para>
+            </remarks>
+            <example>Simple example of using the <c>Push</c> method with the <c>using</c> keyword.
+            <code lang="C#">
+            var someValue = "ExampleContext"
+            using(log4net.NDC.PushFormat("NDC_Message {0}", someValue))
             {
             	log.Warn("This should have an NDC message");
             }

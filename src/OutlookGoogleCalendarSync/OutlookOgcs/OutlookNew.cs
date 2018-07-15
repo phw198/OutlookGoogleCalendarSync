@@ -29,7 +29,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             NameSpace oNS = null;
             try {
                 oNS = oApp.GetNamespace("mapi");
-
+                
                 //Log on by using a dialog box to choose the profile.
                 //oNS.Logon("", Type.Missing, true, true); 
 
@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //oNS.Logon("YourValidProfile", Type.Missing, false, true); 
 
                 log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
-
+                
                 oNS = GetCurrentUser(oNS);
 
                 if (!Settings.Instance.OutlookGalBlocked && currentUserName == "Unknown") {
@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 log.Debug("Get the folders configured in Outlook");
                 folders = oNS.Folders;
-
+                
                 // Get the Calendar folders
                 useOutlookCalendar = getCalendarStore(oNS);
                 if (Forms.Main.Instance.IsHandleCreated) {
@@ -86,13 +86,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
-
+                
                 OutlookOgcs.Calendar.Categories = new OutlookOgcs.Categories();
-                Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
-
+                Calendar.Categories.Get(oApp, useOutlookCalendar);
+                
                 //Set up event handlers
-                explorerWatcher = new ExplorerWatcher(oApp.Explorers);
-
+                explorerWatcher = new ExplorerWatcher(oApp);
+                
             } catch (System.Runtime.InteropServices.COMException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
@@ -120,6 +120,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
+                    Calendar.Categories.Dispose();
+                    explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                 }
@@ -166,12 +168,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private const String PR_SMTP_ADDRESS = "http://schemas.microsoft.com/mapi/proptag/0x39FE001E";
         private const String EMAIL1ADDRESS = "http://schemas.microsoft.com/mapi/id/{00062004-0000-0000-C000-000000000046}/8084001F";
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
+        private const String PR_ORGANISER_TIMEZONE = "http://schemas.microsoft.com/mapi/id/{00062002-0000-0000-C000-000000000046}/8234001E";
 
         public NameSpace GetCurrentUser(NameSpace oNS) {
-            //We only need the current user details when syncing meeting attendees.
-            //If GAL had previously been detected as blocked, let's always try one attempt to see if it's been opened up
-            if (!Settings.Instance.OutlookGalBlocked && !Settings.Instance.AddAttendees) return oNS;
-
             Boolean releaseNamespace = (oNS == null);
             if (releaseNamespace) oNS = oApp.GetNamespace("mapi");
 
@@ -309,6 +308,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 getDefaultCalendar(oNS, ref defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
+            log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
             return defaultCalendar;
         }
 
@@ -588,10 +588,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void RefreshCategories() {
-            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar.Store);
+            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
             Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
             foreach (Extensions.ColourPicker.ColourInfo cInfo in Forms.Main.Instance.ddCategoryColour.Items) {
-                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
+                    cInfo.Text == Settings.Instance.SetEntriesColourName) {
                     Forms.Main.Instance.ddCategoryColour.SelectedItem = cInfo;
                 }
             }
@@ -600,17 +601,57 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         #region TimeZone Stuff
         //http://stackoverflow.com/questions/17348807/how-to-translate-between-windows-and-iana-time-zones
         //https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        //https://blogs.technet.microsoft.com/dst2007/ - MS timezone updates
 
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
+            String organiserTZname = null;
+            String organiserTZid = null;
+            if (ai.Organizer != CurrentUserName()) {
+                log.Fine("Meeting organiser is someone else - checking their timezone.");
+                try {
+                    PropertyAccessor pa = null;
+                    try {
+                        pa = ai.PropertyAccessor;
+                        organiserTZname = pa.GetProperty(PR_ORGANISER_TIMEZONE).ToString();
+                    } finally {
+                        pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                    }
+                    if (organiserTZname != ai.StartTimeZone.Name) {
+                        log.Fine("Appointment's timezone: " + ai.StartTimeZone.Name);
+                        log.Fine("Organiser's timezone:   " + organiserTZname);
+                        log.Debug("Retrieving the meeting organiser's timezone ID.");
+                        System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
+                        try {
+                            TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == organiserTZname || t.StandardName == organiserTZname);
+                            if (tzi == null)
+                                throw new ArgumentNullException("No timezone ID exists for organiser's timezone " + organiserTZname);
+                            else
+                                organiserTZid = tzi.Id;
+
+                        } catch (ArgumentNullException ex) {
+                            throw ex as System.Exception;
+                        } catch (System.Exception ex) {
+                            throw new System.Exception("Failed to get the organiser's timezone ID for " + organiserTZname, ex);                            
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
+                        "<br/>Could not determine the organiser's timezone. Google Event will have incorrect time.", Console.Markup.warning);
+                    OGCSexception.Analyse(ex);
+                    organiserTZname = null;
+                    organiserTZid = null;
+                }
+            }
+
             try {
                 try {
-                    ev.Start.TimeZone = IANAtimezone(ai.StartTimeZone.ID, ai.StartTimeZone.Name);
+                    ev.Start.TimeZone = IANAtimezone(organiserTZid ?? ai.StartTimeZone.ID, organiserTZname ?? ai.StartTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set start timezone. [" + ai.StartTimeZone.ID + ", " + ai.StartTimeZone.Name + "]");
                 }
                 try {
-                    ev.End.TimeZone = IANAtimezone(ai.EndTimeZone.ID, ai.EndTimeZone.Name);
+                    ev.End.TimeZone = IANAtimezone(organiserTZid ?? ai.EndTimeZone.ID, organiserTZname ?? ai.EndTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set end timezone. [" + ai.EndTimeZone.ID + ", " + ai.EndTimeZone.Name + "]");
@@ -629,7 +670,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
                 return "Etc/UTC";
             }
-
+            
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
             String tzID = tzDBsource.MapTimeZoneId(tzi);

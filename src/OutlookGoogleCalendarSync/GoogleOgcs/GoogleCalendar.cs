@@ -1263,6 +1263,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="aiCategories">The appointment item "categories" field</param>
         /// <returns>A match or a "null" Palette signifying no match</returns>
         private Palette getColour(String aiCategories, Palette gColour) {
+            if (!Settings.Instance.AddColours && !Settings.Instance.SetEntriesColour) return Palette.NullPalette;
+            
             OlCategoryColor? categoryColour = null;
 
             if (Settings.Instance.SetEntriesColour) {
@@ -1274,7 +1276,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } else {
                     if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && gColour == null)) {
                         categoryColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
-                        if (categoryColour == null) log.Warn("Could not convert '" + Settings.Instance.SetEntriesColourValue + "' into Outlook category type.");
+                        if (categoryColour == null) log.Warn("Could not convert category name '" + Settings.Instance.SetEntriesColourValue + "' into Outlook category type.");
                     } else return gColour;
                 }
 
@@ -1289,14 +1291,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }            
         }
         private void getOutlookCategoryColour(String aiCategories, ref OlCategoryColor? categoryColour) {
-            if (!Settings.Instance.AddColours) return;
-
             if (!string.IsNullOrEmpty(aiCategories)) {
                 log.Fine("Categories: " + aiCategories);
                 try {
                     String category = aiCategories.Split(new[] { OutlookOgcs.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
                     categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
-                    if (categoryColour == null) log.Warn("Could not convert '" + category + "' into Outlook category type.");
+                    if (categoryColour == null) log.Warn("Could not convert category name '" + category + "' into Outlook category type.");
                 } catch (System.Exception ex) {
                     log.Error("Failed determining colour for Event from AppointmentItem categories: " + aiCategories);
                     OGCSexception.Analyse(ex);

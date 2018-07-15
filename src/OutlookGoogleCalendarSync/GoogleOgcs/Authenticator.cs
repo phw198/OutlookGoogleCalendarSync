@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 if (string.IsNullOrEmpty(hashedGmailAccount)) {
                     if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
-                        hashedGmailAccount = getMd5(Settings.Instance.GaccountEmail);
+                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail, true);
                 }
                 return hashedGmailAccount;
             }
@@ -137,7 +137,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
 
-            if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.Now.AddMinutes(-1)) {
+            if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.UtcNow.AddMinutes(-1)) {
                 log.Debug("Access token needs refreshing.");
                 //This will happen automatically when using the calendar service
                 //But we need a valid token before we call getGaccountEmail() which doesn't use the service
@@ -243,8 +243,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
-        private static String getMd5(String input) {
-            log.Debug("Getting MD5 hash for '" + EmailAddress.MaskAddress(input) + "'");
+        public static String GetMd5(String input, Boolean isEmailAddress = false) {
+            log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();

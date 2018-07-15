@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.WindowState = FormWindowState.Minimized;
             }
             if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
-                OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
             }
         }
 
@@ -144,7 +144,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
             Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-            for (int fld = 1; fld <= OutlookOgcs.Calendar.Instance.Folders.Count; fld++) {
+            for (int fld = 1; fld <= theFolders.Count; fld++) {
                 MAPIFolder theFolder = theFolders[fld];
                 try {
                     if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
@@ -290,7 +290,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
             cbColour.Checked = Settings.Instance.SetEntriesColour;
             foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
-                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
+                    cInfo.Text == Settings.Instance.SetEntriesColourName) {
                     ddCategoryColour.SelectedItem = cInfo;
                 }
             }
@@ -363,6 +364,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     break;
                 }
             }
+            cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            
             updateGUIsettings_Proxy();
             #endregion
             linkTShoot_logfile.Text = log4net.GlobalContext.Properties["LogFilename"] + " file";
@@ -418,13 +421,20 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void FeaturesBlockedByCorpPolicy(Boolean isTrue) {
             String tooltip = "Your corporate policy is blocking the ability to use this feature.";
-            ToolTips.SetToolTip(cbAddAttendees, isTrue ? tooltip : "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
-            ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
-            ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
+            try {
+                ToolTips.SetToolTip(cbAddAttendees, isTrue ? tooltip : "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+                ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
+                ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
+            } catch (System.InvalidOperationException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Cross-thread operation
+                    log.Warn("Can't set form tooltips from sync thread.");
+                    //Won't worry too much - will work fine on OGCS startup, and will only arrive here if GAL has been blocked *after* startup. Should be very unlikely.
+                }
+            }
             if (isTrue) {
-                cbAddDescription.Checked = false;
-                cbAddAttendees.Checked = false;
-                rbOutlookSharedCal.Checked = false;
+                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
+                SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
+                SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
                 cbAddAttendees.ForeColor = SystemColors.GrayText;
                 cbAddDescription.ForeColor = SystemColors.GrayText;
@@ -1244,6 +1254,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!this.Visible) return;
 
             Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
+            Settings.Instance.SetEntriesColourName = ddCategoryColour.SelectedItem.Text;
         }
         #endregion
 
@@ -1484,6 +1495,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch {
                 System.Diagnostics.Process.Start(@Program.UserFilePath);
             }
+        }
+
+        private void cbCloudLogging_CheckStateChanged(object sender, EventArgs e) {
+            if (cbCloudLogging.CheckState == CheckState.Indeterminate)
+                Settings.Instance.CloudLogging = null;
+            else
+                Settings.Instance.CloudLogging = cbCloudLogging.Checked;
         }
 
         #region Proxy
