@@ -43,6 +43,10 @@ namespace OutlookGoogleCalendarSync {
         public void SaveRegex(DataGridView data) {
             findReplace = new List<FindReplace>();
 
+            if (data.IsCurrentCellDirty) {
+                data.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+
             foreach (DataGridViewRow row in data.Rows) {
                 if (row.Cells[findCol].Value != null) {
                     this.findReplace.Add(
