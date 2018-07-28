@@ -373,10 +373,21 @@ namespace OutlookGoogleCalendarSync {
 
             log.Debug("Checking for ZIP update...");
             string html = "";
+            String errorDetails = "";
             try {
                 html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
+            } catch (System.Net.WebException ex) {
+                errorDetails = ex.Message;
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509")
+                    log.Warn("Failed to retrieve data (no network?): " + errorDetails);
+                else {
+                    OGCSexception.Analyse(ex);
+                    log.Error("Failed to retrieve data: " + errorDetails);
+                }
             } catch (System.Exception ex) {
-                log.Error("Failed to retrieve data: " + ex.Message);
+                errorDetails = ex.Message;
+                OGCSexception.Analyse(ex);
+                log.Error("Failed to retrieve data: " + errorDetails);
             }
 
             if (!string.IsNullOrEmpty(html)) {
@@ -421,7 +432,8 @@ namespace OutlookGoogleCalendarSync {
                 }
             } else {
                 log.Info("Did not find ZIP release.");
-                if (isManualCheck) MessageBox.Show("Failed to check for ZIP release", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (isManualCheck) MessageBox.Show("Failed to check for ZIP release." + (string.IsNullOrEmpty(errorDetails) ? "" : "\r\n" + errorDetails),
+                    "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
