@@ -12,15 +12,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     class CustomProperty {
         private static readonly ILog log = LogManager.GetLogger(typeof(CustomProperty));
 
+        private static String calendarKeyName = metadataIdKeyName(MetadataId.oCalendarId);
+
         /// <summary>
         /// These properties can be stored multiple times against a single calendar item.
         /// The first default set is NOT appended with a number
         /// Subsequent sets are appended with "_<2-digit-sequence>" - eg "outlook_CalendarID_02"
         /// </summary>
-        private static MetadataId[] propertySet = new MetadataId[] { MetadataId.oCalendarId, MetadataId.oEntryId, MetadataId.oGlobalApptId };
-
-        private static String calendarKeyName = metadataIdKeyName(MetadataId.oCalendarId);
-
         public enum MetadataId {
             oEntryId,
             oGlobalApptId,
@@ -31,8 +29,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         /// <summary>
-        /// The name of the key as held in the custom attribute.
-        /// Names can be stored with numbers appended to support syncing the same object between multiple calendars
+        /// The name of the keys as held in the custom attribute.
+        /// Names can be stored with numbers appended to support syncing the same object between multiple calendars.
+        /// CalendarID is the master keyname to determine an ID set number.
         /// </summary>
         private static String metadataIdKeyName(MetadataId id) {
             switch (id) {
@@ -49,7 +48,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <summary>
         /// Return number appended to key name for current calendar key
         /// </summary>
-        /// <param name="maxSet">The</param>
+        /// <param name="maxSet">The set number of the last contiguous run of ID sets (to aid defragmentation).</param>
         /// <returns>The set number, if it exists</returns>
         private static int? getKeySet(Event ev, out int maxSet) {
             String returnSet = "";
@@ -89,16 +88,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public static Boolean Exists(Event ev, MetadataId searchId) {
+            String throwAway;
+            return Exists(ev, searchId, out throwAway);
+        }
+        public static Boolean Exists(Event ev, MetadataId searchId, out String searchKey) {
+            searchKey = null;
             if (ev.ExtendedProperties == null || ev.ExtendedProperties.Private__ == null) return false;
 
-            String searchKey = metadataIdKeyName(searchId);
-            if (!propertySet.Contains(searchId))
-                return ev.ExtendedProperties.Private__.ContainsKey(searchKey);
-
+            searchKey = metadataIdKeyName(searchId);
+            
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
-            if (keySet == null) return false;
-            return ev.ExtendedProperties.Private__.ContainsKey(searchKey + keySet);
+            if (keySet.HasValue) searchKey += "_" + keySet.Value.ToString("D2");
+            return ev.ExtendedProperties.Private__.ContainsKey(searchKey);
         }
 
         public static Boolean ExistsAny(Event ev) {
@@ -122,13 +124,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
             if (ev.ExtendedProperties.Private__ == null) ev.ExtendedProperties.Private__ = new Dictionary<String, String>();
 
-            if (!(propertySet.Contains(id)))
-                add(ref ev, addkeyName, value, null);
-            else {
-                int newSet;
-                int? keySet = getKeySet(ev, out newSet);
-                add(ref ev, addkeyName, value, keySet ?? newSet + 1);
-            }
+            int newSet;
+            int? keySet = getKeySet(ev, out newSet);
+            add(ref ev, addkeyName, value, keySet ?? newSet + 1);
         }
         private static void Add(ref Event ev, MetadataId key, DateTime value) {
             Add(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
@@ -144,22 +142,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
 
-        public static String GetOGCSproperty(Event ev, MetadataId id) {
-            if (Exists(ev, id)) {
-                String key = metadataIdKeyName(id);
+        public static String Get(Event ev, MetadataId id) {
+            String key;
+            if (Exists(ev, id, out key)) {
                 return ev.ExtendedProperties.Private__[key];
             } else
                 return null;
         }
 
-        public static void RemoveOGCSproperty(ref Event ev, MetadataId key) {
-            if (Exists(ev, key))
-                ev.ExtendedProperties.Private__.Remove(metadataIdKeyName(key));
+        public static void Remove(ref Event ev, MetadataId id) {
+            String key;
+            if (Exists(ev, id, out key))
+                ev.ExtendedProperties.Private__.Remove(key);
         }
 
         public static DateTime GetOGCSlastModified(Event ev) {
             if (Exists(ev, MetadataId.ogcsModified)) {
-                String lastModded = GetOGCSproperty(ev, MetadataId.ogcsModified);
+                String lastModded = Get(ev, MetadataId.ogcsModified);
                 try {
                     return DateTime.ParseExact(lastModded, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                 } catch (System.FormatException) {

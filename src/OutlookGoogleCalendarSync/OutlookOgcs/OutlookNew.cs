@@ -306,6 +306,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 getDefaultCalendar(oNS, ref defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
+            log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
             return defaultCalendar;
         }
 

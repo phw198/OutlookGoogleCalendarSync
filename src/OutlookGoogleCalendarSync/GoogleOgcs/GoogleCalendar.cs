@@ -730,9 +730,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Settings.Instance.APIlimit_inEffect)
                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
             else
-                CustomProperty.RemoveOGCSproperty(ref ev, CustomProperty.MetadataId.apiLimitHit);
+                CustomProperty.Remove(ref ev, CustomProperty.MetadataId.apiLimitHit);
 
-            CustomProperty.RemoveOGCSproperty(ref ev, CustomProperty.MetadataId.forceSave);
+            CustomProperty.Remove(ref ev, CustomProperty.MetadataId.forceSave);
 
             int backoff = 0;
             while (backoff < backoffLimit) {
@@ -928,7 +928,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Fine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
 
                 if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId)) {
-                    String compare_gEntryID = CustomProperty.GetOGCSproperty(google[g], CustomProperty.MetadataId.oEntryId);
+                    String compare_gEntryID = CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId);
                     Boolean outlookIDmissing = CustomProperty.OutlookIdMissing(google[g]); 
 
                     for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -1015,7 +1015,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Fine("Comparing Outlook GlobalID");
 
             if (CustomProperty.Exists(ev, CustomProperty.MetadataId.oGlobalApptId)) {
-                String gCompareID = CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oGlobalApptId);
+                String gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oGlobalApptId);
                 String oGlobalID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
 
                 //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
@@ -1031,13 +1031,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     gCompareID.Remove(gCompareID.Length-16) == oGlobalID.Remove(oGlobalID.Length-16))) //Or it's really a Entry ID (failsafe match)
                 {
                     log.Fine("Comparing Outlook CalendarID");
-                    gCompareID = CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oCalendarId);
+                    gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId);
                     if (gCompareID == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID) {
 
                         //But...if an appointment is copied within ones own calendar, the DATA part is the same (only the creation time changes)!
                         //So now compare the Entry ID too.
                         log.Fine("Comparing Outlook EntryID");
-                        gCompareID = CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oEntryId);
+                        gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId);
                         if (gCompareID == ai.EntryID) {
                             return true;
                         } else if (!string.IsNullOrEmpty(gCompareID) &&
@@ -1424,12 +1424,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!foundReminder) csv.Append(",,");
 
             csv.Append(ev.Id + "," + Settings.Instance.UseGoogleCalendar.Id + ",");
-            csv.Append((CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oEntryId) ?? "") + ",");
-            csv.Append((CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oGlobalApptId) ?? "") + ",");
-            csv.Append((CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.oCalendarId) ?? "") + ",");
-            csv.Append((CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.ogcsModified) ?? "") + ",");
-            csv.Append((CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.forceSave) ?? "") + ",");
-            csv.Append(CustomProperty.GetOGCSproperty(ev, CustomProperty.MetadataId.apiLimitHit) ?? "");
+            csv.Append((CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId) ?? "") + ",");
+            csv.Append((CustomProperty.Get(ev, CustomProperty.MetadataId.oGlobalApptId) ?? "") + ",");
+            csv.Append((CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId) ?? "") + ",");
+            csv.Append((CustomProperty.Get(ev, CustomProperty.MetadataId.ogcsModified) ?? "") + ",");
+            csv.Append((CustomProperty.Get(ev, CustomProperty.MetadataId.forceSave) ?? "") + ",");
+            csv.Append(CustomProperty.Get(ev, CustomProperty.MetadataId.apiLimitHit) ?? "");
             
             return csv.ToString();
         }
