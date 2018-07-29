@@ -335,8 +335,9 @@ namespace OutlookGoogleCalendarSync {
             //but HandleEvents() fails if eg "-beta" is present.
             //"C:\Users\username\AppData\Local\OutlookGoogleCalendarSync\app-2.5.0-beta\OutlookGoogleCalendarSync.exe" --squirrel-uninstall 2.5.0-beta
             try {
-                String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
-                if (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel")) {
+                String[] cliArgs = null;
+                if (Program.StartedWithSquirrelArgs) {
+                    cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
                     log.Debug("CLI arguments: " + string.Join(" ", cliArgs));
                     cliArgs[1] = cliArgs[1].Split('-')[0];
                 }
@@ -346,6 +347,7 @@ namespace OutlookGoogleCalendarSync {
                 return null;
             }
         }
+
         private static void clickOnceUninstallError(System.Exception ex) {
             if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
                 log.Debug("No ClickOnce install found.");

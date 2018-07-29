@@ -12,12 +12,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     class ErrorReporting {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 
-        public static Boolean Enabled = true;
+        public static Boolean Initialised = true;
         private static String templateCredFile = "ErrorReportingTemplate.json";
         private static String credFile = "ErrorReporting.json";
-        //Program.WorkingFilesDirectory
-
+        
         public static void Initialise() {
+            if (Program.StartedWithSquirrelArgs && !(Environment.GetCommandLineArgs()[1].ToLower().Equals("--squirrel-firstrun"))) return;
+
+            //Note, logging isn't actually initialised yet, so log4net won't log any lines within this function
+
             String cloudCredsURL = "https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/keyring.md";
             String html = null;
             String line = null;
@@ -64,7 +67,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } catch (ApplicationException ex) {
                 log.Warn(ex.Message);
-                Enabled = false;
+                Initialised = false;
             }
         }            
 

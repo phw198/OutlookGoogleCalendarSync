@@ -45,7 +45,7 @@ namespace OutlookGoogleCalendarSync {
         /// When an error is logged, check if user has chosen to upload logs or not
         /// </summary>
         protected override void Append(LoggingEvent loggingEvent) {
-            if (errorOccurred) return;
+            if (!GoogleOgcs.ErrorReporting.Initialised || errorOccurred) return;
             errorOccurred = true;
             String configSetting = null;
 

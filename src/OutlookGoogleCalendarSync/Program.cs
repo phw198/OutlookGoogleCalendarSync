@@ -21,6 +21,12 @@ namespace OutlookGoogleCalendarSync {
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
         public static Boolean StartedWithFileArgs = false;
+        public static Boolean StartedWithSquirrelArgs {
+            get {
+                String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+                return (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel"));
+            }
+        }
         /// <summary>
         /// The OGCS directory within user's roaming profile
         /// </summary>
