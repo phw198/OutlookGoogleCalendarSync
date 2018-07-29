@@ -192,13 +192,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?
                 "Include" : "Exclude";
-            clbCategories.Items.Clear();
             if (OutlookOgcs.Factory.OutlookVersion < 12) {
+                clbCategories.Items.Clear();
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;
                 lFilterCategories.Enabled = false;
             } else {
-                refreshCategories();
+                OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
+                enableOutlookSettingsUI(true);
             }
             #endregion
             cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
@@ -894,19 +895,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void refreshCategories() {
-            clbCategories.BeginUpdate();
-            clbCategories.Items.Clear();
-            clbCategories.Items.Add("<No category assigned>");
             OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
-            foreach (String catName in OutlookOgcs.Calendar.Categories.GetNames()) {
-                clbCategories.Items.Add(catName);
-            }
-            foreach (String cat in Settings.Instance.Categories) {
-                try {
-                    clbCategories.SetItemChecked(clbCategories.Items.IndexOf(cat), true);
-                } catch { /* Category "cat" no longer exists */ }
-            }
-            clbCategories.EndUpdate();
+            OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
             enableOutlookSettingsUI(true);
         }
 

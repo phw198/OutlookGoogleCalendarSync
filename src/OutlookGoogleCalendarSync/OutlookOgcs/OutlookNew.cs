@@ -588,6 +588,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void RefreshCategories() {
+            log.Debug("Refreshing categories...");
             OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
             Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
             foreach (Extensions.ColourPicker.ColourInfo cInfo in Forms.Main.Instance.ddCategoryColour.Items) {

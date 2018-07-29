@@ -40,13 +40,29 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex, true);
+                        log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
+                        log.Debug("Reverting to default mailbox categories.");
                         this.categories = oApp.Session.Categories;
                     }
                 }
             } finally {
                 store = (Outlook.Store)Calendar.ReleaseObject(store);
             }
+        }
+
+        public void BuildPicker(ref System.Windows.Forms.CheckedListBox clb) {
+            clb.BeginUpdate();
+            clb.Items.Clear();
+            clb.Items.Add("<No category assigned>");
+            foreach (String catName in getNames()) {
+                clb.Items.Add(catName);
+            }
+            foreach (String cat in Settings.Instance.Categories) {
+                try {
+                    clb.SetItemChecked(clb.Items.IndexOf(cat), true);
+                } catch { /* Category "cat" no longer exists */ }
+            }
+            clb.EndUpdate();
         }
 
         /// <summary>
@@ -66,22 +82,26 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Return all the category names as a list of strings.
         /// </summary>
-        public List<String> GetNames() {
+        private List<String> getNames() {
             List<String> names = new List<String>();
-            foreach (Outlook.Category category in this.categories) {
-                names.Add(category.Name);
+            if (this.categories != null) {
+                foreach (Outlook.Category category in this.categories) {
+                    names.Add(category.Name);
+                }
             }
             return names;
         }
 
         /// <summary>
-        /// Get the Outlook categorys as List of ColourInfo
+        /// Get the Outlook categories as List of ColourInfo
         /// </summary>
         /// <returns>List to be used in dropdown, for example</returns>
         public List<Extensions.ColourPicker.ColourInfo> DropdownItems() {
             List<Extensions.ColourPicker.ColourInfo> items = new List<Extensions.ColourPicker.ColourInfo>();
-            foreach (Outlook.Category category in this.categories) {
-                items.Add(new Extensions.ColourPicker.ColourInfo(category.Color, CategoryMap.RgbColour(category.Color), category.Name));
+            if (this.categories != null) {
+                foreach (Outlook.Category category in this.categories) {
+                    items.Add(new Extensions.ColourPicker.ColourInfo(category.Color, CategoryMap.RgbColour(category.Color), category.Name));
+                }
             }
             return items;
         }

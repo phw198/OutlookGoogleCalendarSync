@@ -229,7 +229,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             continue;
                         } else {
                             Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Appointment creation failed.", ex);
-                            log.Error(ex.StackTrace);
+                            OGCSexception.Analyse(ex, true);
                             if (MessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -242,7 +242,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         events[g] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "New appointment failed to save.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -331,7 +331,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Appointment update failed.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -344,7 +344,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             entriesUpdated++;
                         } catch (System.Exception ex) {
                             Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Updated appointment failed to save.", ex);
-                            log.Error(ex.StackTrace);
+                            OGCSexception.Analyse(ex, true);
                             if (MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -643,7 +643,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Appointment deletion failed.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -655,7 +655,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Deleted appointment failed to remove.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
