@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.WindowState = FormWindowState.Minimized;
             }
             if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
-                OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
             }
         }
 
@@ -144,7 +144,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
             Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-            for (int fld = 1; fld <= OutlookOgcs.Calendar.Instance.Folders.Count; fld++) {
+            for (int fld = 1; fld <= theFolders.Count; fld++) {
                 MAPIFolder theFolder = theFolders[fld];
                 try {
                     if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
@@ -192,13 +192,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?
                 "Include" : "Exclude";
-            clbCategories.Items.Clear();
             if (OutlookOgcs.Factory.OutlookVersion < 12) {
+                clbCategories.Items.Clear();
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;
                 lFilterCategories.Enabled = false;
             } else {
-                refreshCategories();
+                OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
+                enableOutlookSettingsUI(true);
             }
             #endregion
             cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
@@ -290,7 +291,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
             cbColour.Checked = Settings.Instance.SetEntriesColour;
             foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
-                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue) {
+                if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
+                    cInfo.Text == Settings.Instance.SetEntriesColourName) {
                     ddCategoryColour.SelectedItem = cInfo;
                 }
             }
@@ -363,6 +365,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     break;
                 }
             }
+            cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            
             updateGUIsettings_Proxy();
             #endregion
             linkTShoot_logfile.Text = log4net.GlobalContext.Properties["LogFilename"] + " file";
@@ -891,19 +895,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void refreshCategories() {
-            clbCategories.BeginUpdate();
-            clbCategories.Items.Clear();
-            clbCategories.Items.Add("<No category assigned>");
             OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
-            foreach (String catName in OutlookOgcs.Calendar.Categories.GetNames()) {
-                clbCategories.Items.Add(catName);
-            }
-            foreach (String cat in Settings.Instance.Categories) {
-                try {
-                    clbCategories.SetItemChecked(clbCategories.Items.IndexOf(cat), true);
-                } catch { /* Category "cat" no longer exists */ }
-            }
-            clbCategories.EndUpdate();
+            OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
             enableOutlookSettingsUI(true);
         }
 
@@ -1251,6 +1244,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!this.Visible) return;
 
             Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
+            Settings.Instance.SetEntriesColourName = ddCategoryColour.SelectedItem.Text;
         }
         #endregion
 
@@ -1491,6 +1485,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch {
                 System.Diagnostics.Process.Start(@Program.UserFilePath);
             }
+        }
+
+        private void cbCloudLogging_CheckStateChanged(object sender, EventArgs e) {
+            if (cbCloudLogging.CheckState == CheckState.Indeterminate)
+                Settings.Instance.CloudLogging = null;
+            else
+                Settings.Instance.CloudLogging = cbCloudLogging.Checked;
         }
 
         #region Proxy

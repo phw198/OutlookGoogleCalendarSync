@@ -69,10 +69,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void Reset() {
             log.Info("Resetting connection to Outlook.");
-            if (IOutlook != null) IOutlook.Disconnect();
+            if (IOutlook != null) Disconnect();
             instance = new Calendar();
             instance.IOutlook.Connect();
         }
+
+        /// <summary>
+        /// Wrapper for IOutlook.Disconnect - cannot dereference fully inside interface
+        /// </summary>
+        public void Disconnect(Boolean onlyWhenNoGUI = false) {
+            Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
 
         #region Push Sync
         public void RegisterForPushSync() {
@@ -219,7 +229,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             continue;
                         } else {
                             Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Appointment creation failed.", ex);
-                            log.Error(ex.StackTrace);
+                            OGCSexception.Analyse(ex, true);
                             if (MessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -232,7 +242,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         events[g] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "New appointment failed to save.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -321,7 +331,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Appointment update failed.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -334,7 +344,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             entriesUpdated++;
                         } catch (System.Exception ex) {
                             Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Updated appointment failed to save.", ex);
-                            log.Error(ex.StackTrace);
+                            OGCSexception.Analyse(ex, true);
                             if (MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -633,7 +643,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Appointment deletion failed.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -645,7 +655,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Deleted appointment failed to remove.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -820,7 +830,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="oColour">The Outlook category</param>
         /// <returns>Outlook category name</returns>
         private String getColour(String gColourId, String oColour) {
-            if (!Settings.Instance.AddColours) return "";
+            if (!Settings.Instance.AddColours && !Settings.Instance.SetEntriesColour) return "";
 
             if (Settings.Instance.SetEntriesColour) {
                 if (Settings.Instance.TargetCalendar == Sync.Direction.OutlookToGoogle) { //Colour forced to sync in other direction
@@ -831,7 +841,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } else {
                     if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oColour == null)) {
                         OlCategoryColor outlookColour = OutlookOgcs.CategoryMap.Colours.Where(c => c.Key.ToString() == Settings.Instance.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour);
+                        return Categories.FindName(outlookColour, Settings.Instance.SetEntriesColourName);
                     } else return oColour;
                 }
 
@@ -973,6 +983,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         "Please see the wiki for a solution.");
                 } else
                     throw ex;
+
+            } catch (System.UnauthorizedAccessException ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
+                    log.Warn(ex.Message);
+                    throw new ApplicationException("OGCS was not permitted to start Outlook.\r\n" +
+                        "Please manually start Outlook and then restart OGCS again.");
+                }
 
             } catch (System.Exception ex) {
                 log.Warn("Early binding to Outlook appears to have failed.");

@@ -15,11 +15,18 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
         private const string logSettingsFile = "logger.xml";
         private const string defaultLogFilename = "OGcalsync.log";
+        public static String WorkingFilesDirectory;
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
         public static Boolean StartedWithFileArgs = false;
+        public static Boolean StartedWithSquirrelArgs {
+            get {
+                String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+                return (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel"));
+            }
+        }
         /// <summary>
         /// The OGCS directory within user's roaming profile
         /// </summary>
@@ -36,16 +43,17 @@ namespace OutlookGoogleCalendarSync {
 
         [STAThread]
         private static void Main(string[] args) {
-            RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-            parseArgumentsAndInitialise(args);
-
-            Updater.MakeSquirrelAware();
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Forms.Splash.ShowMe();
+            GoogleOgcs.ErrorReporting.Initialise();
             
+            RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+            parseArgumentsAndInitialise(args);
+            
+            Updater.MakeSquirrelAware();
+            Forms.Splash.ShowMe();
+
             log.Debug("Loading settings from file.");
             Settings.Load();
 
@@ -93,7 +101,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     if (!OutlookOgcs.Calendar.IsInstanceNull) {
                         OutlookOgcs.Calendar.InstanceConnect = false;
-                        OutlookOgcs.Calendar.Instance.IOutlook.Disconnect();
+                        OutlookOgcs.Calendar.Instance.Disconnect();
                     }
                 } catch { }
             }
@@ -128,6 +136,13 @@ namespace OutlookGoogleCalendarSync {
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
 
             log.Info("Storing user files in directory: " + UserFilePath);
+
+            //Before settings have been loaded, early config of cloud logging
+            GoogleOgcs.ErrorReporting.UpdateLogUuId();
+            Boolean cloudLogSetting = false;
+            String cloudLogXmlSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
+            if (!string.IsNullOrEmpty(cloudLogXmlSetting)) cloudLogSetting = Boolean.Parse(cloudLogXmlSetting);
+            GoogleOgcs.ErrorReporting.SetThreshold(cloudLogSetting);
 
             if (!StartedWithFileArgs) {
                 //Now let's confirm files are actually in the right place
@@ -200,9 +215,15 @@ namespace OutlookGoogleCalendarSync {
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
+
+            GoogleOgcs.ErrorReporting.LogId = "v" + Application.ProductVersion;
+            GoogleOgcs.ErrorReporting.UpdateLogUuId();
+
             XmlConfigurator.Configure(new System.IO.FileInfo(
                 Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile)
             ));
+
+            GoogleOgcs.ErrorReporting.SetThreshold(false);
 
             if (bootstrap) {
                 log.Info("Program started: v" + Application.ProductVersion);
@@ -379,10 +400,10 @@ namespace OutlookGoogleCalendarSync {
             File.Delete(dstFile);
             log.Debug("  " + Settings.ConfigFilename);
             File.Move(Settings.ConfigFile, dstFile);
-            Settings.ConfigDirectory = dstDir;
+            WorkingFilesDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {
-                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file == GoogleOgcs.Authenticator.TokenFile) {
+                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file.EndsWith(".json") || file == GoogleOgcs.Authenticator.TokenFile) {
                     dstFile = Path.Combine(dstDir, Path.GetFileName(file));
                     File.Delete(dstFile);
                     log.Debug("  " + Path.GetFileName(file));
@@ -415,7 +436,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
                     System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
-                    if (isSquirrelInstall) Analytics.Send("squirrel", "upgrade", "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                    if (isSquirrelInstall) Analytics.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }
 

@@ -1,0 +1,365 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Cloud.Logging.Log4Net</name>
+    </assembly>
+    <members>
+        <member name="M:Google.Cloud.Logging.Log4Net.DateTimeRange.#ctor(System.DateTime,System.DateTime)">
+            <summary>
+            A range of DateTime's, inclusive from, exclusive to.
+            Parameters must be UTC.
+            </summary>
+            <param name="from">Inclusive from datetime, must be UTC.</param>
+            <param name="to">Exclusive to datetime, must be UTC.</param>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender">
+            <summary>
+            Appends logging events to Google Stackdriver Logging.
+            </summary>
+            <remarks>
+            <para>
+            Logging events are sent to Google Stackdriver Logging asychronously,
+            via a local buffer. This  is to ensure that server errors or increased
+            network/server latency don't cause slow-downs in the program being logged.
+            </para>
+            <para>
+            <c>GoogleStackdriverAppender</c> provides two methods of flushing this local buffer.
+            <list type="bullet">
+            <item><description>
+            The <see cref="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Flush(System.TimeSpan,System.Threading.CancellationToken)"/> and <see cref="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.FlushAsync(System.TimeSpan,System.Threading.CancellationToken)"/>
+            flush local buffer entries to Google Stackdriver, waiting a maximum of the specified
+            <see cref="T:System.TimeSpan"/>. These methods return <c>true</c> if all locally buffered
+            entries were successfully flushed, or <c>false</c> otherwise.
+            </description></item>
+            <item><description>
+            <c>GoogleStackdriverAppender</c> implements <see cref="T:System.IDisposable"/>. This calls
+            <see cref="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Flush(System.TimeSpan,System.Threading.CancellationToken)"/> with the timeout configured in
+            <see cref="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisposeTimeoutSeconds"/>, then closes the appender so no further logging
+            can be performed. It is not generally necessary to call <see cref="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Dispose"/>.
+            </description></item>
+            </list>
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.#ctor">
+            <summary>
+            Construct a Google Stackdriver appender.
+            </summary>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ActivateOptions">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Append(log4net.Core.LoggingEvent)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Append(log4net.Core.LoggingEvent[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.FlushAsync(System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Flush locally buffered log entries to the server.
+            </summary>
+            <param name="timeout">The maxmimum time to spend waiting for the flush to complete.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.
+            The default value is <see cref="P:System.Threading.CancellationToken.None"/>.</param>
+            <returns>A task representing whether the flush completed within the timeout.</returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Flush(System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Flush locally buffered log entries to the server.
+            </summary>
+            <param name="timeout">The maxmimum time to spend waiting for the flush to complete.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.
+            The default value is <see cref="P:System.Threading.CancellationToken.None"/>.</param>
+            <returns>Whether the flush completed within the timeout.</returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Flush(System.Int32)">
+            <summary>
+            Flush locally buffered log entries to the server.
+            </summary>
+            <param name="millisecondsTimeout">The maxmimum time in milliseconds to spend waiting for the flush to complete.</param>
+            <returns>Whether the flush completed within the timeout.</returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Dispose">
+            <summary>
+            Dispose of this appender, by flushing locally buffer entries then closing the appender.
+            </summary>
+            <remarks>
+            The flush timeout is configured using the <c>DisposeTimeoutSeconds</c> configuration option.
+            This defaults to 30 seconds if not set.
+            </remarks>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.OnClose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label">
+            <summary>
+            Custom label attached to log events.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label.Key">
+            <summary>
+            Label key.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label.Value">
+            <summary>
+            Label value.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisableResourceTypeDetection">
+            <summary>
+            If set, disables resource-type detection based on platform,
+            so ResourceType will default to "global" if not manually set. 
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ResourceType">
+            <summary>
+            The resource type of log entries.
+            Default value depends on the detected platform. See the remarks section for details.
+            </summary>
+            <remarks>
+            If this is not set, then Resource type is set depending on the detected execution platform:
+            <list type="bullet">
+            <item><description>
+            Google App Engine: ResourceType "gae_app", with project_id, module_id, and version_id set approprately.
+            </description></item>
+            <item><description>
+            Google Compute Engine: ResourceType "gce_instance", with project_id, instance_id, and zone set approprately.
+            </description></item>
+            <item><description>
+            Unknown: ResourceType "global", with project_id set from this configuration.
+            </description></item>
+            </list>
+            If <see cref="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisableResourceTypeDetection"/> is <c>true</c>, then this platform detection
+            is not performed, and this ResourceType defaults to "global" if not set.
+            </remarks>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.AddResourceLabel(Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label)">
+            <summary>
+            Specify labels for the resource type;
+            only used if platform detection is disabled or detects an unknown platform.
+            </summary>
+            <param name="label">The resource type label.</param>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ProjectId">
+            <summary>
+            The project ID for all log entries.
+            Must be configured in not executing on Google Compute Engine or Google App Engine.
+            If running on GCE or GAE, the ProjectId will be automatically detected if not set.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.LogId">
+            <summary>
+            LogID for all log entries. Must be configured.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.MaxUploadBatchSize">
+            <summary>
+            The maximum batch size when uploading to Google Cloud Logging.
+            Default value is 100.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.LocalQueueType">
+            <summary>
+            The local queuing mechanism, used before the log is sent to Google Logging.
+            Defaults to <see cref="F:Google.Cloud.Logging.Log4Net.LocalQueueType.Memory"/>.
+            </summary>
+            <remarks>
+            <para>All log entries are temporarily queued locally before being uploaded to Google Logging.
+            This is usually for a very brief duration; but if there are problems connecting to Google Logging
+            this local queue allows the application to continue functioning as normal, without blocking
+            on log events or immediately throwing aware log entries.</para>
+            <para>One queue type is provided:
+            <list type="bullet">
+            <item><description>
+            <see cref="F:Google.Cloud.Logging.Log4Net.LocalQueueType.Memory"/>: Log entries are queued locally in memory. The maximum amount of memory and/or the maximum
+            number of log entries to queue can be configured. If the application exits or crashes before in-memory log entries have
+            been uploaded to Google Logging, then these log entries are permanently lost. If Google Logging becomes temporarily unavailable
+            then the number of log entries queued until Google Logging becomes available again will be limited by the configure maximum sizes;
+            log entries in excess of this configured maximum will cause the oldest queued log entries to be permanently lost.
+            </description></item>
+            </list>
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.MaxMemorySize">
+            <summary>
+            The maximum bytes of memory used by in-memory logging queue.
+            Default value is 0 (unconfigured).
+            Not used for file-based queuing.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.MaxMemoryCount">
+            <summary>
+            The maximum count of log entries allowed in the in-memory logging queue.
+            Default value is 1,000
+            Not used for file-based queueing.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialFile">
+            <summary>
+            The file path of a service account JSON file to use for authenitication.
+            Not necessary if running on GCE or GAE or if the GOOGLE_APPLICATION_CREDENTIALS environment variable has been set.
+            </summary>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.AddCustomLabel(Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label)">
+            <summary>
+            Specify custom labels for all log entries.
+            </summary>
+            <param name="label">The custom label.</param>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.AddWithMetaData(Google.Cloud.Logging.Log4Net.MetaDataType)">
+            <summary>
+            Specify additional metadata to include in all log entries.
+            </summary>
+            <param name="enable">The additional metadata to enable.</param>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ServerErrorBackoffDelaySeconds">
+            <summary>
+            On receiving a server error during log upload, the initial delay in seconds before retry.
+            Defaults value is 1 second.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ServerErrorBackoffMultiplier">
+            <summary>
+            The multiplier applied to the retry delay when receiving multiple consecutive server errors during log upload.
+            Default value is 1.5
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ServerErrorBackoffMaxDelaySeconds">
+            <summary>
+            The maxmimum retry delay when receiving multiple consecutive server errors during log upload.
+            Default value is 60 seconds.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisposeTimeoutSeconds">
+            <summary>
+            The maximum time the <c>Dispose()</c> call of <see cref="T:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender"/> may take. 
+            Default value is 30 seconds.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.MetaDataType">
+            <summary>
+            Types of metadata that can be attached to log events.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.Location">
+            <summary>
+            The code location of the log entry.
+            </summary>
+            <remarks>
+            This will add the following to labels to every log entry (if available):
+            <list type="bullet">
+            <item><description>Location.FileName</description></item>
+            <item><description>Location.ClassName</description></item>
+            <item><description>Location.LineNumber</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.Identity">
+            <summary>
+            The string name of the identity of the current thread principal; with the label "Identity".
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.ThreadName">
+            <summary>
+            The name of the current thread, or the thread ID when the name is not avaible; with the label "ThreadName".
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.UserName">
+            <summary>
+            The name of the current user, or "NOT AVAILABLE"; with the label "UserName".
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.Domain">
+            <summary>
+            The AppDomain friendly name; with the label "Domain".
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.LoggerName">
+            <summary>
+            The name of the logger that logged the event; with the label "LoggerName".
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.MetaDataType.Level">
+            <summary>
+            The Level of the logging event; with the label "Level".
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.LocalQueueType">
+            <summary>
+            Whether log events are queued in memory or to disk. Only in-memory is currently supported. 
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Log4Net.LocalQueueType.Memory">
+            <summary>
+            Queue log events in memory before sending to Cloud Logging.
+            Unsent log events will be lost on program crash.
+            </summary>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.ILogQueue.GetPreviousExecutionIdAsync">
+            <summary>
+            Get the latest ID used in a possible previous execution.
+            </summary>
+            <returns>The latest ID from a previous exeuction, or <c>null</c> if not relevant.</returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.ILogQueue.Enqueue(System.Collections.Generic.IEnumerable{Google.Cloud.Logging.Log4Net.LogEntryExtra})">
+            <summary>
+            Enqueue the given log entries.
+            </summary>
+            <param name="logEntries"></param>
+            <remarks>
+            This enqueues log entries in a local buffer, which are then asynchronously uploaded to Google
+            Stackdriver. If the local buffer is full, then the oldest locally buffered log entries will
+            be purged to allow these newer entries to be buffered.
+            </remarks>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.ILogQueue.PeekAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Peek up to the specified maximum number of items.
+            </summary>
+            <param name="maximumCount">The maximum number of items to retrieve.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>A task representing the async operation.
+            The result of the task contains the enumerable of requested items, and any lost datetime-range.</returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.ILogQueue.RemoveUntilAsync(System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Remove items up to and including the specified internal sequential ID.
+            </summary>
+            <param name="id">The internal sequential ID to remove until.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>A task that completes when the removal operation is complete.</returns>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.LogQueuePeekResult">
+            <summary>
+            Contains the result of peeking the local log queue:
+            Log entries to send; and the datetime-range of lost log entries, if relevant.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.LogQueuePeekResult.Entries">
+            <summary>
+            Log entries to send.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.LogQueuePeekResult.Lost">
+            <summary>
+            If not <c>null</c>, the datetime-range of lost log entries;
+            <c>null</c> if no log entries have been lost.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.LogUploader">
+            <summary>
+            Background task that uploads log entries to Google Logging from the local queue.
+            </summary>
+            <remarks>
+            LogUploader waits for log entries to be available in the queue, then retrieves a batch of log entries
+            from the queue and attempts to upload them to Google Logging. When it is confirmed that these entries
+            have been uploaded successfully, the entries are removed from the queue.
+            If Google Logging is unavailable for any reason, upload is retried indefinitely will exponential
+            backoff up to a configured maxmimum.
+            </remarks>
+        </member>
+    </members>
+</doc>

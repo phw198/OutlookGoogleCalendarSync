@@ -254,7 +254,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 //Release Outlook reference if GUI not available. 
                 //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
-                OutlookOgcs.Calendar.Instance.IOutlook.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
             }
         }
 

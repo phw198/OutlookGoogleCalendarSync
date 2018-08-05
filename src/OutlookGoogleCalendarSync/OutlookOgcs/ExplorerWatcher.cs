@@ -13,15 +13,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private Explorers explorers;
         private List<Explorer> watchExplorers = new List<Explorer>();
 
-        public ExplorerWatcher(Explorers explorers) {
-            log.Info("Setting up Explorer event watchers.");
-            log.Debug("Watch needed for " + explorers.Count + " existing explorers.");
-            for (int e = 1; e <= explorers.Count; e++) {
-                watchForPasteEvents(explorers[e]);
+        public ExplorerWatcher(Application oApp) {
+            Explorers explorers = null;
+            try {
+                explorers = oApp.Explorers;
+
+                log.Info("Setting up Explorer event watchers.");
+                log.Debug("Watch needed for " + explorers.Count + " existing explorers.");
+                for (int e = 1; e <= explorers.Count; e++) {
+                    watchForPasteEvents(explorers[e]);
+                }
+                log.Fine("Watch for new explorers.");
+                this.explorers = explorers;
+                this.explorers.NewExplorer += new ExplorersEvents_NewExplorerEventHandler(explorers_NewExplorer);
+            } finally {
+                explorers = (Explorers)Calendar.ReleaseObject(explorers);
             }
-            log.Fine("Watch for new explorers.");
-            this.explorers = explorers;
-            this.explorers.NewExplorer += new ExplorersEvents_NewExplorerEventHandler(explorers_NewExplorer);
         }
         
         private void watchForPasteEvents(Explorer newExplorer) {

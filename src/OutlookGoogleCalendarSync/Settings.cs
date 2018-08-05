@@ -18,27 +18,26 @@ namespace OutlookGoogleCalendarSync {
         public static String ConfigFilename {
             get { return configFilename; }
         }
-        public static String ConfigDirectory;
         /// <summary>
         /// Absolute path to config file, eg C:\foo\bar\settings.xml
         /// </summary>
         public static String ConfigFile {
-            get { return Path.Combine(ConfigDirectory, ConfigFilename); }
+            get { return Path.Combine(Program.WorkingFilesDirectory, ConfigFilename); }
         }
 
         public static void InitialiseConfigFile(String filename, String directory = null) {
             if (!string.IsNullOrEmpty(filename)) configFilename = filename;
-            ConfigDirectory = directory;
+            Program.WorkingFilesDirectory = directory;
 
-            if (string.IsNullOrEmpty(ConfigDirectory)) {
+            if (string.IsNullOrEmpty(Program.WorkingFilesDirectory)) {
                 if (Program.IsInstalled || File.Exists(Path.Combine(Program.RoamingProfileOGCS, ConfigFilename)))
-                    ConfigDirectory = Program.RoamingProfileOGCS;
+                    Program.WorkingFilesDirectory = Program.RoamingProfileOGCS;
                 else
-                    ConfigDirectory = System.Windows.Forms.Application.StartupPath;
+                    Program.WorkingFilesDirectory = System.Windows.Forms.Application.StartupPath;
             }
 
             if (!File.Exists(ConfigFile)) {
-                log.Info("No settings.xml file found in " + ConfigDirectory);
+                log.Info("No settings.xml file found in " + Program.WorkingFilesDirectory);
                 Settings.Instance.Save(ConfigFile);
                 log.Info("New blank template created.");
                 if (!Program.IsInstalled)
@@ -117,6 +116,7 @@ namespace OutlookGoogleCalendarSync {
             SetEntriesAvailable = false;
             SetEntriesColour = false;
             SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
+            SetEntriesColourName = "None";
             Obfuscation = new Obfuscate();
 
             MuteClickSounds = false;
@@ -260,6 +260,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool SetEntriesAvailable { get; set; }
         [DataMember] public bool SetEntriesColour { get; set; }
         [DataMember] public String SetEntriesColourValue { get; set; }
+        [DataMember] public String SetEntriesColourName { get; set; }
         
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
@@ -294,6 +295,14 @@ namespace OutlookGoogleCalendarSync {
 
         [DataMember] public bool CreateCSVFiles { get; set; }
         [DataMember] public String LoggingLevel { get; set; }
+        private bool? cloudLogging;
+        [DataMember] public bool? CloudLogging {
+            get { return cloudLogging; }
+            set {
+                cloudLogging = value;
+                GoogleOgcs.ErrorReporting.SetThreshold(value ?? false);
+            }
+        }
         //Proxy
         [DataMember] public SettingsProxy Proxy { get; set; }
         #endregion
@@ -342,10 +351,16 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MuteClickSounds { get; set; }
         [DataMember] public String SkipVersion { get; set; }
 
+        private static Boolean isLoaded = false;
+        public static Boolean IsLoaded {
+            get { return isLoaded; }
+        }
+
         public static void Load(string XMLfile = null) {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
+                Settings.isLoaded = true;
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
@@ -414,7 +429,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
-            log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue : ""));
+            log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
             if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
                 log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
@@ -471,6 +486,7 @@ namespace OutlookGoogleCalendarSync {
             //To pick up from settings.xml file:
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
+            log.Info("  Error Reporting: " + CloudLogging ?? "Undefined");
 
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);

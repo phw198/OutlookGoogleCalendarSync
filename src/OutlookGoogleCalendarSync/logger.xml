@@ -4,6 +4,7 @@
 			<conversionPattern value="%date %-5level %logger [%L]: %message%newline" />
 		</layout>
 	</appender>
+  
 	<appender name="RollingFile" type="log4net.Appender.RollingFileAppender">
 		<file type="log4net.Util.PatternString" value="%property{LogPath}%property{LogFilename}" />
 		<encoding value="utf-8" />
@@ -14,11 +15,36 @@
 			<conversionPattern value="%date %level  %thread	%logger	[%L] -  %message%newline" />
 		</layout>
 	</appender>
+  
+  <appender name="GoogleStackdriver" type="Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender,Google.Cloud.Logging.Log4Net">
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%property{CloudLogUuid} %-4timestamp [%thread] %-5level %logger - %message" />
+    </layout>
+    <projectId value="outlook-google-calendar-sync" />
+    <logId type="log4net.Util.PatternString" value="%property{CloudLogId}" />
+  </appender>
+  
+  <appender name="CloudLogger" type="log4net.Appender.BufferingForwardingAppender" >
+    <bufferSize value="50" />
+    <lossy value="true" />
+    <evaluator type="log4net.Core.LevelEvaluator">
+      <threshold value="ERROR" />
+    </evaluator>
+    <appender-ref ref="GoogleStackdriver" />
+  </appender>
+
+  <appender name="ErrorFlagAppender" type="OutlookGoogleCalendarSync.ErrorFlagAppender,OutlookGoogleCalendarSync" >
+    <filter type="log4net.Filter.LevelRangeFilter">
+      <levelMin value="ERROR"/>
+    </filter>
+  </appender>
 	
 	<root>
 		<level value="DEBUG" />
 		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
+		<appender-ref ref="CloudLogger" />
+        <appender-ref ref="ErrorFlagAppender" />
 	</root>
 
 	<logger name="DotNetOpenAuth">

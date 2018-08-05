@@ -1,0 +1,1135 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Api.Gax.Grpc</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall`2">
+            <summary>
+            Bridge between a duplex streaming RPC method and higher level
+            abstractions, applying call settings as required.
+            </summary>
+            <typeparam name="TRequest">RPC request type</typeparam>
+            <typeparam name="TResponse">RPC response type</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall`2.BaseCallSettings">
+            <summary>
+            The base <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for this API call; these can be further overridden by providing
+            a <c>CallSettings</c> to <see cref="M:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall`2.Call(Google.Api.Gax.Grpc.CallSettings)"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall`2.StreamingSettings">
+            <summary>
+            Streaming settings.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall`2.Call(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Initializes a streaming RPC call.
+            </summary>
+            <param name="perCallCallSettings">The call settings to apply to this specific call,
+            overriding defaults where necessary.</param>
+            <returns>A gRPC duplex streaming call object.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ApiCall`2">
+            <summary>
+            Bridge between an RPC method (with synchronous and asynchronous variants) and higher level
+            abstractions, applying call settings as required.
+            </summary>
+            <typeparam name="TRequest">RPC request type</typeparam>
+            <typeparam name="TResponse">RPC response type</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ApiCall`2.BaseCallSettings">
+            <summary>
+            The base <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for this API call; these can be further overridden by providing
+            a <c>CallSettings</c> to <see cref="M:Google.Api.Gax.Grpc.ApiCall`2.Async(`0,Google.Api.Gax.Grpc.CallSettings)"/> or <see cref="M:Google.Api.Gax.Grpc.ApiCall`2.Sync(`0,Google.Api.Gax.Grpc.CallSettings)"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiCall`2.Async(`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Performs an RPC call asynchronously.
+            </summary>
+            <param name="request">The RPC request.</param>
+            <param name="perCallCallSettings">The call settings to apply to this specific call,
+            overriding defaults where necessary.</param>
+            <returns>A task representing the asynchronous operation. The result of the completed task
+            will be the RPC response.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiCall`2.Sync(`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Performs an RPC call synchronously.
+            </summary>
+            <param name="request">The RPC request.</param>
+            <param name="perCallCallSettings">The call settings to apply to this specific call,
+            overriding defaults where necessary.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiCall`2.WithCallSettingsOverlay(System.Func{`0,Google.Api.Gax.Grpc.CallSettings})">
+            <summary>
+            Construct a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an overlay to
+            the underlying <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>. If a value exists in both the original and
+            the overlay, the overlay takes priority.
+            </summary>
+            <param name="callSettingsOverlayFn">Function that builds the overlay <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.</param>
+            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> with the overlay applied.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2">
+            <summary>
+            Bridge between a server streaming RPC method and higher level
+            abstractions, applying call settings as required.
+            </summary>
+            <typeparam name="TRequest">RPC request type</typeparam>
+            <typeparam name="TResponse">RPC response type</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.BaseCallSettings">
+            <summary>
+            The base <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for this API call; these can be further overridden by providing
+            a <c>CallSettings</c> to <see cref="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.Call(`0,Google.Api.Gax.Grpc.CallSettings)"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.CallAsync(`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Initializes a streaming RPC call asynchronously.
+            </summary>
+            <param name="request">The RPC request.</param>
+            <param name="perCallCallSettings">The call settings to apply to this specific call,
+            overriding defaults where necessary.</param>
+            <returns>A task representing the gRPC duplex streaming call object.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.Call(`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Initializes a streaming RPC call.
+            </summary>
+            <param name="request">The RPC request.</param>
+            <param name="perCallCallSettings">The call settings to apply to this specific call,
+            overriding defaults where necessary.</param>
+            <returns>A gRPC duplex streaming call object.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.WithCallSettingsOverlay(System.Func{`0,Google.Api.Gax.Grpc.CallSettings})">
+            <summary>
+            Construct a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an overlay to
+            the underlying <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>. If a value exists in both the original and
+            the overlay, the overlay takes priority.
+            </summary>
+            <param name="callSettingsOverlayFn">Function that builds the overlay <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.</param>
+            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> with the overlay applied.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.BackoffSettings">
+            <summary>
+            Backoff settings used within <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> to implement
+            exponential backoff.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BackoffSettings.Delay">
+            <summary>
+            The initial delay, either for the first retry or as the initial RPC timeout.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BackoffSettings.MaxDelay">
+            <summary>
+            The maximum delay to use. If the increasing delay due to the delay multiplier exceeds this,
+            this maximum is used instead.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BackoffSettings.DelayMultiplier">
+            <summary>
+            The multiplier to apply to the delay on each iteration; must be greater than or equal to 1.0.
+            </summary>
+            <remarks>
+            <para>
+            As an example, a multiplier of 2.0 with a delay of 0.1s on an RPC which fails three times before
+            succeeding would lead to an initial delay between the first response and the second request
+            of 0.1s; a delay between the second response and the third request of 0.2s, and a delay
+            between the third response and the fourth request.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BackoffSettings.#ctor(System.TimeSpan,System.TimeSpan,System.Double)">
+            <summary>
+            Creates a new instance with the specified settings.
+            </summary>
+            <param name="delay">The initial delay, either for the first retry or as the initial RPC timeout.</param>
+            <param name="maxDelay">The maximum delay to use. If the increasing delay due to the delay multiplier exceeds this,
+            this maximum is used instead.</param>
+            <param name="delayMultiplier">The multiplier to apply to the delay on each iteration; must be greater than or equal to 1.0.
+            Defaults to 1.0.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BackoffSettings.NextDelay(System.TimeSpan)">
+            <summary>
+            Works out the next delay from the current one, based on the multiplier and maximum.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2">
+            <summary>
+            Base class for bidirectional streaming RPC methods.
+            </summary>
+            <typeparam name="TRequest">RPC request type</typeparam>
+            <typeparam name="TResponse">RPC response type</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.GrpcCall">
+            <summary>
+            The underlying gRPC duplex streaming call.
+            Warning: DO NOT USE <c>GrpcCall.RequestStream</c> at all if using
+            <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.TryWriteAsync(`0)"/>, <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteAsync(`0)"/>,
+            <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.TryWriteAsync(`0,Grpc.Core.WriteOptions)"/> , or <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteAsync(`0,Grpc.Core.WriteOptions)"/>.
+            Doing so will cause conflict with the write-buffer used within the <c>[Try]WriteAsync</c> methods.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.TryWriteAsync(`0)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/>
+            hasn't already been called. The same write options will be used as for the previous message.
+            </summary>
+            <param name="message">The message to write.</param>
+            <returns><c>null</c> if the message queue is full or the stream has already been completed;
+            otherwise, a <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteAsync(`0)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/>
+            hasn't already been called. The same write options will be used as for the previous message.
+            </summary>
+            <param name="message">The message to write.</param>
+            <exception cref="T:System.InvalidOperationException">There isn't enough space left in the buffer,
+            or <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/> has already been called.</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.TryWriteAsync(`0,Grpc.Core.WriteOptions)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/>
+            hasn't already been called.
+            </summary>
+            <param name="message">The message to write.</param>
+            <param name="options">The write options to use for this message.</param>
+            <returns><c>null</c> if the message queue is full or the stream has already been completed.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteAsync(`0,Grpc.Core.WriteOptions)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/>
+            hasn't already been called.
+            </summary>
+            <param name="message">The message to write.</param>
+            <param name="options">The write options to use for this message.</param>
+            <exception cref="T:System.InvalidOperationException">There isn't enough space left in the buffer,
+            or <see cref="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync"/> has already been called.</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.TryWriteCompleteAsync">
+            <summary>
+            Completes the stream when all buffered messages have been sent.
+            Only the first call to this method on any instance will have any effect;
+            subsequent calls will return <c>null</c>.
+            </summary>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the stream has finished being completed;
+            or <c>null</c> if this method has already been called.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.WriteCompleteAsync">
+            <summary>
+            Completes the stream when all buffered messages have been sent. This method can only be called
+            once, and further messages cannot be written after it has been called.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">This method has already been called.</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the stream has finished being completed.</returns>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BidirectionalStreamingBase`2.ResponseStream">
+            <summary>
+            Async stream to read streaming responses.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.BidirectionalStreamingSettings">
+            <summary>
+            Settings for bidirectional streaming.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BidirectionalStreamingSettings.#ctor(System.Int32)">
+            <summary>
+            Configure settings for bidirectional streaming.
+            </summary>
+            <param name="bufferedClientWriterCapacity">The capacity of the write buffer.</param>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BidirectionalStreamingSettings.BufferedClientWriterCapacity">
+            <summary>
+            The capacity of the write buffer, that locally buffers streaming requests
+            before they are sent to the server.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1">
+            <summary>
+            A wrapper around <see cref="T:Grpc.Core.IClientStreamWriter`1"/> which removes the "one write at a time"
+            restriction by buffering messages (and the completion signal) up to a given capacity.
+            </summary>
+            <typeparam name="T">The type of message in the stream.</typeparam>
+        </member>
+        <member name="F:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1._queue">
+            <summary>
+            Queue of requests. If this is non-empty, there's at least one request in-flight, which
+            is always the head of the queue.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.Capacity">
+            <summary>
+            The capacity of the writer.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.BufferedWriteCount">
+            <summary>
+            The number of write calls that have been buffered.
+            </summary>
+            <remarks>
+            The value of this property may change due to activity from other threads. It should only be used
+            for testing and similar scenarios where the system state is well understood.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.#ctor(Grpc.Core.IClientStreamWriter{`0},System.Int32)">
+            <summary>
+            Constructs an instance which writes to the specified writer, and with the given capacity.
+            </summary>
+            <param name="writer">The writer to delegate to.</param>
+            <param name="capacity">The maximum number of messages to buffer.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.TryWriteAsync(`0)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync"/>
+            hasn't already been called. The same write options will be used as for the previous message.
+            </summary>
+            <param name="message">The message to write.</param>
+            <returns><c>null</c> if the message queue is full or the stream has already been completed;
+            otherwise, a <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.TryWriteAsync(`0,Grpc.Core.WriteOptions)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync"/>
+            hasn't already been called.
+            </summary>
+            <param name="message">The message to write.</param>
+            <param name="options">The write options to use for this message.</param>
+            <returns><c>null</c> if the message queue is full or the stream has already been completed.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteAsync(`0)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync"/>
+            hasn't already been called. The same write options will be used as for the previous message.
+            </summary>
+            <param name="message">The message to write.</param>
+            <exception cref="T:System.InvalidOperationException">There isn't enough space left in the buffer,
+            or the stream has been completed.</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteAsync(`0,Grpc.Core.WriteOptions)">
+            <summary>
+            Writes a message to the stream, if there is enough space in the buffer and <see cref="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync"/>
+            hasn't already been called.
+            </summary>
+            <param name="message">The message to write.</param>
+            <param name="options">The write options to use for this message.</param>
+            <exception cref="T:System.InvalidOperationException">There isn't enough space left in the buffer,
+            or <see cref="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync"/> has already been called.</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the message has been written to the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.HandleWriteComplete(System.Threading.Tasks.Task)">
+            <summary>
+            One of the writes completes - possibly successfully, possibly not. On success,
+            we start the next write (or complete) sending if there is one. On failure, we propagate the result
+            of this task to all other tasks. Those will in turn trigger further calls to this method,
+            but by that time we'll have retained the failed task so we can just exit quickly.
+            </summary>
+            <param name="writeResult"></param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.ValidateStateForWrite(System.Boolean,System.Boolean)">
+            <summary>
+            Validates that we can write to the stream, optionally throwing if there's an error.
+            This is basically to avoid a big chunk of code appearing in WriteAsyncImpl.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.TryWriteCompleteAsync">
+            <summary>
+            Completes the stream when all buffered messages have been sent, if there is enough space in the buffer.
+            This method can only be successfully called once, and further messages cannot be written after it
+            has been successfully called.
+            </summary>
+            <returns><c>null</c> if this stream has already be completed, or if the buffer is full; otherwise a
+            <see cref="T:System.Threading.Tasks.Task"/> which will complete when the stream has finished being completed.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.BufferedClientStreamWriter`1.WriteCompleteAsync">
+            <summary>
+            Completes the stream when all buffered messages have been sent, if there is enough space in the buffer.
+            This method can only be successfully called once, and further messages cannot be written after it
+            has been successfully called.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">This stream has already be completed, or the buffer is full</exception>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> which will complete when the stream has finished being completed.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.CallSettings">
+            <summary>
+            Settings to determine how an RPC operates. This type is immutable.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.#ctor(System.Nullable{System.Threading.CancellationToken},Grpc.Core.CallCredentials,Google.Api.Gax.Grpc.CallTiming,System.Action{Grpc.Core.Metadata},Grpc.Core.WriteOptions,Grpc.Core.ContextPropagationToken)">
+            <summary>
+            Constructs an instance with the specified settings.
+            </summary>
+            <param name="cancellationToken">Cancellation token that can be used for cancelling the call.</param>
+            <param name="credentials">Credentials to use for the call.</param>
+            <param name="timing"><see cref="T:Google.Api.Gax.Grpc.CallTiming"/> to use, or null for default retry/expiration behavior.</param>
+            <param name="headerMutation">Action to modify the headers to send at the beginning of the call.</param>
+            <param name="writeOptions"><see cref="T:Grpc.Core.WriteOptions"/> that will be used for the call.</param>
+            <param name="propagationToken"><see cref="T:Grpc.Core.ContextPropagationToken"/> for propagating settings from a parent call.</param>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.HeaderMutation">
+            <summary>
+            Delegate to mutate the metadata which will be sent at the start of the call,
+            typically to add custom headers.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.CancellationToken">
+            <summary>
+            Cancellation token that can be used for cancelling the call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.WriteOptions">
+            <summary>
+            <see cref="T:Grpc.Core.WriteOptions"/> that will be used for the call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.PropagationToken">
+            <summary>
+            <see cref="T:Grpc.Core.ContextPropagationToken"/> for propagating settings from a parent call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.Credentials">
+            <summary>
+            Credentials to use for the call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallSettings.Timing">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> to use, or null for default retry/expiration behavior.
+            </summary>
+            <remarks>
+            Allows selecting between retry and simple expiration.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.Merge(Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Merges the settings in <paramref name="overlaid"/> with those in
+            <paramref name="original"/>, with <paramref name="overlaid"/> taking priority.
+            If both arguments are null, the result is null. If one argument is null,
+            the other argument is returned. Otherwise, a new object is created with a property-wise
+            overlay. Any header mutations are combined, however: the mutation from the original is
+            performed, then the mutation in the overlay.
+            </summary>
+            <param name="original">Original settings. May be null.</param>
+            <param name="overlaid">Settings to overlay. May be null.</param>
+            <returns>A merged set of call settings.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromCancellationToken(System.Threading.CancellationToken)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for the specified cancellation token.
+            </summary>
+            <param name="cancellationToken">The cancellation token for the new settings.</param>
+            <returns>A new instance.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromCallCredentials(Grpc.Core.CallCredentials)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for the specified call credentials, or returns null
+            if <paramref name="credentials"/> is null.
+            </summary>
+            <param name="credentials">The call credentials for the new settings.</param>
+            <returns>A new instance, or null if <paramref name="credentials"/> is null.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromCallTiming(Google.Api.Gax.Grpc.CallTiming)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for the specified call timing, or returns null
+            if <paramref name="timing"/> is null.
+            </summary>
+            <param name="timing">The call timing for the new settings.</param>
+            <returns>A new instance or null if <paramref name="timing"/> is null..</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromHeaderMutation(System.Action{Grpc.Core.Metadata})">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for the specified header mutation, or returns null
+            if <paramref name="headerMutation"/> is null.
+            </summary>
+            <param name="headerMutation">Action to modify the headers to send at the beginning of the call.</param>
+            <returns>A new instance, or null if <paramref name="headerMutation"/> is null..</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromHeader(System.String,System.String)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for the specified header name and value.
+            </summary>
+            <param name="name">The name of the header to add. Must not be null.</param>
+            <param name="value">The value of the header to add. Must not be null.</param>
+            <returns>A new instance.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromFieldMask(System.String)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> that will include a field mask in the request, to
+            limit which fields are returned in the response.
+            </summary>
+            <remarks>
+            The precise effect on the request is not guaranteed: it may be through a header or a side-channel,
+            for example. Likewise the effect of combining multiple settings containing field masks is not specified.
+            </remarks>
+            <param name="fieldMask">The field mask for the request. Must not be null.</param>
+            <returns>A new instance.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.CallSettingsExtensions">
+            <summary>
+            Extension methods for <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.
+            All methods accept a null first parameter as valid unless stated otherwise.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.MergedWith(Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            This method merges the settings in <paramref name="overlaid"/> with those in
+            <paramref name="original"/>, with <paramref name="overlaid"/> taking priority.
+            If both arguments are null, the result is null. If one argument is null,
+            the other argument is returned. Otherwise, a new object is created with a property-wise
+            overlay, where null values do not override non-null values.
+            Any header mutations are combined, however: the mutation from the original is
+            performed, then the mutation in the overlay.
+            </summary>
+            <param name="original">Original settings. May be null.</param>
+            <param name="overlaid">Settings to overlay. May be null.</param>
+            <returns>A merged set of call settings, or null if both parameters are null.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithCancellationToken(Google.Api.Gax.Grpc.CallSettings,System.Threading.CancellationToken)">
+            <summary>
+            Returns a new <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> with the specified cancellation token,
+            merged with the (optional) original settings specified by <paramref name="settings"/>.
+            </summary>
+            <param name="settings">Original settings. May be null, in which case the returned settings
+            will only contain the cancellation token.</param>
+            <param name="cancellationToken">Cancellation token for the new call settings.</param>
+            <returns>A new set of call settings.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithCallCredentials(Google.Api.Gax.Grpc.CallSettings,Grpc.Core.CallCredentials)">
+            <summary>
+            Returns a new <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> with the specified call credentials,
+            merged with the (optional) original settings specified by <paramref name="settings"/>.
+            </summary>
+            <param name="settings">Original settings. May be null, in which case the returned settings
+            will only contain call credentials.</param>
+            <param name="credentials">Call credentials for the new call settings.
+            This may be null, in which case any call credentials in <paramref name="settings"/> are
+            not present in the new call settings. If both this and <paramref name="settings"/> are null,
+            the return value is null.</param>
+            <returns>A new set of call settings, or null if both parameters are null.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithCallTiming(Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.Grpc.CallTiming)">
+            <summary>
+            Returns a new <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> with the specified call timing,
+            merged with the (optional) original settings specified by <paramref name="settings"/>.
+            </summary>
+            <param name="settings">Original settings. May be null, in which case the returned settings
+            will only contain call timing.</param>
+            <param name="timing">Call timing for the new call settings.
+            This may be null, in which case any call timing in <paramref name="settings"/> are
+            not present in the new call settings. If both this and <paramref name="settings"/> are null,
+            the return value is null.</param>
+            <returns>A new set of call settings, or null if both parameters are null.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithHeader(Google.Api.Gax.Grpc.CallSettings,System.String,System.String)">
+            <summary>
+            Returns a new <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> with the specified header,
+            merged with the (optional) original settings specified by <paramref name="settings"/>.
+            </summary>
+            <param name="settings">Original settings. May be null, in which case the returned settings
+            will only contain the header.</param>
+            <param name="name">Header name. Must not be null.</param>
+            <param name="value">Header value. Must not be null.</param>
+            <returns>A new set of call settings including the specified header.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithEarlierDeadline(Google.Api.Gax.Grpc.CallSettings,System.Nullable{System.DateTime},Google.Api.Gax.IClock)">
+            <summary>
+            Returns a <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> which will have an effective deadline of at least <paramref name="deadline"/>.
+            If <paramref name="settings"/> already observes an earlier deadline (with respect to <paramref name="clock"/>),
+            or if <paramref name="deadline"/> is null, the original settings will be returned.
+            </summary>
+            <param name="settings">Existing settings. May be null, meaning there are currently no settings.</param>
+            <param name="deadline">Deadline to enforce. May be null, meaning there is no deadline to enforce.</param>
+            <param name="clock">The clock to use when computing deadlines. Must not be null.</param>
+            <returns>The call settings to use to observe the given deadline.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.WithExpiration(Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.Expiration)">
+            <summary>
+            Returns a new <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> with the given the expiration, merged with the (optional) original settings specified by <paramref name="settings"/>.
+            </summary>
+            <remarks>
+            If <paramref name="settings"/> is non-null and has retry-based timing, the returned settings will have the same timing, but with the specified
+            expiration. Otherwise, the returned settings will have a simple expiration.
+            </remarks>
+            <param name="settings">Existing settings. May be null, meaning there are currently no settings.</param>
+            <param name="expiration">Expiration to use in the returned settings, possibly as part of a retry. Must not be null.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettingsExtensions.ToCallOptions(Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.IClock)">
+            <summary>
+            Transfers settings contained in this into a <see cref="T:Grpc.Core.CallOptions"/>.
+            </summary>
+            <param name="callSettings">The call settings for the call. May be null.</param>
+            <param name="clock">The clock to use for deadline calculation.</param>
+            <returns>A <see cref="T:Grpc.Core.CallOptions"/> configured from this <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.CallTimingType">
+            <summary>
+            The type of <see cref="T:Google.Api.Gax.Grpc.CallTiming"/>; retry or expiration (no retry).
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Grpc.CallTimingType.Retry">
+            <summary>
+            Call uses retry, specified with a <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/>.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Grpc.CallTimingType.Expiration">
+            <summary>
+            Call does not use retry; call expiration is specified with an <see cref="T:Google.Api.Gax.Expiration"/> .
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.CallTiming">
+            <summary>
+            An RPC simple expiration; or retry settings.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallTiming.FromRetry(Google.Api.Gax.Grpc.RetrySettings)">
+            <summary>
+            Create a <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with retry.
+            </summary>
+            <param name="retry">The <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> for a call.</param>
+            <returns>A <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with the specified retry settings.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallTiming.FromExpiration(Google.Api.Gax.Expiration)">
+            <summary>
+            Create a <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with a simple expiration; no retry.
+            </summary>
+            <param name="expiration">The <see cref="T:Google.Api.Gax.Expiration"/> for a call without retry.</param>
+            <returns>A <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with the specified expiration; without retry.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallTiming.FromTimeout(System.TimeSpan)">
+            <summary>
+            Create a <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with a simple timeout; no retry.
+            </summary>
+            <param name="timeout">The relative timeout for a call without retry.</param>
+            <returns>A <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with the specified timeout; without retry.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallTiming.FromDeadline(System.DateTime)">
+            <summary>
+            Create a <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with a simple deadline; no retry.
+            </summary>
+            <param name="deadline">The absolute deadline for a call without retry.</param>
+            <returns>A <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> with the specified deadline; without retry.</returns>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallTiming.Retry">
+            <summary>
+            If not null, the <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> specifying how retry is performed
+            for this call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallTiming.Expiration">
+            <summary>
+            If not null, the <see cref="P:Google.Api.Gax.Grpc.CallTiming.Expiration"/> specifying when this call expires
+            (with no retry).
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.CallTiming.Type">
+            <summary>
+            What <see cref="T:Google.Api.Gax.Grpc.CallTimingType"/> is contained in this <see cref="T:Google.Api.Gax.Grpc.CallTiming"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.CallTimingExtensions.CalculateDeadline(Google.Api.Gax.Grpc.CallTiming,Google.Api.Gax.IClock)">
+            <summary>
+            Calculate a deadline from a <see cref="T:Google.Api.Gax.Grpc.CallTiming"/> and a <see cref="T:Google.Api.Gax.IClock"/>.
+            </summary>
+            <param name="callTiming"><see cref="T:Google.Api.Gax.Grpc.CallTiming"/>, may be null.</param>
+            <param name="clock"><see cref="T:Google.Api.Gax.IClock"/> to use for deadline calculation.</param>
+            <returns>The calculated absolute deadline, or null is no deadline should be used.</returns>
+            <exception cref="T:System.InvalidOperationException">
+            The <paramref name="callTiming"/> uses retry. Only a simple expiration is valid
+            for calculating a deadline.
+            </exception>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ChannelPool">
+            <summary>
+            A pool of channels for the same service, but with potentially different endpoints. Each endpoint
+            has a single channel. All channels created by this pool use default application credentials.
+            This class is thread-safe.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Grpc.ChannelPool._lazyScopedDefaultChannelCredentials">
+            <summary>
+            Lazily-created task to retrieve the default application channel credentials. Once completed, this
+            task can be used whenever channel credentials are required. The returned task always runs in the
+            thread pool, so its result can be used synchronously from synchronous methods without risk of deadlock.
+            The same channel credentials are used by all pools. The field is initialized in the constructor, as it uses
+            _scopes, and you can't refer to an instance field within an instance field initializer.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.#ctor(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a channel pool which will apply the specified scopes to the default application credentials
+            if they require any.
+            </summary>
+            <param name="scopes">The scopes to apply. Must not be null, and must not contain null references. May be empty.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.ShutdownChannelsAsync">
+            <summary>
+            Shuts down all the currently-allocated channels asynchronously. This does not prevent the channel
+            pool from being used later on, but the currently-allocated channels will not be reused.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannel(Google.Api.Gax.Grpc.ServiceEndpoint)">
+            <summary>
+            Returns a channel from this pool, creating a new one if there is no channel
+            already associated with <paramref name="endpoint"/>.
+            </summary>
+            <param name="endpoint">The endpoint to connect to. Must not be null.</param>
+            <returns>A channel for the specified endpoint.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannelAsync(Google.Api.Gax.Grpc.ServiceEndpoint)">
+            <summary>
+            Asynchronously returns a channel from this pool, creating a new one if there is no channel
+            already associated with <paramref name="endpoint"/>.
+            </summary>
+            <param name="endpoint">The endpoint to connect to. Must not be null.</param>
+            <returns>A task representing the asynchronous operation. The value of the completed
+            task will be channel for the specified endpoint.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ClientHelper">
+            <summary>
+            Common helper code shared by clients.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientHelper.#ctor(Google.Api.Gax.Grpc.ServiceSettingsBase)">
+            <summary>
+            Constructs a helper from the given settings.
+            Behavior is undefined if settings are changed after construction.
+            </summary>
+            <param name="settings">The service settings.</param>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientHelper.Clock">
+            <summary>
+            The clock used for timing of retries and deadlines. This is never
+            null; if the clock isn't specified in the settings, this property
+            will return the <see cref="T:Google.Api.Gax.SystemClock"/> instance.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientHelper.Scheduler">
+            <summary>
+            The scheduler used for delays of retries. This is never
+            null; if the scheduler isn't specified in the settings, this property
+            will return the <see cref="T:Google.Api.Gax.SystemScheduler"/> instance.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientHelper.BuildApiCall``2(System.Func{``0,Grpc.Core.CallOptions,Grpc.Core.AsyncUnaryCall{``1}},System.Func{``0,Grpc.Core.CallOptions,``1},Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Builds an <see cref="T:Google.Api.Gax.Grpc.ApiCall"/> given suitable underlying async and sync calls.
+            </summary>
+            <typeparam name="TRequest">Request type, which must be a protobuf message.</typeparam>
+            <typeparam name="TResponse">Response type, which must be a protobuf message.</typeparam>
+            <param name="asyncGrpcCall">The underlying synchronous gRPC call.</param>
+            <param name="syncGrpcCall">The underlying asynchronous gRPC call.</param>
+            <param name="perMethodCallSettings">The default method call settings.</param>
+            <returns>An API call to proxy to the RPC calls</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientHelper.BuildApiCall``2(System.Func{``0,Grpc.Core.CallOptions,Grpc.Core.AsyncServerStreamingCall{``1}},Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Builds an <see cref="T:Google.Api.Gax.Grpc.ApiServerStreamingCall"/> given a suitable underlying server streaming call.
+            </summary>
+            <typeparam name="TRequest">Request type, which must be a protobuf message.</typeparam>
+            <typeparam name="TResponse">Response type, which must be a protobuf message.</typeparam>
+            <param name="grpcCall">The underlying gRPC duplex streaming call.</param>
+            <param name="perMethodCallSettings">The default method call settings.</param>
+            <returns>An API call to proxy to the RPC calls</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientHelper.BuildApiCall``2(System.Func{Grpc.Core.CallOptions,Grpc.Core.AsyncDuplexStreamingCall{``0,``1}},Google.Api.Gax.Grpc.CallSettings,Google.Api.Gax.Grpc.BidirectionalStreamingSettings)">
+            <summary>
+            Builds an <see cref="T:Google.Api.Gax.Grpc.ApiBidirectionalStreamingCall"/> given a suitable underlying duplex call.
+            </summary>
+            <typeparam name="TRequest">Request type, which must be a protobuf message.</typeparam>
+            <typeparam name="TResponse">Response type, which must be a protobuf message.</typeparam>
+            <param name="grpcCall">The underlying gRPC duplex streaming call.</param>
+            <param name="perMethodCallSettings">The default method call settings.</param>
+            <param name="streamingSettings">The default streaming settings.</param>
+            <returns>An API call to proxy to the RPC calls</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3">
+            <summary>
+            An asynchronous sequence of resources, obtained lazily via API operations which retrieve a page at a time.
+            </summary>
+            <typeparam name="TRequest">The API request type.</typeparam>
+            <typeparam name="TResponse">The API response type. Each response contains a page of resources.</typeparam>
+            <typeparam name="TResource">The resource type contained within the response.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3.#ctor(Google.Api.Gax.Grpc.ApiCall{`0,`1},`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Creates a new lazily-evaluated asynchronous sequence from the given API call, initial request, and call settings.
+            </summary>
+            <remarks>The request is cloned each time the sequence is evaluated.</remarks>
+            <param name="apiCall">The API call made each time a page is required.</param>
+            <param name="request">The initial request.</param>
+            <param name="callSettings">The settings to apply to each API call.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3.AsRawResponses">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3.ReadPageAsync(System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ResponseAsyncEnumerable`3">
+            <summary>
+            An asynchronous sequence of API responses, each containing a page of resources.
+            </summary>
+            <typeparam name="TRequest">The API request type.</typeparam>
+            <typeparam name="TResponse">The API response type.</typeparam>
+            <typeparam name="TResource">The resource type contained within the response.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ResponseAsyncEnumerable`3.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.GrpcPagedEnumerable`3">
+            <summary>
+            A sequence of resources, obtained lazily via API operations which retrieve a page at a time.
+            </summary>
+            <typeparam name="TRequest">The API request type.</typeparam>
+            <typeparam name="TResponse">The API response type. Each response contains a page of resources.</typeparam>
+            <typeparam name="TResource">The resource type contained within the response.</typeparam>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedEnumerable`3.#ctor(Google.Api.Gax.Grpc.ApiCall{`0,`1},`0,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Creates a new lazily-evaluated sequence from the given API call, initial request, and call settings.
+            </summary>
+            <remarks>The request is cloned each time the sequence is evaluated.</remarks>
+            <param name="apiCall">The API call made each time a page is required.</param>
+            <param name="request">The initial request.</param>
+            <param name="callSettings">The settings to apply to each API call.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedEnumerable`3.AsRawResponses">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedEnumerable`3.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcPagedEnumerable`3.ReadPage(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.MonitoredResourceBuilder">
+            <summary>
+            Helper methods to build a <see cref="T:Google.Api.MonitoredResource"/> instance.
+            See the <a href="https://cloud.google.com/logging/docs/api/v2/resource-list">
+            Monitored Resource List</a> for details.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.MonitoredResourceBuilder.GlobalResource">
+            <summary>
+            An instance of a "global" resource, with <see cref="P:Google.Api.MonitoredResource.Type"/>
+            set to "global", and an empty set of <see cref="P:Google.Api.MonitoredResource.Labels"/>.
+            </summary>
+            <remarks>
+            A new instance is returned with each call, as the returned object is mutable.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.MonitoredResourceBuilder.FromPlatform">
+            <summary>
+            Builds a <see cref="T:Google.Api.MonitoredResource"/> from the auto-detected
+            platform, using <see cref="M:Google.Api.Gax.Platform.Instance"/>.
+            This call can block for up to 1 second.
+            </summary>
+            <returns>A <see cref="T:Google.Api.MonitoredResource"/> instance, populated most suitably for the given platform.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.MonitoredResourceBuilder.FromPlatformAsync">
+            <summary>
+            Builds a <see cref="T:Google.Api.MonitoredResource"/> from the auto-detected
+            platform, using <see cref="M:Google.Api.Gax.Platform.Instance"/>.
+            </summary>
+            <returns>A task, the result of which will be a <see cref="T:Google.Api.MonitoredResource"/> instance,
+            populated most suitably for the given platform.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.MonitoredResourceBuilder.FromPlatform(Google.Api.Gax.Platform)">
+            <summary>
+            Builds a suitable <see cref="T:Google.Api.MonitoredResource"/> instance, given
+            <see cref="T:Google.Api.Gax.Platform"/> information.
+            Use <see cref="M:Google.Api.Gax.Grpc.MonitoredResourceBuilder.FromPlatform"/> or <see cref="M:Google.Api.Gax.Grpc.MonitoredResourceBuilder.FromPlatformAsync"/> to build a
+            <see cref="T:Google.Api.MonitoredResource"/> from auto-detected platform information.
+            </summary>
+            <param name="platform"><see cref="T:Google.Api.Gax.Platform"/> information, usually auto-detected.</param>
+            <returns>A <see cref="T:Google.Api.MonitoredResource"/> instance, populated most suitably for the given platform.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.IPageRequest">
+            <summary>
+            A request for a page-streaming operation.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.IPageRequest.PageToken">
+            <summary>
+            A token indicating the page to return. This is obtained from an earlier response,
+            via <see cref="P:Google.Api.Gax.Grpc.IPageResponse`1.NextPageToken"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.IPageRequest.PageSize">
+            <summary>
+            The maximum number of elements to return in the response.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.IPageResponse`1">
+            <summary>
+            A response in a page-streaming operation.
+            </summary>
+            <typeparam name="TResource">The type of resource contained in the response.</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.IPageResponse`1.NextPageToken">
+            <summary>
+            The token to set in the <see cref="P:Google.Api.Gax.Grpc.IPageRequest.PageToken"/> when requesting
+            the next page of results.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.RetrySettings">
+            <summary>
+            Settings for retrying RPCs.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.RetryBackoff">
+            <summary>
+            The backoff policy for the time between retries. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.TimeoutBackoff">
+            <summary>
+            The backoff policy for timeouts of retries. This is never null.
+            </summary>
+            <remarks>
+            This allows an increasing timeout, initially requesting a fast call,
+            then allowing a bit more time, then a bit more, and so on. However,
+            the timeout will also be adjusted to accommodate <see cref="P:Google.Api.Gax.Grpc.RetrySettings.TotalExpiration"/>.
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.TotalExpiration">
+            <summary>
+            The total expiration, across all retries. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.RetryFilter">
+            <summary>
+            A predicate to determine whether or not a particular exception should cause the operation to be retried.
+            Usually this is simply a matter of checking the status codes.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.DelayJitter">
+            <summary>
+            The delay jitter to apply for delays, defaulting to <see cref="P:Google.Api.Gax.Grpc.RetrySettings.RandomJitter"/>.
+            </summary>
+            <remarks>
+            "Jitter" is used to introduce randomness into the pattern of delays. This is to avoid multiple
+            clients performing the same delay pattern starting at the same point in time,
+            leading to higher-than-necessary contention. The default jitter simply takes each maximum delay
+            and returns an actual delay which is a uniformly random value between 0 and the maximum. This
+            is good enough for most applications, but makes precise testing difficult.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.#ctor(Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Expiration)">
+            <summary>
+            Constructs an instance with the given backoff configuration, the default RPC filter and
+            jitter.
+            </summary>
+            <param name="retryBackoff">The backoff policy for the time between retries. Must not be null.</param>
+            <param name="timeoutBackoff">The backoff policy for timeouts of retries. Must not be null.</param>
+            <param name="totalExpiration">The total expiration, across all retries. Must not be null.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.#ctor(Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Expiration,System.Predicate{Grpc.Core.RpcException})">
+            <summary>
+            Constructs an instance with the given configuration, and the default jitter.
+            </summary>
+            <param name="retryBackoff">The backoff policy for the time between retries. Must not be null.</param>
+            <param name="timeoutBackoff">The backoff policy for timeouts of retries. Must not be null.</param>
+            <param name="totalExpiration">The total expiration, across all retries. Must not be null.</param>
+            <param name="retryFilter">A predicate to determine whether or not a particular exception should cause the operation to be retried,
+            or null for the default filter.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.#ctor(Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Grpc.BackoffSettings,Google.Api.Gax.Expiration,System.Predicate{Grpc.Core.RpcException},Google.Api.Gax.Grpc.RetrySettings.IJitter)">
+            <summary>
+            Constructs an instance with the given configuration.
+            </summary>
+            <param name="retryBackoff">The backoff policy for the time between retries. Must not be null.</param>
+            <param name="timeoutBackoff">The backoff policy for timeouts of retries. Must not be null.</param>
+            <param name="totalExpiration">The total expiration, across all retries. Must not be null.</param>
+            <param name="retryFilter">A predicate to determine whether or not a particular exception should cause the operation to be retried,
+            or null for the default filter.</param>
+            <param name="delayJitter">The delay jitter to apply for delays, or null for the defautl (random) jitter.</param>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.RetrySettings.IJitter">
+            <summary>
+            Provides a mechanism for applying jitter to delays between retries.
+            See the <see cref="P:Google.Api.Gax.Grpc.RetrySettings.DelayJitter"/> property for more information.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.IJitter.GetDelay(System.TimeSpan)">
+            <summary>
+            Returns the actual delay to use given a maximum available delay.
+            </summary>
+            <param name="maxDelay">The maximum delay provided by the backoff settings</param>
+            <returns>The delay to use before retrying.</returns>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.RandomJitter">
+            <summary>
+            The default jitter which returns a uniformly distributed random delay between 0 and
+            the specified maximum.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.NoJitter">
+            <summary>
+            A jitter which simply returns the specified maximum delay.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.RetrySettings.DefaultFilter">
+            <summary>
+            The default retry filter, which retries operations which fail due to a status code of "not found".
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.FilterForStatusCodes(Grpc.Core.StatusCode[])">
+            <summary>
+            Creates a retry filter based on status codes.
+            </summary>
+            <param name="statusCodes">The status codes to retry. Must not be null.</param>
+            <returns>A retry filter based on status codes.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.FilterForStatusCodes(System.Collections.Generic.IEnumerable{Grpc.Core.StatusCode})">
+            <summary>
+            Creates a retry filter based on status codes.
+            </summary>
+            <param name="statusCodes">The status codes to retry. Must not be null.</param>
+            <returns>A retry filter based on status codes.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RetrySettings.WithTotalExpiration(Google.Api.Gax.Expiration)">
+            <summary>
+            Builds a new RetrySettings which is identical to this one, but with the given expiration.
+            </summary>
+            <param name="expiration">New expiration</param>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ServerStreamingBase`1">
+            <summary>
+            Base class for server streaming RPC methods.
+            </summary>
+            <typeparam name="TResponse">RPC streaming response type</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServerStreamingBase`1.GrpcCall">
+            <summary>
+            The underlying gRPC duplex streaming call.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServerStreamingBase`1.ResponseStream">
+            <summary>
+            Async stream to read streaming responses.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ServiceEndpoint">
+            <summary>
+            Settings specifying a service endpoint in the form of a host name and port.
+            This class is immutable and thread-safe.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceEndpoint.Host">
+            <summary>
+            The host name to connect to. Never null or empty.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceEndpoint.Port">
+            <summary>
+            The port to connect to, in the range 1 to 65535 inclusive.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.#ctor(System.String,System.Int32)">
+            <summary>
+            Creates a new endpoint with the given host and port.
+            </summary>
+            <param name="host">The host name to connect to. Must not be null or empty.</param>
+            <param name="port">The port to connect to, in the range 1 to 65535 inclusive.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.WithHost(System.String)">
+            <summary>
+            Creates a new endpoint with the same port but the given host.
+            </summary>
+            <param name="host">The host name to connect to. Must not be null or empty.</param>
+            <returns>A new endpoint with the current port and the specified host.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.WithPort(System.Int32)">
+            <summary>
+            Creates a new endpoint with the same host but the given port.
+            </summary>
+            <param name="port">The port to connect to, in the range 1 to 65535 inclusive.</param>
+            <returns>A new endpoint with the current host and the specified port.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.ToString">
+            <summary>
+            Returns this endpoint's data in the format "host:port".
+            </summary>
+            <returns>This endpoint's data in the format "host:port".</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.Equals(System.Object)">
+            <summary>
+            Determines equality between this object and <paramref name="obj"/>.
+            </summary>
+            <param name="obj">The object to compare with this one.</param>
+            <returns><c>true</c> if <paramref name="obj"/> is a <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>
+            with the same host and port; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.GetHashCode">
+            <summary>
+            Returns a hash code for this object, consistent with <see cref="M:Google.Api.Gax.Grpc.ServiceEndpoint.Equals(Google.Api.Gax.Grpc.ServiceEndpoint)"/>.
+            </summary>
+            <returns>A hash code for this object.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.Equals(Google.Api.Gax.Grpc.ServiceEndpoint)">
+            <summary>
+            Determines equality between this endpoint and <paramref name="other"/>.
+            </summary>
+            <param name="other">The object to compare with this one.</param>
+            <returns><c>true</c> if <paramref name="other"/> is a <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>
+            with the same host and port; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ServiceSettingsBase">
+            <summary>
+            Common settings for all services.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceSettingsBase.#ctor">
+            <summary>
+            Constructs a new service settings base object with a default version header, unset call settings and
+            unset clock.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceSettingsBase.#ctor(Google.Api.Gax.Grpc.ServiceSettingsBase)">
+            <summary>
+            Constructs a new service settings base object by cloning the settings from an existing one.
+            </summary>
+            <param name="existing">The existing settings object to clone settings from. Must not be null.</param>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceSettingsBase.CallSettings">
+            <summary>
+            If not null, <see cref="P:Google.Api.Gax.Grpc.ServiceSettingsBase.CallSettings"/> that are applied to every RPC performed by the client.
+            If null or unset, RPC default settings will be used for all settings.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceSettingsBase.Clock">
+            <summary>
+            If not null, the clock used to calculate RPC deadlines. If null or unset, the <see cref="T:Google.Api.Gax.SystemClock"/> is used.
+            </summary>
+            <remarks>
+            This is primarily only to be set for testing.
+            In production code generally leave this unset to use the <see cref="T:Google.Api.Gax.SystemClock"/>.
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceSettingsBase.Scheduler">
+            <summary>
+            If not null, the scheduler used for delays between operations (e.g. for retry).
+            If null or unset, the <see cref="T:Google.Api.Gax.SystemScheduler"/> is used.
+            </summary>
+            <remarks>
+            This is primarily only to be set for testing.
+            In production code generally leave this unset to use the <see cref="T:Google.Api.Gax.SystemScheduler"/>.
+            </remarks>
+        </member>
+    </members>
+</doc>
