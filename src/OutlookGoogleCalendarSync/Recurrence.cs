@@ -449,8 +449,8 @@ namespace OutlookGoogleCalendarSync {
             log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookOgcs.Calendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
             Boolean haveMatchingEv = false;
-            if (OutlookOgcs.Calendar.ExistsOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID)) {
-                String googleIdValue = OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID);
+            if (OutlookOgcs.CustomProperty.Exists(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
+                String googleIdValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID);
                 Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
                 if (ev != null) {
                     events.Add(ev);

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
@@ -54,6 +52,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String returnSet = "";
             maxSet = 0;
             Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
+
+            //For backward compatibility, always default to key names with no set number appended
+            if (!calendarKeys.ContainsKey(calendarKeyName) || calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) {
+                maxSet = -1;
+                return null;
+            }
 
             foreach (KeyValuePair<String, String> kvp in calendarKeys) {
                 Regex rgx = new Regex("^" + calendarKeyName + "_*(\\d{0,2})", RegexOptions.IgnoreCase);
@@ -119,8 +123,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
         }
 
-        public static void Add(ref Event ev, MetadataId id, String value) {
-            String addkeyName = metadataIdKeyName(id);
+        public static void Add(ref Event ev, MetadataId key, String value) {
+            String addkeyName = metadataIdKeyName(key);
             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
             if (ev.ExtendedProperties.Private__ == null) ev.ExtendedProperties.Private__ = new Dictionary<String, String>();
 
@@ -132,7 +136,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Add(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
         }
         private static void add(ref Event ev, String keyName, String keyValue, int? keySet) {
-            if (keySet.HasValue) keyName += "_" + keySet.Value.ToString("D2");
+            if (keySet.HasValue && keySet.Value != 0) keyName += "_" + keySet.Value.ToString("D2");
             if (ev.ExtendedProperties.Private__.ContainsKey(keyName))
                 ev.ExtendedProperties.Private__[keyName] = keyValue;
             else
@@ -140,8 +144,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             log.Fine("Set extendedproperty " + keyName + "=" + keyValue);
         }
-
-
+        
         public static String Get(Event ev, MetadataId id) {
             String key;
             if (Exists(ev, id, out key)) {
