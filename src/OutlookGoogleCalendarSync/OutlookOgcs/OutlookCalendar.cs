@@ -692,6 +692,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void ReclaimOrphanCalendarEntries(ref List<AppointmentItem> oAppointments, ref List<Event> gEvents) {
             log.Debug("Scanning " + oAppointments.Count + " Outlook appointments for orphans to reclaim...");
+            String consoleTitle = "Reclaiming Outlook calendar entries";
 
             //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
             List<AppointmentItem> unclaimedAi = new List<AppointmentItem>();
@@ -716,6 +717,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             AddGoogleIDs(ref ai, ev);
                             updateCalendarEntry_save(ref ai);
                             unclaimedAi.Remove(ai);
+                            if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
+                            consoleTitle = "";
                             Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
                             break;
                         }

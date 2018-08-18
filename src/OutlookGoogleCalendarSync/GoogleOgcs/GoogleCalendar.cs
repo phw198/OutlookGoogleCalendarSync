@@ -181,7 +181,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         break;
                     } catch (Google.GoogleApiException ex) {
                         if (ex.Error.Code == 404) { //Not found
-                            log.Warn("Could not find Google Event with specified ID " + eventId);
+                            log.Fail("Could not find Google Event with specified ID " + eventId);
                             return null;
                         }
                         switch (handleAPIlimits(ex, null)) {
@@ -189,16 +189,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case apiException.freeAPIexhausted:
                                 throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
                             case apiException.backoffThenRetry: {
-                                    backoff++;
-                                    if (backoff == backoffLimit) {
-                                        log.Error("API limit backoff was not successful. Retrieve failed.");
-                                        throw;
-                                    } else {
-                                        log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                        System.Threading.Thread.Sleep(backoff * 1000);
-                                    }
-                                    break;
+                                backoff++;
+                                if (backoff == backoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
                                 }
+                                break;
+                            }
                         }
                     }
                 }
@@ -851,6 +851,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             log.Debug("Scanning "+ gEvents.Count +" Google events for orphans to reclaim...");
+            String consoleTitle = "Reclaiming Google calendar entries";
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
@@ -876,6 +877,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 AddOutlookIDs(ref ev, ai);
                                 UpdateCalendarEntry_save(ref ev);
                                 unclaimedEvents.Remove(originalEv);
+                                if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose:true);
+                                consoleTitle = "";
                                 Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
                                 gEvents[g] = ev;
                             } catch (System.Exception ex) {

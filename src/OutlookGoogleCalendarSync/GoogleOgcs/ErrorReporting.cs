@@ -16,6 +16,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public static void Initialise() {
             if (Program.StartedWithSquirrelArgs && !(Environment.GetCommandLineArgs()[1].ToLower().Equals("--squirrel-firstrun"))) return;
+            if (System.Diagnostics.Debugger.IsAttached) return;
 
             //Note, logging isn't actually initialised yet, so log4net won't log any lines within this function
 
