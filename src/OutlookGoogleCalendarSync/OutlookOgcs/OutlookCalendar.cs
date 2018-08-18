@@ -1119,6 +1119,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (ExistsOGCSproperty(outlook[o], MetadataId.gEventID)) {
                     String compare_oEventID = GetOGCSproperty(outlook[o], MetadataId.gEventID);
                     Boolean googleIDmissing = GoogleIdMissing(outlook[o]);
+                    Boolean foundMatch = false;
 
                     for (int g = google.Count - 1; g >= 0; g--) {
                         log.UltraFine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
@@ -1133,6 +1134,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 metadataEnhanced++;
                             }
                             if (ItemIDsMatch(outlook[o], google[g])) {
+                                foundMatch = true;
                                 compare.Add(outlook[o], google[g]);
                                 outlook.Remove(outlook[o]);
                                 google.Remove(google[g]);
@@ -1140,6 +1142,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     }
+                    if (!foundMatch && Settings.Instance.MergeItems)
+                        outlook.Remove(outlook[o]);
+
                 } else if (Settings.Instance.MergeItems) {
                     //Remove the non-Google item so it doesn't get deleted
                     outlook.Remove(outlook[o]);
