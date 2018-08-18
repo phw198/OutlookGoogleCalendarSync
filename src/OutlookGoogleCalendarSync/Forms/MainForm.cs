@@ -235,6 +235,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #endregion
             #region Google box
+            tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
             if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
                 cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
                 cbGoogleCalendars.SelectedIndex = 0;
@@ -1033,6 +1034,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
+                    Settings.Instance.GaccountEmail = "";
+                    tbConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }

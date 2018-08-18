@@ -11,6 +11,17 @@ namespace OutlookGoogleCalendarSync {
 
     public static class ILogExtensions {
 
+        #region Fail
+        private static void Fail(this ILog log, string message, System.Exception exception) {
+            log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
+                Program.MyFailLevel, message, exception);
+        }
+        public static void Fail(this ILog log, string message) {
+            log.Fail(message, null);
+        }
+        #endregion
+
+        #region Fine
         private static void Fine(this ILog log, string message, System.Exception exception) {
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
                 Program.MyFineLevel, message, exception);
@@ -27,7 +38,9 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean IsFineEnabled(this ILog log) {
             return log.Logger.IsEnabledFor(Program.MyFineLevel);
         }
+        #endregion
 
+        #region UltraFine
         private static void UltraFine(this ILog log, string message, System.Exception exception) {
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
                 Program.MyUltraFineLevel, message, exception);
@@ -35,6 +48,7 @@ namespace OutlookGoogleCalendarSync {
         public static void UltraFine(this ILog log, string message) {
             log.UltraFine(message, null);
         }
+        #endregion
     }
 
     public class ErrorFlagAppender : log4net.Appender.AppenderSkeleton {

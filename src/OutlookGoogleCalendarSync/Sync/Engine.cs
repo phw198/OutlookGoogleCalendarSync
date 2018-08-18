@@ -123,7 +123,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 //Check network availability
                 if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
-                    mainFrm.Console.Update("There does not appear to be any network available! Sync aborted.", Console.Markup.error, notifyBubble: true);
+                    mainFrm.Console.Update("There does not appear to be any network available! Sync aborted.", Console.Markup.warning, notifyBubble: true);
                     setNextSync(syncStarted, false, updateSyncSchedule, cacheNextSync);
                     return;
                 }

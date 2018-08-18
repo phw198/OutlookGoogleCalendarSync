@@ -181,7 +181,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         break;
                     } catch (Google.GoogleApiException ex) {
                         if (ex.Error.Code == 404) { //Not found
-                            log.Warn("Could not find Google Event with specified ID " + eventId);
+                            log.Fail("Could not find Google Event with specified ID " + eventId);
                             return null;
                         }
                         switch (handleAPIlimits(ex, null)) {
@@ -189,16 +189,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case apiException.freeAPIexhausted:
                                 throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
                             case apiException.backoffThenRetry: {
-                                    backoff++;
-                                    if (backoff == backoffLimit) {
-                                        log.Error("API limit backoff was not successful. Retrieve failed.");
-                                        throw;
-                                    } else {
-                                        log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                        System.Threading.Thread.Sleep(backoff * 1000);
-                                    }
-                                    break;
+                                backoff++;
+                                if (backoff == backoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
                                 }
+                                break;
+                            }
                         }
                     }
                 }
