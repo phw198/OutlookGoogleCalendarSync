@@ -451,11 +451,14 @@ namespace OutlookGoogleCalendarSync {
             Boolean haveMatchingEv = false;
             if (OutlookOgcs.Calendar.ExistsOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID)) {
                 String googleIdValue = OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID);
-                Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
-                if (ev != null) {
-                    events.Add(ev);
-                    haveMatchingEv = true;
-                    log.Fine("Found single hard-matched Event.");
+                String googleCalValue = OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gCalendarId);
+                if (googleCalValue == null || googleCalValue == Settings.Instance.UseGoogleCalendar.Id) {
+                   Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
+                   if (ev != null) {
+                       events.Add(ev);
+                       haveMatchingEv = true;
+                       log.Fine("Found single hard-matched Event.");
+                   }
                 }
             }
             if (!haveMatchingEv) {

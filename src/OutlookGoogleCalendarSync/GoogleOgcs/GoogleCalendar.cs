@@ -180,6 +180,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         request = gr.Execute();
                         break;
                     } catch (Google.GoogleApiException ex) {
+                        if (ex.Error.Code == 404) { //Not found
+                            log.Warn("Could not find Google Event with specified ID " + eventId);
+                            return null;
+                        }
                         switch (handleAPIlimits(ex, null)) {
                             case apiException.throwException: throw;
                             case apiException.freeAPIexhausted:
@@ -205,7 +209,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     throw new System.Exception("Returned null");
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.Update("Failed to retrieve Google event", Console.Markup.error);
-                if (!ex.Message.Contains("Not Found [404]")) log.Error(ex.Message);
+                log.Error(ex.Message);
                 return null;
             }
         }
