@@ -112,14 +112,14 @@
             this.lTargetSyncCondition = new System.Windows.Forms.Label();
             this.cbPrivate = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.btObfuscateRules = new System.Windows.Forms.CheckBox();
+            this.btObfuscateRules = new System.Windows.Forms.Button();
             this.cbOfuscate = new System.Windows.Forms.CheckBox();
             this.syncDirection = new System.Windows.Forms.ComboBox();
             this.cbMergeItems = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.howObfuscatePanel = new System.Windows.Forms.Panel();
-            this.btCloseRegexRules = new System.Windows.Forms.CheckBox();
+            this.btCloseRegexRules = new System.Windows.Forms.Button();
             this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
             this.label31 = new System.Windows.Forms.Label();
             this.dgObfuscateRegex = new System.Windows.Forms.DataGridView();
@@ -1199,7 +1199,6 @@
             // 
             // btObfuscateRules
             // 
-            this.btObfuscateRules.Appearance = System.Windows.Forms.Appearance.Button;
             this.btObfuscateRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btObfuscateRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btObfuscateRules.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -1208,9 +1207,8 @@
             this.btObfuscateRules.Size = new System.Drawing.Size(40, 21);
             this.btObfuscateRules.TabIndex = 40;
             this.btObfuscateRules.Text = "Rules";
-            this.btObfuscateRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btObfuscateRules.UseVisualStyleBackColor = true;
-            this.btObfuscateRules.CheckedChanged += new System.EventHandler(this.btObfuscateRules_CheckedChanged);
+            this.btObfuscateRules.Click += new System.EventHandler(this.btObfuscateRules_Click);
             // 
             // cbOfuscate
             // 
@@ -1287,20 +1285,16 @@
             // btCloseRegexRules
             // 
             this.btCloseRegexRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btCloseRegexRules.Appearance = System.Windows.Forms.Appearance.Button;
             this.btCloseRegexRules.BackColor = System.Drawing.Color.Red;
-            this.btCloseRegexRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btCloseRegexRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btCloseRegexRules.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btCloseRegexRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btCloseRegexRules.ForeColor = System.Drawing.SystemColors.Window;
             this.btCloseRegexRules.Location = new System.Drawing.Point(332, 5);
             this.btCloseRegexRules.Name = "btCloseRegexRules";
             this.btCloseRegexRules.Size = new System.Drawing.Size(20, 21);
             this.btCloseRegexRules.TabIndex = 49;
             this.btCloseRegexRules.Text = "X";
-            this.btCloseRegexRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btCloseRegexRules.UseVisualStyleBackColor = false;
-            this.btCloseRegexRules.Visible = false;
-            this.btCloseRegexRules.CheckedChanged += new System.EventHandler(this.btCloseRegexRules_CheckedChanged);
+            this.btCloseRegexRules.Click += new System.EventHandler(this.btCloseRegexRules_Click);
             // 
             // cbObfuscateDirection
             // 
@@ -2979,7 +2973,7 @@
         private System.Windows.Forms.CheckBox cbMergeItems;
         private System.Windows.Forms.CheckBox cbDisableDeletion;
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
-        private System.Windows.Forms.CheckBox btObfuscateRules;
+        private System.Windows.Forms.Button btObfuscateRules;
         private System.Windows.Forms.CheckBox cbMinimiseNotClose;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox tbOutlookDateFormat;
@@ -3058,7 +3052,7 @@
         private System.Windows.Forms.PictureBox pbExpandHow;
         private System.Windows.Forms.PictureBox pbExpandWhat;
         private System.Windows.Forms.PictureBox pbExpandWhen;
-        private System.Windows.Forms.CheckBox btCloseRegexRules;
+        private System.Windows.Forms.Button btCloseRegexRules;
         private System.Windows.Forms.CheckBox cbAddColours;
         public Extensions.ColourPicker ddCategoryColour;
         private System.Windows.Forms.Label lDonateTip;

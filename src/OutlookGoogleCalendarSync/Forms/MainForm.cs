@@ -1169,13 +1169,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.Obfuscation.Enabled = cbOfuscate.Checked;
         }
 
-        private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
+        private void btObfuscateRules_Click(object sender, EventArgs e) {
             this.howObfuscatePanel.Visible = true;
             this.howMorePanel.Visible = false;
             this.btCloseRegexRules.Visible = true;
             syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
         }
-        private void btCloseRegexRules_CheckedChanged(object sender, EventArgs e) {
+        private void btCloseRegexRules_Click(object sender, EventArgs e) {
             this.btCloseRegexRules.Visible = false;
             this.howMorePanel.Visible = true;
             this.howObfuscatePanel.Visible = false;
