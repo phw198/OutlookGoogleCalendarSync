@@ -1,11 +1,9 @@
-﻿using log4net;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
+using log4net;
+using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Office.Interop.Outlook;
 using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
@@ -17,7 +15,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// These properties can be stored multiple times against a single calendar item.
         /// The first default set is NOT appended with a number
-        /// Subsequent sets are appended with "_<2-digit-sequence>" - eg "googleCalendarID_02"
+        /// Subsequent sets are appended with "-<2-digit-sequence>" - eg "googleCalendarID-02"
         /// </summary>
         public enum MetadataId {
             gEventID,
@@ -69,13 +67,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) || calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) {
+            if (!calendarKeys.ContainsKey(calendarKeyName) || 
+                (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Settings.Instance.UseGoogleCalendar.Id))
+            {
                 maxSet = -1;
                 return null;
             }
 
             foreach (KeyValuePair<String, String> kvp in calendarKeys.OrderBy(k => k.Key)) {
-                Regex rgx = new Regex("^" + calendarKeyName + "_*(\\d{0,2})", RegexOptions.IgnoreCase);
+                Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(kvp.Key);
 
                 if (matches.Count > 0) {
@@ -111,14 +111,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             int maxSet;
             int? keySet = getKeySet(ai, out maxSet);
-            if (keySet.HasValue) searchKey += "_" + keySet.Value.ToString("D2");
+            if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
 
             UserProperties ups = null;
             UserProperty prop = null;
             try {
                 ups = ai.UserProperties;
                 prop = ups.Find(searchKey);
-                return (prop != null);
+                if (searchId == MetadataId.gCalendarId)
+                    return (prop != null && prop.Value.ToString() == Settings.Instance.UseGoogleCalendar.Id);
+                else {
+                    return (prop != null && Get(ai, MetadataId.gCalendarId) == Settings.Instance.UseGoogleCalendar.Id);
+                }
             } catch {
                 return false;
             } finally {
@@ -139,8 +143,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
             Add(ref ai, MetadataId.gEventID, ev.Id);
             Add(ref ai, MetadataId.gCalendarId, Settings.Instance.UseGoogleCalendar.Id);
-            //Add(ref ai, MetadataId.ogcsModified, DateTime.Now);
-            //Add(ref ai, MetadataId.gEventID, ev.Id);
         }
 
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
@@ -158,7 +160,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     int newSet;
                     int? keySet = getKeySet(ai, out newSet);
                     keySet = keySet ?? newSet + 1;
-                    if (keySet.HasValue && keySet.Value != 0) addkeyName += "_" + keySet.Value.ToString("D2");
+                    if (keySet.HasValue && keySet.Value != 0) addkeyName += "-" + keySet.Value.ToString("D2");
 
                     try {
                         ups = ai.UserProperties;
@@ -172,7 +174,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 ups = ai.UserProperties;
                 ups[addkeyName].Value = keyValue;
-                log.Debug("Set userproperty " + addkeyName + "=" + keyValue.ToString());
+                log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
 
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);

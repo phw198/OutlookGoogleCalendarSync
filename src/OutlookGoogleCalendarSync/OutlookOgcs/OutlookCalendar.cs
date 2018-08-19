@@ -1142,7 +1142,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     }
-                    if (!foundMatch && Settings.Instance.MergeItems)
+                    if (!foundMatch && Settings.Instance.MergeItems && 
+                        OutlookOgcs.CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != Settings.Instance.UseGoogleCalendar.Id)
                         outlook.Remove(outlook[o]);
 
                 } else if (Settings.Instance.MergeItems) {

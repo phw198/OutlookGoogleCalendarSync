@@ -977,7 +977,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     }
-                    if (!foundMatch && Settings.Instance.MergeItems)
+                    if (!foundMatch && Settings.Instance.MergeItems &&
+                        GoogleOgcs.CustomProperty.Get(google[g], CustomProperty.MetadataId.oCalendarId) != OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
                         google.Remove(google[g]);
 
                 } else if (Settings.Instance.MergeItems) {
@@ -1512,7 +1513,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Warn(ex.Message);
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
-                
+
                 //Delay next scheduled sync until after the new quota
                 DateTime now = DateTime.UtcNow;
                 DateTime quotaReset = now.Date.AddHours(8).AddMinutes(now.Minute);

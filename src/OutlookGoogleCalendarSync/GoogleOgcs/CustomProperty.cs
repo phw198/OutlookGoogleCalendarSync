@@ -15,7 +15,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <summary>
         /// These properties can be stored multiple times against a single calendar item.
         /// The first default set is NOT appended with a number
-        /// Subsequent sets are appended with "_<2-digit-sequence>" - eg "outlook_CalendarID_02"
+        /// Subsequent sets are appended with "-<2-digit-sequence>" - eg "outlook_CalendarID-02"
         /// </summary>
         public enum MetadataId {
             oEntryId,
@@ -54,13 +54,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
 
             //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) || calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) {
+            if (!calendarKeys.ContainsKey(calendarKeyName) || 
+                (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+            {
                 maxSet = -1;
                 return null;
             }
 
             foreach (KeyValuePair<String, String> kvp in calendarKeys) {
-                Regex rgx = new Regex("^" + calendarKeyName + "_*(\\d{0,2})", RegexOptions.IgnoreCase);
+                Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(kvp.Key);
 
                 if (matches.Count > 0) {
@@ -103,8 +105,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
-            if (keySet.HasValue) searchKey += "_" + keySet.Value.ToString("D2");
-            return ev.ExtendedProperties.Private__.ContainsKey(searchKey);
+            if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
+            if (searchId == MetadataId.oCalendarId)
+                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && ev.ExtendedProperties.Private__[searchKey] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
+            else
+                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
         }
 
         public static Boolean ExistsAny(Event ev) {
@@ -136,7 +141,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Add(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
         }
         private static void add(ref Event ev, String keyName, String keyValue, int? keySet) {
-            if (keySet.HasValue && keySet.Value != 0) keyName += "_" + keySet.Value.ToString("D2");
+            if (keySet.HasValue && keySet.Value != 0) keyName += "-" + keySet.Value.ToString("D2");
             if (ev.ExtendedProperties.Private__.ContainsKey(keyName))
                 ev.ExtendedProperties.Private__[keyName] = keyValue;
             else
