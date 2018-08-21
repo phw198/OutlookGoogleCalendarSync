@@ -235,6 +235,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #endregion
             #region Google box
+            tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
             if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
                 cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
                 cbGoogleCalendars.SelectedIndex = 0;
@@ -1033,6 +1034,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
+                    Settings.Instance.GaccountEmail = "";
+                    tbConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
@@ -1169,13 +1172,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.Obfuscation.Enabled = cbOfuscate.Checked;
         }
 
-        private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
+        private void btObfuscateRules_Click(object sender, EventArgs e) {
             this.howObfuscatePanel.Visible = true;
             this.howMorePanel.Visible = false;
             this.btCloseRegexRules.Visible = true;
             syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
         }
-        private void btCloseRegexRules_CheckedChanged(object sender, EventArgs e) {
+        private void btCloseRegexRules_Click(object sender, EventArgs e) {
             this.btCloseRegexRules.Visible = false;
             this.howMorePanel.Visible = true;
             this.howObfuscatePanel.Visible = false;

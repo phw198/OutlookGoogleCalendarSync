@@ -296,8 +296,7 @@ namespace OutlookGoogleCalendarSync {
                 //div
                 output = Regex.Replace(output, ":info:(<p>)*", "<div class='info'>$1<span class='em em-information_source'></span>");
                 output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
-                output = Regex.Replace(output, ":error:(<p>)*", "<div class='error'>$1<span class='em em-collision'></span>");
-                
+                output = Regex.Replace(output, ":error:(<p>)*", "<div class='error'>$1<span class='em em-collision'></span>");                
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);

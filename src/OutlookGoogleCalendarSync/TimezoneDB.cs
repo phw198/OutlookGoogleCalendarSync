@@ -130,10 +130,12 @@ namespace OutlookGoogleCalendarSync {
         public static Int16? GetTimezoneOffset(String timezone) {
             //timezone = "(GMT+10:00) AUS Eastern Standard Time"; //WebEx is known to do this
             try {
-                Regex rgx = new Regex(@"^\((GMT|UTC)([+-]\d{1,2}):*\d{0,2}\)\s.*$");
+                Regex rgx = new Regex(@"^\((GMT|UTC)([+-]\d{1,2})*:*\d{0,2}\)\s.*$");
                 MatchCollection matches = rgx.Matches(timezone);
                 if (matches != null && matches.Count > 0) {
-                    Int16 gmtOffset = Convert.ToInt16(matches[0].Groups[2].Value.Trim());
+                    String gmtOffset_str = matches[0].Groups[2].Value.Trim();
+                    if (string.IsNullOrEmpty(gmtOffset_str)) return 0;
+                    Int16 gmtOffset = Convert.ToInt16(gmtOffset_str);
                     log.Debug("Found a " + matches[0].Groups[1].Value.ToString() + " timezone offset of " + gmtOffset);
                     return gmtOffset;
                 }

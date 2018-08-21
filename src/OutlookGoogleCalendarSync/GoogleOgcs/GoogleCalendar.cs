@@ -180,6 +180,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         request = gr.Execute();
                         break;
                     } catch (Google.GoogleApiException ex) {
+                        if (ex.Error.Code == 404) { //Not found
+                            log.Fail("Could not find Google Event with specified ID " + eventId);
+                            return null;
+                        }
                         switch (handleAPIlimits(ex, null)) {
                             case apiException.throwException: throw;
                             case apiException.freeAPIexhausted:
@@ -205,7 +209,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     throw new System.Exception("Returned null");
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.Update("Failed to retrieve Google event", Console.Markup.error);
-                if (!ex.Message.Contains("Not Found [404]")) log.Error(ex.Message);
+                log.Error(ex.Message);
                 return null;
             }
         }
@@ -847,6 +851,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             log.Debug("Scanning "+ gEvents.Count +" Google events for orphans to reclaim...");
+            String consoleTitle = "Reclaiming Google calendar entries";
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
@@ -868,9 +873,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     foreach (AppointmentItem ai in oAppointments) {
                         if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(ai))) {
                             try {
+                                Event originalEv = ev;
                                 CustomProperty.AddOutlookIDs(ref ev, ai);
                                 UpdateCalendarEntry_save(ref ev);
-                                unclaimedEvents.Remove(ev);
+                                unclaimedEvents.Remove(originalEv);
+                                if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose:true);
+                                consoleTitle = "";
                                 Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
                                 gEvents[g] = ev;
                             } catch (System.Exception ex) {

@@ -112,14 +112,14 @@
             this.lTargetSyncCondition = new System.Windows.Forms.Label();
             this.cbPrivate = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.btObfuscateRules = new System.Windows.Forms.CheckBox();
+            this.btObfuscateRules = new System.Windows.Forms.Button();
             this.cbOfuscate = new System.Windows.Forms.CheckBox();
             this.syncDirection = new System.Windows.Forms.ComboBox();
             this.cbMergeItems = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.howObfuscatePanel = new System.Windows.Forms.Panel();
-            this.btCloseRegexRules = new System.Windows.Forms.CheckBox();
+            this.btCloseRegexRules = new System.Windows.Forms.Button();
             this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
             this.label31 = new System.Windows.Forms.Label();
             this.dgObfuscateRegex = new System.Windows.Forms.DataGridView();
@@ -230,6 +230,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.cbCloudLogging = new System.Windows.Forms.CheckBox();
+            this.tbConnectedAcc = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
             this.cbLocation = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
@@ -784,6 +786,8 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
+            this.tabGoogle.Controls.Add(this.label7);
+            this.tabGoogle.Controls.Add(this.tbConnectedAcc);
             this.tabGoogle.Controls.Add(this.gbDeveloperOptions);
             this.tabGoogle.Controls.Add(this.cbShowDeveloperOptions);
             this.tabGoogle.Controls.Add(this.label13);
@@ -811,7 +815,7 @@
             this.gbDeveloperOptions.Controls.Add(this.tbClientID);
             this.gbDeveloperOptions.Controls.Add(this.lClientID);
             this.gbDeveloperOptions.Controls.Add(this.lSecret);
-            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 208);
+            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 227);
             this.gbDeveloperOptions.Name = "gbDeveloperOptions";
             this.gbDeveloperOptions.Size = new System.Drawing.Size(364, 171);
             this.gbDeveloperOptions.TabIndex = 31;
@@ -908,7 +912,7 @@
             // cbShowDeveloperOptions
             // 
             this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 185);
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 204);
             this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
             this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
             this.cbShowDeveloperOptions.TabIndex = 30;
@@ -919,7 +923,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(153, 96);
+            this.label13.Location = new System.Drawing.Point(153, 134);
             this.label13.MaximumSize = new System.Drawing.Size(200, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(189, 26);
@@ -944,7 +948,7 @@
             this.btResetGCal.BackColor = System.Drawing.Color.Transparent;
             this.btResetGCal.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btResetGCal.ForeColor = System.Drawing.Color.Red;
-            this.btResetGCal.Location = new System.Drawing.Point(34, 98);
+            this.btResetGCal.Location = new System.Drawing.Point(34, 136);
             this.btResetGCal.Name = "btResetGCal";
             this.btResetGCal.Size = new System.Drawing.Size(115, 23);
             this.btResetGCal.TabIndex = 10;
@@ -954,7 +958,7 @@
             // 
             // lGoogleHelp
             // 
-            this.lGoogleHelp.Location = new System.Drawing.Point(155, 37);
+            this.lGoogleHelp.Location = new System.Drawing.Point(155, 75);
             this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
             this.lGoogleHelp.Name = "lGoogleHelp";
             this.lGoogleHelp.Size = new System.Drawing.Size(199, 52);
@@ -964,7 +968,7 @@
             // 
             // lGoogleCalendar
             // 
-            this.lGoogleCalendar.Location = new System.Drawing.Point(11, 151);
+            this.lGoogleCalendar.Location = new System.Drawing.Point(11, 173);
             this.lGoogleCalendar.Name = "lGoogleCalendar";
             this.lGoogleCalendar.Size = new System.Drawing.Size(81, 14);
             this.lGoogleCalendar.TabIndex = 8;
@@ -974,7 +978,7 @@
             // 
             this.bGetGoogleCalendars.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.bGetGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bGetGoogleCalendars.Location = new System.Drawing.Point(34, 51);
+            this.bGetGoogleCalendars.Location = new System.Drawing.Point(34, 89);
             this.bGetGoogleCalendars.Name = "bGetGoogleCalendars";
             this.bGetGoogleCalendars.Size = new System.Drawing.Size(115, 23);
             this.bGetGoogleCalendars.TabIndex = 7;
@@ -988,7 +992,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbGoogleCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbGoogleCalendars.FormattingEnabled = true;
-            this.cbGoogleCalendars.Location = new System.Drawing.Point(97, 148);
+            this.cbGoogleCalendars.Location = new System.Drawing.Point(97, 170);
             this.cbGoogleCalendars.Name = "cbGoogleCalendars";
             this.cbGoogleCalendars.Size = new System.Drawing.Size(281, 21);
             this.cbGoogleCalendars.TabIndex = 6;
@@ -1199,7 +1203,6 @@
             // 
             // btObfuscateRules
             // 
-            this.btObfuscateRules.Appearance = System.Windows.Forms.Appearance.Button;
             this.btObfuscateRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btObfuscateRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btObfuscateRules.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -1208,9 +1211,8 @@
             this.btObfuscateRules.Size = new System.Drawing.Size(40, 21);
             this.btObfuscateRules.TabIndex = 40;
             this.btObfuscateRules.Text = "Rules";
-            this.btObfuscateRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btObfuscateRules.UseVisualStyleBackColor = true;
-            this.btObfuscateRules.CheckedChanged += new System.EventHandler(this.btObfuscateRules_CheckedChanged);
+            this.btObfuscateRules.Click += new System.EventHandler(this.btObfuscateRules_Click);
             // 
             // cbOfuscate
             // 
@@ -1287,20 +1289,16 @@
             // btCloseRegexRules
             // 
             this.btCloseRegexRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btCloseRegexRules.Appearance = System.Windows.Forms.Appearance.Button;
             this.btCloseRegexRules.BackColor = System.Drawing.Color.Red;
-            this.btCloseRegexRules.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btCloseRegexRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btCloseRegexRules.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btCloseRegexRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btCloseRegexRules.ForeColor = System.Drawing.SystemColors.Window;
             this.btCloseRegexRules.Location = new System.Drawing.Point(332, 5);
             this.btCloseRegexRules.Name = "btCloseRegexRules";
             this.btCloseRegexRules.Size = new System.Drawing.Size(20, 21);
             this.btCloseRegexRules.TabIndex = 49;
             this.btCloseRegexRules.Text = "X";
-            this.btCloseRegexRules.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btCloseRegexRules.UseVisualStyleBackColor = false;
-            this.btCloseRegexRules.Visible = false;
-            this.btCloseRegexRules.CheckedChanged += new System.EventHandler(this.btCloseRegexRules_CheckedChanged);
+            this.btCloseRegexRules.Click += new System.EventHandler(this.btCloseRegexRules_Click);
             // 
             // cbObfuscateDirection
             // 
@@ -2774,6 +2772,26 @@
             this.cbCloudLogging.UseVisualStyleBackColor = true;
             this.cbCloudLogging.CheckStateChanged += new System.EventHandler(this.cbCloudLogging_CheckStateChanged);
             // 
+            // tbConnectedAcc
+            // 
+            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbConnectedAcc.Location = new System.Drawing.Point(154, 46);
+            this.tbConnectedAcc.Name = "tbConnectedAcc";
+            this.tbConnectedAcc.ReadOnly = true;
+            this.tbConnectedAcc.Size = new System.Drawing.Size(220, 20);
+            this.tbConnectedAcc.TabIndex = 32;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(47, 49);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(102, 13);
+            this.label7.TabIndex = 33;
+            this.label7.Text = "Connected Account";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // ddCategoryColour
             // 
             this.ddCategoryColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -2979,7 +2997,7 @@
         private System.Windows.Forms.CheckBox cbMergeItems;
         private System.Windows.Forms.CheckBox cbDisableDeletion;
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
-        private System.Windows.Forms.CheckBox btObfuscateRules;
+        private System.Windows.Forms.Button btObfuscateRules;
         private System.Windows.Forms.CheckBox cbMinimiseNotClose;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox tbOutlookDateFormat;
@@ -3058,11 +3076,13 @@
         private System.Windows.Forms.PictureBox pbExpandHow;
         private System.Windows.Forms.PictureBox pbExpandWhat;
         private System.Windows.Forms.PictureBox pbExpandWhen;
-        private System.Windows.Forms.CheckBox btCloseRegexRules;
+        private System.Windows.Forms.Button btCloseRegexRules;
         private System.Windows.Forms.CheckBox cbAddColours;
         public Extensions.ColourPicker ddCategoryColour;
         private System.Windows.Forms.Label lDonateTip;
         private System.Windows.Forms.CheckBox cbLocation;
         public System.Windows.Forms.CheckBox cbCloudLogging;
+        private System.Windows.Forms.Label label7;
+        public System.Windows.Forms.TextBox tbConnectedAcc;
     }
 }

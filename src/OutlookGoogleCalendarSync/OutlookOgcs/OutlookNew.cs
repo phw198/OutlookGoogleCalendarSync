@@ -550,8 +550,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 retEmail = addressEntry.Address;
                             }
                         } catch (System.Exception ex) {
-                            log.Error("Failed accessing addressEntry.Address");
-                            log.Error(ex.Message);
+                            log.Fail("Failed accessing addressEntry.Address");
+                            log.Fail(ex.Message);
                             retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                         }
                     }

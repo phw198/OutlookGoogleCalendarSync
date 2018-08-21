@@ -19,8 +19,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public Boolean Authenticated { get { return authenticated; } }
 
         public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
-        String tokenFullPath;
-        Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
+        private String tokenFullPath;
+        private Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
 
         public System.Threading.CancellationTokenSource CancelTokenSource;
 
@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void GetAuthenticated() {
             if (this.authenticated) return;
 
-            Forms.Main.Instance.Console.Update("Authenticating with Google...", verbose: true);
+            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Google...", Console.Markup.h2, newLine: false, verbose: true);
 
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();
@@ -158,11 +158,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             getGaccountEmail(credential.Token.AccessToken);
             authenticated = true;
+            Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
         }
 
         public void Reset(Boolean reauthorise = true) {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
+            Settings.Instance.GaccountEmail = "";
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", "Not connected");
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
             if (!GoogleOgcs.Calendar.IsInstanceNull) {
@@ -191,6 +194,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                         log.Debug("Looks like the Google account username value has been tampering with? :-O");
                     Settings.Instance.GaccountEmail = email;
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", email);
                     log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
                 }
                 getEmailAttempts = 0;
