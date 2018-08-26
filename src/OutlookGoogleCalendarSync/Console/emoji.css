@@ -93,8 +93,14 @@
 .em-information_source {
   background-image: url('emoji/information_source.png');
 }
+.em-key {
+  background-image: url('emoji/key.png');
+}
 .em-mag_right {
   background-image: url('emoji/mag_right.png');
+}
+.em-reclaim {
+  background-image: url('emoji/reclaim.png');
 }
 .em-repeat {
   background-image: url('emoji/repeat.png');

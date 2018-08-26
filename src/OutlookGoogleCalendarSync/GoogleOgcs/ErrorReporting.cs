@@ -1,23 +1,25 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Management;
-using log4net;
 using System.IO;
+using System.Linq;
+using System.Management;
 using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
     class ErrorReporting {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 
-        public static Boolean Enabled = true;
-        private static String templateCredFile = "ErrorReportingTemplate.json";
-        private static String credFile = "ErrorReporting.json";
-        //Program.WorkingFilesDirectory
+        public static Boolean Initialised = true;
+        private static String templateCredFile = Path.Combine(System.Windows.Forms.Application.StartupPath, "ErrorReportingTemplate.json");
+        private static String credFile = Path.Combine(System.Windows.Forms.Application.StartupPath, "ErrorReporting.json");
 
         public static void Initialise() {
+            if (Program.StartedWithSquirrelArgs && !(Environment.GetCommandLineArgs()[1].ToLower().Equals("--squirrel-firstrun"))) return;
+            if (System.Diagnostics.Debugger.IsAttached) return;
+
+            //Note, logging isn't actually initialised yet, so log4net won't log any lines within this function
+
             String cloudCredsURL = "https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/keyring.md";
             String html = null;
             String line = null;
@@ -64,7 +66,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } catch (ApplicationException ex) {
                 log.Warn(ex.Message);
-                Enabled = false;
+                Initialised = false;
+
+            //} catch (System.Exception ex) {
+                //Logging isn't initialised yet, so don't catch this error - let it crash out so user is aware and hopefully reports it!
+                //System.Windows.Forms.MessageBox.Show(ex.Message);
+                //log.Debug("Failed to initialise error reporting.");
+                //OGCSexception.Analyse(ex);
             }
         }            
 

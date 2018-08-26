@@ -550,8 +550,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 retEmail = addressEntry.Address;
                             }
                         } catch (System.Exception ex) {
-                            log.Error("Failed accessing addressEntry.Address");
-                            log.Error(ex.Message);
+                            log.Fail("Failed accessing addressEntry.Address");
+                            log.Fail(ex.Message);
                             retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                         }
                     }
@@ -588,6 +588,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void RefreshCategories() {
+            log.Debug("Refreshing categories...");
             OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
             Forms.Main.Instance.ddCategoryColour.AddCategoryColours();
             foreach (Extensions.ColourPicker.ColourInfo cInfo in Forms.Main.Instance.ddCategoryColour.Items) {
@@ -619,25 +620,21 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (organiserTZname != ai.StartTimeZone.Name) {
                         log.Fine("Appointment's timezone: " + ai.StartTimeZone.Name);
                         log.Fine("Organiser's timezone:   " + organiserTZname);
+                        if (organiserTZname == "Customized Time Zone") {
+                            System.Exception ex = new System.Exception("Cannot translate " + organiserTZname + " to a timezone ID.");
+                            ex.Data.Add("OGCS", "");
+                            throw ex;
+                        } 
                         log.Debug("Retrieving the meeting organiser's timezone ID.");
-                        System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
-                        try {
-                            TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == organiserTZname || t.StandardName == organiserTZname);
-                            if (tzi == null)
-                                throw new ArgumentNullException("No timezone ID exists for organiser's timezone " + organiserTZname);
-                            else
-                                organiserTZid = tzi.Id;
-
-                        } catch (ArgumentNullException ex) {
-                            throw ex as System.Exception;
-                        } catch (System.Exception ex) {
-                            throw new System.Exception("Failed to get the organiser's timezone ID for " + organiserTZname, ex);                            
-                        }
+                        TimeZoneInfo tzi = getWindowsTimezoneFromDescription(organiserTZname);
+                        if (tzi == null) log.Error("No timezone ID exists for organiser's timezone " + organiserTZname);
+                        else organiserTZid = tzi.Id;
                     }
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
-                        "<br/>Could not determine the organiser's timezone. Google Event will have incorrect time.", Console.Markup.warning);
-                    OGCSexception.Analyse(ex);
+                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
+                    if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
+                    else OGCSexception.Analyse(ex);
                     organiserTZname = null;
                     organiserTZid = null;
                 }
@@ -745,6 +742,77 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             return tzs[item.WindowsId];
         }
+
+        private TimeZoneInfo getWindowsTimezoneFromDescription(String tzDescription) {
+            try {
+                System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
+                
+                //First let's just search with what we've got
+                TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == tzDescription|| t.StandardName == tzDescription || t.Id == tzDescription);
+                if (tzi != null) return tzi;
+
+                log.Warn("Could not find timezone ID based on given description. Attempting some fuzzy logic...");
+                if (tzDescription.StartsWith("(GMT")) {
+                    log.Fine("Replace GMT with UTC");
+                    String modTzDescription = tzDescription.Replace("(GMT", "(UTC");
+                    tzi = sysTZ.FirstOrDefault(t => t.DisplayName == modTzDescription || t.StandardName == modTzDescription || t.Id == modTzDescription);
+                    if (tzi != null) return tzi;
+
+                    log.Fine("Removing offset prefix");
+                    modTzDescription = System.Text.RegularExpressions.Regex.Replace(modTzDescription, @"^\(UTC[+-]\d{1,2}:\d{0,2}\)\s+", "").Trim();
+                    tzi = sysTZ.FirstOrDefault(t => t.StandardName == modTzDescription || t.Id == modTzDescription);
+                    if (tzi != null) return tzi;
+                }
+
+
+                //Try searching just by timezone offset. This would at least get the right time for the appointment, eg if the tzDescription doesn't match
+                //because they it is in a different language that the user's system data.
+                Int16? offset = null;
+                offset = TimezoneDB.GetTimezoneOffset(tzDescription);
+                if (offset != null) {
+                    List<TimeZoneInfo> tzis = sysTZ.Where(t => t.BaseUtcOffset.Hours == offset).ToList();
+                    if (tzis.Count == 0)
+                        log.Warn("No timezone ID exists for organiser's GMT offset timezone " + tzDescription);
+                    else if (tzis.Count == 1)
+                        return tzis.First();
+                    else {
+                        String tzCountry = tzDescription.Substring(tzDescription.LastIndexOf("/") + 1);
+                        if (string.IsNullOrEmpty(tzCountry)) {
+                            log.Warn("Could not determine country; and multiple timezones exist with same GMT offset of " + offset + ". Picking the first.");
+                            return tzis.FirstOrDefault();
+                        } else {
+                            List<TimeZoneInfo> countryTzis = tzis.Where(t => t.DisplayName.Contains(tzCountry)).ToList();
+                            if (countryTzis.Count == 0) {
+                                log.Warn("Could not find timezone with GMT offset of " + offset + " for country " + tzCountry + ". Picking the first offset match regardless of country.");
+                                return tzis.FirstOrDefault();
+                            } else if (countryTzis.Count == 1)
+                                return countryTzis.First();
+                            else {
+                                log.Warn("Could not find unique timezone with GMT offset of " + offset + " for country " + tzCountry + ". Picking the first.");
+                                return countryTzis.FirstOrDefault();
+                            }
+                        }
+                    }
+
+                } else {
+                    //Check if it's already an IANA value
+                    NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
+                    IEnumerable<NodaTime.TimeZones.TzdbZoneLocation> a = tzDBsource.ZoneLocations.Where(l => l.ZoneId == tzDescription);
+                    if (a.Count() >= 1) {
+                        log.Debug("It appears to be an IANA timezone already!");
+                        Microsoft.Office.Interop.Outlook.TimeZone tz = WindowsTimeZone(tzDescription);
+                        if (tz != null)
+                            return TimeZoneInfo.FindSystemTimeZoneById(tz.ID);
+                    }
+                }
+
+            } catch (System.Exception ex) {
+                log.Warn("Failed to get the organiser's timezone ID for " + tzDescription);
+                OGCSexception.Analyse(ex);
+            }
+            return null;
+        }
+
         #endregion
     }
 }

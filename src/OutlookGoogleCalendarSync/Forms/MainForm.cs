@@ -192,13 +192,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?
                 "Include" : "Exclude";
-            clbCategories.Items.Clear();
             if (OutlookOgcs.Factory.OutlookVersion < 12) {
+                clbCategories.Items.Clear();
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;
                 lFilterCategories.Enabled = false;
             } else {
-                refreshCategories();
+                OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
+                enableOutlookSettingsUI(true);
             }
             #endregion
             cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
@@ -234,6 +235,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #endregion
             #region Google box
+            tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
             if (Settings.Instance.UseGoogleCalendar != null && Settings.Instance.UseGoogleCalendar.Id != null) {
                 cbGoogleCalendars.Items.Add(Settings.Instance.UseGoogleCalendar);
                 cbGoogleCalendars.SelectedIndex = 0;
@@ -894,19 +896,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void refreshCategories() {
-            clbCategories.BeginUpdate();
-            clbCategories.Items.Clear();
-            clbCategories.Items.Add("<No category assigned>");
             OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
-            foreach (String catName in OutlookOgcs.Calendar.Categories.GetNames()) {
-                clbCategories.Items.Add(catName);
-            }
-            foreach (String cat in Settings.Instance.Categories) {
-                try {
-                    clbCategories.SetItemChecked(clbCategories.Items.IndexOf(cat), true);
-                } catch { /* Category "cat" no longer exists */ }
-            }
-            clbCategories.EndUpdate();
+            OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
             enableOutlookSettingsUI(true);
         }
 
@@ -1043,6 +1034,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
+                    Settings.Instance.GaccountEmail = "";
+                    tbConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
@@ -1179,13 +1172,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.Obfuscation.Enabled = cbOfuscate.Checked;
         }
 
-        private void btObfuscateRules_CheckedChanged(object sender, EventArgs e) {
+        private void btObfuscateRules_Click(object sender, EventArgs e) {
             this.howObfuscatePanel.Visible = true;
             this.howMorePanel.Visible = false;
             this.btCloseRegexRules.Visible = true;
             syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
         }
-        private void btCloseRegexRules_CheckedChanged(object sender, EventArgs e) {
+        private void btCloseRegexRules_Click(object sender, EventArgs e) {
             this.btCloseRegexRules.Visible = false;
             this.howMorePanel.Visible = true;
             this.howObfuscatePanel.Visible = false;
@@ -1211,7 +1204,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 this.gbSyncOptions_How.Height = minPanelHeight;
                 this.gbSyncOptions_What.Height = 112;
-                this.btHowMore.Text = "More...";
             }
         }
 

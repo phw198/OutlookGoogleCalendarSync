@@ -335,8 +335,9 @@ namespace OutlookGoogleCalendarSync {
             //but HandleEvents() fails if eg "-beta" is present.
             //"C:\Users\username\AppData\Local\OutlookGoogleCalendarSync\app-2.5.0-beta\OutlookGoogleCalendarSync.exe" --squirrel-uninstall 2.5.0-beta
             try {
-                String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
-                if (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel")) {
+                String[] cliArgs = null;
+                if (Program.StartedWithSquirrelArgs) {
+                    cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
                     log.Debug("CLI arguments: " + string.Join(" ", cliArgs));
                     cliArgs[1] = cliArgs[1].Split('-')[0];
                 }
@@ -346,6 +347,7 @@ namespace OutlookGoogleCalendarSync {
                 return null;
             }
         }
+
         private static void clickOnceUninstallError(System.Exception ex) {
             if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
                 log.Debug("No ClickOnce install found.");
@@ -373,10 +375,21 @@ namespace OutlookGoogleCalendarSync {
 
             log.Debug("Checking for ZIP update...");
             string html = "";
+            String errorDetails = "";
             try {
                 html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
+            } catch (System.Net.WebException ex) {
+                errorDetails = ex.Message;
+                if (OGCSexception.GetErrorCode(ex) == "0x80131509")
+                    log.Warn("Failed to retrieve data (no network?): " + errorDetails);
+                else {
+                    OGCSexception.Analyse(ex);
+                    log.Error("Failed to retrieve data: " + errorDetails);
+                }
             } catch (System.Exception ex) {
-                log.Error("Failed to retrieve data: " + ex.Message);
+                errorDetails = ex.Message;
+                OGCSexception.Analyse(ex);
+                log.Error("Failed to retrieve data: " + errorDetails);
             }
 
             if (!string.IsNullOrEmpty(html)) {
@@ -421,7 +434,8 @@ namespace OutlookGoogleCalendarSync {
                 }
             } else {
                 log.Info("Did not find ZIP release.");
-                if (isManualCheck) MessageBox.Show("Failed to check for ZIP release", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (isManualCheck) MessageBox.Show("Failed to check for ZIP release." + (string.IsNullOrEmpty(errorDetails) ? "" : "\r\n" + errorDetails),
+                    "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

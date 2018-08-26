@@ -27,7 +27,7 @@ namespace OutlookGoogleCalendarSync {
         public String Version {
             get { return source.TzdbVersion; }
         }
-        
+
         private TimezoneDB() {
             try {
                 using (Stream stream = File.OpenRead(tzdbFile)) {
@@ -37,7 +37,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Custom TZDB source failed. Falling back to NodaTime.dll");
                 source = TzdbDateTimeZoneSource.Default;
             }
-            log.Info("Using NodaTime "+ source.VersionId);
+            log.Info("Using NodaTime " + source.VersionId);
 
             Microsoft.Win32.SystemEvents.TimeChanged += SystemEvents_TimeChanged;
         }
@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync {
         public void CheckForUpdate() {
             System.Threading.Thread updateDBthread = new System.Threading.Thread(x => checkForUpdate(source.TzdbVersion));
             updateDBthread.Start();
-        }        
+        }
         private void checkForUpdate(String localVersion) {
             if (System.Diagnostics.Debugger.IsAttached && File.Exists(tzdbFile)) return;
 
@@ -96,18 +96,20 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        /// <summary>
+        /// Alexa (Amazon Echo) is a bit dumb - she creates Google Events with a GMT offset "timezone". Eg GMT-5
+        /// This isn't actually a timezone at all, but an area, and not a legal IANA value.
+        /// So to workaround this, we'll turn it into something valid at least, by inverting the offset sign and prefixing "Etc\"
+        /// </summary>
         public static String FixAlexa(String timezone) {
-            //Alexa (Amazon Echo) is a bit dumb - she creates Google Events with a GMT offset "timezone". Eg GMT-5
-            //This isn't actually a timezone at all, but an area, and not a legal IANA value.
-            //So to workaround this, we'll turn it into something valid at least, by inverting the offset sign and prefixing "Etc\"
             //Issues:- 
             // * As it's an area, Microsoft will just guess at the zone - so GMT-5 for CST may end up as Bogata/Lima.
             // * Not sure what happens with half hour offset, such as in India with GMT+4:30
             // * Not sure what happens with Daylight Saving, as zones in the same area may or may not follow DST.
 
             try {
-                System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"^GMT([+-])(\d{1,2})(:\d\d)*$");
-                System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(timezone);
+                Regex rgx = new Regex(@"^GMT([+-])(\d{1,2})(:\d\d)*$");
+                MatchCollection matches = rgx.Matches(timezone);
                 if (matches.Count > 0) {
                     log.Debug("Found an Alexa \"timezone\" of " + timezone);
                     String fixedTimezone = "Etc/GMT" + (matches[0].Groups[1].Value == "+" ? "-" : "+") + Convert.ToInt16(matches[0].Groups[2].Value).ToString();
@@ -115,10 +117,33 @@ namespace OutlookGoogleCalendarSync {
                     return fixedTimezone;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed to detect and translate Alexa timezone.");
+                log.Error("Failed to detect and translate Alexa timezone: " + timezone);
                 OGCSexception.Analyse(ex);
             }
             return timezone;
+        }
+
+        /// <summary>
+        /// Sometime an Outlook timezone name contains a GMT offset, which isn't valid.
+        /// </summary>
+        /// <returns>Offset, if present</returns>
+        public static Int16? GetTimezoneOffset(String timezone) {
+            //timezone = "(GMT+10:00) AUS Eastern Standard Time"; //WebEx is known to do this
+            try {
+                Regex rgx = new Regex(@"^\((GMT|UTC)([+-]\d{1,2})*:*\d{0,2}\)\s.*$");
+                MatchCollection matches = rgx.Matches(timezone);
+                if (matches != null && matches.Count > 0) {
+                    String gmtOffset_str = matches[0].Groups[2].Value.Trim();
+                    if (string.IsNullOrEmpty(gmtOffset_str)) return 0;
+                    Int16 gmtOffset = Convert.ToInt16(gmtOffset_str);
+                    log.Debug("Found a " + matches[0].Groups[1].Value.ToString() + " timezone offset of " + gmtOffset);
+                    return gmtOffset;
+                }
+            } catch (System.Exception ex) {
+                log.Error("Failed to detect any timezone offset for: " + timezone);
+                OGCSexception.Analyse(ex);
+            }
+            return null;
         }
     }
 }

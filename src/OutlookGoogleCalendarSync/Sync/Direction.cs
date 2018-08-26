@@ -3,13 +3,13 @@ using System.Runtime.Serialization;
 
 namespace OutlookGoogleCalendarSync.Sync {
 
-    [DataContract]
+    [DataContract(Namespace="http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync")]
     public sealed class Direction {
 
         [DataMember]
-        public readonly String Name;
+        public String Name { get; internal set; }
         [DataMember]
-        public readonly int Id;
+        public int Id { get; internal set; }
 
         public static readonly Direction OutlookToGoogle = new Direction(1, "Outlook → Google");
         public static readonly Direction GoogleToOutlook = new Direction(2, "Outlook ← Google");

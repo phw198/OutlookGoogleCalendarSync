@@ -200,7 +200,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
@@ -270,7 +270,9 @@
       <DependentUpon>ErrorReporting.cs</DependentUpon>
     </Compile>
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
+    <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
+    <Compile Include="OutlookOgcs\CustomProperty.cs" />
     <Compile Include="OutlookOgcs\OutlookCategories.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
@@ -477,7 +479,13 @@
     <Content Include="Console\emoji\information_source.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Console\emoji\key.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Console\emoji\mag_right.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Console\emoji\reclaim.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Console\emoji\repeat.png">

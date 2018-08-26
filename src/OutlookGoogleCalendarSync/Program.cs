@@ -16,11 +16,18 @@ namespace OutlookGoogleCalendarSync {
         private const string logSettingsFile = "logger.xml";
         private const string defaultLogFilename = "OGcalsync.log";
         public static String WorkingFilesDirectory;
+        public static log4net.Core.Level MyFailLevel = new log4net.Core.Level(65000, "FAIL"); //An error but not one for reporting
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
         public static Boolean StartedWithFileArgs = false;
+        public static Boolean StartedWithSquirrelArgs {
+            get {
+                String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+                return (cliArgs.Length == 2 && cliArgs[0].ToLower().StartsWith("--squirrel"));
+            }
+        }
         /// <summary>
         /// The OGCS directory within user's roaming profile
         /// </summary>
@@ -50,7 +57,7 @@ namespace OutlookGoogleCalendarSync {
 
             log.Debug("Loading settings from file.");
             Settings.Load();
-
+            
             Updater = new Updater();
             isNewVersion(Program.IsInstalled); 
             Updater.CheckForUpdate();
@@ -207,6 +214,7 @@ namespace OutlookGoogleCalendarSync {
             }
             UserFilePath = logPath;
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
+            log4net.LogManager.GetRepository().LevelMap.Add(MyFailLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
 

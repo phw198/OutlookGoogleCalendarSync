@@ -134,7 +134,14 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
                     oPattern.NoEndDate = true;
                 } else {
-                    oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                    try {
+                        oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                    } catch (System.Exception ex) {
+                        //Troubleshooting "The end date you entered occurs before the start date."
+                        log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
+                        log.Debug("PatternEndDate: " + ruleBook["UNTIL"].ToString());
+                        throw ex;
+                    }
                 }
             }
             if (!ruleBook.ContainsKey("COUNT") && !ruleBook.ContainsKey("UNTIL")) {
@@ -442,13 +449,16 @@ namespace OutlookGoogleCalendarSync {
             log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookOgcs.Calendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
             Boolean haveMatchingEv = false;
-            if (OutlookOgcs.Calendar.ExistsOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID)) {
-                String googleIdValue = OutlookOgcs.Calendar.GetOGCSproperty(ai, OutlookOgcs.Calendar.MetadataId.gEventID);
-                Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
-                if (ev != null) {
-                    events.Add(ev);
-                    haveMatchingEv = true;
-                    log.Fine("Found single hard-matched Event.");
+            if (OutlookOgcs.CustomProperty.Exists(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
+                String googleIdValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID);
+                String googleCalValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId);
+                if (googleCalValue == null || googleCalValue == Settings.Instance.UseGoogleCalendar.Id) {
+                    Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
+                    if (ev != null) {
+                        events.Add(ev);
+                        haveMatchingEv = true;
+                        log.Fine("Found single hard-matched Event.");
+                    }
                 }
             }
             if (!haveMatchingEv) {
@@ -459,10 +469,10 @@ namespace OutlookGoogleCalendarSync {
             }
             for (int g = 0; g < events.Count(); g++) {
                 Event ev = events[g];
-                if (haveMatchingEv || GoogleOgcs.Calendar.ExistsOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId)) {
-                    if (GoogleOgcs.Calendar.OutlookIdMissing(ev)) {
+                if (haveMatchingEv || GoogleOgcs.CustomProperty.Exists(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId)) {
+                    if (GoogleOgcs.CustomProperty.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        String gEntryID = GoogleOgcs.Calendar.GetOGCSproperty(ev, GoogleOgcs.Calendar.MetadataId.oEntryId);
+                        String gEntryID = GoogleOgcs.CustomProperty.Get(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId);
                         if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
@@ -470,7 +480,7 @@ namespace OutlookGoogleCalendarSync {
                         }
                         if (haveMatchingEv || gEntryID == compare_oID) {
                             log.Info("Adding Outlook IDs to Master Google Event...");
-                            GoogleOgcs.Calendar.AddOutlookIDs(ref ev, ai);
+                            GoogleOgcs.CustomProperty.AddOutlookIDs(ref ev, ai);
                             try {
                                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } catch (System.Exception ex) {
