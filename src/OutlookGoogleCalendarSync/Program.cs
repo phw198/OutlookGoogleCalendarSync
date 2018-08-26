@@ -214,6 +214,7 @@ namespace OutlookGoogleCalendarSync {
             }
             UserFilePath = logPath;
             log4net.GlobalContext.Properties["LogPath"] = logPath + "\\";
+            log4net.LogManager.GetRepository().LevelMap.Add(MyFailLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyFineLevel);
             log4net.LogManager.GetRepository().LevelMap.Add(MyUltraFineLevel);
 

@@ -2036,6 +2036,7 @@
             "Off",
             "Fatal",
             "Error",
+            "Fail",
             "Warn",
             "Info",
             "Debug",

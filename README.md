@@ -29,17 +29,17 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/OutlookGoogleCalendarSync-2.7.0-beta-full.nupkg.svg)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/OutlookGoogleCalendarSync-2.7.0-beta-delta.nupkg.svg)
 
-### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.7.5-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.5-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.7.5-alpha)
+### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.7.6-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.6-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.7.6-alpha)
 
-:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.5-alpha/Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.5-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.5-alpha/Setup.exe)
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.6-alpha/Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.6-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.6-alpha/Setup.exe)
  
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.5-alpha/Portable_OGCS_v2.7.5.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.5-alpha/Portable_OGCS_v2.7.5.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.5-alpha/Portable_OGCS_v2.7.5.zip)
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.6-alpha/Portable_OGCS_v2.7.6.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.6-alpha/Portable_OGCS_v2.7.6.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.6-alpha/Portable_OGCS_v2.7.6.zip)
 
 :information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.5-alpha/OutlookGoogleCalendarSync-2.7.5-alpha-full.nupkg.svg)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.5-alpha/OutlookGoogleCalendarSync-2.7.5-alpha-delta.nupkg.svg)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.6-alpha/OutlookGoogleCalendarSync-2.7.6-alpha-full.nupkg.svg)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.6-alpha/OutlookGoogleCalendarSync-2.7.6-alpha-delta.nupkg.svg)
 
 ## Functionality
 <img align="right" width="35%" src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/supported_sync_configs.png" alt="Supported configurations"/>
@@ -50,7 +50,8 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
    - Outlook :arrow_right: Google
    - Outlook :arrow_left: Google
    - Outlook :left_right_arrow: Google (two-way/bidirectional sync)
-   - :gear: See diagram on the right for supported configurations
+   - :gear: See diagram on the right for supported configurations. <br/>
+     New with v2.7.6 - now supports _all_ configurations!
 - Includes the following event attributes:
    - Subject
    - Description

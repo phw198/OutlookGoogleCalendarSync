@@ -1,6 +1,22 @@
 | Release Notes |
 |:---|
 
+# v2.7.6.0 - Alpha
+
+**Enhancements**
+- Syncing a common calendar to/from more than one other now supported!
+- Improved logic to determine meeting organiser's timezone
+- Don't delete Google event immediately after reclaiming it
+- New FAIL logging level added, below Error
+- Nicer output when authenticating with Google and reclaiming items
+- Show authorised Google account on Settings tab
+
+**Bugfix**
+- Fixed XML namespace for obfuscation sync direction
+- Stopped error reporting obstructing Squirrel events
+- Fixed crash on OGCS automated startup 
+- Don't try and retrieve Google event if synced from different calendar (avoid 404 errors)
+
 # v2.7.5.0 - Alpha
 
 **Enhancements**
