@@ -1204,7 +1204,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 this.gbSyncOptions_How.Height = minPanelHeight;
                 this.gbSyncOptions_What.Height = 112;
-                this.btHowMore.Text = "More...";
             }
         }
 

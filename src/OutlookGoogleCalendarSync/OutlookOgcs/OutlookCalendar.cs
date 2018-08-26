@@ -699,10 +699,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
                 AppointmentItem ai = oAppointments[o];
-                String sigAi = signature(ai);
+                CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
                 //Find entries with no Google ID
                 if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
+                    String sigAi = signature(ai);
                     unclaimedAi.Add(ai);
 
                     for (int g = gEvents.Count - 1; g >= 0; g--) {

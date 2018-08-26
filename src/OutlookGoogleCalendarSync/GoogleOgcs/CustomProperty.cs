@@ -54,7 +54,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
 
             //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) || 
+            if (!calendarKeys.ContainsKey(calendarKeyName) ||
                 (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
             {
                 maxSet = -1;
@@ -102,7 +102,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (ev.ExtendedProperties == null || ev.ExtendedProperties.Private__ == null) return false;
 
             searchKey = metadataIdKeyName(searchId);
-            
+
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
             if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
@@ -126,6 +126,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Add(ref ev, MetadataId.oCalendarId, OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID);
             Add(ref ev, MetadataId.oEntryId, ai.EntryID);
             Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
+            CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
         }
 
         public static void Add(ref Event ev, MetadataId key, String value) {
@@ -149,7 +150,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             log.Fine("Set extendedproperty " + keyName + "=" + keyValue);
         }
-        
+
         public static String Get(Event ev, MetadataId id) {
             String key;
             if (Exists(ev, id, out key)) {
@@ -187,6 +188,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public static void SetOGCSlastModified(ref Event ev) {
             Add(ref ev, MetadataId.ogcsModified, DateTime.Now);
+        }
+
+        /// <summary>
+        /// Log the various User Properties.
+        /// </summary>
+        /// <param name="ev">The Event.</param>
+        /// <param name="thresholdLevel">Only log if logging configured at this level or higher.</param>
+        public static void LogProperties(Event ev, log4net.Core.Level thresholdLevel) {
+            if (((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level.Value > thresholdLevel.Value) return;
+
+            try {
+                if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private__ != null) {
+                    log.Debug(GoogleOgcs.Calendar.GetEventSummary(ev));
+                    foreach (KeyValuePair<String, String> prop in ev.ExtendedProperties.Private__.OrderBy(k => k.Key)) {
+                        log.Debug(prop.Key + "=" + prop.Value);
+                    }
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to log Event ExtendedProperties", ex);
+            }
         }
     }
 }

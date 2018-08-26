@@ -3057,7 +3057,6 @@
         private System.Windows.Forms.Panel howMorePanel;
         private System.Windows.Forms.DomainUpDown tbTargetCalendar;
         private System.Windows.Forms.CheckBox cbPrivate;
-        private System.Windows.Forms.CheckBox btHowMore;
         private System.Windows.Forms.NumericUpDown tbStartupDelay;
         private System.Windows.Forms.CheckBox cbCloakEmail;
         private System.Windows.Forms.Label lWhatInfo;

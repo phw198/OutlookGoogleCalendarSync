@@ -12,6 +12,10 @@ namespace OutlookGoogleCalendarSync {
     class OGCSexception {
         private static readonly ILog log = LogManager.GetLogger(typeof(OGCSexception));
 
+        public static void Analyse(String warnDetail, System.Exception ex, Boolean includeStackTrace = false) {
+            log.Warn(warnDetail);
+            Analyse(ex, includeStackTrace: includeStackTrace);
+        }
         public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
             log.Error(ex.GetType().FullName + ": " + ex.Message);
             int errorCode = getErrorCode(ex);

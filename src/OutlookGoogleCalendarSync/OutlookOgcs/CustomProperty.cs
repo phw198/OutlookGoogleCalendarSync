@@ -67,7 +67,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) || 
+            if (!calendarKeys.ContainsKey(calendarKeyName) ||
                 (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Settings.Instance.UseGoogleCalendar.Id))
             {
                 maxSet = -1;
@@ -143,6 +143,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
             Add(ref ai, MetadataId.gEventID, ev.Id);
             Add(ref ai, MetadataId.gCalendarId, Settings.Instance.UseGoogleCalendar.Id);
+            LogProperties(ai, log4net.Core.Level.Debug);
         }
 
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
@@ -259,6 +260,34 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         public static void SetOGCSlastModified(ref AppointmentItem ai) {
             Add(ref ai, MetadataId.ogcsModified, DateTime.Now);
+        }
+
+        /// <summary>
+        /// Log the various User Properties.
+        /// </summary>
+        /// <param name="ai">The Appointment item.</param>
+        /// <param name="thresholdLevel">Only log if logging configured at this level or higher.</param>
+        public static void LogProperties(AppointmentItem ai, log4net.Core.Level thresholdLevel) {
+            if (((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level.Value > thresholdLevel.Value) return;
+
+            UserProperties ups = null;
+            UserProperty up = null;
+            try {
+                log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                ups = ai.UserProperties;
+                for (int p = 1; p <= ups.Count; p++) {
+                    try {
+                        up = ups[p];
+                        log.Debug(up.Name + "=" + up.Value.ToString());
+                    } finally {
+                        up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
+                    }
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to log Appointment UserProperties", ex);
+            } finally {
+                ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+            }
         }
     }
 }

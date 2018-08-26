@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void GetAuthenticated() {
             if (this.authenticated) return;
 
-            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Google...", Console.Markup.h2, newLine: false, verbose: true);
+            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Google", Console.Markup.h2, newLine: false, verbose: true);
 
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();

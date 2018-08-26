@@ -858,6 +858,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             for (int g = gEvents.Count - 1; g >= 0; g--) {
                 Event ev = gEvents[g];
+                CustomProperty.LogProperties(ev, Program.MyFineLevel);
 
                 //Find entries with no Outlook ID
                 if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
