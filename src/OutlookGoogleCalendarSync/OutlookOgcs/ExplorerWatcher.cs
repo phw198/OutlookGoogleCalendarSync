@@ -19,7 +19,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 explorers = oApp.Explorers;
 
                 log.Info("Setting up Explorer event watchers.");
-                log.Debug("Watch needed for " + explorers.Count + " existing explorers.");
+                log.Debug("Watcher needed for " + explorers.Count + " existing explorers.");
                 for (int e = 1; e <= explorers.Count; e++) {
                     watchForPasteEvents(explorers[e]);
                 }

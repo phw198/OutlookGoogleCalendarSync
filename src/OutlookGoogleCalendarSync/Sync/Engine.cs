@@ -27,6 +27,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         public Engine() { }
 
         public SyncTimer OgcsTimer;
+        public Sync.PushSyncTimer OgcsPushTimer;
         private AbortableBackgroundWorker bwSync;
         public Boolean SyncingNow {
             get {
@@ -48,6 +49,24 @@ namespace OutlookGoogleCalendarSync.Sync {
             UserCancelled
         }
         private int consecutiveSyncFails = 0;
+
+        #region Push Sync
+        public void RegisterForPushSync() {
+            if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
+                log.Debug("Create the timer for the push synchronisation");
+                if (OgcsPushTimer == null)
+                    OgcsPushTimer = Sync.PushSyncTimer.Instance;
+                if (!OgcsPushTimer.Running())
+                    OgcsPushTimer.Switch(true);
+            }
+        }
+
+        public void DeregisterForPushSync() {
+            log.Info("Stop monitoring for Outlook appointment changes...");
+            if (OgcsPushTimer != null && OgcsPushTimer.Running())
+                OgcsPushTimer.Switch(false);
+        }
+        #endregion
 
         public void Sync_Requested(object sender = null, EventArgs e = null) {
             ManualForceCompare = false;
@@ -160,7 +179,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 sb.Insert(0, ":clock" + DateTime.Now.ToString("hh").TrimStart('0') + (minsPastHour == 00 ? "" : "30") + ":");
                 mainFrm.Console.Update(sb);
 
-                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
+                if (Settings.Instance.OutlookPush) DeregisterForPushSync();
 
                 SyncResult syncResult = SyncResult.Fail;
                 int failedAttempts = 0;
@@ -250,7 +269,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 mainFrm.NotificationTray.UpdateItem("sync", "&Sync Now");
                 if (Settings.Instance.MuteClickSounds) Console.MuteClicks(false);
 
-                if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
+                if (Settings.Instance.OutlookPush) RegisterForPushSync();
 
                 //Release Outlook reference if GUI not available. 
                 //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
@@ -275,8 +294,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
             }
             Forms.Main.Instance.bSyncNow.Enabled = true;
-            if (OutlookOgcs.Calendar.Instance.OgcsPushTimer != null)
-                OutlookOgcs.Calendar.Instance.OgcsPushTimer.ResetLastRun(); //Reset Push flag regardless of success (don't want it trying every 2 mins)
+            if (OgcsPushTimer != null)
+                OgcsPushTimer.ResetLastRun(); //Reset Push flag regardless of success (don't want it trying every 2 mins)
         }
 
         private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {

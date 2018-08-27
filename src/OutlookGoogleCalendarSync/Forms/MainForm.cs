@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
 
             //Set up listener for Outlook calendar changes
-            if (Settings.Instance.OutlookPush) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
+            if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
 
             if (Settings.Instance.StartInTray) {
                 this.CreateHandle();
@@ -1133,7 +1133,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbTargetCalendar.Enabled = false;
             }
             if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) {
-                OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
+                Sync.Engine.Instance.DeregisterForPushSync();
                 this.cbOutlookPush.Checked = false;
                 this.cbOutlookPush.Enabled = false;
                 this.cbUseGoogleDefaultReminder.Visible = false;
@@ -1325,8 +1325,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.OutlookPush = cbOutlookPush.Checked;
             if (this.Visible) {
                 if (tbInterval.Value != 0) tbMinuteOffsets_ValueChanged(null, null);
-                if (cbOutlookPush.Checked) OutlookOgcs.Calendar.Instance.RegisterForPushSync();
-                else OutlookOgcs.Calendar.Instance.DeregisterForPushSync();
+                if (cbOutlookPush.Checked) Sync.Engine.Instance.RegisterForPushSync();
+                else Sync.Engine.Instance.DeregisterForPushSync();
                 NotificationTray.UpdateAutoSyncItems();
             }
         }

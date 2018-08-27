@@ -42,7 +42,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
-        public Sync.PushSyncTimer OgcsPushTimer;
         public MAPIFolder UseOutlookCalendar {
             get { return IOutlook.UseOutlookCalendar(); }
             set {
@@ -83,25 +82,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             GC.WaitForPendingFinalizers();
         }
 
-
-        #region Push Sync
-        public void RegisterForPushSync() {
-            if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
-                log.Debug("Create the timer for the push synchronisation");
-                if (OgcsPushTimer == null)
-                    OgcsPushTimer = Sync.PushSyncTimer.Instance;
-                if (!OgcsPushTimer.Running())
-                    OgcsPushTimer.Switch(true);
-            }
-        }
-
-        public void DeregisterForPushSync() {
-            log.Info("Stop monitoring for Outlook appointment changes...");
-            if (OgcsPushTimer != null && OgcsPushTimer.Running())
-                OgcsPushTimer.Switch(false);
-        }
-        #endregion
-
         /// <summary>
         /// Get all calendar entries within the defined date-range for sync
         /// </summary>
@@ -120,7 +100,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             } catch (System.Runtime.InteropServices.COMException) {
                 try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
-                filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+                filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
 
             } catch (System.Exception ex) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
