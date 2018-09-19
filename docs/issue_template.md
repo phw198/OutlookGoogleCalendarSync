@@ -1,6 +1,6 @@
 :memo: Use the below template to report your issue.  
 :bulb: Upgrade to the latest alpha release to check if the problem is already fixed.  
-:paperclip: To aid investigation, provide your OGcalsync.log file ([see instructions](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#posting-your-ogcalsynclog-file)).  
+:paperclip: To aid investigation, provide your OGcalsync.log file ([see instructions](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file)).  
 
 ----
 
