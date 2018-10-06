@@ -270,6 +270,11 @@ namespace OutlookGoogleCalendarSync {
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
 
                 content = header + contentInnerHtml + footer;
+                if (this.wb.InvokeRequired) {
+                    this.wb.Invoke((MethodInvoker)(() => {
+                        wb.DocumentText = content;
+                    }));
+                } else 
                 this.wb.DocumentText = content;
                 
                 while (navigationStatus != NavigationStatus.completed) {
