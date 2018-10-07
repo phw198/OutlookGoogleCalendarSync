@@ -349,6 +349,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             #endregion
             #region Application behaviour
+            syncOptionSizing(gbAppBehaviour_Logging, pbExpandLogging, true);
+            syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
@@ -359,7 +361,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable;
             cbPortable.Enabled = !Program.IsInstalled;
-            cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
+            #region Logging
             for (int i = 0; i < cbLoggingLevel.Items.Count; i++) {
                 if (cbLoggingLevel.Items[i].ToString().ToLower() == Settings.Instance.LoggingLevel.ToLower()) {
                     cbLoggingLevel.SelectedIndex = i;
@@ -367,7 +369,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
-            
+            cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
+            #endregion
             updateGUIsettings_Proxy();
             #endregion
             linkTShoot_logfile.Text = log4net.GlobalContext.Properties["LogFilename"] + " file";
@@ -460,14 +463,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (String.IsNullOrEmpty(txtProxyServer.Text) || String.IsNullOrEmpty(txtProxyPort.Text)) {
                     MessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtProxyServer.Focus();
                     return;
                 }
                 int nPort;
                 if (!int.TryParse(txtProxyPort.Text, out nPort)) {
                     MessageBox.Show("Proxy server port must be a number.", "Invalid Proxy Port",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtProxyPort.Focus();
                     return;
                 }
 
@@ -1087,7 +1088,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 188; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
-                    case "Proxy": section.Height = 0; break;
+                    case "Logging": section.Height = 93; break;
+                    case "Proxy": section.Height = 197; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
             } else {
@@ -1096,11 +1098,15 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             sectionImage.Refresh();
 
-            if ("pbExpandWhen|pbExpandWhat".Contains(section.Name)) {
+            if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
                 gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
                 pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
                 gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
                 pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandLogging|pbExpandProxy".Contains(sectionImage.Name)) {
+                gbAppBehaviour_Proxy.Top = gbAppBehaviour_Logging.Location.Y + gbAppBehaviour_Logging.Height + Convert.ToInt16(10 * magnification);
+                pbExpandProxy.Top = gbAppBehaviour_Proxy.Top - Convert.ToInt16(2 * magnification);
             }
         }
 
@@ -1475,6 +1481,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                     Program.MakePortable(cbPortable.Checked);
                 }
             }
+        }
+
+        private void pbExpandLogging_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbAppBehaviour_Logging, pbExpandLogging);
+        }
+
+        private void pbExpandProxy_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy);
         }
 
         private void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
