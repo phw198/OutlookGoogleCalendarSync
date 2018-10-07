@@ -408,6 +408,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             txtProxyPort.Text = Settings.Instance.Proxy.Port.ToString();
             txtProxyServer.Enabled = rbProxyCustom.Checked;
             txtProxyPort.Enabled = rbProxyCustom.Checked;
+            tbBrowserAgent.Text = Settings.Instance.Proxy.BrowserUserAgent;
+            tbBrowserAgent.Enabled = rbProxyCustom.Checked;
+            btCheckBrowserAgent.Enabled = rbProxyCustom.Checked;
 
             if (!string.IsNullOrEmpty(Settings.Instance.Proxy.UserName) &&
                 !string.IsNullOrEmpty(Settings.Instance.Proxy.Password)) {
@@ -467,6 +470,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     txtProxyPort.Focus();
                     return;
                 }
+
+                Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
 
                 string userName = null;
                 string password = null;
@@ -1082,6 +1087,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 188; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
+                    case "Proxy": section.Height = 0; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
             } else {
@@ -1090,10 +1096,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             sectionImage.Refresh();
 
-            gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
-            pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
-            gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
-            pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
+            if ("pbExpandWhen|pbExpandWhat".Contains(section.Name)) {
+                gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
+                pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
+                gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
+                pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
+            }
         }
 
         private void pbExpandHow_Click(object sender, EventArgs e) {
@@ -1501,12 +1509,22 @@ namespace OutlookGoogleCalendarSync.Forms {
             bool result = rbProxyCustom.Checked;
             txtProxyServer.Enabled = result;
             txtProxyPort.Enabled = result;
+            tbBrowserAgent.Enabled = result;
+            btCheckBrowserAgent.Enabled = result;
             cbProxyAuthRequired.Enabled = result;
             if (result) {
                 result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);
                 cbProxyAuthRequired.Checked = result;
                 txtProxyUser.Enabled = result;
                 txtProxyPassword.Enabled = result;
+            }
+        }
+
+        private void btCheckBrowserAgent_Click(object sender, EventArgs e) {
+            try {
+                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/browseruseragent");
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to check browser's user agent.", ex);
             }
         }
 
