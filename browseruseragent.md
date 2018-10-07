@@ -11,10 +11,21 @@ If you are using a custom proxy but OGCS is being blocked, try replacing the bro
 </div>
 <span id="copyButton"></span>
 
+If your web browser's user agent is not shown above, you could also try these sites:-
+* [http://www.whatsmyua.info](http://www.whatsmyua.info)
+* [https://helloacm.com/api/user-agent](https://helloacm.com/api/user-agent)
+* [https://www.whoishostingthis.com/tools/user-agent](https://www.whoishostingthis.com/tools/user-agent)
+* [https://developers.whatismybrowser.com/useragents/parse/?analyse-my-user-agent=yes#parse-useragent](https://developers.whatismybrowser.com/useragents/parse/?analyse-my-user-agent=yes#parse-useragent)
+
 <script>
+  uaApi = "http://www.whatsmyua.info/api/v1/ua";
+  uaApi = "https://helloacm.com/api/user-agent/";
+  
   //$(document).ready(function(){
-  $.get("http://www.whatsmyua.info/api/v1/ua", function(data){
-    $('#rawUa').html(data[0].ua.rawUa);
+  $.get(uaApi, function(data){
+  
+    //$('#rawUa').html(data[0].ua.rawUa); //<-- For whatsmyua.info
+    $('#rawUa').html(data);
     /*
     var json = jQuery.parseJSON(data);    
     $('#rawUa').html(json[0].ua.rawUa);
