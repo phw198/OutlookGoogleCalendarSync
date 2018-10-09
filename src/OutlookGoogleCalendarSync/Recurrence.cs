@@ -137,11 +137,11 @@ namespace OutlookGoogleCalendarSync {
                     DateTime endDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
                     if (endDate < oPattern.PatternStartDate) {
                         log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
-                        log.Debug("PatternEndDate: " + ruleBook["UNTIL"].ToString());
+                        log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
                         String summary = GoogleOgcs.Calendar.GetEventSummary(ev, onlyIfNotVerbose: true);
                         Forms.Main.Instance.Console.Update(summary + "The recurring Google event has an end date <i>before</i> the start date, which Outlook doesn't allow.<br/>" +
-                            "The end date has been removed from the synced Outlook appointment.", Console.Markup.warning);
-                        oPattern.NoEndDate = true;
+                            "The synced Outlook recurrence has been changed to a single occurrence.", Console.Markup.warning);
+                        oPattern.Occurrences = 1;
                     } else
                         oPattern.PatternEndDate = endDate;
                 }
