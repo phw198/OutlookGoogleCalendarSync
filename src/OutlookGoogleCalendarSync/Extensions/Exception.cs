@@ -91,7 +91,7 @@ namespace OutlookGoogleCalendarSync {
                 Google.GoogleApiException gaex = ex as Google.GoogleApiException;
                 return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
             } else {
-                return ex.Message;
+                return ex.Message + (ex.InnerException != null ? "<br/>" + ex.InnerException.Message : "");
             }
         }
     }
