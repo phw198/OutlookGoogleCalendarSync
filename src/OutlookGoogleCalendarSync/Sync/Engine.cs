@@ -221,7 +221,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                     mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
                                     mainFrm.Console.Update(sb, Console.Markup.error, notifyBubble: true);
-                                    if (ex.Data["OGCS"].ToString().Contains("Please try again")) {
+                                    if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
                                 } else {
@@ -344,6 +344,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } catch (System.Net.Http.HttpRequestException ex) {
                     OGCSexception.Analyse(ex);
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
+                    throw ex;
+                } catch (System.ApplicationException ex) {
+                    if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&
+                        (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
+                        //Already rescheduled to run again once new quota available, so just set to retry.
+                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " + 
+                            (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
+                    }
                     throw ex;
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
