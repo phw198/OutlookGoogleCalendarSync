@@ -7,7 +7,74 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
-    class CustomProperty {
+    public class EphemeralProperties {
+
+        private Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
+
+        public EphemeralProperties() {
+            ephemeralProperties = new Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
+        }
+
+        public void Clear() {
+            ephemeralProperties = new Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, object>>();
+        }
+
+        public void Add(Event ev, EphemeralProperty property) {
+            if (!ExistAny(ev)) {
+                ephemeralProperties.Add(ev, new Dictionary<EphemeralProperty.PropertyName, object> { { property.Name, property.Value } });
+            } else {
+                if (PropertyExists(ev, property.Name)) ephemeralProperties[ev][property.Name] = property.Value;
+                else ephemeralProperties[ev].Add(property.Name, property.Value);
+            }
+        }
+
+        /// <summary>
+        /// Is the Event already registered with any ephemeral properties?
+        /// </summary>
+        /// <param name="ev">The Event to check</param>
+        public Boolean ExistAny(Event ev) {
+            return ephemeralProperties.ContainsKey(ev);
+        }
+        /// <summary>
+        /// Does a specific ephemeral property exist for an Event?
+        /// </summary>
+        /// <param name="ev">The Event to check</param>
+        /// <param name="propertyName">The property to check</param>
+        public Boolean PropertyExists(Event ev, EphemeralProperty.PropertyName propertyName) {
+            if (!ExistAny(ev)) return false;
+            return ephemeralProperties[ev].ContainsKey(propertyName);
+        }
+
+        public Object GetProperty(Event ev, EphemeralProperty.PropertyName propertyName) {
+            if (this.ExistAny(ev)) {
+                if (PropertyExists(ev, propertyName)) {
+                    Object ep = ephemeralProperties[ev][propertyName];
+                    switch (propertyName) {
+                        case EphemeralProperty.PropertyName.KeySet:
+                            if (ep is int && ep != null) return Convert.ToInt16(ep);
+                            else return null;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    public class EphemeralProperty {
+        //These keys are only stored in memory against the Event, not saved anwhere.
+        public enum PropertyName {
+            KeySet
+        }
+        public PropertyName Name { get; private set; }
+        public Object Value { get; private set; }
+
+        public EphemeralProperty(PropertyName propertyName, Object value) {
+            Name = propertyName;
+            Value = value;
+        }
+    }
+
+    public class CustomProperty {
         private static readonly ILog log = LogManager.GetLogger(typeof(CustomProperty));
 
         private static String calendarKeyName = metadataIdKeyName(MetadataId.oCalendarId);
@@ -50,33 +117,50 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <returns>The set number, if it exists</returns>
         private static int? getKeySet(Event ev, out int maxSet) {
             String returnSet = "";
+            int? returnVal = null;
             maxSet = 0;
-            Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
 
-            //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) ||
-                (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
-            {
-                maxSet = -1;
-                return null;
+            if (GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.KeySet)) {
+                Object keySet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.KeySet);
+                if (keySet == null) {
+                    maxSet = -1;
+                    return null;
+                } 
+                else return Convert.ToInt16(keySet);
             }
 
-            foreach (KeyValuePair<String, String> kvp in calendarKeys) {
-                Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
-                MatchCollection matches = rgx.Matches(kvp.Key);
+            try {
+                Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
 
-                if (matches.Count > 0) {
-                    int appendedNos = 0;
-                    if (matches[0].Groups[1].Value != "")
-                        appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
-                    if (appendedNos - maxSet == 1) maxSet = appendedNos;
-                    if (kvp.Value == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
-                        returnSet = matches[0].Groups[1].Value;
+                //For backward compatibility, always default to key names with no set number appended
+                if (!calendarKeys.ContainsKey(calendarKeyName) ||
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+                {
+                    maxSet = -1;
+                    return null;
                 }
-            }
 
-            if (string.IsNullOrEmpty(returnSet)) return null;
-            else return Convert.ToInt16(returnSet);
+                foreach (KeyValuePair<String, String> kvp in calendarKeys) {
+                    Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
+                    MatchCollection matches = rgx.Matches(kvp.Key);
+
+                    if (matches.Count > 0) {
+                        int appendedNos = 0;
+                        if (matches[0].Groups[1].Value != "")
+                            appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
+                        if (appendedNos - maxSet == 1) maxSet = appendedNos;
+                        if (kvp.Value == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+                            returnSet = matches[0].Groups[1].Value;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
+
+            } finally {
+                EphemeralProperty ephemeralProperty = new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal);
+                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, ephemeralProperty);
+            }
+            return returnVal;
         }
 
         /// <summary>
@@ -106,6 +190,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
             if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
+            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
             if (searchId == MetadataId.oCalendarId)
                 return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && ev.ExtendedProperties.Private__[searchKey] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
             else
@@ -148,6 +233,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             else
                 ev.ExtendedProperties.Private__.Add(keyName, keyValue);
 
+            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
             log.Fine("Set extendedproperty " + keyName + "=" + keyValue);
         }
 
