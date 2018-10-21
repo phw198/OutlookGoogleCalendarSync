@@ -76,6 +76,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static Random random = new Random();
         public long MinDefaultReminder = long.MinValue;
 
+        public EphemeralProperties EphemeralProperties = new EphemeralProperties();
+
         public List<GoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
             int backoff = 0;
@@ -1567,10 +1569,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return apiException.throwException;
             }
         }
-
-        #region OGCS event properties
-
-        #endregion
         #endregion
     }
 }

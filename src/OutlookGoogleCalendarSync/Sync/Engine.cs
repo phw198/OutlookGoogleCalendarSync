@@ -130,7 +130,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 String cacheNextSync = mainFrm.NextSyncVal;
 
                 mainFrm.Console.Clear();
-
+                
                 if (Settings.Instance.UseGoogleCalendar == null ||
                     Settings.Instance.UseGoogleCalendar.Id == null ||
                     Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -328,6 +328,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             List<AppointmentItem> outlookEntries = null;
             List<Event> googleEntries = null;
+            GoogleOgcs.Calendar.Instance.EphemeralProperties.Clear();
             try {
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
