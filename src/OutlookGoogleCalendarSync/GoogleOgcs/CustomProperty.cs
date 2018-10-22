@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (propertyName) {
                         case EphemeralProperty.PropertyName.KeySet:
                             if (ep is int && ep != null) return Convert.ToInt16(ep);
-                            else return null;
+                            else return 0;
                     }
                 }
             }
@@ -125,7 +125,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (keySet == null) {
                     maxSet = -1;
                     return null;
-                } 
+                } else if (Convert.ToInt16(keySet) == 0) return null;
                 else return Convert.ToInt16(keySet);
             }
 
@@ -150,7 +150,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
                         if (appendedNos - maxSet == 1) maxSet = appendedNos;
                         if (kvp.Value == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
-                            returnSet = matches[0].Groups[1].Value;
+                            returnSet = (matches[0].Groups[1].Value == "") ? "0" : matches[0].Groups[1].Value;
                     }
                 }
 
@@ -189,8 +189,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
-            if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
-            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
+            if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
             if (searchId == MetadataId.oCalendarId)
                 return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && ev.ExtendedProperties.Private__[searchKey] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
             else
@@ -219,9 +218,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
             if (ev.ExtendedProperties.Private__ == null) ev.ExtendedProperties.Private__ = new Dictionary<String, String>();
 
-            int newSet;
-            int? keySet = getKeySet(ev, out newSet);
-            add(ref ev, addkeyName, value, keySet ?? newSet + 1);
+            int maxSet;
+            int? keySet = getKeySet(ev, out maxSet);
+            if (key == MetadataId.oCalendarId && keySet == null) //Couldn't find key set for calendar
+                keySet = maxSet + 1; //So start a new one
+            else if (key != MetadataId.oCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
+                keySet = 0; //Add them in to the default key set
+
+            add(ref ev, addkeyName, value, keySet);
         }
         private static void Add(ref Event ev, MetadataId key, DateTime value) {
             Add(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));

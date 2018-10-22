@@ -329,8 +329,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Forms.Main.Instance.Console.Update(itemSummary, Console.Markup.calendar, verbose: true);
 
             Event ev = new Event();
-            //Add the Outlook appointment ID into Google event
-            CustomProperty.AddOutlookIDs(ref ev, ai);
 
             ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
@@ -393,6 +391,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev.Reminders.UseDefault = false;
                 }
             }
+
+            //Add the Outlook appointment ID into Google event
+            CustomProperty.AddOutlookIDs(ref ev, ai);
+
             return ev;
         }
 
