@@ -219,6 +219,7 @@ namespace OutlookGoogleCalendarSync {
             calendar,
             checkered_flag,
             error,
+            fail,
             h2,
             info,
             mag_right,
@@ -256,6 +257,8 @@ namespace OutlookGoogleCalendarSync {
                     String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                     if (markupPrefix == Markup.warning)
                         logLines.ToList().ForEach(l => log.Warn(l));
+                    else if (markupPrefix == Markup.fail)
+                        logLines.ToList().ForEach(l => log.Fail(l));
                     else if (markupPrefix == Markup.error)
                         logLines.ToList().ForEach(l => log.Error(l));
                     else if (verbose)
@@ -291,7 +294,10 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false) {
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), Markup.error, notifyBubble: notifyBubble);
+            Markup emoji = Markup.error;
+            if (OGCSexception.LoggingAsFail(ex))
+                emoji = Markup.fail;
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), emoji, notifyBubble: notifyBubble);
         }
 
         private String parseEmoji(String output, Markup? markupPrefix = null) {
@@ -301,7 +307,7 @@ namespace OutlookGoogleCalendarSync {
                 //div
                 output = Regex.Replace(output, ":info:(<p>)*", "<div class='info'>$1<span class='em em-information_source'></span>");
                 output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
-                output = Regex.Replace(output, ":error:(<p>)*", "<div class='error'>$1<span class='em em-collision'></span>");                
+                output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");                
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);

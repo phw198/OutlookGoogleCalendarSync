@@ -156,13 +156,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     try {
                         if (ai.End == min) continue; //Required for midnight to midnight events 
+                    } catch (System.NullReferenceException) {
+                        try {
+                            DateTime start = ai.Start;
+                        } catch (System.NullReferenceException) {
+                            log.Error("Appointment item seems unusable - no Start or End date! Discarding.");
+                            continue;
+                        }
+                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+                        continue;
+
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse(ex, true);
-                        try {
-                            log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
-                        } catch {
-                            log.Error("Appointment item seems unusable!");
-                        }
+                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
                         continue;
                     }
 
@@ -253,9 +259,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Processing >> " + itemSummary);
             Forms.Main.Instance.Console.Update(itemSummary, Console.Markup.calendar, verbose: true);
 
-            //Add the Google event IDs into Outlook appointment.
-            CustomProperty.AddGoogleIDs(ref ai, ev);
-
             ai.Start = new DateTime();
             ai.End = new DateTime();
             ai.AllDayEvent = (ev.Start.Date != null);
@@ -286,6 +289,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
             }
+
+            //Add the Google event IDs into Outlook appointment.
+            CustomProperty.AddGoogleIDs(ref ai, ev);
         }
 
         private static void createCalendarEntry_save(AppointmentItem ai, ref Event ev) {
@@ -965,6 +971,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                         "Please perform an Office Repair and then try running OGCS again.");
+
                 } else if (ex.Message.Contains("0x80040155")) {
                     log.Warn(ex.Message);
                     if (!alreadyRedirectedToWikiForComError.Contains("0x80040155")) {
@@ -973,6 +980,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                         "Please see the wiki for a solution.");
+
+                } else if (ex.Message.Contains("0x8002801D (TYPE_E_LIBNOTREGISTERED)")) {
+                    log.Warn(ex.Message);
+                    if (!alreadyRedirectedToWikiForComError.Contains("0x8002801D")) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x8002801d---type_e_libnotregistered");
+                        alreadyRedirectedToWikiForComError.Add("0x8002801D");
+                    }
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                        "Please see the wiki for a solution.");
+
                 } else
                     throw ex;
 

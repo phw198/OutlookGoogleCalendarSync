@@ -307,7 +307,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     createdEvent = createCalendarEntry_save(newEvent, ai);
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "New event failed to save.", ex);
-                    log.Error(ex.StackTrace);
+                    OGCSexception.Analyse(ex, true);
                     if (MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else
@@ -327,9 +327,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Forms.Main.Instance.Console.Update(itemSummary, Console.Markup.calendar, verbose: true);
 
             Event ev = new Event();
-            //Add the Outlook appointment ID into Google event
-            CustomProperty.AddOutlookIDs(ref ev, ai);
-
+            
             ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
@@ -391,6 +389,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev.Reminders.UseDefault = false;
                 }
             }
+
+            //Add the Outlook appointment ID into Google event
+            CustomProperty.AddOutlookIDs(ref ev, ai);
+
             return ev;
         }
 
@@ -416,20 +418,20 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } catch (Google.GoogleApiException ex) {
                     switch (handleAPIlimits(ex, ev)) {
                         case apiException.throwException: throw;
-                        case apiException.freeAPIexhausted: 
+                        case apiException.freeAPIexhausted:
                             throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
                         case apiException.justContinue: break;
                         case apiException.backoffThenRetry: {
-                                backoff++;
-                                if (backoff == backoffLimit) {
-                                    log.Error("API limit backoff was not successful. Save failed.");
-                                    throw;
-                                } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
-                                }
-                                break;
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
                             }
+                            break;
+                        }
                     }
                 }
             }
@@ -484,7 +486,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, true) + "Updated event failed to save.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -509,7 +511,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError("Updated event failed to save.", ex);
-                        log.Error(ex.StackTrace);
+                        OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -753,16 +755,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case apiException.freeAPIexhausted:
                             throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
                         case apiException.backoffThenRetry: {
-                                backoff++;
-                                if (backoff == backoffLimit) {
-                                    log.Error("API limit backoff was not successful. Save failed.");
-                                    throw;
-                                } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
-                                }
-                                break;
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
                             }
+                            break;
+                        }
                     }
                 }
             }
@@ -793,7 +795,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     else events.Remove(ev);
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Deleted event failed to remove.", ex);
-                    log.Error(ex.StackTrace);
+                    OGCSexception.Analyse(ex, true);
                     if (MessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
@@ -833,16 +835,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case apiException.freeAPIexhausted:
                             throw new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
                         case apiException.backoffThenRetry: {
-                                backoff++;
-                                if (backoff == backoffLimit) {
-                                    log.Error("API limit backoff was not successful. Save failed.");
-                                    throw;
-                                } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
-                                }
-                                break;
+                            backoff++;
+                            if (backoff == backoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
                             }
+                            break;
+                        }
                     }
                 }
             }

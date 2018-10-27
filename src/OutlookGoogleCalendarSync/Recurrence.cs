@@ -484,8 +484,7 @@ namespace OutlookGoogleCalendarSync {
                             try {
                                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } catch (System.Exception ex) {
-                                log.Error("Failed saving Outlook IDs to Google Event.");
-                                OGCSexception.Analyse(ex, true);
+                                OGCSexception.Analyse("Failed saving Outlook IDs to Google Event.", ex, true);
                             }
                             return ev;
                         }
@@ -620,7 +619,7 @@ namespace OutlookGoogleCalendarSync {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
-                                            log.Error(ex.StackTrace);
+                                            OGCSexception.Analyse(ex, true);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
                                             else {
