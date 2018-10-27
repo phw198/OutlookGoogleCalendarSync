@@ -163,12 +163,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             theFolders = (Folders)OutlookOgcs.Calendar.ReleaseObject(theFolders);
-            foreach (String folder in folderIDs.Keys) {
-                ddMailboxName.Items.Add(folder);
-                if (Settings.Instance.MailboxName == folder) {
-                    ddMailboxName.SelectedItem = folder;
-                }
-            }
+            ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
+            ddMailboxName.SelectedItem = Settings.Instance.MailboxName;
 
             if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) { ddMailboxName.SelectedIndex = 0; }
 
