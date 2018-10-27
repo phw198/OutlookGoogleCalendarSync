@@ -563,12 +563,15 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         #region Accessors
         public String NextSyncVal {
-            get { return lNextSyncVal.Text; }
-            set { lNextSyncVal.Text = value; }
+            get { return GetControlPropertyThreadSafe(lNextSyncVal, "Text").ToString(); }
+            set { SetControlPropertyThreadSafe(lNextSyncVal, "Text", value); }
         }
         public String LastSyncVal {
             get { return lLastSyncVal.Text; }
             set { lLastSyncVal.Text = value; }
+        }
+        public void StrikeOutNextSyncVal(Boolean strikeout) {
+            lNextSyncVal.Font = new Font(lNextSyncVal.Font, strikeout ? FontStyle.Strikeout : FontStyle.Regular);
         }
         #endregion
 

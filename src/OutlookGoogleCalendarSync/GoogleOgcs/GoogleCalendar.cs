@@ -1524,10 +1524,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
 
                 //Delay next scheduled sync until after the new quota
-                DateTime now = DateTime.UtcNow;
-                DateTime quotaReset = now.Date.AddHours(8).AddMinutes(now.Minute);
-                if ((quotaReset - now).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                Sync.Engine.Instance.OgcsTimer.SetNextSync((int)(quotaReset - now).TotalMinutes, fromNow: true);
+                DateTime utcNow = DateTime.UtcNow;
+                DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                Sync.Engine.Instance.OgcsTimer.SetNextSync((int)(quotaReset - DateTime.Now).TotalMinutes, fromNow: true);
 
                 return apiException.freeAPIexhausted;
 

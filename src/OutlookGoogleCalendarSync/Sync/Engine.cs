@@ -127,7 +127,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Forms.Main mainFrm = Forms.Main.Instance;
             try {
                 DateTime syncStarted = DateTime.Now;
-                String cacheNextSync = mainFrm.lNextSyncVal.Text;
+                String cacheNextSync = mainFrm.NextSyncVal;
 
                 mainFrm.Console.Clear();
 
@@ -164,7 +164,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Forms.Main.Instance.bSyncNow.Text = "Stop Sync";
                 Forms.Main.Instance.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
-                Forms.Main.Instance.lNextSyncVal.Text = "In progress...";
+                Forms.Main.Instance.NextSyncVal = "In progress...";
 
                 StringBuilder sb = new StringBuilder();
                 Forms.Main.Instance.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
@@ -256,6 +256,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
+                    if (Sync.Engine.Instance.OgcsTimer.NextSyncDate != null && Sync.Engine.Instance.OgcsTimer.NextSyncDate > DateTime.Now) {
+                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + Forms.Main.Instance.NextSyncVal);
+                        updateSyncSchedule = false;
+                        cacheNextSync = mainFrm.NextSyncVal;
+                    }
                 } else {
                     consecutiveSyncFails += failedAttempts;
                     mainFrm.Console.Update("Operation aborted after " + failedAttempts + " failed attempts!", Console.Markup.error);
@@ -281,7 +286,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
             Settings.Instance.LastSyncDate = syncStarted;
             if (!updateSyncSchedule) {
-                Forms.Main.Instance.lNextSyncVal.Text = cacheNextSync;
+                Forms.Main.Instance.NextSyncVal = cacheNextSync;
             } else {
                 if (syncedOk) {
                     OgcsTimer.LastSyncDate = syncStarted;

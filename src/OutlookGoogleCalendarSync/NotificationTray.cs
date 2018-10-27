@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if (Sync.Engine.Instance.OgcsTimer == null) Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
                 Sync.Engine.Instance.OgcsTimer.Switch(true);
-                Forms.Main.Instance.lNextSyncVal.Font = new System.Drawing.Font(Forms.Main.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Regular);
+                Forms.Main.Instance.StrikeOutNextSyncVal(false);
                 if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
                 UpdateAutoSyncItems();
             } else {
@@ -135,7 +135,7 @@ namespace OutlookGoogleCalendarSync {
                     return;
                 }
                 Sync.Engine.Instance.OgcsTimer.Switch(false);
-                Forms.Main.Instance.lNextSyncVal.Font = new System.Drawing.Font(Forms.Main.Instance.lNextSyncVal.Font, System.Drawing.FontStyle.Strikeout);
+                Forms.Main.Instance.StrikeOutNextSyncVal(true);
                 if (Settings.Instance.OutlookPush) Sync.Engine.Instance.DeregisterForPushSync();
                 UpdateAutoSyncItems();
             }

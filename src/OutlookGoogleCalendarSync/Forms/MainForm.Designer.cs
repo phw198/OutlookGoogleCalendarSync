@@ -3029,7 +3029,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         public System.Windows.Forms.ComboBox cbIntervalUnit;
         public System.Windows.Forms.NumericUpDown tbInterval;
-        public System.Windows.Forms.Label lNextSyncVal;
+        private System.Windows.Forms.Label lNextSyncVal;
         private System.Windows.Forms.CheckedListBox clbCategories;
         private System.Windows.Forms.Label lFilterCategories;
         public System.Windows.Forms.ComboBox cbCategoryFilter;
@@ -3069,7 +3069,7 @@
         private System.Windows.Forms.WebBrowser consoleWebBrowser;
         private System.Windows.Forms.CheckBox cbMuteClicks;
         public System.Windows.Forms.WebBrowser GappBrowser;
-        public System.Windows.Forms.Label lLastSyncVal;
+        private System.Windows.Forms.Label lLastSyncVal;
         private System.Windows.Forms.CheckBox cbOnlyRespondedInvites;
         private System.Windows.Forms.CheckBox cbColour;
         private System.Windows.Forms.Panel panelSyncOptions;
