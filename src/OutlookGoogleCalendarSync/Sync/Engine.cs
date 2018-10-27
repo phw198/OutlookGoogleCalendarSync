@@ -545,7 +545,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        console.Update("Unable to delete obsolete entries in Google calendar.", Console.Markup.error);
+                        console.UpdateWithError("Unable to delete obsolete entries in Google calendar.", ex);
                         throw ex;
                     }
                     log.Info("Done.");
@@ -563,7 +563,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        console.Update("Unable to add new entries into the Google Calendar.", Console.Markup.error);
+                        console.UpdateWithError("Unable to add new entries into the Google Calendar.", ex);
                         throw ex;
                     }
                     log.Info("Done.");
@@ -581,7 +581,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Info(ex.Message);
                         return false;
                     } catch (System.Exception ex) {
-                        console.Update("Unable to update existing entries in the Google calendar.", Console.Markup.error);
+                        console.UpdateWithError("Unable to update existing entries in the Google calendar.", ex);
                         throw ex;
                     }
                     console.Update(entriesUpdated + " entries updated.");

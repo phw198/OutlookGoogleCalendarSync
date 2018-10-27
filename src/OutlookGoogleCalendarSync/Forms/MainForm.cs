@@ -979,8 +979,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             List<GoogleCalendarListEntry> calendars = null;
             try {
                 calendars = GoogleOgcs.Calendar.Instance.GetCalendars();
-            } catch (ApplicationException ex) {
-                if (!String.IsNullOrEmpty(ex.Message)) console.UpdateWithError(null, ex);
             } catch (AggregateException agex) {
                 OGCSexception.AnalyseAggregate(agex, false);
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -992,15 +990,19 @@ namespace OutlookGoogleCalendarSync.Forms {
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
                 console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
-                console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
-                if (ex.InnerException != null) console.BuildOutput(ex.InnerException.Message, ref sb, false);
-                console.Update(sb, Console.Markup.error, logit: true);
-                if (Settings.Instance.Proxy.Type == "IE") {
-                    if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
-                        "Test it now? If successful, please retry retrieving your Google calendars.",
-                        "Test IE Internet Access",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                        System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                if (ex is ApplicationException && ex.InnerException != null && ex.InnerException is Google.GoogleApiException) {
+                    console.BuildOutput(ex.Message, ref sb, false);
+                    console.Update(sb, Console.Markup.fail, logit: true);
+                } else {
+                    console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
+                    console.Update(sb, Console.Markup.error, logit: true);
+                    if (Settings.Instance.Proxy.Type == "IE") {
+                        if (MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                            "Test it now? If successful, please retry retrieving your Google calendars.",
+                            "Test IE Internet Access",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                        }
                     }
                 }
             }
