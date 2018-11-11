@@ -896,7 +896,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         System.Threading.Thread.Sleep(10000);
                     } else {
-                        log.Error("openOutlookHandler: " + aex.Message);
                         throw aex;
                     }
                 }
@@ -951,7 +950,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     throw new ApplicationException("Outlook is busy.", ex);
 
                 } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x000702E4") {
-                    log.Error(ex.Message);
+                    log.Warn(ex.Message);
                     throw new ApplicationException("Outlook and OGCS are running in different security elevations.\n" +
                         "Both must be running in Standard or Administrator mode.");
 
@@ -970,7 +969,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (ex.Message.Contains("0x80004002 (E_NOINTERFACE)")) {
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please perform an Office Repair and then try running OGCS again.");
+                        "Please perform an Office Repair and then try running OGCS again. [0x80004002]");
 
                 } else if (ex.Message.Contains("0x80040155")) {
                     log.Warn(ex.Message);
@@ -979,7 +978,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         alreadyRedirectedToWikiForComError.Add("0x80040155");
                     }
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution.");
+                        "Please see the wiki for a solution. [0x80040155]");
 
                 } else if (ex.Message.Contains("0x8002801D (TYPE_E_LIBNOTREGISTERED)")) {
                     log.Warn(ex.Message);
@@ -988,7 +987,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         alreadyRedirectedToWikiForComError.Add("0x8002801D");
                     }
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution.");
+                        "Please see the wiki for a solution. [0x8002801D]");
+
+                } else if (ex.Message.Contains("0x80029C4A (TYPE_E_CANTLOADLIBRARY)")) {
+                    log.Warn(ex.Message);
+                    if (!alreadyRedirectedToWikiForComError.Contains("0x80029C4A")) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80029c4a---type__e__cantloadlibrary");
+                        alreadyRedirectedToWikiForComError.Add("0x80029C4A");
+                    }
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                        "Please see the wiki for a solution. [0x80029C4A]");
 
                 } else
                     throw ex;
@@ -1001,8 +1009,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } catch (System.Exception ex) {
-                log.Warn("Early binding to Outlook appears to have failed.");
-                OGCSexception.Analyse(ex, true);
+                OGCSexception.Analyse("Early binding to Outlook appears to have failed.", ex, true);
                 log.Debug("Could try late binding??");
                 //System.Type oAppType = System.Type.GetTypeFromProgID("Outlook.Application");
                 //ApplicationClass oAppClass = System.Activator.CreateInstance(oAppType) as ApplicationClass;
