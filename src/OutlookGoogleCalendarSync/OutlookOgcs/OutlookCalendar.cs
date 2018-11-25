@@ -281,12 +281,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //Reminder alert
-            if (Settings.Instance.AddReminders && ev.Reminders != null && ev.Reminders.Overrides != null) {
-                foreach (EventReminder reminder in ev.Reminders.Overrides) {
-                    if (reminder.Method == "popup") {
-                        ai.ReminderSet = true;
+            if (Settings.Instance.AddReminders) {
+                if (ev.Reminders != null && ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
+                    ai.ReminderSet = true;
+                    try {
+                        EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
                         ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
+                } else {
+                    ai.ReminderSet = Settings.Instance.UseOutlookDefaultReminder;
                 }
             }
 
@@ -580,28 +585,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             //Reminders
             if (Settings.Instance.AddReminders) {
-                if (ev.Reminders.Overrides != null) {
-                    //Find the popup reminder in Google
-                    for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
-                        EventReminder reminder = ev.Reminders.Overrides[r];
-                        if (reminder.Method == "popup") {
-                            if (ai.ReminderSet) {
-                                if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                    ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                }
-                            } else {
-                                sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
-                                ai.ReminderSet = true;
+                if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
+                    //Find the last popup reminder in Google
+                    try {
+                        EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(r => r.Minutes).First();
+                        if (ai.ReminderSet) {
+                            if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
                                 ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                itemModified++;
-                            } //if Outlook reminders set
-                        } //if google reminder found
-                    } //foreach reminder
+                            }
+                        } else {
+                            sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
+                            ai.ReminderSet = true;
+                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                            itemModified++;
+                        } //if Outlook reminders set
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
+                    }
 
-                } else { //no google reminders set
-                    if (ai.ReminderSet && IsOKtoSyncReminder(ai)) {
+                } else { //no Google popup reminders set
+                    if (ai.ReminderSet && !Settings.Instance.UseOutlookDefaultReminder) {
                         sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
                         ai.ReminderSet = false;
+                        itemModified++;
+                    } else if (!ai.ReminderSet && Settings.Instance.UseOutlookDefaultReminder) {
+                        sb.AppendLine("Reminder: nothing => default");
+                        ai.ReminderSet = true;
                         itemModified++;
                     }
                 }

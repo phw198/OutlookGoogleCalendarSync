@@ -93,6 +93,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "All rules are applied in order provided using AND logic.\nSupports use of regular expressions.");
             ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
+            ToolTips.SetToolTip(cbUseOutlookDefaultReminder,
+                "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
@@ -333,7 +335,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbCloakEmail.Visible = cbAddAttendees.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
             cbUseGoogleDefaultReminder.Checked = Settings.Instance.UseGoogleDefaultReminder;
-            cbUseGoogleDefaultReminder.Enabled = Settings.Instance.AddReminders;
+            cbUseOutlookDefaultReminder.Checked = Settings.Instance.UseOutlookDefaultReminder;
             cbReminderDND.Enabled = Settings.Instance.AddReminders;
             cbReminderDND.Checked = Settings.Instance.ReminderDND;
             dtDNDstart.Enabled = Settings.Instance.AddReminders;
@@ -1151,22 +1153,20 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Sync.Engine.Instance.DeregisterForPushSync();
                 this.cbOutlookPush.Checked = false;
                 this.cbOutlookPush.Enabled = false;
-                this.cbUseGoogleDefaultReminder.Visible = false;
                 this.cbReminderDND.Visible = false;
                 this.dtDNDstart.Visible = false;
                 this.dtDNDend.Visible = false;
                 this.lDNDand.Visible = false;
-                cbAddReminders_CheckedChanged(null, null);
-            } else {
+            }
+            if (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle) {
                 this.cbOutlookPush.Enabled = true;
-                this.cbUseGoogleDefaultReminder.Visible = true;
                 this.cbReminderDND.Visible = true;
                 this.dtDNDstart.Visible = true;
                 this.dtDNDend.Visible = true;
                 this.lDNDand.Visible = true;
-                cbAddReminders_CheckedChanged(null, null);
             }
             cbAddAttendees_CheckedChanged(null, null);
+            cbAddReminders_CheckedChanged(null, null);
             showWhatPostit("Description");
         }
 
@@ -1396,7 +1396,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
             if (this.Visible) Settings.Instance.AddReminders = cbAddReminders.Checked;
-            cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked;
+            cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
+            cbUseOutlookDefaultReminder.Enabled = cbAddReminders.Checked && Settings.Instance.SyncDirection != Sync.Direction.OutlookToGoogle;
             cbReminderDND.Enabled = cbAddReminders.Checked;
             dtDNDstart.Enabled = cbAddReminders.Checked;
             dtDNDend.Enabled = cbAddReminders.Checked;
@@ -1404,6 +1405,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;
+        }
+        private void cbUseOutlookDefaultReminder_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.UseOutlookDefaultReminder = cbUseOutlookDefaultReminder.Checked;
         }
         private void cbReminderDND_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.ReminderDND = cbReminderDND.Checked;

@@ -102,6 +102,7 @@ namespace OutlookGoogleCalendarSync {
             AddDescription_OnlyToGoogle = true;
             AddReminders = false;
             UseGoogleDefaultReminder = false;
+            UseOutlookDefaultReminder = false;
             ReminderDND = false;
             ReminderDNDstart = DateTime.Now.Date.AddHours(22);
             ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
@@ -246,6 +247,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
         [DataMember] public bool AddReminders { get; set; }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
+        [DataMember] public bool UseOutlookDefaultReminder { get; set; }
         [DataMember] public bool ReminderDND { get; set; }
         [DataMember] public DateTime ReminderDNDstart { get; set; }
         [DataMember] public DateTime ReminderDNDend { get; set; }
@@ -456,6 +458,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  AddColours: " + AddColours);
             log.Info("  AddReminders: " + AddReminders);
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
+            log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
             log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
             
             log.Info("PROXY:-");

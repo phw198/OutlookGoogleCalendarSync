@@ -107,6 +107,7 @@
             this.pbExpandHow = new System.Windows.Forms.PictureBox();
             this.gbSyncOptions_How = new System.Windows.Forms.GroupBox();
             this.howMorePanel = new System.Windows.Forms.Panel();
+            this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
             this.cbColour = new System.Windows.Forms.CheckBox();
             this.tbTargetCalendar = new System.Windows.Forms.DomainUpDown();
             this.tbCreatedItemsOnly = new System.Windows.Forms.DomainUpDown();
@@ -240,7 +241,7 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.ddCategoryColour = new OutlookGoogleCalendarSync.Extensions.ColourPicker();
+            this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1145,6 +1146,21 @@
             this.howMorePanel.Size = new System.Drawing.Size(353, 85);
             this.howMorePanel.TabIndex = 48;
             // 
+            // ddCategoryColour
+            // 
+            this.ddCategoryColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ddCategoryColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.ddCategoryColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddCategoryColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ddCategoryColour.FormattingEnabled = true;
+            this.ddCategoryColour.Location = new System.Drawing.Point(178, 58);
+            this.ddCategoryColour.Name = "ddCategoryColour";
+            this.ddCategoryColour.SelectedItem = null;
+            this.ddCategoryColour.Size = new System.Drawing.Size(158, 21);
+            this.ddCategoryColour.TabIndex = 43;
+            this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
+            // 
             // cbColour
             // 
             this.cbColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1605,6 +1621,7 @@
             this.gbSyncOptions_What.Controls.Add(this.lWhatInfo);
             this.gbSyncOptions_What.Controls.Add(this.cbLocation);
             this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
+            this.gbSyncOptions_What.Controls.Add(this.cbUseOutlookDefaultReminder);
             this.gbSyncOptions_What.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbSyncOptions_What.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
@@ -1620,7 +1637,7 @@
             this.cbCloakEmail.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbCloakEmail.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbCloakEmail.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbCloakEmail.Location = new System.Drawing.Point(126, 78);
+            this.cbCloakEmail.Location = new System.Drawing.Point(103, 78);
             this.cbCloakEmail.Name = "cbCloakEmail";
             this.cbCloakEmail.Size = new System.Drawing.Size(150, 17);
             this.cbCloakEmail.TabIndex = 41;
@@ -1633,7 +1650,7 @@
             this.lDNDand.AutoSize = true;
             this.lDNDand.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDNDand.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDNDand.Location = new System.Drawing.Point(266, 131);
+            this.lDNDand.Location = new System.Drawing.Point(243, 133);
             this.lDNDand.Name = "lDNDand";
             this.lDNDand.Size = new System.Drawing.Size(25, 13);
             this.lDNDand.TabIndex = 40;
@@ -1644,7 +1661,7 @@
             this.dtDNDend.CustomFormat = "HH:mm";
             this.dtDNDend.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtDNDend.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtDNDend.Location = new System.Drawing.Point(291, 128);
+            this.dtDNDend.Location = new System.Drawing.Point(268, 130);
             this.dtDNDend.Name = "dtDNDend";
             this.dtDNDend.ShowUpDown = true;
             this.dtDNDend.Size = new System.Drawing.Size(50, 20);
@@ -1657,7 +1674,7 @@
             this.dtDNDstart.CustomFormat = "HH:mm";
             this.dtDNDstart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtDNDstart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtDNDstart.Location = new System.Drawing.Point(216, 128);
+            this.dtDNDstart.Location = new System.Drawing.Point(193, 130);
             this.dtDNDstart.Name = "dtDNDstart";
             this.dtDNDstart.ShowUpDown = true;
             this.dtDNDstart.Size = new System.Drawing.Size(50, 20);
@@ -1671,7 +1688,7 @@
             this.cbAddDescription_OnlyToGoogle.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbAddDescription_OnlyToGoogle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddDescription_OnlyToGoogle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddDescription_OnlyToGoogle.Location = new System.Drawing.Point(126, 60);
+            this.cbAddDescription_OnlyToGoogle.Location = new System.Drawing.Point(103, 60);
             this.cbAddDescription_OnlyToGoogle.Name = "cbAddDescription_OnlyToGoogle";
             this.cbAddDescription_OnlyToGoogle.Size = new System.Drawing.Size(150, 17);
             this.cbAddDescription_OnlyToGoogle.TabIndex = 34;
@@ -1683,7 +1700,7 @@
             // 
             this.cbAddReminders.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddReminders.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddReminders.Location = new System.Drawing.Point(45, 114);
+            this.cbAddReminders.Location = new System.Drawing.Point(22, 114);
             this.cbAddReminders.Name = "cbAddReminders";
             this.cbAddReminders.Size = new System.Drawing.Size(80, 17);
             this.cbAddReminders.TabIndex = 32;
@@ -1705,7 +1722,7 @@
             // 
             this.cbAddAttendees.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddAttendees.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddAttendees.Location = new System.Drawing.Point(45, 78);
+            this.cbAddAttendees.Location = new System.Drawing.Point(22, 78);
             this.cbAddAttendees.Name = "cbAddAttendees";
             this.cbAddAttendees.Size = new System.Drawing.Size(80, 17);
             this.cbAddAttendees.TabIndex = 30;
@@ -1717,7 +1734,7 @@
             // 
             this.cbAddDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddDescription.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddDescription.Location = new System.Drawing.Point(45, 60);
+            this.cbAddDescription.Location = new System.Drawing.Point(22, 60);
             this.cbAddDescription.Name = "cbAddDescription";
             this.cbAddDescription.Size = new System.Drawing.Size(80, 17);
             this.cbAddDescription.TabIndex = 31;
@@ -1729,7 +1746,7 @@
             // 
             this.cbReminderDND.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbReminderDND.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbReminderDND.Location = new System.Drawing.Point(126, 130);
+            this.cbReminderDND.Location = new System.Drawing.Point(103, 132);
             this.cbReminderDND.Name = "cbReminderDND";
             this.cbReminderDND.Size = new System.Drawing.Size(215, 17);
             this.cbReminderDND.TabIndex = 36;
@@ -1741,9 +1758,9 @@
             // 
             this.cbUseGoogleDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbUseGoogleDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbUseGoogleDefaultReminder.Location = new System.Drawing.Point(126, 114);
+            this.cbUseGoogleDefaultReminder.Location = new System.Drawing.Point(103, 114);
             this.cbUseGoogleDefaultReminder.Name = "cbUseGoogleDefaultReminder";
-            this.cbUseGoogleDefaultReminder.Size = new System.Drawing.Size(150, 17);
+            this.cbUseGoogleDefaultReminder.Size = new System.Drawing.Size(117, 17);
             this.cbUseGoogleDefaultReminder.TabIndex = 35;
             this.cbUseGoogleDefaultReminder.Text = "Use Google default";
             this.cbUseGoogleDefaultReminder.UseVisualStyleBackColor = true;
@@ -1765,7 +1782,7 @@
             // 
             this.cbLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbLocation.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbLocation.Location = new System.Drawing.Point(45, 42);
+            this.cbLocation.Location = new System.Drawing.Point(22, 42);
             this.cbLocation.Name = "cbLocation";
             this.cbLocation.Size = new System.Drawing.Size(80, 17);
             this.cbLocation.TabIndex = 44;
@@ -1777,7 +1794,7 @@
             // 
             this.cbAddColours.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddColours.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddColours.Location = new System.Drawing.Point(45, 96);
+            this.cbAddColours.Location = new System.Drawing.Point(22, 96);
             this.cbAddColours.Name = "cbAddColours";
             this.cbAddColours.Size = new System.Drawing.Size(115, 17);
             this.cbAddColours.TabIndex = 43;
@@ -2912,20 +2929,17 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
-            // ddCategoryColour
+            // cbUseOutlookDefaultReminder
             // 
-            this.ddCategoryColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ddCategoryColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ddCategoryColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddCategoryColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ddCategoryColour.FormattingEnabled = true;
-            this.ddCategoryColour.Location = new System.Drawing.Point(178, 58);
-            this.ddCategoryColour.Name = "ddCategoryColour";
-            this.ddCategoryColour.SelectedItem = null;
-            this.ddCategoryColour.Size = new System.Drawing.Size(158, 21);
-            this.ddCategoryColour.TabIndex = 43;
-            this.ddCategoryColour.SelectedIndexChanged += new System.EventHandler(this.ddCategoryColour_SelectedIndexChanged);
+            this.cbUseOutlookDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbUseOutlookDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbUseOutlookDefaultReminder.Location = new System.Drawing.Point(226, 114);
+            this.cbUseOutlookDefaultReminder.Name = "cbUseOutlookDefaultReminder";
+            this.cbUseOutlookDefaultReminder.Size = new System.Drawing.Size(120, 17);
+            this.cbUseOutlookDefaultReminder.TabIndex = 45;
+            this.cbUseOutlookDefaultReminder.Text = "Use Outlook default";
+            this.cbUseOutlookDefaultReminder.UseVisualStyleBackColor = true;
+            this.cbUseOutlookDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseOutlookDefaultReminder_CheckedChanged);
             // 
             // Main
             // 
@@ -3203,5 +3217,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox cbUseOutlookDefaultReminder;
     }
 }

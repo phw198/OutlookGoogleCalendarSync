@@ -680,7 +680,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //Reminders
             if (Settings.Instance.AddReminders) {
                 Boolean OKtoSyncReminder = OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai);
-                if (ev.Reminders.Overrides != null) {
+                if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
                     //Find the popup reminder in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
                         EventReminder reminder = ev.Reminders.Overrides[r];
