@@ -375,8 +375,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             //Reminder alert
+            ev.Reminders = new Event.RemindersData();
             if (Settings.Instance.AddReminders) {
-                ev.Reminders = new Event.RemindersData();
                 if (OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.ReminderSet) {
                         ev.Reminders.UseDefault = false;
@@ -391,7 +391,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } else {
                     ev.Reminders.UseDefault = false;
                 }
-            }
+            } else
+                ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
 
             //Add the Outlook appointment ID into Google event
             CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -681,7 +682,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Settings.Instance.AddReminders) {
                 Boolean OKtoSyncReminder = OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
-                    //Find the popup reminder in Google
+                    //Find the popup reminder(s) in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
                         EventReminder reminder = ev.Reminders.Overrides[r];
                         if (reminder.Method == "popup") {
@@ -704,10 +705,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 ev.Reminders.UseDefault = false;
                                 itemModified++;
                             }
-                        } //if google reminder found
+                        } //if Google reminder found
                     } //foreach reminder
 
-                } else { //no google reminders set
+                } else { //no Google reminders set
                     if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
@@ -723,7 +724,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         }
                     }
                 }
+            } else {
+                if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), Settings.Instance.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
+                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
             }
+
             if (itemModified > 0) {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
                 Forms.Main.Instance.Console.Update(itemModified + " attributes updated.", Console.Markup.appointmentEnd, verbose: true, newLine: false);

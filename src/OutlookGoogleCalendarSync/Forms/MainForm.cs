@@ -1396,8 +1396,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
             if (this.Visible) Settings.Instance.AddReminders = cbAddReminders.Checked;
-            cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
-            cbUseOutlookDefaultReminder.Enabled = cbAddReminders.Checked && Settings.Instance.SyncDirection != Sync.Direction.OutlookToGoogle;
+            cbUseGoogleDefaultReminder.Enabled = Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
+            cbUseOutlookDefaultReminder.Enabled = Settings.Instance.SyncDirection != Sync.Direction.OutlookToGoogle;
             cbReminderDND.Enabled = cbAddReminders.Checked;
             dtDNDstart.Enabled = cbAddReminders.Checked;
             dtDNDend.Enabled = cbAddReminders.Checked;
