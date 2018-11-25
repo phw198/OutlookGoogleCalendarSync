@@ -694,9 +694,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 } else {
                                     sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                     ev.Reminders.Overrides.Remove(reminder);
-                                    if (ev.Reminders.Overrides == null || ev.Reminders.Overrides.Count == 0) {
-                                        ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
-                                    }
                                     itemModified++;
                                 } //if Outlook reminders set
                             } else {
@@ -719,8 +716,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
                     } else {
-                        if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder.ToString() : "False", sb, ref itemModified)) {
-                            ev.Reminders.UseDefault = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
+                        Boolean newVal = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
+
+                        //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
+                        //Which means it keeps adding the default back in!! Let's stop that:
+                        if (newVal && ev.Start.Date != null) {
+                            log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
+                            newVal = false;
+                        }
+
+                        if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), newVal.ToString(), sb, ref itemModified)) {
+                            ev.Reminders.UseDefault = newVal;
                         }
                     }
                 }
