@@ -17,6 +17,8 @@ namespace OutlookGoogleCalendarSync {
             Analyse(ex, includeStackTrace: includeStackTrace);
         }
         public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
+            if (LoggingAsFail(ex)) return;
+
             log.Error(ex.GetType().FullName + ": " + ex.Message);
             int errorCode = getErrorCode(ex);
             log.Error("Code: 0x" + errorCode.ToString("X8") + ";" + errorCode.ToString());
@@ -65,7 +67,7 @@ namespace OutlookGoogleCalendarSync {
                 } else Analyse(ex);
             }
         }
-        
+
         public static void AnalyseTokenResponse(Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
@@ -91,8 +93,38 @@ namespace OutlookGoogleCalendarSync {
                 Google.GoogleApiException gaex = ex as Google.GoogleApiException;
                 return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
             } else {
-                return ex.Message;
+                return ex.Message + (ex.InnerException != null && !(ex.InnerException is Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
             }
         }
+
+        #region Logging level for exception
+        //FAIL is a lower level than ERROR and so will not trigger Error Reporting
+
+        private enum LogLevel {
+            ERROR,
+            FAIL
+        }
+        private const String LogAs = "LogAs";
+
+        /// <summary>
+        /// Capture this exception as log4net FAIL (not ERROR) when logged
+        /// </summary>
+        public static void LogAsFail(ref System.Exception ex) {
+            ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+        }
+        /// <summary>
+        /// Capture this exception as log4net FAIL (not ERROR) when logged
+        /// </summary>
+        public static void LogAsFail(ref System.ApplicationException ex) {
+            ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+        }
+        
+        /// <summary>
+        /// Check if this exception has been set to log as log4net FAIL (not ERROR)
+        /// </summary>
+        public static Boolean LoggingAsFail(System.Exception ex) {
+            return (ex.Data.Contains(LogAs) && ex.Data[LogAs].ToString() == LogLevel.FAIL.ToString());
+        }
+        #endregion
     }
 }

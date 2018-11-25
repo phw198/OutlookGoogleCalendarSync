@@ -58,7 +58,8 @@ namespace OutlookGoogleCalendarSync {
                     default: outlookVersion = "Unknown-" + OutlookOgcs.Factory.OutlookVersion; break;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed determining Outlook client version.");
+                log.Fail("Failed determining Outlook client version.");
+                if (ex is ApplicationException) { throw ex; }
                 OGCSexception.Analyse(ex);
                 outlookVersion = "Unknown";
             }
@@ -84,12 +85,13 @@ namespace OutlookGoogleCalendarSync {
             squirrel
         }
         public enum Action {
-            download,
-            install,
-            setting,
-            uninstall,
-            upgrade,
-            version
+            debug,      //ogcs
+            download,   //squirrel
+            install,    //squirrel
+            setting,    //ogcs
+            uninstall,  //squirrel
+            upgrade,    //squirrel
+            version     //outlook,ogcs
         }
         
         public static void Send(Category category, Action action, String label) {

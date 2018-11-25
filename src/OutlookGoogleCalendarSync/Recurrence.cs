@@ -134,14 +134,16 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
                     oPattern.NoEndDate = true;
                 } else {
-                    try {
-                        oPattern.PatternEndDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                    } catch (System.Exception ex) {
-                        //Troubleshooting "The end date you entered occurs before the start date."
+                    DateTime endDate = DateTime.ParseExact(ruleBook["UNTIL"].ToString().Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                    if (endDate < oPattern.PatternStartDate) {
                         log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
-                        log.Debug("PatternEndDate: " + ruleBook["UNTIL"].ToString());
-                        throw ex;
-                    }
+                        log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
+                        String summary = GoogleOgcs.Calendar.GetEventSummary(ev, onlyIfNotVerbose: true);
+                        Forms.Main.Instance.Console.Update(summary + "The recurring Google event has an end date <i>before</i> the start date, which Outlook doesn't allow.<br/>" +
+                            "The synced Outlook recurrence has been changed to a single occurrence.", Console.Markup.warning);
+                        oPattern.Occurrences = 1;
+                    } else
+                        oPattern.PatternEndDate = endDate;
                 }
             }
             if (!ruleBook.ContainsKey("COUNT") && !ruleBook.ContainsKey("UNTIL")) {
@@ -484,8 +486,7 @@ namespace OutlookGoogleCalendarSync {
                             try {
                                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } catch (System.Exception ex) {
-                                log.Error("Failed saving Outlook IDs to Google Event.");
-                                OGCSexception.Analyse(ex, true);
+                                OGCSexception.Analyse("Failed saving Outlook IDs to Google Event.", ex, true);
                             }
                             return ev;
                         }
@@ -620,7 +621,7 @@ namespace OutlookGoogleCalendarSync {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
-                                            log.Error(ex.StackTrace);
+                                            OGCSexception.Analyse(ex, true);
                                             if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
                                             else {

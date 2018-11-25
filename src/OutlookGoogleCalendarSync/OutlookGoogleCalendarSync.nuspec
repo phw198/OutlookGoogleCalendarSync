@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.7.6-alpha</version>
+    <version>2.7.7-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,22 +12,20 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.7.6?
+# What's New In v2.7.7?
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**
 
-- Syncing a common calendar to/from more than one other now supported!
-- Improved logic to determine meeting organiser's timezone
-- Don't delete Google event immediately after reclaiming it
-- New FAIL logging level added, below Error
-- Nicer output when authenticating with Google and reclaiming items
-- Show authorised Google account on Settings tab
+- Better timing of auto-retry for when quota renewed after API exhausted
+- Option to configure the browser's User Agent in the GUI
+- Options to use (or not) Outlook/Google calendar defaults for reminders
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**
 
-- Fixed XML namespace for obfuscation sync direction
-- Stopped error reporting obstructing Squirrel events
-- Fixed crash on OGCS automated startup 
-- Don't try and retrieve Google event if synced from different calendar (avoid 404 errors)
+- Persist a push sync through a restart of Outlook
+- Persist selection of correct calendar when alternate mailbox is temporarily unavailable
+- Select correct alternate mailbox on startup
+- Handle a Google event having an end date _before_ the start date
+- Reminder DND window not always applying correctly
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

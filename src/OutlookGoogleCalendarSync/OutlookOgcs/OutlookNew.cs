@@ -255,8 +255,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
                     Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
                 } catch (System.Exception ex) {
-                    log.Error("Failed to find calendar folders in alternate mailbox '" + Settings.Instance.MailboxName + "'.");
-                    log.Debug(ex.Message);
+                    OGCSexception.Analyse("Failed to find calendar folders in alternate mailbox '" + Settings.Instance.MailboxName + "'.", ex, true);
+                    if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
+                        throw new System.Exception("Failed to access alternate mailbox calendar.", ex);
                 } finally {
                     pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
                     binStore = (Store)OutlookOgcs.Calendar.ReleaseObject(binStore);
@@ -275,7 +276,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } else if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
                 log.Debug("Finding shared calendar");
-                if (Forms.Main.Instance.Visible) {
+                if (Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookSharedCal") {
                     SelectNamesDialog snd;
                     try {
                         snd = oNS.GetSelectNamesDialog();
@@ -288,7 +289,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             getDefaultCalendar(oNS, ref defaultCalendar);
                         } else {
                             String sharedURI = snd.Recipients[1].Address;
-                            MAPIFolder sharedCalendar = getSharedCalendar(oNS, sharedURI);
+                            MAPIFolder sharedCalendar = getSharedCalendar(oNS, sharedURI, true);
                             if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
                             else {
                                 Settings.Instance.SharedCalendar = sharedURI;
@@ -299,9 +300,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         snd = null;
                     }
                 } else {
-                    defaultCalendar = getSharedCalendar(oNS, Settings.Instance.SharedCalendar);
-                    if (defaultCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
-                    else return defaultCalendar;
+                    defaultCalendar = getSharedCalendar(oNS, Settings.Instance.SharedCalendar, false);
+                    return defaultCalendar;
                 }
 
             } else {
@@ -312,7 +312,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return defaultCalendar;
         }
 
-        private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI) {
+        private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI, Boolean interactive) {
             if (string.IsNullOrEmpty(sharedURI)) return null;
 
             Recipient sharer = null;
@@ -333,9 +333,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } catch (System.Exception ex) {
                 log.Error("Failed to get shared calendar from " + sharedURI + ". " + ex.Message);
-                MessageBox.Show("Could not find a shared calendar for '" + sharer.Name + "'.", "No shared calendar found",
+                if (interactive) {
+                    String sharerName = ".";
+                    if (sharer != null) sharerName = " for '" + sharer.Name + "'.";
+                    MessageBox.Show("Could not find shared calendar" + sharerName, "No shared calendar found",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return null;
+                    return null;
+                } else {
+                    throw new System.Exception("Failed to access shared calendar.", ex);
+                }
             } finally {
                 sharer = (Recipient)OutlookOgcs.Calendar.ReleaseObject(sharer);
             }

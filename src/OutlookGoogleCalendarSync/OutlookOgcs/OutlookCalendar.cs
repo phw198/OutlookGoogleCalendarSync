@@ -42,7 +42,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
-        public Sync.PushSyncTimer OgcsPushTimer;
         public MAPIFolder UseOutlookCalendar {
             get { return IOutlook.UseOutlookCalendar(); }
             set {
@@ -83,25 +82,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             GC.WaitForPendingFinalizers();
         }
 
-
-        #region Push Sync
-        public void RegisterForPushSync() {
-            if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
-                log.Debug("Create the timer for the push synchronisation");
-                if (OgcsPushTimer == null)
-                    OgcsPushTimer = Sync.PushSyncTimer.Instance;
-                if (!OgcsPushTimer.Running())
-                    OgcsPushTimer.Switch(true);
-            }
-        }
-
-        public void DeregisterForPushSync() {
-            log.Info("Stop monitoring for Outlook appointment changes...");
-            if (OgcsPushTimer != null && OgcsPushTimer.Running())
-                OgcsPushTimer.Switch(false);
-        }
-        #endregion
-
         /// <summary>
         /// Get all calendar entries within the defined date-range for sync
         /// </summary>
@@ -118,9 +98,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw ex;
                 }
-            } catch (System.Runtime.InteropServices.COMException) {
-                try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
-                filtered = FilterCalendarEntries(UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+            } catch (System.Runtime.InteropServices.COMException ex) {
+                log.Warn(ex.Message);
+                OutlookOgcs.Calendar.Instance.Reset();
+                filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+
+            } catch (System.NullReferenceException ex) {
+                if (Instance.UseOutlookCalendar == null) {
+                    log.Warn(ex.Message);
+                    OutlookOgcs.Calendar.Instance.Reset();
+                    filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+                } else throw ex;
 
             } catch (System.Exception ex) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
@@ -168,13 +156,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     try {
                         if (ai.End == min) continue; //Required for midnight to midnight events 
+                    } catch (System.NullReferenceException) {
+                        try {
+                            DateTime start = ai.Start;
+                        } catch (System.NullReferenceException) {
+                            log.Error("Appointment item seems unusable - no Start or End date! Discarding.");
+                            continue;
+                        }
+                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+                        continue;
+
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse(ex, true);
-                        try {
-                            log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
-                        } catch {
-                            log.Error("Appointment item seems unusable!");
-                        }
+                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
                         continue;
                     }
 
@@ -265,9 +259,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Processing >> " + itemSummary);
             Forms.Main.Instance.Console.Update(itemSummary, Console.Markup.calendar, verbose: true);
 
-            //Add the Google event IDs into Outlook appointment.
-            CustomProperty.AddGoogleIDs(ref ai, ev);
-
             ai.Start = new DateTime();
             ai.End = new DateTime();
             ai.AllDayEvent = (ev.Start.Date != null);
@@ -290,14 +281,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //Reminder alert
-            if (Settings.Instance.AddReminders && ev.Reminders != null && ev.Reminders.Overrides != null) {
-                foreach (EventReminder reminder in ev.Reminders.Overrides) {
-                    if (reminder.Method == "popup") {
-                        ai.ReminderSet = true;
+            if (Settings.Instance.AddReminders) {
+                if (ev.Reminders != null && ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
+                    ai.ReminderSet = true;
+                    try {
+                        EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
                         ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
+                } else {
+                    ai.ReminderSet = Settings.Instance.UseOutlookDefaultReminder;
                 }
-            }
+            } else ai.ReminderSet = Settings.Instance.UseOutlookDefaultReminder;
+
+            //Add the Google event IDs into Outlook appointment.
+            CustomProperty.AddGoogleIDs(ref ai, ev);
         }
 
         private static void createCalendarEntry_save(AppointmentItem ai, ref Event ev) {
@@ -585,31 +584,36 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //Reminders
+            Boolean googleReminders = ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup");
             if (Settings.Instance.AddReminders) {
-                if (ev.Reminders.Overrides != null) {
-                    //Find the popup reminder in Google
-                    for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
-                        EventReminder reminder = ev.Reminders.Overrides[r];
-                        if (reminder.Method == "popup") {
-                            if (ai.ReminderSet) {
-                                if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                    ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                }
-                            } else {
-                                sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
-                                ai.ReminderSet = true;
+                if (googleReminders) {
+                    //Find the last popup reminder in Google
+                    try {
+                        EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(r => r.Minutes).First();
+                        if (ai.ReminderSet) {
+                            if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
                                 ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                itemModified++;
-                            } //if Outlook reminders set
-                        } //if google reminder found
-                    } //foreach reminder
-
-                } else { //no google reminders set
-                    if (ai.ReminderSet && IsOKtoSyncReminder(ai)) {
-                        sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
-                        ai.ReminderSet = false;
-                        itemModified++;
+                            }
+                        } else {
+                            sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
+                            ai.ReminderSet = true;
+                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                            itemModified++;
+                        } //if Outlook reminders set
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
+                }
+
+            } else if (!googleReminders) {
+                if (ai.ReminderSet && !Settings.Instance.UseOutlookDefaultReminder) {
+                    sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                    ai.ReminderSet = false;
+                    itemModified++;
+                } else if (!ai.ReminderSet && Settings.Instance.UseOutlookDefaultReminder) {
+                    sb.AppendLine("Reminder: nothing => default");
+                    ai.ReminderSet = true;
+                    itemModified++;
                 }
             }
 
@@ -902,7 +906,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         System.Threading.Thread.Sleep(10000);
                     } else {
-                        log.Error("openOutlookHandler: " + aex.Message);
                         throw aex;
                     }
                 }
@@ -957,7 +960,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     throw new ApplicationException("Outlook is busy.", ex);
 
                 } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x000702E4") {
-                    log.Error(ex.Message);
+                    log.Warn(ex.Message);
                     throw new ApplicationException("Outlook and OGCS are running in different security elevations.\n" +
                         "Both must be running in Standard or Administrator mode.");
 
@@ -976,7 +979,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (ex.Message.Contains("0x80004002 (E_NOINTERFACE)")) {
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please perform an Office Repair and then try running OGCS again.");
+                        "Please perform an Office Repair and then try running OGCS again. [0x80004002]");
+
                 } else if (ex.Message.Contains("0x80040155")) {
                     log.Warn(ex.Message);
                     if (!alreadyRedirectedToWikiForComError.Contains("0x80040155")) {
@@ -984,7 +988,26 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         alreadyRedirectedToWikiForComError.Add("0x80040155");
                     }
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution.");
+                        "Please see the wiki for a solution. [0x80040155]");
+
+                } else if (ex.Message.Contains("0x8002801D (TYPE_E_LIBNOTREGISTERED)")) {
+                    log.Warn(ex.Message);
+                    if (!alreadyRedirectedToWikiForComError.Contains("0x8002801D")) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x8002801d---type_e_libnotregistered");
+                        alreadyRedirectedToWikiForComError.Add("0x8002801D");
+                    }
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                        "Please see the wiki for a solution. [0x8002801D]");
+
+                } else if (ex.Message.Contains("0x80029C4A (TYPE_E_CANTLOADLIBRARY)")) {
+                    log.Warn(ex.Message);
+                    if (!alreadyRedirectedToWikiForComError.Contains("0x80029C4A")) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80029c4a---type__e__cantloadlibrary");
+                        alreadyRedirectedToWikiForComError.Add("0x80029C4A");
+                    }
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                        "Please see the wiki for a solution. [0x80029C4A]");
+
                 } else
                     throw ex;
 
@@ -996,8 +1019,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } catch (System.Exception ex) {
-                log.Warn("Early binding to Outlook appears to have failed.");
-                OGCSexception.Analyse(ex, true);
+                OGCSexception.Analyse("Early binding to Outlook appears to have failed.", ex, true);
                 log.Debug("Could try late binding??");
                 //System.Type oAppType = System.Type.GetTypeFromProgID("Outlook.Application");
                 //ApplicationClass oAppClass = System.Activator.CreateInstance(oAppType) as ApplicationClass;
@@ -1236,10 +1258,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.ReminderDNDstart.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
                 //eg 22:00 to 06:00
                 //Make sure end time is the day following the start time
-                Settings.Instance.ReminderDNDstart = alarm.Date.AddDays(-1).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
-                Settings.Instance.ReminderDNDend = alarm.Date.Add(Settings.Instance.ReminderDNDend.TimeOfDay);
-
-                if (alarm > Settings.Instance.ReminderDNDstart && alarm < Settings.Instance.ReminderDNDend) {
+                int shiftDay = 0;
+                DateTime dndStart;
+                DateTime dndEnd;
+                if (alarm.TimeOfDay < Settings.Instance.ReminderDNDstart.TimeOfDay) shiftDay = -1;
+                dndStart = alarm.Date.AddDays(shiftDay).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay+1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
+                if (alarm > dndStart && alarm < dndEnd) {
                     log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
                     return false;
                 } else
