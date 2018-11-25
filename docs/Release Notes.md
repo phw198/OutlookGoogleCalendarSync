@@ -1,6 +1,20 @@
 | Release Notes |
 |:---|
 
+# v2.7.7.0 - Alpha
+
+**Enhancements**
+- Better timing of auto-retry for when quota renewed after API exhausted
+- Option to configure the browser's User Agent in the GUI
+- Options to use (or not) Outlook/Google calendar defaults for reminders
+
+**Bugfix**
+- Persist a push sync through a restart of Outlook
+- Persist selection of correct calendar when alternate mailbox is temporarily unavailable
+- Select correct alternate mailbox on startup
+- Handle a Google event having an end date _before_ the start date
+- Reminder DND window not always applying correctly
+
 # v2.7.6.0 - Alpha
 
 **Enhancements**

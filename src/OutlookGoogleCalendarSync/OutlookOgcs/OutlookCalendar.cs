@@ -1258,10 +1258,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.ReminderDNDstart.TimeOfDay > Settings.Instance.ReminderDNDend.TimeOfDay) {
                 //eg 22:00 to 06:00
                 //Make sure end time is the day following the start time
-                Settings.Instance.ReminderDNDstart = alarm.Date.AddDays(-1).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
-                Settings.Instance.ReminderDNDend = alarm.Date.Add(Settings.Instance.ReminderDNDend.TimeOfDay);
-
-                if (alarm > Settings.Instance.ReminderDNDstart && alarm < Settings.Instance.ReminderDNDend) {
+                int shiftDay = 0;
+                DateTime dndStart;
+                DateTime dndEnd;
+                if (alarm.TimeOfDay < Settings.Instance.ReminderDNDstart.TimeOfDay) shiftDay = -1;
+                dndStart = alarm.Date.AddDays(shiftDay).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay+1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
+                if (alarm > dndStart && alarm < dndEnd) {
                     log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
                     return false;
                 } else

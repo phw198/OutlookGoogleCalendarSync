@@ -510,12 +510,19 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
                 throw ex;
             }
+
+            DateTime timeSection = DateTime.Now;
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
                 throw ex;
+            }
+            TimeSpan sectionDuration = DateTime.Now - timeSection;
+            if (sectionDuration.TotalSeconds > 30) {
+                log.Warn("That step took a long time! Issue #599");
+                Analytics.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Google.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
             }
 
             StringBuilder sb = new StringBuilder();

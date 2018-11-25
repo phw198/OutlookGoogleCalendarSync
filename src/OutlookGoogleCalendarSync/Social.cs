@@ -85,12 +85,13 @@ namespace OutlookGoogleCalendarSync {
             squirrel
         }
         public enum Action {
-            download,
-            install,
-            setting,
-            uninstall,
-            upgrade,
-            version
+            debug,      //ogcs
+            download,   //squirrel
+            install,    //squirrel
+            setting,    //ogcs
+            uninstall,  //squirrel
+            upgrade,    //squirrel
+            version     //outlook,ogcs
         }
         
         public static void Send(Category category, Action action, String label) {
