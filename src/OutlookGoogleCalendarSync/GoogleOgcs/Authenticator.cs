@@ -185,10 +185,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 System.Net.WebClient wc = new System.Net.WebClient();
                 wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-                jsonString = wc.DownloadString("https://www.googleapis.com/plus/v1/people/me?fields=emails&access_token=" + accessToken);
+                jsonString = wc.DownloadString("https://www.googleapis.com/oauth2/v2/userinfo?fields=email&access_token=" + accessToken);
                 JObject jo = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
-                JToken jtEmail = jo["emails"].Where(e => e.Value<String>("type") == "account").First();
-                String email = jtEmail.Value<String>("value");
+                JToken jtEmail = jo["email"];
+                String email = jtEmail.ToString();
 
                 if (Settings.Instance.GaccountEmail != email) {
                     if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
