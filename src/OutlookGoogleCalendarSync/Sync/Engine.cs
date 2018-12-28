@@ -263,7 +263,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    mainFrm.Console.Update("Operation aborted after " + failedAttempts + " failed attempts!", Console.Markup.error);
+                    mainFrm.Console.Update("Operation aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
                 }
 
                 setNextSync(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
@@ -282,9 +282,19 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
         }
 
+        /// <summary>
+        /// Set the next scheduled sync
+        /// </summary>
+        /// <param name="syncStarted">The time the current sync started</param>
+        /// <param name="syncedOk">The result of the current sync</param>
+        /// <param name="updateSyncSchedule">Whether to calculate the next sync time or not</param>
+        /// <param name="cacheNextSync">The time previously calculated for the next sync when the current one started.
+        /// If updateSyncSchedule is false, this value persists.</param>
         private void setNextSync(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
-            Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
-            Settings.Instance.LastSyncDate = syncStarted;
+            if (syncedOk) {
+                Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
+                Settings.Instance.LastSyncDate = syncStarted;
+            }
             if (!updateSyncSchedule) {
                 Forms.Main.Instance.NextSyncVal = cacheNextSync;
             } else {
