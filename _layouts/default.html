@@ -33,6 +33,12 @@
     
     <title>{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+
+    <meta property="og:url"           content="{{site.url}}{{site.baseurl}}{{page.url}}" />
+    <meta property="og:type"          content="website" />
+    <meta property="og:title"         content="{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}" />
+    <meta property="og:description"   content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+    <meta property="og:image"         content="{{site.url}}{{site.baseurl}}/images/ogcs128x128.png" />
   </head>
   
   {% if page.onload %}
@@ -75,9 +81,9 @@
                 Buy me a beer or 3!<br/>
                 :pizza: + :beer: = :grinning:<br/>
                 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section" onClick="handleClickEvent('outbound', 'Donate');">
-                  <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal â€“ The safer, easier way to pay online." border="0" style="padding-top:4px">
+                  <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal – The safer, easier way to pay online." border="0" style="padding-top:4px">
                 </a><br/>
-                <small>Â£10 or more hides splash screen</small>
+                <small>£10 or more hides splash screen</small>
               </p>
 
               <hr/>

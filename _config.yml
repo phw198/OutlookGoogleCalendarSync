@@ -23,7 +23,7 @@ description: #> # this means to ignore newlines until "baseurl:"
   on any of your devices with access to Google Calendar.
   No install necessary, works behind web proxies and actively developed.
 baseurl: "/OutlookGoogleCalendarSync" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://phw198.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: OGcalsync
 github_username:  phw198
 
