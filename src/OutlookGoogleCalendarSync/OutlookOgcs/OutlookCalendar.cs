@@ -502,18 +502,21 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ai.BusyStatus = gFreeBusy;
             }
 
-            List<String> aiCategories = new List<string>();
-            String oCategoryName = "";
-            if (!string.IsNullOrEmpty(ai.Categories)) {
-                aiCategories = ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).ToList();
-                oCategoryName = aiCategories.FirstOrDefault();
-            }
-            String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
-            if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
-                //Only allow one OGCS category at a time (Google Events can only have one colour)
-                aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
-                aiCategories.Insert(0, gCategoryName);
-                ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
+            if (Settings.Instance.AddColours) {
+                log.Fine("Comparing colours/categories");
+                List<String> aiCategories = new List<string>();
+                String oCategoryName = "";
+                if (!string.IsNullOrEmpty(ai.Categories)) {
+                    aiCategories = ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).ToList();
+                    oCategoryName = aiCategories.FirstOrDefault();
+                }
+                String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
+                if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
+                    //Only allow one OGCS category at a time (Google Events can only have one colour)
+                    aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    aiCategories.Insert(0, gCategoryName);
+                    ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
+                }
             }
 
             if (Settings.Instance.AddAttendees) {
