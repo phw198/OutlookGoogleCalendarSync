@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 SyncResult syncResult = SyncResult.Fail;
                 int failedAttempts = 0;
-                Social.TrackSync();
+                Telemetry.TrackSync();
                 try {
                     GoogleOgcs.Calendar.Instance.GetCalendarSettings();
                 } catch (System.AggregateException ae) {
@@ -532,7 +532,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             TimeSpan sectionDuration = DateTime.Now - timeSection;
             if (sectionDuration.TotalSeconds > 30) {
                 log.Warn("That step took a long time! Issue #599");
-                Analytics.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Google.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
+                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Google.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
             }
 
             StringBuilder sb = new StringBuilder();

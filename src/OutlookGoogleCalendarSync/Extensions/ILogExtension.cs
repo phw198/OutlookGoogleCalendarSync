@@ -86,7 +86,7 @@ namespace OutlookGoogleCalendarSync {
             Boolean confirmative = dr == DialogResult.Yes;
             if (Settings.IsLoaded) Settings.Instance.CloudLogging = confirmative;
             else XMLManager.ExportElement("CloudLogging", confirmative, Settings.ConfigFile);
-            Analytics.Send(Analytics.Category.ogcs, Analytics.Action.setting, "CloudLogging=" + confirmative.ToString());
+            Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "CloudLogging=" + confirmative.ToString());
 
             try {
                 Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbCloudLogging, "Checked", confirmative);

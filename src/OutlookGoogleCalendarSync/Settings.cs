@@ -58,6 +58,7 @@ namespace OutlookGoogleCalendarSync {
         private String version;
         private Boolean donor;
         private Boolean hideSplashScreen;
+        private Boolean suppressSocialPopup;
 
         public Settings() {
             setDefaults();
@@ -139,6 +140,7 @@ namespace OutlookGoogleCalendarSync {
             Subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
             hideSplashScreen = false;
+            suppressSocialPopup = false;
             
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
@@ -280,6 +282,16 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        [DataMember] public bool SuppressSocialPopup {
+            get { return suppressSocialPopup; }
+            set {
+                if (!loading() && suppressSocialPopup != value) {
+                    XMLManager.ExportElement("SuppressSocialPopup", value, ConfigFile);
+                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbSuppressSocialPopup.Checked = value;
+                }
+                suppressSocialPopup = value;
+            }
+        }
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
@@ -324,6 +336,9 @@ namespace OutlookGoogleCalendarSync {
                 alphaReleases = value;
                 if (!loading()) XMLManager.ExportElement("AlphaReleases", value, ConfigFile);
             }
+        }
+        public Boolean UserIsBenefactor() {
+            return Subscribed != DateTime.Parse("01-Jan-2000") || donor;
         }
         [DataMember] public DateTime Subscribed { get; set; }
         [DataMember] public Boolean Donor {
@@ -471,8 +486,8 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("  Authentication Required: " + Proxy.AuthenticationRequired);
                 log.Info("  UserName: " + Proxy.UserName);
                 log.Info("  Password: " + (string.IsNullOrEmpty(Proxy.Password) ? "" : "*********"));
-            } 
-        
+            }
+            
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());

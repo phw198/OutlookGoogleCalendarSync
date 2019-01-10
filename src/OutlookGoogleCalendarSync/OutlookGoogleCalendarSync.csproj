@@ -269,6 +269,12 @@
     <Compile Include="Forms\ErrorReporting.Designer.cs">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Social.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Social.Designer.cs">
+      <DependentUpon>Social.cs</DependentUpon>
+    </Compile>
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
@@ -296,7 +302,7 @@
     <Compile Include="Obfuscate.cs" />
     <Compile Include="Recurrence.cs" />
     <Compile Include="SettingsProxy.cs" />
-    <Compile Include="Social.cs" />
+    <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -335,6 +341,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\ErrorReporting.resx">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Social.resx">
+      <DependentUpon>Social.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>

@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             Instance = this;
 
             console = new Console(consoleWebBrowser);
-            Social.TrackVersions();
+            Telemetry.TrackVersions();
             updateGUIsettings();
             Settings.Instance.LogSettings();
             NotificationTray = new NotificationTray(this.trayIcon);
@@ -106,8 +106,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             //Application behaviour
             if (Settings.Instance.StartOnStartup)
                 ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
-            if (!Settings.Instance.Donor)
+            if (!Settings.Instance.UserIsBenefactor()) {
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
+                ToolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
+            }
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive).\n" +
                 "Default is in your User roaming profile.");
@@ -354,6 +356,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
+            cbSuppressSocialPopup.Checked = Settings.Instance.SuppressSocialPopup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
@@ -1448,16 +1451,24 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
-            if (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000") && !Settings.Instance.Donor) {
+            if (!Settings.Instance.UserIsBenefactor()) {
                 cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
                 cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.Show(ToolTips.GetToolTip(cbHideSplash), cbHideSplash, 5000);
-                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
-            } else {
-                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
             }
+            Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
+        }
+
+        private void cbSuppressSocialPopup_CheckedChanged(object sender, EventArgs e) {
+            if (!Settings.Instance.UserIsBenefactor()) {
+                cbSuppressSocialPopup.CheckedChanged -= cbSuppressSocialPopup_CheckedChanged;
+                cbSuppressSocialPopup.Checked = false;
+                cbSuppressSocialPopup.CheckedChanged += cbSuppressSocialPopup_CheckedChanged;
+                ToolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
+            }
+            Settings.Instance.SuppressSocialPopup = cbSuppressSocialPopup.Checked;
         }
 
         private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
@@ -1591,7 +1602,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
-            Social.Donate();
+            Program.Donate();
         }
 
         private void btCheckForUpdate_Click(object sender, EventArgs e) {
@@ -1638,9 +1649,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         #endregion
 
-        #region Social Media & Analytics
+        #region Social Media
         public void CheckSyncMilestone() {
             try {
+                if (Settings.Instance.SuppressSocialPopup && Settings.Instance.UserIsBenefactor()) return;
+
                 Boolean isMilestone = false;
                 Int32 syncs = Settings.Instance.CompletedSyncs;
                 String blurb = "You've completed " + String.Format("{0:n0}", syncs) + " syncs! Why not let people know how useful this tool is...";
@@ -1652,11 +1665,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case 10: isMilestone = true; break;
                     case 100: isMilestone = true; break;
                     case 250: isMilestone = true; break;
+                    case 500: isMilestone = true; break;
                     case 1000: isMilestone = true; break;
+                    case 5000: isMilestone = true; break;
+                    case 10000: isMilestone = true; break;
                 }
                 if (isMilestone) {
-                    if (MessageBox.Show(blurb, "Spread the Word", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
-                        tabApp.SelectedTab = tabPage_Social;
+                    new Forms.Social().Show();
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");
