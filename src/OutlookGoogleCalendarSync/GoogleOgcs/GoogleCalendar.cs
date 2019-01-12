@@ -513,7 +513,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (ev == null && CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
                         ev = compare.Value;
 
-                    if (ev == null) continue;
+                    if (ev == null || compare.Value.Updated > compare.Key.LastModificationTime) continue;
+
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
                     CustomProperty.SetOGCSlastModified(ref ev);
@@ -955,6 +956,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ref List<Event> google,             //need deleting
             Dictionary<AppointmentItem, Event> compare) {
             log.Debug("Comparing Outlook items to Google events...");
+
+            //Order by start date (same as Outlook) for quickest matching
+            google.Sort((x,y) => x.Start.DateTimeRaw.CompareTo(y.Start.DateTimeRaw));
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
