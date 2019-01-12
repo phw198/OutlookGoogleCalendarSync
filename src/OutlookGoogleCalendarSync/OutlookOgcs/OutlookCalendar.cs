@@ -1139,6 +1139,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Dictionary<AppointmentItem, Event> compare) {
             log.Debug("Comparing Google events to Outlook items...");
 
+            //Order by start date (same as Outlook) for quickest matching
+            google.Sort((x, y) => x.Start.DateTimeRaw.CompareTo(y.Start.DateTimeRaw));
+
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int o = outlook.Count - 1; o >= 0; o--) {
