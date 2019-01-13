@@ -56,6 +56,7 @@ namespace OutlookGoogleCalendarSync {
                 if (debugLog)
                     log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
                 return xe.Value;
+
             } catch (System.InvalidOperationException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
                     log.Warn("'" + nodeName + "' could not be found.");
@@ -64,6 +65,7 @@ namespace OutlookGoogleCalendarSync {
                     OGCSexception.Analyse(ex);
                 }
                 return null;
+
             } catch (System.IO.IOException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80070020") { //Setting file in use by another process
                     log.Warn("Failed retrieving '" + nodeName + "' from " + filename);
@@ -73,6 +75,28 @@ namespace OutlookGoogleCalendarSync {
                     OGCSexception.Analyse(ex);
                 }
                 return null;
+
+            } catch (System.Xml.XmlException ex) {
+                log.Warn("Failed retrieving '" + nodeName + "' from " + filename);
+                if (OGCSexception.GetErrorCode(ex) == "0x80131940") { //hexadecimal value 0x00, is an invalid character
+                    log.Warn(ex.Message);
+                    Settings.ResetFile(filename);
+                    try {
+                        XDocument xml = XDocument.Load(filename);
+                        XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
+                        XElement xe = settingsXE.Elements(ns + nodeName).First();
+                        if (debugLog)
+                            log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
+                        return xe.Value;
+                    } catch (System.Exception ex2) {
+                        OGCSexception.Analyse("Still failed to retrieve '" + nodeName + "' from " + filename, ex2);
+                        return null;
+                    }
+                } else {
+                    OGCSexception.Analyse(ex);
+                    return null;
+                }
+
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving '" + nodeName + "' from " + filename);
                 OGCSexception.Analyse(ex);

@@ -505,6 +505,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private Boolean outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries, ref String bubbleText) {
             log.Debug("Synchronising from Outlook to Google.");
+            if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional)
+                Forms.Main.Instance.Console.Update("Syncing " + Sync.Direction.OutlookToGoogle.Name, Console.Markup.syncDirection, newLine: false);
 
             //  Make copies of each list of events (Not strictly needed)
             List<AppointmentItem> googleEntriesToBeCreated = new List<AppointmentItem>(outlookEntries);
@@ -623,6 +625,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private Boolean googleToOutlook(List<Event> googleEntries, List<AppointmentItem> outlookEntries, ref String bubbleText) {
             log.Debug("Synchronising from Google to Outlook.");
+            if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional)
+                Forms.Main.Instance.Console.Update("Syncing " + Sync.Direction.GoogleToOutlook.Name, Console.Markup.syncDirection, newLine: false);
 
             List<Event> outlookEntriesToBeCreated = new List<Event>(googleEntries);
             List<AppointmentItem> outlookEntriesToBeDeleted = new List<AppointmentItem>(outlookEntries);

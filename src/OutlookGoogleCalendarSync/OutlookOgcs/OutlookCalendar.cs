@@ -702,6 +702,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void ReclaimOrphanCalendarEntries(ref List<AppointmentItem> oAppointments, ref List<Event> gEvents) {
             log.Debug("Scanning " + oAppointments.Count + " Outlook appointments for orphans to reclaim...");
             String consoleTitle = "Reclaiming Outlook calendar entries";
+            Forms.Main.Instance.Console.Update("Checking for orphaned items...", verbose: true);
 
             //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
             List<AppointmentItem> unclaimedAi = new List<AppointmentItem>();
@@ -1141,6 +1142,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ref List<AppointmentItem> outlook,  //need deleting
             Dictionary<AppointmentItem, Event> compare) {
             log.Debug("Comparing Google events to Outlook items...");
+            Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
 
             //Order by start date (same as Outlook) for quickest matching
             google.Sort((x, y) => x.Start.DateTimeRaw.CompareTo(y.Start.DateTimeRaw));

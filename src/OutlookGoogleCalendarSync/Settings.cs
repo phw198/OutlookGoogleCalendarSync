@@ -373,18 +373,14 @@ namespace OutlookGoogleCalendarSync {
             get { return isLoaded; }
         }
 
-        public static void Load(string XMLfile = null) {
+        public static void Load(String XMLfile = null) {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
                 Settings.isLoaded = true;
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
-                System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
-                    "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                log.Warn("Resetting settings.xml file to defaults.");
-                System.IO.File.Delete(XMLfile ?? ConfigFile);
-                Settings.Instance.Save(XMLfile ?? ConfigFile);
+                ResetFile(XMLfile);
                 try {
                     Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                     log.Debug("User settings loaded successfully this time.");
@@ -395,7 +391,15 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public void Save(string XMLfile = null) {
+        public static void ResetFile(String XMLfile = null) {
+            System.Windows.Forms.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
+                    "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+            log.Warn("Resetting settings.xml file to defaults.");
+            System.IO.File.Delete(XMLfile ?? ConfigFile);
+            Settings.Instance.Save(XMLfile ?? ConfigFile);
+        }
+
+        public void Save(String XMLfile = null) {
             log.Info("Saving settings.");
             XMLManager.Export(this, XMLfile ?? ConfigFile);
         }
@@ -491,7 +495,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());
-            log.Info("  HideSplashScreen: " + ((Subscribed != DateTime.Parse("01-Jan-2000") || Donor) ? HideSplashScreen.ToString() : "N/A"));
+            log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
+            log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimiseToTray: " + MinimiseToTray);
             log.Info("  MinimiseNotClose: " + MinimiseNotClose);

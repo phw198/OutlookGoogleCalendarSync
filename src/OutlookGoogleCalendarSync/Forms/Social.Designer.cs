@@ -460,7 +460,7 @@
             this.MaximizeBox = false;
             this.Name = "Social";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Help promote OGCS";
+            this.Text = "Help Promote OGCS";
             this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
