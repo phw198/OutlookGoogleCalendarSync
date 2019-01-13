@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (OutlookItems != null) {
                 log.Fine(OutlookItems.Count + " calendar items exist.");
 
-                //OutlookItems.Sort("[Start]", Type.Missing);
+                OutlookItems.Sort("[Start]", Type.Missing);
                 OutlookItems.IncludeRecurrences = false;
 
                 DateTime min = DateTime.MinValue;
@@ -350,6 +350,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
+                            if (ai.LastModificationTime > compare.Value.Updated) continue;
+
                             log.Debug("Doing a dummy update in order to update the last modified date.");
                             CustomProperty.SetOGCSlastModified(ref ai);
                             updateCalendarEntry_save(ref ai);
