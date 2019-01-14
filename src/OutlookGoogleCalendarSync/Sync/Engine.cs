@@ -329,6 +329,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             List<AppointmentItem> outlookEntries = null;
             List<Event> googleEntries = null;
             GoogleOgcs.Calendar.Instance.EphemeralProperties.Clear();
+            OutlookOgcs.Calendar.Instance.EphemeralProperties.Clear();
             try {
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
