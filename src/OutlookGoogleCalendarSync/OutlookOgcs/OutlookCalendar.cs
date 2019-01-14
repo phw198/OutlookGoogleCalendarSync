@@ -61,6 +61,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             AlternativeMailbox,
             SharedCalendar
         }
+        public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         public Calendar() {
             IOutlook = Factory.GetOutlookInterface();
@@ -253,9 +254,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Processing >> " + itemSummary);
             Forms.Main.Instance.Console.Update(itemSummary, Console.Markup.calendar, verbose: true);
 
-            //Add the Google event IDs into Outlook appointment.
-            CustomProperty.AddGoogleIDs(ref ai, ev);
-
             ai.Start = new DateTime();
             ai.End = new DateTime();
             ai.AllDayEvent = (ev.Start.Date != null);
@@ -286,6 +284,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
             }
+
+            //Add the Google event IDs into Outlook appointment.
+            CustomProperty.AddGoogleIDs(ref ai, ev);
         }
 
         private static void createCalendarEntry_save(AppointmentItem ai, ref Event ev) {

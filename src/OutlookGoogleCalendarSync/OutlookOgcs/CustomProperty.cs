@@ -7,6 +7,73 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
+    public class EphemeralProperties {
+
+        private Dictionary<AppointmentItem, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
+
+        public EphemeralProperties() {
+            ephemeralProperties = new Dictionary<AppointmentItem, Dictionary<EphemeralProperty.PropertyName, Object>>();
+        }
+
+        public void Clear() {
+            ephemeralProperties = new Dictionary<AppointmentItem, Dictionary<EphemeralProperty.PropertyName, object>>();
+        }
+
+        public void Add(AppointmentItem ai, EphemeralProperty property) {
+            if (!ExistAny(ai)) {
+                ephemeralProperties.Add(ai, new Dictionary<EphemeralProperty.PropertyName, object> { { property.Name, property.Value } });
+            } else {
+                if (PropertyExists(ai, property.Name)) ephemeralProperties[ai][property.Name] = property.Value;
+                else ephemeralProperties[ai].Add(property.Name, property.Value);
+            }
+        }
+
+        /// <summary>
+        /// Is the AppointmentItem already registered with any ephemeral properties?
+        /// </summary>
+        /// <param name="ai">The AppointmentItem to check</param>
+        public Boolean ExistAny(AppointmentItem ai) {
+            return ephemeralProperties.ContainsKey(ai);
+        }
+        /// <summary>
+        /// Does a specific ephemeral property exist for an AppointmentItem?
+        /// </summary>
+        /// <param name="ai">The AppointmentItem to check</param>
+        /// <param name="propertyName">The property to check</param>
+        public Boolean PropertyExists(AppointmentItem ai, EphemeralProperty.PropertyName propertyName) {
+            if (!ExistAny(ai)) return false;
+            return ephemeralProperties[ai].ContainsKey(propertyName);
+        }
+
+        public Object GetProperty(AppointmentItem ai, EphemeralProperty.PropertyName propertyName) {
+            if (this.ExistAny(ai)) {
+                if (PropertyExists(ai, propertyName)) {
+                    Object ep = ephemeralProperties[ai][propertyName];
+                    switch (propertyName) {
+                        case EphemeralProperty.PropertyName.KeySet:
+                            if (ep is int && ep != null) return Convert.ToInt16(ep);
+                            else return 0;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    public class EphemeralProperty {
+        //These keys are only stored in memory against the AppointmentItem, not saved anwhere.
+        public enum PropertyName {
+            KeySet
+        }
+        public PropertyName Name { get; private set; }
+        public Object Value { get; private set; }
+
+        public EphemeralProperty(PropertyName propertyName, Object value) {
+            Name = propertyName;
+            Value = value;
+        }
+    }
+
     class CustomProperty {
         private static readonly ILog log = LogManager.GetLogger(typeof(CustomProperty));
 
@@ -47,7 +114,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>The set number, if it exists</returns>
         private static int? getKeySet(AppointmentItem ai, out int maxSet) {
             String returnSet = "";
+            int? returnVal = null;
             maxSet = 0;
+
+            if (OutlookOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.KeySet)) {
+                Object keySet = OutlookOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ai, EphemeralProperty.PropertyName.KeySet);
+                if (keySet == null) {
+                    maxSet = -1;
+                    return null;
+                } else if (Convert.ToInt16(keySet) == 0) return null;
+                else return Convert.ToInt16(keySet);
+            }
+
             Dictionary<String, String> calendarKeys = new Dictionary<string, string>();
             UserProperties ups = null;
             try {
@@ -66,30 +144,36 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
             }
 
-            //For backward compatibility, always default to key names with no set number appended
-            if (!calendarKeys.ContainsKey(calendarKeyName) ||
-                (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Settings.Instance.UseGoogleCalendar.Id))
-            {
-                maxSet = -1;
-                return null;
-            }
-
-            foreach (KeyValuePair<String, String> kvp in calendarKeys.OrderBy(k => k.Key)) {
-                Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
-                MatchCollection matches = rgx.Matches(kvp.Key);
-
-                if (matches.Count > 0) {
-                    int appendedNos = 0;
-                    if (matches[0].Groups[1].Value != "")
-                        appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
-                    if (appendedNos - maxSet == 1) maxSet = appendedNos;
-                    if (kvp.Value == Settings.Instance.UseGoogleCalendar.Id)
-                        returnSet = matches[0].Groups[1].Value;
+            try {
+                //For backward compatibility, always default to key names with no set number appended
+                if (!calendarKeys.ContainsKey(calendarKeyName) ||
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Settings.Instance.UseGoogleCalendar.Id))
+                {
+                    maxSet = -1;
+                    return null;
                 }
-            }
 
-            if (string.IsNullOrEmpty(returnSet)) return null;
-            else return Convert.ToInt16(returnSet);
+                foreach (KeyValuePair<String, String> kvp in calendarKeys.OrderBy(k => k.Key)) {
+                    Regex rgx = new Regex("^" + calendarKeyName + "-*(\\d{0,2})", RegexOptions.IgnoreCase);
+                    MatchCollection matches = rgx.Matches(kvp.Key);
+
+                    if (matches.Count > 0) {
+                        int appendedNos = 0;
+                        if (matches[0].Groups[1].Value != "")
+                            appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
+                        if (appendedNos - maxSet == 1) maxSet = appendedNos;
+                        if (kvp.Value == Settings.Instance.UseGoogleCalendar.Id)
+                            returnSet = (matches[0].Groups[1].Value == "") ? "0" : matches[0].Groups[1].Value;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
+
+            } finally {
+                EphemeralProperty ephemeralProperty = new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal);
+                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, ephemeralProperty);
+            }
+            return returnVal;
         }
 
         public static Boolean GoogleIdMissing(AppointmentItem ai) {
@@ -111,7 +195,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             int maxSet;
             int? keySet = getKeySet(ai, out maxSet);
-            if (keySet.HasValue) searchKey += "-" + keySet.Value.ToString("D2");
+            if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
 
             UserProperties ups = null;
             UserProperty prop = null;
@@ -157,10 +241,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             UserProperties ups = null;
             try {
+                int maxSet;
+                int? keySet = null;
                 if (!Exists(ai, key)) {
-                    int newSet;
-                    int? keySet = getKeySet(ai, out newSet);
-                    keySet = keySet ?? newSet + 1;
+                    keySet = getKeySet(ai, out maxSet);
+                    if (key == MetadataId.gCalendarId && keySet == null) //Couldn't find key set for calendar
+                        keySet = maxSet + 1; //So start a new one
+                    else if (key != MetadataId.gCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
+                        keySet = 0; //Add them in to the default key set
+
                     if (keySet.HasValue && keySet.Value != 0) addkeyName += "-" + keySet.Value.ToString("D2");
 
                     try {
@@ -175,6 +264,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 ups = ai.UserProperties;
                 ups[addkeyName].Value = keyValue;
+                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
                 log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
 
             } finally {
