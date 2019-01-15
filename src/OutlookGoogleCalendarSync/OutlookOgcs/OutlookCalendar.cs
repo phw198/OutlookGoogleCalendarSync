@@ -1145,7 +1145,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
 
             //Order by start date (same as Outlook) for quickest matching
-            google.Sort((x, y) => x.Start.DateTimeRaw.CompareTo(y.Start.DateTimeRaw));
+            google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
 
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
