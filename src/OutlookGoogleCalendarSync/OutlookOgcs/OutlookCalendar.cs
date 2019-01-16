@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
                     instance.IOutlook.Connect();
-                }            
+                }
                 return instance;
             }
         }
@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true, 
+        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) 
         {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
@@ -169,7 +169,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse(ex, true);
-                            log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
                         continue;
                     }
 
@@ -271,7 +271,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.AddLocation) ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.BusyStatus = getAvailability(ev.Transparency, null);
-            ai.Categories = getColour(ev.ColorId, null); 
+            ai.Categories = getColour(ev.ColorId, null);
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                 foreach (EventAttendee ea in ev.Attendees) {
@@ -284,7 +284,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             //Reminder alert
             if (Settings.Instance.AddReminders) {
                 if (ev.Reminders != null && ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
-                        ai.ReminderSet = true;
+                    ai.ReminderSet = true;
                     try {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
                         ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
@@ -295,10 +295,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ai.ReminderSet = Settings.Instance.UseOutlookDefaultReminder;
                 }
             } else ai.ReminderSet = Settings.Instance.UseOutlookDefaultReminder;
-
-            //Add the Google event IDs into Outlook appointment.
-            CustomProperty.AddGoogleIDs(ref ai, ev);
-            }
 
             //Add the Google event IDs into Outlook appointment.
             CustomProperty.AddGoogleIDs(ref ai, ev);
