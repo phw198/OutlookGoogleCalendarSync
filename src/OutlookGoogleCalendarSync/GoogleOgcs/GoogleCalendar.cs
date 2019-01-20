@@ -399,10 +399,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //Add the Outlook appointment ID into Google event
             CustomProperty.AddOutlookIDs(ref ev, ai);
 
-
-            //Add the Outlook appointment ID into Google event
-            CustomProperty.AddOutlookIDs(ref ev, ai);
-
             return ev;
         }
 

@@ -52,7 +52,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (propertyName) {
                         case EphemeralProperty.PropertyName.KeySet:
                             if (ep is int && ep != null) return Convert.ToInt16(ep);
-                            else return 0;
+                            else return null;
+                        case EphemeralProperty.PropertyName.MaxSet:
+                            if (ep is int && ep != null) return Convert.ToInt16(ep);
+                            else return null;
+                        default:
+                            return ep;
                     }
                 }
             }
@@ -63,7 +68,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class EphemeralProperty {
         //These keys are only stored in memory against the Event, not saved anwhere.
         public enum PropertyName {
-            KeySet
+            KeySet, //Current set for calendar being synced
+            MaxSet  //Last set in continquous sequence
         }
         public PropertyName Name { get; private set; }
         public Object Value { get; private set; }
@@ -120,24 +126,25 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int? returnVal = null;
             maxSet = 0;
 
-            if (GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.KeySet)) {
-                Object keySet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.KeySet);
-                if (keySet == null) {
-                    maxSet = -1;
-                    return null;
-                } else if (Convert.ToInt16(keySet) == 0) return null;
-                else return Convert.ToInt16(keySet);
+            if (GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.KeySet) &&
+                GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.MaxSet)) 
+            {
+                Object ep_keySet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.KeySet);
+                Object ep_maxSet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.MaxSet);
+                maxSet = Convert.ToInt16(ep_maxSet ?? ep_keySet);
+                if (ep_keySet != null) returnVal = Convert.ToInt16(ep_keySet);
+                return returnVal;
             }
 
             try {
                 Dictionary<String, String> calendarKeys = ev.ExtendedProperties.Private__.Where(k => k.Key.StartsWith(calendarKeyName)).OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
 
                 //For backward compatibility, always default to key names with no set number appended
-                if (!calendarKeys.ContainsKey(calendarKeyName) ||
+                if (calendarKeys.Count == 0||
                     (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
                 {
                     maxSet = -1;
-                    return null;
+                    return returnVal;
                 }
 
                 foreach (KeyValuePair<String, String> kvp in calendarKeys) {
@@ -157,8 +164,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
             } finally {
-                EphemeralProperty ephemeralProperty = new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal);
-                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, ephemeralProperty);
+                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
+                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
             }
             return returnVal;
         }
@@ -220,7 +227,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             int maxSet;
             int? keySet = getKeySet(ev, out maxSet);
-            if (key == MetadataId.oCalendarId && keySet == null) //Couldn't find key set for calendar
+            if (key == MetadataId.oCalendarId && (keySet ?? 0) == 0) //Couldn't find key set for calendar
                 keySet = maxSet + 1; //So start a new one
             else if (key != MetadataId.oCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
                 keySet = 0; //Add them in to the default key set
@@ -238,6 +245,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.ExtendedProperties.Private__.Add(keyName, keyValue);
 
             GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
+            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
             log.Fine("Set extendedproperty " + keyName + "=" + keyValue);
         }
 
