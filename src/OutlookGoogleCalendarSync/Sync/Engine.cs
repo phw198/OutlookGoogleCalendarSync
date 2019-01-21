@@ -402,18 +402,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                         } else {
                             log.Warn("Unknown calendar object type - cannot sync it.");
                             skipCorruptedItem(ref outlookEntries, outlookEntries[o], "Unknown object type.");
-                            outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
                             continue;
                         }
                     } catch (System.Exception ex) {
                         log.Warn("Encountered error casting calendar object to AppointmentItem - cannot sync it.");
                         log.Debug(ex.Message);
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
-                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
                     }
-
+                    
                     //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
                     String entryID;
                     try {
@@ -424,7 +422,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Warn("Calendar item does not have a proper date range - cannot sync it.");
                         log.Debug(ex.Message);
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
-                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
                     }
