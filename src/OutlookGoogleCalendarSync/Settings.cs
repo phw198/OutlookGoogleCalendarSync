@@ -139,7 +139,9 @@ namespace OutlookGoogleCalendarSync {
             Subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
             hideSplashScreen = false;
-            
+
+            ExtirpateOgcsMetadata = false;
+
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
             VerboseOutput = true;
@@ -333,6 +335,10 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("Donor", value, ConfigFile);
             }
         }
+        #endregion
+        #region Advanced - Non GUI
+        [DataMember]
+        public Boolean ExtirpateOgcsMetadata { get; private set; }
         #endregion
 
         [DataMember] public DateTime LastSyncDate {

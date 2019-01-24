@@ -257,10 +257,45 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return null;
         }
 
+        public static void RemoveAll(ref Event ev) {
+            Remove(ref ev, MetadataId.apiLimitHit);
+            Remove(ref ev, MetadataId.forceSave);
+            Remove(ref ev, MetadataId.oCalendarId);
+            Remove(ref ev, MetadataId.oEntryId);
+            Remove(ref ev, MetadataId.ogcsModified);
+            Remove(ref ev, MetadataId.oGlobalApptId);
+        }
         public static void Remove(ref Event ev, MetadataId id) {
             String key;
             if (Exists(ev, id, out key))
                 ev.ExtendedProperties.Private__.Remove(key);
+        }
+        /// <summary>
+        /// Completely remove all OGCS custom properties
+        /// </summary>
+        /// <param name="ev">The Event to strip properties from</param>
+        /// <returns>Whether any properties were removed</returns>
+        public static Boolean Extirpate(ref Event ev) {
+            Boolean removedProperty = false;
+            List<String> keyNames = new List<String>() {
+                metadataIdKeyName(MetadataId.apiLimitHit),
+                metadataIdKeyName(MetadataId.forceSave),
+                metadataIdKeyName(MetadataId.oCalendarId),
+                metadataIdKeyName(MetadataId.oEntryId),
+                metadataIdKeyName(MetadataId.ogcsModified),
+                metadataIdKeyName(MetadataId.oGlobalApptId)
+            };
+            if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private__ != null) {
+                for (int i = ev.ExtendedProperties.Private__.Count - 1; i >= 0; i--) {
+                    String ep = ev.ExtendedProperties.Private__.Keys.ToArray()[i];
+                    if (keyNames.Exists(k => ep.StartsWith(k))) {
+                        ev.ExtendedProperties.Private__.Remove(ep);
+                        log.Fine("Removed " + ep);
+                        removedProperty = true;
+                    }
+                }
+            }
+            return removedProperty;
         }
 
         public static DateTime GetOGCSlastModified(Event ev) {

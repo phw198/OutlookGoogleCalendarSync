@@ -120,6 +120,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbMuteClicks, "Mute any sounds when sync summary updates.");
             #endregion
 
+            if (Settings.Instance.ExtirpateOgcsMetadata) {
+                bSyncNow.FlatStyle = FlatStyle.Flat;
+                bSyncNow.BackColor = System.Drawing.Color.PaleVioletRed;
+                console.Update("<b>An advanced setting has been enabled.</b><br>If you perform a sync, it will remove all OGCS metadata from your calendar items within the synced date range, " +
+                    "but it will <i>not</i> remove the actual calendar items themselves.<br>This can be useful if you wish to 'reset' your calendars to a state similar to before you ever used OGCS.",
+                    Console.Markup.warning);
+            }
             cbVerboseOutput.Checked = Settings.Instance.VerboseOutput;
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #region Outlook box

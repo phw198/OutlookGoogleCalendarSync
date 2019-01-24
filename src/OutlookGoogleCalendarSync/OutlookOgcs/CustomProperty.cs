@@ -232,8 +232,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// Add the Google event IDs into Outlook appointment.
         /// </summary>
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
-            Add(ref ai, MetadataId.gEventID, ev.Id);
             Add(ref ai, MetadataId.gCalendarId, Settings.Instance.UseGoogleCalendar.Id);
+            Add(ref ai, MetadataId.gEventID, ev.Id);
             LogProperties(ai, log4net.Core.Level.Debug);
         }
 
@@ -351,6 +351,41 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     ups = (UserProperties)Calendar.ReleaseObject(ups);
                 }
             }
+        }
+        /// <summary>
+        /// Completely remove all OGCS custom properties
+        /// </summary>
+        /// <param name="ai">The AppointmentItem to strip attributes from</param>
+        /// <returns>Whether any properties were removed</returns>
+        public static Boolean Extirpate(ref AppointmentItem ai) {
+            List<String> keyNames = new List<String>() {
+                metadataIdKeyName(MetadataId.forceSave),
+                metadataIdKeyName(MetadataId.gCalendarId),
+                metadataIdKeyName(MetadataId.gEventID),
+                metadataIdKeyName(MetadataId.locallyCopied),
+                metadataIdKeyName(MetadataId.ogcsModified)
+            };
+            Boolean removedProperty = false;
+            UserProperties ups = null;
+            try {
+                ups = ai.UserProperties;
+                for (int p = ups.Count; p > 0; p--) {
+                    UserProperty prop = null;
+                    try {
+                        prop = ups[p];
+                        if (keyNames.Exists(k => prop.Name.StartsWith(k))) {
+                            log.Fine("Removed " + prop.Name);
+                            prop.Delete();
+                            removedProperty = true;
+                        }
+                    } finally {
+                        prop = (UserProperty)Calendar.ReleaseObject(prop);
+                    }
+                }
+            } finally {
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
+            }
+            return removedProperty;
         }
 
         public static DateTime GetOGCSlastModified(AppointmentItem ai) {

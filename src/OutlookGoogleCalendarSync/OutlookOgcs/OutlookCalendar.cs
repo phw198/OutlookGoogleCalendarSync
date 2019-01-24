@@ -728,6 +728,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
                             consoleTitle = "";
                             Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
+                            oAppointments[o] = ai;
                             break;
                         }
                     }
