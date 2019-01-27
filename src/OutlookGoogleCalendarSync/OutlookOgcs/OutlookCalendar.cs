@@ -1149,16 +1149,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             for (int o = outlook.Count - 1; o >= 0; o--) {
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
 
-                if (CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID)) {
-                    String compare_oEventID = CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gEventID);
-                    Boolean googleIDmissing = CustomProperty.GoogleIdMissing(outlook[o]);
+                String compare_oEventID = CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gEventID);
+                if (!string.IsNullOrEmpty(compare_oEventID)) {
+                    Boolean? googleIDmissing = null;
                     Boolean foundMatch = false;
 
                     for (int g = google.Count - 1; g >= 0; g--) {
                         log.UltraFine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
 
                         if (compare_oEventID == google[g].Id.ToString()) {
-                            if (googleIDmissing) {
+                            if (googleIDmissing == null) googleIDmissing = CustomProperty.GoogleIdMissing(outlook[o]);
+                            if ((Boolean)googleIDmissing) {
                                 log.Info("Enhancing appointment's metadata...");
                                 AppointmentItem ai = outlook[o];
                                 CustomProperty.AddGoogleIDs(ref ai, google[g]);
