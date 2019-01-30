@@ -84,7 +84,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
-            Social.Donate();
+            Program.Donate();
             this.Close();
         }
 

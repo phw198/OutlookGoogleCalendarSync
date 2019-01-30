@@ -156,7 +156,9 @@
             this.lWhatInfo = new System.Windows.Forms.Label();
             this.cbLocation = new System.Windows.Forms.CheckBox();
             this.cbAddColours = new System.Windows.Forms.CheckBox();
+            this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
             this.panelAppBehaviour = new System.Windows.Forms.Panel();
             this.pbExpandProxy = new System.Windows.Forms.PictureBox();
             this.gbAppBehaviour_Proxy = new System.Windows.Forms.GroupBox();
@@ -241,7 +243,7 @@
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
+            this.label33 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1802,9 +1804,22 @@
             this.cbAddColours.UseVisualStyleBackColor = true;
             this.cbAddColours.CheckedChanged += new System.EventHandler(this.cbAddColours_CheckedChanged);
             // 
+            // cbUseOutlookDefaultReminder
+            // 
+            this.cbUseOutlookDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbUseOutlookDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbUseOutlookDefaultReminder.Location = new System.Drawing.Point(226, 114);
+            this.cbUseOutlookDefaultReminder.Name = "cbUseOutlookDefaultReminder";
+            this.cbUseOutlookDefaultReminder.Size = new System.Drawing.Size(120, 17);
+            this.cbUseOutlookDefaultReminder.TabIndex = 45;
+            this.cbUseOutlookDefaultReminder.Text = "Use Outlook default";
+            this.cbUseOutlookDefaultReminder.UseVisualStyleBackColor = true;
+            this.cbUseOutlookDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseOutlookDefaultReminder_CheckedChanged);
+            // 
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbSuppressSocialPopup);
             this.tabAppBehaviour.Controls.Add(this.panelAppBehaviour);
             this.tabAppBehaviour.Controls.Add(this.tbStartupDelay);
             this.tabAppBehaviour.Controls.Add(this.cbHideSplash);
@@ -1820,6 +1835,18 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(392, 462);
             this.tabAppBehaviour.TabIndex = 3;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbSuppressSocialPopup
+            // 
+            this.cbSuppressSocialPopup.AutoSize = true;
+            this.cbSuppressSocialPopup.Location = new System.Drawing.Point(139, 62);
+            this.cbSuppressSocialPopup.Margin = new System.Windows.Forms.Padding(4);
+            this.cbSuppressSocialPopup.Name = "cbSuppressSocialPopup";
+            this.cbSuppressSocialPopup.Size = new System.Drawing.Size(197, 17);
+            this.cbSuppressSocialPopup.TabIndex = 46;
+            this.cbSuppressSocialPopup.Text = "Suppress \"spread the word\" popups";
+            this.cbSuppressSocialPopup.UseVisualStyleBackColor = true;
+            this.cbSuppressSocialPopup.CheckedChanged += new System.EventHandler(this.cbSuppressSocialPopup_CheckedChanged);
             // 
             // panelAppBehaviour
             // 
@@ -2710,6 +2737,7 @@
             // tabPage_Social
             // 
             this.tabPage_Social.BackColor = System.Drawing.Color.White;
+            this.tabPage_Social.Controls.Add(this.label33);
             this.tabPage_Social.Controls.Add(this.pbSocialDonate);
             this.tabPage_Social.Controls.Add(this.tableLayoutPanel2);
             this.tabPage_Social.Controls.Add(this.label2);
@@ -2748,7 +2776,7 @@
             this.tableLayoutPanel2.Controls.Add(this.label30, 0, 2);
             this.tableLayoutPanel2.Controls.Add(this.pbSocialGplusCommunity, 1, 4);
             this.tableLayoutPanel2.Controls.Add(this.pbSocialTwitterFollow, 1, 3);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(99, 84);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(99, 118);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 9;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
@@ -2771,8 +2799,8 @@
             this.lMilestoneBlurb.Name = "lMilestoneBlurb";
             this.lMilestoneBlurb.Size = new System.Drawing.Size(169, 39);
             this.lMilestoneBlurb.TabIndex = 41;
-            this.lMilestoneBlurb.Text = "Let others know you\'ve found this appliction by sharing through your favourite so" +
-    "cial media site below!";
+            this.lMilestoneBlurb.Text = "Let others know you\'ve found this application by sharing through your favourite s" +
+    "ocial media site below!";
             // 
             // btSocialTweet
             // 
@@ -2929,17 +2957,17 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
-            // cbUseOutlookDefaultReminder
+            // label33
             // 
-            this.cbUseOutlookDefaultReminder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbUseOutlookDefaultReminder.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbUseOutlookDefaultReminder.Location = new System.Drawing.Point(226, 114);
-            this.cbUseOutlookDefaultReminder.Name = "cbUseOutlookDefaultReminder";
-            this.cbUseOutlookDefaultReminder.Size = new System.Drawing.Size(120, 17);
-            this.cbUseOutlookDefaultReminder.TabIndex = 45;
-            this.cbUseOutlookDefaultReminder.Text = "Use Outlook default";
-            this.cbUseOutlookDefaultReminder.UseVisualStyleBackColor = true;
-            this.cbUseOutlookDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseOutlookDefaultReminder_CheckedChanged);
+            this.label33.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label33.AutoSize = true;
+            this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label33.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label33.Location = new System.Drawing.Point(149, 71);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(177, 13);
+            this.label33.TabIndex = 47;
+            this.label33.Text = "£10 or more hides the splash screen";
             // 
             // Main
             // 
@@ -3218,5 +3246,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox cbUseOutlookDefaultReminder;
+        public System.Windows.Forms.CheckBox cbSuppressSocialPopup;
+        private System.Windows.Forms.Label label33;
     }
 }

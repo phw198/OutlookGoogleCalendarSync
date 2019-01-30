@@ -465,16 +465,21 @@ namespace OutlookGoogleCalendarSync {
             }
             if (!haveMatchingEv) {
                 events = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
-                List<AppointmentItem> ais = new List<AppointmentItem>();
-                ais.Add(ai);
-                GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
+                if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
+                    List<AppointmentItem> ais = new List<AppointmentItem>();
+                    ais.Add(ai);
+                    GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
+                }
             }
             for (int g = 0; g < events.Count(); g++) {
                 Event ev = events[g];
-                if (haveMatchingEv || GoogleOgcs.CustomProperty.Exists(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId)) {
+                String gEntryID = GoogleOgcs.CustomProperty.Get(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId);
+                if (haveMatchingEv || !string.IsNullOrEmpty(gEntryID)) {
+                    if (haveMatchingEv && string.IsNullOrEmpty(gEntryID)) {
+                        return ev;
+                    }
                     if (GoogleOgcs.CustomProperty.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        String gEntryID = GoogleOgcs.CustomProperty.Get(ev, GoogleOgcs.CustomProperty.MetadataId.oEntryId);
                         if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
@@ -496,6 +501,10 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else {
                     log.Debug("Event \"" + ev.Summary + "\" did not have Outlook EntryID stored.");
+                    if (GoogleOgcs.Calendar.SignaturesMatch(GoogleOgcs.Calendar.signature(ev), OutlookOgcs.Calendar.signature(ai))) {
+                        log.Debug("Master event matched on simple signatures.");
+                        return ev;
+                    }
                 }
             }
             log.Warn("Failed to find master Google event for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
