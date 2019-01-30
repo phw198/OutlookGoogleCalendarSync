@@ -36,8 +36,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 log.Info("Outlook Version: " + outlookVersionFull);
                 if (testing2003) {
+                    #pragma warning disable 162 //Unreachable code
                     log.Info("*** 2003 TESTING ***");
                     outlookVersionFull = "11";
+                    #pragma warning restore 162
                 }
                 outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
 

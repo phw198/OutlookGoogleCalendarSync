@@ -73,13 +73,13 @@ namespace OutlookGoogleCalendarSync {
 
             log.Warn("Token response error: " + ex.Message);
             if (ex.Error.Error == "access_denied")
-                Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked.<br/>" + instructions, Console.Markup.error, notifyBubble: true);
+                Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked.<br/>" + instructions, Console.Markup.fail, notifyBubble: true);
 
             else if ("invalid_client;unauthorized_client".Contains(ex.Error.Error))
-                Forms.Main.Instance.Console.Update("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, Console.Markup.error, notifyBubble: true);
+                Forms.Main.Instance.Console.Update("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, Console.Markup.fail, notifyBubble: true);
 
             else if (ex.Error.Error == "invalid_grant")
-                Forms.Main.Instance.Console.Update("Google has revoked your authentication token. Account requires reauthorising.<br/>" + instructions, Console.Markup.error, notifyBubble: true);
+                Forms.Main.Instance.Console.Update("Google has revoked your authentication token. Account requires reauthorising.<br/>" + instructions, Console.Markup.fail, notifyBubble: true);
 
             else {
                 log.Warn("Unknown web exception.");

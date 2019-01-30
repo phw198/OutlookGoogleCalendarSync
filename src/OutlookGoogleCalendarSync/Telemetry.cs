@@ -34,9 +34,8 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void TrackSync() {
-            //Use an API that isn't used anywhere else - can use to see how many syncs are happening
             if (System.Diagnostics.Debugger.IsAttached) return;
-            GoogleOgcs.Calendar.Instance.GetSetting("locale");
+            Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
         }
 
         public static void Send(Analytics.Category category, Analytics.Action action, String label) {
@@ -84,6 +83,7 @@ namespace OutlookGoogleCalendarSync {
             download,   //squirrel
             install,    //squirrel
             setting,    //ogcs
+            sync,       //ogcs
             uninstall,  //squirrel
             upgrade,    //squirrel
             version     //outlook,ogcs

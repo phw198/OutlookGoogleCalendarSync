@@ -29,7 +29,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         private static String decloakEmail(String email) {
             if (string.IsNullOrWhiteSpace(email)) return email;
-            return email.TrimEnd(EmailCloak.ToCharArray());
+            if (email.EndsWith(EmailCloak)) return email.Substring(0, email.Length - EmailCloak.Length);
+            return email;
         }
         private static String cloakEmail(String email) {
             if (string.IsNullOrWhiteSpace(email)) return email;

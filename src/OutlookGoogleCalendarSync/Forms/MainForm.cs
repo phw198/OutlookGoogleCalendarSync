@@ -1022,6 +1022,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             if (calendars != null) {
                 cbGoogleCalendars.Items.Clear();
+                calendars.Sort((x, y) => x.Name.CompareTo(y.Name));
                 foreach (GoogleCalendarListEntry mcle in calendars) {
                     cbGoogleCalendars.Items.Add(mcle);
                 }

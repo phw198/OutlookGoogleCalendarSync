@@ -12,8 +12,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             toolTips.InitialDelay = 500;
             toolTips.ReshowDelay = 200;
             toolTips.ShowAlways = true;
-            if (!Settings.Instance.UserIsBenefactor()) {
+            if (Settings.Instance.UserIsBenefactor()) {
+                pbDonate.Visible = false;
+                lDonateTip.Visible = false;
+            } else {
                 toolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
+                if (Settings.Instance.SuppressSocialPopup) Settings.Instance.SuppressSocialPopup = false;
             }
 
             Int32 syncs = Settings.Instance.CompletedSyncs;
