@@ -1018,8 +1018,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 calendars.Sort((x, y) => x.Name.CompareTo(y.Name));
                 foreach (GoogleCalendarListEntry mcle in calendars) {
                     cbGoogleCalendars.Items.Add(mcle);
+                    if (cbGoogleCalendars.SelectedIndex == -1 && mcle.Id == Settings.Instance.UseGoogleCalendar.Id)
+                        cbGoogleCalendars.SelectedItem = mcle;
                 }
-                cbGoogleCalendars.SelectedIndex = 0;
+                if (cbGoogleCalendars.SelectedIndex == -1 ) {
+                    cbGoogleCalendars.SelectedIndex = 0;
+                }
                 tbClientID.ReadOnly = true;
                 tbClientSecret.ReadOnly = true;
             }
