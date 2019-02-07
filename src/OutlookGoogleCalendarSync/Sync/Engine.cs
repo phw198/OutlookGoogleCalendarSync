@@ -519,6 +519,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Console console = Forms.Main.Instance.Console;
 
             try {
+                Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
                 GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
                 if (CancellationPending) return false;
             } catch (System.Exception ex) {

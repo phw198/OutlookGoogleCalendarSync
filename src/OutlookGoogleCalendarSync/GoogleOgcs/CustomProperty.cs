@@ -9,22 +9,23 @@ using System.Text.RegularExpressions;
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class EphemeralProperties {
 
-        private Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
+        private Dictionary<String, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
 
         public EphemeralProperties() {
-            ephemeralProperties = new Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
+            ephemeralProperties = new Dictionary<String, Dictionary<EphemeralProperty.PropertyName, Object>>();
         }
 
         public void Clear() {
-            ephemeralProperties = new Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, object>>();
+            ephemeralProperties = new Dictionary<String, Dictionary<EphemeralProperty.PropertyName, object>>();
         }
 
         public void Add(Event ev, EphemeralProperty property) {
+            if (ev.Id == null) return;
             if (!ExistAny(ev)) {
-                ephemeralProperties.Add(ev, new Dictionary<EphemeralProperty.PropertyName, object> { { property.Name, property.Value } });
+                ephemeralProperties.Add(ev.Id, new Dictionary<EphemeralProperty.PropertyName, object> { { property.Name, property.Value } });
             } else {
-                if (PropertyExists(ev, property.Name)) ephemeralProperties[ev][property.Name] = property.Value;
-                else ephemeralProperties[ev].Add(property.Name, property.Value);
+                if (PropertyExists(ev, property.Name)) ephemeralProperties[ev.Id][property.Name] = property.Value;
+                else ephemeralProperties[ev.Id].Add(property.Name, property.Value);
             }
         }
 
@@ -33,7 +34,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// </summary>
         /// <param name="ev">The Event to check</param>
         public Boolean ExistAny(Event ev) {
-            return ephemeralProperties.ContainsKey(ev);
+            if (ev.Id == null) return false;
+            return ephemeralProperties.ContainsKey(ev.Id);
         }
         /// <summary>
         /// Does a specific ephemeral property exist for an Event?
@@ -42,13 +44,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="propertyName">The property to check</param>
         public Boolean PropertyExists(Event ev, EphemeralProperty.PropertyName propertyName) {
             if (!ExistAny(ev)) return false;
-            return ephemeralProperties[ev].ContainsKey(propertyName);
+            return ephemeralProperties[ev.Id].ContainsKey(propertyName);
         }
 
         public Object GetProperty(Event ev, EphemeralProperty.PropertyName propertyName) {
             if (this.ExistAny(ev)) {
                 if (PropertyExists(ev, propertyName)) {
-                    Object ep = ephemeralProperties[ev][propertyName];
+                    Object ep = ephemeralProperties[ev.Id][propertyName];
                     switch (propertyName) {
                         case EphemeralProperty.PropertyName.KeySet:
                             if (ep is int && ep != null) return Convert.ToInt16(ep);

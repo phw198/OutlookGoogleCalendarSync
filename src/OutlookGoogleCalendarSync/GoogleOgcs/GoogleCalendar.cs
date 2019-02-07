@@ -874,7 +874,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             log.Debug("Scanning "+ gEvents.Count +" Google events for orphans to reclaim...");
             String consoleTitle = "Reclaiming Google calendar entries";
-            Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
