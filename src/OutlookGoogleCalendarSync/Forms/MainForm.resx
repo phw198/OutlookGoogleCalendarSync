@@ -128,7 +128,7 @@
 by clicking "Disconnect Account" above. 
 
 Obtain new values from the Google Developer Console.
-You'll need to enable Calendar and Google+ APIs in your project:
+You'll need to enable the Calendar API in your project:
 </value>
   </data>
   <data name="label21.Text" xml:space="preserve">

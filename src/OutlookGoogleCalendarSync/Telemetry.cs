@@ -42,6 +42,9 @@ namespace OutlookGoogleCalendarSync {
             String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
             String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid=" + cid;
 
+            if (action == Analytics.Action.debug) {
+                label = "v" + System.Windows.Forms.Application.ProductVersion + ";" + label;
+            }
             String analyticsUrl = baseAnalyticsUrl + "&ec=" + category.ToString() + "&ea=" + action.ToString() + "&el=" + System.Net.WebUtility.UrlEncode(label);
             log.Debug("Retrieving URL: " + analyticsUrl);
             if (System.Diagnostics.Debugger.IsAttached) return;

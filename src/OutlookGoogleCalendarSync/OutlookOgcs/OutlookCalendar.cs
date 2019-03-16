@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
                     instance.IOutlook.Connect();
-                }            
+                }
                 return instance;
             }
         }
@@ -117,7 +117,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true, 
+        public List<AppointmentItem> FilterCalendarEntries(Items OutlookItems, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) 
         {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.AddLocation) ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.BusyStatus = getAvailability(ev.Transparency, null);
-            ai.Categories = getColour(ev.ColorId, null); 
+            ai.Categories = getColour(ev.ColorId, null);
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
                 foreach (EventAttendee ea in ev.Attendees) {
@@ -708,6 +708,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             List<AppointmentItem> unclaimedAi = new List<AppointmentItem>();
 
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
                 AppointmentItem ai = oAppointments[o];
                 CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
@@ -1150,6 +1151,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int o = outlook.Count - 1; o >= 0; o--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
 
                 if (CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID)) {

@@ -872,12 +872,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             log.Debug("Scanning "+ gEvents.Count +" Google events for orphans to reclaim...");
             String consoleTitle = "Reclaiming Google calendar entries";
-            Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
 
             //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
             List<Event> unclaimedEvents = new List<Event>();
 
             for (int g = gEvents.Count - 1; g >= 0; g--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
                 Event ev = gEvents[g];
                 CustomProperty.LogProperties(ev, Program.MyFineLevel);
 
@@ -959,6 +959,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int g = google.Count - 1; g >= 0; g--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
                 log.Fine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
 
                 if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId)) {
@@ -1573,10 +1574,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return apiException.throwException;
             }
         }
-
-        #region OGCS event properties
-
-        #endregion
         #endregion
     }
 }
