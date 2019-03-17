@@ -485,7 +485,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void Donate() {
-            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
     }
 }

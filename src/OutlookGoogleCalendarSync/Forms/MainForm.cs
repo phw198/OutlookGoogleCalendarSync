@@ -771,6 +771,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                         GoogleOgcs.Calendar.Instance.Authenticator.UserSubscriptionCheck();
                     }
                 } else {
+                    if (tbSyncNote.Tag.ToString().Contains("OGCS Premium renewal")) {
+                        MessageBox.Show("Please ensure you don't already have an active recurring annual payment set up in PayPal :-)", "Recurring payment already configured?",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                     System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
                 }
             }
@@ -1698,23 +1702,23 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.Twitter_follow();
         }
 
-        private void btSocialGplus_Click(object sender, EventArgs e) {
-            Social.Google_share();
-        }
-        private void pbSocialGplusCommunity_Click(object sender, EventArgs e) {
-            Social.Google_goToCommunity();
-        }
-
         private void btSocialFB_Click(object sender, EventArgs e) {
             Social.Facebook_share();
+        }
+        private void btFbLike_Click(object sender, EventArgs e) {
+            Social.Facebook_like();
+        }
+
+        private void btSocialLinkedin_Click(object sender, EventArgs e) {
+            Social.Linkedin_share();
         }
 
         private void btSocialRSSfeed_Click(object sender, EventArgs e) {
             Social.RSS_follow();
         }
 
-        private void btSocialLinkedin_Click(object sender, EventArgs e) {
-            Social.Linkedin_share();
+        private void btSocialGitHub_Click(object sender, EventArgs e) {
+            Social.GitHub();
         }
         #endregion
     }

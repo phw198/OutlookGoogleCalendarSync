@@ -391,7 +391,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster)
                 log.Debug("Processing recurring master appointment.");
-            
+
             String evSummary = GoogleOgcs.Calendar.GetEventSummary(ev);
             log.Debug("Processing >> " + evSummary);
 
@@ -596,16 +596,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     //Find the last popup reminder in Google
                     try {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(r => r.Minutes).First();
-                            if (ai.ReminderSet) {
-                                if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                    ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                }
-                            } else {
-                                sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
-                                ai.ReminderSet = true;
+                        if (ai.ReminderSet) {
+                            if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
                                 ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                                itemModified++;
-                            } //if Outlook reminders set
+                            }
+                        } else {
+                            sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
+                            ai.ReminderSet = true;
+                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                            itemModified++;
+                        } //if Outlook reminders set
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
@@ -613,15 +613,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } else if (!googleReminders) {
                 if (ai.ReminderSet && !Settings.Instance.UseOutlookDefaultReminder) {
-                        sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
-                        ai.ReminderSet = false;
-                        itemModified++;
+                    sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                    ai.ReminderSet = false;
+                    itemModified++;
                 } else if (!ai.ReminderSet && Settings.Instance.UseOutlookDefaultReminder) {
                     sb.AppendLine("Reminder: nothing => default");
                     ai.ReminderSet = true;
                     itemModified++;
-                    }
                 }
+            }
 
             if (itemModified > 0) {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
@@ -787,7 +787,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         /// <param name="gVisibility">Google's current setting</param>
         /// <param name="oSensitivity">Outlook's current setting</param>
-        private OlSensitivity getPrivacy(String gVisibility, OlSensitivity ?oSensitivity) {
+        private OlSensitivity getPrivacy(String gVisibility, OlSensitivity? oSensitivity) {
             if (!Settings.Instance.SetEntriesPrivate)
                 return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
 
@@ -816,7 +816,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         /// <param name="gTransparency">Google's current setting</param>
         /// <param name="oBusyStatus">Outlook's current setting</param>
-        private OlBusyStatus getAvailability(String gTransparency, OlBusyStatus ?oBusyStatus) {
+        private OlBusyStatus getAvailability(String gTransparency, OlBusyStatus? oBusyStatus) {
             if (!Settings.Instance.SetEntriesAvailable)
                 return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
 
@@ -910,8 +910,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                             if (aex.InnerException.Message.Contains("CO_E_SERVER_EXEC_FAILURE"))
                                 message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator'.";
-                            
-                            throw new ApplicationException(message);                            
+
+                            throw new ApplicationException(message);
                         }
                         System.Threading.Thread.Sleep(10000);
                     } else {
@@ -958,7 +958,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 } else if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
                     (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
-                    (hResult == "0x800706BA" || hResult == "0x800706BE") ) //Remote Procedure Call failed.
+                    (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
                 {
                     log.Warn(ex.Message);
                     throw new ApplicationException("Outlook is busy.", ex);
@@ -1186,7 +1186,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     }
-                    if (!foundMatch && Settings.Instance.MergeItems && 
+                    if (!foundMatch && Settings.Instance.MergeItems &&
                         OutlookOgcs.CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != Settings.Instance.UseGoogleCalendar.Id)
                         outlook.Remove(outlook[o]);
 
@@ -1281,7 +1281,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 DateTime dndEnd;
                 if (alarm.TimeOfDay < Settings.Instance.ReminderDNDstart.TimeOfDay) shiftDay = -1;
                 dndStart = alarm.Date.AddDays(shiftDay).Add(Settings.Instance.ReminderDNDstart.TimeOfDay);
-                dndEnd = alarm.Date.AddDays(shiftDay+1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(Settings.Instance.ReminderDNDend.TimeOfDay);
                 if (alarm > dndStart && alarm < dndEnd) {
                     log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
                     return false;

@@ -88,11 +88,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.Close();
         }
 
-        private void pbSocialGplusCommunity_Click(object sender, EventArgs e) {
-            Social.Google_goToCommunity();
-            this.Close();
-        }
-
         private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
             Social.Twitter_follow();
             this.Close();

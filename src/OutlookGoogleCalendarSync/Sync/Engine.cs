@@ -130,7 +130,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 String cacheNextSync = mainFrm.NextSyncVal;
 
                 mainFrm.Console.Clear();
-                
+
                 if (Settings.Instance.UseGoogleCalendar == null ||
                     Settings.Instance.UseGoogleCalendar.Id == null ||
                     Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -292,8 +292,8 @@ namespace OutlookGoogleCalendarSync.Sync {
         /// If updateSyncSchedule is false, this value persists.</param>
         private void setNextSync(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
             if (syncedOk) {
-            Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
-            Settings.Instance.LastSyncDate = syncStarted;
+                Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
+                Settings.Instance.LastSyncDate = syncStarted;
             }
             if (!updateSyncSchedule) {
                 Forms.Main.Instance.NextSyncVal = cacheNextSync;
@@ -366,7 +366,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&
                         (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
                         //Already rescheduled to run again once new quota available, so just set to retry.
-                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " + 
+                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " +
                             (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
                     }
                     throw ex;
@@ -413,7 +413,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
                     }
-                    
+
                     //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
                     String entryID;
                     try {
@@ -786,7 +786,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Forms.Main.Instance.Console.UpdateWithError(null, ex);
                 returnVal = SyncResult.Fail;
                 return returnVal;
-                
+
             } finally {
                 if (CancellationPending) {
                     Forms.Main.Instance.Console.Update("Not letting this process run to completion is <b>strongly discouraged</b>.<br>" +
@@ -794,8 +794,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         "It is recommended to rerun the metadata cleanse to completion.", Console.Markup.warning);
                 } else if (returnVal == SyncResult.Fail) {
                     Forms.Main.Instance.Console.Update(
-                        "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>"+
-                        "If this is not possible and you wish to continue using OGCS, please "+
+                        "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>" +
+                        "If this is not possible and you wish to continue using OGCS, please " +
                         "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues' target='_blank'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
                 }
             }

@@ -36,14 +36,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void btFbLike_Click(object sender, EventArgs e) {
-            if (MessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
-                "Like on Facebook", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK) {
-                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync");
-            }
-        }
-
-        private void btSocialGplus_Click_1(object sender, EventArgs e) {
-            Google_share();
+            Facebook_like();
         }
 
         private void btSocialLinkedin_Click(object sender, EventArgs e) {
@@ -60,29 +53,11 @@ namespace OutlookGoogleCalendarSync.Forms {
             Twitter_follow();
         }
 
-        private void btSocialGComm_Click(object sender, EventArgs e) {
-            Google_goToCommunity();
-        }
-
         private void btSocialGitHub_Click(object sender, EventArgs e) {
-            gitHub();
+            GitHub();
         }
         #endregion
         #endregion
-
-        private void btSocialGplus_Click(object sender, EventArgs e) {
-            Social.Google_share();
-        }
-        private void pbSocialGplusCommunity_Click(object sender, EventArgs e) {
-            Social.Google_goToCommunity();
-        }
-
-        public static void Google_goToCommunity() {
-            System.Diagnostics.Process.Start("https://plus.google.com/communities/114412828247015553563");
-        }
-        public static void Google_share() {
-            System.Diagnostics.Process.Start("https://plus.google.com/share?&url=http://bit.ly/OGCalSync");
-        }
 
         public static void Twitter_tweet() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
@@ -95,6 +70,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         public static void Facebook_share() {
             System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGCalSync");
         }
+        public static void Facebook_like() {
+            if (MessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
+                "Like on Facebook", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK) {
+                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync");
+            }
+        }
 
         public static void RSS_follow() {
             System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/releases.atom");
@@ -105,7 +86,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             System.Diagnostics.Process.Start("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/OGCalSync&summary=" + urlEncode(text));
         }
 
-        private static void gitHub() {
+        public static void GitHub() {
             System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/");
         }
 
