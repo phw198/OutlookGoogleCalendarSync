@@ -61,6 +61,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             AlternativeMailbox,
             SharedCalendar
         }
+        public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         public Calendar() {
             IOutlook = Factory.GetOutlookInterface();
@@ -595,16 +596,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     //Find the last popup reminder in Google
                     try {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(r => r.Minutes).First();
-                        if (ai.ReminderSet) {
-                            if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
+                            if (ai.ReminderSet) {
+                                if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.GoogleToOutlook, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
+                                    ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                                }
+                            } else {
+                                sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
+                                ai.ReminderSet = true;
                                 ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                            }
-                        } else {
-                            sb.AppendLine("Reminder: nothing => " + reminder.Minutes);
-                            ai.ReminderSet = true;
-                            ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
-                            itemModified++;
-                        } //if Outlook reminders set
+                                itemModified++;
+                            } //if Outlook reminders set
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
@@ -612,15 +613,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } else if (!googleReminders) {
                 if (ai.ReminderSet && !Settings.Instance.UseOutlookDefaultReminder) {
-                    sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
-                    ai.ReminderSet = false;
-                    itemModified++;
+                        sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                        ai.ReminderSet = false;
+                        itemModified++;
                 } else if (!ai.ReminderSet && Settings.Instance.UseOutlookDefaultReminder) {
                     sb.AppendLine("Reminder: nothing => default");
                     ai.ReminderSet = true;
                     itemModified++;
+                    }
                 }
-            }
 
             if (itemModified > 0) {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
@@ -732,6 +733,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
                             consoleTitle = "";
                             Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
+                            oAppointments[o] = ai;
                             break;
                         }
                     }
@@ -1148,22 +1150,26 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             //Order by start date (same as Outlook) for quickest matching
             google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
 
+            //Order by start date (same as Outlook) for quickest matching
+            google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
+
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int o = outlook.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
 
-                if (CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID)) {
-                    String compare_oEventID = CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gEventID);
-                    Boolean googleIDmissing = CustomProperty.GoogleIdMissing(outlook[o]);
+                String compare_oEventID = CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gEventID);
+                if (!string.IsNullOrEmpty(compare_oEventID)) {
+                    Boolean? googleIDmissing = null;
                     Boolean foundMatch = false;
 
                     for (int g = google.Count - 1; g >= 0; g--) {
                         log.UltraFine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
 
                         if (compare_oEventID == google[g].Id.ToString()) {
-                            if (googleIDmissing) {
+                            if (googleIDmissing == null) googleIDmissing = CustomProperty.GoogleIdMissing(outlook[o]);
+                            if ((Boolean)googleIDmissing) {
                                 log.Info("Enhancing appointment's metadata...");
                                 AppointmentItem ai = outlook[o];
                                 CustomProperty.AddGoogleIDs(ref ai, google[g]);

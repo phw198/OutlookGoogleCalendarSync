@@ -130,7 +130,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 String cacheNextSync = mainFrm.NextSyncVal;
 
                 mainFrm.Console.Clear();
-
+                
                 if (Settings.Instance.UseGoogleCalendar == null ||
                     Settings.Instance.UseGoogleCalendar.Id == null ||
                     Settings.Instance.UseGoogleCalendar.Id == "") {
@@ -292,8 +292,8 @@ namespace OutlookGoogleCalendarSync.Sync {
         /// If updateSyncSchedule is false, this value persists.</param>
         private void setNextSync(DateTime syncStarted, Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
             if (syncedOk) {
-                Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
-                Settings.Instance.LastSyncDate = syncStarted;
+            Forms.Main.Instance.LastSyncVal = syncStarted.ToLongDateString() + " @ " + syncStarted.ToLongTimeString();
+            Settings.Instance.LastSyncDate = syncStarted;
             }
             if (!updateSyncSchedule) {
                 Forms.Main.Instance.NextSyncVal = cacheNextSync;
@@ -338,6 +338,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             List<AppointmentItem> outlookEntries = null;
             List<Event> googleEntries = null;
+            GoogleOgcs.Calendar.Instance.EphemeralProperties.Clear();
+            OutlookOgcs.Calendar.Instance.EphemeralProperties.Clear();
             try {
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
@@ -479,6 +481,10 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 Boolean success = true;
                 String bubbleText = "";
+                if (Settings.Instance.ExtirpateOgcsMetadata) {
+                    return extirpateCustomProperties(outlookEntries, googleEntries);
+                }
+
                 if (Settings.Instance.SyncDirection != Direction.GoogleToOutlook) {
                     success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
                     if (CancellationPending) return SyncResult.UserCancelled;
@@ -741,6 +747,58 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
             }
             return true;
+        }
+
+        private SyncResult extirpateCustomProperties(List<AppointmentItem> outlookEntries, List<Event> googleEntries) {
+            SyncResult returnVal = SyncResult.Fail;
+            try {
+                Forms.Main.Instance.Console.Update("Cleansing OGCS metadata from Outlook items...", Console.Markup.h2, newLine: false);
+                for (int o = 0; o < outlookEntries.Count; o++) {
+                    AppointmentItem ai = null;
+                    try {
+                        ai = outlookEntries[o];
+                        OutlookOgcs.CustomProperty.LogProperties(ai, log4net.Core.Level.Debug);
+                        if (OutlookOgcs.CustomProperty.Extirpate(ref ai)) {
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.calendar);
+                            ai.Save();
+                        }
+                    } finally {
+                        ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                    }
+                    if (CancellationPending) return SyncResult.UserCancelled;
+                }
+
+                Forms.Main.Instance.Console.Update("Cleansing OGCS metadata from Google items...", Console.Markup.h2, newLine: false);
+                for (int g = 0; g < googleEntries.Count; g++) {
+                    Event ev = googleEntries[g];
+                    GoogleOgcs.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
+                    if (GoogleOgcs.CustomProperty.Extirpate(ref ev)) {
+                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                        GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                    }
+                    if (CancellationPending) return SyncResult.UserCancelled;
+                }
+                returnVal = SyncResult.OK;
+                return returnVal;
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to fully cleanse metadata!", ex);
+                Forms.Main.Instance.Console.UpdateWithError(null, ex);
+                returnVal = SyncResult.Fail;
+                return returnVal;
+                
+            } finally {
+                if (CancellationPending) {
+                    Forms.Main.Instance.Console.Update("Not letting this process run to completion is <b>strongly discouraged</b>.<br>" +
+                        "If you are two-way syncing and use OGCS for normal syncing again, unexpected behaviour will ensue.<br>" +
+                        "It is recommended to rerun the metadata cleanse to completion.", Console.Markup.warning);
+                } else if (returnVal == SyncResult.Fail) {
+                    Forms.Main.Instance.Console.Update(
+                        "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>"+
+                        "If this is not possible and you wish to continue using OGCS, please "+
+                        "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues' target='_blank'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
+                }
+            }
         }
 
         #region Compare Event Attributes

@@ -141,7 +141,9 @@ namespace OutlookGoogleCalendarSync {
             donor = false;
             hideSplashScreen = false;
             suppressSocialPopup = false;
-            
+
+            ExtirpateOgcsMetadata = false;
+
             lastSyncDate = new DateTime(0);
             completedSyncs = 0;
             VerboseOutput = true;
@@ -349,6 +351,10 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         #endregion
+        #region Advanced - Non GUI
+        [DataMember]
+        public Boolean ExtirpateOgcsMetadata { get; private set; }
+        #endregion
 
         [DataMember] public DateTime LastSyncDate {
             get { return lastSyncDate; }
@@ -490,8 +496,8 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("  Authentication Required: " + Proxy.AuthenticationRequired);
                 log.Info("  UserName: " + Proxy.UserName);
                 log.Info("  Password: " + (string.IsNullOrEmpty(Proxy.Password) ? "" : "*********"));
-            }
-            
+            } 
+        
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
             log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());
