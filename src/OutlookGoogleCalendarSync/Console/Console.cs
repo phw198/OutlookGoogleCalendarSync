@@ -52,54 +52,54 @@ namespace OutlookGoogleCalendarSync {
                 padding-right: 9px;
                 margin-left: -30px;
             }
-         	.em-repeat {
+            .em-repeat {
                 padding-right: 0px;
-				margin-left: 0px;
-			}
+              margin-left: 0px;
+            }
             .info, .error, .warning {
                 margin-top: 8px;
-				padding-bottom: 4px;
-				margin-bottom: 10px;
-				padding-left: 5px;
-				border-left-width: 10px;
-				border-left-style: solid;
-				border-bottom-left-radius: 5px;
-				border-top-left-radius: 5px;
-				margin-left: -15px;
-			}
+                padding-bottom: 4px;
+                margin-bottom: 10px;
+                padding-left: 5px;
+                border-left-width: 10px;
+                border-left-style: solid;
+                border-bottom-left-radius: 5px;
+                border-top-left-radius: 5px;
+                margin-left: -15px;
+            }
             .info {
-				background-color: lightblue;
-				border-left-color: cornflowerblue;
-			}
+                background-color: lightblue;
+                border-left-color: cornflowerblue;
+            }
             .error {
-				background-color: pink;
-				border-left-color: red;
-			}
-			.warning {
-				background-color: lightgoldenrodyellow;
-				border-left-color: yellow;
-			}
-			h2.sectionHeader {
+                background-color: pink;
+                border-left-color: red;
+            }
+            .warning {
+                background-color: lightgoldenrodyellow;
+                border-left-color: yellow;
+            }
+            h2.sectionHeader {
                 font-size: 14px;
                 margin-bottom: 3px;
             }
-			.sectionEnd {
-				padding-left: 0px;
-				border-bottom: 1px solid lightgray;
-				padding-bottom: 6px;
-				margin-bottom: 10px;
-			}
+            .sectionEnd {
+              padding-left: 0px;
+              border-bottom: 1px solid lightgray;
+              padding-bottom: 6px;
+              margin-bottom: 10px;
+            }
             .appointmentEnd {
                 margin-bottom: 10px;
                 margin-top: 5px;
                 padding-left: 0px;
             }
-			table.eventChanges {
+            table.eventChanges {
                 font-size: 14px;
                 margin-top: 5px;
                 border-spacing: 4px;
                 margin-left: 10px;
-			}
+            }
             th.eventChanges {
                 text-align: left;
                 font-weight: normal;
@@ -107,10 +107,10 @@ namespace OutlookGoogleCalendarSync {
                 margin: 10px;
                 border-bottom: gray 1px dashed;
             }
-			td.eventChanges {
-				padding-right: 10px;
-				vertical-align: top;
-			}
+            td.eventChanges {
+                padding-right: 10px;
+                vertical-align: top;
+            }
             tr:nth-child(odd) {
                 background-color: #eae9e9;
             }
@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync {
             }
 
             navigationStatus = NavigationStatus.navigated;
-            log.Fine("Console finished navigating");
+            log.UltraFine("Console finished navigating");
         }
 
         private void awaitRefresh() {
@@ -225,7 +225,8 @@ namespace OutlookGoogleCalendarSync {
             mag_right,
             warning,
             appointmentEnd, //margin top and bottom
-            sectionEnd //Add horizontal rule below the line
+            sectionEnd, //Add horizontal rule below the line
+            syncDirection
         }
 
         public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, bool notifyBubble = false, Boolean logit = false) {
@@ -321,6 +322,7 @@ namespace OutlookGoogleCalendarSync {
                 output = output.Replace(":h2:", "<h2 class='sectionHeader'>");
                 output = output.Replace(":mag_right:", "<h2 class='sectionHeader'><span class='em em-mag_right'></span>");
                 output = output.Replace(":checkered_flag:", "<h2 class='sectionHeader'><span class='em em-checkered_flag'></span>");
+                output = output.Replace(":syncDirection:", "<h2 class='sectionHeader'><span class='em em-repeat' style='padding-right: 9px; margin-left:-30px;'></span>");
                 if (output.StartsWith("<h2")) output += "</h2>";
 
                 //sectionEnd

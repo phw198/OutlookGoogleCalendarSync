@@ -25,18 +25,16 @@
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Splash));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.lSyncCount = new System.Windows.Forms.Label();
             this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
-            this.pbSocialGplusCommunity = new System.Windows.Forms.PictureBox();
             this.lVersion = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -47,7 +45,6 @@
             this.panel1.Controls.Add(this.cbHideSplash);
             this.panel1.Controls.Add(this.lSyncCount);
             this.panel1.Controls.Add(this.pbSocialTwitterFollow);
-            this.panel1.Controls.Add(this.pbSocialGplusCommunity);
             this.panel1.Controls.Add(this.lVersion);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
@@ -76,24 +73,13 @@
             this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter_follow;
-            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(240, 251);
+            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(164, 251);
             this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
             this.pbSocialTwitterFollow.Size = new System.Drawing.Size(135, 27);
             this.pbSocialTwitterFollow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbSocialTwitterFollow.TabIndex = 54;
             this.pbSocialTwitterFollow.TabStop = false;
             this.pbSocialTwitterFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
-            // 
-            // pbSocialGplusCommunity
-            // 
-            this.pbSocialGplusCommunity.Image = global::OutlookGoogleCalendarSync.Properties.Resources.google_community;
-            this.pbSocialGplusCommunity.Location = new System.Drawing.Point(105, 250);
-            this.pbSocialGplusCommunity.Name = "pbSocialGplusCommunity";
-            this.pbSocialGplusCommunity.Size = new System.Drawing.Size(125, 30);
-            this.pbSocialGplusCommunity.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbSocialGplusCommunity.TabIndex = 13;
-            this.pbSocialGplusCommunity.TabStop = false;
-            this.pbSocialGplusCommunity.Click += new System.EventHandler(this.pbSocialGplusCommunity_Click);
             // 
             // lVersion
             // 
@@ -184,7 +170,6 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialGplusCommunity)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -199,7 +184,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pbDonate;
         private System.Windows.Forms.Label lVersion;
-        private System.Windows.Forms.PictureBox pbSocialGplusCommunity;
         private System.Windows.Forms.PictureBox pbSocialTwitterFollow;
         private System.Windows.Forms.Label lSyncCount;
         private System.Windows.Forms.CheckBox cbHideSplash;

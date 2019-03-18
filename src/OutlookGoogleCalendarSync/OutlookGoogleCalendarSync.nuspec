@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.7.7-alpha</version>
+    <version>2.7.8-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,22 +12,23 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.7.7?
+# What's New In v2.7.8?
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**
 
-- Better timing of auto-retry for when quota renewed after API exhausted
-- Option to configure the browser's User Agent in the GUI
-- Options to use (or not) Outlook/Google calendar defaults for reminders
+- Remove Google+ related links and API calls
+- Don't update last sync date if sync unsuccessful
+- New window for social links; option to suppress for donors
+- Faster matching of calendar items
+- New advanced setting to extirpate all OGCS custom properties
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**
 
-- Persist a push sync through a restart of Outlook
-- Persist selection of correct calendar when alternate mailbox is temporarily unavailable
-- Select correct alternate mailbox on startup
-- Handle a Google event having an end date _before_ the start date
-- Reminder DND window not always applying correctly
+- Don't try and update master Event custom attributes
+- Only compare colour/category if set to be synced
+- Email address cloaking
+- Don't reselect Google calendar when re-downloading list
     </releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright 2019</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>

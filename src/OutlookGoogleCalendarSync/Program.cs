@@ -438,7 +438,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
                     System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
-                    if (isSquirrelInstall) Analytics.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                    if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }
 
@@ -482,6 +482,10 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex);
                 return false;
             }
+        }
+
+        public static void Donate() {
+            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
     }
 }

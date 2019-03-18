@@ -1,6 +1,21 @@
 | Release Notes |
 |:---|
 
+# v2.7.8.0 - Alpha
+
+**Enhancements**
+- Remove Google+ related links and API calls
+- Don't update last sync date if sync unsuccessful
+- New window for social links; option to suppress for donors
+- Faster matching of calendar items
+- New advanced setting to extirpate all OGCS custom properties
+
+**Bugfix**
+- Don't try and update master Event custom attributes
+- Only compare colour/category if set to be synced
+- Email address cloaking
+- Don't reselect Google calendar when re-downloading list
+
 # v2.7.7.0 - Alpha
 
 **Enhancements**

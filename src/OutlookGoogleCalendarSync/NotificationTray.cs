@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
             if (OutlookOgcs.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
-                Analytics.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);
+                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);
             }
         }
 

@@ -269,6 +269,12 @@
     <Compile Include="Forms\ErrorReporting.Designer.cs">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Social.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Social.Designer.cs">
+      <DependentUpon>Social.cs</DependentUpon>
+    </Compile>
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
@@ -296,7 +302,7 @@
     <Compile Include="Obfuscate.cs" />
     <Compile Include="Recurrence.cs" />
     <Compile Include="SettingsProxy.cs" />
-    <Compile Include="Social.cs" />
+    <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -336,6 +342,9 @@
     <EmbeddedResource Include="Forms\ErrorReporting.resx">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Social.resx">
+      <DependentUpon>Social.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>
     </EmbeddedResource>
@@ -374,6 +383,9 @@
     <Content Include="ErrorReportingTemplate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\fb_like.png" />
+    <None Include="Resources\twitter.png" />
+    <None Include="Resources\github.png" />
     <None Include="Resources\expand.png" />
     <None Include="tzdb.nzd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -389,7 +401,6 @@
     <None Include="Resources\rssfeed.png" />
     <None Include="Resources\linkedin.png" />
     <None Include="Resources\google_community.png" />
-    <None Include="Resources\twitter.png" />
     <None Include="app.config" />
     <None Include="icon.ico" />
     <Content Include="Console\emoji.css">

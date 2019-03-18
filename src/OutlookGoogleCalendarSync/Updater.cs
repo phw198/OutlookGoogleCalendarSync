@@ -150,39 +150,39 @@ namespace OutlookGoogleCalendarSync {
                         String squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
                         if (dr == DialogResult.No) {
                             log.Info("User chose not to upgrade right now.");
-                            Analytics.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
+                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
 
                         } else if (dr == DialogResult.Ignore) {
-                            Analytics.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
+                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
 
                         } else if (dr == DialogResult.Yes) {
                             log.Debug("Download started...");
                             if (!updateManager.DownloadReleases(new[] { update }).Wait(60 * 1000)) {
                                 log.Warn("The download failed to completed within 60 seconds.");
-                                Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";timedout");
+                                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";timedout");
                                 if (MessageBox.Show("The update failed to download.", "Download timed out", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Retry) {
                                     if (!updateManager.DownloadReleases(new[] { update }).Wait(60 * 1000)) {
-                                        Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";retry-timedout");
+                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";retry-timedout");
                                         if (MessageBox.Show("The update failed to download again.\nTo download from the project website, click Yes.", "Download timed out", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                                            Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
+                                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
                                             System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/");
                                         } else
-                                            Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
+                                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
                                         break;
                                     }
                                 } else {
                                     if (MessageBox.Show("Would you like to download directly from the project website?", "Go to OGCS website", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                                        Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
+                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
                                         System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/");
                                     } else
-                                        Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
+                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
                                     break;
                                 }
                             }
 
                             try {
                                 log.Debug("Download complete.");
-                                Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
+                                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
                                 log.Info("Applying the updated release...");
                                 updateManager.ApplyReleases(updates).Wait();
 
@@ -214,7 +214,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } catch (ApplicationException ex) {
-                Analytics.Send(Analytics.Category.squirrel, Analytics.Action.download, ex.Data["analyticsLabel"] + ";failed");
+                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, ex.Data["analyticsLabel"] + ";failed");
                 throw ex;
             } catch (System.AggregateException ae) {
                 log.Error("Failed checking for update.");
@@ -255,7 +255,7 @@ namespace OutlookGoogleCalendarSync {
                 var migrator = new ClickOnceToSquirrelMigrator.InSquirrelAppMigrator(Application.ProductName);
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
-                Analytics.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, "clickonce");
+                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, "clickonce");
             } catch (System.AggregateException ae) {
                 foreach (System.Exception ex in ae.InnerExceptions) {
                     clickOnceUninstallError(ex);
@@ -277,7 +277,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Error("Problem encountered on initiall install.");
                 OGCSexception.Analyse(ex, true);
             }
-            Analytics.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
+            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
             onFirstRun();
         }
         private static void onAppUpdate(Version version) {
@@ -303,11 +303,11 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("Removing registry uninstall keys.");
                     mgr.RemoveUninstallerRegistryEntry();
                 }
-                Analytics.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, version.ToString());
+                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, version.ToString());
                 if (MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     log.Debug("User opted to give feedback.");
-                    Analytics.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, Application.ProductVersion + "-feedback");
+                    Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, Application.ProductVersion + "-feedback");
                     System.Diagnostics.Process.Start("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform");
                 } else {
                     log.Debug("User opted not to give feedback.");
