@@ -613,9 +613,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
             String organiserTZname = null;
             String organiserTZid = null;
-            if (ai.Organizer != CurrentUserName()) {
+            try {
+                if (ai.Organizer != CurrentUserName()) {
                 log.Fine("Meeting organiser is someone else - checking their timezone.");
-                try {
                     PropertyAccessor pa = null;
                     try {
                         pa = ai.PropertyAccessor;
@@ -636,14 +636,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (tzi == null) log.Error("No timezone ID exists for organiser's timezone " + organiserTZname);
                         else organiserTZid = tzi.Id;
                     }
-                } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
-                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
-                    if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
-                    else OGCSexception.Analyse(ex);
-                    organiserTZname = null;
-                    organiserTZid = null;
                 }
+            } catch (System.Exception ex) {
+                Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
+                    "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
+                if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
+                else OGCSexception.Analyse(ex);
+                organiserTZname = null;
+                organiserTZid = null;
             }
 
             try {
