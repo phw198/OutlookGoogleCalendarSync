@@ -1093,7 +1093,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
-                                if (ai.Organizer != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                if (OutlookOgcs.Calendar.GetEventOrganizer(ai) != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserName()) {
                                     log.Fine("Organiser changed time of appointment.");
                                     CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                     CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
@@ -1103,7 +1103,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     return false;
                                 }
                             }
-
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
                             if (SignaturesMatch(signature(ev), OutlookOgcs.Calendar.signature(ai))) {

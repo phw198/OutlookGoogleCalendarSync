@@ -540,7 +540,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             Boolean foundAttendee = false;
                             try {
                                 recipient = recipients[r];
-                                if (recipient.Name == ai.Organizer) continue;
+                                if (recipient.Name == GetEventOrganizer(ai)) continue;
 
                                 if (!recipient.Resolved) recipient.Resolve();
                                 String recipientSMTP = IOutlook.GetRecipientEmail(recipient);
@@ -577,7 +577,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         foreach (EventAttendee gAttendee in addAttendees) {
                             GoogleOgcs.EventAttendee attendee = new GoogleOgcs.EventAttendee(gAttendee);
-                            if (attendee.DisplayName == ai.Organizer) continue; //Attendee in Google is owner in Outlook, so can't also be added as a recipient)
+                            if (attendee.DisplayName == GetEventOrganizer(ai)) continue; //Attendee in Google is owner in Outlook, so can't also be added as a recipient)
 
                             sb.AppendLine("Recipient added: " + (attendee.DisplayName ?? attendee.Email));
                             createRecipient(attendee, ref recipients);
@@ -1109,6 +1109,23 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.locallyCopied) ?? "");
 
             return csv.ToString();
+        }
+
+        /// <summary>
+        /// Get the organizer's name of the give event. 
+        /// In some cases Outlook fails to provide one (probably due to security issues). 
+        /// In this case null is returned
+        /// </summary>
+        /// <param name="ai"></param>
+        /// <returns></returns>
+        public static string GetEventOrganizer(AppointmentItem ai) {
+            try {
+                return ai.Organizer;
+            } catch (System.Exception exc) {
+                log.ErrorFormat("Couldn't get an organizer for event {0}", GetEventSummary(ai));
+                OGCSexception.Analyse(exc, true);
+                return null;
+            }
         }
 
         /// <summary>

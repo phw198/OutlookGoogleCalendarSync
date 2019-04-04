@@ -614,7 +614,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String organiserTZname = null;
             String organiserTZid = null;
             try {
-                if (ai.Organizer != CurrentUserName()) {
+                if (Calendar.GetEventOrganizer(ai) != CurrentUserName()) {
                 log.Fine("Meeting organiser is someone else - checking their timezone.");
                     PropertyAccessor pa = null;
                     try {
