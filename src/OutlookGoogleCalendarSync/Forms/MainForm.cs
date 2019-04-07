@@ -772,8 +772,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 } else {
                     if (tbSyncNote.Tag.ToString().Contains("OGCS Premium renewal")) {
-                        MessageBox.Show("Please ensure you don't already have an active recurring annual payment set up in PayPal :-)", "Recurring payment already configured?",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Before renewing, please ensure you don't already have an active recurring annual payment set up in PayPal :-)", 
+                            "Recurring payment already configured?", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
                 }
