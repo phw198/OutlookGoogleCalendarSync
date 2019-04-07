@@ -366,14 +366,15 @@
             // 
             // tbSyncNote
             // 
-            this.tbSyncNote.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.tbSyncNote.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tbSyncNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.tbSyncNote.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbSyncNote.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tbSyncNote.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbSyncNote.Location = new System.Drawing.Point(112, 486);
             this.tbSyncNote.Name = "tbSyncNote";
-            this.tbSyncNote.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.tbSyncNote.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.tbSyncNote.Size = new System.Drawing.Size(262, 52);
             this.tbSyncNote.TabIndex = 1;
             this.tbSyncNote.Text = "";
