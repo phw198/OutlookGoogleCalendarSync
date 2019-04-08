@@ -529,6 +529,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             } finally {
                                 contact = (ContactItem)OutlookOgcs.Calendar.ReleaseObject(contact);
                             }
+
+                        } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOtherAddressEntry) {
+                            log.Fine("This is a custom Exchange type!");
+                            if (string.IsNullOrEmpty(addressEntry.Address)) {
+                                log.Warn("addressEntry.Address is empty.");
+                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                            } else {
+                                retEmail = addressEntry.Address;
+                            }
+
                         } else {
                             log.Fine("Exchange type: " + addressEntry.AddressEntryUserType.ToString());
                             log.Fine("Using PropertyAccessor to get email address.");
