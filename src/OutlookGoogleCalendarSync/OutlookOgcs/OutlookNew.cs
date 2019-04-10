@@ -532,11 +532,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                         } else if (addressEntry.AddressEntryUserType == OlAddressEntryUserType.olOtherAddressEntry) {
                             log.Fine("This is a custom Exchange type!");
-                            if (string.IsNullOrEmpty(addressEntry.Address)) {
-                                log.Warn("addressEntry.Address is empty.");
-                                retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
-                            } else {
-                                retEmail = addressEntry.Address;
+                            if (EmailAddress.IsValidEmail(recipient.Name))
+                                retEmail = recipient.Name;
+                            else {
+                                if (string.IsNullOrEmpty(addressEntry.Address)) {
+                                    log.Warn("addressEntry.Address is empty.");
+                                    retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
+                                } else {
+                                    log.Debug("Trying to use addressEntry.Address: " + addressEntry.Address);
+                                    retEmail = addressEntry.Address;
+                                }
                             }
 
                         } else {
