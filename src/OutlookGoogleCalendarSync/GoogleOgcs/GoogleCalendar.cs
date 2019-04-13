@@ -734,8 +734,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                 }
             } else {
-                if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), Settings.Instance.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
-                    ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                if (ev.Reminders.Overrides == null) {
+                    if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), Settings.Instance.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
+                        ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
+                }
             }
 
             if (itemModified > 0) {
