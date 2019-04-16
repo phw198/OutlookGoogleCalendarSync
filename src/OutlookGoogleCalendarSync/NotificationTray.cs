@@ -25,6 +25,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.MouseClick += notifyIcon_Click;
             this.icon.MouseDoubleClick += notifyIcon_DoubleClick;
             this.icon.BalloonTipClicked += notifyIcon_BubbleClick;
+            this.icon.Icon = Forms.Main.Instance.Icon;
             this.icon.Visible = true;
             buildMenu();
 
@@ -222,7 +223,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.Info, String tagValue = "") {
+        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
             if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
                 this.icon.ShowBalloonTip(
                     500,

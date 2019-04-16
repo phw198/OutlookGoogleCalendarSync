@@ -49,6 +49,11 @@ namespace OutlookGoogleCalendarSync {
             log.UltraFine(message, null);
         }
         #endregion
+
+        public static void ErrorOrFail(this ILog log, String message, log4net.Core.Level level) {
+            if (level == Program.MyFailLevel) log.Fail(message);
+            else log.Error(message);
+        }
     }
 
     public class ErrorFlagAppender : log4net.Appender.AppenderSkeleton {

@@ -551,7 +551,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note =  "  Your annual subscription for guaranteed quota   " + cr +
                             "  for Google calendar usage is expiring on " + expiration.ToString("dd-MMM") + "." + cr +
                             "         Click to renew for just £1/month.        ";
-                    url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy") + " for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy", new System.Globalization.CultureInfo("en-US")) + 
+                        " for " + Settings.Instance.GaccountEmail;
                     break;
                 case SyncNotes.SubscriptionExpired:
                     expiration = (DateTime)extraData;
