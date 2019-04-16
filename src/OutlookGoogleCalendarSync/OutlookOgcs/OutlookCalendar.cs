@@ -711,32 +711,37 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
                 AppointmentItem ai = oAppointments[o];
-                CustomProperty.LogProperties(ai, Program.MyFineLevel);
+                try {
+                    CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
-                //Find entries with no Google ID
-                if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
-                    String sigAi = signature(ai);
-                    unclaimedAi.Add(ai);
+                    //Find entries with no Google ID
+                    if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
+                        String sigAi = signature(ai);
+                        unclaimedAi.Add(ai);
 
-                    for (int g = gEvents.Count - 1; g >= 0; g--) {
-                        Event ev = gEvents[g];
-                        String sigEv = GoogleOgcs.Calendar.signature(ev);
-                        if (String.IsNullOrEmpty(sigEv)) {
-                            gEvents.Remove(ev);
-                            continue;
-                        }
+                        for (int g = gEvents.Count - 1; g >= 0; g--) {
+                            Event ev = gEvents[g];
+                            String sigEv = GoogleOgcs.Calendar.signature(ev);
+                            if (String.IsNullOrEmpty(sigEv)) {
+                                gEvents.Remove(ev);
+                                continue;
+                            }
 
-                        if (GoogleOgcs.Calendar.SignaturesMatch(sigEv, sigAi)) {
-                            CustomProperty.AddGoogleIDs(ref ai, ev);
-                            updateCalendarEntry_save(ref ai);
-                            unclaimedAi.Remove(ai);
-                            if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
-                            consoleTitle = "";
-                            Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
-                            oAppointments[o] = ai;
-                            break;
+                            if (GoogleOgcs.Calendar.SignaturesMatch(sigEv, sigAi)) {
+                                CustomProperty.AddGoogleIDs(ref ai, ev);
+                                updateCalendarEntry_save(ref ai);
+                                unclaimedAi.Remove(ai);
+                                if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
+                                consoleTitle = "";
+                                Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
+                                oAppointments[o] = ai;
+                                break;
+                            }
                         }
                     }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failure processing Outlook item:-<br/>" + OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.warning);
+                    throw ex;
                 }
             }
             log.Debug(unclaimedAi.Count + " unclaimed.");
