@@ -953,8 +953,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         throw new System.ApplicationException("Could not establish a connection with Outlook.");
                     }
                 }
-            } catch (System.Runtime.InteropServices.COMException ex) {
+            } catch (System.Exception ex) {
                 oApp = null;
+                PoorlyOfficeInstall(ex);
+            }
+        }
+
+        /// <summary>
+        /// An exception handler for COM errors etc when attaching to/accessing Outlook
+        /// </summary>
+        public static void PoorlyOfficeInstall(System.Exception caughtException) {
+            try {
+                throw caughtException;
+            } catch (System.Runtime.InteropServices.COMException ex) {
                 String hResult = OGCSexception.GetErrorCode(ex);
 
                 if (ex.ErrorCode == -2147221164) {
