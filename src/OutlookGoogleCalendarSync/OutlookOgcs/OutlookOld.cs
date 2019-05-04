@@ -719,14 +719,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private DateTime WindowsTimeZone(EventDateTime time) {
             DateTime theDate = time.DateTime ?? DateTime.Parse(time.Date);
-            if (time.TimeZone == null) return theDate;
+            /*if (time.TimeZone == null)*/ return theDate;
 
+            /*Issue #713: It appears Outlook will calculate the UTC time itself, based on the system's timezone
             LocalDateTime local = new LocalDateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, theDate.Minute);
             DateTimeZone zone = DateTimeZoneProviders.Tzdb[TimezoneDB.FixAlexa(time.TimeZone)];
             ZonedDateTime zonedTime = local.InZoneLeniently(zone);
             DateTime zonedUTC = zonedTime.ToDateTimeUtc();
             log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));
             return zonedUTC;
+            */
         }
         #endregion
     }
