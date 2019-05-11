@@ -28,7 +28,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         instance.Authenticator.OgcsUserStatus();
                     else {
                         instance = null;
-                        throw new ApplicationException("Google handshake failed.");
+                        if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
+                            throw new OperationCanceledException();
+                        else
+                            throw new ApplicationException("Google handshake failed.");
                     }
                 }
                 return instance;

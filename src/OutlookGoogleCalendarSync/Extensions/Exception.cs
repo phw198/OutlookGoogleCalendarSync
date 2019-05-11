@@ -17,17 +17,21 @@ namespace OutlookGoogleCalendarSync {
             Analyse(ex, includeStackTrace: includeStackTrace);
         }
         public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
-            if (LoggingAsFail(ex)) return;
-
-            log.Error(ex.GetType().FullName + ": " + ex.Message);
+            log4net.Core.Level logLevel = log4net.Core.Level.Error;
+            if (LoggingAsFail(ex)) {
+                if (ex is ApplicationException) return;
+                logLevel = Program.MyFailLevel;
+            }
+           
+            log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
             int errorCode = getErrorCode(ex);
-            log.Error("Code: 0x" + errorCode.ToString("X8") + ";" + errorCode.ToString());
+            log.ErrorOrFail("Code: 0x" + errorCode.ToString("X8") + ";" + errorCode.ToString(), logLevel);
 
             if (ex.InnerException != null) {
-                log.Error("InnerException:-");
+                log.ErrorOrFail("InnerException:-", logLevel);
                 Analyse(ex.InnerException, false);
             }
-            if (includeStackTrace) log.Error(ex.StackTrace);
+            if (includeStackTrace) log.ErrorOrFail(ex.StackTrace, logLevel);
         }
 
         public static String GetErrorCode(System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
@@ -111,6 +115,13 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.Exception ex) {
             ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+        }
+        /// <summary>
+        /// Capture this exception as log4net FAIL (not ERROR) when logged
+        /// </summary>
+        public static System.Exception LogAsFail(System.Exception ex) {
+            ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+            return ex;
         }
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged

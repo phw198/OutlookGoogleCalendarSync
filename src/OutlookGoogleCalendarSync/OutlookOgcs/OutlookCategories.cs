@@ -33,11 +33,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void Get(Outlook.Application oApp, Outlook.MAPIFolder calendar) {
             Outlook.Store store = null;
             try {
-                store = calendar.Store;
                 if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
                     this.categories = oApp.Session.Categories;
                 else {
                     try {
+                        store = calendar.Store;
                         this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
                     } catch (System.Exception ex) {
                         log.Warn("Failed getting non-default mailbox categories. " + ex.Message);

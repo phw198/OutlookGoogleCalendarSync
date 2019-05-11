@@ -184,11 +184,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         OutlookOgcs.Calendar.OOMsecurityInfo = true;
                     }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
-                    if (Settings.Instance.OutlookGalBlocked) { //Fail fast
-                        log.Debug("Corporate policy is still blocking access to GAL.");
-                        return oNS;
+                    if (OGCSexception.GetErrorCode(ex) == "0x80004004") { //Access blocked
+                        if (Settings.Instance.OutlookGalBlocked) { //Fail fast
+                            log.Debug("Corporate policy is still blocking access to GAL.");
+                            return oNS;
+                        }
+                        OGCSexception.LogAsFail(ref ex);
                     }
+                    OGCSexception.Analyse(ex);
                     log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
                     oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
                     Disconnect();
