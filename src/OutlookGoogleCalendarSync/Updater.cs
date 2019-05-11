@@ -217,14 +217,13 @@ namespace OutlookGoogleCalendarSync {
                 Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, ex.Data["analyticsLabel"] + ";failed");
                 throw ex;
             } catch (System.AggregateException ae) {
-                log.Error("Failed checking for update.");
+                log.Fail("Failed checking for update.");
                 foreach (System.Exception ex in ae.InnerExceptions) {
-                    OGCSexception.Analyse(ex, true);
+                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex), true);
                     throw ex;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed checking for update.");
-                OGCSexception.Analyse(ex, true);
+                OGCSexception.Analyse("Failed checking for update.", OGCSexception.LogAsFail(ex), true);
                 throw ex;
             } finally {
                 isBusy = false;

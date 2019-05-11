@@ -119,6 +119,13 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged
         /// </summary>
+        public static System.Exception LogAsFail(System.Exception ex) {
+            ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+            return ex;
+        }
+        /// <summary>
+        /// Capture this exception as log4net FAIL (not ERROR) when logged
+        /// </summary>
         public static void LogAsFail(ref System.ApplicationException ex) {
             ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
         }
