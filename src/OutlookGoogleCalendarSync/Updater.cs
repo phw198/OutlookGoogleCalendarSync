@@ -70,7 +70,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } catch (System.Exception ex) {
-                log.Error("Failure checking for update. " + ex.Message);
+                log.Fail("Failure checking for update. " + ex.Message);
                 if (isManualCheck) {
                     MessageBox.Show("Unable to check for new version.", "Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
