@@ -199,8 +199,16 @@
         </member>
         <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialFile">
             <summary>
-            The file path of a service account JSON file to use for authenitication.
+            The file path of a service account JSON file to use for authentication.
             Not necessary if running on GCE or GAE or if the GOOGLE_APPLICATION_CREDENTIALS environment variable has been set.
+            Must not be set if <see cref="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialJson"/> is set.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialJson">
+            <summary>
+            JSON credential for authentication.
+            Not necessary if running on GCE or GAE or if the GOOGLE_APPLICATION_CREDENTIALS environment variable has been set.
+            Must not be set if <see cref="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialFile"/> is set.
             </summary>
         </member>
         <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.AddCustomLabel(Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label)">

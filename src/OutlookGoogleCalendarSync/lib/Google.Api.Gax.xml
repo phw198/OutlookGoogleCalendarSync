@@ -307,6 +307,17 @@
             <param name="arg0">The first argument to the format string.</param>
             <param name="arg1">The second argument to the format string.</param>
         </member>
+        <member name="M:Google.Api.Gax.GaxPreconditions.CheckState``3(System.Boolean,System.String,``0,``1,``2)">
+            <summary>
+            Checks that given condition is met, throwing an <see cref="T:System.InvalidOperationException"/> otherwise.
+            </summary>
+            <param name="condition">The (already evaluated) condition to check.</param>
+            <param name="format">The format string to use to create the exception message if the
+            condition is not met.</param>
+            <param name="arg0">The first argument to the format string.</param>
+            <param name="arg1">The second argument to the format string.</param>
+            <param name="arg2">The third argument to the format string.</param>
+        </member>
         <member name="M:Google.Api.Gax.GaxPreconditions.CheckArgument(System.Boolean,System.String,System.String)">
             <summary>
             Checks that given argument-based condition is met, throwing an <see cref="T:System.ArgumentException"/> otherwise.
@@ -422,6 +433,334 @@
             <param name="delay">Time to sleep for. Must not be negative.</param>
             <param name="cancellationToken">The cancellation token that will be watched during the sleep operation.</param>
             <exception cref="T:System.OperationCanceledException">The cancellation token was cancelled during the sleep.</exception>
+        </member>
+        <member name="T:Google.Api.Gax.Json.InvalidJsonException">
+            <summary>
+            Thrown when an attempt is made to parse invalid JSON, e.g. using
+            a non-string property key, or including a redundant comma.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Json.JsonBuilder">
+            <summary>
+            Utility class for generating JSON. This class doesn't perform much in the way of validity
+            checks - that's left as the responsibility of the caller. However, it allows values and properties
+            to be written in a simple, chainable way, without the caller needing to worry about adding commas.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonBuilder.CommonRepresentations">
+            <summary>
+            The JSON representation of the first 160 characters of Unicode.
+            Empty strings are replaced by the static constructor.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.#ctor(System.Text.StringBuilder)">
+            <summary>
+            Constructs a new instance using the specified <see cref="T:System.Text.StringBuilder"/>.
+            </summary>
+            <param name="builder">The <see cref="T:System.Text.StringBuilder"/> to append to. Must not be null.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.#ctor">
+            <summary>
+            Constructs a new instance with a new <see cref="T:System.Text.StringBuilder"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.StartObject">
+            <summary>
+            Writes the start of an object to the builder.
+            </summary>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.StartArray">
+            <summary>
+            Writes the start of an array to the builder.
+            </summary>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.EndArray">
+            <summary>
+            Writes the end of an array to the builder.
+            </summary>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.EndObject">
+            <summary>
+            Writes the end of an object to the builder.
+            </summary>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Value(System.String)">
+            <summary>
+            Writes a string value to the builder, escaping it if necessary.
+            </summary>
+            <param name="value">The value to write. May be null.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Value(System.Boolean)">
+            <summary>
+            Writes a Boolean value to the builder.
+            </summary>
+            <param name="value">The value to write.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Value(System.Double)">
+            <summary>
+            Writes a numeric value to the builder.
+            </summary>
+            <param name="value">The value to write.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Property(System.String,System.String)">
+            <summary>
+            Writes a name/value property pair to the builder for a string value.
+            </summary>
+            <param name="name">The name of the property. Must not be null.</param>
+            <param name="value">The value of the property. May be null.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Property(System.String,System.Boolean)">
+            <summary>
+            Writes a name/value property pair to the builder for a Boolean value.
+            </summary>
+            <param name="name">The name of the property. Must not be null.</param>
+            <param name="value">The value of the property.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.Property(System.String,System.Double)">
+            <summary>
+            Writes a name/value property pair to the builder for a numeric value.
+            </summary>
+            <param name="name">The name of the property. Must not be null.</param>
+            <param name="value">The value of the property.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.PropertyName(System.String)">
+            <summary>
+            Writes a property name to the builder, so that an array or object value may then be written.
+            </summary>
+            <param name="name">The name of the property. Must not be null.</param>
+            <returns>A reference to the same <see cref="T:Google.Api.Gax.Json.JsonBuilder"/> the method was called on, for chaining.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonBuilder.ToString">
+            <summary>
+            Returns the string representation of the underlying <see cref="T:System.Text.StringBuilder"/>.
+            If this builder was created with an existing StringBuilder instance, any data written earlier
+            will be included in the result.
+            </summary>
+            <returns>The string representation of the builder.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Json.JsonParser">
+            <summary>
+            Crude JSON parser. This is only capable of parsing documents that are fully compliant with RFC 7159.
+            Each JSON value is represented as:
+            
+            - JSON string: System.String
+            - JSON number: System.Double
+            - JSON array: System.Collections.Generic.List`1{System.Object}
+            - JSON object: System.Collections.Generic.Dictionary`1{System.String, System.Object}
+            - JSON Boolean: System.Boolean
+            - JSON null: null reference
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Json.JsonTokenizer">
+            <summary>
+            Simple but strict JSON tokenizer, rigidly following RFC 7159.
+            </summary>
+            <remarks>
+            <para>
+            This tokenizer is stateful, and only returns "useful" tokens - names, values etc.
+            It does not create tokens for the separator between names and values, or for the comma
+            between values. It validates the token stream as it goes - so callers can assume that the
+            tokens it produces are appropriate. For example, it would never produce "start object, end array."
+            </para>
+            <para>Not thread-safe.</para>
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.FromTextReader(System.IO.TextReader)">
+            <summary>
+             Creates a tokenizer that reads from the given text reader.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.PushContainer(Google.Api.Gax.Json.JsonTokenizer.ContainerType)">
+            <summary>
+            Pushes a new container type onto the stack and validates that we don't violate the maximum depth.
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.Peek">
+            <summary>
+            Peeks at the next token in the stream, without changing the visible state.
+            </summary>
+            <returns>The next token in the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.SkipValue">
+            <summary>
+            Skips the value we're about to read. This must only be called immediately after reading a property name.
+            If the value is an object or an array, the complete object/array is skipped.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.Next">
+            <summary>
+            Returns the next JSON token in the stream.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">This method is called after an EndDocument token has been returned</exception>
+            <exception cref="T:Google.Api.Gax.Json.InvalidJsonException">The input text does not comply with RFC 7159</exception>
+            <returns>The next token in the stream.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.ReadString">
+            <summary>
+            Reads a string token. It is assumed that the opening " has already been read.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.ReadEscapedCharacter">
+            <summary>
+            Reads an escaped character. It is assumed that the leading backslash has already been read.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.ReadUnicodeEscape">
+            <summary>
+            Reads an escaped Unicode 4-nybble hex sequence. It is assumed that the leading \u has already been read.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.ConsumeLiteral(System.String)">
+            <summary>
+            Consumes a text-only literal, throwing an exception if the read text doesn't match it.
+            It is assumed that the first letter of the literal has already been read.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.ValidateAndModifyStateForValue(System.String)">
+            <summary>
+            Validates that we're in a valid state to read a value (using the given error prefix if necessary)
+            and changes the state to the appropriate one, e.g. ObjectAfterColon to ObjectAfterProperty.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.PopContainer">
+            <summary>
+            Pops the top-most container, and sets the state to the appropriate one for the end of a value
+            in the parent container.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Json.JsonTokenizer.State">
+            <summary>
+            Possible states of the tokenizer.
+            </summary>
+            <remarks>
+            <para>This is a flags enum purely so we can simply and efficiently represent a set of valid states
+            for checking.</para>
+            <para>
+            Each is documented with an example,
+            where ^ represents the current position within the text stream. The examples all use string values,
+            but could be any value, including nested objects/arrays.
+            The complete state of the tokenizer also includes a stack to indicate the contexts (arrays/objects).
+            Any additional notional state of "AfterValue" indicates that a value has been completed, at which 
+            point there's an immediate transition to ExpectedEndOfDocument,  ObjectAfterProperty or ArrayAfterValue.
+            </para>
+            <para>
+            These states were derived manually by reading RFC 7159 carefully.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.StartOfDocument">
+            <summary>
+            ^ { "foo": "bar" }
+            Before the value in a document. Next states: ObjectStart, ArrayStart, "AfterValue"
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ExpectedEndOfDocument">
+            <summary>
+            { "foo": "bar" } ^
+            After the value in a document. Next states: ReaderExhausted
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ReaderExhausted">
+            <summary>
+            { "foo": "bar" } ^ (and already read to the end of the reader)
+            Terminal state.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ObjectStart">
+            <summary>
+            { ^ "foo": "bar" }
+            Before the *first* property in an object.
+            Next states:
+            "AfterValue" (empty object)
+            ObjectBeforeColon (read a name)
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ObjectBeforeColon">
+            <summary>
+            { "foo" ^ : "bar", "x": "y" }
+            Next state: ObjectAfterColon
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ObjectAfterColon">
+            <summary>
+            { "foo" : ^ "bar", "x": "y" }
+            Before any property other than the first in an object.
+            (Equivalently: after any property in an object) 
+            Next states:
+            "AfterValue" (value is simple)
+            ObjectStart (value is object)
+            ArrayStart (value is array)
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ObjectAfterProperty">
+            <summary>
+            { "foo" : "bar" ^ , "x" : "y" }
+            At the end of a property, so expecting either a comma or end-of-object
+            Next states: ObjectAfterComma or "AfterValue"
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ObjectAfterComma">
+            <summary>
+            { "foo":"bar", ^ "x":"y" }
+            Read the comma after the previous property, so expecting another property.
+            This is like ObjectStart, but closing brace isn't valid here
+            Next state: ObjectBeforeColon.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ArrayStart">
+            <summary>
+            [ ^ "foo", "bar" ]
+            Before the *first* value in an array.
+            Next states:
+            "AfterValue" (read a value)
+            "AfterValue" (end of array; will pop stack)
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ArrayAfterValue">
+            <summary>
+            [ "foo" ^ , "bar" ]
+            After any value in an array, so expecting either a comma or end-of-array
+            Next states: ArrayAfterComma or "AfterValue"
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.State.ArrayAfterComma">
+            <summary>
+            [ "foo", ^ "bar" ]
+            After a comma in an array, so there *must* be another value (simple or complex).
+            Next states: "AfterValue" (simple value), StartObject, StartArray
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.Json.JsonTokenizer.PushBackReader">
+            <summary>
+            Wrapper around a text reader allowing small amounts of buffering and location handling.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.Json.JsonTokenizer.PushBackReader.nextChar">
+            <summary>
+            The buffered next character, if we have one.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.PushBackReader.Read">
+            <summary>
+            Returns the next character in the stream, or null if we have reached the end.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Google.Api.Gax.Json.JsonTokenizer.PushBackReader.CreateException(System.String)">
+            <summary>
+            Creates a new exception appropriate for the current state of the reader.
+            </summary>
         </member>
         <member name="T:Google.Api.Gax.Page`1">
             <summary>
@@ -735,7 +1074,12 @@
             <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
             <param name="projectId">The project ID. Must not be <c>null</c>.</param>
             <param name="instanceId">The instance ID. Must not be <c>null</c>.</param>
-            <param name="zoneName">The zone name. Must not be <c>null</c>.</param>
+            <param name="zoneName">The zone name. Must not be <c>null</c>.
+            If this value is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            then <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will return the <code>&lt;zone-name&gt;</code> part of this value.
+            If not, <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will throw <see cref="T:System.InvalidOperationException"/>.
+            If this value has been retrived from Google Compute Engine, the it's format will be the one
+            described above.</param>
         </member>
         <member name="P:Google.Api.Gax.GcePlatformDetails.MetadataJson">
             <summary>
@@ -754,7 +1098,18 @@
         </member>
         <member name="P:Google.Api.Gax.GcePlatformDetails.ZoneName">
             <summary>
+            The zone where this GCE instance is running.
+            This will be in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            id the value has been retrieved from Google Compute Engine.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.Location">
+            <summary>
             The zone name where this GCE instance is running.
+            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            this value will be the <code>&lt;zone-name&gt;</code> part in <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/>.
+            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in a different format then this getting the value of this property will
+            throw <see cref="T:System.InvalidOperationException"/>.
             </summary>
         </member>
         <member name="M:Google.Api.Gax.GcePlatformDetails.ToString">
@@ -811,7 +1166,12 @@
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodName">
             <summary>
-            The kubernetes pod name
+            The Kubernetes pod name
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceName">
+            <summary>
+            The Kubernetes namespace name
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceJson">
@@ -843,6 +1203,10 @@
             Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata and kubernetes data.
             The metadata is normally retrieved from the GCE metadata server.
             The kubernetes data is normally retrieved using the kubernetes API.
+            This method attempts to return as much information as it is present on <paramref name="metadataJson"/>
+            and <paramref name="kubernetesData"/> but will return <see cref="F:System.String.Empty"/> for <see cref="T:Google.Api.Gax.GkePlatformDetails"/>
+            properties whose corresponding information is corrupt or missing in <paramref name="metadataJson"/>
+            or <paramref name="kubernetesData"/>.
             </summary>
             <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
             Must not be <c>null</c>.</param>
@@ -894,6 +1258,8 @@
         <member name="P:Google.Api.Gax.GkePlatformDetails.Location">
             <summary>
             The cluster location, which is visible in the Google Cloud Platform Console.
+            This is equivalent to the value of the <code>&lt;zone-name&gt;</code> part in
+            <see cref="P:Google.Api.Gax.GkePlatformDetails.Zone"/>
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.HostName">
@@ -909,6 +1275,7 @@
         <member name="P:Google.Api.Gax.GkePlatformDetails.Zone">
             <summary>
             The GCE zone in which the instance is running.
+            This is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.NamespaceId">
@@ -943,7 +1310,7 @@
         </member>
         <member name="M:Google.Api.Gax.Platform.Instance">
             <summary>
-            Get execution platform information. This may block for up to one second.
+            Get execution platform information. This may block briefly while network operations are in progress.
             </summary>
             <returns>Execution platform information.</returns>
         </member>
@@ -1200,6 +1567,254 @@
         <member name="M:Google.Api.Gax.ResourceNameList`1.RemoveAt(System.Int32)">
             <inheritdoc />
         </member>
+        <member name="T:Google.Api.Gax.ResourceNames.BillingAccountName">
+            <summary>
+            Resource name for the 'billing account' resource which is widespread across Google Cloud Platform.
+            While most resource names are generated on a per-API basis, many APIs use a billing account resource, and it's
+            useful to be able to pass values from one API to another.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Parse(System.String)">
+            <summary>
+            Parses the given billing account resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
+            </summary>
+            <param name="BillingAccountName">The billing account resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.TryParse(System.String,Google.Api.Gax.ResourceNames.BillingAccountName@)">
+            <summary>
+            Tries to parse the given billing account resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
+            </summary>
+            <remarks>
+            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="BillingAccountName"/> is null,
+            as this would usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="BillingAccountName">The billing account resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>,
+            or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.#ctor(System.String)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> resource name class
+            from its component parts.
+            </summary>
+            <param name="billingAccountId">The billingAccount ID. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.BillingAccountId">
+            <summary>
+            The billingAccount ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Equals(Google.Api.Gax.ResourceNames.BillingAccountName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.op_Equality(Google.Api.Gax.ResourceNames.BillingAccountName,Google.Api.Gax.ResourceNames.BillingAccountName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.op_Inequality(Google.Api.Gax.ResourceNames.BillingAccountName,Google.Api.Gax.ResourceNames.BillingAccountName)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.ResourceNames.FolderName">
+            <summary>
+            Resource name for the 'folder' resource which is widespread across Google Cloud Platform.
+            While most resource names are generated on a per-API basis, many APIs use a folder resource, and it's
+            useful to be able to pass values from one API to another.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Parse(System.String)">
+            <summary>
+            Parses the given folder resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.
+            </summary>
+            <param name="folderName">The folder resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.TryParse(System.String,Google.Api.Gax.ResourceNames.FolderName@)">
+            <summary>
+            Tries to parse the given folder resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.
+            </summary>
+            <remarks>
+            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="folderName"/> is null,
+            as this would usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="folderName">The folder resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>,
+            or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.#ctor(System.String)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> resource name class
+            from its component parts.
+            </summary>
+            <param name="folderId">The folder ID. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.FolderName.FolderId">
+            <summary>
+            The folder ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.FolderName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Equals(Google.Api.Gax.ResourceNames.FolderName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.op_Equality(Google.Api.Gax.ResourceNames.FolderName,Google.Api.Gax.ResourceNames.FolderName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.op_Inequality(Google.Api.Gax.ResourceNames.FolderName,Google.Api.Gax.ResourceNames.FolderName)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.ResourceNames.OrganizationName">
+            <summary>
+            Resource name for the 'organization' resource which is widespread across Google Cloud Platform.
+            While most resource names are generated on a per-API basis, many APIs use an organization resource, and it's
+            useful to be able to pass values from one API to another.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Parse(System.String)">
+            <summary>
+            Parses the given organization resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.
+            </summary>
+            <param name="organizationName">The organization resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.TryParse(System.String,Google.Api.Gax.ResourceNames.OrganizationName@)">
+            <summary>
+            Tries to parse the given organization resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.
+            </summary>
+            <remarks>
+            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="organizationName"/> is null,
+            as this would usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="organizationName">The organization resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>,
+            or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.#ctor(System.String)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> resource name class
+            from its component parts.
+            </summary>
+            <param name="organizationId">The organization ID. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.OrganizationId">
+            <summary>
+            The organization ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Equals(Google.Api.Gax.ResourceNames.OrganizationName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.op_Equality(Google.Api.Gax.ResourceNames.OrganizationName,Google.Api.Gax.ResourceNames.OrganizationName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.op_Inequality(Google.Api.Gax.ResourceNames.OrganizationName,Google.Api.Gax.ResourceNames.OrganizationName)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Api.Gax.ResourceNames.ProjectName">
+            <summary>
+            Resource name for the 'project' resource which is widespread across Google Cloud Platform.
+            While most resource names are generated on a per-API basis, many APIs use a project resource, and it's
+            useful to be able to pass values from one API to another.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Parse(System.String)">
+            <summary>
+            Parses the given project resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.
+            </summary>
+            <param name="projectName">The project resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.TryParse(System.String,Google.Api.Gax.ResourceNames.ProjectName@)">
+            <summary>
+            Tries to parse the given project resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.
+            </summary>
+            <remarks>
+            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="projectName"/> is null,
+            as this would usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="projectName">The project resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>,
+            or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.#ctor(System.String)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> resource name class
+            from its component parts.
+            </summary>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.ProjectId">
+            <summary>
+            The project ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Equals(Google.Api.Gax.ResourceNames.ProjectName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.op_Equality(Google.Api.Gax.ResourceNames.ProjectName,Google.Api.Gax.ResourceNames.ProjectName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.op_Inequality(Google.Api.Gax.ResourceNames.ProjectName,Google.Api.Gax.ResourceNames.ProjectName)">
+            <inheritdoc />
+        </member>
         <member name="T:Google.Api.Gax.SystemClock">
             <summary>
             A singleton implementation of <see cref="T:Google.Api.Gax.IClock"/> which delegates to the BCL
@@ -1230,6 +1845,21 @@
         <member name="M:Google.Api.Gax.SystemScheduler.Delay(System.TimeSpan,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
+        <member name="T:Google.Api.Gax.TaskCompletionSourceExtensions">
+            <summary>
+            Extension methods for <see cref="T:System.Threading.Tasks.TaskCompletionSource`1"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.TaskCompletionSourceExtensions.WithCancellationToken``1(System.Threading.Tasks.TaskCompletionSource{``0},System.Threading.CancellationToken)">
+            <summary>
+            Returns a task from a task completion source, but observing a given cancellation token.
+            </summary>
+            <typeparam name="TResult">The result type of the task completion source</typeparam>
+            <param name="source">The task completion source. Must not be null.</param>
+            <param name="cancellationToken">The cancellation token to observe.</param>
+            <returns>A task that will complete when <paramref name="source"/> completes, but
+            will observe <paramref name="cancellationToken"/> for cancellation.</returns>
+        </member>
         <member name="T:Google.Api.Gax.TaskExtensions">
             <summary>
             Extension methods for tasks.
@@ -1250,6 +1880,42 @@
             Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
             </summary>
             <param name="task">The task to wait for.</param>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.WaitWithUnwrappedExceptions(System.Threading.Tasks.Task,System.TimeSpan)">
+            <summary>
+            Synchronously waits for the given task to complete.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <param name="task">The task to wait for.</param>
+            <param name="timeout">A TimeSpan that represents the number of milliseconds to wait, or
+            -1 milliseconds to wait indefinitely.</param>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.WaitWithUnwrappedExceptions(System.Threading.Tasks.Task,System.Int32)">
+            <summary>
+            Synchronously waits for the given task to complete.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <param name="task">The task to wait for.</param>
+            <param name="millisecondsTimeout">The number of milliseconds to wait, or
+            -1 to wait indefinitely.</param>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.WaitWithUnwrappedExceptions(System.Threading.Tasks.Task,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Synchronously waits for the given task to complete.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <param name="task">The task to wait for.</param>
+            <param name="millisecondsTimeout">The number of milliseconds to wait, or
+            -1 to wait indefinitely.</param>
+            <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete</param>
+        </member>
+        <member name="M:Google.Api.Gax.TaskExtensions.WaitWithUnwrappedExceptions(System.Threading.Tasks.Task,System.Threading.CancellationToken)">
+            <summary>
+            Synchronously waits for the given task to complete.
+            Any <see cref="T:System.AggregateException"/> thrown is unwrapped to the first inner exception.
+            </summary>
+            <param name="task">The task to wait for.</param>
+            <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete</param>
         </member>
         <member name="T:Google.Api.Gax.TemplatedResourceName">
             <summary>
@@ -1389,7 +2055,7 @@
             <summary>
             Helps build version strings for the x-goog-api-client header.
             The value is a space-separated list of name/value pairs, where the value
-            should be a semantic version string.
+            should be a semantic version string. Names must be unique.
             </summary>
         </member>
         <member name="F:Google.Api.Gax.VersionHeaderBuilder.HeaderName">
@@ -1401,6 +2067,8 @@
             <summary>
             Appends the given name/version string to the list.
             </summary>
+            <param name="name">The name. Must not be null or empty, or contain a space or a slash.</param>
+            <param name="version">The version. Must not be null, or contain a space or a slash.</param>
         </member>
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.AppendAssemblyVersion(System.String,System.Type)">
             <summary>
@@ -1415,6 +2083,12 @@
         </member>
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.ToString">
             <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.Clone">
+            <summary>
+            Clones this VersionHeaderBuilder, creating an independent copy with the same names/values.
+            </summary>
+            <returns>A clone of this builder.</returns>
         </member>
     </members>
 </doc>

@@ -39,6 +39,17 @@
             <typeparam name="TRequest">Request message type for this call.</typeparam>
             <typeparam name="TResponse">Response message type for this call.</typeparam>
         </member>
+        <member name="M:Grpc.Core.AsyncClientStreamingCall`2.#ctor(Grpc.Core.IClientStreamWriter{`0},System.Threading.Tasks.Task{`1},System.Threading.Tasks.Task{Grpc.Core.Metadata},System.Func{Grpc.Core.Status},System.Func{Grpc.Core.Metadata},System.Action)">
+            <summary>
+            Creates a new AsyncClientStreamingCall object with the specified properties.
+            </summary>
+            <param name="requestStream">Stream of request values.</param>
+            <param name="responseAsync">The response of the asynchronous call.</param>
+            <param name="responseHeadersAsync">Response headers of the asynchronous call.</param>
+            <param name="getStatusFunc">Delegate returning the status of the call.</param>
+            <param name="getTrailersFunc">Delegate returning the trailing metadata of the call.</param>
+            <param name="disposeAction">Delegate to invoke when Dispose is called on the call object.</param>
+        </member>
         <member name="P:Grpc.Core.AsyncClientStreamingCall`2.ResponseAsync">
             <summary>
             Asynchronous call result.
@@ -91,6 +102,17 @@
             <typeparam name="TRequest">Request message type for this call.</typeparam>
             <typeparam name="TResponse">Response message type for this call.</typeparam>
         </member>
+        <member name="M:Grpc.Core.AsyncDuplexStreamingCall`2.#ctor(Grpc.Core.IClientStreamWriter{`0},Grpc.Core.IAsyncStreamReader{`1},System.Threading.Tasks.Task{Grpc.Core.Metadata},System.Func{Grpc.Core.Status},System.Func{Grpc.Core.Metadata},System.Action)">
+            <summary>
+            Creates a new AsyncDuplexStreamingCall object with the specified properties.
+            </summary>
+            <param name="requestStream">Stream of request values.</param>
+            <param name="responseStream">Stream of response values.</param>
+            <param name="responseHeadersAsync">Response headers of the asynchronous call.</param>
+            <param name="getStatusFunc">Delegate returning the status of the call.</param>
+            <param name="getTrailersFunc">Delegate returning the trailing metadata of the call.</param>
+            <param name="disposeAction">Delegate to invoke when Dispose is called on the call object.</param>
+        </member>
         <member name="P:Grpc.Core.AsyncDuplexStreamingCall`2.ResponseStream">
             <summary>
             Async stream to read streaming responses.
@@ -136,6 +158,16 @@
             </summary>
             <typeparam name="TResponse">Response message type for this call.</typeparam>
         </member>
+        <member name="M:Grpc.Core.AsyncServerStreamingCall`1.#ctor(Grpc.Core.IAsyncStreamReader{`0},System.Threading.Tasks.Task{Grpc.Core.Metadata},System.Func{Grpc.Core.Status},System.Func{Grpc.Core.Metadata},System.Action)">
+            <summary>
+            Creates a new AsyncDuplexStreamingCall object with the specified properties.
+            </summary>
+            <param name="responseStream">Stream of response values.</param>
+            <param name="responseHeadersAsync">Response headers of the asynchronous call.</param>
+            <param name="getStatusFunc">Delegate returning the status of the call.</param>
+            <param name="getTrailersFunc">Delegate returning the trailing metadata of the call.</param>
+            <param name="disposeAction">Delegate to invoke when Dispose is called on the call object.</param>
+        </member>
         <member name="P:Grpc.Core.AsyncServerStreamingCall`1.ResponseStream">
             <summary>
             Async stream to read streaming responses.
@@ -175,6 +207,16 @@
             Return type for single request - single response call.
             </summary>
             <typeparam name="TResponse">Response message type for this call.</typeparam>
+        </member>
+        <member name="M:Grpc.Core.AsyncUnaryCall`1.#ctor(System.Threading.Tasks.Task{`0},System.Threading.Tasks.Task{Grpc.Core.Metadata},System.Func{Grpc.Core.Status},System.Func{Grpc.Core.Metadata},System.Action)">
+            <summary>
+            Creates a new AsyncUnaryCall object with the specified properties.
+            </summary>
+            <param name="responseAsync">The response of the asynchronous call.</param>
+            <param name="responseHeadersAsync">Response headers of the asynchronous call.</param>
+            <param name="getStatusFunc">Delegate returning the status of the call.</param>
+            <param name="getTrailersFunc">Delegate returning the trailing metadata of the call.</param>
+            <param name="disposeAction">Delegate to invoke when Dispose is called on the call object.</param>
         </member>
         <member name="P:Grpc.Core.AsyncUnaryCall`1.ResponseAsync">
             <summary>
@@ -693,6 +735,12 @@
             If deadline is reached or and error occurs, returned task is cancelled.
             </summary>
         </member>
+        <member name="M:Grpc.Core.Channel.TryWaitForStateChangedAsync(Grpc.Core.ChannelState,System.Nullable{System.DateTime})">
+            <summary>
+            Returned tasks completes once channel state has become different from
+            given lastObservedState (<c>true</c> is returned) or if the wait has timed out (<c>false</c> is returned).
+            </summary>
+        </member>
         <member name="P:Grpc.Core.Channel.ResolvedTarget">
             <summary>Resolved address of the remote endpoint in URI format.</summary>
         </member>
@@ -727,14 +775,14 @@
             the outcome of those remote calls.
             </remarks>
         </member>
-        <member name="M:Grpc.Core.Channel.RunConnectivityWatcherAsync">
-            <summary>
-            Constantly Watches channel connectivity status to work around https://github.com/GoogleCloudPlatform/google-cloud-dotnet/issues/822
-            </summary>
-        </member>
         <member name="T:Grpc.Core.ChannelCredentials">
             <summary>
             Client-side channel credentials. Used for creation of a secure channel.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ChannelCredentials.#ctor">
+            <summary>
+            Creates a new instance of channel credentials
             </summary>
         </member>
         <member name="P:Grpc.Core.ChannelCredentials.Insecure">
@@ -752,10 +800,18 @@
             <param name="callCredentials">Call credentials.</param>
             <returns>The new composite <c>ChannelCredentials</c></returns>
         </member>
-        <member name="M:Grpc.Core.ChannelCredentials.ToNativeCredentials">
+        <member name="M:Grpc.Core.ChannelCredentials.GetNativeCredentials">
             <summary>
-            Creates native object for the credentials. May return null if insecure channel
-            should be created.
+            Gets native object for the credentials, creating one if it already doesn't exist. May return null if insecure channel
+            should be created. Caller must not call <c>Dispose()</c> on the returned native credentials as their lifetime
+            is managed by this class (and instances of native credentials are cached).
+            </summary>
+            <returns>The native credentials.</returns>
+        </member>
+        <member name="M:Grpc.Core.ChannelCredentials.CreateNativeCredentials">
+            <summary>
+            Creates a new native object for the credentials. May return null if insecure channel
+            should be created. For internal use only, use <see cref="M:Grpc.Core.ChannelCredentials.GetNativeCredentials"/> instead.
             </summary>
             <returns>The native credentials.</returns>
         </member>
@@ -818,6 +874,8 @@
             <summary>
             Channel option specified when creating a channel.
             Corresponds to grpc_channel_args from grpc/grpc.h.
+            Commonly used channel option names are defined in <c>ChannelOptions</c>,
+            but any of the GRPC_ARG_* channel options names defined in grpc_types.h can be used.
             </summary>
         </member>
         <member name="T:Grpc.Core.ChannelOption.OptionType">
@@ -869,9 +927,35 @@
             Gets the string value the <c>ChannelOption</c>.
             </summary>
         </member>
+        <member name="M:Grpc.Core.ChannelOption.Equals(System.Object)">
+            <summary>
+            Determines whether the specified object is equal to the current object.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ChannelOption.Equals(Grpc.Core.ChannelOption)">
+            <summary>
+            Determines whether the specified object is equal to the current object.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ChannelOption.GetHashCode">
+            <summary>
+            A hash code for the current object.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ChannelOption.op_Equality(Grpc.Core.ChannelOption,Grpc.Core.ChannelOption)">
+            <summary>
+            Equality operator.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ChannelOption.op_Inequality(Grpc.Core.ChannelOption,Grpc.Core.ChannelOption)">
+            <summary>
+            Inequality operator.
+            </summary>
+        </member>
         <member name="T:Grpc.Core.ChannelOptions">
             <summary>
-            Defines names of supported channel options.
+            Defines names of most commonly used channel options.
+            Other supported options names can be found in grpc_types.h (GRPC_ARG_* definitions)
             </summary>
         </member>
         <member name="F:Grpc.Core.ChannelOptions.SslTargetNameOverride">
@@ -1037,6 +1121,11 @@
             less likely.
             </summary>
         </member>
+        <member name="M:Grpc.Core.ClientBase.ClientBaseConfiguration.ClientBaseConfigurationInterceptor.#ctor(System.Func{Grpc.Core.IMethod,System.String,Grpc.Core.CallOptions,Grpc.Core.ClientBase.ClientBaseConfiguration.ClientBaseConfigurationInfo})">
+            <summary>
+            Creates a new instance of ClientBaseConfigurationInterceptor given the specified header and host interceptor function.
+            </summary>
+        </member>
         <member name="T:Grpc.Core.CompressionLevel">
             <summary>
             Compression level based on grpc_compression_level from grpc/compression.h
@@ -1174,6 +1263,31 @@
         <member name="M:Grpc.Core.DefaultCallInvoker.CreateCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions)">
             <summary>Creates call invocation details for given method.</summary>
         </member>
+        <member name="T:Grpc.Core.DeserializationContext">
+            <summary>
+            Provides access to the payload being deserialized when deserializing messages.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.DeserializationContext.PayloadLength">
+            <summary>
+            Get the total length of the payload in bytes.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.DeserializationContext.PayloadAsNewBuffer">
+            <summary>
+            Gets the entire payload as a newly allocated byte array.
+            Once the byte array is returned, the byte array becomes owned by the caller and won't be ever accessed or reused by gRPC again.
+            NOTE: Obtaining the buffer as a newly allocated byte array is the simplest way of accessing the payload,
+            but it can have important consequences in high-performance scenarios.
+            In particular, using this method usually requires copying of the entire buffer one extra time.
+            Also, allocating a new buffer each time can put excessive pressure on GC, especially if
+            the payload is more than 86700 bytes large (which means the newly allocated buffer will be placed in LOH,
+            and LOH object can only be garbage collected via a full ("stop the world") GC run).
+            NOTE: Deserializers are expected not to call this method more than once per received message
+            (as there is no practical reason for doing so) and <c>DeserializationContext</c> implementations are free to assume so.
+            </summary>
+            <returns>byte array containing the entire payload.</returns>
+        </member>
         <member name="T:Grpc.Core.GrpcEnvironment">
             <summary>
             Encapsulates initialization and shutdown of gRPC library.
@@ -1214,7 +1328,7 @@
         <member name="M:Grpc.Core.GrpcEnvironment.SetThreadPoolSize(System.Int32)">
             <summary>
             Sets the number of threads in the gRPC thread pool that polls for internal RPC events.
-            Can be only invoke before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
+            Can be only invoked before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
             Setting thread pool size is an advanced setting and you should only use it if you know what you are doing.
             Most users should rely on the default value provided by gRPC library.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.
@@ -1223,7 +1337,7 @@
         <member name="M:Grpc.Core.GrpcEnvironment.SetCompletionQueueCount(System.Int32)">
             <summary>
             Sets the number of completion queues in the  gRPC thread pool that polls for internal RPC events.
-            Can be only invoke before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
+            Can be only invoked before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
             Setting the number of completions queues is an advanced setting and you should only use it if you know what you are doing.
             Most users should rely on the default value provided by gRPC library.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.
@@ -1239,6 +1353,26 @@
             Most users should rely on the default value provided by gRPC library.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.
             Note: <c>inlineHandlers=true</c> was the default in gRPC C# v1.4.x and earlier.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.GrpcEnvironment.SetBatchContextPoolParams(System.Int32,System.Int32)">
+            <summary>
+            Sets the parameters for a pool that caches batch context instances. Reusing batch context instances
+            instead of creating a new one for every C core operation helps reducing the GC pressure.
+            Can be only invoked before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
+            This is an advanced setting and you should only use it if you know what you are doing.
+            Most users should rely on the default value provided by gRPC library.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.GrpcEnvironment.SetRequestCallContextPoolParams(System.Int32,System.Int32)">
+            <summary>
+            Sets the parameters for a pool that caches request call context instances. Reusing request call context instances
+            instead of creating a new one for every requested call in C core helps reducing the GC pressure.
+            Can be only invoked before the <c>GrpcEnviroment</c> is started and cannot be changed afterwards.
+            This is an advanced setting and you should only use it if you know what you are doing.
+            Most users should rely on the default value provided by gRPC library.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.
             </summary>
         </member>
         <member name="E:Grpc.Core.GrpcEnvironment.ShuttingDown">
@@ -1341,6 +1475,551 @@
             <summary>
             Completes/closes the stream. Can only be called once there is no pending write. No writes should follow calling this.
             </summary>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.CallInvokerExtensions">
+            <summary>
+            Extends the CallInvoker class to provide the interceptor facility on the client side.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.CallInvokerExtensions.Intercept(Grpc.Core.CallInvoker,Grpc.Core.Interceptors.Interceptor)">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the invoker with the given interceptor.
+            </summary>
+            <param name="invoker">The underlying invoker to intercept.</param>
+            <param name="interceptor">The interceptor to intercept calls to the invoker with.</param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "invoker.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted CallInvoker, effectively
+            building a chain like "invoker.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.CallInvokerExtensions.Intercept(Grpc.Core.CallInvoker,Grpc.Core.Interceptors.Interceptor[])">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the invoker with the given interceptors.
+            </summary>
+            <param name="invoker">The channel to intercept.</param>
+            <param name="interceptors">
+            An array of interceptors to intercept the calls to the invoker with.
+            Control is passed to the interceptors in the order specified.
+            </param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "invoker.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted CallInvoker, effectively
+            building a chain like "invoker.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.CallInvokerExtensions.Intercept(Grpc.Core.CallInvoker,System.Func{Grpc.Core.Metadata,Grpc.Core.Metadata})">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the invoker with the given interceptor.
+            </summary>
+            <param name="invoker">The underlying invoker to intercept.</param>
+            <param name="interceptor">
+            An interceptor delegate that takes the request metadata to be sent with an outgoing call
+            and returns a <see cref="T:Grpc.Core.Metadata" /> instance that will replace the existing
+            invocation metadata.
+            </param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by
+            building a chain like "invoker.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.CallInvokerExtensions.MetadataInterceptor.#ctor(System.Func{Grpc.Core.Metadata,Grpc.Core.Metadata})">
+            <summary>
+            Creates a new instance of MetadataInterceptor given the specified interceptor function.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.ChannelExtensions">
+            <summary>
+            Provides extension methods to make it easy to register interceptors on Channel objects.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ChannelExtensions.Intercept(Grpc.Core.Channel,Grpc.Core.Interceptors.Interceptor)">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the channel with the given interceptor.
+            </summary>
+            <param name="channel">The channel to intercept.</param>
+            <param name="interceptor">The interceptor to intercept the channel with.</param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "channel.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted channel, effectively
+            building a chain like "channel.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ChannelExtensions.Intercept(Grpc.Core.Channel,Grpc.Core.Interceptors.Interceptor[])">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the channel with the given interceptors.
+            </summary>
+            <param name="channel">The channel to intercept.</param>
+            <param name="interceptors">
+            An array of interceptors to intercept the channel with.
+            Control is passed to the interceptors in the order specified.
+            </param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "channel.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted channel, effectively
+            building a chain like "channel.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ChannelExtensions.Intercept(Grpc.Core.Channel,System.Func{Grpc.Core.Metadata,Grpc.Core.Metadata})">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.CallInvoker" /> instance that intercepts
+            the invoker with the given interceptor.
+            </summary>
+            <param name="channel">The channel to intercept.</param>
+            <param name="interceptor">
+            An interceptor delegate that takes the request metadata to be sent with an outgoing call
+            and returns a <see cref="T:Grpc.Core.Metadata" /> instance that will replace the existing
+            invocation metadata.
+            </param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by
+            building a chain like "channel.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.ClientInterceptorContext`2">
+            <summary>
+            Carries along the context associated with intercepted invocations on the client side.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ClientInterceptorContext`2.#ctor(Grpc.Core.Method{`0,`1},System.String,Grpc.Core.CallOptions)">
+            <summary>
+            Creates a new instance of <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2" />
+            with the specified method, host, and call options.
+            </summary>
+            <param name="method">A <see cref="T:Grpc.Core.Method`2"/> object representing the method to be invoked.</param>
+            <param name="host">The host to dispatch the current call to.</param>
+            <param name="options">A <see cref="T:Grpc.Core.CallOptions"/> instance containing the call options of the current call.</param>
+        </member>
+        <member name="P:Grpc.Core.Interceptors.ClientInterceptorContext`2.Method">
+            <summary>
+            Gets the <see cref="T:Grpc.Core.Method`2"/> instance
+            representing the method to be invoked.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Interceptors.ClientInterceptorContext`2.Host">
+            <summary>
+            Gets the host that the currect invocation will be dispatched to.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Interceptors.ClientInterceptorContext`2.Options">
+            <summary>
+            Gets the <see cref="T:Grpc.Core.CallOptions"/> structure representing the
+            call options associated with the current invocation.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.InterceptingCallInvoker">
+            <summary>
+            Decorates an underlying <see cref="T:Grpc.Core.CallInvoker" /> to
+            intercept calls through a given interceptor.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.#ctor(Grpc.Core.CallInvoker,Grpc.Core.Interceptors.Interceptor)">
+            <summary>
+            Creates a new instance of <see cref="T:Grpc.Core.Interceptors.InterceptingCallInvoker" />
+            with the given underlying invoker and interceptor instances.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.BlockingUnaryCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
+            <summary>
+            Intercepts a simple blocking call with the registered interceptor.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.AsyncUnaryCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
+            <summary>
+            Intercepts a simple asynchronous call with the registered interceptor.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.AsyncServerStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
+            <summary>
+            Intercepts an asynchronous server streaming call with the registered interceptor.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.AsyncClientStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions)">
+            <summary>
+            Intercepts an asynchronous client streaming call with the registered interceptor.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.InterceptingCallInvoker.AsyncDuplexStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions)">
+            <summary>
+            Intercepts an asynchronous duplex streaming call with the registered interceptor.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor">
+            <summary>
+            Serves as the base class for gRPC interceptors.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor.BlockingUnaryCallContinuation`2">
+            <summary>
+            Represents a continuation for intercepting simple blocking invocations.
+            A delegate of this type is passed to the BlockingUnaryCall method
+            when an outgoing invocation is being intercepted and calling the
+            delegate will invoke the next interceptor in the chain, or the underlying
+            call invoker if called from the last interceptor. The interceptor is
+            allowed to call it zero, one, or multiple times, passing it the appropriate
+            context and request values as it sees fit.
+            </summary>
+            <typeparam name="TRequest">Request message type for this invocation.</typeparam>
+            <typeparam name="TResponse">Response message type for this invocation.</typeparam>
+            <param name="request">The request value to continue the invocation with.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            instance to pass to the next step in the invocation process.
+            </param>
+            <returns>
+            The response value of the invocation to return to the caller.
+            The interceptor can choose to return the return value of the
+            continuation delegate or an arbitrary value as it sees fit.
+            </returns>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor.AsyncUnaryCallContinuation`2">
+            <summary>
+            Represents a continuation for intercepting simple asynchronous invocations.
+            A delegate of this type is passed to the AsyncUnaryCall method
+            when an outgoing invocation is being intercepted and calling the
+            delegate will invoke the next interceptor in the chain, or the underlying
+            call invoker if called from the last interceptor. The interceptor is
+            allowed to call it zero, one, or multiple times, passing it the appropriate
+            request value and context as it sees fit.
+            </summary>
+            <typeparam name="TRequest">Request message type for this invocation.</typeparam>
+            <typeparam name="TResponse">Response message type for this invocation.</typeparam>
+            <param name="request">The request value to continue the invocation with.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            instance to pass to the next step in the invocation process.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncUnaryCall`1" />
+            representing an asynchronous invocation of a unary RPC.
+            The interceptor can choose to return the same object returned from
+            the continuation delegate or an arbitrarily constructed instance as it sees fit.
+            </returns>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor.AsyncServerStreamingCallContinuation`2">
+            <summary>
+            Represents a continuation for intercepting asynchronous server-streaming invocations.
+            A delegate of this type is passed to the AsyncServerStreamingCall method
+            when an outgoing invocation is being intercepted and calling the
+            delegate will invoke the next interceptor in the chain, or the underlying
+            call invoker if called from the last interceptor. The interceptor is
+            allowed to call it zero, one, or multiple times, passing it the appropriate
+            request value and context as it sees fit.
+            </summary>
+            <typeparam name="TRequest">Request message type for this invocation.</typeparam>
+            <typeparam name="TResponse">Response message type for this invocation.</typeparam>
+            <param name="request">The request value to continue the invocation with.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            instance to pass to the next step in the invocation process.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncServerStreamingCall`1" />
+            representing an asynchronous invocation of a server-streaming RPC.
+            The interceptor can choose to return the same object returned from
+            the continuation delegate or an arbitrarily constructed instance as it sees fit.
+            </returns>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor.AsyncClientStreamingCallContinuation`2">
+            <summary>
+            Represents a continuation for intercepting asynchronous client-streaming invocations.
+            A delegate of this type is passed to the AsyncClientStreamingCall method
+            when an outgoing invocation is being intercepted and calling the
+            delegate will invoke the next interceptor in the chain, or the underlying
+            call invoker if called from the last interceptor. The interceptor is
+            allowed to call it zero, one, or multiple times, passing it the appropriate
+            request value and context as it sees fit.
+            </summary>
+            <typeparam name="TRequest">Request message type for this invocation.</typeparam>
+            <typeparam name="TResponse">Response message type for this invocation.</typeparam>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            instance to pass to the next step in the invocation process.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncClientStreamingCall`2" />
+            representing an asynchronous invocation of a client-streaming RPC.
+            The interceptor can choose to return the same object returned from
+            the continuation delegate or an arbitrarily constructed instance as it sees fit.
+            </returns>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.Interceptor.AsyncDuplexStreamingCallContinuation`2">
+            <summary>
+            Represents a continuation for intercepting asynchronous duplex invocations.
+            A delegate of this type is passed to the AsyncDuplexStreamingCall method
+            when an outgoing invocation is being intercepted and calling the
+            delegate will invoke the next interceptor in the chain, or the underlying
+            call invoker if called from the last interceptor. The interceptor is
+            allowed to call it zero, one, or multiple times, passing it the appropriate
+            request value and context as it sees fit.
+            </summary>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            instance to pass to the next step in the invocation process.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncDuplexStreamingCall`2" />
+            representing an asynchronous invocation of a duplex-streaming RPC.
+            The interceptor can choose to return the same object returned from
+            the continuation delegate or an arbitrarily constructed instance as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.BlockingUnaryCall``2(``0,Grpc.Core.Interceptors.ClientInterceptorContext{``0,``1},Grpc.Core.Interceptors.Interceptor.BlockingUnaryCallContinuation{``0,``1})">
+            <summary>
+            Intercepts a blocking invocation of a simple remote call.
+            </summary>
+            <param name="request">The request message of the invocation.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            associated with the current invocation.
+            </param>
+            <param name="continuation">
+            The callback that continues the invocation process.
+            This can be invoked zero or more times by the interceptor.
+            The interceptor can invoke the continuation passing the given
+            request value and context arguments, or substitute them as it sees fit.
+            </param>
+            <returns>
+            The response message of the current invocation.
+            The interceptor can simply return the return value of the
+            continuation delegate passed to it intact, or an arbitrary
+            value as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.AsyncUnaryCall``2(``0,Grpc.Core.Interceptors.ClientInterceptorContext{``0,``1},Grpc.Core.Interceptors.Interceptor.AsyncUnaryCallContinuation{``0,``1})">
+            <summary>
+            Intercepts an asynchronous invocation of a simple remote call.
+            </summary>
+            <param name="request">The request message of the invocation.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            associated with the current invocation.
+            </param>
+            <param name="continuation">
+            The callback that continues the invocation process.
+            This can be invoked zero or more times by the interceptor.
+            The interceptor can invoke the continuation passing the given
+            request value and context arguments, or substitute them as it sees fit.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncUnaryCall`1" />
+            representing an asynchronous unary invocation.
+            The interceptor can simply return the return value of the
+            continuation delegate passed to it intact, or construct its
+            own substitute as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.AsyncServerStreamingCall``2(``0,Grpc.Core.Interceptors.ClientInterceptorContext{``0,``1},Grpc.Core.Interceptors.Interceptor.AsyncServerStreamingCallContinuation{``0,``1})">
+            <summary>
+            Intercepts an asynchronous invocation of a streaming remote call.
+            </summary>
+            <param name="request">The request message of the invocation.</param>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            associated with the current invocation.
+            </param>
+            <param name="continuation">
+            The callback that continues the invocation process.
+            This can be invoked zero or more times by the interceptor.
+            The interceptor can invoke the continuation passing the given
+            request value and context arguments, or substitute them as it sees fit.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncServerStreamingCall`1" />
+            representing an asynchronous server-streaming invocation.
+            The interceptor can simply return the return value of the
+            continuation delegate passed to it intact, or construct its
+            own substitute as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.AsyncClientStreamingCall``2(Grpc.Core.Interceptors.ClientInterceptorContext{``0,``1},Grpc.Core.Interceptors.Interceptor.AsyncClientStreamingCallContinuation{``0,``1})">
+            <summary>
+            Intercepts an asynchronous invocation of a client streaming call.
+            </summary>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            associated with the current invocation.
+            </param>
+            <param name="continuation">
+            The callback that continues the invocation process.
+            This can be invoked zero or more times by the interceptor.
+            The interceptor can invoke the continuation passing the given
+            context argument, or substitute as it sees fit.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncClientStreamingCall`2" />
+            representing an asynchronous client-streaming invocation.
+            The interceptor can simply return the return value of the
+            continuation delegate passed to it intact, or construct its
+            own substitute as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.AsyncDuplexStreamingCall``2(Grpc.Core.Interceptors.ClientInterceptorContext{``0,``1},Grpc.Core.Interceptors.Interceptor.AsyncDuplexStreamingCallContinuation{``0,``1})">
+            <summary>
+            Intercepts an asynchronous invocation of a duplex streaming call.
+            </summary>
+            <param name="context">
+            The <see cref="T:Grpc.Core.Interceptors.ClientInterceptorContext`2"/>
+            associated with the current invocation.
+            </param>
+            <param name="continuation">
+            The callback that continues the invocation process.
+            This can be invoked zero or more times by the interceptor.
+            The interceptor can invoke the continuation passing the given
+            context argument, or substitute as it sees fit.
+            </param>
+            <returns>
+            An instance of <see cref="T:Grpc.Core.AsyncDuplexStreamingCall`2" />
+            representing an asynchronous duplex-streaming invocation.
+            The interceptor can simply return the return value of the
+            continuation delegate passed to it intact, or construct its
+            own substitute as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.UnaryServerHandler``2(``0,Grpc.Core.ServerCallContext,Grpc.Core.UnaryServerMethod{``0,``1})">
+            <summary>
+            Server-side handler for intercepting and incoming unary call.
+            </summary>
+            <typeparam name="TRequest">Request message type for this method.</typeparam>
+            <typeparam name="TResponse">Response message type for this method.</typeparam>
+            <param name="request">The request value of the incoming invocation.</param>
+            <param name="context">
+            An instance of <see cref="T:Grpc.Core.ServerCallContext" /> representing
+            the context of the invocation.
+            </param>
+            <param name="continuation">
+            A delegate that asynchronously proceeds with the invocation, calling
+            the next interceptor in the chain, or the service request handler,
+            in case of the last interceptor and return the response value of
+            the RPC. The interceptor can choose to call it zero or more times
+            at its discretion.
+            </param>
+            <returns>
+            A future representing the response value of the RPC. The interceptor
+            can simply return the return value from the continuation intact,
+            or an arbitrary response value as it sees fit.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.ClientStreamingServerHandler``2(Grpc.Core.IAsyncStreamReader{``0},Grpc.Core.ServerCallContext,Grpc.Core.ClientStreamingServerMethod{``0,``1})">
+            <summary>
+            Server-side handler for intercepting client streaming call.
+            </summary>
+            <typeparam name="TRequest">Request message type for this method.</typeparam>
+            <typeparam name="TResponse">Response message type for this method.</typeparam>
+            <param name="requestStream">The request stream of the incoming invocation.</param>
+            <param name="context">
+            An instance of <see cref="T:Grpc.Core.ServerCallContext" /> representing
+            the context of the invocation.
+            </param>
+            <param name="continuation">
+            A delegate that asynchronously proceeds with the invocation, calling
+            the next interceptor in the chain, or the service request handler,
+            in case of the last interceptor and return the response value of
+            the RPC. The interceptor can choose to call it zero or more times
+            at its discretion.
+            </param>
+            <returns>
+            A future representing the response value of the RPC. The interceptor
+            can simply return the return value from the continuation intact,
+            or an arbitrary response value as it sees fit. The interceptor has
+            the ability to wrap or substitute the request stream when calling
+            the continuation.
+            </returns>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.ServerStreamingServerHandler``2(``0,Grpc.Core.IServerStreamWriter{``1},Grpc.Core.ServerCallContext,Grpc.Core.ServerStreamingServerMethod{``0,``1})">
+            <summary>
+            Server-side handler for intercepting server streaming call.
+            </summary>
+            <typeparam name="TRequest">Request message type for this method.</typeparam>
+            <typeparam name="TResponse">Response message type for this method.</typeparam>
+            <param name="request">The request value of the incoming invocation.</param>
+            <param name="responseStream">The response stream of the incoming invocation.</param>
+            <param name="context">
+            An instance of <see cref="T:Grpc.Core.ServerCallContext" /> representing
+            the context of the invocation.
+            </param>
+            <param name="continuation">
+            A delegate that asynchronously proceeds with the invocation, calling
+            the next interceptor in the chain, or the service request handler,
+            in case of the last interceptor and the interceptor can choose to
+            call it zero or more times at its discretion. The interceptor has
+            the ability to wrap or substitute the request value and the response stream
+            when calling the continuation.
+            </param>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.Interceptor.DuplexStreamingServerHandler``2(Grpc.Core.IAsyncStreamReader{``0},Grpc.Core.IServerStreamWriter{``1},Grpc.Core.ServerCallContext,Grpc.Core.DuplexStreamingServerMethod{``0,``1})">
+            <summary>
+            Server-side handler for intercepting bidirectional streaming calls.
+            </summary>
+            <typeparam name="TRequest">Request message type for this method.</typeparam>
+            <typeparam name="TResponse">Response message type for this method.</typeparam>
+            <param name="requestStream">The request stream of the incoming invocation.</param>
+            <param name="responseStream">The response stream of the incoming invocation.</param>
+            <param name="context">
+            An instance of <see cref="T:Grpc.Core.ServerCallContext" /> representing
+            the context of the invocation.
+            </param>
+            <param name="continuation">
+            A delegate that asynchronously proceeds with the invocation, calling
+            the next interceptor in the chain, or the service request handler,
+            in case of the last interceptor and the interceptor can choose to
+            call it zero or more times at its discretion. The interceptor has
+            the ability to wrap or substitute the request and response streams
+            when calling the continuation.
+            </param>
+        </member>
+        <member name="T:Grpc.Core.Interceptors.ServerServiceDefinitionExtensions">
+            <summary>
+            Extends the ServerServiceDefinition class to add methods used to register interceptors on the server side.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ServerServiceDefinitionExtensions.Intercept(Grpc.Core.ServerServiceDefinition,Grpc.Core.Interceptors.Interceptor)">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.ServerServiceDefinition" /> instance that
+            intercepts incoming calls to the underlying service handler through the given interceptor.
+            </summary>
+            <param name="serverServiceDefinition">The <see cref="T:Grpc.Core.ServerServiceDefinition" /> instance to register interceptors on.</param>
+            <param name="interceptor">The interceptor to intercept the incoming invocations with.</param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "serverServiceDefinition.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted service definition, effectively
+            building a chain like "serverServiceDefinition.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
+        </member>
+        <member name="M:Grpc.Core.Interceptors.ServerServiceDefinitionExtensions.Intercept(Grpc.Core.ServerServiceDefinition,Grpc.Core.Interceptors.Interceptor[])">
+            <summary>
+            Returns a <see cref="T:Grpc.Core.ServerServiceDefinition" /> instance that
+            intercepts incoming calls to the underlying service handler through the given interceptors.
+            </summary>
+            <param name="serverServiceDefinition">The <see cref="T:Grpc.Core.ServerServiceDefinition" /> instance to register interceptors on.</param>
+            <param name="interceptors">
+            An array of interceptors to intercept the incoming invocations with.
+            Control is passed to the interceptors in the order specified.
+            </param>
+            <remarks>
+            Multiple interceptors can be added on top of each other by calling
+            "serverServiceDefinition.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+            Interceptors can be later added to an existing intercepted service definition, effectively
+            building a chain like "serverServiceDefinition.Intercept(c).Intercept(b).Intercept(a)".  Note that
+            in this case, the last interceptor added will be the first to take control.
+            </remarks>
         </member>
         <member name="T:Grpc.Core.Internal.AsyncCall`2">
             <summary>
@@ -1528,7 +2207,7 @@
             to make things simpler.
             </summary>
         </member>
-        <member name="M:Grpc.Core.Internal.AsyncCallServer`2.SendStatusFromServerAsync(Grpc.Core.Status,Grpc.Core.Metadata,System.Tuple{`1,Grpc.Core.WriteFlags})">
+        <member name="M:Grpc.Core.Internal.AsyncCallServer`2.SendStatusFromServerAsync(Grpc.Core.Status,Grpc.Core.Metadata,System.Nullable{Grpc.Core.Internal.AsyncCallServer{`0,`1}.ResponseWithFlags})">
             <summary>
             Sends call result status, indicating we are done with writes.
             Sending a status different from StatusCode.OK will also implicitly cancel the call.
@@ -1686,7 +2365,7 @@
         </member>
         <member name="P:Grpc.Core.Internal.CompletionRegistry.LastRegisteredKey">
             <summary>
-            For testing purposes only.
+            For testing purposes only. NOT threadsafe.
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.CompletionRegistry.IntPtrComparer">
@@ -1702,6 +2381,45 @@
         <member name="M:Grpc.Core.Internal.DebugStats.CheckOK">
             <summary>
             Checks the debug stats and take action for any inconsistency found.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Internal.DefaultObjectPool`1">
+            <summary>
+            Pool of objects that combines a shared pool and a thread local pool.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.DefaultObjectPool`1.#ctor(System.Func{`0},System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of <c>DefaultObjectPool</c> with given shared capacity and thread local capacity.
+            Thread local capacity should be significantly smaller than the shared capacity as we don't guarantee immediately
+            disposing the objects in the thread local pool after this pool is disposed (they will eventually be garbage collected
+            after the thread that owns them has finished).
+            On average, the shared pool will only be accessed approx. once for every <c>threadLocalCapacity / 2</c> rent or lease
+            operations.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.DefaultObjectPool`1.Lease">
+            <summary>
+            Leases an item from the pool or creates a new instance if the pool is empty.
+            Attempts to retrieve the item from the thread local pool first.
+            If the thread local pool is empty, the item is taken from the shared pool
+            along with more items that are moved to the thread local pool to avoid
+            prevent acquiring the lock for shared pool too often.
+            The methods should not be called after the pool is disposed, but it won't
+            results in an error to do so (after depleting the items potentially left
+            in the thread local pool, it will continue returning new objects created by the factory).
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.DefaultObjectPool`1.Return(`0)">
+            <summary>
+            Returns an item to the pool.
+            Attempts to add the item to the thread local pool first.
+            If the thread local pool is full, item is added to a shared pool,
+            along with half of the items for the thread local pool, which
+            should prevent acquiring the lock for shared pool too often.
+            If called after the pool is disposed, we make best effort not to
+            add anything to the thread local pool and we guarantee not to add
+            anything to the shared pool (items will be disposed instead).
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.DefaultSslRootsOverride">
@@ -1747,43 +2465,20 @@
             Abstraction of a native call object.
             </summary>
         </member>
-        <member name="T:Grpc.Core.Internal.InterceptingCallInvoker">
+        <member name="T:Grpc.Core.Internal.IObjectPool`1">
             <summary>
-            Decorates an underlying <c>CallInvoker</c> to intercept call invocations.
+            Pool of objects.
             </summary>
         </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.#ctor(Grpc.Core.CallInvoker,System.Func{System.String,System.String},System.Func{Grpc.Core.CallOptions,Grpc.Core.CallOptions})">
+        <member name="T:Grpc.Core.Internal.IPooledObject`1">
             <summary>
-            Initializes a new instance of the <see cref="T:Grpc.Core.Internal.InterceptingCallInvoker"/> class.
+            An object that can be pooled in <c>IObjectPool</c>.
             </summary>
+            <typeparam name="T"></typeparam>
         </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.BlockingUnaryCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
+        <member name="M:Grpc.Core.Internal.IPooledObject`1.SetReturnToPoolAction(System.Action{`0})">
             <summary>
-            Intercepts a unary call.
-            </summary>
-        </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.AsyncUnaryCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
-            <summary>
-            Invokes a simple remote call asynchronously.
-            </summary>
-        </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.AsyncServerStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions,``0)">
-            <summary>
-            Invokes a server streaming call asynchronously.
-            In server streaming scenario, client sends on request and server responds with a stream of responses.
-            </summary>
-        </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.AsyncClientStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions)">
-            <summary>
-            Invokes a client streaming call asynchronously.
-            In client streaming scenario, client sends a stream of requests and server responds with a single response.
-            </summary>
-        </member>
-        <member name="M:Grpc.Core.Internal.InterceptingCallInvoker.AsyncDuplexStreamingCall``2(Grpc.Core.Method{``0,``1},System.String,Grpc.Core.CallOptions)">
-            <summary>
-            Invokes a duplex streaming call asynchronously.
-            In duplex streaming scenario, client sends a stream of requests and server responds with a stream of responses.
-            The response stream is completely independent and both side can be sending messages at the same time.
+            Set the action that will be invoked to return a leased object to the pool.
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.MarshalUtils">
@@ -1842,9 +2537,29 @@
             Provides access to the exported native methods.
             </summary>
         </member>
-        <member name="M:Grpc.Core.Internal.NativeExtension.Load">
+        <member name="M:Grpc.Core.Internal.NativeExtension.LoadUnmanagedLibrary">
             <summary>
             Detects which configuration of native extension to load and load it.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.NativeExtension.LoadNativeMethods">
+            <summary>
+            Loads native extension and return native methods delegates.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.NativeExtension.LoadNativeMethodsUnity">
+            <summary>
+            Return native method delegates when running on Unity platform.
+            Unity does not use standard NuGet packages and the native library is treated
+            there as a "native plugin" which is (provided it has the right metadata)
+            automatically made available to <c>[DllImport]</c> loading logic.
+            WARNING: Unity support is experimental and work-in-progress. Don't expect it to work.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.NativeExtension.LoadNativeMethodsXamarin">
+            <summary>
+            Return native method delegates when running on the Xamarin platform.
+            WARNING: Xamarin support is experimental and work-in-progress. Don't expect it to work.
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.NativeLogRedirector">
@@ -1856,6 +2571,15 @@
         <member name="M:Grpc.Core.Internal.NativeLogRedirector.Redirect(Grpc.Core.Internal.NativeMethods)">
             <summary>
             Redirects logs from native gRPC C core library to a general logger.
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Internal.MonoPInvokeCallbackAttribute">
+            <summary>
+            Use this attribute to mark methods that will be called back from P/Invoke calls.
+            iOS (and probably other AOT platforms) needs to have delegates registered.
+            Instead of depending on Xamarin.iOS for this, we can just create our own,
+            the iOS runtime just checks for the type name.
+            See: https://docs.microsoft.com/en-gb/xamarin/ios/internals/limitations#reverse-callbacks
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.NativeMethods">
@@ -1875,14 +2599,58 @@
             Delegate types for all published native methods. Declared under inner class to prevent scope pollution.
             </summary>
         </member>
+        <member name="T:Grpc.Core.Internal.NativeMethods.DllImportsFromStaticLib">
+            <summary>
+            grpc_csharp_ext used as a static library (e.g Unity iOS).
+            </summary>
+        </member>
+        <member name="T:Grpc.Core.Internal.NativeMethods.DllImportsFromSharedLib">
+            <summary>
+            grpc_csharp_ext used a shared library (e.g on Unity Standalone and Android).
+            </summary>
+        </member>
         <member name="T:Grpc.Core.Internal.PlatformApis">
             <summary>
             Utility methods for detecting platform and architecture.
             </summary>
         </member>
+        <member name="P:Grpc.Core.Internal.PlatformApis.IsUnity">
+            <summary>
+            true if running on Unity platform.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Internal.PlatformApis.IsUnityIOS">
+            <summary>
+            true if running on Unity iOS, false otherwise.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Internal.PlatformApis.IsXamarin">
+            <summary>
+            true if running on a Xamarin platform (either Xamarin.Android or Xamarin.iOS),
+            false otherwise.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Internal.PlatformApis.IsXamarinIOS">
+            <summary>
+            true if running on Xamarin.iOS, false otherwise.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Internal.PlatformApis.IsXamarinAndroid">
+            <summary>
+            true if running on Xamarin.Android, false otherwise.
+            </summary>
+        </member>
         <member name="P:Grpc.Core.Internal.PlatformApis.IsNetCore">
             <summary>
             true if running on .NET Core (CoreCLR), false otherwise.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Internal.PlatformApis.GetUnityRuntimePlatform">
+            <summary>
+            Returns <c>UnityEngine.Application.platform</c> as a string.
+            See https://docs.unity3d.com/ScriptReference/Application-platform.html for possible values.
+            Value is obtained via reflection to avoid compile-time dependency on Unity.
+            This method should only be called if <c>IsUnity</c> is <c>true</c>.
             </summary>
         </member>
         <member name="T:Grpc.Core.Internal.RequestCallContextSafeHandle">
@@ -2007,7 +2775,7 @@
             <param name="symbolName"></param>
             <returns></returns>
         </member>
-        <member name="M:Grpc.Core.Internal.UnmanagedLibrary.PlatformSpecificLoadLibrary(System.String)">
+        <member name="M:Grpc.Core.Internal.UnmanagedLibrary.PlatformSpecificLoadLibrary(System.String,System.String@)">
             <summary>
             Loads library in a platform specific way.
             </summary>
@@ -2314,7 +3082,17 @@
         </member>
         <member name="M:Grpc.Core.Marshaller`1.#ctor(System.Func{`0,System.Byte[]},System.Func{System.Byte[],`0})">
             <summary>
-            Initializes a new marshaller.
+            Initializes a new marshaller from simple serialize/deserialize functions.
+            </summary>
+            <param name="serializer">Function that will be used to serialize messages.</param>
+            <param name="deserializer">Function that will be used to deserialize messages.</param>
+        </member>
+        <member name="M:Grpc.Core.Marshaller`1.#ctor(System.Action{`0,Grpc.Core.SerializationContext},System.Func{Grpc.Core.DeserializationContext,`0})">
+            <summary>
+            Initializes a new marshaller from serialize/deserialize fuctions that can access serialization and deserialization
+            context. Compared to the simple serializer/deserializer functions, using the contextual version provides more
+            flexibility and can lead to increased efficiency (and better performance).
+            Note: This constructor is part of an experimental API that can change or be removed without any prior notice.
             </summary>
             <param name="serializer">Function that will be used to serialize messages.</param>
             <param name="deserializer">Function that will be used to deserialize messages.</param>
@@ -2329,6 +3107,18 @@
             Gets the deserializer function.
             </summary>
         </member>
+        <member name="P:Grpc.Core.Marshaller`1.ContextualSerializer">
+            <summary>
+            Gets the serializer function.
+            Note: experimental API that can change or be removed without any prior notice.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.Marshaller`1.ContextualDeserializer">
+            <summary>
+            Gets the serializer function.
+            Note: experimental API that can change or be removed without any prior notice.
+            </summary>
+        </member>
         <member name="T:Grpc.Core.Marshallers">
             <summary>
             Utilities for creating marshallers.
@@ -2337,6 +3127,12 @@
         <member name="M:Grpc.Core.Marshallers.Create``1(System.Func{``0,System.Byte[]},System.Func{System.Byte[],``0})">
             <summary>
             Creates a marshaller from specified serializer and deserializer.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.Marshallers.Create``1(System.Action{``0,Grpc.Core.SerializationContext},System.Func{Grpc.Core.DeserializationContext,``0})">
+            <summary>
+            Creates a marshaller from specified contextual serializer and deserializer.
+            Note: This method is part of an experimental API that can change or be removed without any prior notice.
             </summary>
         </member>
         <member name="P:Grpc.Core.Marshallers.StringMarshaller">
@@ -2410,12 +3206,12 @@
         </member>
         <member name="M:Grpc.Core.Metadata.Add(System.String,System.String)">
             <summary>
-            <see cref="T:IList`1"/>
+            Adds a new ASCII-valued metadata entry. See <c>Metadata.Entry</c> constructor for params.
             </summary>
         </member>
         <member name="M:Grpc.Core.Metadata.Add(System.String,System.Byte[])">
             <summary>
-            <see cref="T:IList`1"/>
+            Adds a new binary-valued metadata entry. See <c>Metadata.Entry</c> constructor for params.
             </summary>
         </member>
         <member name="M:Grpc.Core.Metadata.Clear">
@@ -2462,14 +3258,14 @@
             <summary>
             Initializes a new instance of the <see cref="T:Grpc.Core.Metadata.Entry"/> struct with a binary value.
             </summary>
-            <param name="key">Metadata key, needs to have suffix indicating a binary valued metadata entry.</param>
+            <param name="key">Metadata key. Gets converted to lowercase. Needs to have suffix indicating a binary valued metadata entry. Can only contain lowercase alphanumeric characters, underscores, hyphens and dots.</param>
             <param name="valueBytes">Value bytes.</param>
         </member>
         <member name="M:Grpc.Core.Metadata.Entry.#ctor(System.String,System.String)">
             <summary>
-            Initializes a new instance of the <see cref="T:Grpc.Core.Metadata.Entry"/> struct holding an ASCII value.
+            Initializes a new instance of the <see cref="T:Grpc.Core.Metadata.Entry"/> struct with an ASCII value.
             </summary>
-            <param name="key">Metadata key, must not use suffix indicating a binary valued metadata entry.</param>
+            <param name="key">Metadata key. Gets converted to lowercase. Must not use suffix indicating a binary valued metadata entry. Can only contain lowercase alphanumeric characters, underscores, hyphens and dots.</param>
             <param name="value">Value string. Only ASCII characters are allowed.</param>
         </member>
         <member name="P:Grpc.Core.Metadata.Entry.Key">
@@ -2635,9 +3431,22 @@
             <param name="status">Resulting status of a call.</param>
             <param name="trailers">Response trailing metadata.</param> 
         </member>
+        <member name="M:Grpc.Core.RpcException.#ctor(Grpc.Core.Status,Grpc.Core.Metadata,System.String)">
+            <summary>
+            Creates a new <c>RpcException</c> associated with given status, message and trailing response metadata.
+            </summary>
+            <param name="status">Resulting status of a call.</param>
+            <param name="trailers">Response trailing metadata.</param>
+            <param name="message">The exception message.</param>
+        </member>
         <member name="P:Grpc.Core.RpcException.Status">
             <summary>
             Resulting status of the call.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.RpcException.StatusCode">
+            <summary>
+            Returns the status code of the call, as a convenient alternative to <see cref="P:Grpc.Core.RpcException.StatusCode">Status.StatusCode</see>.
             </summary>
         </member>
         <member name="P:Grpc.Core.RpcException.Trailers">
@@ -2647,9 +3456,22 @@
             Instances of <c>RpcException</c> thrown by the server-side part of the stack will have trailers always set to empty.
             </summary>
         </member>
+        <member name="T:Grpc.Core.SerializationContext">
+            <summary>
+            Provides storage for payload when serializing a message.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.SerializationContext.Complete(System.Byte[])">
+            <summary>
+            Use the byte array as serialized form of current message and mark serialization process as complete.
+            Complete() can only be called once. By calling this method the caller gives up the ownership of the
+            payload which must not be accessed afterwards.
+            </summary>
+            <param name="payload">the serialized form of current message</param>
+        </member>
         <member name="T:Grpc.Core.Server">
             <summary>
-            gRPC server. A single server can server arbitrary number of services and can listen on more than one ports.
+            gRPC server. A single server can serve an arbitrary number of services and can listen on more than one port.
             </summary>
         </member>
         <member name="M:Grpc.Core.Server.#ctor">
@@ -2752,7 +3574,7 @@
             Handles the native callback.
             </summary>
         </member>
-        <member name="M:Grpc.Core.Server.HandleServerShutdown(System.Boolean,Grpc.Core.Internal.BatchContextSafeHandle)">
+        <member name="M:Grpc.Core.Server.HandleServerShutdown(System.Boolean,Grpc.Core.Internal.BatchContextSafeHandle,System.Object)">
             <summary>
             Handles native callback.
             </summary>
@@ -2882,6 +3704,65 @@
             </summary>
             <returns>The native credentials.</returns>
         </member>
+        <member name="T:Grpc.Core.SslClientCertificateRequestType">
+            <summary>
+            Modes of requesting client's SSL certificate by the server.
+            Corresponds to <c>grpc_ssl_client_certificate_request_type</c>.
+            </summary>
+        </member>
+        <member name="F:Grpc.Core.SslClientCertificateRequestType.DontRequest">
+            <summary>
+            Server does not request client certificate.
+            The certificate presented by the client is not checked by the server at
+            all. (A client may present a self signed or signed certificate or not
+            present a certificate at all and any of those option would be accepted)
+            </summary>
+        </member>
+        <member name="F:Grpc.Core.SslClientCertificateRequestType.RequestButDontVerify">
+             <summary>
+             Server requests client certificate but does not enforce that the client
+             presents a certificate.
+             If the client presents a certificate, the client authentication is left to
+             the application (the necessary metadata will be available to the
+             application via authentication context properties, see grpc_auth_context).
+             The client's key certificate pair must be valid for the SSL connection to
+             be established.
+            </summary>
+        </member>
+        <member name="F:Grpc.Core.SslClientCertificateRequestType.RequestAndVerify">
+            <summary>
+            Server requests client certificate but does not enforce that the client
+            presents a certificate.
+            If the client presents a certificate, the client authentication is done by
+            the gRPC framework. (For a successful connection the client needs to either
+            present a certificate that can be verified against the root certificate
+            configured by the server or not present a certificate at all)
+            The client's key certificate pair must be valid for the SSL connection to
+            be established.
+            </summary>
+        </member>
+        <member name="F:Grpc.Core.SslClientCertificateRequestType.RequestAndRequireButDontVerify">
+             <summary>
+             Server requests client certificate and enforces that the client presents a
+             certificate.
+             If the client presents a certificate, the client authentication is left to
+             the application (the necessary metadata will be available to the
+             application via authentication context properties, see grpc_auth_context).
+             The client's key certificate pair must be valid for the SSL connection to
+             be established.
+            </summary>
+        </member>
+        <member name="F:Grpc.Core.SslClientCertificateRequestType.RequestAndRequireAndVerify">
+            <summary>
+            Server requests client certificate and enforces that the client presents a
+            certificate.
+            The cerificate presented by the client is verified by the gRPC framework.
+            (For a successful connection the client needs to present a certificate that
+            can be verified against the root certificate configured by the server)
+            The client's key certificate pair must be valid for the SSL connection to
+            be established.
+            </summary>
+        </member>
         <member name="T:Grpc.Core.SslServerCredentials">
             <summary>
             Server-side SSL credentials.
@@ -2893,13 +3774,21 @@
             </summary>
             <param name="keyCertificatePairs">Key-certificates to use.</param>
             <param name="rootCertificates">PEM encoded client root certificates used to authenticate client.</param>
-            <param name="forceClientAuth">If true, client will be rejected unless it proves its unthenticity using against rootCertificates.</param>
+            <param name="forceClientAuth">Deprecated, use clientCertificateRequest overload instead.</param>
+        </member>
+        <member name="M:Grpc.Core.SslServerCredentials.#ctor(System.Collections.Generic.IEnumerable{Grpc.Core.KeyCertificatePair},System.String,Grpc.Core.SslClientCertificateRequestType)">
+            <summary>
+            Creates server-side SSL credentials.
+            </summary>
+            <param name="keyCertificatePairs">Key-certificates to use.</param>
+            <param name="rootCertificates">PEM encoded client root certificates used to authenticate client.</param>
+            <param name="clientCertificateRequest">Options for requesting and verifying client certificate.</param>
         </member>
         <member name="M:Grpc.Core.SslServerCredentials.#ctor(System.Collections.Generic.IEnumerable{Grpc.Core.KeyCertificatePair})">
             <summary>
             Creates server-side SSL credentials.
-            This constructor should be use if you do not wish to autheticate client
-            using client root certificates.
+            This constructor should be used if you do not wish to authenticate the client.
+            (client certificate won't be requested and checked by the server at all).
             </summary>
             <param name="keyCertificatePairs">Key-certificates to use.</param>
         </member>
@@ -2915,7 +3804,12 @@
         </member>
         <member name="P:Grpc.Core.SslServerCredentials.ForceClientAuthentication">
             <summary>
-            If true, the authenticity of client check will be enforced.
+            Deprecated. If true, the authenticity of client check will be enforced.
+            </summary>
+        </member>
+        <member name="P:Grpc.Core.SslServerCredentials.ClientCertificateRequest">
+            <summary>
+            Mode of requesting certificate from client by the server.
             </summary>
         </member>
         <member name="T:Grpc.Core.UnaryServerMethod`2">
@@ -3011,7 +3905,7 @@
         </member>
         <member name="M:Grpc.Core.ServerServiceDefinition.Builder.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.UnaryServerMethod{``0,``1})">
             <summary>
-            Adds a definitions for a single request - single response method.
+            Adds a definition for a single request - single response method.
             </summary>
             <typeparam name="TRequest">The request message class.</typeparam>
             <typeparam name="TResponse">The response message class.</typeparam>
@@ -3021,7 +3915,7 @@
         </member>
         <member name="M:Grpc.Core.ServerServiceDefinition.Builder.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.ClientStreamingServerMethod{``0,``1})">
             <summary>
-            Adds a definitions for a client streaming method.
+            Adds a definition for a client streaming method.
             </summary>
             <typeparam name="TRequest">The request message class.</typeparam>
             <typeparam name="TResponse">The response message class.</typeparam>
@@ -3031,7 +3925,7 @@
         </member>
         <member name="M:Grpc.Core.ServerServiceDefinition.Builder.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.ServerStreamingServerMethod{``0,``1})">
             <summary>
-            Adds a definitions for a server streaming method.
+            Adds a definition for a server streaming method.
             </summary>
             <typeparam name="TRequest">The request message class.</typeparam>
             <typeparam name="TResponse">The response message class.</typeparam>
@@ -3041,7 +3935,7 @@
         </member>
         <member name="M:Grpc.Core.ServerServiceDefinition.Builder.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.DuplexStreamingServerMethod{``0,``1})">
             <summary>
-            Adds a definitions for a bidirectional streaming method.
+            Adds a definition for a bidirectional streaming method.
             </summary>
             <typeparam name="TRequest">The request message class.</typeparam>
             <typeparam name="TResponse">The response message class.</typeparam>
@@ -3054,6 +3948,50 @@
             Creates an immutable <c>ServerServiceDefinition</c> from this builder.
             </summary>
             <returns>The <c>ServerServiceDefinition</c> object.</returns>
+        </member>
+        <member name="T:Grpc.Core.ServiceBinderBase">
+            <summary>
+            Allows binding server-side method implementations in alternative serving stacks.
+            Instances of this class are usually populated by the <c>BindService</c> method
+            that is part of the autogenerated code for a protocol buffers service definition.
+            <seealso cref="T:Grpc.Core.ServerServiceDefinition"/>
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.ServiceBinderBase.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.UnaryServerMethod{``0,``1})">
+            <summary>
+            Adds a definition for a single request - single response method.
+            </summary>
+            <typeparam name="TRequest">The request message class.</typeparam>
+            <typeparam name="TResponse">The response message class.</typeparam>
+            <param name="method">The method.</param>
+            <param name="handler">The method handler.</param>
+        </member>
+        <member name="M:Grpc.Core.ServiceBinderBase.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.ClientStreamingServerMethod{``0,``1})">
+            <summary>
+            Adds a definition for a client streaming method.
+            </summary>
+            <typeparam name="TRequest">The request message class.</typeparam>
+            <typeparam name="TResponse">The response message class.</typeparam>
+            <param name="method">The method.</param>
+            <param name="handler">The method handler.</param>
+        </member>
+        <member name="M:Grpc.Core.ServiceBinderBase.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.ServerStreamingServerMethod{``0,``1})">
+            <summary>
+            Adds a definition for a server streaming method.
+            </summary>
+            <typeparam name="TRequest">The request message class.</typeparam>
+            <typeparam name="TResponse">The response message class.</typeparam>
+            <param name="method">The method.</param>
+            <param name="handler">The method handler.</param>
+        </member>
+        <member name="M:Grpc.Core.ServiceBinderBase.AddMethod``2(Grpc.Core.Method{``0,``1},Grpc.Core.DuplexStreamingServerMethod{``0,``1})">
+            <summary>
+            Adds a definition for a bidirectional streaming method.
+            </summary>
+            <typeparam name="TRequest">The request message class.</typeparam>
+            <typeparam name="TResponse">The response message class.</typeparam>
+            <param name="method">The method.</param>
+            <param name="handler">The method handler.</param>
         </member>
         <member name="T:Grpc.Core.Status">
             <summary>

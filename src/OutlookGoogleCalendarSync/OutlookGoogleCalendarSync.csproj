@@ -129,19 +129,19 @@
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.PatchApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Api.CommonProtos, Version=1.1.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.CommonProtos, Version=1.5.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.CommonProtos.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Api.Gax, Version=2.2.1.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.Gax, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.Gax.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Api.Gax.Grpc, Version=2.2.1.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.Gax.Grpc, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.Gax.Grpc.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis, Version=1.39.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis, Version=1.40.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -157,11 +157,11 @@
       <HintPath>lib\Google.Apis.Calendar.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.Core, Version=1.39.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Core, Version=1.40.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Apis.PlatformServices, Version=1.39.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.PlatformServices, Version=1.40.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -169,7 +169,7 @@
       <HintPath>lib\Google.Cloud.DevTools.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Cloud.Logging.Log4Net, Version=2.2.1.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.Cloud.Logging.Log4Net, Version=2.3.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.Logging.Log4Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -177,11 +177,11 @@
       <HintPath>lib\Google.Cloud.Logging.Type.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Cloud.Logging.V2, Version=2.1.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.Cloud.Logging.V2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.Logging.V2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.3.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+    <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>lib\Google.Protobuf.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -219,7 +219,7 @@
       <HintPath>lib\Squirrel\Mono.Cecil.Rocks.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -230,7 +230,7 @@
       <HintPath>lib\Squirrel\NuGet.Squirrel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SharpCompress, Version=0.17.1.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
+    <Reference Include="SharpCompress, Version=0.23.0.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\SharpCompress.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -238,14 +238,14 @@
       <HintPath>lib\Squirrel\Splat.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Squirrel, Version=1.7.8.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Squirrel, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Squirrel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Interactive.Async, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+    <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>lib\System.Interactive.Async.dll</HintPath>
       <Private>True</Private>
     </Reference>

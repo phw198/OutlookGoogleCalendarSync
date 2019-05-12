@@ -695,11 +695,22 @@
             set to <c>0</c>, requests will never be modified due to URL string length.
             </summary>
         </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.BaseUri">
+            <summary>
+            Gets or sets the base URI to use for the service. If the value is <c>null</c>,
+            the default base URI for the service is used.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Services.BaseClientService.Initializer.#ctor">
             <summary>Constructs a new initializer with default values.</summary>
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.#ctor(Google.Apis.Services.BaseClientService.Initializer)">
             <summary>Constructs a new base client with the specified initializer.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.BaseUriOverride">
+            <summary>
+            The BaseUri provided in the initializer, which may be null.
+            </summary>
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.HasFeature(Google.Apis.Discovery.Features)">
             <summary>Returns <c>true</c> if this service contains the specified feature.</summary>
