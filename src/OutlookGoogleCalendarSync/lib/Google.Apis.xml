@@ -341,6 +341,38 @@
             request message.
             </summary>
         </member>
+        <member name="T:Google.Apis.Requests.ClientServiceRequest">
+            <summary>
+            Represents an abstract request base class to make requests to a service.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Requests.ClientServiceRequest._unsuccessfulResponseHandlers">
+            <summary>Unsuccessful response handlers for this request only.</summary>
+        </member>
+        <member name="F:Google.Apis.Requests.ClientServiceRequest._exceptionHandlers">
+            <summary>Exception handlers for this request only.</summary>
+        </member>
+        <member name="F:Google.Apis.Requests.ClientServiceRequest._executeInterceptors">
+            <summary>Unsuccessful response handlers for this request only.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest.AddUnsuccessfulResponseHandler(Google.Apis.Http.IHttpUnsuccessfulResponseHandler)">
+            <summary>
+            Add an unsuccessful response handler for this request only.
+            </summary>
+            <param name="handler">The unsuccessful response handler. Must not be <c>null</c>.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest.AddExceptionHandler(Google.Apis.Http.IHttpExceptionHandler)">
+            <summary>
+            Add an exception handler for this request only.
+            </summary>
+            <param name="handler">The exception handler. Must not be <c>null</c>.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest.AddExecuteInterceptor(Google.Apis.Http.IHttpExecuteInterceptor)">
+            <summary>
+            Add an unsuccessful response handler for this request only.
+            </summary>
+            <param name="handler">The unsuccessful response handler. Must not be <c>null</c>.</param>
+        </member>
         <member name="T:Google.Apis.Requests.ClientServiceRequest`1">
             <summary>
             Represents an abstract, strongly typed request base class to make requests to a service.
@@ -409,24 +441,6 @@
         </member>
         <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ParseResponse(System.Net.Http.HttpResponseMessage)">
             <summary>Parses the response and deserialize the content into the requested response object. </summary>
-        </member>
-        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddUnsuccessfulResponseHandler(Google.Apis.Http.IHttpUnsuccessfulResponseHandler)">
-            <summary>
-            Add an unsuccessful response handler for this request only.
-            </summary>
-            <param name="handler">The unsuccessful response handler. Must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddExceptionHandler(Google.Apis.Http.IHttpExceptionHandler)">
-            <summary>
-            Add an exception handler for this request only.
-            </summary>
-            <param name="handler">The exception handler. Must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddExecuteInterceptor(Google.Apis.Http.IHttpExecuteInterceptor)">
-            <summary>
-            Add an unsuccessful response handler for this request only.
-            </summary>
-            <param name="handler">The unsuccessful response handler. Must not be <c>null</c>.</param>
         </member>
         <member name="M:Google.Apis.Requests.ClientServiceRequest`1.CreateRequest(System.Nullable{System.Boolean})">
             <inheritdoc/>

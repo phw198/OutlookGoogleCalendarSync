@@ -194,12 +194,12 @@
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ExceptionHandlerKey">
             <summary>
-            Key for unsuccessful response handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for exception handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ExecuteInterceptorKey">
             <summary>
-            Key for unsuccessful response handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for execute handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ResponseStreamInterceptorProviderKey">
