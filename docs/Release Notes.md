@@ -1,6 +1,21 @@
 | Release Notes |
 |:---|
 
+# v2.7.9.0 - Alpha
+
+**Enhancements**
+- Redirect users with COM errors (bad Office installs) to wiki help page
+- If GAL is blocked don't report this as an error.
+- Don't access Outlook appointment organiser if GAL blocked by policy
+- Silently fail if check for OGCS update errors.
+- Use the OGCS logo for system tray notifications
+
+**Bugfix**
+- Copy and paste / click and drag Outlook appointment causing null references
+- Check for custom Google reminders before setting default
+- Improved handling of Exchange errors when obtaining attendee mail addresses
+- Incorrect timezone offset for appointments in Outlook 2003
+
 # v2.7.8.0 - Alpha
 
 **Enhancements**
