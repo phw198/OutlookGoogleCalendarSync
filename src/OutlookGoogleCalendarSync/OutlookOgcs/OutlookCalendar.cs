@@ -968,9 +968,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } catch (System.Runtime.InteropServices.COMException ex) {
                 String hResult = OGCSexception.GetErrorCode(ex);
 
-                if (ex.ErrorCode == -2147221164) {
-                    OGCSexception.Analyse(ex);
-                    throw new ApplicationException("Outlook does not appear to be installed!\nThis is a pre-requisite for this software.");
+                if (ex.Message.Contains("0x800401F3 (CO_E_CLASSSTRING)") || ex.Message.Contains("0x80040154 (REGDB_E_CLASSNOTREG)")) {
+                    log.Warn(ex.Message);
+                    if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
+                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040154---regdb_e_classnotreg");
+                        alreadyRedirectedToWikiForComError.Add(hResult);
+                    }
+                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                        "Please see the wiki for a solution. [" + hResult + "]");
 
                 } else if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
                     (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
