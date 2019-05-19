@@ -968,16 +968,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } catch (System.Runtime.InteropServices.COMException ex) {
                 String hResult = OGCSexception.GetErrorCode(ex);
 
-                if (ex.Message.Contains("0x800401F3 (CO_E_CLASSSTRING)") || ex.Message.Contains("0x80040154 (REGDB_E_CLASSNOTREG)")) {
-                    log.Warn(ex.Message);
-                    if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040154---regdb_e_classnotreg");
-                        alreadyRedirectedToWikiForComError.Add(hResult);
-                    }
-                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution. [" + hResult + "]");
-
-                } else if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
+                if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
                     (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
                     (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
                 {
@@ -994,7 +985,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     throw new ApplicationException("Outlook and OGCS are running in different security elevations.\n" +
                         "Both must be running in Standard or Administrator mode.");
 
-                } else {
+                } else if (!comErrorInWiki(ex)) {
                     log.Error("COM Exception encountered.");
                     OGCSexception.Analyse(ex);
                     if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
@@ -1006,40 +997,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } catch (System.InvalidCastException ex) {
-                if (ex.Message.Contains("0x80004002 (E_NOINTERFACE)")) {
-                    log.Warn(ex.Message);
-                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please perform an Office Repair and then try running OGCS again. [0x80004002]");
-
-                } else if (ex.Message.Contains("0x80040155")) {
-                    log.Warn(ex.Message);
-                    if (!alreadyRedirectedToWikiForComError.Contains("0x80040155")) {
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040155---interface-not-registered");
-                        alreadyRedirectedToWikiForComError.Add("0x80040155");
-                    }
-                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution. [0x80040155]");
-
-                } else if (ex.Message.Contains("0x8002801D (TYPE_E_LIBNOTREGISTERED)")) {
-                    log.Warn(ex.Message);
-                    if (!alreadyRedirectedToWikiForComError.Contains("0x8002801D")) {
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x8002801d---type_e_libnotregistered");
-                        alreadyRedirectedToWikiForComError.Add("0x8002801D");
-                    }
-                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution. [0x8002801D]");
-
-                } else if (ex.Message.Contains("0x80029C4A (TYPE_E_CANTLOADLIBRARY)")) {
-                    log.Warn(ex.Message);
-                    if (!alreadyRedirectedToWikiForComError.Contains("0x80029C4A")) {
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80029c4a---type__e__cantloadlibrary");
-                        alreadyRedirectedToWikiForComError.Add("0x80029C4A");
-                    }
-                    throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
-                        "Please see the wiki for a solution. [0x80029C4A]");
-
-                } else
-                    throw ex;
+                if (!comErrorInWiki(ex)) throw ex;
 
             } catch (System.UnauthorizedAccessException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
@@ -1056,6 +1014,66 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //oApp = oAppClass.CreateObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
                 throw ex;
             }
+        }
+
+        private static Boolean comErrorInWiki(System.Exception ex) {
+            String hResult = OGCSexception.GetErrorCode(ex);
+            String wikiUrl = "";
+
+            try {
+                String html = "";
+                try {
+                    html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
+                } catch (System.Exception) {
+                    log.Fail("Could not download wiki HTML.");
+                    throw;
+                }
+                if (!string.IsNullOrEmpty(html)) {
+                    html = html.Replace("\n", "");
+                    System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"<h2><a.*?href=\""(#"+ hResult +".*?)\"", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    System.Text.RegularExpressions.MatchCollection sourceAnchors = rgx.Matches(html);
+                    if (sourceAnchors.Count == 0) {
+                        log.Debug("Could you not find the COM error " + hResult + " in the wiki.");
+                    } else {
+                        wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors" + sourceAnchors[0].Groups[1].Value;
+                    }
+                }
+
+            } catch (System.Exception htmlEx) {
+                OGCSexception.Analyse("Could not parse Wiki for existance of COM error.", htmlEx);
+            }
+
+            if (string.IsNullOrEmpty(wikiUrl)) {
+                log.Warn("Did not find COM error in Wiki, so now checking for hard-coded URLs.");
+                if (ex.Message.Contains("0x80004002 (E_NOINTERFACE)")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80004002---e_nointerface";
+
+                } else if (ex.Message.Contains("0x8002801D (TYPE_E_LIBNOTREGISTERED)")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x8002801d---type_e_libnotregistered";
+
+                } else if (ex.Message.Contains("0x80029C4A (TYPE_E_CANTLOADLIBRARY)")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80029c4a---type__e__cantloadlibrary";
+
+                } else if (ex.Message.Contains("0x800401F3 (CO_E_CLASSSTRING)")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x800401f3---co_e_classstring";
+
+                } else if (ex.Message.Contains("0x80040154 (REGDB_E_CLASSNOTREG)")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040154---regdb_e_classnotreg";
+
+                } else if (ex.Message.Contains("0x80040155")) {
+                    wikiUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors#0x80040155---interface-not-registered";
+                }
+            }
+
+            if (string.IsNullOrEmpty(wikiUrl)) return false;
+
+            log.Warn(ex.Message);
+            if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
+                System.Diagnostics.Process.Start(wikiUrl);
+                alreadyRedirectedToWikiForComError.Add(hResult);
+            }
+            throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
+                "Please see the wiki for a solution. [" + hResult + "]");
         }
 
         public static string signature(AppointmentItem ai) {
