@@ -78,7 +78,7 @@
             this.lTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lTitle.Location = new System.Drawing.Point(12, 9);
             this.lTitle.Name = "lTitle";
-            this.lTitle.Size = new System.Drawing.Size(190, 18);
+            this.lTitle.Size = new System.Drawing.Size(194, 18);
             this.lTitle.TabIndex = 5;
             this.lTitle.Text = "Help make OGCS better!";
             // 
@@ -153,7 +153,7 @@
             this.tbLog.Text = "";
             this.tbLog.WordWrap = false;
             // 
-            // CloudLogging
+            // ErrorReporting
             // 
             this.AcceptButton = this.btYes;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -172,7 +172,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(703, 431);
-            this.Name = "CloudLogging";
+            this.Name = "ErrorReporting";
             this.Text = "OGCS Error Encountered";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.CloudLogging_Load);

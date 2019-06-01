@@ -9,7 +9,7 @@
 <img src="https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/images/development.jpg" v
 align="left" width="100px"/> 
 A lot of work has gone in to this project.  
-If you would like to support me and further development of this tool, please [![donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section)  
+If you would like to support me and further development of this tool, please [![donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section)  
 If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-Problems)! :beetle:  
 
 
@@ -17,41 +17,25 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
 
 ## Downloads & Statistics
 :gear: [See the wiki](https://github.com/phw198/OutlookGoogleCalendarSync/wiki) for install, configuration guides and more.
-### Latest Beta Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
+### Latest Beta Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.8.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
 
-:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Setup.exe)
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.0-beta/Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.8.0-beta/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.0-beta/Setup.exe)
  
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Portable_OGCS_v2.7.0.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/Portable_OGCS_v2.7.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.0-beta/Portable_OGCS_v2.7.0.zip)
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.0-beta/Portable_OGCS_v2.8.0.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.8.0-beta/Portable_OGCS_v2.8.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.0-beta/Portable_OGCS_v2.8.0.zip)
 
 :information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/OutlookGoogleCalendarSync-2.7.0-beta-full.nupkg.svg)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.0-beta/OutlookGoogleCalendarSync-2.7.0-beta-delta.nupkg.svg)
-
-### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.7.9-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.9-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.7.9-alpha)
-
-:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.9-alpha/Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.9-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.9-alpha/Setup.exe)
- 
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.9-alpha/Portable_OGCS_v2.7.9.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.9-alpha/Portable_OGCS_v2.7.9.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.7.9-alpha/Portable_OGCS_v2.7.9.zip)
-
-:information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.9-alpha/OutlookGoogleCalendarSync-2.7.9-alpha-full.nupkg.svg)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.7.9-alpha/OutlookGoogleCalendarSync-2.7.9-alpha-delta.nupkg.svg)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.8.0-beta/OutlookGoogleCalendarSync-2.8.0-beta-full.nupkg.svg)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.8.0-beta/OutlookGoogleCalendarSync-2.8.0-beta-delta.nupkg.svg)
 
 ## Functionality
-<img align="right" width="35%" src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/supported_sync_configs.png" alt="Supported configurations"/>
-
-- Supports all versions of Outlook from 2003 to 2016 64-bit!
+- Supports all versions of Outlook from 2003 to 2019 64-bit!
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
    - Outlook :arrow_left: Google
    - Outlook :left_right_arrow: Google (two-way/bidirectional sync)
-   - :gear: See diagram on the right for supported configurations. <br/>
-     New with v2.7.6 - now supports _all_ configurations!
 - Includes the following event attributes:
    - Subject
    - Description
@@ -60,6 +44,7 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
    - Reminder events
    - Availability (free/busy)
    - Privacy (public/private)
+   - Colour / category
 - Differential comparison updates only attributes that have changed
 - Customisable date range to synchronise, past and future
 - Frequency of automatic syncs, including push-sync from Outlook
