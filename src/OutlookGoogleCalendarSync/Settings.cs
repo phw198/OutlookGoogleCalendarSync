@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
-            Subscribed = DateTime.Parse("01-Jan-2000");
+            subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
             hideSplashScreen = false;
             suppressSocialPopup = false;
