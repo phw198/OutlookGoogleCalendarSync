@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         /// <param name="updateButton">The button that triggered this, if manually called.</param>
         public async void CheckForUpdate(Button updateButton = null) {
-            if (string.IsNullOrEmpty(nonGitHubReleaseUri) && System.Diagnostics.Debugger.IsAttached) return;
+            if (string.IsNullOrEmpty(nonGitHubReleaseUri) && Program.InDeveloperMode) return;
 
             bt = updateButton;
             log.Debug((isManualCheck ? "Manual" : "Automatic") + " update check requested.");

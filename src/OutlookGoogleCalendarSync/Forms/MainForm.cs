@@ -1284,7 +1284,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         #region When
         public int MinSyncMinutes {
             get {
-                if (System.Diagnostics.Debugger.IsAttached) return 1;
+                if (Program.InDeveloperMode) return 1;
                 else {
                     if (Settings.Instance.OutlookPush && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook)
                         return 120;

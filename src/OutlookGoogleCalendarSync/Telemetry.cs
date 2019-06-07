@@ -7,7 +7,7 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(Telemetry));
 
         public static void TrackVersions() {
-            if (System.Diagnostics.Debugger.IsAttached) return;
+            if (Program.InDeveloperMode) return;
 
             //OUTLOOK CLIENT
             String outlookVersion = "Unknown";
@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void TrackSync() {
-            if (System.Diagnostics.Debugger.IsAttached) return;
+            if (Program.InDeveloperMode) return;
             Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
         }
 
@@ -47,7 +47,7 @@ namespace OutlookGoogleCalendarSync {
             }
             String analyticsUrl = baseAnalyticsUrl + "&ec=" + category.ToString() + "&ea=" + action.ToString() + "&el=" + System.Net.WebUtility.UrlEncode(label);
             log.Debug("Retrieving URL: " + analyticsUrl);
-            if (System.Diagnostics.Debugger.IsAttached) return;
+            if (Program.InDeveloperMode) return;
 
             WebClient wc = new WebClient();
             wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);

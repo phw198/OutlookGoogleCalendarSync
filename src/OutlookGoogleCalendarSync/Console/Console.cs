@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync {
             if (this.wb != null) return;
             this.wb = wb;
 
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (Program.InDeveloperMode)
                 wb.IsWebBrowserContextMenuEnabled = true;
 
             wb.Navigate("about:blank");
@@ -424,7 +424,9 @@ namespace OutlookGoogleCalendarSync {
                     System.Windows.Forms.Application.DoEvents();
                     System.Threading.Thread.Sleep(100);
                 }
-            } catch { }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
             log.Debug("Done");
         }
     }
