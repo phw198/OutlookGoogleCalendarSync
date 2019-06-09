@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
@@ -46,6 +45,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Fail,
             Abandon,
             AutoRetry,
+            ReconnectThenRetry,
             UserCancelled
         }
         private int consecutiveSyncFails = 0;
@@ -193,10 +193,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Warn(ex.Message);
                     syncResult = SyncResult.AutoRetry;
                 }
-                while (syncResult == SyncResult.Fail) {
-                    if (failedAttempts > 0) {
+                while (syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) {
+                    if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
                         if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
+                            log.Info("User opted to abandon further syncs.");
                             syncResult = SyncResult.Abandon;
                             break;
                         } else
@@ -224,6 +225,15 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
+
+                                } else if (ex is System.InvalidCastException && ex.Message.Contains("0x800706BA") //The RPC server is unavailable
+                                    || ex is System.Runtime.InteropServices.COMException && ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") //The object invoked has disconnected from its clients
+                                    ) {
+                                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                                    mainFrm.Console.Update("It looks like Outlook was closed during the sync.<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                    System.Threading.Thread.Sleep(10 * 1000);
+                                    syncResult = SyncResult.ReconnectThenRetry;
+                                    
                                 } else {
                                     OGCSexception.Analyse(ex, true);
                                     mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
@@ -239,10 +249,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                         System.Threading.Thread.Sleep(100);
                     }
                     try {
-                        //Get Logbox text - this is a little bit dirty!
-                        if (syncResult != SyncResult.OK && mainFrm.Console.DocumentText.Contains("The RPC server is unavailable.")) {
+                        if (syncResult == SyncResult.ReconnectThenRetry) {
                             mainFrm.Console.Update("Attempting to reconnect to Outlook...");
-                            try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                            try {
+                                OutlookOgcs.Calendar.Instance.Reset();
+                            } catch (System.Exception ex) {
+                                mainFrm.Console.UpdateWithError("A problem was encountered reconnecting to Outlook.<br/>Further syncs aborted.", ex, notifyBubble: true);
+                                syncResult = SyncResult.Abandon;
+                            }
                         }
                     } finally {
                         failedAttempts += (syncResult != SyncResult.OK) ? 1 : 0;

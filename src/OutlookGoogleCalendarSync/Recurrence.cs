@@ -760,7 +760,7 @@ namespace OutlookGoogleCalendarSync {
                                     log.Debug("Found Outlook exception for " + instanceDate);
                                     if (exceptionIsDeleted(oExcp)) {
                                         log.Debug("This exception is deleted.");
-                                        break;
+                                        return;
                                     } else {
                                         ai = oExcp.AppointmentItem;
                                         break;
