@@ -1011,13 +1011,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             if (calendars != null) {
                 cbGoogleCalendars.Items.Clear();
-                calendars.Sort((x, y) => x.Name.CompareTo(y.Name));
+                calendars.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
                 foreach (GoogleCalendarListEntry mcle in calendars) {
                     cbGoogleCalendars.Items.Add(mcle);
                     if (cbGoogleCalendars.SelectedIndex == -1 && mcle.Id == Settings.Instance.UseGoogleCalendar.Id)
                         cbGoogleCalendars.SelectedItem = mcle;
                 }
-                if (cbGoogleCalendars.SelectedIndex == -1 ) {
+                if (cbGoogleCalendars.SelectedIndex == -1) {
                     cbGoogleCalendars.SelectedIndex = 0;
                 }
                 tbClientID.ReadOnly = true;
@@ -1031,6 +1031,11 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Instance.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
+            if (cbGoogleCalendars.Text.StartsWith("[Read Only]") && Settings.Instance.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
+                MessageBox.Show("You cannot " + (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
+                    "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabGoogle"];
+            }
         }
 
         private void btResetGCal_Click(object sender, EventArgs e) {
@@ -1038,8 +1043,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Useful if you want to start syncing to a different account.",
                 "Reset Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
                 log.Info("User requested reset of Google authentication details.");
-                Settings.Instance.UseGoogleCalendar.Id = null;
-                Settings.Instance.UseGoogleCalendar.Name = null;
+                Settings.Instance.UseGoogleCalendar = new GoogleCalendarListEntry();
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
@@ -1171,6 +1175,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
+            cbGoogleCalendars_SelectedIndexChanged(null, null);
             showWhatPostit("Description");
         }
 

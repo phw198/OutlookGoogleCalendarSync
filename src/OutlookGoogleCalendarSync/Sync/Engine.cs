@@ -252,7 +252,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (syncResult == SyncResult.OK) {
                     Settings.Instance.CompletedSyncs++;
                     consecutiveSyncFails = 0;
-                    mainFrm.Console.Update("Sync finished with success!", Console.Markup.checkered_flag);
+                    mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
@@ -263,7 +263,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    mainFrm.Console.Update("Operation aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
+                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
                 }
 
                 setNextSync(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
