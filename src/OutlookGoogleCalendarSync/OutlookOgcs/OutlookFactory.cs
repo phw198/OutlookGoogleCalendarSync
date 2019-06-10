@@ -43,6 +43,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
 
+            } catch (System.Exception ex) {
+                OutlookOgcs.Calendar.PoorlyOfficeInstall(ex);
             } finally {
                 if (oApp != null) {
                     System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
@@ -51,7 +53,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        public static Boolean is2003() {
+        public static Boolean Is2003() {
             return outlookVersionFull == "11";
         }
     }

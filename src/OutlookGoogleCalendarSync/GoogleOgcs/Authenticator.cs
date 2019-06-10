@@ -74,23 +74,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 ApiKeyring apiKeyring = new ApiKeyring();
 
-                if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000")) {
-                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber) && apiKeyring.Key != null) {
-                        provider.ClientId = apiKeyring.Key.ClientId;
-                        provider.ClientSecret = apiKeyring.Key.ClientSecret;
-                    } else {
-                        provider.ClientId = "550071650559-44lnvhdu5liq5kftj5t8k0aasgei5g7t.apps.googleusercontent.com";
-                        provider.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
-                    }
-                } else {
-                    if (apiKeyring.PickKey(ApiKeyring.KeyType.Standard) && apiKeyring.Key != null) {
-                        provider.ClientId = apiKeyring.Key.ClientId;
-                        provider.ClientSecret = apiKeyring.Key.ClientSecret;
-                    } else {
-                        provider.ClientId = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
-                        provider.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
-                    }
-                }
+                if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000"))
+                    apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber);
+                else
+                    apiKeyring.PickKey(ApiKeyring.KeyType.Standard);
+
+                provider.ClientId = apiKeyring.Key.ClientId;
+                provider.ClientSecret = apiKeyring.Key.ClientSecret;
             }
             return provider;
         }

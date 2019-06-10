@@ -41,7 +41,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         
-        public Boolean PickKey(KeyType keyType) {
+        public void PickKey(KeyType keyType) {
             log.Debug("Picking a " + keyType.ToString() + " key.");
             try {
                 List<ApiKey> keyRing = (keyType == KeyType.Standard) ? standardKeys : subscriberKeys;
@@ -52,34 +52,28 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     {
                         log.Debug("Using key from settings file.");
                         key = new ApiKey(Settings.Instance.AssignedClientIdentifier, Settings.Instance.AssignedClientSecret);
-                        return true;
                     } else {
                         log.Debug("Reverting to default key.");
-                        Settings.Instance.AssignedClientIdentifier = "";
-                        return false;
+                        Key = new ApiKey.DefaultKey(keyType);
                     }
+                    return;
                 }
 
                 if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier)) {
+                    log.Fine("Checking " + (Settings.Instance.AssignedClientIdentifier == new ApiKey.DefaultKey(keyType).ClientId ? "" : "non-") + "default assigned API key is still on the keyring.");
                     ApiKey retrievedKey = keyRing.Find(k => k.ClientId == Settings.Instance.AssignedClientIdentifier);
                     if (retrievedKey == null) {
                         log.Warn("Could not find assigned key on keyring!");
                         if (standardKeys.Concat(subscriberKeys).Any(k => k.ClientId == Settings.Instance.AssignedClientIdentifier)) {
                             log.Warn("The key was been taken from the other keyring!");
                         }
-                        if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier) &&
-                            !string.IsNullOrEmpty(Settings.Instance.AssignedClientSecret)) 
-                        {
-                            log.Debug("Using key from settings file.");
-                            key = new ApiKey(Settings.Instance.AssignedClientIdentifier, Settings.Instance.AssignedClientSecret);
-                            return true;
-                        }
+                        log.Debug("Picking a new key from the ring.");
                     } else {
                         if (retrievedKey.Status == KeyStatus.DEAD.ToString())
                             log.Warn("The assigned key can no longer be used. A new key must be assigned.");
                         else {
-                            key = retrievedKey;
-                            return true;
+                            Key = retrievedKey;
+                            return;
                         }
                     }
                 }
@@ -88,13 +82,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 int chosenKey = rnd.Next(0, keyRing.Count - 1);
                 log.Fine("Picked random active key #" + chosenKey + 1);
                 Key = keyRing[chosenKey];
-                return true;
 
             } catch (System.Exception ex) {
-                log.Error("Failed picking API key. clientID=" + Settings.Instance.AssignedClientIdentifier);
-                log.Error(ex.Message);
-                Settings.Instance.AssignedClientIdentifier = "";
-                return false;
+                log.Fail("Failed picking "+ keyType.ToString() +" API key. clientID=" + Settings.Instance.AssignedClientIdentifier);
+                OGCSexception.Analyse(ex);
+                log.Debug("Reverting to default key.");
+                Key = new ApiKey.DefaultKey(keyType);
             }
         }
         
@@ -124,12 +117,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (!string.IsNullOrEmpty(html)) {
                 html = html.Replace("\n", "");
-                MatchCollection keyRecords = findText(html, @"<article class=\""markdown-body entry-content\"".*?<tbody>(<tr>.*?</tr>)</tbody></table>");
+                MatchCollection keyRecords = findText(html, @"<table><thead>.*?<tbody>(<tr>.*?</tr>)</tbody></table>");
                 if (keyRecords.Count == 0) {
-                    log.Warn("Could you not find table of keys.");
+                    log.Warn("Could not find table of keys.");
                     return keyRing;
                 }
-                foreach (String record in keyRecords[0].Captures[0].Value.Split(new string[]{"<tr>"}, StringSplitOptions.None)) {
+                foreach (String record in keyRecords[0].Captures[0].Value.Split(new string[]{"<tr>"}, StringSplitOptions.None).Skip(2)) {
                     MatchCollection keyAttributes = findText(record, @"<td.*?>(.*?)</td>");
                     if (keyAttributes.Count > 0) {
                         try {
@@ -160,19 +153,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class ApiKey {
         private static readonly ILog log = LogManager.GetLogger(typeof(ApiKey));
         
-        private String type;
-        private String projectName;
-        private String projectId;
-        private String status;
-        private String clientId;
-        private String clientSecret;
-        
-        public String Type { get { return type; } }
-        public String ProjectName { get { return projectName; } }
-        public String ProjectID { get { return projectId; } }
-        public String Status { get { return status; } }
-        public String ClientId { get { return clientId; } }
-        public String ClientSecret { get { return clientSecret; } }
+        public String Type { get; protected set; }
+        public String ProjectName { get; protected set; }
+        public String ProjectID { get; protected set; }
+        public String Status { get; protected set; }
+        public String ClientId { get; protected set; }
+        public String ClientSecret { get; protected set; }
 
         public ApiKey(MatchCollection keyAttributes) {
             //Table columns
@@ -185,12 +171,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             try {
                 log.Debug(keyAttributes[keyProjectName - 1].Groups[1] + " = " + keyAttributes[keyStatus - 1].Groups[1]);
-                type = keyAttributes[keyType - 1].Groups[1].ToString();
-                projectName = keyAttributes[keyProjectName - 1].Groups[1].ToString();
-                projectId = keyAttributes[keyProjectID - 1].Groups[1].ToString();
-                status = keyAttributes[keyStatus - 1].Groups[1].ToString();
-                clientId = keyAttributes[keyClientId - 1].Groups[1].ToString();
-                clientSecret = keyAttributes[keySecret - 1].Groups[1].ToString();
+                this.Type = keyAttributes[keyType - 1].Groups[1].ToString();
+                this.ProjectName = keyAttributes[keyProjectName - 1].Groups[1].ToString();
+                this.ProjectID = keyAttributes[keyProjectID - 1].Groups[1].ToString();
+                this.Status = keyAttributes[keyStatus - 1].Groups[1].ToString();
+                this.ClientId = keyAttributes[keyClientId - 1].Groups[1].ToString();
+                this.ClientSecret = keyAttributes[keySecret - 1].Groups[1].ToString();
             } catch (System.Exception ex) {
                 log.Error("Failed creating API key.");
                 OGCSexception.Analyse(ex);
@@ -199,8 +185,29 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public ApiKey(String clientId, String clientSecret) {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
+            this.ClientId = clientId;
+            this.ClientSecret = clientSecret;
+        }
+
+        private ApiKey() { }
+
+        public class DefaultKey : ApiKey {
+            public DefaultKey(ApiKeyring.KeyType type) {
+                this.Type = type.ToString();
+                this.Status = "ACTIVE";
+                if (type == ApiKeyring.KeyType.Standard) {
+                    this.ProjectName = "OGCS Default";
+                    this.ProjectID = "outlook-google-calendar-sync";
+                    this.ClientId = "653617509806-2nq341ol8ejgqhh2ku4j45m7q2bgdimv.apps.googleusercontent.com";
+                    this.ClientSecret = "tAi-gZLWtasS58i8CcCwVwsq";
+
+                } else if (type == ApiKeyring.KeyType.Subscriber) {
+                    this.ProjectName = "Premium OGCS";
+                    this.ProjectID = "premium-ogcs";
+                    this.ClientId = "550071650559-44lnvhdu5liq5kftj5t8k0aasgei5g7t.apps.googleusercontent.com";
+                    this.ClientSecret = "MGUFapefXClJa2ysS4WNGS4k";
+                }
+            }
         }
     }
 }

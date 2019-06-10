@@ -133,7 +133,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #region Outlook box
             #region Mailbox
-            if (OutlookOgcs.Factory.is2003()) {
+            if (OutlookOgcs.Factory.Is2003()) {
                 rbOutlookDefaultMB.Checked = true;
                 rbOutlookAltMB.Enabled = false;
                 rbOutlookSharedCal.Enabled = false;
@@ -756,8 +756,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 } else {
                     if (tbSyncNote.Tag.ToString().Contains("OGCS Premium renewal")) {
-                        MessageBox.Show("Please ensure you don't already have an active recurring annual payment set up in PayPal :-)", "Recurring payment already configured?",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Before renewing, please ensure you don't already have an active recurring annual payment set up in PayPal :-)", 
+                            "Recurring payment already configured?", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
                 }
@@ -1143,7 +1143,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (tbTargetCalendar.Items.Contains("target calendar"))
                     tbTargetCalendar.Items.Remove("target calendar");
                 tbTargetCalendar.SelectedIndex = 0;
-                tbTargetCalendar.Enabled = cbPrivate.Checked || cbAvailable.Checked;
+                tbTargetCalendar.Enabled = cbPrivate.Checked || cbAvailable.Checked || cbColour.Checked;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id - 1;

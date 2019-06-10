@@ -100,7 +100,7 @@ namespace OutlookGoogleCalendarSync {
             Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "CloudLogging=" + confirmative.ToString());
 
             try {
-                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbCloudLogging, "Checked", confirmative);
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbCloudLogging, "CheckState", confirmative ? CheckState.Checked : CheckState.Unchecked);
             } catch { }
 
             if (confirmative) replayLogs();

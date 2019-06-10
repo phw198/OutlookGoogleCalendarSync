@@ -1,6 +1,46 @@
 | Release Notes |
 |:---|
 
+# v2.8.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- Sync colours / categories
+- Option to force particular colour for synced items
+- Option to not sync Outlook invites you have yet to responded to
+- Syncing a common calendar to/from more than one other now supported!
+- Added option for users to automatically feedback errors
+- Command line parameters to support multi-instance OGCS
+- Better ability to cancel a running sync
+- OGCS stays responsive whilst Oauth process takes place; can be cancelled
+- Detect Windows system timezone changes
+- Improved Push sync mechanism
+- Collapsible sections added to Sync Options configuration screen
+- Properly retrieve meeting organiser's timezone
+- G->O: Allow synced items to be assigned specific category (not just colour)
+- Show authorised Google account on Settings tab
+- Better timing of auto-retry for when quota renewed after API exhausted
+- Option to configure the browser's User Agent in the GUI
+- Options to use (or not) Outlook/Google calendar defaults for reminders
+- Don't update last sync date if sync unsuccessful
+- New window for social links; option to suppress for donors
+- Redirect users with COM errors (bad Office installs) to wiki help page
+- Use the OGCS logo for system tray notifications
+----
+# v2.7.9.0 - Alpha
+
+**Enhancements**
+- Redirect users with COM errors (bad Office installs) to wiki help page
+- If GAL is blocked don't report this as an error.
+- Don't access Outlook appointment organiser if GAL blocked by policy
+- Silently fail if check for OGCS update errors.
+- Use the OGCS logo for system tray notifications
+
+**Bugfix**
+- Copy and paste / click and drag Outlook appointment causing null references
+- Check for custom Google reminders before setting default
+- Improved handling of Exchange errors when obtaining attendee mail addresses
+- Incorrect timezone offset for appointments in Outlook 2003
+
 # v2.7.8.0 - Alpha
 
 **Enhancements**

@@ -105,7 +105,13 @@ namespace OutlookGoogleCalendarSync {
         }
         
         public static void ExportElement(string nodeName, object nodeValue, string filename) {
-            XDocument xml = XDocument.Load(filename);
+            XDocument xml = null;
+            try {
+                xml = XDocument.Load(filename);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to load " + filename, ex, true);
+                throw ex;
+            }
             XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();

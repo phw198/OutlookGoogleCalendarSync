@@ -49,6 +49,8 @@ namespace OutlookGoogleCalendarSync {
 
         private static Settings instance;
         //Settings saved immediately
+        private String assignedClientIdentifier;
+        private String assignedClientSecret;
         private Boolean apiLimit_inEffect;
         private DateTime apiLimit_lastHit;
         private DateTime lastSyncDate;
@@ -57,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean alphaReleases;
         private String version;
         private Boolean donor;
+        private DateTime subscribed;
         private Boolean hideSplashScreen;
         private Boolean suppressSocialPopup;
 
@@ -137,7 +140,7 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
-            Subscribed = DateTime.Parse("01-Jan-2000");
+            subscribed = DateTime.Parse("01-Jan-2000");
             donor = false;
             hideSplashScreen = false;
             suppressSocialPopup = false;
@@ -185,7 +188,6 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
         #region Google
-        private String assignedClientIdentifier;
         [DataMember] public String AssignedClientIdentifier {
             get { return assignedClientIdentifier; }
             set {
@@ -193,7 +195,6 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("AssignedClientIdentifier", value.Trim(), ConfigFile);
             }
         }
-        private String assignedClientSecret;
         [DataMember] public String AssignedClientSecret {
             get { return assignedClientSecret; }
             set {
@@ -342,7 +343,13 @@ namespace OutlookGoogleCalendarSync {
         public Boolean UserIsBenefactor() {
             return Subscribed != DateTime.Parse("01-Jan-2000") || donor;
         }
-        [DataMember] public DateTime Subscribed { get; set; }
+        [DataMember] public DateTime Subscribed {
+            get { return subscribed; }
+            set {
+                subscribed = value;
+                if (!loading()) XMLManager.ExportElement("Subscribed", value, ConfigFile);
+            }
+        }
         [DataMember] public Boolean Donor {
             get { return donor; }
             set {

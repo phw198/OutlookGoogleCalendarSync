@@ -616,7 +616,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
             String organiserTZname = null;
             String organiserTZid = null;
-            if (ai.Organizer != CurrentUserName()) {
+            if (!Settings.Instance.OutlookGalBlocked && ai.Organizer != CurrentUserName()) {
                 log.Fine("Meeting organiser is someone else - checking their timezone.");
                 try {
                     PropertyAccessor pa = null;
