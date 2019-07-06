@@ -351,7 +351,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String IANAdate(DateTime dt) {
-            return dt.ToUniversalTime().ToString("yyyyMMddTHHmmssZ");
+            return dt.ToString("yyyyMMddTHHmmssZ");
         }
         #endregion
 
