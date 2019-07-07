@@ -108,7 +108,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
             if (!onlyWhenNoGUI ||
-                (onlyWhenNoGUI && oApp.Explorers.Count == 0)) 
+                (onlyWhenNoGUI && (oApp == null || oApp.Explorers.Count == 0)))
             {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
@@ -127,7 +127,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
                 log.Info("Disconnecting from Outlook application.");
-                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                if (oApp != null) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
                 oApp = null;
                 GC.Collect();
             }
