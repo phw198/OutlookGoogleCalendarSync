@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.WindowState = FormWindowState.Minimized;
             }
             if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
-                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
             }
         }
 

@@ -77,10 +77,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Wrapper for IOutlook.Disconnect - cannot dereference fully inside interface
         /// </summary>
-        public void Disconnect(Boolean onlyWhenNoGUI = false) {
+        public static void Disconnect(Boolean onlyWhenNoGUI = false) {
+            InstanceConnect = false;
             Instance.IOutlook.Disconnect(onlyWhenNoGUI);
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            InstanceConnect = true;
         }
 
         /// <summary>

@@ -294,8 +294,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
                 if (!OutlookOgcs.Calendar.IsInstanceNull) {
                     try {
-                        OutlookOgcs.Calendar.InstanceConnect = false;
-                        OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
+                        OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse("Could not disconnect from Outlook instance.", OGCSexception.LogAsFail(ex));
                     }
