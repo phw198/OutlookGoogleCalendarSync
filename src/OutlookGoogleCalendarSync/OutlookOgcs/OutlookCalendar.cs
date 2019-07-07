@@ -19,8 +19,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Whether instance of OutlookCalendar class should connect to Outlook application
         /// </summary>
-        public static Boolean InstanceConnect = true;
-        public static Boolean IsInstanceNull { get { return instance == null; } }
+        public static Boolean InstanceConnect { get; private set; }
+
         public static Calendar Instance {
             get {
                 try {
@@ -64,6 +64,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         public Calendar() {
+            InstanceConnect = true;
             IOutlook = Factory.GetOutlookInterface();
         }
 
@@ -78,11 +79,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// Wrapper for IOutlook.Disconnect - cannot dereference fully inside interface
         /// </summary>
         public static void Disconnect(Boolean onlyWhenNoGUI = false) {
-            InstanceConnect = false;
-            Instance.IOutlook.Disconnect(onlyWhenNoGUI);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            InstanceConnect = true;
+            if (instance == null) return;
+
+            try {
+                InstanceConnect = false;
+                Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not disconnect from Outlook.", OGCSexception.LogAsFail(ex));
+            } finally {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                InstanceConnect = true;
+            }
         }
 
         /// <summary>

@@ -99,11 +99,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
-                try {
-                    if (!OutlookOgcs.Calendar.IsInstanceNull) {
-                        OutlookOgcs.Calendar.Disconnect();
-                    }
-                } catch { }
+                OutlookOgcs.Calendar.Disconnect();
             }
             Forms.Splash.CloseMe();
             GC.Collect();
