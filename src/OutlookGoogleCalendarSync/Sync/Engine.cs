@@ -226,8 +226,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         syncResult = SyncResult.AutoRetry;
                                     }
 
-                                } else if (ex is System.InvalidCastException && ex.Message.Contains("0x800706BA") //The RPC server is unavailable
-                                    || ex is System.Runtime.InteropServices.COMException && ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") //The object invoked has disconnected from its clients
+                                } else if (OGCSexception.GetErrorCode(ex) == "0x800706BA" //The RPC server is unavailable
+                                    || (ex is System.Runtime.InteropServices.COMException && ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)")) //The object invoked has disconnected from its clients
                                     ) {
                                     OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
                                     mainFrm.Console.Update("It looks like Outlook was closed during the sync.<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
