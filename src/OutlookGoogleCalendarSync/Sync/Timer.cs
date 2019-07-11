@@ -38,6 +38,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         private void ogcsTimer_Tick(object sender, EventArgs e) {
+            if (Forms.ErrorReporting.Instance.Visible) return;
             log.Debug("Scheduled sync triggered.");
 
             Forms.Main frm = Forms.Main.Instance;
@@ -137,6 +138,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
+            if (Forms.ErrorReporting.Instance.Visible) return;
             log.Fine("Push sync triggered.");
 
             try {

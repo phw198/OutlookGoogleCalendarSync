@@ -1320,8 +1320,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
                     if ((int)tbInterval.Value < MinSyncMinutes)
                         tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : MinSyncMinutes;
-                    else if ((int)tbInterval.Value > 120) {
-                        tbInterval.Value = 3;
+                    else if ((int)tbInterval.Value > MinSyncMinutes) {
+                        tbInterval.Value = (MinSyncMinutes / 60) + 1;
                         cbIntervalUnit.Text = "Hours";
                     }
 

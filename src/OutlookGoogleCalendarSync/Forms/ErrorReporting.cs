@@ -10,8 +10,18 @@ namespace OutlookGoogleCalendarSync.Forms {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 
         private String logFile;
-
-        public ErrorReporting() {
+        private static ErrorReporting instance;
+        public static ErrorReporting Instance {
+            get {
+                if (instance == null || instance.IsDisposed) instance = new ErrorReporting();
+                return instance;
+            }
+            set {
+                instance = value;
+            }
+        }
+            
+        private ErrorReporting() {
             InitializeComponent();
             logFile = Path.Combine(log4net.GlobalContext.Properties["LogPath"].ToString(), log4net.GlobalContext.Properties["LogFilename"].ToString());
         }
@@ -40,19 +50,26 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 //Highlight the ERROR text and scroll so it's in view
                 int lastError = tbLog.Text.LastIndexOf(" ERROR ") + 1;
+                if (lastError == 0) lastError = tbLog.Text.LastIndexOf(" FATAL ") + 1;
                 int highlightLength = tbLog.Text.Substring(lastError).IndexOf("\n");
                 tbLog.Select(lastError, highlightLength);
-                tbLog.SelectionBackColor = System.Drawing.Color.Yellow;
 
-                int previousLineBreak= tbLog.Text.Substring(0, lastError).LastIndexOf("\n");
-                tbLog.SelectionStart = previousLineBreak;
-                tbLog.ScrollToCaret();
+                if (tbLog.SelectionStart != 0) {
+                    tbLog.SelectionBackColor = System.Drawing.Color.Yellow;
 
+                    int previousLineBreak = tbLog.Text.Substring(0, lastError).LastIndexOf("\n");
+                    tbLog.SelectionStart = previousLineBreak;
+                    tbLog.ScrollToCaret();
+                }
                 btYes.Focus();
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
+        }
+
+        private void tbLog_Resize(object sender, EventArgs e) {
+            tbLog.ScrollToCaret();
         }
     }
 }

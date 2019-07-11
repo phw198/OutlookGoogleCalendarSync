@@ -47,24 +47,24 @@ namespace OutlookGoogleCalendarSync {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            GoogleOgcs.ErrorReporting.Initialise();
-            
-            RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-            parseArgumentsAndInitialise(args);
-            
-            Updater.MakeSquirrelAware();
-            Forms.Splash.ShowMe();
-
-            log.Debug("Loading settings from file.");
-            Settings.Load();
-            
-            Updater = new Updater();
-            isNewVersion(Program.IsInstalled); 
-            Updater.CheckForUpdate();
-
-            TimezoneDB.Instance.CheckForUpdate();
-
             try {
+                GoogleOgcs.ErrorReporting.Initialise();
+
+                RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+                parseArgumentsAndInitialise(args);
+
+                Updater.MakeSquirrelAware();
+                Forms.Splash.ShowMe();
+
+                log.Debug("Loading settings from file.");
+                Settings.Load();
+
+                Updater = new Updater();
+                isNewVersion(Program.IsInstalled);
+                Updater.CheckForUpdate();
+
+                TimezoneDB.Instance.CheckForUpdate();
+
                 try {
                     String startingTab = Settings.Instance.LastSyncDate == new DateTime(0) ? "Help" : null;
                     Application.Run(new Forms.Main(startingTab));
@@ -97,7 +97,9 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                }
+                } else
+                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 try {
                     if (!OutlookOgcs.Calendar.IsInstanceNull) {
@@ -105,15 +107,17 @@ namespace OutlookGoogleCalendarSync {
                         OutlookOgcs.Calendar.Instance.Disconnect();
                     }
                 } catch { }
+
+            } finally {
+                Forms.Splash.CloseMe();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                while (Updater != null && Updater.IsBusy) {
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(100);
+                }
+                log.Info("Application closed.");
             }
-            Forms.Splash.CloseMe();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            while (Updater.IsBusy) {
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(100);
-            }
-            log.Info("Application closed.");
         }
 
         private static void parseArgumentsAndInitialise(string[] args) {
