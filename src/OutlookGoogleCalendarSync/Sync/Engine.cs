@@ -220,7 +220,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                     mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
-                                    mainFrm.Console.Update(sb, Console.Markup.error, notifyBubble: true);
+                                    mainFrm.Console.Update(sb, (OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error), notifyBubble: true);
                                     if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
@@ -368,6 +368,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         //Already rescheduled to run again once new quota available, so just set to retry.
                         ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " +
                             (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
+                        OGCSexception.LogAsFail(ref ex);
                     }
                     throw ex;
                 } catch (System.Exception ex) {
