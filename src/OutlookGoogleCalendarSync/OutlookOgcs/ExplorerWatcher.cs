@@ -218,7 +218,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ups[addKeyName].Value = keyValue;
             } catch (System.Exception ex) {
                 log.Warn("Failed to add " + addKeyName);
-                throw ex;
+                throw;
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }

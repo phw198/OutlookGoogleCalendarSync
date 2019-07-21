@@ -23,7 +23,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Fail("Failed determining Outlook client version.");
-                if (ex is ApplicationException) { throw ex; }
+                if (ex is ApplicationException) { throw; }
                 OGCSexception.Analyse(ex);
                 outlookVersion = "Unknown";
             }

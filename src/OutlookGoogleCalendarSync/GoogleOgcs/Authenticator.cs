@@ -220,7 +220,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
-                        throw ex;
+                        throw;
                     }
                 }
                 OGCSexception.Analyse(ex);
@@ -230,7 +230,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } else if (ex.Message.ToLower().Contains("prohibited") && Settings.Instance.UsingPersonalAPIkeys()) {
                     Forms.Main.Instance.Console.Update("If you are using your own API keys, you must also enable the Google+ API.", Console.Markup.warning);
                 }
-                throw ex;
+                throw;
 
             } catch (System.Exception ex) {
                 log.Debug("JSON: " + jsonString);
@@ -386,7 +386,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
 
             } catch (System.ApplicationException ex) {
-                throw ex;
+                throw;
 
             } catch (System.Exception ex) {
                 log.Error("Failed to retrieve donors - cannot check if they have donated.");

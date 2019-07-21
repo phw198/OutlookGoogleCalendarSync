@@ -98,7 +98,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                             "Please perform an Office Repair or reinstall Outlook and then try running OGCS again.");
-                } else throw ex;
+                } else throw;
 
             } finally {
                 // Done. Log off.
@@ -371,7 +371,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
-                throw ex;
+                throw;
             }
         }
 

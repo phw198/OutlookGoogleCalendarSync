@@ -89,7 +89,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Unknown web exception.");
                 Forms.Main.Instance.Console.UpdateWithError("Unable to communicate with Google. The following error occurred:", ex, notifyBubble: true);
             }
-            if (throwError) throw ex;
+            if (throwError) throw;
         }
 
         public static String FriendlyMessage(System.Exception ex) {

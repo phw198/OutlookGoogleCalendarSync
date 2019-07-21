@@ -361,7 +361,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (OGCSexception.GetErrorCode(ex) == "0x80004004") {
                         Forms.Main.Instance.Console.Update("You do not have the rights to programmatically access Outlook appointment descriptions.<br/>" +
                             "It may be best to stop syncing the Description attribute.", Console.Markup.warning);
-                    } else throw ex;
+                    } else throw;
                 }
             }
             if (Settings.Instance.AddLocation)

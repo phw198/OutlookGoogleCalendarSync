@@ -622,7 +622,7 @@ namespace OutlookGoogleCalendarSync {
                                         } catch (System.Exception ex) {
                                             log.Error(ex.Message);
                                             log.Error(ex.StackTrace);
-                                            throw ex;
+                                            throw;
                                         }
                                     }
                                     if (excp_itemModified > 0) {

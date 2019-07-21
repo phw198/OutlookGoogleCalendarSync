@@ -110,7 +110,7 @@ namespace OutlookGoogleCalendarSync {
                 xml = XDocument.Load(filename);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to load " + filename, ex, true);
-                throw ex;
+                throw;
             }
             XElement settingsXE = null;
             try {
