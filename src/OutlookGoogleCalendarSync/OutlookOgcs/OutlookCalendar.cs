@@ -121,6 +121,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
                 } else throw ex;
 
+            } catch (System.ArgumentNullException ex) {
+                OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
+                OutlookOgcs.Calendar.Instance.Reset();
+                filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+
             } catch (System.Exception ex) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
                 throw ex;
