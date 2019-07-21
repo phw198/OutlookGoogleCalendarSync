@@ -217,23 +217,30 @@ namespace OutlookGoogleCalendarSync.Sync {
                             try {
                                 syncResult = synchronize();
                             } catch (System.Exception ex) {
-                                sb = new StringBuilder();
-                                mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
+                                String hResult = OGCSexception.GetErrorCode(ex);
+
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
+                                    sb = new StringBuilder();
+                                    mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                     mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
                                     mainFrm.Console.Update(sb, Console.Markup.error, notifyBubble: true);
                                     if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
 
-                                } else if (OGCSexception.GetErrorCode(ex) == "0x800706BA" //The RPC server is unavailable
-                                    || (ex is System.Runtime.InteropServices.COMException && ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)")) //The object invoked has disconnected from its clients
+                                } else if (
+                                    ((ex is System.Runtime.InteropServices.COMException || ex is System.InvalidCastException) && hResult == "0x800706BA") || //The RPC server is unavailable
+                                    (ex is System.Runtime.InteropServices.COMException && (
+                                        ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
+                                        hResult == "0x800706BE")) //The remote procedure call failed
                                     ) {
                                     OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
-                                    mainFrm.Console.Update("It looks like Outlook was closed during the sync.<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                    String message = "It looks like Outlook was closed during the sync.";
+                                    if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                    mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
                                     System.Threading.Thread.Sleep(10 * 1000);
                                     syncResult = SyncResult.ReconnectThenRetry;
-                                    
+
                                 } else {
                                     OGCSexception.Analyse(ex, true);
                                     mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
