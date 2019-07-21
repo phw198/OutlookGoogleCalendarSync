@@ -229,10 +229,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
 
                                 } else if (
-                                    ((ex is System.Runtime.InteropServices.COMException || ex is System.InvalidCastException) && hResult == "0x800706BA") || //The RPC server is unavailable
+                                    (ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
                                     (ex is System.Runtime.InteropServices.COMException && (
                                         ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
-                                        hResult == "0x800706BE")) //The remote procedure call failed
+                                        hResult == "0x800706BE" || //The remote procedure call failed
+                                        hResult == "0x800706BA")) //The RPC server is unavailable
                                     ) {
                                     OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
                                     String message = "It looks like Outlook was closed during the sync.";
@@ -554,7 +555,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
             TimeSpan sectionDuration = DateTime.Now - timeSection;
             if (sectionDuration.TotalSeconds > 30) {
