@@ -980,7 +980,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                     for (int o = outlook.Count - 1; o >= 0; o--) {
                         try {
-                            log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                            if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
 
                             String compare_oID;
                             if (outlookIDmissing && compare_gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) {
@@ -1010,7 +1010,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 break;
                             }
                         } catch (System.Exception ex) {
-                            if (!log.IsFineEnabled()) {
+                            if (!log.IsUltraFineEnabled()) {
                                 try {
                                     log.Info(OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
                                 } catch { }
