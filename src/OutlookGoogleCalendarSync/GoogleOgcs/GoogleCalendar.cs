@@ -485,6 +485,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         continue;
                     } else {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, true) + "Event update failed.", ex);
+                        if (ex is System.Runtime.InteropServices.COMException) throw;
                         OGCSexception.Analyse(ex, true);
                         if (MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
