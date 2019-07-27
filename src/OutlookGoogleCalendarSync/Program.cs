@@ -99,12 +99,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
-                try {
-                    if (!OutlookOgcs.Calendar.IsInstanceNull) {
-                        OutlookOgcs.Calendar.InstanceConnect = false;
-                        OutlookOgcs.Calendar.Instance.Disconnect();
-                    }
-                } catch { }
+                OutlookOgcs.Calendar.Disconnect();
             }
             Forms.Splash.CloseMe();
             GC.Collect();
@@ -486,6 +481,10 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Donate() {
             System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+        }
+
+        public static Boolean InDeveloperMode {
+            get { return System.Diagnostics.Debugger.IsAttached; }
         }
     }
 }

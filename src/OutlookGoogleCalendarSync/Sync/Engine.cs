@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
@@ -46,6 +45,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Fail,
             Abandon,
             AutoRetry,
+            ReconnectThenRetry,
             UserCancelled
         }
         private int consecutiveSyncFails = 0;
@@ -193,10 +193,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Warn(ex.Message);
                     syncResult = SyncResult.AutoRetry;
                 }
-                while (syncResult == SyncResult.Fail) {
-                    if (failedAttempts > 0) {
+                while (syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) {
+                    if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
                         if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
+                            log.Info("User opted to abandon further syncs.");
                             syncResult = SyncResult.Abandon;
                             break;
                         } else
@@ -216,14 +217,31 @@ namespace OutlookGoogleCalendarSync.Sync {
                             try {
                                 syncResult = synchronize();
                             } catch (System.Exception ex) {
-                                sb = new StringBuilder();
-                                mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
+                                String hResult = OGCSexception.GetErrorCode(ex);
+
                                 if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
+                                    sb = new StringBuilder();
+                                    mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                     mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
                                     mainFrm.Console.Update(sb, (OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error), notifyBubble: true);
                                     if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                         syncResult = SyncResult.AutoRetry;
                                     }
+
+                                } else if (
+                                    (ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
+                                    (ex is System.Runtime.InteropServices.COMException && (
+                                        ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
+                                        hResult == "0x800706BE" || //The remote procedure call failed
+                                        hResult == "0x800706BA")) //The RPC server is unavailable
+                                    ) {
+                                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                                    String message = "It looks like Outlook was closed during the sync.";
+                                    if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                    mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                    System.Threading.Thread.Sleep(10 * 1000);
+                                    syncResult = SyncResult.ReconnectThenRetry;
+
                                 } else {
                                     OGCSexception.Analyse(ex, true);
                                     mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
@@ -239,10 +257,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                         System.Threading.Thread.Sleep(100);
                     }
                     try {
-                        //Get Logbox text - this is a little bit dirty!
-                        if (syncResult != SyncResult.OK && mainFrm.Console.DocumentText.Contains("The RPC server is unavailable.")) {
+                        if (syncResult == SyncResult.ReconnectThenRetry) {
                             mainFrm.Console.Update("Attempting to reconnect to Outlook...");
-                            try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                            try {
+                                OutlookOgcs.Calendar.Instance.Reset();
+                            } catch (System.Exception ex) {
+                                mainFrm.Console.UpdateWithError("A problem was encountered reconnecting to Outlook.<br/>Further syncs aborted.", ex, notifyBubble: true);
+                                syncResult = SyncResult.Abandon;
+                            }
                         }
                     } finally {
                         failedAttempts += (syncResult != SyncResult.OK) ? 1 : 0;
@@ -252,7 +274,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (syncResult == SyncResult.OK) {
                     Settings.Instance.CompletedSyncs++;
                     consecutiveSyncFails = 0;
-                    mainFrm.Console.Update("Sync finished with success!", Console.Markup.checkered_flag);
+                    mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
@@ -263,7 +285,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    mainFrm.Console.Update("Operation aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
+                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
                 }
 
                 setNextSync(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
@@ -278,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 //Release Outlook reference if GUI not available. 
                 //Otherwise, tasktray shows "another program is using outlook" and it doesn't send and receive emails
-                OutlookOgcs.Calendar.Instance.Disconnect(onlyWhenNoGUI: true);
+                OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
             }
         }
 
@@ -534,7 +556,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (CancellationPending) return false;
             } catch (System.Exception ex) {
                 console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
             TimeSpan sectionDuration = DateTime.Now - timeSection;
             if (sectionDuration.TotalSeconds > 30) {

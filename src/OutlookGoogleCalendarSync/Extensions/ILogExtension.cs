@@ -27,7 +27,7 @@ namespace OutlookGoogleCalendarSync {
                 Program.MyFineLevel, message, exception);
         }
         public static void Fine(this ILog log, string message) {
-            log.Fine(message, exception:null);
+            log.Fine(message, exception: null);
         }
         public static void Fine(this ILog log, string message, String containsEmail) {
             if (Settings.Instance.LoggingLevel != "ULTRA-FINE" && !string.IsNullOrEmpty(containsEmail)) {
@@ -47,6 +47,9 @@ namespace OutlookGoogleCalendarSync {
         }
         public static void UltraFine(this ILog log, string message) {
             log.UltraFine(message, null);
+        }
+        public static Boolean IsUltraFineEnabled(this ILog log) {
+            return log.Logger.IsEnabledFor(Program.MyUltraFineLevel);
         }
         #endregion
 

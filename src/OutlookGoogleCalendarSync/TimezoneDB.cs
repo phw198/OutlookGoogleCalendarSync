@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync {
             updateDBthread.Start();
         }
         private void checkForUpdate(String localVersion) {
-            if (System.Diagnostics.Debugger.IsAttached && File.Exists(tzdbFile)) return;
+            if (Program.InDeveloperMode && File.Exists(tzdbFile)) return;
 
             log.Debug("Checking for new timezone database...");
             String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";

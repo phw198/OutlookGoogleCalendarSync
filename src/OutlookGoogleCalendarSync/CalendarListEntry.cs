@@ -10,20 +10,43 @@ namespace OutlookGoogleCalendarSync {
     [DataContract]
     public class GoogleCalendarListEntry {
         [DataMember]
-        public string Name { get; internal set; }
+        private string Name { get; set; }
         [DataMember]
         public string Id { get; internal set; }
+        [DataMember]
+        private string AccessRole { get; set; }
+
+        private bool primary { get; set; }
+
+        private bool readOnly {
+            get {
+                if (AccessRole == null) return false;
+                return AccessRole.ToLower().Contains("reader");
+            }
+        }
 
         public GoogleCalendarListEntry() {
         }
 
         public GoogleCalendarListEntry(CalendarListEntry init) {
+            AccessRole = init.AccessRole;
             Id = init.Id;
-            Name = init.Summary;
+            Name = init.SummaryOverride ?? init.Summary;
+            primary = init.Primary ?? false;
         }
 
         public override string ToString() {
-            return Name;
+            return (readOnly ? "[Read Only] " : "") + Name;
+        }
+
+        public string Sorted() {
+            switch (AccessRole.ToLower()) {
+                case "owner": return (primary ? "0-" : "1-") + Name;
+                case "writer": return "1-" + Name;
+                case "reader": return "2-" + Name;
+                case "freebusyreader": return "2-" + Name;
+                default: return "1-" + Name;
+            }
         }
     }
 

@@ -19,8 +19,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Whether instance of OutlookCalendar class should connect to Outlook application
         /// </summary>
-        public static Boolean InstanceConnect = true;
-        public static Boolean IsInstanceNull { get { return instance == null; } }
+        public static Boolean InstanceConnect { get; private set; }
+
         public static Calendar Instance {
             get {
                 try {
@@ -64,6 +64,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         public Calendar() {
+            InstanceConnect = true;
             IOutlook = Factory.GetOutlookInterface();
         }
 
@@ -77,10 +78,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <summary>
         /// Wrapper for IOutlook.Disconnect - cannot dereference fully inside interface
         /// </summary>
-        public void Disconnect(Boolean onlyWhenNoGUI = false) {
-            Instance.IOutlook.Disconnect(onlyWhenNoGUI);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+        public static void Disconnect(Boolean onlyWhenNoGUI = false) {
+            if (instance == null) return;
+
+            try {
+                InstanceConnect = false;
+                Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not disconnect from Outlook.", OGCSexception.LogAsFail(ex));
+            } finally {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                InstanceConnect = true;
+            }
         }
 
         /// <summary>
@@ -110,6 +120,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     OutlookOgcs.Calendar.Instance.Reset();
                     filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
                 } else throw ex;
+
+            } catch (System.ArgumentNullException ex) {
+                OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
+                OutlookOgcs.Calendar.Instance.Reset();
+                filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
 
             } catch (System.Exception ex) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
