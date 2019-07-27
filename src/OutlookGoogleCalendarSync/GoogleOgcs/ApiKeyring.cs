@@ -55,19 +55,28 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } else {
                         log.Debug("Reverting to default key.");
                         Key = new ApiKey.DefaultKey(keyType);
+                        return;
                     }
-                    return;
                 }
 
                 if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier)) {
-                    log.Fine("Checking " + (Settings.Instance.AssignedClientIdentifier == new ApiKey.DefaultKey(keyType).ClientId ? "" : "non-") + "default assigned API key is still on the keyring.");
+                    if (Settings.Instance.AssignedClientIdentifier == new ApiKey.DefaultKey(keyType).ClientId) {
+                        log.Fine("Using default " + keyType.ToString() + " key.");
+                        return;
+                    }
+                    log.Fine("Checking non-default assigned API key is still on the keyring.");
                     ApiKey retrievedKey = keyRing.Find(k => k.ClientId == Settings.Instance.AssignedClientIdentifier);
                     if (retrievedKey == null) {
                         log.Warn("Could not find assigned key on keyring!");
                         if (standardKeys.Concat(subscriberKeys).Any(k => k.ClientId == Settings.Instance.AssignedClientIdentifier)) {
                             log.Warn("The key was been taken from the other keyring!");
                         }
-                        log.Debug("Picking a new key from the ring.");
+                        if (keyRing == null || keyRing.Count == 0) {
+                            log.Debug("Reverting to default key.");
+                            Key = new ApiKey.DefaultKey(keyType);
+                            return;
+                        } else 
+                            log.Debug("Picking a new key from the ring.");
                     } else {
                         if (retrievedKey.Status == KeyStatus.DEAD.ToString())
                             log.Warn("The assigned key can no longer be used. A new key must be assigned.");
