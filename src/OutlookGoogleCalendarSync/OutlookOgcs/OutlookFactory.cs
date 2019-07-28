@@ -30,8 +30,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
+            OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
             try {
-                OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 outlookVersionFull = oApp.Version;
 
                 log.Info("Outlook Version: " + outlookVersionFull);
