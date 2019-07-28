@@ -429,7 +429,12 @@ namespace OutlookGoogleCalendarSync {
             string settingsVersion = string.IsNullOrEmpty(Settings.Instance.Version) ? "Unknown" : Settings.Instance.Version;
             if (settingsVersion != Application.ProductVersion) {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
-                Program.ManageStartupRegKey(recreate: true);
+                try {
+                    Program.ManageStartupRegKey(recreate: true);
+                } catch (System.Exception ex) {
+                    if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                    OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
                     System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");

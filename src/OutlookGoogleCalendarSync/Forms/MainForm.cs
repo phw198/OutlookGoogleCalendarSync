@@ -55,6 +55,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void updateGUIsettings() {
+            log.Debug("Configuring main form components.");
             this.SuspendLayout();
             #region Tooltips
             //set up tooltips for some controls
@@ -148,7 +149,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
 
             //Mailboxes the user has access to
-            log.Debug("Find Folders");
+            log.Debug("Find calendar folders");
             if (OutlookOgcs.Calendar.Instance.Folders.Count == 1) {
                 rbOutlookAltMB.Enabled = false;
                 rbOutlookAltMB.Checked = false;
@@ -1453,7 +1454,20 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
-            Program.ManageStartupRegKey();
+            try {
+                Program.ManageStartupRegKey();
+            } catch (System.Exception ex) {
+                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                if (this.Visible) {
+                    MessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                        "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                cbStartOnStartup.CheckedChanged -= cbStartOnStartup_CheckedChanged;
+                cbStartOnStartup.Checked = false;
+                tbStartupDelay.Enabled = false;
+                cbStartOnStartup.CheckedChanged += cbStartOnStartup_CheckedChanged;
+            }
         }
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
