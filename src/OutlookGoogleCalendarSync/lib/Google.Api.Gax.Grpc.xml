@@ -72,7 +72,7 @@
         </member>
         <member name="M:Google.Api.Gax.Grpc.ApiCall`2.WithCallSettingsOverlay(System.Func{`0,Google.Api.Gax.Grpc.CallSettings})">
             <summary>
-            Construct a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an overlay to
+            Constructs a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an overlay to
             the underlying <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>. If a value exists in both the original and
             the overlay, the overlay takes priority.
             </summary>
@@ -81,7 +81,7 @@
         </member>
         <member name="M:Google.Api.Gax.Grpc.ApiCall`2.WithExceptionCustomizer(System.Func{Grpc.Core.RpcException,Grpc.Core.RpcException})">
             <summary>
-            Construct a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an exception customizer
+            Constructs a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an exception customizer
             to both the synchronous and asynchronous calls.
             </summary>
             <remarks>
@@ -91,6 +91,17 @@
             </remarks>
             <param name="customizer">The exception customizer to apply. Must not be null.</param>
             <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> with the exception customizer applied.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiCall`2.WithGoogleRequestParam(System.String,System.Func{`0,System.String})">
+            <summary>
+            Constructs a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an x-goog-request-params header to each request,
+            using the specified parameter name and a value derived from the request.
+            </summary>
+            <remarks>Values produced by the function are URL-encoded; it is expected that <paramref name="parameterName"/> is already URL-encoded.</remarks>
+            <param name="parameterName">The parameter name in the header. Must not be null.</param>
+            <param name="valueSelector">A function to call on each request, to determine the value to specify in the header.
+            The parameter must not be null, but may return null.</param>
+            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> which applies the header on each request.</returns>
         </member>
         <member name="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2">
             <summary>
@@ -126,12 +137,23 @@
         </member>
         <member name="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.WithCallSettingsOverlay(System.Func{`0,Google.Api.Gax.Grpc.CallSettings})">
             <summary>
-            Construct a new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> that applies an overlay to
+            Constructs a new <see cref="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2"/> that applies an overlay to
             the underlying <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>. If a value exists in both the original and
             the overlay, the overlay takes priority.
             </summary>
             <param name="callSettingsOverlayFn">Function that builds the overlay <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.</param>
-            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> with the overlay applied.</returns>
+            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2"/> with the overlay applied.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ApiServerStreamingCall`2.WithGoogleRequestParam(System.String,System.Func{`0,System.String})">
+            <summary>
+            Constructs a new <see cref="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2"/> that applies an x-goog-request-params header to each request,
+            using the specified parameter name and a value derived from the request.
+            </summary>
+            <remarks>Values produced by the function are URL-encoded; it is expected that <paramref name="parameterName"/> is already URL-encoded.</remarks>
+            <param name="parameterName">The parameter name in the header. Must not be null.</param>
+            <param name="valueSelector">A function to call on each request, to determine the value to specify in the header.
+            The parameter must not be null, but may return null.</param>
+            <returns>A new <see cref="T:Google.Api.Gax.Grpc.ApiServerStreamingCall`2"/> which applies the header on each request.</returns>
         </member>
         <member name="T:Google.Api.Gax.Grpc.BackoffSettings">
             <summary>
@@ -533,6 +555,16 @@
             <param name="fieldMask">The field mask for the request. Must not be null.</param>
             <returns>A new instance.</returns>
         </member>
+        <member name="M:Google.Api.Gax.Grpc.CallSettings.FromGoogleRequestParamsHeader(System.String,System.String)">
+            <summary>
+            Creates a CallSettings which applies an x-goog-request-params header with the specified
+            parameter name and value.
+            </summary>
+            <remarks>The value is URL-encoded; it is expected that <paramref name="parameterName"/> is already URL-encoded.</remarks>
+            <param name="parameterName">The name of the parameter. Must not be null.</param>
+            <param name="value">The value of the parameter, which may be null. A null value is equivalent to providing an empty string.</param>
+            <returns>A CallSettings which applies the appropriate parameter.</returns>
+        </member>
         <member name="T:Google.Api.Gax.Grpc.CallSettingsExtensions">
             <summary>
             Extension methods for <see cref="T:Google.Api.Gax.Grpc.CallSettings"/>.
@@ -757,7 +789,7 @@
         <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannel(Google.Api.Gax.Grpc.ServiceEndpoint)">
             <summary>
             Returns a channel from this pool, creating a new one if there is no channel
-            already associated with <paramref name="endpoint"/>.
+            already associated with <paramref name="endpoint"/>. Default channel options are applied.
             </summary>
             <param name="endpoint">The endpoint to connect to. Must not be null.</param>
             <returns>A channel for the specified endpoint.</returns>
@@ -765,11 +797,186 @@
         <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannelAsync(Google.Api.Gax.Grpc.ServiceEndpoint)">
             <summary>
             Asynchronously returns a channel from this pool, creating a new one if there is no channel
-            already associated with <paramref name="endpoint"/>.
+            already associated with <paramref name="endpoint"/>. Default channel options are applied.
             </summary>
             <param name="endpoint">The endpoint to connect to. Must not be null.</param>
             <returns>A task representing the asynchronous operation. The value of the completed
             task will be channel for the specified endpoint.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannel(Google.Api.Gax.Grpc.ServiceEndpoint,System.Collections.Generic.IEnumerable{Grpc.Core.ChannelOption})">
+            <summary>
+            Returns a channel from this pool, creating a new one if there is no channel
+            already associated with <paramref name="endpoint"/>.
+            The specified channel options are applied, but only those options.
+            </summary>
+            <param name="endpoint">The endpoint to connect to. Must not be null.</param>
+            <param name="channelOptions">The channel options to include. May be null.</param>
+            <returns>A channel for the specified endpoint.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ChannelPool.GetChannelAsync(Google.Api.Gax.Grpc.ServiceEndpoint,System.Collections.Generic.IEnumerable{Grpc.Core.ChannelOption})">
+            <summary>
+            Asynchronously returns a channel from this pool, creating a new one if there is no channel
+            already associated with <paramref name="endpoint"/>.
+            The specified channel options are applied, but only those options.
+            </summary>
+            <param name="endpoint">The endpoint to connect to. Must not be null.</param>
+            <param name="channelOptions">The channel options to include. May be null.</param>
+            <returns>A task representing the asynchronous operation. The value of the completed
+            task will be channel for the specified endpoint.</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.ClientBuilderBase`1">
+            <summary>
+            Base class for API-specific builders.
+            </summary>
+            <typeparam name="TClient">The type of client created by this builder.</typeparam>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.Endpoint">
+            <summary>
+            The endpoint to connect to, or null to use the default endpoint.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.Scopes">
+            <summary>
+            The scopes to use, or null to use the default scopes.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.ChannelCredentials">
+            <summary>
+            The channel credentials to use, or null if credentials are being provided in a different way.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CredentialsPath">
+            <summary>
+            The path to the credentials file to use, or null if credentials are being provided in a different way.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.JsonCredentials">
+            <summary>
+            The credentials to use as a JSON string, or null if credentials are being provided in a different way.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.TokenAccessMethod">
+            <summary>
+            The token access method to use, or null if credentials are being provided in a different way.
+            </summary>
+            <remarks>
+            <para>
+            To use a GoogleCredential for credentials, set this property using a method group conversion, e.g.
+            <c>TokenAccessMethod = credential.GetAccessTokenForRequestAsync</c>
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CallInvoker">
+            <summary>
+            The call invoker to use, or null to create the call invoker when the client is built.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.UserAgent">
+            <summary>
+            A custom user agent to specify in the channel metadata, or null if no custom user agent is required.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.#ctor">
+            <summary>
+            Creates a new instance with no settings.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.CopyCommonSettings``1(Google.Api.Gax.Grpc.ClientBuilderBase{``0})">
+            <summary>
+            Copies common settings from the specified builder into this one. This is a shallow copy.
+            </summary>
+            <typeparam name="TOther">The other client type</typeparam>
+            <param name="source">The builder to copy from.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.Validate">
+            <summary>
+            Validates that the builder is in a consistent state for building. For example, it's invalid to call
+            <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.Build"/> on an instance which has both JSON credentials and a credentials path specified.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The builder is in an invalid state.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.ValidateAtMostOneNotNull(System.String,System.Object[])">
+            <summary>
+            Validates that at most one of the given values is not null.
+            </summary>
+            <param name="message">The message if the condition is violated.</param>
+            <param name="values">The values to check for nullity.</param>
+            <exception cref="T:System.InvalidOperationException">More than one value is null.</exception>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.ValidateOptionExcludesOthers(System.String,System.Object,System.Object[])">
+            <summary>
+            Validates that if <paramref name="controlling"/> is not null, then every value in <paramref name="values"/> is null.
+            </summary>
+            <param name="message">The message if the condition is violated.</param>
+            <param name="controlling">The value controlling whether or not any other value can be non-null.</param>
+            <param name="values">The values checked for non-nullity if <paramref name="controlling"/> is non-null.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.CreateCallInvoker">
+            <summary>
+            Creates a call invoker synchronously. Override this method in a concrete builder type if more
+            call invoker mechanisms are supported.
+            This implementation calls <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelCredentials"/> if no call invoker is specified.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.CreateCallInvokerAsync(System.Threading.CancellationToken)">
+            <summary>
+            Creates a call invoker asynchronously. Override this method in a concrete builder type if more
+            call invoker mechanisms are supported.
+            This implementation calls <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelCredentialsAsync(System.Threading.CancellationToken)"/> if no call
+            invoker is specified.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelCredentials">
+            <summary>
+            Obtains channel credentials synchronously. Override this method in a concrete builder type if more
+            credential mechanisms are supported.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelCredentialsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Obtains channel credentials asynchronously. Override this method in a concrete builder type if more
+            credential mechanisms are supported.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetDefaultScopes">
+            <summary>
+            Returns the default scopes for this builder type, used if no scopes are otherwise specified.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetDefaultEndpoint">
+            <summary>
+            Returns the endpoint for this builder type, used if no endpoint is otherwise specified.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelPool">
+            <summary>
+            Returns the channel pool to use when no other options are specified. This method is not called unless
+            <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CanUseChannelPool"/> returns true, so if a channel pool is unavailable, override that property
+            to return false and throw an exception from this method.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetChannelOptions">
+            <summary>
+            Returns the options to use when creating a channel.
+            </summary>
+            <returns>The options to use when creating a channel.</returns>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CanUseChannelPool">
+            <summary>
+            Returns whether or not a channel pool can be used if a channel is required. The default behavior is to return
+            true if and only if no scopes, credentials or token access method have been specified. Derived classes should
+            override this property if there are other reasons why the channel pool should not be used.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.Build">
+            <summary>
+            Builds the resulting client.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.BuildAsync(System.Threading.CancellationToken)">
+            <summary>
+            Builds the resulting client asynchronously.
+            </summary>
         </member>
         <member name="T:Google.Api.Gax.Grpc.ClientHelper">
             <summary>
@@ -828,6 +1035,38 @@
             <param name="perMethodCallSettings">The default method call settings.</param>
             <param name="streamingSettings">The default streaming settings.</param>
             <returns>An API call to proxy to the RPC calls</returns>
+        </member>
+        <member name="T:Google.Api.Gax.Grpc.GrpcChannelOptions">
+            <summary>
+            Convenience methods for obtaining channel options.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.GrpcChannelOptions.OneMinuteKeepalive">
+            <summary>
+            "After a duration of this time the client/server pings its peer to see if the
+            transport is still alive. Int valued, milliseconds."
+            Required for any channel using a streaming RPC, to ensure an idle stream doesn't
+            allow the TCP connection to be silently dropped by any intermediary network devices.
+            60 second keepalive time is reasonable. This will only add minimal network traffic,
+            and only if the channel is idle for more than 60 seconds.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.GrpcChannelOptions.DisableServiceConfigResolution">
+            <summary>
+            "Disable looking up the service config via the name resolver."
+            </summary>
+            <remarks>
+            Currently this defaults to "on" (so disabled) anyway, but that may change later.
+            Explicitly disable service config resolution for now; we'll allow it to be enabled when we have code to change
+            our retry policy.
+            </remarks>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.GrpcChannelOptions.PrimaryUserAgent(System.String)">
+            <summary>
+            Creates a channel option for the primary user agent, which appears first in the channel metadata.
+            </summary>
+            <param name="userAgent">Custom primary user agent for the channel. Must not be null.</param>
+            <returns>A channel option for the primary user agent</returns>
         </member>
         <member name="T:Google.Api.Gax.Grpc.GrpcPagedAsyncEnumerable`3">
             <summary>
@@ -1122,6 +1361,42 @@
             </summary>
             <param name="host">The host name to connect to. Must not be null or empty.</param>
             <param name="port">The port to connect to, in the range 1 to 65535 inclusive.</param>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.TryParse(System.String,Google.Api.Gax.Grpc.ServiceEndpoint@)">
+            <summary>
+            Tries to parse the specified value as an endpoint.
+            </summary>
+            <remarks>
+            <para>Valid formats are:</para>
+            <list type="bullet">
+              <item><c>host</c></item>
+              <item><c>https://host</c></item>
+              <item><c>host:port</c></item>
+              <item><c>https://host:port</c></item>
+            </list>
+            <para>The port defaults to 443 if it is not otherwise specified. If it is specified, it must be in the range 1-65535 inclusive.</para>
+            </remarks>
+            <param name="text">The text to parse.</param>
+            <param name="endpoint">The resulting endpoint, or <c>null</c> if the value could not be parsed.</param>
+            <returns><c>true</c> if the value was parsed successfully; <c>false</c> if parsing failed</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.Parse(System.String)">
+            <summary>
+            Parses the specified value as an endpoint.
+            </summary>
+            <remarks>
+            <para>Valid formats are:</para>
+            <list type="bullet">
+              <item><c>host</c></item>
+              <item><c>https://host</c></item>
+              <item><c>host:port</c></item>
+              <item><c>https://host:port</c></item>
+            </list>
+            <para>The port defaults to 443 if it is not otherwise specified. If it is specified, it must be in the range 1-65535 inclusive.</para>
+            </remarks>
+            <param name="text">The text to parse.</param>
+            <returns>The resulting endpoint.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="text"/> does not represent a valid endpoint.</exception>
         </member>
         <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.WithHost(System.String)">
             <summary>

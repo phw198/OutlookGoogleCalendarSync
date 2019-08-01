@@ -211,6 +211,12 @@
             Must not be set if <see cref="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.CredentialFile"/> is set.
             </summary>
         </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.UsePatternWithinCustomLabels">
+            <summary>
+            Enables <c>PatternLayout</c> use in custom labels. All the standard patterns documented in for Log4Net <c>PatternLayout</c>
+            are available. Custom pattern conversions are not possible.
+            </summary>
+        </member>
         <member name="M:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.AddCustomLabel(Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.Label)">
             <summary>
             Specify custom labels for all log entries.

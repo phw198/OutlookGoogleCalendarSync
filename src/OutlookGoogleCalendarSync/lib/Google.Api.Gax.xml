@@ -152,6 +152,103 @@
             null if there is no specified limit.
             </summary>
         </member>
+        <member name="T:Google.Api.Gax.GaxEqualityHelpers">
+            <summary>
+            Convenience methods to simplify implementing equality comparisons and hash codes.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.ListsEqual``1(System.Collections.Generic.IReadOnlyList{``0},System.Collections.Generic.IReadOnlyList{``0})">
+            <summary>
+            Checks if two lists are equal, in an ordering-sensitive manner, using the default equality comparer for the type.
+            </summary>
+            <param name="left">The left list to compare. May be null.</param>
+            <param name="right">The right list to compare. May be null.</param>
+            <returns>Whether or not the lists are equal</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.GetListHashCode``1(System.Collections.Generic.IReadOnlyList{``0})">
+            <summary>
+            Computes an ordering-sensitive hash code for a list, using the given equality comparer.
+            </summary>
+            <param name="list">The list to compute a hash code for. May be null.</param>
+            <returns>The computed hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32)">
+            <summary>
+            Combines two hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines three hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines four hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <param name="hash4">The fourth hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines five hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <param name="hash4">The fourth hash code.</param>
+            <param name="hash5">The fifth hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines six hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <param name="hash4">The fourth hash code.</param>
+            <param name="hash5">The fifth hash code.</param>
+            <param name="hash6">The sixth hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines seven hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <param name="hash4">The fourth hash code.</param>
+            <param name="hash5">The fifth hash code.</param>
+            <param name="hash6">The sixth hash code.</param>
+            <param name="hash7">The seventh hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GaxEqualityHelpers.CombineHashCodes(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Combines eight hash codes.
+            </summary>
+            <param name="hash1">The first hash code.</param>
+            <param name="hash2">The second hash code.</param>
+            <param name="hash3">The third hash code.</param>
+            <param name="hash4">The fourth hash code.</param>
+            <param name="hash5">The fifth hash code.</param>
+            <param name="hash6">The sixth hash code.</param>
+            <param name="hash7">The seventh hash code.</param>
+            <param name="hash8">The eight hash code.</param>
+            <returns>The combined hash code.</returns>
+        </member>
         <member name="T:Google.Api.Gax.GaxPreconditions">
             <summary>
             Preconditions for checking method arguments, state etc.

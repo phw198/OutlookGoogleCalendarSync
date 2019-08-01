@@ -2220,8 +2220,8 @@
             <summary>A UUID or similar unique string that identifies this channel.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Channel.Kind">
-            <summary>Identifies this as a notification channel used to watch for changes to a resource. Value: the fixed
-            string "api#channel".</summary>
+            <summary>Identifies this as a notification channel used to watch for changes to a resource, which is
+            "api#channel".</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Channel.Params__">
             <summary>Additional parameters controlling delivery channel behavior. Optional.</summary>

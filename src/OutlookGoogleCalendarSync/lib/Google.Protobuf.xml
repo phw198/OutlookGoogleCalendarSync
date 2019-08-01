@@ -40,12 +40,6 @@
             *not* copied, and must not be modified after this constructor is called.
             </summary>
         </member>
-        <member name="M:Google.Protobuf.ByteString.Unsafe.GetBuffer(Google.Protobuf.ByteString)">
-            <summary>
-            Provides direct, unrestricted access to the bytes contained in this instance.
-            You must not modify or resize the byte array returned by this method.
-            </summary>
-        </member>
         <member name="M:Google.Protobuf.ByteString.AttachBytes(System.Byte[])">
             <summary>
             Internal use only.  Ensure that the provided array is not mutated and belongs to this instance.
@@ -383,7 +377,7 @@
             to avoid maliciously-recursive data.
             </summary>
             <remarks>
-            The default limit is 64.
+            The default limit is 100.
             </remarks>
             <value>
             The recursion limit for this stream.
@@ -499,6 +493,11 @@
             <summary>
             Reads an embedded message field value from the stream.
             </summary>   
+        </member>
+        <member name="M:Google.Protobuf.CodedInputStream.ReadGroup(Google.Protobuf.IMessage)">
+            <summary>
+            Reads an embedded group field from the stream.
+            </summary>
         </member>
         <member name="M:Google.Protobuf.CodedInputStream.ReadBytes">
             <summary>
@@ -944,6 +943,12 @@
             <summary>
             Writes a message, without a tag, to the stream.
             The data is length-prefixed.
+            </summary>
+            <param name="value">The value to write</param>
+        </member>
+        <member name="M:Google.Protobuf.CodedOutputStream.WriteGroup(Google.Protobuf.IMessage)">
+            <summary>
+            Writes a group, without a tag, to the stream.
             </summary>
             <param name="value">The value to write</param>
         </member>
@@ -1798,6 +1803,15 @@
             <param name="parser">A parser to use for the message type.</param>
             <returns>A codec for the given tag.</returns>
         </member>
+        <member name="M:Google.Protobuf.FieldCodec.ForGroup``1(System.UInt32,System.UInt32,Google.Protobuf.MessageParser{``0})">
+            <summary>
+            Retrieves a codec suitable for a group field with the given tag.
+            </summary>
+            <param name="startTag">The start group tag.</param>
+            <param name="endTag">The end group tag.</param>
+            <param name="parser">A parser to use for the group message type.</param>
+            <returns>A codec for given tag</returns>
+        </member>
         <member name="M:Google.Protobuf.FieldCodec.ForClassWrapper``1(System.UInt32)">
             <summary>
             Creates a codec for a wrapper type of a class - which must be string or ByteString.
@@ -1820,10 +1834,10 @@
             </remarks>
         </member>
         <member name="M:Google.Protobuf.FieldCodec.WrapperCodecs.GetCodec``1">
-            <summary>
-            Returns a field codec which effectively wraps a value of type T in a message.
+             <summary>
+             Returns a field codec which effectively wraps a value of type T in a message.
             
-            </summary>
+             </summary>
         </member>
         <member name="T:Google.Protobuf.FieldCodec`1">
             <summary>
@@ -1871,6 +1885,14 @@
             The tag of the codec.
             </value>
         </member>
+        <member name="P:Google.Protobuf.FieldCodec`1.EndTag">
+            <summary>
+            Gets the end tag of the codec or 0 if there is no end tag
+            </summary>
+            <value>
+            The end tag of the codec.
+            </value>
+        </member>
         <member name="P:Google.Protobuf.FieldCodec`1.DefaultValue">
             <summary>
             Default value for this codec. Usually the same for every instance of the same type, but
@@ -1897,6 +1919,78 @@
             <summary>
             Calculates the size required to write the given value, with a tag,
             if the value is not the default.
+            </summary>
+        </member>
+        <member name="T:Google.Protobuf.FieldMaskTree">
+             <summary>
+             <para>A tree representation of a FieldMask. Each leaf node in this tree represent
+             a field path in the FieldMask.</para>
+            
+             <para>For example, FieldMask "foo.bar,foo.baz,bar.baz" as a tree will be:</para>
+             <code>
+               [root] -+- foo -+- bar
+                       |       |
+                       |       +- baz
+                       |
+                       +- bar --- baz
+             </code>
+            
+             <para>By representing FieldMasks with this tree structure we can easily convert
+             a FieldMask to a canonical form, merge two FieldMasks, calculate the
+             intersection to two FieldMasks and traverse all fields specified by the
+             FieldMask in a message tree.</para>
+             </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.#ctor">
+            <summary>
+            Creates an empty FieldMaskTree.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.#ctor(Google.Protobuf.WellKnownTypes.FieldMask)">
+            <summary>
+            Creates a FieldMaskTree for a given FieldMask.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.AddFieldPath(System.String)">
+            <summary>
+            Adds a field path to the tree. In a FieldMask, every field path matches the
+            specified field as well as all its sub-fields. For example, a field path
+            "foo.bar" matches field "foo.bar" and also "foo.bar.baz", etc. When adding
+            a field path to the tree, redundant sub-paths will be removed. That is,
+            after adding "foo.bar" to the tree, "foo.bar.baz" will be removed if it
+            exists, which will turn the tree node for "foo.bar" to a leaf node.
+            Likewise, if the field path to add is a sub-path of an existing leaf node,
+            nothing will be changed in the tree.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.MergeFromFieldMask(Google.Protobuf.WellKnownTypes.FieldMask)">
+            <summary>
+            Merges all field paths in a FieldMask into this tree.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.ToFieldMask">
+            <summary>
+            Converts this tree to a FieldMask.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.GetFieldPaths(Google.Protobuf.FieldMaskTree.Node,System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Gathers all field paths in a sub-tree.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.IntersectFieldPath(System.String,Google.Protobuf.FieldMaskTree)">
+            <summary>
+            Adds the intersection of this tree with the given <paramref name="path"/> to <paramref name="output"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.Merge(Google.Protobuf.IMessage,Google.Protobuf.IMessage,Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions)">
+            <summary>
+            Merges all fields specified by this FieldMaskTree from <paramref name="source"/> to <paramref name="destination"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.FieldMaskTree.Merge(Google.Protobuf.FieldMaskTree.Node,System.String,Google.Protobuf.IMessage,Google.Protobuf.IMessage,Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions)">
+            <summary>
+            Merges all fields specified by a sub-tree from <paramref name="source"/> to <paramref name="destination"/>.
             </summary>
         </member>
         <member name="T:Google.Protobuf.FrameworkPortability">
@@ -2466,7 +2560,7 @@
             where ^ represents the current position within the text stream. The examples all use string values,
             but could be any value, including nested objects/arrays.
             The complete state of the tokenizer also includes a stack to indicate the contexts (arrays/objects).
-            Any additional notional state of "AfterValue" indicates that a value has been completed, at which 
+            Any additional notional state of "AfterValue" indicates that a value has been completed, at which
             point there's an immediate transition to ExpectedEndOfDocument,  ObjectAfterProperty or ArrayAfterValue.
             </para>
             <para>
@@ -2511,7 +2605,7 @@
             <summary>
             { "foo" : ^ "bar", "x": "y" }
             Before any property other than the first in an object.
-            (Equivalently: after any property in an object) 
+            (Equivalently: after any property in an object)
             Next states:
             "AfterValue" (value is simple)
             ObjectStart (value is object)
@@ -2657,6 +2751,11 @@
             </summary>
             <param name="message">The message to convert.</param>
             <returns>The message data as a byte string.</returns>
+        </member>
+        <member name="M:Google.Protobuf.MessageExtensions.IsInitialized(Google.Protobuf.IMessage)">
+            <summary>
+            Checks if all required fields in a message have values set. For proto3 messages, this returns true
+            </summary>
         </member>
         <member name="T:Google.Protobuf.MessageParser">
             <summary>
@@ -3076,6 +3175,12 @@
             file name, relative to root of source tree
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileDescriptorProto.PackageFieldNumber">
             <summary>Field number for the "package" field.</summary>
         </member>
@@ -3083,6 +3188,12 @@
             <summary>
             e.g. "foo", "foo.bar", etc.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileDescriptorProto.HasPackage">
+            <summary>Gets whether the "package" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptorProto.ClearPackage">
+            <summary>Clears the value of the "package" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileDescriptorProto.DependencyFieldNumber">
             <summary>Field number for the "dependency" field.</summary>
@@ -3129,6 +3240,12 @@
         <member name="F:Google.Protobuf.Reflection.FileDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileDescriptorProto.SourceCodeInfoFieldNumber">
             <summary>Field number for the "source_code_info" field.</summary>
         </member>
@@ -3140,6 +3257,12 @@
             development tools.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileDescriptorProto.HasSourceCodeInfo">
+            <summary>Gets whether the source_code_info field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptorProto.ClearSourceCodeInfo">
+            <summary>Clears the value of the source_code_info field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileDescriptorProto.SyntaxFieldNumber">
             <summary>Field number for the "syntax" field.</summary>
         </member>
@@ -3149,6 +3272,12 @@
             The supported values are "proto2" and "proto3".
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileDescriptorProto.HasSyntax">
+            <summary>Gets whether the "syntax" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptorProto.ClearSyntax">
+            <summary>Clears the value of the "syntax" field</summary>
+        </member>
         <member name="T:Google.Protobuf.Reflection.DescriptorProto">
             <summary>
             Describes a message type.
@@ -3156,6 +3285,12 @@
         </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.FieldFieldNumber">
             <summary>Field number for the "field" field.</summary>
@@ -3178,6 +3313,12 @@
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.ReservedRangeFieldNumber">
             <summary>Field number for the "reserved_range" field.</summary>
         </member>
@@ -3196,11 +3337,29 @@
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.StartFieldNumber">
             <summary>Field number for the "start" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.HasStart">
+            <summary>Gets whether the "start" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.ClearStart">
+            <summary>Clears the value of the "start" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.EndFieldNumber">
             <summary>Field number for the "end" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.HasEnd">
+            <summary>Gets whether the "end" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.ClearEnd">
+            <summary>Clears the value of the "end" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.Types.ExtensionRange.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange">
             <summary>
@@ -3217,6 +3376,12 @@
             Inclusive.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange.HasStart">
+            <summary>Gets whether the "start" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange.ClearStart">
+            <summary>Clears the value of the "start" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange.EndFieldNumber">
             <summary>Field number for the "end" field.</summary>
         </member>
@@ -3224,6 +3389,12 @@
             <summary>
             Exclusive.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange.HasEnd">
+            <summary>Gets whether the "end" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorProto.Types.ReservedRange.ClearEnd">
+            <summary>Clears the value of the "end" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.ExtensionRangeOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -3241,11 +3412,29 @@
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.NumberFieldNumber">
             <summary>Field number for the "number" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasNumber">
+            <summary>Gets whether the "number" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearNumber">
+            <summary>Clears the value of the "number" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.LabelFieldNumber">
             <summary>Field number for the "label" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasLabel">
+            <summary>Gets whether the "label" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearLabel">
+            <summary>Clears the value of the "label" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
@@ -3255,6 +3444,12 @@
             If type_name is set, this need not be set.  If both this and type_name
             are set, this must be one of TYPE_ENUM, TYPE_MESSAGE or TYPE_GROUP.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasType">
+            <summary>Gets whether the "type" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearType">
+            <summary>Clears the value of the "type" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.TypeNameFieldNumber">
             <summary>Field number for the "type_name" field.</summary>
@@ -3268,6 +3463,12 @@
             namespace).
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasTypeName">
+            <summary>Gets whether the "type_name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearTypeName">
+            <summary>Clears the value of the "type_name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.ExtendeeFieldNumber">
             <summary>Field number for the "extendee" field.</summary>
         </member>
@@ -3276,6 +3477,12 @@
             For extensions, this is the name of the type being extended.  It is
             resolved in the same manner as type_name.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasExtendee">
+            <summary>Gets whether the "extendee" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearExtendee">
+            <summary>Clears the value of the "extendee" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.DefaultValueFieldNumber">
             <summary>Field number for the "default_value" field.</summary>
@@ -3289,6 +3496,12 @@
             TODO(kenton):  Base-64 encode?
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasDefaultValue">
+            <summary>Gets whether the "default_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearDefaultValue">
+            <summary>Clears the value of the "default_value" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.OneofIndexFieldNumber">
             <summary>Field number for the "oneof_index" field.</summary>
         </member>
@@ -3297,6 +3510,12 @@
             If set, gives the index of a oneof in the containing type's oneof_decl
             list.  This field is a member of that oneof.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasOneofIndex">
+            <summary>Gets whether the "oneof_index" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearOneofIndex">
+            <summary>Clears the value of the "oneof_index" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.JsonNameFieldNumber">
             <summary>Field number for the "json_name" field.</summary>
@@ -3309,8 +3528,20 @@
             it to camelCase.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasJsonName">
+            <summary>Gets whether the "json_name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearJsonName">
+            <summary>Clears the value of the "json_name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.FieldDescriptorProto.Types">
             <summary>Container for nested types declared in the FieldDescriptorProto message type.</summary>
@@ -3374,8 +3605,20 @@
         <member name="F:Google.Protobuf.Reflection.OneofDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.OneofDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.OneofDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.OneofDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.OneofDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.OneofDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.EnumDescriptorProto">
             <summary>
@@ -3385,11 +3628,23 @@
         <member name="F:Google.Protobuf.Reflection.EnumDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumDescriptorProto.ValueFieldNumber">
             <summary>Field number for the "value" field.</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.EnumDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.EnumDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.EnumDescriptorProto.ReservedRangeFieldNumber">
             <summary>Field number for the "reserved_range" field.</summary>
@@ -3431,6 +3686,12 @@
             Inclusive.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumDescriptorProto.Types.EnumReservedRange.HasStart">
+            <summary>Gets whether the "start" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumDescriptorProto.Types.EnumReservedRange.ClearStart">
+            <summary>Clears the value of the "start" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumDescriptorProto.Types.EnumReservedRange.EndFieldNumber">
             <summary>Field number for the "end" field.</summary>
         </member>
@@ -3438,6 +3699,12 @@
             <summary>
             Inclusive.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.EnumDescriptorProto.Types.EnumReservedRange.HasEnd">
+            <summary>Gets whether the "end" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumDescriptorProto.Types.EnumReservedRange.ClearEnd">
+            <summary>Clears the value of the "end" field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.EnumValueDescriptorProto">
             <summary>
@@ -3447,11 +3714,29 @@
         <member name="F:Google.Protobuf.Reflection.EnumValueDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumValueDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumValueDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumValueDescriptorProto.NumberFieldNumber">
             <summary>Field number for the "number" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumValueDescriptorProto.HasNumber">
+            <summary>Gets whether the "number" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumValueDescriptorProto.ClearNumber">
+            <summary>Clears the value of the "number" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumValueDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.EnumValueDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumValueDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.ServiceDescriptorProto">
             <summary>
@@ -3461,11 +3746,23 @@
         <member name="F:Google.Protobuf.Reflection.ServiceDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.ServiceDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.ServiceDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.ServiceDescriptorProto.MethodFieldNumber">
             <summary>Field number for the "method" field.</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.ServiceDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.ServiceDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.ServiceDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.MethodDescriptorProto">
             <summary>
@@ -3474,6 +3771,12 @@
         </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearName">
+            <summary>Clears the value of the "name" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.InputTypeFieldNumber">
             <summary>Field number for the "input_type" field.</summary>
@@ -3484,11 +3787,29 @@
             FieldDescriptorProto.type_name, but must refer to a message type.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasInputType">
+            <summary>Gets whether the "input_type" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearInputType">
+            <summary>Clears the value of the "input_type" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.OutputTypeFieldNumber">
             <summary>Field number for the "output_type" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasOutputType">
+            <summary>Gets whether the "output_type" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearOutputType">
+            <summary>Clears the value of the "output_type" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.OptionsFieldNumber">
             <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasOptions">
+            <summary>Gets whether the options field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearOptions">
+            <summary>Clears the value of the options field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.ClientStreamingFieldNumber">
             <summary>Field number for the "client_streaming" field.</summary>
@@ -3498,6 +3819,12 @@
             Identifies if client streams multiple client messages
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasClientStreaming">
+            <summary>Gets whether the "client_streaming" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearClientStreaming">
+            <summary>Clears the value of the "client_streaming" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.MethodDescriptorProto.ServerStreamingFieldNumber">
             <summary>Field number for the "server_streaming" field.</summary>
         </member>
@@ -3505,6 +3832,12 @@
             <summary>
             Identifies if server streams multiple server messages
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MethodDescriptorProto.HasServerStreaming">
+            <summary>Gets whether the "server_streaming" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodDescriptorProto.ClearServerStreaming">
+            <summary>Clears the value of the "server_streaming" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaPackageFieldNumber">
             <summary>Field number for the "java_package" field.</summary>
@@ -3517,6 +3850,12 @@
             domain names.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaPackage">
+            <summary>Gets whether the "java_package" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaPackage">
+            <summary>Clears the value of the "java_package" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaOuterClassnameFieldNumber">
             <summary>Field number for the "java_outer_classname" field.</summary>
         </member>
@@ -3528,6 +3867,12 @@
             a .proto always translates to a single class, but you may want to
             explicitly choose the class name).
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaOuterClassname">
+            <summary>Gets whether the "java_outer_classname" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaOuterClassname">
+            <summary>Clears the value of the "java_outer_classname" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaMultipleFilesFieldNumber">
             <summary>Field number for the "java_multiple_files" field.</summary>
@@ -3542,6 +3887,12 @@
             top-level extensions defined in the file.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaMultipleFiles">
+            <summary>Gets whether the "java_multiple_files" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaMultipleFiles">
+            <summary>Clears the value of the "java_multiple_files" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaGenerateEqualsAndHashFieldNumber">
             <summary>Field number for the "java_generate_equals_and_hash" field.</summary>
         </member>
@@ -3549,6 +3900,12 @@
             <summary>
             This option does nothing.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaGenerateEqualsAndHash">
+            <summary>Gets whether the "java_generate_equals_and_hash" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaGenerateEqualsAndHash">
+            <summary>Clears the value of the "java_generate_equals_and_hash" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaStringCheckUtf8FieldNumber">
             <summary>Field number for the "java_string_check_utf8" field.</summary>
@@ -3563,8 +3920,20 @@
             This option has no effect on when used with the lite runtime.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaStringCheckUtf8">
+            <summary>Gets whether the "java_string_check_utf8" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaStringCheckUtf8">
+            <summary>Clears the value of the "java_string_check_utf8" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.OptimizeForFieldNumber">
             <summary>Field number for the "optimize_for" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasOptimizeFor">
+            <summary>Gets whether the "optimize_for" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearOptimizeFor">
+            <summary>Clears the value of the "optimize_for" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.GoPackageFieldNumber">
             <summary>Field number for the "go_package" field.</summary>
@@ -3577,6 +3946,12 @@
               - Otherwise, the package statement in the .proto file, if present.
               - Otherwise, the basename of the .proto file, without extension.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasGoPackage">
+            <summary>Gets whether the "go_package" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearGoPackage">
+            <summary>Clears the value of the "go_package" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.CcGenericServicesFieldNumber">
             <summary>Field number for the "cc_generic_services" field.</summary>
@@ -3595,14 +3970,38 @@
              explicitly set them to true.
              </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasCcGenericServices">
+            <summary>Gets whether the "cc_generic_services" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearCcGenericServices">
+            <summary>Clears the value of the "cc_generic_services" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.JavaGenericServicesFieldNumber">
             <summary>Field number for the "java_generic_services" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasJavaGenericServices">
+            <summary>Gets whether the "java_generic_services" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearJavaGenericServices">
+            <summary>Clears the value of the "java_generic_services" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.PyGenericServicesFieldNumber">
             <summary>Field number for the "py_generic_services" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasPyGenericServices">
+            <summary>Gets whether the "py_generic_services" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearPyGenericServices">
+            <summary>Clears the value of the "py_generic_services" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.PhpGenericServicesFieldNumber">
             <summary>Field number for the "php_generic_services" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasPhpGenericServices">
+            <summary>Gets whether the "php_generic_services" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearPhpGenericServices">
+            <summary>Clears the value of the "php_generic_services" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.DeprecatedFieldNumber">
             <summary>Field number for the "deprecated" field.</summary>
@@ -3615,6 +4014,12 @@
             least, this is a formalization for deprecating files.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.CcEnableArenasFieldNumber">
             <summary>Field number for the "cc_enable_arenas" field.</summary>
         </member>
@@ -3623,6 +4028,12 @@
             Enables the use of arenas for the proto messages in this file. This applies
             only to generated classes for C++.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasCcEnableArenas">
+            <summary>Gets whether the "cc_enable_arenas" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearCcEnableArenas">
+            <summary>Clears the value of the "cc_enable_arenas" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.ObjcClassPrefixFieldNumber">
             <summary>Field number for the "objc_class_prefix" field.</summary>
@@ -3633,6 +4044,12 @@
             generated classes from this .proto. There is no default.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasObjcClassPrefix">
+            <summary>Gets whether the "objc_class_prefix" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearObjcClassPrefix">
+            <summary>Clears the value of the "objc_class_prefix" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.CsharpNamespaceFieldNumber">
             <summary>Field number for the "csharp_namespace" field.</summary>
         </member>
@@ -3640,6 +4057,12 @@
             <summary>
             Namespace for generated classes; defaults to the package.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasCsharpNamespace">
+            <summary>Gets whether the "csharp_namespace" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearCsharpNamespace">
+            <summary>Clears the value of the "csharp_namespace" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.SwiftPrefixFieldNumber">
             <summary>Field number for the "swift_prefix" field.</summary>
@@ -3652,6 +4075,12 @@
             to prefix the types/symbols defined.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasSwiftPrefix">
+            <summary>Gets whether the "swift_prefix" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearSwiftPrefix">
+            <summary>Clears the value of the "swift_prefix" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.PhpClassPrefixFieldNumber">
             <summary>Field number for the "php_class_prefix" field.</summary>
         </member>
@@ -3660,6 +4089,12 @@
             Sets the php class prefix which is prepended to all php generated classes
             from this .proto. Default is empty.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasPhpClassPrefix">
+            <summary>Gets whether the "php_class_prefix" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearPhpClassPrefix">
+            <summary>Clears the value of the "php_class_prefix" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.PhpNamespaceFieldNumber">
             <summary>Field number for the "php_namespace" field.</summary>
@@ -3671,15 +4106,27 @@
             determining the namespace.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasPhpNamespace">
+            <summary>Gets whether the "php_namespace" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearPhpNamespace">
+            <summary>Clears the value of the "php_namespace" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.PhpMetadataNamespaceFieldNumber">
             <summary>Field number for the "php_metadata_namespace" field.</summary>
         </member>
         <member name="P:Google.Protobuf.Reflection.FileOptions.PhpMetadataNamespace">
             <summary>
             Use this option to change the namespace of php generated metadata classes.
-            Default is empty. When this option is empty, the proto file name will be used
-            for determining the namespace.
+            Default is empty. When this option is empty, the proto file name will be
+            used for determining the namespace.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasPhpMetadataNamespace">
+            <summary>Gets whether the "php_metadata_namespace" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearPhpMetadataNamespace">
+            <summary>Clears the value of the "php_metadata_namespace" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.RubyPackageFieldNumber">
             <summary>Field number for the "ruby_package" field.</summary>
@@ -3690,6 +4137,12 @@
             is empty. When this option is not set, the package name will be used for
             determining the ruby package.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FileOptions.HasRubyPackage">
+            <summary>Gets whether the "ruby_package" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileOptions.ClearRubyPackage">
+            <summary>Clears the value of the "ruby_package" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FileOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -3748,6 +4201,12 @@
              the protocol compiler.
              </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.MessageOptions.HasMessageSetWireFormat">
+            <summary>Gets whether the "message_set_wire_format" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MessageOptions.ClearMessageSetWireFormat">
+            <summary>Clears the value of the "message_set_wire_format" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.MessageOptions.NoStandardDescriptorAccessorFieldNumber">
             <summary>Field number for the "no_standard_descriptor_accessor" field.</summary>
         </member>
@@ -3757,6 +4216,12 @@
             conflict with a field of the same name.  This is meant to make migration
             from proto1 easier; new code should avoid fields named "descriptor".
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MessageOptions.HasNoStandardDescriptorAccessor">
+            <summary>Gets whether the "no_standard_descriptor_accessor" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MessageOptions.ClearNoStandardDescriptorAccessor">
+            <summary>Clears the value of the "no_standard_descriptor_accessor" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MessageOptions.DeprecatedFieldNumber">
             <summary>Field number for the "deprecated" field.</summary>
@@ -3768,6 +4233,12 @@
             for the message, or it will be completely ignored; in the very least,
             this is a formalization for deprecating messages.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MessageOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MessageOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MessageOptions.MapEntryFieldNumber">
             <summary>Field number for the "map_entry" field.</summary>
@@ -3789,13 +4260,19 @@
             
              Implementations may choose not to generate the map_entry=true message, but
              use a native map in the target language to hold the keys and values.
-             The reflection APIs in such implementions still need to work as
+             The reflection APIs in such implementations still need to work as
              if the field is a repeated message field.
             
              NOTE: Do not set the option in .proto files. Always use the maps syntax
              instead. The option should only be implicitly set by the proto compiler
              parser.
              </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MessageOptions.HasMapEntry">
+            <summary>Gets whether the "map_entry" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MessageOptions.ClearMapEntry">
+            <summary>Clears the value of the "map_entry" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MessageOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -3816,6 +4293,12 @@
             release -- sorry, we'll try to include it in a future version!
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasCtype">
+            <summary>Gets whether the "ctype" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearCtype">
+            <summary>Clears the value of the "ctype" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.PackedFieldNumber">
             <summary>Field number for the "packed" field.</summary>
         </member>
@@ -3827,6 +4310,12 @@
             a single length-delimited blob. In proto3, only explicit setting it to
             false will avoid using packed encoding.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasPacked">
+            <summary>Gets whether the "packed" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearPacked">
+            <summary>Clears the value of the "packed" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.JstypeFieldNumber">
             <summary>Field number for the "jstype" field.</summary>
@@ -3845,6 +4334,12 @@
              This option is an enum to permit additional types to be added, e.g.
              goog.math.Integer.
              </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasJstype">
+            <summary>Gets whether the "jstype" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearJstype">
+            <summary>Clears the value of the "jstype" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.LazyFieldNumber">
             <summary>Field number for the "lazy" field.</summary>
@@ -3880,6 +4375,12 @@
              been parsed.
              </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasLazy">
+            <summary>Gets whether the "lazy" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearLazy">
+            <summary>Clears the value of the "lazy" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.DeprecatedFieldNumber">
             <summary>Field number for the "deprecated" field.</summary>
         </member>
@@ -3891,6 +4392,12 @@
             is a formalization for deprecating fields.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.WeakFieldNumber">
             <summary>Field number for the "weak" field.</summary>
         </member>
@@ -3898,6 +4405,12 @@
             <summary>
             For Google-internal migration only. Do not use.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldOptions.HasWeak">
+            <summary>Gets whether the "weak" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FieldOptions.ClearWeak">
+            <summary>Clears the value of the "weak" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -3947,6 +4460,12 @@
             value.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumOptions.HasAllowAlias">
+            <summary>Gets whether the "allow_alias" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumOptions.ClearAllowAlias">
+            <summary>Clears the value of the "allow_alias" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumOptions.DeprecatedFieldNumber">
             <summary>Field number for the "deprecated" field.</summary>
         </member>
@@ -3957,6 +4476,12 @@
             for the enum, or it will be completely ignored; in the very least, this
             is a formalization for deprecating enums.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.EnumOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.EnumOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -3977,6 +4502,12 @@
             this is a formalization for deprecating enum values.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.EnumValueOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.EnumValueOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.EnumValueOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
         </member>
@@ -3995,6 +4526,12 @@
             for the service, or it will be completely ignored; in the very least,
             this is a formalization for deprecating services.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.ServiceOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.ServiceOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.ServiceOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -4015,8 +4552,20 @@
             this is a formalization for deprecating methods.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.MethodOptions.HasDeprecated">
+            <summary>Gets whether the "deprecated" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodOptions.ClearDeprecated">
+            <summary>Clears the value of the "deprecated" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.MethodOptions.IdempotencyLevelFieldNumber">
             <summary>Field number for the "idempotency_level" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.MethodOptions.HasIdempotencyLevel">
+            <summary>Gets whether the "idempotency_level" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.MethodOptions.ClearIdempotencyLevel">
+            <summary>Clears the value of the "idempotency_level" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.MethodOptions.UninterpretedOptionFieldNumber">
             <summary>Field number for the "uninterpreted_option" field.</summary>
@@ -4068,20 +4617,56 @@
             identified it as during parsing. Exactly one of these should be set.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasIdentifierValue">
+            <summary>Gets whether the "identifier_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearIdentifierValue">
+            <summary>Clears the value of the "identifier_value" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.PositiveIntValueFieldNumber">
             <summary>Field number for the "positive_int_value" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasPositiveIntValue">
+            <summary>Gets whether the "positive_int_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearPositiveIntValue">
+            <summary>Clears the value of the "positive_int_value" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.NegativeIntValueFieldNumber">
             <summary>Field number for the "negative_int_value" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasNegativeIntValue">
+            <summary>Gets whether the "negative_int_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearNegativeIntValue">
+            <summary>Clears the value of the "negative_int_value" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.DoubleValueFieldNumber">
             <summary>Field number for the "double_value" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasDoubleValue">
+            <summary>Gets whether the "double_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearDoubleValue">
+            <summary>Clears the value of the "double_value" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.StringValueFieldNumber">
             <summary>Field number for the "string_value" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasStringValue">
+            <summary>Gets whether the "string_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearStringValue">
+            <summary>Clears the value of the "string_value" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.AggregateValueFieldNumber">
             <summary>Field number for the "aggregate_value" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.HasAggregateValue">
+            <summary>Gets whether the "aggregate_value" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.ClearAggregateValue">
+            <summary>Clears the value of the "aggregate_value" field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.UninterpretedOption.Types">
             <summary>Container for nested types declared in the UninterpretedOption message type.</summary>
@@ -4098,8 +4683,20 @@
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.NamePart_FieldNumber">
             <summary>Field number for the "name_part" field.</summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.HasNamePart_">
+            <summary>Gets whether the "name_part" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.ClearNamePart_">
+            <summary>Clears the value of the "name_part" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.IsExtensionFieldNumber">
             <summary>Field number for the "is_extension" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.HasIsExtension">
+            <summary>Gets whether the "is_extension" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.UninterpretedOption.Types.NamePart.ClearIsExtension">
+            <summary>Clears the value of the "is_extension" field</summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.SourceCodeInfo">
             <summary>
@@ -4149,7 +4746,7 @@
                beginning of the "extend" block and is shared by all extensions within
                the block.
              - Just because a location's span is a subset of some other location's span
-               does not mean that it is a descendent.  For example, a "group" defines
+               does not mean that it is a descendant.  For example, a "group" defines
                both a type and a field in a single declaration.  Thus, the locations
                corresponding to the type and field and their components will overlap.
              - Code which tries to interpret locations should probably be designed to
@@ -4256,8 +4853,20 @@
                // ignored detached comments.
              </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.HasLeadingComments">
+            <summary>Gets whether the "leading_comments" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.ClearLeadingComments">
+            <summary>Clears the value of the "leading_comments" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.TrailingCommentsFieldNumber">
             <summary>Field number for the "trailing_comments" field.</summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.HasTrailingComments">
+            <summary>Gets whether the "trailing_comments" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.ClearTrailingComments">
+            <summary>Clears the value of the "trailing_comments" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.SourceCodeInfo.Types.Location.LeadingDetachedCommentsFieldNumber">
             <summary>Field number for the "leading_detached_comments" field.</summary>
@@ -4298,6 +4907,12 @@
             Identifies the filesystem path to the original source .proto.
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.HasSourceFile">
+            <summary>Gets whether the "source_file" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.ClearSourceFile">
+            <summary>Clears the value of the "source_file" field</summary>
+        </member>
         <member name="F:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.BeginFieldNumber">
             <summary>Field number for the "begin" field.</summary>
         </member>
@@ -4306,6 +4921,12 @@
             Identifies the starting offset in bytes in the generated code
             that relates to the identified object.
             </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.HasBegin">
+            <summary>Gets whether the "begin" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.ClearBegin">
+            <summary>Clears the value of the "begin" field</summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.EndFieldNumber">
             <summary>Field number for the "end" field.</summary>
@@ -4317,6 +4938,12 @@
             the last relevant byte (so the length of the text = end - begin).
             </summary>
         </member>
+        <member name="P:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.HasEnd">
+            <summary>Gets whether the "end" field is set</summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.GeneratedCodeInfo.Types.Annotation.ClearEnd">
+            <summary>Clears the value of the "end" field</summary>
+        </member>
         <member name="T:Google.Protobuf.Reflection.DescriptorBase">
             <summary>
             Base class for nearly all descriptors, providing common functionality.
@@ -4324,7 +4951,7 @@
         </member>
         <member name="P:Google.Protobuf.Reflection.DescriptorBase.Index">
             <value>
-            The index of this descriptor within its parent descriptor. 
+            The index of this descriptor within its parent descriptor.
             </value>
             <remarks>
             This returns the index of this descriptor within its parent, for
@@ -4346,6 +4973,78 @@
             <value>
             The file this descriptor was declared in.
             </value>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorBase.Declaration">
+            <summary>
+            The declaration information about the descriptor, or null if no declaration information
+            is available for this descriptor.
+            </summary>
+            <remarks>
+            This information is typically only available for dynamically loaded descriptors,
+            for example within a protoc plugin where the full descriptors, including source info,
+            are passed to the code by protoc.
+            </remarks>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.DescriptorBase.GetNestedDescriptorListForField(System.Int32)">
+            <summary>
+            Retrieves the list of nested descriptors corresponding to the given field number, if any.
+            If the field is unknown or not a nested descriptor list, return null to terminate the search.
+            The default implementation returns null.
+            </summary>
+        </member>
+        <member name="T:Google.Protobuf.Reflection.DescriptorDeclaration">
+            <summary>
+            Provides additional information about the declaration of a descriptor,
+            such as source location and comments.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.Descriptor">
+            <summary>
+            The descriptor this declaration relates to.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.StartLine">
+            <summary>
+            The start line of the declaration within the source file. This value is 1-based.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.StartColumn">
+            <summary>
+            The start column of the declaration within the source file. This value is 1-based.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.EndLine">
+            <summary>
+            // The end line of the declaration within the source file. This value is 1-based.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.EndColumn">
+            <summary>
+            The end column of the declaration within the source file. This value is 1-based, and
+            exclusive. (The final character of the declaration is on the column before this value.)
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.LeadingComments">
+            <summary>
+            Comments appearing before the declaration. Never null, but may be empty. Multi-line comments
+            are represented as a newline-separated string. Leading whitespace and the comment marker ("//")
+            are removed from each line.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.TrailingComments">
+            <summary>
+            Comments appearing after the declaration. Never null, but may be empty. Multi-line comments
+            are represented as a newline-separated string. Leading whitespace and the comment marker ("//")
+            are removed from each line.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.DescriptorDeclaration.LeadingDetachedComments">
+            <summary>
+            Comments appearing before the declaration, but separated from it by blank
+            lines. Each string represents a newline-separated paragraph of comments.
+            Leading whitespace and the comment marker ("//") are removed from each line.
+            The list is never null, but may be empty. Likewise each element is never null, but may be empty.
+            </summary>
         </member>
         <member name="T:Google.Protobuf.Reflection.DescriptorPool">
             <summary>
@@ -4565,12 +5264,17 @@
             that is the responsibility of the accessor.
             </para>
             <para>
-            The value returned by this property will be non-null for all regular fields. However,
-            if a message containing a map field is introspected, the list of nested messages will include
+            In descriptors for generated code, the value returned by this property will be non-null for all
+            regular fields. However, if a message containing a map field is introspected, the list of nested messages will include
             an auto-generated nested key/value pair message for the field. This is not represented in any
             generated type, and the value of the map field itself is represented by a dictionary in the
             reflection API. There are never instances of those "hidden" messages, so no accessor is provided
             and this property will return null.
+            </para>
+            <para>
+            In dynamically loaded descriptors, the value returned by this property will current be null;
+            if and when dynamic messages are supported, it will return a suitable accessor to work with
+            them.
             </para>
             </remarks>
         </member>
@@ -4582,6 +5286,11 @@
         <member name="P:Google.Protobuf.Reflection.FieldDescriptor.IsRepeated">
             <summary>
             Returns <c>true</c> if this field is a repeated field; <c>false</c> otherwise.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.Reflection.FieldDescriptor.IsRequired">
+            <summary>
+            Returns <c>true</c> if this field is a required field; <c>false</c> otherwise.
             </summary>
         </member>
         <member name="P:Google.Protobuf.Reflection.FieldDescriptor.IsMap">
@@ -4684,7 +5393,7 @@
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldType.Group">
             <summary>
-            The field type used for groups (not supported in this implementation).
+            The field type used for groups.
             </summary>
         </member>
         <member name="F:Google.Protobuf.Reflection.FieldType.Message">
@@ -4739,7 +5448,7 @@
             Computes the full name of a descriptor within this file, with an optional parent message.
             </summary>
         </member>
-        <member name="M:Google.Protobuf.Reflection.FileDescriptor.DeterminePublicDependencies(Google.Protobuf.Reflection.FileDescriptor,Google.Protobuf.Reflection.FileDescriptorProto,Google.Protobuf.Reflection.FileDescriptor[],System.Boolean)">
+        <member name="M:Google.Protobuf.Reflection.FileDescriptor.DeterminePublicDependencies(Google.Protobuf.Reflection.FileDescriptor,Google.Protobuf.Reflection.FileDescriptorProto,System.Collections.Generic.IEnumerable{Google.Protobuf.Reflection.FileDescriptor},System.Boolean)">
             <summary>
             Extracts public dependencies from direct dependencies. This is a static method despite its
             first parameter, as the value we're in the middle of constructing is only used for exceptions.
@@ -4840,6 +5549,17 @@
             which creates the appropriate dependencies etc. It has to be public because the generated
             code is "external", but should not be called directly by end users.
             </remarks>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.FileDescriptor.BuildFromByteStrings(System.Collections.Generic.IEnumerable{Google.Protobuf.ByteString})">
+            <summary>
+            Converts the given descriptor binary data into FileDescriptor objects.
+            Note: reflection using the returned FileDescriptors is not currently supported.
+            </summary>
+            <param name="descriptorData">The binary file descriptor proto data. Must not be null, and any
+            dependencies must come before the descriptor which depends on them. (If A depends on B, and B
+            depends on C, then the descriptors must be presented in the order C, B, A.) This is compatible
+            with the order in which protoc provides descriptors to plugins.</param>
+            <returns>The file descriptors corresponding to <paramref name="descriptorData"/>.</returns>
         </member>
         <member name="M:Google.Protobuf.Reflection.FileDescriptor.ToString">
             <summary>
@@ -4969,6 +5689,11 @@
             <summary>
             Clears the field in the specified message. (For repeated fields,
             this clears the list.)
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.Reflection.IFieldAccessor.HasValue(Google.Protobuf.IMessage)">
+            <summary>
+            Indicates whether the field in the specified message is set. For proto3 fields, this throws an <see cref="T:System.InvalidOperationException"/>
             </summary>
         </member>
         <member name="M:Google.Protobuf.Reflection.IFieldAccessor.GetValue(Google.Protobuf.IMessage)">
@@ -5253,6 +5978,16 @@
             Gets an accessor for reflective access to the values associated with the oneof
             in a particular message.
             </summary>
+            <remarks>
+            <para>
+            In descriptors for generated code, the value returned by this property will always be non-null.
+            </para>
+            <para>
+            In dynamically loaded descriptors, the value returned by this property will current be null;
+            if and when dynamic messages are supported, it will return a suitable accessor to work with
+            them.
+            </para>
+            </remarks>
             <value>
             The accessor used for reflective access.
             </value>
@@ -5728,7 +6463,8 @@
         <member name="P:Google.Protobuf.WellKnownTypes.Any.TypeUrl">
              <summary>
              A URL/resource name that uniquely identifies the type of the serialized
-             protocol buffer message. The last segment of the URL's path must represent
+             protocol buffer message. This string must contain at least
+             one "/" character. The last segment of the URL's path must represent
              the fully qualified name of the type (as in
              `path/google.protobuf.Duration`). The name should be in a canonical form
              (e.g., leading "." is not accepted).
@@ -5770,7 +6506,7 @@
             </summary>
             <remarks>
             <para>
-            This is always just the last part of the URL, after the final slash. No validation of 
+            This is always just the last part of the URL, after the final slash. No validation of
             anything before the trailing slash is performed. If the type URL does not include a slash,
             an empty string is returned rather than an exception being thrown; this won't match any types,
             and the calling code is probably in a better position to give a meaningful error.
@@ -5781,6 +6517,13 @@
             </remarks>
             <param name="typeUrl">The URL to extract the type name from</param>
             <returns>The type name</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Any.Is(Google.Protobuf.Reflection.MessageDescriptor)">
+            <summary>
+            Returns a bool indictating whether this Any message is of the target message type
+            </summary>
+            <param name="descriptor">The descriptor of the message type</param>
+            <returns><c>true</c> if the type name matches the descriptor's full name or <c>false</c> otherwise</returns>
         </member>
         <member name="M:Google.Protobuf.WellKnownTypes.Any.Unpack``1">
             <summary>
@@ -6353,57 +7096,49 @@
              describe the updated values, the API ignores the values of all
              fields not covered by the mask.
             
-             If a repeated field is specified for an update operation, the existing
-             repeated values in the target resource will be overwritten by the new values.
-             Note that a repeated field is only allowed in the last position of a `paths`
-             string.
+             If a repeated field is specified for an update operation, new values will
+             be appended to the existing repeated field in the target resource. Note that
+             a repeated field is only allowed in the last position of a `paths` string.
             
              If a sub-message is specified in the last position of the field mask for an
-             update operation, then the existing sub-message in the target resource is
-             overwritten. Given the target message:
+             update operation, then new value will be merged into the existing sub-message
+             in the target resource.
+            
+             For example, given the target message:
             
                  f {
                    b {
-                     d : 1
-                     x : 2
+                     d: 1
+                     x: 2
                    }
-                   c : 1
+                   c: [1]
                  }
             
              And an update message:
             
                  f {
                    b {
-                     d : 10
+                     d: 10
                    }
+                   c: [2]
                  }
             
              then if the field mask is:
             
-              paths: "f.b"
+              paths: ["f.b", "f.c"]
             
              then the result will be:
             
                  f {
                    b {
-                     d : 10
+                     d: 10
+                     x: 2
                    }
-                   c : 1
+                   c: [1, 2]
                  }
             
-             However, if the update mask was:
-            
-              paths: "f.b.d"
-            
-             then the result would be:
-            
-                 f {
-                   b {
-                     d : 10
-                     x : 2
-                   }
-                   c : 1
-                 }
+             An implementation may provide options to override this default behavior for
+             repeated and message fields.
             
              In order to reset a field's value to the default, the field must
              be in the mask and set to the default value in the provided resource.
@@ -6504,7 +7239,7 @@
         </member>
         <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.ToJson(System.Collections.Generic.IList{System.String},System.Boolean)">
             <summary>
-            Converts a timestamp  specified in seconds/nanoseconds to a string.
+            Converts a field mask specified by paths to a string.
             </summary>
             <remarks>
             If the value is a normalized duration in the range described in <c>field_mask.proto</c>,
@@ -6514,12 +7249,6 @@
             <param name="paths">Paths in the field mask</param>
             <param name="diagnosticOnly">Determines the handling of non-normalized values</param>
             <exception cref="T:System.InvalidOperationException">The represented field mask is invalid, and <paramref name="diagnosticOnly"/> is <c>false</c>.</exception>
-        </member>
-        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.ValidatePath(System.String)">
-            <summary>
-            Checks whether the given path is valid for a field mask.
-            </summary>
-            <returns>true if the path is valid; false otherwise</returns>
         </member>
         <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.ToDiagnosticString">
             <summary>
@@ -6533,6 +7262,126 @@
             values.
             </remarks>
             <returns>A string representation of this value.</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.FromString(System.String)">
+            <summary>
+            Parses from a string to a FieldMask.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.FromString``1(System.String)">
+            <summary>
+            Parses from a string to a FieldMask and validates all field paths.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.FromStringEnumerable``1(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Constructs a FieldMask for a list of field paths in a certain type.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.FromFieldNumbers``1(System.Int32[])">
+            <summary>
+            Constructs a FieldMask from the passed field numbers.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.FromFieldNumbers``1(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            Constructs a FieldMask from the passed field numbers.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.IsPathValid(System.String)">
+            <summary>
+            Checks whether the given path is valid for a field mask.
+            </summary>
+            <returns>true if the path is valid; false otherwise</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.IsValid``1(Google.Protobuf.WellKnownTypes.FieldMask)">
+            <summary>
+            Checks whether paths in a given fields mask are valid.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.IsValid(Google.Protobuf.Reflection.MessageDescriptor,Google.Protobuf.WellKnownTypes.FieldMask)">
+            <summary>
+            Checks whether paths in a given fields mask are valid.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.IsValid``1(System.String)">
+            <summary>
+            Checks whether a given field path is valid.
+            </summary>
+            <typeparam name="T">The type to validate the field paths against.</typeparam>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.IsValid(Google.Protobuf.Reflection.MessageDescriptor,System.String)">
+            <summary>
+            Checks whether paths in a given fields mask are valid.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.Normalize">
+            <summary>
+            Converts this FieldMask to its canonical form. In the canonical form of a
+            FieldMask, all field paths are sorted alphabetically and redundant field
+            paths are removed.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.Union(Google.Protobuf.WellKnownTypes.FieldMask[])">
+            <summary>
+            Creates a union of two or more FieldMasks.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.Intersection(Google.Protobuf.WellKnownTypes.FieldMask)">
+            <summary>
+            Calculates the intersection of two FieldMasks.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.Merge(Google.Protobuf.IMessage,Google.Protobuf.IMessage,Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions)">
+            <summary>
+            Merges fields specified by this FieldMask from one message to another with the
+            specified merge options.
+            </summary>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.FieldMask.Merge(Google.Protobuf.IMessage,Google.Protobuf.IMessage)">
+            <summary>
+            Merges fields specified by this FieldMask from one message to another.
+            </summary>
+        </member>
+        <member name="T:Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions">
+            <summary>
+            Options to customize merging behavior.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions.ReplaceMessageFields">
+            <summary>
+            Whether to replace message fields(i.e., discard existing content in
+            destination message fields) when merging.
+            Default behavior is to merge the source message field into the
+            destination message field.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions.ReplaceRepeatedFields">
+            <summary>
+            Whether to replace repeated fields (i.e., discard existing content in
+            destination repeated fields) when merging.
+            Default behavior is to append elements from source repeated field to the
+            destination repeated field.
+            </summary>
+        </member>
+        <member name="P:Google.Protobuf.WellKnownTypes.FieldMask.MergeOptions.ReplacePrimitiveFields">
+             <summary>
+             Whether to replace primitive (non-repeated and non-message) fields in
+             destination message fields with the source primitive fields (i.e., if the
+             field is set in the source, the value is copied to the
+             destination; if the field is unset in the source, the field is cleared
+             from the destination) when merging.
+            
+             Default behavior is to always set the value of the source primitive
+             field to the destination primitive field, and if the source field is
+             unset, the default value of the source field is copied to the
+             destination.
+             </summary>
         </member>
         <member name="T:Google.Protobuf.WellKnownTypes.SourceContextReflection">
             <summary>Holder for reflection information generated from google/protobuf/source_context.proto</summary>
@@ -6749,17 +7598,19 @@
         </member>
         <member name="T:Google.Protobuf.WellKnownTypes.Timestamp">
              <summary>
-             A Timestamp represents a point in time independent of any time zone
-             or calendar, represented as seconds and fractions of seconds at
-             nanosecond resolution in UTC Epoch time. It is encoded using the
-             Proleptic Gregorian Calendar which extends the Gregorian calendar
-             backwards to year one. It is encoded assuming all minutes are 60
-             seconds long, i.e. leap seconds are "smeared" so that no leap second
-             table is needed for interpretation. Range is from
-             0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z.
-             By restricting to that range, we ensure that we can convert to
-             and from  RFC 3339 date strings.
-             See [https://www.ietf.org/rfc/rfc3339.txt](https://www.ietf.org/rfc/rfc3339.txt).
+             A Timestamp represents a point in time independent of any time zone or local
+             calendar, encoded as a count of seconds and fractions of seconds at
+             nanosecond resolution. The count is relative to an epoch at UTC midnight on
+             January 1, 1970, in the proleptic Gregorian calendar which extends the
+             Gregorian calendar backwards to year one.
+            
+             All minutes are 60 seconds long. Leap seconds are "smeared" so that no leap
+             second table is needed for interpretation, using a [24-hour linear
+             smear](https://developers.google.com/time/smear).
+            
+             The range is from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z. By
+             restricting to that range, we ensure that we can convert to and from [RFC
+             3339](https://www.ietf.org/rfc/rfc3339.txt) date strings.
             
              # Examples
             
@@ -6819,12 +7670,14 @@
              01:30 UTC on January 15, 2017.
             
              In JavaScript, one can convert a Date object to this format using the
-             standard [toISOString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString]
+             standard
+             [toISOString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString)
              method. In Python, a standard `datetime.datetime` object can be converted
-             to this format using [`strftime`](https://docs.python.org/2/library/time.html#time.strftime)
-             with the time format spec '%Y-%m-%dT%H:%M:%S.%fZ'. Likewise, in Java, one
-             can use the Joda Time's [`ISODateTimeFormat.dateTime()`](
-             http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateTime--
+             to this format using
+             [`strftime`](https://docs.python.org/2/library/time.html#time.strftime) with
+             the time format spec '%Y-%m-%dT%H:%M:%S.%fZ'. Likewise, in Java, one can use
+             the Joda Time's [`ISODateTimeFormat.dateTime()`](
+             http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateTime%2D%2D
              ) to obtain a formatter capable of generating timestamps in this format.
              </summary>
         </member>
@@ -6932,6 +7785,82 @@
             <param name="nanoseconds">Nanoseconds portion of the duration.</param>
             <param name="diagnosticOnly">Determines the handling of non-normalized values</param>
             <exception cref="T:System.InvalidOperationException">The represented duration is invalid, and <paramref name="diagnosticOnly"/> is <c>false</c>.</exception>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.CompareTo(Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Given another timestamp, returns 0 if the timestamps are equivalent, -1 if this timestamp precedes the other, and 1 otherwise
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="other">Timestamp to compare</param>
+            <returns>an integer indicating whether this timestamp precedes or follows the other</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_LessThan(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Compares two timestamps and returns whether the first is less than (chronologically precedes) the second
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if a precedes b</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_GreaterThan(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Compares two timestamps and returns whether the first is greater than (chronologically follows) the second
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if a follows b</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_LessThanOrEqual(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Compares two timestamps and returns whether the first is less than (chronologically precedes) the second
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if a precedes b</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_GreaterThanOrEqual(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Compares two timestamps and returns whether the first is greater than (chronologically follows) the second
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if a follows b</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_Equality(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Returns whether two timestamps are equivalent
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if the two timestamps refer to the same nanosecond</returns>
+        </member>
+        <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.op_Inequality(Google.Protobuf.WellKnownTypes.Timestamp,Google.Protobuf.WellKnownTypes.Timestamp)">
+            <summary>
+            Returns whether two timestamps differ
+            </summary>
+            <remarks>
+            Make sure the timestamps are normalized. Comparing non-normalized timestamps is not specified and may give unexpected results.
+            </remarks>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns>true if the two timestamps differ</returns>
         </member>
         <member name="M:Google.Protobuf.WellKnownTypes.Timestamp.ToDiagnosticString">
             <summary>
@@ -7516,12 +8445,12 @@
         </member>
         <member name="F:Google.Protobuf.WireFormat.WireType.StartGroup">
             <summary>
-            A "start group" value - not supported by this implementation.
+            A "start group" value
             </summary>
         </member>
         <member name="F:Google.Protobuf.WireFormat.WireType.EndGroup">
             <summary>
-            An "end group" value - not supported by this implementation.
+            An "end group" value
             </summary>
         </member>
         <member name="F:Google.Protobuf.WireFormat.WireType.Fixed32">

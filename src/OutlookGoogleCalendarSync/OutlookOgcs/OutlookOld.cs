@@ -700,10 +700,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
-            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(oTZ_id);
-            String tzID = tzDBsource.MapTimeZoneId(tzi);
-            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + tzDBsource.CanonicalIdMap[tzID] + "\"");
-            return tzDBsource.CanonicalIdMap[tzID];
+            String retVal = null;
+            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
+                log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
+            else {
+                retVal = tzDBsource.CanonicalIdMap[retVal];
+                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+            }
+            return retVal;
         }
 
         public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
