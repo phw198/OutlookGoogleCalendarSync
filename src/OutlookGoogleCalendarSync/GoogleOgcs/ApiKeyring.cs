@@ -189,7 +189,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } catch (System.Exception ex) {
                 log.Error("Failed creating API key.");
                 OGCSexception.Analyse(ex);
-                throw ex;
+                throw;
             }
         }
 

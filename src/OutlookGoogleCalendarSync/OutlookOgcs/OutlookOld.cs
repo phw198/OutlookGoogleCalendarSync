@@ -265,7 +265,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
-                throw ex;
+                throw;
             }
         }
 

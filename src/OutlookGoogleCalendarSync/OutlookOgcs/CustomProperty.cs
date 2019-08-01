@@ -250,7 +250,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 int maxSet;
                 int? keySet = null;
-                if (!Exists(ai, key)) {
+                String currentKeyName = null;
+                if (!Exists(ai, key, out currentKeyName)) {
                     keySet = getKeySet(ai, out maxSet);
                     if (key == MetadataId.gCalendarId && (keySet ?? 0) == 0) //Couldn't find key set for calendar
                         keySet = maxSet + 1; //So start a new one
@@ -268,7 +269,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     } finally {
                         ups = (UserProperties)Calendar.ReleaseObject(ups);
                     }
-                }
+                } else
+                    addkeyName = currentKeyName; //Might be suffixed with "-01"
                 ups = ai.UserProperties;
                 ups[addkeyName].Value = keyValue;
                 OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));

@@ -110,9 +110,16 @@ namespace OutlookGoogleCalendarSync {
                 xml = XDocument.Load(filename);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to load " + filename, ex, true);
-                throw ex;
+                throw;
             }
-            XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
+            XElement settingsXE = null;
+            try {
+                settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
+            } catch (System.Exception ex) {
+                log.Debug(filename + " head: " + xml.ToString().Substring(0, Math.Min(200, xml.ToString().Length)));
+                OGCSexception.Analyse("Could not access 'Settings' element.", ex, true);
+                return;
+            }
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
                 xe.SetValue(nodeValue);
@@ -127,8 +134,7 @@ namespace OutlookGoogleCalendarSync {
                     xml.Root.Sort();
                     xml.Save(filename);
                 } else {
-                    OGCSexception.Analyse(ex);
-                    log.Error("Failed to export setting " + nodeName + "=" + nodeValue + " to settings.xml file.");
+                    OGCSexception.Analyse("Failed to export setting " + nodeName + "=" + nodeValue + " to " + filename + " file.", ex);
                 }
             }
         }

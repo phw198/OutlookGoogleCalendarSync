@@ -28,8 +28,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         instance = new Calendar();
                         instance.IOutlook.Connect();
                     }
-                } catch (System.ApplicationException ex) {
-                    throw ex;
+                } catch (System.ApplicationException) {
+                    throw;
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Warn(ex.Message);
                     try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
-                    throw ex;
+                    throw;
                 }
             } catch (System.Runtime.InteropServices.COMException ex) {
                 log.Warn(ex.Message);
@@ -119,16 +119,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Warn(ex.Message);
                     OutlookOgcs.Calendar.Instance.Reset();
                     filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
-                } else throw ex;
+                } else throw;
 
             } catch (System.ArgumentNullException ex) {
                 OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
                 OutlookOgcs.Calendar.Instance.Reset();
                 filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
 
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
             return filtered;
         }
@@ -754,9 +754,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     }
-                } catch (System.Exception ex) {
+                } catch (System.Exception) {
                     Forms.Main.Instance.Console.Update("Failure processing Outlook item:-<br/>" + OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.warning);
-                    throw ex;
+                    throw;
                 }
             }
             log.Debug(unclaimedAi.Count + " unclaimed.");
@@ -935,7 +935,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         System.Threading.Thread.Sleep(10000);
                     } else {
-                        throw aex;
+                        throw;
                     }
                 }
                 openAttempts++;
@@ -1011,7 +1011,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } catch (System.InvalidCastException ex) {
-                if (!comErrorInWiki(ex)) throw ex;
+                if (!comErrorInWiki(ex)) throw;
 
             } catch (System.UnauthorizedAccessException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
@@ -1026,7 +1026,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //System.Type oAppType = System.Type.GetTypeFromProgID("Outlook.Application");
                 //ApplicationClass oAppClass = System.Activator.CreateInstance(oAppType) as ApplicationClass;
                 //oApp = oAppClass.CreateObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
-                throw ex;
+                throw;
             }
         }
 

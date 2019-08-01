@@ -381,9 +381,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     OGCSexception.AnalyseTokenResponse(ex, false);
                     return SyncResult.Fail;
                 } catch (System.Net.Http.HttpRequestException ex) {
+                    if (ex.InnerException != null && ex.InnerException is System.Net.WebException && OGCSexception.GetErrorCode(ex.InnerException) == "0x80131509") {
+                        ex = OGCSexception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
+                    }
                     OGCSexception.Analyse(ex);
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
-                    throw ex;
+                    throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&
                         (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
@@ -392,13 +395,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                             (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
                         OGCSexception.LogAsFail(ref ex);
                     }
-                    throw ex;
+                    throw;
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
                     if (OGCSexception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
                         ex.Data["OGCS"] += " Please try again.";
-                    throw ex;
+                    throw;
                 }
                 Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
                 if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) {
@@ -483,9 +486,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 }
                             }
-                        } catch (System.Exception ex) {
+                        } catch (System.Exception) {
                             console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Console.Markup.error);
-                            throw ex;
+                            throw;
                         } finally {
                             oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);
                         }
@@ -545,16 +548,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
                 GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
                 if (CancellationPending) return false;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
 
             DateTime timeSection = DateTime.Now;
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
                 throw;
             }
@@ -592,7 +595,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         return false;
                     } catch (System.Exception ex) {
                         console.UpdateWithError("Unable to delete obsolete entries in Google calendar.", ex);
-                        throw ex;
+                        throw;
                     }
                     log.Info("Done.");
                 }
@@ -610,7 +613,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         return false;
                     } catch (System.Exception ex) {
                         console.UpdateWithError("Unable to add new entries into the Google Calendar.", ex);
-                        throw ex;
+                        throw;
                     }
                     log.Info("Done.");
                 }
@@ -628,7 +631,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         return false;
                     } catch (System.Exception ex) {
                         console.UpdateWithError("Unable to update existing entries in the Google calendar.", ex);
-                        throw ex;
+                        throw;
                     }
                     console.Update(entriesUpdated + " entries updated.");
                 }
@@ -664,16 +667,16 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref outlookEntriesToBeCreated);
                 if (CancellationPending) return false;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 console.Update("Unable to reclaim orphan calendar entries in Outlook calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
             try {
                 OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 console.Update("Unable to identify differences in Outlook calendar.", Console.Markup.error);
-                throw ex;
+                throw;
             }
 
             StringBuilder sb = new StringBuilder();
@@ -706,9 +709,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                     } catch (UserCancelledSyncException ex) {
                         log.Info(ex.Message);
                         return false;
-                    } catch (System.Exception ex) {
+                    } catch (System.Exception) {
                         console.Update("Unable to delete obsolete entries in Google calendar.", Console.Markup.error);
-                        throw ex;
+                        throw;
                     }
                     log.Info("Done.");
                 }
@@ -724,9 +727,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                     } catch (UserCancelledSyncException ex) {
                         log.Info(ex.Message);
                         return false;
-                    } catch (System.Exception ex) {
+                    } catch (System.Exception) {
                         console.Update("Unable to add new entries into the Outlook Calendar.", Console.Markup.error);
-                        throw ex;
+                        throw;
                     }
                     log.Info("Done.");
                 }
@@ -742,9 +745,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                     } catch (UserCancelledSyncException ex) {
                         log.Info(ex.Message);
                         return false;
-                    } catch (System.Exception ex) {
+                    } catch (System.Exception) {
                         console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
-                        throw ex;
+                        throw;
                     }
                     console.Update(entriesUpdated + " entries updated.");
                 }

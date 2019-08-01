@@ -152,6 +152,7 @@
             this.tbLog.TabIndex = 1;
             this.tbLog.Text = "";
             this.tbLog.WordWrap = false;
+            this.tbLog.Resize += new System.EventHandler(this.tbLog_Resize);
             // 
             // ErrorReporting
             // 
@@ -169,7 +170,6 @@
             this.Controls.Add(this.btYes);
             this.Controls.Add(this.txtInfo);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(703, 431);
             this.Name = "ErrorReporting";

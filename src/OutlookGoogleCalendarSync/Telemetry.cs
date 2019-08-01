@@ -23,7 +23,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Fail("Failed determining Outlook client version.");
-                if (ex is ApplicationException) { throw ex; }
+                if (ex is ApplicationException) { throw; }
                 OGCSexception.Analyse(ex);
                 outlookVersion = "Unknown";
             }
@@ -58,15 +58,15 @@ namespace OutlookGoogleCalendarSync {
         private static void sendTelemetry_completed(object sender, DownloadStringCompletedEventArgs e) {
             if (e.Error != null) {
                 log.Warn("Failed to access URL " + e.UserState.ToString());
-                log.Error(e.Error.Message);
-                if (e.Error.InnerException != null) log.Error(e.Error.InnerException.Message);
+                log.Fail(e.Error.Message);
+                if (e.Error.InnerException != null) log.Fail(e.Error.InnerException.Message);
                 if (e.Error is WebException) {
                     WebException we = e.Error as WebException;
                     if (we.Response != null) {
                         log.Debug("Reading response.");
                         System.IO.Stream stream = we.Response.GetResponseStream();
                         System.IO.StreamReader sr = new System.IO.StreamReader(stream);
-                        log.Error(sr.ReadToEnd());
+                        log.Fail(sr.ReadToEnd());
                     }
                 }
             }

@@ -361,7 +361,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (OGCSexception.GetErrorCode(ex) == "0x80004004") {
                         Forms.Main.Instance.Console.Update("You do not have the rights to programmatically access Outlook appointment descriptions.<br/>" +
                             "It may be best to stop syncing the Description attribute.", Console.Markup.warning);
-                    } else throw ex;
+                    } else throw;
                 }
             }
             if (Settings.Instance.AddLocation)
@@ -411,7 +411,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
-                log.Debug("Saving timestamp when OGCS updated event.");
+                log.Debug("Saving timestamp when OGCS created event.");
                 CustomProperty.SetOGCSlastModified(ref ev);
             }
             if (Settings.Instance.APIlimit_inEffect) {
@@ -967,7 +967,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             //Order by start date (same as Outlook) for quickest matching
             google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
-
+            
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int g = google.Count - 1; g >= 0; g--) {

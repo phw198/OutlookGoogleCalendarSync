@@ -76,6 +76,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public static void CloseMe() {
+            if (splash == null) return;
+
             if (splash.InvokeRequired) {
                 splash.Invoke(new MethodInvoker(CloseMe));
             } else {
