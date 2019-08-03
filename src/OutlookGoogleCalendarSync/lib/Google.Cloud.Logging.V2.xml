@@ -56,8 +56,8 @@
             The "Default" retry backoff for <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial delay: 100 milliseconds</description></item>
-            <item><description>Maximum delay: 1000 milliseconds</description></item>
-            <item><description>Delay multiplier: 1.2</description></item>
+            <item><description>Maximum delay: 60000 milliseconds</description></item>
+            <item><description>Delay multiplier: 1.3</description></item>
             </list>
             </remarks>
         </member>
@@ -71,9 +71,9 @@
             <remarks>
             The "Default" timeout backoff for <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Maximum timeout: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Maximum timeout: 20000 milliseconds</description></item>
             </list>
             </remarks>
         </member>
@@ -88,8 +88,8 @@
             The "WriteSink" retry backoff for <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial delay: 100 milliseconds</description></item>
-            <item><description>Maximum delay: 1000 milliseconds</description></item>
-            <item><description>Delay multiplier: 1.2</description></item>
+            <item><description>Maximum delay: 60000 milliseconds</description></item>
+            <item><description>Delay multiplier: 1.3</description></item>
             </list>
             </remarks>
         </member>
@@ -103,9 +103,9 @@
             <remarks>
             The "WriteSink" timeout backoff for <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Maximum timeout: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Maximum timeout: 20000 milliseconds</description></item>
             </list>
             </remarks>
         </member>
@@ -119,11 +119,11 @@
             <c>ConfigServiceV2Client.ListSinksAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -131,7 +131,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.GetSinkSettings">
@@ -144,11 +144,11 @@
             <c>ConfigServiceV2Client.GetSinkAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -156,7 +156,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.CreateSinkSettings">
@@ -169,17 +169,17 @@
             <c>ConfigServiceV2Client.CreateSinkAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
             <item><description>No status codes</description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.UpdateSinkSettings">
@@ -192,17 +192,19 @@
             <c>ConfigServiceV2Client.UpdateSinkAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
-            <item><description>No status codes</description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.DeadlineExceeded"/></description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.DeleteSinkSettings">
@@ -215,11 +217,11 @@
             <c>ConfigServiceV2Client.DeleteSinkAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -227,7 +229,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.ListExclusionsSettings">
@@ -240,11 +242,11 @@
             <c>ConfigServiceV2Client.ListExclusionsAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -252,7 +254,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.GetExclusionSettings">
@@ -265,11 +267,11 @@
             <c>ConfigServiceV2Client.GetExclusionAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -277,7 +279,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.CreateExclusionSettings">
@@ -290,17 +292,17 @@
             <c>ConfigServiceV2Client.CreateExclusionAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
             <item><description>No status codes</description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.UpdateExclusionSettings">
@@ -313,17 +315,17 @@
             <c>ConfigServiceV2Client.UpdateExclusionAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
             <item><description>No status codes</description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.ConfigServiceV2Settings.DeleteExclusionSettings">
@@ -336,11 +338,11 @@
             <c>ConfigServiceV2Client.DeleteExclusionAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 30000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -348,7 +350,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Settings.Clone">
@@ -386,8 +388,34 @@
             <summary>
             Asynchronously creates a <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            ConfigServiceV2Client client = await ConfigServiceV2Client.CreateAsync();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                ConfigServiceV2Client.DefaultEndpoint.Host, ConfigServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            ConfigServiceV2Client client = ConfigServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            await channel.ShutdownAsync();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Settings"/>.</param>
             <returns>The task representing the created <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/>.</returns>
@@ -396,8 +424,34 @@
             <summary>
             Synchronously creates a <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            ConfigServiceV2Client client = ConfigServiceV2Client.Create();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                ConfigServiceV2Client.DefaultEndpoint.Host, ConfigServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            ConfigServiceV2Client client = ConfigServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            channel.ShutdownAsync().Wait();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Settings"/>.</param>
             <returns>The created <see cref="T:Google.Cloud.Logging.V2.ConfigServiceV2Client"/>.</returns>
@@ -585,6 +639,20 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.GetSinkAsync(Google.Cloud.Logging.V2.GetSinkRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets a sink.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.GetSink(Google.Cloud.Logging.V2.GetSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Gets a sink.
@@ -700,6 +768,23 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.CreateSinkAsync(Google.Cloud.Logging.V2.CreateSinkRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates a sink that exports specified log entries to a destination.  The
+            export of newly-ingested log entries begins immediately, unless the sink's
+            `writer_identity` is not permitted to write to the destination.  A sink can
+            export log entries only from the resource owning the sink.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.CreateSink(Google.Cloud.Logging.V2.CreateSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Creates a sink that exports specified log entries to a destination.  The
@@ -716,6 +801,141 @@
             <returns>
             The RPC response.
             </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSinkAsync(Google.Cloud.Logging.V2.SinkNameOneof,Google.Cloud.Logging.V2.LogSink,Google.Protobuf.WellKnownTypes.FieldMask,Google.Api.Gax.Grpc.CallSettings)">
+             <summary>
+             Updates a sink.  This method replaces the following fields in the existing
+             sink with values from the new sink: `destination`, and `filter`.
+             The updated sink might also have a new `writer_identity`; see the
+             `unique_writer_identity` field.
+             </summary>
+             <param name="sinkName">
+             Required. The full resource name of the sink to update, including the
+             parent resource and the sink identifier:
+            
+                 "projects/[PROJECT_ID]/sinks/[SINK_ID]"
+                 "organizations/[ORGANIZATION_ID]/sinks/[SINK_ID]"
+                 "billingAccounts/[BILLING_ACCOUNT_ID]/sinks/[SINK_ID]"
+                 "folders/[FOLDER_ID]/sinks/[SINK_ID]"
+            
+             Example: `"projects/my-project-id/sinks/my-sink-id"`.
+             </param>
+             <param name="sink">
+             Required. The updated sink, whose name is the same identifier that appears
+             as part of `sink_name`.
+             </param>
+             <param name="updateMask">
+             Optional. Field mask that specifies the fields in `sink` that need
+             an update. A sink field will be overwritten if, and only if, it is
+             in the update mask.  `name` and output only fields cannot be updated.
+            
+             An empty updateMask is temporarily treated as using the following mask
+             for backwards compatibility purposes:
+               destination,filter,includeChildren
+             At some point in the future, behavior will be removed and specifying an
+             empty updateMask will be an error.
+            
+             For a detailed `FieldMask` definition, see
+             https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+            
+             Example: `updateMask=filter`.
+             </param>
+             <param name="callSettings">
+             If not null, applies overrides to this RPC call.
+             </param>
+             <returns>
+             A Task containing the RPC response.
+             </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSinkAsync(Google.Cloud.Logging.V2.SinkNameOneof,Google.Cloud.Logging.V2.LogSink,Google.Protobuf.WellKnownTypes.FieldMask,System.Threading.CancellationToken)">
+             <summary>
+             Updates a sink.  This method replaces the following fields in the existing
+             sink with values from the new sink: `destination`, and `filter`.
+             The updated sink might also have a new `writer_identity`; see the
+             `unique_writer_identity` field.
+             </summary>
+             <param name="sinkName">
+             Required. The full resource name of the sink to update, including the
+             parent resource and the sink identifier:
+            
+                 "projects/[PROJECT_ID]/sinks/[SINK_ID]"
+                 "organizations/[ORGANIZATION_ID]/sinks/[SINK_ID]"
+                 "billingAccounts/[BILLING_ACCOUNT_ID]/sinks/[SINK_ID]"
+                 "folders/[FOLDER_ID]/sinks/[SINK_ID]"
+            
+             Example: `"projects/my-project-id/sinks/my-sink-id"`.
+             </param>
+             <param name="sink">
+             Required. The updated sink, whose name is the same identifier that appears
+             as part of `sink_name`.
+             </param>
+             <param name="updateMask">
+             Optional. Field mask that specifies the fields in `sink` that need
+             an update. A sink field will be overwritten if, and only if, it is
+             in the update mask.  `name` and output only fields cannot be updated.
+            
+             An empty updateMask is temporarily treated as using the following mask
+             for backwards compatibility purposes:
+               destination,filter,includeChildren
+             At some point in the future, behavior will be removed and specifying an
+             empty updateMask will be an error.
+            
+             For a detailed `FieldMask` definition, see
+             https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+            
+             Example: `updateMask=filter`.
+             </param>
+             <param name="cancellationToken">
+             A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+             </param>
+             <returns>
+             A Task containing the RPC response.
+             </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSink(Google.Cloud.Logging.V2.SinkNameOneof,Google.Cloud.Logging.V2.LogSink,Google.Protobuf.WellKnownTypes.FieldMask,Google.Api.Gax.Grpc.CallSettings)">
+             <summary>
+             Updates a sink.  This method replaces the following fields in the existing
+             sink with values from the new sink: `destination`, and `filter`.
+             The updated sink might also have a new `writer_identity`; see the
+             `unique_writer_identity` field.
+             </summary>
+             <param name="sinkName">
+             Required. The full resource name of the sink to update, including the
+             parent resource and the sink identifier:
+            
+                 "projects/[PROJECT_ID]/sinks/[SINK_ID]"
+                 "organizations/[ORGANIZATION_ID]/sinks/[SINK_ID]"
+                 "billingAccounts/[BILLING_ACCOUNT_ID]/sinks/[SINK_ID]"
+                 "folders/[FOLDER_ID]/sinks/[SINK_ID]"
+            
+             Example: `"projects/my-project-id/sinks/my-sink-id"`.
+             </param>
+             <param name="sink">
+             Required. The updated sink, whose name is the same identifier that appears
+             as part of `sink_name`.
+             </param>
+             <param name="updateMask">
+             Optional. Field mask that specifies the fields in `sink` that need
+             an update. A sink field will be overwritten if, and only if, it is
+             in the update mask.  `name` and output only fields cannot be updated.
+            
+             An empty updateMask is temporarily treated as using the following mask
+             for backwards compatibility purposes:
+               destination,filter,includeChildren
+             At some point in the future, behavior will be removed and specifying an
+             empty updateMask will be an error.
+            
+             For a detailed `FieldMask` definition, see
+             https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+            
+             Example: `updateMask=filter`.
+             </param>
+             <param name="callSettings">
+             If not null, applies overrides to this RPC call.
+             </param>
+             <returns>
+             The RPC response.
+             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSinkAsync(Google.Cloud.Logging.V2.SinkNameOneof,Google.Cloud.Logging.V2.LogSink,Google.Api.Gax.Grpc.CallSettings)">
              <summary>
@@ -821,6 +1041,23 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSinkAsync(Google.Cloud.Logging.V2.UpdateSinkRequest,System.Threading.CancellationToken)">
+            <summary>
+            Updates a sink.  This method replaces the following fields in the existing
+            sink with values from the new sink: `destination`, and `filter`.
+            The updated sink might also have a new `writer_identity`; see the
+            `unique_writer_identity` field.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateSink(Google.Cloud.Logging.V2.UpdateSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Updates a sink.  This method replaces the following fields in the existing
@@ -858,7 +1095,7 @@
              If not null, applies overrides to this RPC call.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteSinkAsync(Google.Cloud.Logging.V2.SinkNameOneof,System.Threading.CancellationToken)">
@@ -881,7 +1118,7 @@
              A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteSink(Google.Cloud.Logging.V2.SinkNameOneof,Google.Api.Gax.Grpc.CallSettings)">
@@ -903,9 +1140,6 @@
              <param name="callSettings">
              If not null, applies overrides to this RPC call.
              </param>
-             <returns>
-             The RPC response.
-             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteSinkAsync(Google.Cloud.Logging.V2.DeleteSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -919,7 +1153,22 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteSinkAsync(Google.Cloud.Logging.V2.DeleteSinkRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a sink. If the sink has a unique `writer_identity`, then that
+            service account is also deleted.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteSink(Google.Cloud.Logging.V2.DeleteSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -933,9 +1182,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.ListExclusionsAsync(Google.Cloud.Logging.V2.ParentNameOneof,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
              <summary>
@@ -1096,6 +1342,20 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.GetExclusionAsync(Google.Cloud.Logging.V2.GetExclusionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets the description of an exclusion.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.GetExclusion(Google.Cloud.Logging.V2.GetExclusionRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Gets the description of an exclusion.
@@ -1202,6 +1462,22 @@
             </param>
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.CreateExclusionAsync(Google.Cloud.Logging.V2.CreateExclusionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates a new exclusion in a specified parent resource.
+            Only log entries belonging to that resource can be excluded.
+            You can have up to 10 exclusions in a resource.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
             </param>
             <returns>
             A Task containing the RPC response.
@@ -1339,6 +1615,20 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateExclusionAsync(Google.Cloud.Logging.V2.UpdateExclusionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Changes one or more properties of an existing exclusion.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.UpdateExclusion(Google.Cloud.Logging.V2.UpdateExclusionRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Changes one or more properties of an existing exclusion.
@@ -1371,7 +1661,7 @@
              If not null, applies overrides to this RPC call.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteExclusionAsync(Google.Cloud.Logging.V2.ExclusionNameOneof,System.Threading.CancellationToken)">
@@ -1392,7 +1682,7 @@
              A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteExclusion(Google.Cloud.Logging.V2.ExclusionNameOneof,Google.Api.Gax.Grpc.CallSettings)">
@@ -1412,9 +1702,6 @@
              <param name="callSettings">
              If not null, applies overrides to this RPC call.
              </param>
-             <returns>
-             The RPC response.
-             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteExclusionAsync(Google.Cloud.Logging.V2.DeleteExclusionRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -1427,7 +1714,21 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteExclusionAsync(Google.Cloud.Logging.V2.DeleteExclusionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deletes an exclusion.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2Client.DeleteExclusion(Google.Cloud.Logging.V2.DeleteExclusionRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -1440,9 +1741,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ConfigServiceV2ClientImpl">
             <summary>
@@ -1597,7 +1895,7 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2ClientImpl.DeleteSink(Google.Cloud.Logging.V2.DeleteSinkRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -1611,9 +1909,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2ClientImpl.ListExclusionsAsync(Google.Cloud.Logging.V2.ListExclusionsRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -1742,7 +2037,7 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ConfigServiceV2ClientImpl.DeleteExclusion(Google.Cloud.Logging.V2.DeleteExclusionRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -1755,9 +2050,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ListSinksRequest">
             <summary>
@@ -1954,7 +2246,7 @@
         </member>
         <member name="P:Google.Cloud.Logging.V2.LogEntry.Resource">
             <summary>
-            Required. The monitored resource associated with this log entry.
+            Required. The primary monitored resource associated with this log entry.
             Example: a log entry that reports a database error would be
             associated with the monitored resource designating the particular
             database that reported the error.
@@ -1996,11 +2288,15 @@
              This time is used to compute the log entry's age and to enforce
              the logs retention period. If this field is omitted in a new log
              entry, then Stackdriver Logging assigns it the current time.
+             Timestamps have nanosecond accuracy, but trailing zeros in the fractional
+             seconds might be omitted when the timestamp is displayed.
             
              Incoming log entries should have timestamps that are no more than
-             the [logs retention period](/logging/quota-policy) in the past,
-             and no more than 24 hours in the future.
-             See the `entries.write` API method for more information.
+             the [logs retention period](/logging/quotas) in the past,
+             and no more than 24 hours in the future. Log entries outside those time
+             boundaries will not be available when calling `entries.list`, but
+             those log entries can still be exported with
+             [LogSinks](/logging/docs/api/tasks/exporting-logs).
              </summary>
         </member>
         <member name="F:Google.Cloud.Logging.V2.LogEntry.ReceiveTimestampFieldNumber">
@@ -2051,6 +2347,16 @@
             information about the log entry.
             </summary>
         </member>
+        <member name="F:Google.Cloud.Logging.V2.LogEntry.MetadataFieldNumber">
+            <summary>Field number for the "metadata" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.V2.LogEntry.Metadata">
+            <summary>
+            Output only. Additional metadata about the monitored resource.
+            Only `k8s_container`, `k8s_pod`, and `k8s_node` MonitoredResources have
+            this field populated.
+            </summary>
+        </member>
         <member name="F:Google.Cloud.Logging.V2.LogEntry.OperationFieldNumber">
             <summary>Field number for the "operation" field.</summary>
         </member>
@@ -2076,11 +2382,10 @@
         </member>
         <member name="P:Google.Cloud.Logging.V2.LogEntry.SpanId">
             <summary>
-            Optional. Id of the span within the trace associated with the log entry.
-            e.g. "0000000000000042"
-            For Stackdriver trace spans, this is the same format that the Stackdriver
-            trace API uses.
-            The ID is a 16-character hexadecimal encoding of an 8-byte array.
+            Optional. The span ID within the trace associated with the log entry. For
+            Stackdriver Trace spans, this is the same format that the Stackdriver Trace
+            API v2 uses: a 16-character hexadecimal encoding of an 8-byte array, such
+            as &lt;code>"000000000000004a"&lt;/code>.
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.V2.LogEntry.SourceLocationFieldNumber">
@@ -2273,7 +2578,8 @@
              entries in this list does not matter. Values supplied in this method's
              `log_name`, `resource`, and `labels` fields are copied into those log
              entries in this list that do not include values for their corresponding
-             fields. For more information, see the [LogEntry][google.logging.v2.LogEntry] type.
+             fields. For more information, see the
+             [LogEntry][google.logging.v2.LogEntry] type.
             
              If the `timestamp` or `insert_id` fields are missing in log entries, then
              this method supplies the current time or a unique identifier, respectively.
@@ -2283,8 +2589,9 @@
             
              Log entries with timestamps that are more than the
              [logs retention period](/logging/quota-policy) in the past or more than
-             24 hours in the future might be discarded. Discarding does not return
-             an error.
+             24 hours in the future will not be available when calling `entries.list`.
+             However, those log entries can still be exported with
+             [LogSinks](/logging/docs/api/tasks/exporting-logs).
             
              To improve throughput and to avoid exceeding the
              [quota limit](/logging/quota-policy) for calls to `entries.write`,
@@ -2302,6 +2609,16 @@
             entry is not written, then the response status is the error associated
             with one of the failed entries and the response includes error details
             keyed by the entries' zero-based index in the `entries.write` method.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.V2.WriteLogEntriesRequest.DryRunFieldNumber">
+            <summary>Field number for the "dry_run" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.V2.WriteLogEntriesRequest.DryRun">
+            <summary>
+            Optional. If true, the request should expect normal response, but the
+            entries won't be persisted nor exported. Useful for checking whether the
+            logging API endpoints are working properly before sending valuable data.
             </summary>
         </member>
         <member name="P:Google.Cloud.Logging.V2.WriteLogEntriesRequest.LogNameAsLogNameOneof">
@@ -2412,6 +2729,11 @@
             preceding call to this method.  `page_token` must be the value of
             `next_page_token` from the previous response.  The values of other method
             parameters should be identical to those in the previous call.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.V2.ListLogEntriesRequest.ResourceNamesAsParentNameOneofs">
+            <summary>
+            <see cref="T:Google.Api.Gax.ResourceNameList`1"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.ListLogEntriesRequest.ResourceNames"/> resource name property.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ListLogEntriesResponse">
@@ -2960,7 +3282,7 @@
              For example, the following filter matches 99% of low-severity log
              entries from load balancers:
             
-                 "resource.type=http_load_balancer severity&lt;ERROR sample(insertId, 0.99)"
+             `"resource.type=http_load_balancer severity&lt;ERROR sample(insertId, 0.99)"`
              </summary>
         </member>
         <member name="F:Google.Cloud.Logging.V2.LogExclusion.DisabledFieldNumber">
@@ -2970,7 +3292,7 @@
             <summary>
             Optional. If set to True, then this exclusion is disabled and it does not
             exclude any log entries. You can use
-            [exclusions.patch](/logging/docs/alpha-exclusion/docs/reference/v2/rest/v2/projects.exclusions/patch)
+            [exclusions.patch](/logging/docs/reference/v2/rest/v2/projects.exclusions/patch)
             to change the value of this field.
             </summary>
         </member>
@@ -2996,7 +3318,7 @@
         </member>
         <member name="P:Google.Cloud.Logging.V2.GetExclusionRequest.ExclusionNameOneof">
             <summary>
-            <see cref="P:Google.Cloud.Logging.V2.GetExclusionRequest.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.GetExclusionRequest.Name"/> resource name property.
+            <see cref="T:Google.Cloud.Logging.V2.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.GetExclusionRequest.Name"/> resource name property.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.V2.CreateExclusionRequest">
@@ -3078,7 +3400,7 @@
         </member>
         <member name="P:Google.Cloud.Logging.V2.UpdateExclusionRequest.ExclusionNameOneof">
             <summary>
-            <see cref="P:Google.Cloud.Logging.V2.UpdateExclusionRequest.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.UpdateExclusionRequest.Name"/> resource name property.
+            <see cref="T:Google.Cloud.Logging.V2.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.UpdateExclusionRequest.Name"/> resource name property.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.V2.DeleteExclusionRequest">
@@ -3103,7 +3425,7 @@
         </member>
         <member name="P:Google.Cloud.Logging.V2.DeleteExclusionRequest.ExclusionNameOneof">
             <summary>
-            <see cref="P:Google.Cloud.Logging.V2.DeleteExclusionRequest.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.DeleteExclusionRequest.Name"/> resource name property.
+            <see cref="T:Google.Cloud.Logging.V2.ExclusionNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.DeleteExclusionRequest.Name"/> resource name property.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ConfigServiceV2">
@@ -3651,18 +3973,19 @@
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Base.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Grpc.Core.ServerCallContext)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">The request received from the client.</param>
-             <param name="context">The context of the server-side call handler being invoked.</param>
-             <returns>The response to send back to the client (wrapped by a task).</returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Base.ListLogEntries(Google.Cloud.Logging.V2.ListLogEntriesRequest,Grpc.Core.ServerCallContext)">
             <summary>
@@ -3759,64 +4082,68 @@
             <returns>The call object.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Client.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">The request to send to the server.</param>
-             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-             <param name="cancellationToken">An optional token for canceling the call.</param>
-             <returns>The response received from the server.</returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Client.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Grpc.Core.CallOptions)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">The request to send to the server.</param>
-             <param name="options">The options for the call.</param>
-             <returns>The response received from the server.</returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">The request to send to the server.</param>
-             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-             <param name="cancellationToken">An optional token for canceling the call.</param>
-             <returns>The call object.</returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Grpc.Core.CallOptions)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">The request to send to the server.</param>
-             <param name="options">The options for the call.</param>
-             <returns>The call object.</returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2.LoggingServiceV2Client.ListLogEntries(Google.Cloud.Logging.V2.ListLogEntriesRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
@@ -4120,6 +4447,11 @@
         <member name="F:Google.Cloud.Logging.V2.LogMetric.Types.ApiVersion.V1">
             <summary>
             Stackdriver Logging API v1.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.V2.LogMetric.MetricNameOneof">
+            <summary>
+            <see cref="T:Google.Cloud.Logging.V2.MetricNameOneof"/>-typed view over the <see cref="P:Google.Cloud.Logging.V2.LogMetric.Name"/> resource name property.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ListLogMetricsRequest">
@@ -4605,8 +4937,8 @@
             The "Default" retry backoff for <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial delay: 100 milliseconds</description></item>
-            <item><description>Maximum delay: 1000 milliseconds</description></item>
-            <item><description>Delay multiplier: 1.2</description></item>
+            <item><description>Maximum delay: 60000 milliseconds</description></item>
+            <item><description>Delay multiplier: 1.3</description></item>
             </list>
             </remarks>
         </member>
@@ -4621,8 +4953,8 @@
             The "Default" timeout backoff for <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Maximum timeout: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Maximum timeout: 20000 milliseconds</description></item>
             </list>
             </remarks>
         </member>
@@ -4637,8 +4969,8 @@
             The "List" retry backoff for <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial delay: 100 milliseconds</description></item>
-            <item><description>Maximum delay: 1000 milliseconds</description></item>
-            <item><description>Delay multiplier: 1.2</description></item>
+            <item><description>Maximum delay: 60000 milliseconds</description></item>
+            <item><description>Delay multiplier: 1.3</description></item>
             </list>
             </remarks>
         </member>
@@ -4652,9 +4984,9 @@
             <remarks>
             The "List" timeout backoff for <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
-            <item><description>Initial timeout: 2000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Maximum timeout: 10000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Maximum timeout: 20000 milliseconds</description></item>
             </list>
             </remarks>
         </member>
@@ -4668,11 +5000,11 @@
             <c>LoggingServiceV2Client.DeleteLogAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -4680,7 +5012,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.LoggingServiceV2Settings.WriteLogEntriesSettings">
@@ -4693,17 +5025,17 @@
             <c>LoggingServiceV2Client.WriteLogEntriesAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
             <item><description>No status codes</description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.LoggingServiceV2Settings.ListLogEntriesSettings">
@@ -4716,11 +5048,11 @@
             <c>LoggingServiceV2Client.ListLogEntriesAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
-            <item><description>Initial timeout: 2000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 10000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
+            <item><description>Initial timeout: 20000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -4728,7 +5060,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 20000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.LoggingServiceV2Settings.ListMonitoredResourceDescriptorsSettings">
@@ -4741,11 +5073,11 @@
             <c>LoggingServiceV2Client.ListMonitoredResourceDescriptorsAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -4753,7 +5085,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.LoggingServiceV2Settings.ListLogsSettings">
@@ -4766,11 +5098,11 @@
             <c>LoggingServiceV2Client.ListLogsAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -4778,7 +5110,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Settings.Clone">
@@ -4816,8 +5148,34 @@
             <summary>
             Asynchronously creates a <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            LoggingServiceV2Client client = await LoggingServiceV2Client.CreateAsync();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                LoggingServiceV2Client.DefaultEndpoint.Host, LoggingServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            LoggingServiceV2Client client = LoggingServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            await channel.ShutdownAsync();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Settings"/>.</param>
             <returns>The task representing the created <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/>.</returns>
@@ -4826,8 +5184,34 @@
             <summary>
             Synchronously creates a <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            LoggingServiceV2Client client = LoggingServiceV2Client.Create();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                LoggingServiceV2Client.DefaultEndpoint.Host, LoggingServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            LoggingServiceV2Client client = LoggingServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            channel.ShutdownAsync().Wait();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Settings"/>.</param>
             <returns>The created <see cref="T:Google.Cloud.Logging.V2.LoggingServiceV2Client"/>.</returns>
@@ -4881,7 +5265,7 @@
              If not null, applies overrides to this RPC call.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.DeleteLogAsync(Google.Cloud.Logging.V2.LogNameOneof,System.Threading.CancellationToken)">
@@ -4909,7 +5293,7 @@
              A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.DeleteLog(Google.Cloud.Logging.V2.LogNameOneof,Google.Api.Gax.Grpc.CallSettings)">
@@ -4936,9 +5320,6 @@
              <param name="callSettings">
              If not null, applies overrides to this RPC call.
              </param>
-             <returns>
-             The RPC response.
-             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.DeleteLogAsync(Google.Cloud.Logging.V2.DeleteLogRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -4954,7 +5335,24 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.DeleteLogAsync(Google.Cloud.Logging.V2.DeleteLogRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deletes all the log entries in a log.
+            The log reappears if it receives new entries.
+            Log entries written shortly before the delete operation might not be
+            deleted.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.DeleteLog(Google.Cloud.Logging.V2.DeleteLogRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -4970,19 +5368,17 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.LogNameOneof,Google.Api.MonitoredResource,System.Collections.Generic.IDictionary{System.String,System.String},System.Collections.Generic.IEnumerable{Google.Cloud.Logging.V2.LogEntry},Google.Api.Gax.Grpc.CallSettings)">
              <summary>
-             ## Log entry resources
-            
              Writes log entries to Stackdriver Logging. This API method is the
              only way to send log entries to Stackdriver Logging. This method
              is used, directly or indirectly, by the Stackdriver Logging agent
              (fluentd) and all logging libraries configured to use Stackdriver
              Logging.
+             A single request may contain log entries for a maximum of 1000
+             different resources (projects, organizations, billing accounts or
+             folders)
              </summary>
              <param name="logName">
              Optional. A default log resource name that is assigned to all log entries
@@ -5020,7 +5416,8 @@
              entries in this list does not matter. Values supplied in this method's
              `log_name`, `resource`, and `labels` fields are copied into those log
              entries in this list that do not include values for their corresponding
-             fields. For more information, see the [LogEntry][google.logging.v2.LogEntry] type.
+             fields. For more information, see the
+             [LogEntry][google.logging.v2.LogEntry] type.
             
              If the `timestamp` or `insert_id` fields are missing in log entries, then
              this method supplies the current time or a unique identifier, respectively.
@@ -5030,8 +5427,9 @@
             
              Log entries with timestamps that are more than the
              [logs retention period](/logging/quota-policy) in the past or more than
-             24 hours in the future might be discarded. Discarding does not return
-             an error.
+             24 hours in the future will not be available when calling `entries.list`.
+             However, those log entries can still be exported with
+             [LogSinks](/logging/docs/api/tasks/exporting-logs).
             
              To improve throughput and to avoid exceeding the
              [quota limit](/logging/quota-policy) for calls to `entries.write`,
@@ -5047,13 +5445,14 @@
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.LogNameOneof,Google.Api.MonitoredResource,System.Collections.Generic.IDictionary{System.String,System.String},System.Collections.Generic.IEnumerable{Google.Cloud.Logging.V2.LogEntry},System.Threading.CancellationToken)">
              <summary>
-             ## Log entry resources
-            
              Writes log entries to Stackdriver Logging. This API method is the
              only way to send log entries to Stackdriver Logging. This method
              is used, directly or indirectly, by the Stackdriver Logging agent
              (fluentd) and all logging libraries configured to use Stackdriver
              Logging.
+             A single request may contain log entries for a maximum of 1000
+             different resources (projects, organizations, billing accounts or
+             folders)
              </summary>
              <param name="logName">
              Optional. A default log resource name that is assigned to all log entries
@@ -5091,7 +5490,8 @@
              entries in this list does not matter. Values supplied in this method's
              `log_name`, `resource`, and `labels` fields are copied into those log
              entries in this list that do not include values for their corresponding
-             fields. For more information, see the [LogEntry][google.logging.v2.LogEntry] type.
+             fields. For more information, see the
+             [LogEntry][google.logging.v2.LogEntry] type.
             
              If the `timestamp` or `insert_id` fields are missing in log entries, then
              this method supplies the current time or a unique identifier, respectively.
@@ -5101,8 +5501,9 @@
             
              Log entries with timestamps that are more than the
              [logs retention period](/logging/quota-policy) in the past or more than
-             24 hours in the future might be discarded. Discarding does not return
-             an error.
+             24 hours in the future will not be available when calling `entries.list`.
+             However, those log entries can still be exported with
+             [LogSinks](/logging/docs/api/tasks/exporting-logs).
             
              To improve throughput and to avoid exceeding the
              [quota limit](/logging/quota-policy) for calls to `entries.write`,
@@ -5118,13 +5519,14 @@
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntries(Google.Cloud.Logging.V2.LogNameOneof,Google.Api.MonitoredResource,System.Collections.Generic.IDictionary{System.String,System.String},System.Collections.Generic.IEnumerable{Google.Cloud.Logging.V2.LogEntry},Google.Api.Gax.Grpc.CallSettings)">
              <summary>
-             ## Log entry resources
-            
              Writes log entries to Stackdriver Logging. This API method is the
              only way to send log entries to Stackdriver Logging. This method
              is used, directly or indirectly, by the Stackdriver Logging agent
              (fluentd) and all logging libraries configured to use Stackdriver
              Logging.
+             A single request may contain log entries for a maximum of 1000
+             different resources (projects, organizations, billing accounts or
+             folders)
              </summary>
              <param name="logName">
              Optional. A default log resource name that is assigned to all log entries
@@ -5162,7 +5564,8 @@
              entries in this list does not matter. Values supplied in this method's
              `log_name`, `resource`, and `labels` fields are copied into those log
              entries in this list that do not include values for their corresponding
-             fields. For more information, see the [LogEntry][google.logging.v2.LogEntry] type.
+             fields. For more information, see the
+             [LogEntry][google.logging.v2.LogEntry] type.
             
              If the `timestamp` or `insert_id` fields are missing in log entries, then
              this method supplies the current time or a unique identifier, respectively.
@@ -5172,8 +5575,9 @@
             
              Log entries with timestamps that are more than the
              [logs retention period](/logging/quota-policy) in the past or more than
-             24 hours in the future might be discarded. Discarding does not return
-             an error.
+             24 hours in the future will not be available when calling `entries.list`.
+             However, those log entries can still be exported with
+             [LogSinks](/logging/docs/api/tasks/exporting-logs).
             
              To improve throughput and to avoid exceeding the
              [quota limit](/logging/quota-policy) for calls to `entries.write`,
@@ -5188,46 +5592,69 @@
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">
-             The request object containing all of the parameters for the API call.
-             </param>
-             <param name="callSettings">
-             If not null, applies overrides to this RPC call.
-             </param>
-             <returns>
-             A Task containing the RPC response.
-             </returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="callSettings">
+            If not null, applies overrides to this RPC call.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,System.Threading.CancellationToken)">
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">
-             The request object containing all of the parameters for the API call.
-             </param>
-             <param name="callSettings">
-             If not null, applies overrides to this RPC call.
-             </param>
-             <returns>
-             The RPC response.
-             </returns>
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="callSettings">
+            If not null, applies overrides to this RPC call.
+            </param>
+            <returns>
+            The RPC response.
+            </returns>
         </member>
-        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntriesAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntriesAsync(System.Collections.Generic.IEnumerable{Google.Cloud.Logging.V2.ParentNameOneof},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
              <summary>
              Lists log entries.  Use this method to retrieve log entries from
              Stackdriver Logging.  For ways to export log entries, see
@@ -5276,7 +5703,7 @@
              A pageable asynchronous sequence of <see cref="T:Google.Cloud.Logging.V2.LogEntry"/> resources.
              </returns>
         </member>
-        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntries(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntries(System.Collections.Generic.IEnumerable{Google.Cloud.Logging.V2.ParentNameOneof},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
              <summary>
              Lists log entries.  Use this method to retrieve log entries from
              Stackdriver Logging.  For ways to export log entries, see
@@ -5473,6 +5900,104 @@
             A pageable sequence of <see cref="T:System.String"/> resources.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntriesAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+             <summary>
+             Lists log entries.  Use this method to retrieve log entries from
+             Stackdriver Logging.  For ways to export log entries, see
+             [Exporting Logs](/logging/docs/export).
+             </summary>
+             <param name="resourceNames">
+             Required. Names of one or more parent resources from which to
+             retrieve log entries:
+            
+                 "projects/[PROJECT_ID]"
+                 "organizations/[ORGANIZATION_ID]"
+                 "billingAccounts/[BILLING_ACCOUNT_ID]"
+                 "folders/[FOLDER_ID]"
+            
+             Projects listed in the `project_ids` field are added to this list.
+             </param>
+             <param name="filter">
+             Optional. A filter that chooses which log entries to return.  See [Advanced
+             Logs Filters](/logging/docs/view/advanced_filters).  Only log entries that
+             match the filter are returned.  An empty filter matches all log entries in
+             the resources listed in `resource_names`. Referencing a parent resource
+             that is not listed in `resource_names` will cause the filter to return no
+             results.
+             The maximum length of the filter is 20000 characters.
+             </param>
+             <param name="orderBy">
+             Optional. How the results should be sorted.  Presently, the only permitted
+             values are `"timestamp asc"` (default) and `"timestamp desc"`. The first
+             option returns entries in order of increasing values of
+             `LogEntry.timestamp` (oldest first), and the second option returns entries
+             in order of decreasing timestamps (newest first).  Entries with equal
+             timestamps are returned in order of their `insert_id` values.
+             </param>
+             <param name="pageToken">
+             The token returned from the previous request.
+             A value of <c>null</c> or an empty string retrieves the first page.
+             </param>
+             <param name="pageSize">
+             The size of page to request. The response will not be larger than this, but may be smaller.
+             A value of <c>null</c> or 0 uses a server-defined page size.
+             </param>
+             <param name="callSettings">
+             If not null, applies overrides to this RPC call.
+             </param>
+             <returns>
+             A pageable asynchronous sequence of <see cref="T:Google.Cloud.Logging.V2.LogEntry"/> resources.
+             </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2Client.ListLogEntries(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+             <summary>
+             Lists log entries.  Use this method to retrieve log entries from
+             Stackdriver Logging.  For ways to export log entries, see
+             [Exporting Logs](/logging/docs/export).
+             </summary>
+             <param name="resourceNames">
+             Required. Names of one or more parent resources from which to
+             retrieve log entries:
+            
+                 "projects/[PROJECT_ID]"
+                 "organizations/[ORGANIZATION_ID]"
+                 "billingAccounts/[BILLING_ACCOUNT_ID]"
+                 "folders/[FOLDER_ID]"
+            
+             Projects listed in the `project_ids` field are added to this list.
+             </param>
+             <param name="filter">
+             Optional. A filter that chooses which log entries to return.  See [Advanced
+             Logs Filters](/logging/docs/view/advanced_filters).  Only log entries that
+             match the filter are returned.  An empty filter matches all log entries in
+             the resources listed in `resource_names`. Referencing a parent resource
+             that is not listed in `resource_names` will cause the filter to return no
+             results.
+             The maximum length of the filter is 20000 characters.
+             </param>
+             <param name="orderBy">
+             Optional. How the results should be sorted.  Presently, the only permitted
+             values are `"timestamp asc"` (default) and `"timestamp desc"`. The first
+             option returns entries in order of increasing values of
+             `LogEntry.timestamp` (oldest first), and the second option returns entries
+             in order of decreasing timestamps (newest first).  Entries with equal
+             timestamps are returned in order of their `insert_id` values.
+             </param>
+             <param name="pageToken">
+             The token returned from the previous request.
+             A value of <c>null</c> or an empty string retrieves the first page.
+             </param>
+             <param name="pageSize">
+             The size of page to request. The response will not be larger than this, but may be smaller.
+             A value of <c>null</c> or 0 uses a server-defined page size.
+             </param>
+             <param name="callSettings">
+             If not null, applies overrides to this RPC call.
+             </param>
+             <returns>
+             A pageable sequence of <see cref="T:Google.Cloud.Logging.V2.LogEntry"/> resources.
+             </returns>
+        </member>
         <member name="T:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl">
             <summary>
             LoggingServiceV2 client wrapper implementation, for convenient use.
@@ -5504,7 +6029,7 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.DeleteLog(Google.Cloud.Logging.V2.DeleteLogRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -5520,49 +6045,48 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="callSettings">
+            If not null, applies overrides to this RPC call.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Writes log entries to Stackdriver Logging. This API method is the
+            only way to send log entries to Stackdriver Logging. This method
+            is used, directly or indirectly, by the Stackdriver Logging agent
+            (fluentd) and all logging libraries configured to use Stackdriver
+            Logging.
+            A single request may contain log entries for a maximum of 1000
+            different resources (projects, organizations, billing accounts or
+            folders)
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="callSettings">
+            If not null, applies overrides to this RPC call.
+            </param>
             <returns>
             The RPC response.
             </returns>
-        </member>
-        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.WriteLogEntriesAsync(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">
-             The request object containing all of the parameters for the API call.
-             </param>
-             <param name="callSettings">
-             If not null, applies overrides to this RPC call.
-             </param>
-             <returns>
-             A Task containing the RPC response.
-             </returns>
-        </member>
-        <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.WriteLogEntries(Google.Cloud.Logging.V2.WriteLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
-             <summary>
-             ## Log entry resources
-            
-             Writes log entries to Stackdriver Logging. This API method is the
-             only way to send log entries to Stackdriver Logging. This method
-             is used, directly or indirectly, by the Stackdriver Logging agent
-             (fluentd) and all logging libraries configured to use Stackdriver
-             Logging.
-             </summary>
-             <param name="request">
-             The request object containing all of the parameters for the API call.
-             </param>
-             <param name="callSettings">
-             If not null, applies overrides to this RPC call.
-             </param>
-             <returns>
-             The RPC response.
-             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LoggingServiceV2ClientImpl.ListLogEntriesAsync(Google.Cloud.Logging.V2.ListLogEntriesRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -5708,8 +6232,8 @@
             The "Default" retry backoff for <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial delay: 100 milliseconds</description></item>
-            <item><description>Maximum delay: 1000 milliseconds</description></item>
-            <item><description>Delay multiplier: 1.2</description></item>
+            <item><description>Maximum delay: 60000 milliseconds</description></item>
+            <item><description>Delay multiplier: 1.3</description></item>
             </list>
             </remarks>
         </member>
@@ -5724,8 +6248,8 @@
             The "Default" timeout backoff for <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/> RPC methods is defined as:
             <list type="bullet">
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Maximum timeout: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Maximum timeout: 20000 milliseconds</description></item>
             </list>
             </remarks>
         </member>
@@ -5739,11 +6263,11 @@
             <c>MetricsServiceV2Client.ListLogMetricsAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -5751,7 +6275,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.MetricsServiceV2Settings.GetLogMetricSettings">
@@ -5764,11 +6288,11 @@
             <c>MetricsServiceV2Client.GetLogMetricAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -5776,7 +6300,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.MetricsServiceV2Settings.CreateLogMetricSettings">
@@ -5789,17 +6313,17 @@
             <c>MetricsServiceV2Client.CreateLogMetricAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
             <item><description>No status codes</description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.MetricsServiceV2Settings.UpdateLogMetricSettings">
@@ -5812,17 +6336,19 @@
             <c>MetricsServiceV2Client.UpdateLogMetricAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
-            <item><description>No status codes</description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.DeadlineExceeded"/></description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
+            <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="P:Google.Cloud.Logging.V2.MetricsServiceV2Settings.DeleteLogMetricSettings">
@@ -5835,11 +6361,11 @@
             <c>MetricsServiceV2Client.DeleteLogMetricAsync</c> <see cref="T:Google.Api.Gax.Grpc.RetrySettings"/> are:
             <list type="bullet">
             <item><description>Initial retry delay: 100 milliseconds</description></item>
-            <item><description>Retry delay multiplier: 1.2</description></item>
-            <item><description>Retry maximum delay: 1000 milliseconds</description></item>
+            <item><description>Retry delay multiplier: 1.3</description></item>
+            <item><description>Retry maximum delay: 60000 milliseconds</description></item>
             <item><description>Initial timeout: 20000 milliseconds</description></item>
-            <item><description>Timeout multiplier: 1.5</description></item>
-            <item><description>Timeout maximum delay: 60000 milliseconds</description></item>
+            <item><description>Timeout multiplier: 1.0</description></item>
+            <item><description>Timeout maximum delay: 20000 milliseconds</description></item>
             </list>
             Retry will be attempted on the following response status codes:
             <list>
@@ -5847,7 +6373,7 @@
             <item><description><see cref="F:Grpc.Core.StatusCode.Internal"/></description></item>
             <item><description><see cref="F:Grpc.Core.StatusCode.Unavailable"/></description></item>
             </list>
-            Default RPC expiration is 90000 milliseconds.
+            Default RPC expiration is 600000 milliseconds.
             </remarks>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Settings.Clone">
@@ -5885,8 +6411,34 @@
             <summary>
             Asynchronously creates a <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            MetricsServiceV2Client client = await MetricsServiceV2Client.CreateAsync();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                MetricsServiceV2Client.DefaultEndpoint.Host, MetricsServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            MetricsServiceV2Client client = MetricsServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            await channel.ShutdownAsync();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Settings"/>.</param>
             <returns>The task representing the created <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/>.</returns>
@@ -5895,8 +6447,34 @@
             <summary>
             Synchronously creates a <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/>, applying defaults for all unspecified settings,
             and creating a channel connecting to the given endpoint with application default credentials where
-            necessary.
+            necessary. See the example for how to use custom credentials.
             </summary>
+            <example>
+            This sample shows how to create a client using default credentials:
+            <code>
+            using Google.Cloud.Logging.V2;
+            ...
+            // When running on Google Cloud Platform this will use the project Compute Credential.
+            // Or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of a JSON
+            // credential file to use that credential.
+            MetricsServiceV2Client client = MetricsServiceV2Client.Create();
+            </code>
+            This sample shows how to create a client using credentials loaded from a JSON file:
+            <code>
+            using Google.Cloud.Logging.V2;
+            using Google.Apis.Auth.OAuth2;
+            using Grpc.Auth;
+            using Grpc.Core;
+            ...
+            GoogleCredential cred = GoogleCredential.FromFile("/path/to/credentials.json");
+            Channel channel = new Channel(
+                MetricsServiceV2Client.DefaultEndpoint.Host, MetricsServiceV2Client.DefaultEndpoint.Port, cred.ToChannelCredentials());
+            MetricsServiceV2Client client = MetricsServiceV2Client.Create(channel);
+            ...
+            // Shutdown the channel when it is no longer required.
+            channel.ShutdownAsync().Wait();
+            </code>
+            </example>
             <param name="endpoint">Optional <see cref="T:Google.Api.Gax.Grpc.ServiceEndpoint"/>.</param>
             <param name="settings">Optional <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Settings"/>.</param>
             <returns>The created <see cref="T:Google.Cloud.Logging.V2.MetricsServiceV2Client"/>.</returns>
@@ -6063,6 +6641,20 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.GetLogMetricAsync(Google.Cloud.Logging.V2.GetLogMetricRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets a logs-based metric.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.GetLogMetric(Google.Cloud.Logging.V2.GetLogMetricRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Gets a logs-based metric.
@@ -6152,6 +6744,20 @@
             </param>
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.CreateLogMetricAsync(Google.Cloud.Logging.V2.CreateLogMetricRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates a logs-based metric.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
             </param>
             <returns>
             A Task containing the RPC response.
@@ -6254,6 +6860,20 @@
             A Task containing the RPC response.
             </returns>
         </member>
+        <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.UpdateLogMetricAsync(Google.Cloud.Logging.V2.UpdateLogMetricRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates or updates a logs-based metric.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task containing the RPC response.
+            </returns>
+        </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.UpdateLogMetric(Google.Cloud.Logging.V2.UpdateLogMetricRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
             Creates or updates a logs-based metric.
@@ -6281,7 +6901,7 @@
              If not null, applies overrides to this RPC call.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.DeleteLogMetricAsync(Google.Cloud.Logging.V2.MetricNameOneof,System.Threading.CancellationToken)">
@@ -6297,7 +6917,7 @@
              A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
              </param>
              <returns>
-             A Task containing the RPC response.
+             A Task that completes when the RPC has completed.
              </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.DeleteLogMetric(Google.Cloud.Logging.V2.MetricNameOneof,Google.Api.Gax.Grpc.CallSettings)">
@@ -6312,9 +6932,6 @@
              <param name="callSettings">
              If not null, applies overrides to this RPC call.
              </param>
-             <returns>
-             The RPC response.
-             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.DeleteLogMetricAsync(Google.Cloud.Logging.V2.DeleteLogMetricRequest,Google.Api.Gax.Grpc.CallSettings)">
             <summary>
@@ -6327,7 +6944,21 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.DeleteLogMetricAsync(Google.Cloud.Logging.V2.DeleteLogMetricRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a logs-based metric.
+            </summary>
+            <param name="request">
+            The request object containing all of the parameters for the API call.
+            </param>
+            <param name="cancellationToken">
+            A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.
+            </param>
+            <returns>
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2Client.DeleteLogMetric(Google.Cloud.Logging.V2.DeleteLogMetricRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -6340,9 +6971,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="T:Google.Cloud.Logging.V2.MetricsServiceV2ClientImpl">
             <summary>
@@ -6484,7 +7112,7 @@
             If not null, applies overrides to this RPC call.
             </param>
             <returns>
-            A Task containing the RPC response.
+            A Task that completes when the RPC has completed.
             </returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricsServiceV2ClientImpl.DeleteLogMetric(Google.Cloud.Logging.V2.DeleteLogMetricRequest,Google.Api.Gax.Grpc.CallSettings)">
@@ -6497,9 +7125,6 @@
             <param name="callSettings">
             If not null, applies overrides to this RPC call.
             </param>
-            <returns>
-            The RPC response.
-            </returns>
         </member>
         <member name="T:Google.Cloud.Logging.V2.ProjectName">
             <summary>
@@ -6526,7 +7151,7 @@
             <param name="projectName">The project resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.ProjectName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ProjectName.#ctor(System.String)">
             <summary>
@@ -6586,7 +7211,7 @@
             <param name="logName">The log resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.LogName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.LogName.#ctor(System.String,System.String)">
             <summary>
@@ -6652,7 +7277,7 @@
             <param name="sinkName">The sink resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.SinkName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.SinkName.#ctor(System.String,System.String)">
             <summary>
@@ -6718,7 +7343,7 @@
             <param name="metricName">The metric resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.MetricName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.MetricName.#ctor(System.String,System.String)">
             <summary>
@@ -6784,7 +7409,7 @@
             <param name="exclusionName">The exclusion resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.ExclusionName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.ExclusionName.#ctor(System.String,System.String)">
             <summary>
@@ -6850,7 +7475,7 @@
             <param name="organizationName">The organization resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.OrganizationName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.OrganizationName.#ctor(System.String)">
             <summary>
@@ -6910,7 +7535,7 @@
             <param name="organizationLogName">The organization_log resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.OrganizationLogName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.OrganizationLogName.#ctor(System.String,System.String)">
             <summary>
@@ -6976,7 +7601,7 @@
             <param name="organizationSinkName">The organization_sink resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.OrganizationSinkName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.OrganizationSinkName.#ctor(System.String,System.String)">
             <summary>
@@ -7042,7 +7667,7 @@
             <param name="organizationExclusionName">The organization_exclusion resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.OrganizationExclusionName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.OrganizationExclusionName.#ctor(System.String,System.String)">
             <summary>
@@ -7108,7 +7733,7 @@
             <param name="folderName">The folder resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.FolderName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.FolderName.#ctor(System.String)">
             <summary>
@@ -7168,7 +7793,7 @@
             <param name="folderLogName">The folder_log resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.FolderLogName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.FolderLogName.#ctor(System.String,System.String)">
             <summary>
@@ -7234,7 +7859,7 @@
             <param name="folderSinkName">The folder_sink resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.FolderSinkName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.FolderSinkName.#ctor(System.String,System.String)">
             <summary>
@@ -7300,7 +7925,7 @@
             <param name="folderExclusionName">The folder_exclusion resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.FolderExclusionName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.FolderExclusionName.#ctor(System.String,System.String)">
             <summary>
@@ -7366,7 +7991,7 @@
             <param name="billingName">The billing resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.BillingName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.BillingName.#ctor(System.String)">
             <summary>
@@ -7426,7 +8051,7 @@
             <param name="billingLogName">The billing_log resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.BillingLogName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.BillingLogName.#ctor(System.String,System.String)">
             <summary>
@@ -7492,7 +8117,7 @@
             <param name="billingSinkName">The billing_sink resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.BillingSinkName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.BillingSinkName.#ctor(System.String,System.String)">
             <summary>
@@ -7558,7 +8183,7 @@
             <param name="billingExclusionName">The billing_exclusion resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Cloud.Logging.V2.BillingExclusionName"/>,
             or <c>null</c> if parsing fails.</param>
-            <returns><c>true</c> if the name was parsed succssfully; <c>false</c> otherwise.</returns>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.V2.BillingExclusionName.#ctor(System.String,System.String)">
             <summary>

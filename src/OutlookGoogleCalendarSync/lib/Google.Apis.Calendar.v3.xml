@@ -42,10 +42,39 @@
             <summary>Available OAuth 2.0 scopes for use with the Calendar API.</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.Calendar">
-            <summary>Manage your calendars</summary>
+            <summary>See, edit, share, and permanently delete all the calendars you can access using Google
+            Calendar</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEvents">
+            <summary>View and edit events on all your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsReadonly">
+            <summary>View events on all your calendars</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarReadonly">
             <summary>View your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarSettingsReadonly">
+            <summary>View your Calendar settings</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.CalendarService.ScopeConstants">
+            <summary>Available OAuth 2.0 scope constants for use with the Calendar API.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.Calendar">
+            <summary>See, edit, share, and permanently delete all the calendars you can access using Google
+            Calendar</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEvents">
+            <summary>View and edit events on all your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsReadonly">
+            <summary>View events on all your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarReadonly">
+            <summary>View your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarSettingsReadonly">
+            <summary>View your Calendar settings</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarService.Acl">
             <summary>Gets the Acl resource.</summary>
@@ -102,12 +131,11 @@
             [default: true]
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarBaseServiceRequest`1.QuotaUser">
-            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string
-            assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+            <summary>An opaque string that represents a user for quota purposes. Must not exceed 40
+            characters.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.CalendarBaseServiceRequest`1.UserIp">
-            <summary>IP address of the site where the request originates. Use this if you want to enforce per-user
-            limits.</summary>
+            <summary>Deprecated. Please use quotaUser instead.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarBaseServiceRequest`1.InitParameters">
             <summary>Initializes Calendar parameter list.</summary>
@@ -424,12 +452,12 @@
             <summary>Constructs a new resource.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Delete(System.String)">
-            <summary>Deletes an entry on the user's calendar list.</summary>
+            <summary>Removes a calendar from the user's calendar list.</summary>
             <param name="calendarId">Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you
             want to access the primary calendar of the currently logged in user, use the "primary" keyword.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest">
-            <summary>Deletes an entry on the user's calendar list.</summary>
+            <summary>Removes a calendar from the user's calendar list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.DeleteRequest.#ctor(Google.Apis.Services.IClientService,System.String)">
             <summary>Constructs a new Delete request.</summary>
@@ -451,12 +479,12 @@
             <summary>Initializes Delete parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Get(System.String)">
-            <summary>Returns an entry on the user's calendar list.</summary>
+            <summary>Returns a calendar from the user's calendar list.</summary>
             <param name="calendarId">Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you
             want to access the primary calendar of the currently logged in user, use the "primary" keyword.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.GetRequest">
-            <summary>Returns an entry on the user's calendar list.</summary>
+            <summary>Returns a calendar from the user's calendar list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.GetRequest.#ctor(Google.Apis.Services.IClientService,System.String)">
             <summary>Constructs a new Get request.</summary>
@@ -478,11 +506,11 @@
             <summary>Initializes Get parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Insert(Google.Apis.Calendar.v3.Data.CalendarListEntry)">
-            <summary>Adds an entry to the user's calendar list.</summary>
+            <summary>Inserts an existing calendar into the user's calendar list.</summary>
             <param name="body">The body of the request.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest">
-            <summary>Adds an entry to the user's calendar list.</summary>
+            <summary>Inserts an existing calendar into the user's calendar list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.InsertRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.CalendarListEntry)">
             <summary>Constructs a new Insert request.</summary>
@@ -511,10 +539,10 @@
             <summary>Initializes Insert parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.List">
-            <summary>Returns entries on the user's calendar list.</summary>
+            <summary>Returns the calendars on the user's calendar list.</summary>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.ListRequest">
-            <summary>Returns entries on the user's calendar list.</summary>
+            <summary>Returns the calendars on the user's calendar list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.ListRequest.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new List request.</summary>
@@ -578,13 +606,15 @@
             <summary>Initializes List parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Patch(Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
-            <summary>Updates an entry on the user's calendar list. This method supports patch semantics.</summary>
+            <summary>Updates an existing calendar on the user's calendar list. This method supports patch
+            semantics.</summary>
             <param name="body">The body of the request.</param>
             <param name="calendarId">Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you
             want to access the primary calendar of the currently logged in user, use the "primary" keyword.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest">
-            <summary>Updates an entry on the user's calendar list. This method supports patch semantics.</summary>
+            <summary>Updates an existing calendar on the user's calendar list. This method supports patch
+            semantics.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.PatchRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
             <summary>Constructs a new Patch request.</summary>
@@ -617,13 +647,13 @@
             <summary>Initializes Patch parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.Update(Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
-            <summary>Updates an entry on the user's calendar list.</summary>
+            <summary>Updates an existing calendar on the user's calendar list.</summary>
             <param name="body">The body of the request.</param>
             <param name="calendarId">Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you
             want to access the primary calendar of the currently logged in user, use the "primary" keyword.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest">
-            <summary>Updates an entry on the user's calendar list.</summary>
+            <summary>Updates an existing calendar on the user's calendar list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarListResource.UpdateRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.CalendarListEntry,System.String)">
             <summary>Constructs a new Update request.</summary>
@@ -1016,8 +1046,26 @@
             <summary>Event identifier.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendNotifications">
-            <summary>Whether to send notifications about the deletion of the event. Optional. The default is
-            False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the deletion of the event. Note that some emails might still be sent
+             even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendUpdates">
+            <summary>Guests who should receive notifications about the deletion of the event.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendUpdatesEnum">
+            <summary>Guests who should receive notifications about the deletion of the event.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.DeleteRequest.MethodName">
             <summary>Gets the method name.</summary>
@@ -1156,8 +1204,28 @@
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendNotifications">
-            <summary>Whether to send notifications about the creation of the new event. Optional. The default is
-            False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the creation of the new event. Note that some emails might still be
+             sent even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdates">
+            <summary>Whether to send notifications about the creation of the new event. Note that some emails might
+            still be sent. The default is false.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdatesEnum">
+            <summary>Whether to send notifications about the creation of the new event. Note that some emails might
+            still be sent. The default is false.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SupportsAttachments">
             <summary>Whether API client performing operation supports event attachments. Optional. The default is
@@ -1350,14 +1418,14 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
             <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
-            filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g.,
-            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If
+            filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
+            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If
             timeMin is set, timeMax must be greater than timeMin.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMin">
-            <summary>Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to
-            filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g.,
-            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If
+            <summary>Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to
+            filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
+            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If
             timeMax is set, timeMin must be smaller than timeMax.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeZone">
@@ -1405,8 +1473,26 @@
             <summary>Calendar identifier of the target calendar where the event is to be moved to.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendNotifications">
-            <summary>Whether to send notifications about the change of the event's organizer. Optional. The default
-            is False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the change of the event's organizer. Note that some emails might
+             still be sent even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendUpdates">
+            <summary>Guests who should receive notifications about the change of the event's organizer.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendUpdatesEnum">
+            <summary>Guests who should receive notifications about the change of the event's organizer.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.MoveRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.MoveRequest.MethodName">
             <summary>Gets the method name.</summary>
@@ -1461,8 +1547,28 @@
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendNotifications">
-            <summary>Whether to send notifications about the event update (e.g. attendee's responses, title changes,
-            etc.). Optional. The default is False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the event update (for example, description changes, etc.). Note that
+             some emails might still be sent even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendUpdates">
+            <summary>Guests who should receive notifications about the event update (for example, title changes,
+            etc.).</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendUpdatesEnum">
+            <summary>Guests who should receive notifications about the event update (for example, title changes,
+            etc.).</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.PatchRequest.SupportsAttachments">
             <summary>Whether API client performing operation supports event attachments. Optional. The default is
@@ -1507,8 +1613,26 @@
             <summary>The text describing the event to be created.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendNotifications">
-            <summary>Whether to send notifications about the creation of the event. Optional. The default is
-            False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the creation of the event. Note that some emails might still be sent
+             even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendUpdates">
+            <summary>Guests who should receive notifications about the creation of the new event.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendUpdatesEnum">
+            <summary>Guests who should receive notifications about the creation of the new event.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.QuickAddRequest.MethodName">
             <summary>Gets the method name.</summary>
@@ -1563,8 +1687,28 @@
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendNotifications">
-            <summary>Whether to send notifications about the event update (e.g. attendee's responses, title changes,
-            etc.). Optional. The default is False.</summary>
+             <summary>Deprecated. Please use sendUpdates instead.
+            
+             Whether to send notifications about the event update (for example, description changes, etc.). Note that
+             some emails might still be sent even if you set the value to false. The default is false.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendUpdates">
+            <summary>Guests who should receive notifications about the event update (for example, title changes,
+            etc.).</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendUpdatesEnum">
+            <summary>Guests who should receive notifications about the event update (for example, title changes,
+            etc.).</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendUpdatesEnum.All">
+            <summary>Notifications are sent to all guests.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendUpdatesEnum.ExternalOnly">
+            <summary>Notifications are sent to non-Google Calendar guests only.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SendUpdatesEnum.None">
+            <summary>No notifications are sent. This value should only be used for migration use cases (note
+            that in most migration cases the import method should be used).</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.UpdateRequest.SupportsAttachments">
             <summary>Whether API client performing operation supports event attachments. Optional. The default is
@@ -1687,14 +1831,14 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMax">
             <summary>Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to
-            filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g.,
-            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If
+            filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
+            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If
             timeMin is set, timeMax must be greater than timeMin.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMin">
-            <summary>Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to
-            filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g.,
-            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If
+            <summary>Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to
+            filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
+            2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If
             timeMax is set, timeMin must be smaller than timeMax.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeZone">
@@ -2048,16 +2192,19 @@
             <summary>The list of notifications set for this calendar.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.Method">
-            <summary>The method used to deliver the notification. Possible values are: - "email" - Reminders are sent
-            via email. - "sms" - Reminders are sent via SMS. This value is read-only and is ignored on inserts and
-            updates. SMS reminders are only available for G Suite customers.</summary>
+            <summary>The method used to deliver the notification. Possible values are: - "email" - Notifications are
+            sent via email. - "sms" - Deprecated. Once this feature is shutdown, the API will no longer return
+            notifications using this method. Any newly added SMS notifications will be ignored. See  Google Calendar SMS
+            notifications to be removed for more information. Notifications are sent via SMS. This value is read-only
+            and is ignored on inserts and updates. SMS notifications are only available for G Suite customers. Required
+            when adding a notification.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.Type">
             <summary>The type of notification. Possible values are: - "eventCreation" - Notification sent when a new
             event is put on the calendar. - "eventChange" - Notification sent when an event is changed. -
             "eventCancellation" - Notification sent when an event is cancelled. - "eventResponse" - Notification sent
-            when an event is changed. - "agenda" - An agenda with the events of the day (sent out in the
-            morning).</summary>
+            when an attendee responds to the event invitation. - "agenda" - An agenda with the events of the day (sent
+            out in the morning). Required when adding a notification.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarNotification.ETag">
             <summary>The ETag of the item.</summary>
@@ -2073,8 +2220,8 @@
             <summary>A UUID or similar unique string that identifies this channel.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Channel.Kind">
-            <summary>Identifies this as a notification channel used to watch for changes to a resource. Value: the fixed
-            string "api#channel".</summary>
+            <summary>Identifies this as a notification channel used to watch for changes to a resource, which is
+            "api#channel".</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Channel.Params__">
             <summary>Additional parameters controlling delivery channel behavior. Optional.</summary>
@@ -2153,12 +2300,25 @@
             <summary>Additional notes (such as instructions from the domain administrator, legal notices) to display to
             the user. Can contain HTML. The maximum length is 2048 characters. Optional.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ConferenceData.Parameters">
+            <summary>Additional properties related to a conference. An example would be a solution-specific setting for
+            enabling video streaming.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.ConferenceData.Signature">
-            <summary>The signature of the conference data. Genereated on server side. Must be preserved while copying
-            the conference data between events, otherwise the conference data will not be copied. Unset for a conference
+            <summary>The signature of the conference data. Generated on server side. Must be preserved while copying the
+            conference data between events, otherwise the conference data will not be copied. Unset for a conference
             with a failed create request. Optional for a conference with a pending create request.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.ConferenceData.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ConferenceParameters.AddOnParameters">
+            <summary>Additional add-on specific data.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ConferenceParameters.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.ConferenceParametersAddOnParameters.ETag">
             <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.ConferenceProperties.AllowedConferenceSolutionTypes">
@@ -2218,6 +2378,10 @@
             match the terminology that the conference provider uses. Only the populated fields should be displayed.
             Optional.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EntryPoint.EntryPointFeatures">
+            <summary>Features of the entry point, such as being toll or toll-free. One entry point can have multiple
+            features. However, toll and toll-free cannot be both set on the same entry point.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EntryPoint.EntryPointType">
             <summary>The type of the conference entry point. Possible values are: - "video" - joining a conference over
             HTTP. A conference can have zero or one video entry point. - "phone" - joining a conference by dialing a
@@ -2254,6 +2418,10 @@
             conference data, populate only the subset of {meetingCode, accessCode, passcode, password, pin} fields that
             match the terminology that the conference provider uses. Only the populated fields should be displayed.
             Optional.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EntryPoint.RegionCode">
+            <summary>The CLDR/ISO 3166 region code for the country associated with this phone access. Example: "SE" for
+            Sweden. Calendar backend will populate this field only for EntryPointType.PHONE.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EntryPoint.Uri">
             <summary>The URI of the entry point. The maximum length is 1300 characters. Format: - for video, http: or
@@ -2389,7 +2557,9 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.OriginalStartTime">
             <summary>For an instance of a recurring event, this is the time at which this event would start according to
-            the recurrence data in the recurring event identified by recurringEventId. Immutable.</summary>
+            the recurrence data in the recurring event identified by recurringEventId. It uniquely identifies the
+            instance within the recurring event series even if the instance was moved to a different time.
+            Immutable.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.PrivateCopy">
             <summary>Whether this is a private event copy where changes are not shared with other copies on other
@@ -2422,7 +2592,21 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Status">
             <summary>Status of the event. Optional. Possible values are: - "confirmed" - The event is confirmed. This is
             the default status. - "tentative" - The event is tentatively confirmed. - "cancelled" - The event is
-            cancelled.</summary>
+            cancelled (deleted). The list method returns cancelled events only on incremental sync (when syncToken or
+            updatedMin are specified) or if the showDeleted flag is set to true. The get method always returns them. A
+            cancelled status represents two different states depending on the event type: - Cancelled exceptions of an
+            uncancelled recurring event indicate that this instance should no longer be presented to the user. Clients
+            should store these events for the lifetime of the parent recurring event. Cancelled exceptions are only
+            guaranteed to have values for the id, recurringEventId and originalStartTime fields populated. The other
+            fields might be empty. - All other cancelled events represent deleted events. Clients should remove their
+            locally synced copies. Such cancelled events will eventually disappear, so do not rely on them being
+            available indefinitely. Deleted events are only guaranteed to have the id field populated.   On the
+            organizer's calendar, cancelled events continue to expose event details (summary, location, etc.) so that
+            they can be restored (undeleted). Similarly, the events to which the user was invited and that they manually
+            removed continue to provide details. However, incremental sync requests with showDeleted set to false will
+            not return these details. If an event changes its organizer (for example via the move operation) and the
+            original organizer is not on the attendee list, it will leave behind a cancelled event where only the id
+            field is guaranteed to be populated.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Summary">
             <summary>Title of the event.</summary>
@@ -2456,7 +2640,7 @@
             <summary>The creator's email address, if available.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.Id">
-            <summary>The creator's Profile ID, if available. It corresponds to theid field in the People collection
+            <summary>The creator's Profile ID, if available. It corresponds to the id field in the People collection
             of the Google+ API</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatorData.Self">
@@ -2515,7 +2699,7 @@
             RFC5322.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.Id">
-            <summary>The organizer's Profile ID, if available. It corresponds to theid field in the People
+            <summary>The organizer's Profile ID, if available. It corresponds to the id field in the People
             collection of the Google+ API</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.OrganizerData.Self">
@@ -2550,7 +2734,7 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttachment.FileUrl">
             <summary>URL link to the attachment. For adding Google Drive file attachments use the same format as in
-            alternateLink property of the Files resource in the Drive API.</summary>
+            alternateLink property of the Files resource in the Drive API. Required when adding an attachment.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttachment.IconLink">
             <summary>URL link to the attachment's icon. Read-only.</summary>
@@ -2575,10 +2759,10 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Email">
             <summary>The attendee's email address, if available. This field must be present when adding an attendee. It
-            must be a valid email address as per RFC5322.</summary>
+            must be a valid email address as per RFC5322. Required when adding an attendee.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Id">
-            <summary>The attendee's Profile ID, if available. It corresponds to theid field in the People collection of
+            <summary>The attendee's Profile ID, if available. It corresponds to the id field in the People collection of
             the Google+ API</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Optional">
@@ -2588,7 +2772,8 @@
             <summary>Whether the attendee is the organizer of the event. Read-only. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Resource">
-            <summary>Whether the attendee is a resource. Read-only. The default is False.</summary>
+            <summary>Whether the attendee is a resource. Can only be set when the attendee is added to the event for the
+            first time. Subsequent modifications are ignored. Optional. The default is False.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.ResponseStatus">
             <summary>The attendee's response status. Possible values are: - "needsAction" - The attendee has not
@@ -2624,12 +2809,15 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.Method">
             <summary>The method used by this reminder. Possible values are: - "email" - Reminders are sent via email. -
-            "sms" - Reminders are sent via SMS. These are only available for G Suite customers. Requests to set SMS
-            reminders for other account types are ignored. - "popup" - Reminders are sent via a UI popup.</summary>
+            "sms" - Deprecated. Once this feature is shutdown, the API will no longer return reminders using this
+            method. Any newly added SMS reminders will be ignored. See  Google Calendar SMS notifications to be removed
+            for more information. Reminders are sent via SMS. These are only available for G Suite customers. Requests
+            to set SMS reminders for other account types are ignored. - "popup" - Reminders are sent via a UI popup.
+            Required when adding a reminder.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.Minutes">
             <summary>Number of minutes before the start of the event when the reminder should trigger. Valid values are
-            between 0 and 40320 (4 weeks in minutes).</summary>
+            between 0 and 40320 (4 weeks in minutes). Required when adding a reminder.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.ETag">
             <summary>The ETag of the item.</summary>
@@ -2700,23 +2888,24 @@
             <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.CalendarExpansionMax">
-            <summary>Maximal number of calendars for which FreeBusy information is to be provided. Optional.</summary>
+            <summary>Maximal number of calendars for which FreeBusy information is to be provided. Optional. Maximum
+            value is 50.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.GroupExpansionMax">
-            <summary>Maximal number of calendar identifiers to be provided for a single group. Optional. An error will
-            be returned for a group with more members than this value.</summary>
+            <summary>Maximal number of calendar identifiers to be provided for a single group. Optional. An error is
+            returned for a group with more members than this value. Maximum value is 100.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.Items">
             <summary>List of calendars and/or groups to query.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw">
-            <summary>The end of the interval for the query.</summary>
+            <summary>The end of the interval for the query formatted as per RFC3339.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMax">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw">
-            <summary>The start of the interval for the query.</summary>
+            <summary>The start of the interval for the query formatted as per RFC3339.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMin">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw"/>.</summary>
