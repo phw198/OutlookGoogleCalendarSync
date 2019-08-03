@@ -30,9 +30,9 @@ github_username:  phw198
 google_analytics: UA-19426033-4
 
 # Current software releases
-show_alpha_downloads: false
+show_alpha_downloads: true
 beta-version: 2.8.0
-alpha-version: 2.7.9
+alpha-version: 2.8.1
 
 # Build settings
 markdown: kramdown
