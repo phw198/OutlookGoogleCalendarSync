@@ -1,6 +1,24 @@
 | Release Notes |
 |:---|
 
+# v2.8.1.0 - Alpha
+
+**Enhancements**
+- Set Outlook organisers as having "accepted" in Google
+- Order the Google calendar dropdown: primary, writeable, read-only
+- Warn if read-only calendar selected for sync; deny for two-way sync
+- Display custom Google calendar name, if set
+- Third-party DLLs updated
+
+**Bugfix**
+- Better error handling if Outlook closed mid-sync
+- Fix missing last occurrence in Google for recurring series from Outlook
+- Report correct COM error code and redirect to wiki for published solution
+- Don't crash after upgrade if user doesn't have access to system registry
+- Fixed subscribers not picking up correct API key
+- Only allow single Error Reporting window
+- Don't allow sync if Error Reporting window displaying
+
 # v2.8.0.0 - Beta
 
 **Enhancements** rolled in from Alpha releases

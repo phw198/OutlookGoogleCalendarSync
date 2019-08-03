@@ -216,7 +216,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
                 ups[addKeyName].Value = keyValue;
-            } catch (System.Exception ex) {
+            } catch (System.Exception) {
                 log.Warn("Failed to add " + addKeyName);
                 throw;
             } finally {
