@@ -1031,6 +1031,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
             Settings.Instance.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
             if (cbGoogleCalendars.Text.StartsWith("[Read Only]") && Settings.Instance.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
                 MessageBox.Show("You cannot " + (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
@@ -1533,7 +1534,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.configureLoggingLevel(this.cbLoggingLevel.Text);
-            Settings.Instance.LoggingLevel = this.cbLoggingLevel.Text.ToUpper();
+            if (this.Visible) Settings.Instance.LoggingLevel = this.cbLoggingLevel.Text.ToUpper();
         }
 
         private void btLogLocation_Click(object sender, EventArgs e) {
@@ -1548,6 +1549,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbCloudLogging_CheckStateChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
             if (cbCloudLogging.CheckState == CheckState.Indeterminate)
                 Settings.Instance.CloudLogging = null;
             else

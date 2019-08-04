@@ -446,7 +446,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
             
             log.Info("GOOGLE SETTINGS:-");
-            log.Info("  Calendar: " + UseGoogleCalendar.ToString());
+            log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString()));
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
             log.Info("    Client Secret: " + (PersonalClientSecret.Length < 5

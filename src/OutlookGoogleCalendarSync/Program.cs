@@ -83,7 +83,7 @@ namespace OutlookGoogleCalendarSync {
                     throw new ApplicationException("Suggest startup delay");
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    OGCSexception.Analyse(ex, true);
                     log.Fatal("Application unexpectedly terminated!");
                     MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException();
