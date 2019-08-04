@@ -122,9 +122,11 @@ namespace OutlookGoogleCalendarSync {
             }
             try {
                 XElement xe = settingsXE.Elements(ns + nodeName).First();
-                if (nodeValue == null)
-                    xe.Remove();
-                else {
+                if (nodeValue == null && nodeName == "CloudLogging") { //Nullable Boolean node(s)
+                    XNamespace i = "http://www.w3.org/2001/XMLSchema-instance";
+                    xe.SetAttributeValue(i + "nil", "true"); //Add nullable attribute 'i:nil="true"'
+                    xe.SetValue(String.Empty);
+                }  else {
                     xe.SetValue(nodeValue);
                     if (nodeValue is Boolean && nodeValue != null)
                         xe.RemoveAttributes(); //Remove nullable attribute 'i:nil="true"'

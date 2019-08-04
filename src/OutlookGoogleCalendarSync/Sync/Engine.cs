@@ -131,9 +131,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 mainFrm.Console.Clear();
 
-                if (Settings.Instance.UseGoogleCalendar == null ||
-                    Settings.Instance.UseGoogleCalendar.Id == null ||
-                    Settings.Instance.UseGoogleCalendar.Id == "") {
+                if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
                     MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                     return;
                 }

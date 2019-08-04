@@ -99,7 +99,6 @@ namespace OutlookGoogleCalendarSync {
             }
             Boolean confirmative = dr == DialogResult.Yes;
             if (Settings.IsLoaded) Settings.Instance.CloudLogging = confirmative;
-            else XMLManager.ExportElement("CloudLogging", confirmative, Settings.ConfigFile);
             Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "CloudLogging=" + confirmative.ToString());
 
             try {
