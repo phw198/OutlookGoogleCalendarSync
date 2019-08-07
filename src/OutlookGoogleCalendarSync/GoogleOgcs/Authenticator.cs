@@ -54,15 +54,20 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         private void spawnOauth() {
-            ClientSecrets cs = getCalendarClientSecrets();
-            //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
-            var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
             try {
-                task.Wait(CancelTokenSource.Token);
-            } catch (System.OperationCanceledException) {
-                Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
+                ClientSecrets cs = getCalendarClientSecrets();
+                //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
+                var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
+                try {
+                    task.Wait(CancelTokenSource.Token);
+                } catch (System.OperationCanceledException) {
+                    Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse(ex);
+                }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                log.Fail("Problem encountered in getCalendarClientSecrets()");
+                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google!", ex);
             }
         }
 

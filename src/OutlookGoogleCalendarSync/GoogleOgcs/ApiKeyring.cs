@@ -62,6 +62,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (!string.IsNullOrEmpty(Settings.Instance.AssignedClientIdentifier)) {
                     if (Settings.Instance.AssignedClientIdentifier == new ApiKey.DefaultKey(keyType).ClientId) {
                         log.Fine("Using default " + keyType.ToString() + " key.");
+                        key = new ApiKey.DefaultKey(keyType);
                         return;
                     }
                     log.Fine("Checking non-default assigned API key is still on the keyring.");
