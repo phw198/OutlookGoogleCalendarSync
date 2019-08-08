@@ -52,47 +52,51 @@ namespace OutlookGoogleCalendarSync {
             updateDBthread.Start();
         }
         private void checkForUpdate(String localVersion) {
-            if (Program.InDeveloperMode && File.Exists(tzdbFile)) return;
-
-            log.Debug("Checking for new timezone database...");
-            String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";
-            String html = "";
-            System.Net.WebClient wc = new System.Net.WebClient();
-            wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
             try {
-                html = wc.DownloadString(nodatimeURL);
-            } catch (System.Exception ex) {
-                log.Error("Failed to get latest NodaTime db version.");
-                OGCSexception.Analyse(ex);
-                return;
-            }
+                if (Program.InDeveloperMode && File.Exists(tzdbFile)) return;
 
-            if (string.IsNullOrEmpty(html)) {
-                log.Warn("Empty response from " + nodatimeURL);
-            } else {
-                html = html.TrimEnd('\r', '\n');
-                if (html.EndsWith(localVersion + ".nzd")) {
-                    log.Debug("Already have latest TZDB version.");
+                log.Debug("Checking for new timezone database...");
+                String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";
+                String html = "";
+                System.Net.WebClient wc = new System.Net.WebClient();
+                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                try {
+                    html = wc.DownloadString(nodatimeURL);
+                } catch (System.Exception ex) {
+                    log.Error("Failed to get latest NodaTime db version.");
+                    OGCSexception.Analyse(ex);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(html)) {
+                    log.Warn("Empty response from " + nodatimeURL);
                 } else {
-                    Regex rgx = new Regex(@"https*:.*/tzdb(.*)\.nzd$", RegexOptions.IgnoreCase);
-                    MatchCollection matches = rgx.Matches(html);
-                    if (matches.Count > 0) {
-                        String remoteVersion = matches[0].Result("$1");
-                        if (string.Compare(localVersion, remoteVersion, System.StringComparison.InvariantCultureIgnoreCase) < 0) {
-                            log.Debug("There is a new version " + remoteVersion);
-                            try {
-                                wc.DownloadFile(html, tzdbFile);
-                                log.Debug("New TZDB version downloaded - disposing of reference to old db data.");
-                                instance = null;
-                            } catch (System.Exception ex) {
-                                log.Error("Failed to download new TZDB database from " + html);
-                                OGCSexception.Analyse(ex);
-                            }
-                        }
+                    html = html.TrimEnd('\r', '\n');
+                    if (html.EndsWith(localVersion + ".nzd")) {
+                        log.Debug("Already have latest TZDB version.");
                     } else {
-                        log.Warn("Regex to extract latest version is no longer working!");
+                        Regex rgx = new Regex(@"https*:.*/tzdb(.*)\.nzd$", RegexOptions.IgnoreCase);
+                        MatchCollection matches = rgx.Matches(html);
+                        if (matches.Count > 0) {
+                            String remoteVersion = matches[0].Result("$1");
+                            if (string.Compare(localVersion, remoteVersion, System.StringComparison.InvariantCultureIgnoreCase) < 0) {
+                                log.Debug("There is a new version " + remoteVersion);
+                                try {
+                                    wc.DownloadFile(html, tzdbFile);
+                                    log.Debug("New TZDB version downloaded - disposing of reference to old db data.");
+                                    instance = null;
+                                } catch (System.Exception ex) {
+                                    log.Error("Failed to download new TZDB database from " + html);
+                                    OGCSexception.Analyse(ex);
+                                }
+                            }
+                        } else {
+                            log.Warn("Regex to extract latest version is no longer working!");
+                        }
                     }
                 }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not check for timezone data update.", ex);
             }
         }
 
