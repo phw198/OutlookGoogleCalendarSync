@@ -78,6 +78,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private static Random random = new Random();
         public long MinDefaultReminder = long.MinValue;
+        public Int16 UTCoffset { get; internal set; }
 
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
@@ -1242,13 +1243,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             return (itemModified > 0);
         }
-
-        public void GetSetting(string setting) {
+        
+        /// <summary>
+        /// Get the global Calendar settings
+        /// </summary>
+        public void GetSettings() {
             try {
-                Service.Settings.Get(setting).ExecuteAsync();
-            } catch { }
+                //Get the timezone offset - convert from IANA string to UTC offset integer
+                Setting setting = Service.Settings.Get("timezone").Execute();
+                this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
+            }
+            getCalendarSettings();
         }
-        public void GetCalendarSettings() {
+        private void getCalendarSettings() {
             if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
             try {
                 CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
@@ -1258,8 +1267,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 else
                     this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
-                log.Error("Failed to get calendar settings.");
-                log.Error(ex.Message);
+                OGCSexception.Analyse("Failed to get calendar settings.", ex);
             }
         }
 

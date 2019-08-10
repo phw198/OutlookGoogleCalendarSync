@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 int failedAttempts = 0;
                 Telemetry.TrackSync();
                 try {
-                    GoogleOgcs.Calendar.Instance.GetCalendarSettings();
+                    GoogleOgcs.Calendar.Instance.GetSettings();
                 } catch (System.AggregateException ae) {
                     OGCSexception.AnalyseAggregate(ae);
                     syncResult = SyncResult.AutoRetry;
