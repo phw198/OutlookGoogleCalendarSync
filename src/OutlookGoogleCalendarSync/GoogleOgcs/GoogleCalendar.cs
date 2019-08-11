@@ -70,7 +70,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public static Boolean APIlimitReached_attendee = false;
         private const int backoffLimit = 5;
-        private enum apiException {
+        public enum ApiException {
             justContinue,
             backoffThenRetry,
             freeAPIexhausted,
@@ -78,6 +78,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private static Random random = new Random();
         public long MinDefaultReminder = long.MinValue;
+        public String SubscriptionInvite {
+            get {
+                String invite = "Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT";
+                if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
+                    invite += ".";
+                else {
+                    String url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=" + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    invite += " or <a href='" + url + "' target='_blank'>get guaranteed quota</a> for just £1/month.";
+                }
+                return invite;
+            }
+        }
 
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
@@ -89,13 +101,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     request = Service.CalendarList.List().Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (handleAPIlimits(ex, null)) {
-                        case apiException.throwException: throw;
-                        case apiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                    switch (HandleAPIlimits(ex, null)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
-                        case apiException.backoffThenRetry:
+                        case ApiException.backoffThenRetry:
                             backoff++;
                             if (backoff == backoffLimit) {
                                 log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
@@ -140,13 +152,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             log.Debug("Page " + pageNum + " received.");
                             break;
                         } catch (Google.GoogleApiException ex) {
-                            switch (handleAPIlimits(ex, null)) {
-                                case apiException.throwException: throw;
-                                case apiException.freeAPIexhausted:
-                                    System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                            switch (HandleAPIlimits(ex, null)) {
+                                case ApiException.throwException: throw;
+                                case ApiException.freeAPIexhausted:
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                     OGCSexception.LogAsFail(ref aex);
                                     throw aex;
-                                case apiException.backoffThenRetry:
+                                case ApiException.backoffThenRetry:
                                     backoff++;
                                     if (backoff == backoffLimit) {
                                         log.Error("API limit backoff was not successful. Paginated retrieve failed.");
@@ -191,13 +203,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             log.Fail("Could not find Google Event with specified ID " + eventId);
                             return null;
                         }
-                        switch (handleAPIlimits(ex, null)) {
-                            case apiException.throwException: throw;
-                            case apiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                        switch (HandleAPIlimits(ex, null)) {
+                            case ApiException.throwException: throw;
+                            case ApiException.freeAPIexhausted:
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
-                            case apiException.backoffThenRetry:
+                            case ApiException.backoffThenRetry:
                                 backoff++;
                                 if (backoff == backoffLimit) {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
@@ -249,13 +261,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         log.Debug("Page " + pageNum + " received.");
                         break;
                     } catch (Google.GoogleApiException ex) {
-                        switch (handleAPIlimits(ex, null)) {
-                            case apiException.throwException: throw;
-                            case apiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                        switch (HandleAPIlimits(ex, null)) {
+                            case ApiException.throwException: throw;
+                            case ApiException.freeAPIexhausted:
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
-                            case apiException.backoffThenRetry:
+                            case ApiException.backoffThenRetry:
                                 backoff++;
                                 if (backoff == backoffLimit) {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
@@ -429,14 +441,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (handleAPIlimits(ex, ev)) {
-                        case apiException.throwException: throw;
-                        case apiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                    switch (HandleAPIlimits(ex, ev)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
-                        case apiException.justContinue: break;
-                        case apiException.backoffThenRetry:
+                        case ApiException.justContinue: break;
+                        case ApiException.backoffThenRetry:
                             backoff++;
                             if (backoff == backoffLimit) {
                                 log.Error("API limit backoff was not successful. Save failed.");
@@ -778,13 +790,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (handleAPIlimits(ex, ev)) {
-                        case apiException.throwException: throw;
-                        case apiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                    switch (HandleAPIlimits(ex, ev)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
-                        case apiException.backoffThenRetry:
+                        case ApiException.backoffThenRetry:
                             backoff++;
                             if (backoff == backoffLimit) {
                                 log.Error("API limit backoff was not successful. Save failed.");
@@ -859,13 +871,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     string request = Service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, ev.Id).Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (handleAPIlimits(ex, ev)) {
-                        case apiException.throwException: throw;
-                        case apiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException("Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.", ex);
+                    switch (HandleAPIlimits(ex, ev)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
-                        case apiException.backoffThenRetry:
+                        case ApiException.backoffThenRetry:
                             backoff++;
                             if (backoff == backoffLimit) {
                                 log.Error("API limit backoff was not successful. Save failed.");
@@ -1551,7 +1563,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             return ea;
         }
 
-        private static apiException handleAPIlimits(Google.GoogleApiException ex, Event ev) {
+        public static ApiException HandleAPIlimits(Google.GoogleApiException ex, Event ev) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
             if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
@@ -1567,10 +1579,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Settings.Instance.APIlimit_lastHit = DateTime.Now;
 
                 ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
-                return apiException.justContinue;
+                return ApiException.justContinue;
 
             } else if (ex.Message.Contains("Rate Limit Exceeded")) {
-                return apiException.backoffThenRetry;
+                return ApiException.backoffThenRetry;
 
             } else if (ex.Message.Contains("Daily Limit Exceeded")) {
                 log.Warn(ex.Message);
@@ -1578,28 +1590,32 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
 
                 //Delay next scheduled sync until after the new quota
-                DateTime utcNow = DateTime.UtcNow;
-                DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                Sync.Engine.Instance.OgcsTimer.SetNextSync((int)(quotaReset - DateTime.Now).TotalMinutes, fromNow: true);
+                if (Settings.Instance.SyncInterval != 0) {
+                    DateTime utcNow = DateTime.UtcNow;
+                    DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                    int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
+                    Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true);
+                    Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
+                }
 
-                return apiException.freeAPIexhausted;
+                return ApiException.freeAPIexhausted;
 
             } else if (ex.Message.Contains("Daily Limit for Unauthenticated Use Exceeded. Continued use requires signup. [403]")) {
                 log.Warn(ex.Message);
                 Forms.Main.Instance.Console.Update("You are not properly authenticated to Google.<br/>" +
                     "On the Settings > Google tab, please disconnect and re-authenticate your account.", Console.Markup.error);
                 ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
-                return apiException.throwException;
+                return ApiException.throwException;
 
             } else if (ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Warn(ex.Message);
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
-                return apiException.backoffThenRetry;
+                return ApiException.backoffThenRetry;
 
             } else {
                 log.Warn(ex.Message);
-                return apiException.throwException;
+                return ApiException.throwException;
             }
         }
         #endregion

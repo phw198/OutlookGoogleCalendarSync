@@ -158,16 +158,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return;
                 }
                 GoogleOgcs.Calendar.APIlimitReached_attendee = false;
-                Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
-                Forms.Main.Instance.bSyncNow.Text = "Stop Sync";
-                Forms.Main.Instance.NotificationTray.UpdateItem("sync", "&Stop Sync");
+                mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
+                mainFrm.bSyncNow.Text = "Stop Sync";
+                mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
-                Forms.Main.Instance.NextSyncVal = "In progress...";
+                mainFrm.NextSyncVal = "In progress...";
 
                 StringBuilder sb = new StringBuilder();
-                Forms.Main.Instance.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                Forms.Main.Instance.Console.BuildOutput((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString(), ref sb);
-                Forms.Main.Instance.Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
+                mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
+                mainFrm.Console.BuildOutput((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString(), ref sb);
+                mainFrm.Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
                     " to " + Settings.Instance.SyncEnd.ToShortDateString(), ref sb);
                 mainFrm.Console.BuildOutput(Settings.Instance.SyncDirection.Name, ref sb);
 
@@ -186,6 +186,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                     GoogleOgcs.Calendar.Instance.GetCalendarSettings();
                 } catch (System.AggregateException ae) {
                     OGCSexception.AnalyseAggregate(ae);
+                    syncResult = SyncResult.AutoRetry;
+                } catch (System.ApplicationException ex) {
+                    mainFrm.Console.Update(ex.Message, Console.Markup.warning);
                     syncResult = SyncResult.AutoRetry;
                 } catch (System.Exception ex) {
                     log.Warn(ex.Message);
@@ -276,8 +279,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
-                    if (Sync.Engine.Instance.OgcsTimer.NextSyncDate != null && Sync.Engine.Instance.OgcsTimer.NextSyncDate > DateTime.Now) {
-                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + Forms.Main.Instance.NextSyncVal);
+                    //***Simplify this one settings profiles in place
+                    if (!("Inactive;Push Sync Active;In progress...".Contains(Forms.Main.Instance.NextSyncVal)) &&
+                        DateTime.ParseExact(Forms.Main.Instance.NextSyncVal.Replace(" + Push", ""),
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " @ " +
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
+                            System.Globalization.CultureInfo.CurrentCulture) > DateTime.Now) {
+                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + mainFrm.NextSyncVal);
                         updateSyncSchedule = false;
                         cacheNextSync = mainFrm.NextSyncVal;
                     }
@@ -388,9 +396,18 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&
                         (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
+                        Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
+                        DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
+                        String tryAfter = "08:00 GMT.";
+                        if (newQuota < DateTime.UtcNow) {
+                            newQuota = newQuota.AddDays(1);
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + " tomorrow.";
+                        } else
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + ".";
+
                         //Already rescheduled to run again once new quota available, so just set to retry.
-                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " +
-                            (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
+                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar" +
+                            (Settings.Instance.SyncInterval == 0 ? ". Please try again after " + tryAfter : ", but OGCS is all set to automatically try again after "+ tryAfter));
                         OGCSexception.LogAsFail(ref ex);
                     }
                     throw;

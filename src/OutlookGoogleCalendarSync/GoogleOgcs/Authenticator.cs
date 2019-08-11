@@ -307,6 +307,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 OGCSexception.AnalyseTokenResponse(ex);
 
+            } catch (Google.GoogleApiException ex) {
+                switch (GoogleOgcs.Calendar.HandleAPIlimits(ex, null)) {
+                    case Calendar.ApiException.throwException: throw;
+                    case Calendar.ApiException.freeAPIexhausted:
+                        System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
+                        OGCSexception.LogAsFail(ref aex);
+                        GoogleOgcs.Calendar.Instance.Service = null;
+                        throw aex;
+                }
+
             } catch (System.Exception ex) {
                 log.Error(ex.Message);
                 throw new ApplicationException("Failed to retrieve subscribers - cannot check if they have subscribed.");
