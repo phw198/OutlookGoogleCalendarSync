@@ -41,6 +41,12 @@ theme: jekyll-theme-architect
 plugins:
   - jekyll-feed
   - jemoji
+  
+#github-pages (163) still depends on jemoji (= 0.8.1) not 0.11.1 where this is hopefully fixed?
+#Once fixed, this can be removed.
+#Also might be a bug with bundler-2.0.2 not updating things properly.
+emoji:
+  src: "https://github.githubassets.com/images/icons/"
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
@@ -48,9 +54,5 @@ plugins:
 exclude:
   - Gemfile
   - Gemfile.lock
-#  - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
   - jekyll-architect-theme.gemspec
+  - src

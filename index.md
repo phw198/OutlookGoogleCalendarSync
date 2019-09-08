@@ -15,8 +15,6 @@ layout: page
    - Outlook :arrow_right: Google
    - Outlook :arrow_left: Google
    - Outlook :left_right_arrow: Google (two-way/bidirectional sync)
-   - See diagram on the right for supported configurations :gear:
-<img align="right" width="35%" src="images/supported_sync_configs.png" alt="Supported configurations" style="padding-left:20px"/>
 - Includes the following event attributes:
    - Subject
    - Description
@@ -25,6 +23,7 @@ layout: page
    - Reminder events
    - Availability (free/busy)
    - Privacy (public/private)
+   - Categories/colours
 - Differential comparison updates only attributes that have changed
 - Customisable date range to synchronise, past and future
 - Frequency of automatic syncs, including push-sync from Outlook

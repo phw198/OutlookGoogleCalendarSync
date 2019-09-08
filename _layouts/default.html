@@ -21,8 +21,7 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', '{{ site.google_analytics }}');
+      gtag('config', '{{ site.google_analytics }}', { 'anonymize_ip': true });
     </script>
     <script>
       function handleClickEvent(category, label) {
@@ -114,6 +113,10 @@
     </div>
 
     <div align="center" data-type="ad" data-publisher="github.OutlookGoogleCalendarSync" data-format="728x90" data-zone="ros" ></div>
+    <br/>
+    <div align="center" style="font-size:small">
+      <a href="privacy-policy.html">Privacy Policy</a>
+    </div>
     <br/>
   </body>
 </html>
