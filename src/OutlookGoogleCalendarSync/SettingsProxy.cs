@@ -72,7 +72,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Using " + wp.Address);
                 wp.BypassProxyOnLocal = true;
                 if (AuthenticationRequired && !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password)) {
-                    if (UserName.Contains("\\")) {
+                    if (UserName.Contains(@"\")) {
                         try {
                             string[] usernameBits = UserName.Split('\\');
                             wp.Credentials = new NetworkCredential(usernameBits[1], Password, usernameBits[0]);
@@ -96,14 +96,38 @@ namespace OutlookGoogleCalendarSync {
 
             if (WebRequest.DefaultWebProxy != null) {
                 try {
-                   log.Debug("Testing the system proxy.");
-                   WebRequest wr = WebRequest.CreateDefault(new System.Uri("http://www.google.com"));
-                   System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri("http://www.google.com"));
-                   log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
+                    log.Debug("Testing the system proxy.");
+                    String testUrl = "http://www.google.com";
+                    WebRequest wr = WebRequest.CreateDefault(new System.Uri(testUrl));
+                    System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri(testUrl));
+                    log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
+                    if (testUrl != proxyUri.OriginalString) {
+                        WebClient wc = new WebClient();
+                        wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                        try {
+                            wc.OpenRead(testUrl);
+                        } catch (WebException ex) {
+                            if (ex.Response != null) {
+                                System.IO.Stream stream = null;
+                                System.IO.StreamReader sr = null;
+                                try {
+                                    HttpWebResponse hwr = ex.Response as HttpWebResponse;
+                                    log.Debug("Proxy error status code: " + hwr.StatusCode + " = " + hwr.StatusDescription);
+                                    stream = hwr.GetResponseStream();
+                                    sr = new System.IO.StreamReader(stream);
+                                    log.Fail(sr.ReadToEnd());
+                                } catch (System.Exception ex2) {
+                                    OGCSexception.Analyse("Could not analyse WebException response.", ex2);
+                                } finally {
+                                    if (sr != null) sr.Close();
+                                    if (stream != null) stream.Close();
+                                }
+                            } else
+                                OGCSexception.Analyse("Testing proxy connection failed.", ex);
+                        }                        
+                    }
                 } catch (System.Exception ex) {
-                   log.Error("Failed to confirm proxy settings.");
-                   log.Error(ex.Message);
-                
+                    OGCSexception.Analyse("Failed to confirm proxy settings.", ex);
                 }
             }
         }

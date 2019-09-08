@@ -104,9 +104,11 @@ namespace OutlookGoogleCalendarSync {
             isBusy = true;
             try {
                 String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                System.Net.WebClient wc = new System.Net.WebClient();
+                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
                 if (string.IsNullOrEmpty(nonGitHubReleaseUri))
                     updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir,
-                        prerelease: Settings.Instance.AlphaReleases);
+                        new Squirrel.FileDownloader(wc), prerelease: Settings.Instance.AlphaReleases);
                 else
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
 
@@ -376,19 +378,16 @@ namespace OutlookGoogleCalendarSync {
             string html = "";
             String errorDetails = "";
             try {
-                html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
+                System.Net.WebClient wc = new System.Net.WebClient();
+                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                html = wc.DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
             } catch (System.Net.WebException ex) {
-                errorDetails = ex.Message;
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509")
-                    log.Warn("Failed to retrieve data (no network?): " + errorDetails);
-                else {
-                    OGCSexception.Analyse(ex);
-                    log.Error("Failed to retrieve data: " + errorDetails);
-                }
+                    log.Warn("Failed to retrieve data (no network?): " + ex.Message);
+                else
+                    OGCSexception.Analyse("Failed to retrieve data", ex);
             } catch (System.Exception ex) {
-                errorDetails = ex.Message;
-                OGCSexception.Analyse(ex);
-                log.Error("Failed to retrieve data: " + errorDetails);
+                OGCSexception.Analyse("Failed to retrieve data: ", ex);
             }
 
             if (!string.IsNullOrEmpty(html)) {
