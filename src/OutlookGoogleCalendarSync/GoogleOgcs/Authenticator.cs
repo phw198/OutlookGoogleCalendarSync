@@ -182,9 +182,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String jsonString = "";
             log.Debug("Retrieving email address associated with Google account.");
             try {
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-                jsonString = wc.DownloadString("https://www.googleapis.com/oauth2/v2/userinfo?fields=email&access_token=" + accessToken);
+                jsonString = new Extensions.OgcsWebClient().DownloadString("https://www.googleapis.com/oauth2/v2/userinfo?fields=email&access_token=" + accessToken);
                 JObject jo = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
                 JToken jtEmail = jo["email"];
                 String email = jtEmail.ToString();

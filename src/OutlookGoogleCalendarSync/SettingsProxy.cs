@@ -102,10 +102,8 @@ namespace OutlookGoogleCalendarSync {
                     System.Uri proxyUri = wr.Proxy.GetProxy(new System.Uri(testUrl));
                     log.Debug("Confirmation of configured proxy: " + proxyUri.OriginalString);
                     if (testUrl != proxyUri.OriginalString) {
-                        WebClient wc = new WebClient();
-                        wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
                         try {
-                            wc.OpenRead(testUrl);
+                            new Extensions.OgcsWebClient().OpenRead(testUrl);
                         } catch (WebException ex) {
                             if (ex.Response != null) {
                                 System.IO.Stream stream = null;

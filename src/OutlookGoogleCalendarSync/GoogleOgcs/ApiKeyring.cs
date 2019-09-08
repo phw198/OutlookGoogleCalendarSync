@@ -121,9 +121,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting keyring.");
             string html = "";
             try {
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-                html = wc.DownloadString(keyringURL);
+                html = new Extensions.OgcsWebClient().DownloadString(keyringURL);
             } catch (System.Exception ex) {
                 log.Error("Failed to retrieve keyring data: " + ex.Message);
             }

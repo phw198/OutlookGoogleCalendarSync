@@ -49,8 +49,7 @@ namespace OutlookGoogleCalendarSync {
             log.Debug("Retrieving URL: " + analyticsUrl);
             if (Program.InDeveloperMode) return;
 
-            WebClient wc = new WebClient();
-            wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+            Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
             wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(sendTelemetry_completed);
             wc.DownloadStringAsync(new Uri(analyticsUrl), analyticsUrl);
         }
