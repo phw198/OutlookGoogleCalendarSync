@@ -11,6 +11,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 
         public static Boolean Initialised = true;
+        public static Boolean ErrorOccurred = false;
         private static String templateCredFile = Path.Combine(System.Windows.Forms.Application.StartupPath, "ErrorReportingTemplate.json");
         private static String credFile = Path.Combine(System.Windows.Forms.Application.StartupPath, "ErrorReporting.json");
 

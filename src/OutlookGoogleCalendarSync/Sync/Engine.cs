@@ -391,7 +391,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ex = OGCSexception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
                     }
                     OGCSexception.Analyse(ex);
-                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
                     throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&

@@ -146,7 +146,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         OGCSexception.AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
                     else {
                         OGCSexception.Analyse(ex);
-                        Forms.Main.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                        Forms.Main.Instance.Console.Update("Unable to communicate with Google services. " + (ex.InnerException != null ? ex.InnerException.Message : ex.Message), Console.Markup.warning);
                     }
                     authenticated = false;
                     return;
@@ -225,6 +225,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
+                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException != null ? ex.InnerException : ex));
                         throw;
                     }
                 }
