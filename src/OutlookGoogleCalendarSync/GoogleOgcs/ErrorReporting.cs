@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting credential attributes");
             try {
                 try {
-                    html = new System.Net.WebClient().DownloadString(cloudCredsURL);
+                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);
                     html = html.Replace("\n", "");
                 } catch (System.Exception ex) {
                     log.Error("Failed to retrieve data: " + ex.Message);

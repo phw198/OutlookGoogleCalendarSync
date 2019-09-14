@@ -261,6 +261,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="Extensions\WebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\ErrorReporting.cs">
       <SubType>Form</SubType>
     </Compile>

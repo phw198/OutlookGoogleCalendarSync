@@ -58,8 +58,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Checking for new timezone database...");
                 String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";
                 String html = "";
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
                 try {
                     html = wc.DownloadString(nodatimeURL);
                 } catch (System.Exception ex) {

@@ -1056,7 +1056,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 try {
                     String html = "";
                     try {
-                        html = new System.Net.WebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
+                        html = new Extensions.OgcsWebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
                     } catch (System.Exception) {
                         log.Fail("Could not download wiki HTML.");
                         throw;

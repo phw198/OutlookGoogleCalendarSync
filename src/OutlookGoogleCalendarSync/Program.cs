@@ -58,6 +58,7 @@ namespace OutlookGoogleCalendarSync {
 
                 log.Debug("Loading settings from file.");
                 Settings.Load();
+                Settings.Instance.Proxy.Configure();
 
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
