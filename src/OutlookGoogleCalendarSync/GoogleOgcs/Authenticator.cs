@@ -134,7 +134,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
-            GoogleOgcs.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+            if (Settings.Instance.Proxy.Type == "Custom")
+                GoogleOgcs.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
 
             if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.UtcNow.AddMinutes(-1)) {
                 log.Debug("Access token needs refreshing.");
