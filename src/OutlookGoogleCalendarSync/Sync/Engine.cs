@@ -90,12 +90,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Info("Manual sync requested.");
                     if (SyncingNow) {
                         log.Info("Already busy syncing, cannot accept another sync request.");
-                        MessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        OgcsMessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Settings.Instance.SyncDirection == Direction.Bidirectional) {
-                            MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
+                            OgcsMessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
                                 "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                             return;
                         }
@@ -132,7 +132,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 mainFrm.Console.Clear();
 
                 if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
-                    MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
+                    OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -193,7 +193,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
                 while (syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) {
                     if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
-                        if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
+                        if (OgcsMessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
                             log.Info("User opted to abandon further syncs.");
                             syncResult = SyncResult.Abandon;
@@ -574,7 +574,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
                 googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 0) {
-                if (MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
+                if (OgcsMessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                     googleEntriesToBeDeleted = new List<Event>();
@@ -686,7 +686,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
                 outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 0) {
-                if (MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
+                if (OgcsMessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 

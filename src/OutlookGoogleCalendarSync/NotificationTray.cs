@@ -188,9 +188,7 @@ namespace OutlookGoogleCalendarSync {
         
         private void notifyIcon_Click(object sender, MouseEventArgs e) { 
             if (e.Button == MouseButtons.Left) {
-                Forms.Main.Instance.TopMost = true;
                 Forms.Main.Instance.MainFormShow();
-                Forms.Main.Instance.TopMost = false;
             }
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {

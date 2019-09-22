@@ -75,7 +75,7 @@ namespace OutlookGoogleCalendarSync {
                         reportError = ex.InnerException.Message;
                         log.Fatal(reportError);
                     }
-                    MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OgcsMessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex, true);
                     log.Fatal("Application unexpectedly terminated!");
-                    MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    OgcsMessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException();
                 }
 
@@ -93,12 +93,12 @@ namespace OutlookGoogleCalendarSync {
                 if (aex.Message == "Suggest startup delay") {
                     if (isCLIstartup() && Settings.Instance.StartOnStartup) {
                         log.Debug("Suggesting to set a startup delay.");
-                        MessageBox.Show("If this error only happens when logging in to Windows, try " +
+                        OgcsMessageBox.Show("If this error only happens when logging in to Windows, try " +
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 } else
-                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OgcsMessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 OutlookOgcs.Calendar.Disconnect();
@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync {
             StartedWithFileArgs = (args.Length != 0 && args.Count(a => a.StartsWith("/") && !a.StartsWith("/d")) != 0);
 
             if (args.Contains("/?") || args.Contains("/help", StringComparer.OrdinalIgnoreCase)) {
-                MessageBox.Show("Command line parameters:-\r\n" +
+                OgcsMessageBox.Show("Command line parameters:-\r\n" +
                     "  /?\t\tShow options\r\n" +
                     "  /l:OGcalsync.log\tFile to log to\r\n" +
                     "  /s:settings.xml\tSettings file to use.\r\n\t\tFile created with defaults if it doesn't exist\r\n" +
@@ -289,7 +289,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.UnauthorizedAccessException ex) {
                     log.Warn("Could not create/update registry key. " + ex.Message);
                     Settings.Instance.StartOnStartup = false;
-                    if (MessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
+                    if (OgcsMessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
                         "Try manually adding a shortcut to the 'Startup' folder in Windows instead?", "Permission denied", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)
                         == DialogResult.Yes) {
                         System.Diagnostics.Process.Start(System.Windows.Forms.Application.StartupPath);
@@ -462,7 +462,7 @@ namespace OutlookGoogleCalendarSync {
                         !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) 
                     {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
-                        MessageBox.Show("A suspected improper install location has been detected.\r\n" +
+                        OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
                             "Click 'OK' for further details.", "Improper Install Location",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");

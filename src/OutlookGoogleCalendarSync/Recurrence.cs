@@ -631,7 +631,7 @@ namespace OutlookGoogleCalendarSync {
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
                                             OGCSexception.Analyse(ex, true);
-                                            if (MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                            if (OgcsMessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
                                             else {
                                                 throw new UserCancelledSyncException("User chose not to continue sync.");
