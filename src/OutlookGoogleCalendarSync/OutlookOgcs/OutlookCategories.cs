@@ -37,7 +37,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     this.categories = oApp.Session.Categories;
                 else {
                     try {
+                        log.Debug("Retrieving store.");
                         store = calendar.Store;
+                        if (store == null) log.Warn("Store is null!");
+                        log.Debug("Store type: " + store.GetType());
+                        log.Debug("Getting categories property");
+                        Type type = store.GetType();
+                        log.Debug("type: " + type);
+                        System.Reflection.PropertyInfo pi = type.GetProperty("Categories");
+                        if (pi == null) {
+                            log.Warn("pi is null! Listing all properties...");
+                            System.Reflection.PropertyInfo[] pis = type.GetProperties();
+                            pis.ToList().ForEach(p => log.Debug(p.Name));
+                        }
                         this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
                     } catch (System.Exception ex) {
                         log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
