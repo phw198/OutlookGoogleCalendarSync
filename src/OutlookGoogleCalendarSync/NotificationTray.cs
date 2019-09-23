@@ -89,6 +89,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Could not find menu item with name \"" + itemName + "\"");
                 }
             } catch (System.Exception ex) {
+                if (Forms.Main.Instance.IsDisposed) return;
                 OGCSexception.Analyse(ex, true);
             }
         }

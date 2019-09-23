@@ -12,6 +12,9 @@
         public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
 
+            if (mainFrm == null || mainFrm.IsDisposed)
+                return MessageBox.Show(text, caption, buttons, icon);
+
             if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();

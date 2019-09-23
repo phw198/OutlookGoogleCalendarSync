@@ -75,7 +75,7 @@ namespace OutlookGoogleCalendarSync {
                         reportError = ex.InnerException.Message;
                         log.Fatal(reportError);
                     }
-                    OgcsMessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex, true);
                     log.Fatal("Application unexpectedly terminated!");
-                    OgcsMessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException();
                 }
 
@@ -93,12 +93,12 @@ namespace OutlookGoogleCalendarSync {
                 if (aex.Message == "Suggest startup delay") {
                     if (isCLIstartup() && Settings.Instance.StartOnStartup) {
                         log.Debug("Suggesting to set a startup delay.");
-                        OgcsMessageBox.Show("If this error only happens when logging in to Windows, try " +
+                        MessageBox.Show("If this error only happens when logging in to Windows, try " +
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 } else
-                    OgcsMessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 OutlookOgcs.Calendar.Disconnect();

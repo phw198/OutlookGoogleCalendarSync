@@ -113,13 +113,21 @@ namespace OutlookGoogleCalendarSync.Sync {
                         bwSync.CancelAsync();
                     } else {
                         Forms.Main.Instance.Console.Update("Repeated cancellation requested - forcefully aborting sync!", Console.Markup.warning);
-                        try {
-                            bwSync.Abort();
-                            bwSync.Dispose();
-                            bwSync = null;
-                        } catch { }
+                        AbortSync();
                     }
                 }
+            }
+        }
+
+        public void AbortSync() {
+            try {
+                bwSync.Abort();
+                bwSync.Dispose();
+                bwSync = null;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            } finally {
+                log.Warn("Sync thread forcefully aborted!");
             }
         }
 
@@ -191,7 +199,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Warn(ex.Message);
                     syncResult = SyncResult.AutoRetry;
                 }
-                while (syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) {
+                while ((syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                     if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
                         if (OgcsMessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
