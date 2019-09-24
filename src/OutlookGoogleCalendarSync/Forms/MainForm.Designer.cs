@@ -3024,6 +3024,7 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Outlook Google Calendar Sync";
+            this.Load += new System.EventHandler(this.Main_Load);
             this.Resize += new System.EventHandler(this.mainFormResize);
             this.tabApp.ResumeLayout(false);
             this.tabPage_Sync.ResumeLayout(false);
