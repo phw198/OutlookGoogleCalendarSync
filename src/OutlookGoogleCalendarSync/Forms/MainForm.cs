@@ -52,6 +52,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
                 OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
             }
+            while (!Forms.Splash.BeenAndGone) {
+                System.Threading.Thread.Sleep(100);
+            }
         }
 
         private void updateGUIsettings() {
@@ -688,6 +691,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 bSave.Enabled = true;
                 bSave.Text = "Save";
             }
+        }
+
+        private void Main_Load(object sender, EventArgs e) {
+            this.Activate();
         }
 
         public void MainFormShow() {
