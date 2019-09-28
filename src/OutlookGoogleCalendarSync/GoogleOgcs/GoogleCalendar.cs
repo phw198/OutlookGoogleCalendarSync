@@ -778,6 +778,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
+                    if (ex.Message.Contains("Start and end times must either both be date or both be dateTime.")) {
+                        log.Warn(ex.Message);
+                        if (!string.IsNullOrEmpty(ev.Start.Date))
+                            log.Debug("Start Date: " + ev.Start.Date.ToString());
+                        else
+                            log.Debug("Start DateTime: " + ev.Start.DateTime.ToString());
+
+                        if (!string.IsNullOrEmpty(ev.End.Date))
+                            log.Debug("End Date: " + ev.End.Date.ToString());
+                        else
+                            log.Debug("End DateTime: " + ev.End.DateTime.ToString());
+                    }
                     switch (handleAPIlimits(ex, ev)) {
                         case apiException.throwException: throw;
                         case apiException.freeAPIexhausted:
