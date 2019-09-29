@@ -6,14 +6,30 @@ using System.Linq;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
+    public class Category {
+        public String Name { get; internal set; }
+        public Outlook.OlCategoryColor Colour { get; internal set; }
+
+        public Category(String name, Outlook.OlCategoryColor colour) {
+            this.Name = name;
+            this.Colour = colour;
+        }
+    }
+
     public class Categories {
         private static readonly ILog log = LogManager.GetLogger(typeof(Categories));
-        private Outlook.Categories categories;
+        private Outlook.Categories oomCategories;
+        private List<OutlookOgcs.Category> categories;
         public String Delimiter { get; }
+        private const string categoryListPropertySchemaName = @"http://schemas.microsoft.com/mapi/proptag/0x7C080102";
+        //private Boolean usingStorageXmlCategories = false;
 
         public Categories() {
             try {
+                oomCategories = null;
+                categories = new List<OutlookOgcs.Category>();
                 Delimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
+                //usingStorageXmlCategories = false;
             } catch (System.Exception ex) {
                 log.Error("Failed to get system ListSeparator value.");
                 OGCSexception.Analyse(ex);
@@ -22,7 +38,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void Dispose() {
-            categories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(categories);
+            oomCategories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(oomCategories);
+        }
+
+        private void loadDefaultCategories(Outlook.Categories outlookCategories) {
+            log.Debug("Loading default categories from Outlook.");
+            oomCategories = outlookCategories;
+            foreach (Outlook.Category cat in outlookCategories) {
+                this.categories.Add(new Category(cat.Name, cat.Color));
+            }
         }
 
         /// <summary>
@@ -31,35 +55,85 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="oApp"></param>
         /// <param name="calendar"></param>
         public void Get(Outlook.Application oApp, Outlook.MAPIFolder calendar) {
-            Outlook.Store store = null;
-            try {
-                if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
-                    this.categories = oApp.Session.Categories;
-                else {
-                    try {
-                        log.Debug("Retrieving store.");
-                        store = calendar.Store;
-                        if (store == null) log.Warn("Store is null!");
-                        log.Debug("Store type: " + store.GetType());
-                        log.Debug("Getting categories property");
-                        Type type = store.GetType();
-                        log.Debug("type: " + type);
-                        System.Reflection.PropertyInfo pi = type.GetProperty("Categories");
-                        if (pi == null) {
-                            log.Warn("pi is null! Listing all properties...");
-                            System.Reflection.PropertyInfo[] pis = type.GetProperties();
-                            pis.ToList().ForEach(p => log.Debug(p.Name));
-                        }
-                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
-                    } catch (System.Exception ex) {
-                        log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
-                        log.Debug("Reverting to default mailbox categories.");
-                        this.categories = oApp.Session.Categories;
+            categories.Clear();
+            if (Settings.Instance.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) {
+                GetFromStorage(calendar);
+                this.loadDefaultCategories(oApp.Session.Categories);                
+            } else {
+                Outlook.Store store = null;
+                try {
+                    log.Debug("Retrieving store.");
+                    store = calendar.Store;
+                    System.Reflection.PropertyInfo pi = store.GetType().GetProperty("Categories");
+                    if (pi == null) {
+                        log.Warn("'Categories' property is null! Listing all properties...");
+                        System.Reflection.PropertyInfo[] pis = store.GetType().GetProperties();
+                        if (pis == null || pis.Count() == 0) log.Warn("There are no properties at all!");
+                        else pis.ToList().ForEach(p => log.Debug(p.Name));
                     }
+                    this.loadDefaultCategories(store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories);                        
+
+                } catch (System.Exception ex) {
+                    log.Warn("Failed getting non-default mailbox categories by reflection. " + ex.Message);
+                    oomCategories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(oomCategories);
+                    if (!GetFromStorage(calendar)) {
+                        log.Debug("Reverting to default mailbox categories.");
+                        oomCategories = oApp.Session.Categories;
+                        this.loadDefaultCategories(oomCategories);
+                    }
+                } finally {
+                    store = (Outlook.Store)Calendar.ReleaseObject(store);
                 }
-            } finally {
-                store = (Outlook.Store)Calendar.ReleaseObject(store);
             }
+        }
+
+        private Boolean GetFromStorage(Outlook.MAPIFolder calendar) {
+            Outlook.StorageItem categoryStorage = null;
+
+            try {
+                categoryStorage = calendar.GetStorage("IPM.Configuration.CategoryList", Outlook.OlStorageIdentifierType.olIdentifyByMessageClass);
+
+                if (categoryStorage != null) {
+                    Outlook.PropertyAccessor categoryPA = null;
+                    System.Xml.XmlReader xmlReader = null;
+                    try {
+                        categoryPA = categoryStorage.PropertyAccessor;
+                        var xmlBytes = (byte[])categoryPA.GetProperty(categoryListPropertySchemaName);
+                        String xmlString = System.Text.Encoding.UTF8.GetString(xmlBytes);
+                        log.Debug(xmlString);
+                        xmlReader = System.Xml.XmlReader.Create(new System.IO.StringReader(xmlString));
+                        xmlReader.ReadToFollowing("category");
+
+                        while (!xmlReader.EOF) {
+                            try {
+                                if (xmlReader.NodeType == System.Xml.XmlNodeType.Whitespace) continue;
+                                if (xmlReader.NodeType == System.Xml.XmlNodeType.Element && xmlReader.Name == "category") {
+                                    String name = xmlReader.GetAttribute("name").ToString();
+                                    String colour = xmlReader.GetAttribute("color").ToString();
+                                    Outlook.OlCategoryColor category = (Outlook.OlCategoryColor)(Convert.ToInt16(colour) + 1);
+                                    this.categories.Add(new Category(name, category));
+                                }
+                            } finally {
+                                xmlReader.Read();
+                            }
+                        }
+                        return true;
+
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Could not read categories from storage object.", ex);
+                    } finally {
+                        if (xmlReader != null) xmlReader.Close();
+                        categoryPA = (Outlook.PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(categoryPA);
+                    }
+                } else
+                    log.Warn("No categories found in storage.");
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not open category list from storage.", ex);
+            } finally {
+                categoryStorage = (Outlook.StorageItem)OutlookOgcs.Calendar.ReleaseObject(categoryStorage);
+            }
+            return false;
         }
 
         public void BuildPicker(ref System.Windows.Forms.CheckedListBox clb) {
@@ -85,8 +159,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Outlook.OlCategoryColor? OutlookColour(String categoryName) {
             if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
 
-            foreach (Outlook.Category category in this.categories) {
-                if (category.Name == categoryName.Trim()) return category.Color;
+            foreach (OutlookOgcs.Category category in this.categories) {
+                if (category.Name == categoryName.Trim()) return category.Colour;
             }
             return null;
         }
@@ -97,7 +171,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private List<String> getNames() {
             List<String> names = new List<String>();
             if (this.categories != null) {
-                foreach (Outlook.Category category in this.categories) {
+                foreach (OutlookOgcs.Category category in this.categories) {
                     names.Add(category.Name);
                 }
             }
@@ -111,8 +185,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public List<Extensions.ColourPicker.ColourInfo> DropdownItems() {
             List<Extensions.ColourPicker.ColourInfo> items = new List<Extensions.ColourPicker.ColourInfo>();
             if (this.categories != null) {
-                foreach (Outlook.Category category in this.categories) {
-                    items.Add(new Extensions.ColourPicker.ColourInfo(category.Color, CategoryMap.RgbColour(category.Color), category.Name));
+                foreach (OutlookOgcs.Category category in this.categories) {
+                    items.Add(new Extensions.ColourPicker.ColourInfo(category.Colour, CategoryMap.RgbColour(category.Colour), category.Name));
                 }
             }
             return items;
@@ -128,9 +202,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public String FindName(Outlook.OlCategoryColor olCategory, String categoryName = null) {
             if (olCategory == Outlook.OlCategoryColor.olCategoryColorNone) return "";
 
-            Outlook.Category failSafeCategory = null;
-            foreach (Outlook.Category category in this.categories) {
-                if (category.Color == olCategory) {
+            OutlookOgcs.Category failSafeCategory = null;
+            foreach (OutlookOgcs.Category category in this.categories) {
+                if (category.Colour == olCategory) {
                     if (categoryName == null) {
                         if (category.Name.StartsWith("OGCS ")) return category.Name;
                     } else {
@@ -147,16 +221,63 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
-            Outlook.Category newCategory = categories.Add("OGCS " + FriendlyCategoryName(olCategory), olCategory);
-            log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
-            return newCategory.Name;
+
+            String newCategoryName = "OGCS " + FriendlyCategoryName(olCategory);
+            if (oomCategories != null) {
+                Outlook.Category newCategory = oomCategories.Add(newCategoryName, olCategory);
+            } else {
+                addNewStorageCategory(null, newCategoryName, olCategory);
+            }
+            categories.Add(new OutlookOgcs.Category(newCategoryName, olCategory));
+            log.Info("Added new Outlook category \"" + newCategoryName + "\" for " + olCategory.ToString());
+            return newCategoryName;
         }
 
         public static String FriendlyCategoryName(Outlook.OlCategoryColor olCategory) {
             return olCategory.ToString().Replace("olCategoryColor", "").Replace("Dark", "Dark ");
         }
+
+        private void addNewStorageCategory(Outlook.MAPIFolder calendar, String categoryName, Outlook.OlCategoryColor categoryColour) {
+            Outlook.StorageItem categoryStorage = null;
+
+            try {
+                categoryStorage = calendar.GetStorage("IPM.Configuration.CategoryList", Outlook.OlStorageIdentifierType.olIdentifyByMessageClass);
+                if (categoryStorage != null) {
+                    Outlook.PropertyAccessor categoryPA = null;
+                    try {
+                        categoryPA = categoryStorage.PropertyAccessor;
+                        byte[] xmlBytes = (byte[])categoryPA.GetProperty(categoryListPropertySchemaName);
+                        System.Xml.XmlDocument xmlDoc = new System.Xml.XmlDocument();
+                        xmlDoc.LoadXml(System.Text.Encoding.UTF8.GetString(xmlBytes));
+
+                        System.Xml.XmlNodeList nl = xmlDoc.GetElementsByTagName("category");
+                        System.Xml.XmlNode lastNode = nl[nl.Count - 1];
+                        System.Xml.XmlNode newNode = xmlDoc.CreateElement("category");
+                        newNode = lastNode.Clone();
+                        newNode.Attributes["name"].Value = categoryName;
+                        newNode.Attributes["color"].Value = ((int)categoryColour - 1).ToString();
+                        newNode.Attributes["keyboardShortcut"].Value = "0";
+
+                        xmlDoc.DocumentElement.AppendChild(newNode);
+                        xmlBytes = System.Text.Encoding.UTF8.GetBytes(xmlDoc.InnerXml);
+                        categoryPA.SetProperty(categoryListPropertySchemaName, xmlBytes);
+                        categoryStorage.Save();
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Not able to add new category to storage XML.", ex);
+                    } finally {
+                        categoryPA = (Outlook.PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(categoryPA);
+                    }
+                } else
+                    log.Warn("No categories found in storage.");
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not open category list from storage.", ex);
+            } finally {
+                categoryStorage = (Outlook.StorageItem)OutlookOgcs.Calendar.ReleaseObject(categoryStorage);
+            }
+        }
     }
-    
+
     public class CategoryMap {
         private static readonly ILog log = LogManager.GetLogger(typeof(CategoryMap));
 
