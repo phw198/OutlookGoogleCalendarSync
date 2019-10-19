@@ -67,14 +67,13 @@ namespace OutlookGoogleCalendarSync {
 
     public class ErrorFlagAppender : log4net.Appender.AppenderSkeleton {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorFlagAppender));
-        private Boolean errorOccurred = false;
 
         /// <summary>
         /// When an error is logged, check if user has chosen to upload logs or not
         /// </summary>
         protected override void Append(LoggingEvent loggingEvent) {
-            if (!GoogleOgcs.ErrorReporting.Initialised || errorOccurred) return;
-            errorOccurred = true;
+            if (!GoogleOgcs.ErrorReporting.Initialised || GoogleOgcs.ErrorReporting.ErrorOccurred) return;
+            GoogleOgcs.ErrorReporting.ErrorOccurred = true;
             String configSetting = null;
 
             if (Settings.IsLoaded) configSetting = Settings.Instance.CloudLogging.ToString();
@@ -94,7 +93,7 @@ namespace OutlookGoogleCalendarSync {
             Forms.ErrorReporting frm = Forms.ErrorReporting.Instance;
             DialogResult dr = frm.ShowDialog();
             if (dr == DialogResult.Cancel) {
-                errorOccurred = false;
+                GoogleOgcs.ErrorReporting.ErrorOccurred = false;
                 return;
             }
             Boolean confirmative = dr == DialogResult.Yes;

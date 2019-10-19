@@ -90,12 +90,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Info("Manual sync requested.");
                     if (SyncingNow) {
                         log.Info("Already busy syncing, cannot accept another sync request.");
-                        MessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        OgcsMessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Settings.Instance.SyncDirection == Direction.Bidirectional) {
-                            MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
+                            OgcsMessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
                                 "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                             return;
                         }
@@ -113,13 +113,21 @@ namespace OutlookGoogleCalendarSync.Sync {
                         bwSync.CancelAsync();
                     } else {
                         Forms.Main.Instance.Console.Update("Repeated cancellation requested - forcefully aborting sync!", Console.Markup.warning);
-                        try {
-                            bwSync.Abort();
-                            bwSync.Dispose();
-                            bwSync = null;
-                        } catch { }
+                        AbortSync();
                     }
                 }
+            }
+        }
+
+        public void AbortSync() {
+            try {
+                bwSync.Abort();
+                bwSync.Dispose();
+                bwSync = null;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            } finally {
+                log.Warn("Sync thread forcefully aborted!");
             }
         }
 
@@ -132,7 +140,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 mainFrm.Console.Clear();
 
                 if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
-                    MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
+                    OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -158,16 +166,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return;
                 }
                 GoogleOgcs.Calendar.APIlimitReached_attendee = false;
-                Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
-                Forms.Main.Instance.bSyncNow.Text = "Stop Sync";
-                Forms.Main.Instance.NotificationTray.UpdateItem("sync", "&Stop Sync");
+                mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
+                mainFrm.bSyncNow.Text = "Stop Sync";
+                mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
-                Forms.Main.Instance.NextSyncVal = "In progress...";
+                mainFrm.NextSyncVal = "In progress...";
 
                 StringBuilder sb = new StringBuilder();
-                Forms.Main.Instance.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                Forms.Main.Instance.Console.BuildOutput((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString(), ref sb);
-                Forms.Main.Instance.Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
+                mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
+                mainFrm.Console.BuildOutput((ManualForceCompare ? "Full s" : "S") + "ync started at " + syncStarted.ToString(), ref sb);
+                mainFrm.Console.BuildOutput("Syncing from " + Settings.Instance.SyncStart.ToShortDateString() +
                     " to " + Settings.Instance.SyncEnd.ToShortDateString(), ref sb);
                 mainFrm.Console.BuildOutput(Settings.Instance.SyncDirection.Name, ref sb);
 
@@ -183,17 +191,20 @@ namespace OutlookGoogleCalendarSync.Sync {
                 int failedAttempts = 0;
                 Telemetry.TrackSync();
                 try {
-                    GoogleOgcs.Calendar.Instance.GetCalendarSettings();
+                    GoogleOgcs.Calendar.Instance.GetSettings();
                 } catch (System.AggregateException ae) {
                     OGCSexception.AnalyseAggregate(ae);
+                    syncResult = SyncResult.AutoRetry;
+                } catch (System.ApplicationException ex) {
+                    mainFrm.Console.Update(ex.Message, Console.Markup.warning);
                     syncResult = SyncResult.AutoRetry;
                 } catch (System.Exception ex) {
                     log.Warn(ex.Message);
                     syncResult = SyncResult.AutoRetry;
                 }
-                while (syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) {
+                while ((syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                     if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
-                        if (MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
+                        if (OgcsMessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
                             log.Info("User opted to abandon further syncs.");
                             syncResult = SyncResult.Abandon;
@@ -276,8 +287,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
-                    if (Sync.Engine.Instance.OgcsTimer.NextSyncDate != null && Sync.Engine.Instance.OgcsTimer.NextSyncDate > DateTime.Now) {
-                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + Forms.Main.Instance.NextSyncVal);
+                    //***Simplify this one settings profiles in place
+                    if (!("Inactive;Push Sync Active;In progress...".Contains(Forms.Main.Instance.NextSyncVal)) &&
+                        DateTime.ParseExact(Forms.Main.Instance.NextSyncVal.Replace(" + Push", ""),
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " @ " +
+                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
+                            System.Globalization.CultureInfo.CurrentCulture) > DateTime.Now) {
+                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + mainFrm.NextSyncVal);
                         updateSyncSchedule = false;
                         cacheNextSync = mainFrm.NextSyncVal;
                     }
@@ -383,14 +399,23 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ex = OGCSexception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
                     }
                     OGCSexception.Analyse(ex);
-                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again.");
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
                     throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is Google.GoogleApiException &&
                         (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
+                        Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
+                        DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
+                        String tryAfter = "08:00 GMT.";
+                        if (newQuota < DateTime.UtcNow) {
+                            newQuota = newQuota.AddDays(1);
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + " tomorrow.";
+                        } else
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + ".";
+
                         //Already rescheduled to run again once new quota available, so just set to retry.
-                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. " +
-                            (Settings.Instance.SyncInterval == 0 ? "Please try again." : "OGCS will automatically try again when new API quota is available."));
+                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar" +
+                            (Settings.Instance.SyncInterval == 0 ? ". Please try again after " + tryAfter : ", but OGCS is all set to automatically try again after "+ tryAfter));
                         OGCSexception.LogAsFail(ref ex);
                     }
                     throw;
@@ -574,7 +599,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
                 googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 0) {
-                if (MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
+                if (OgcsMessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                     googleEntriesToBeDeleted = new List<Event>();
@@ -686,7 +711,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
             if (!Settings.Instance.DisableDelete && !Settings.Instance.ConfirmOnDelete &&
                 outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 0) {
-                if (MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
+                if (OgcsMessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                     "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 

@@ -71,7 +71,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGCalSync");
         }
         public static void Facebook_like() {
-            if (MessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
+            if (OgcsMessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
                 "Like on Facebook", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK) {
                 System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync");
             }

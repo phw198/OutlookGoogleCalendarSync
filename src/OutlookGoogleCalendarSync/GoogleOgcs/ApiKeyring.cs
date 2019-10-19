@@ -121,9 +121,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting keyring.");
             string html = "";
             try {
-                html = new System.Net.WebClient().DownloadString(keyringURL);
+                html = new Extensions.OgcsWebClient().DownloadString(keyringURL);
             } catch (System.Exception ex) {
-                log.Error("Failed to retrieve data: " + ex.Message);
+                log.Error("Failed to retrieve keyring data: " + ex.Message);
             }
             if (!string.IsNullOrEmpty(html)) {
                 html = html.Replace("\n", "");
@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public static void ChangeKeys() {
             log.Info("Google API keys and refresh token are being updated.");
-            System.Windows.Forms.MessageBox.Show("Your Google authorisation token needs updating.\r\n" +
+            System.Windows.Forms.OgcsMessageBox.Show("Your Google authorisation token needs updating.\r\n" +
                 "The process to reauthorise access to your Google account will now begin...",
                 "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
             GoogleOgcs.Calendar.Instance.Authenticator.Reset();

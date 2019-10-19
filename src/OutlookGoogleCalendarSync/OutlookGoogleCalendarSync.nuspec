@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.8.1-alpha</version>
+    <version>2.8.2-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,23 +12,21 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.8.1?
+# What's New In v2.8.2?
+
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Set Outlook organisers as having "accepted" in Google
-- Order the Google calendar dropdown: primary, writeable, read-only
-- Warn if read-only calendar selected for sync; deny for two-way sync
-- Display custom Google calendar name, if set
-- Third-party DLLs updated
+- Use any configured proxy for _all_ web calls
+- New `/t` command line option to append custom text to application title
+- Don't attempt update of recurring Google series owned by another
+- Pop-up message boxes now associated with main application form
+- Improved feedback on API quota exhausted
+- Ability to disable telemetry
 
-&lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**
-- Better error handling if Outlook closed mid-sync
-- Fix missing last occurrence in Google for recurring series from Outlook
-- Report correct COM error code and redirect to wiki for published solution
-- Don't crash after upgrade if user doesn't have access to system registry
-- Fixed subscribers not picking up correct API key
-- Only allow single Error Reporting window
-- Don't allow sync if Error Reporting window displaying
+&lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
+
+- Convert recurrence end date to local time
+- Error reporting DLLs updated
     </releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
