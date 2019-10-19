@@ -56,6 +56,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void updateGUIsettings() {
             log.Debug("Configuring main form components.");
+            this.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
+
             this.SuspendLayout();
             #region Tooltips
             //set up tooltips for some controls

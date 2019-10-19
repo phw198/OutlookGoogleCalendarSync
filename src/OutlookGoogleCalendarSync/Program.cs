@@ -22,6 +22,7 @@ namespace OutlookGoogleCalendarSync {
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
 
         public static Boolean StartedWithFileArgs = false;
+        public static String Title { get; private set; }
         public static Boolean StartedWithSquirrelArgs {
             get {
                 String[] cliArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
@@ -133,7 +134,7 @@ namespace OutlookGoogleCalendarSync {
 
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
-
+            
             log.Info("Storing user files in directory: " + UserFilePath);
 
             //Before settings have been loaded, early config of cloud logging
@@ -175,6 +176,9 @@ namespace OutlookGoogleCalendarSync {
             }
             Dictionary<String, String> delayArg = parseArgument(args, 'd');
             if (delayArg["Value"] != null) delayStartup(delayArg["Value"]);
+
+            Dictionary<String, String> titleArg = parseArgument(args, 't');
+            Title = titleArg["Value"];
         }
 
         private static Dictionary<String, String> parseArgument(String[] args, char arg) {

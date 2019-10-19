@@ -27,6 +27,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.BalloonTipClicked += notifyIcon_BubbleClick;
             this.icon.Icon = Forms.Main.Instance.Icon;
             this.icon.Visible = true;
+            this.icon.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
             buildMenu();
 
             if (OutlookOgcs.Calendar.OOMsecurityInfo) {
@@ -227,7 +228,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
                 this.icon.ShowBalloonTip(
                     500,
-                    "Outlook Google Calendar Sync",
+                    "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
                     message,
                     iconType
                 );
