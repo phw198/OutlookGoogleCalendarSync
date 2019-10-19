@@ -238,6 +238,8 @@ namespace OutlookGoogleCalendarSync {
             ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
             ///HtmlElement element = doc.GetElementById("content");
             ///HtmlElement element = doc.All["content"]; //Slightly faster
+            
+            if (Forms.Main.Instance.IsDisposed) return;
 
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
                 //Let's grab the 'content' div with regex
@@ -274,19 +276,23 @@ namespace OutlookGoogleCalendarSync {
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
 
                 content = header + contentInnerHtml + footer;
-                if (this.wb.InvokeRequired) {
-                    this.wb.Invoke((MethodInvoker)(() => {
-                        wb.DocumentText = content;
-                    }));
-                } else 
-                this.wb.DocumentText = content;
-                
+                try {
+                    if (this.wb.InvokeRequired) {
+                        this.wb.Invoke((MethodInvoker)(() => {
+                            wb.DocumentText = content;
+                        }));
+                    } else
+                        this.wb.DocumentText = content;
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse(ex);
+                }
+
                 while (navigationStatus != NavigationStatus.completed) {
                     System.Threading.Thread.Sleep(250);
                     System.Windows.Forms.Application.DoEvents();
                 }
                 System.Windows.Forms.Application.DoEvents();
-                
+
                 if (Forms.Main.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);

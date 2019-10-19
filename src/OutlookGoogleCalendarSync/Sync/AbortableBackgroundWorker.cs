@@ -13,8 +13,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 base.OnDoWork(e);
             } catch (ThreadAbortException ex) {
-                log.Error(ex.Message);
-                log.Error(ex.StackTrace);
+                log.Fail(ex.Message);
                 e.Cancel = true; //We must set Cancel property to true!
                 Thread.ResetAbort(); //Prevents ThreadAbortException propagation
             }
@@ -22,7 +21,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         public void Abort() {
             if (workerThread != null) {
-                log.Info("Aborting background thread...");
+                log.Warn("Aborting background thread...");
                 
                 workerThread.Interrupt();
                 workerThread.Abort();

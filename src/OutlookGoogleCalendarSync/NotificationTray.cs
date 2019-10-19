@@ -90,6 +90,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Could not find menu item with name \"" + itemName + "\"");
                 }
             } catch (System.Exception ex) {
+                if (Forms.Main.Instance.IsDisposed) return;
                 OGCSexception.Analyse(ex, true);
             }
         }
@@ -189,9 +190,7 @@ namespace OutlookGoogleCalendarSync {
         
         private void notifyIcon_Click(object sender, MouseEventArgs e) { 
             if (e.Button == MouseButtons.Left) {
-                Forms.Main.Instance.TopMost = true;
                 Forms.Main.Instance.MainFormShow();
-                Forms.Main.Instance.TopMost = false;
             }
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
