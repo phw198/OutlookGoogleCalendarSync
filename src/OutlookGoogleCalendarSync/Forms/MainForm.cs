@@ -28,6 +28,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         public Main(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
+            //MinimumSize is set in Designer to stop it keep messing around with the width
+            //Then unsetting here, so the scrollbars can reduce width if necessary
+            gbSyncOptions_How.MinimumSize = new System.Drawing.Size(0, 0);
+            gbSyncOptions_When.MinimumSize = new System.Drawing.Size(0, 0);
+            gbSyncOptions_What.MinimumSize = new System.Drawing.Size(0, 0);
+            gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(0, 0);
+            gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(0, 0);
             
             if (startingTab != null && startingTab == "Help") this.tabApp.SelectedTab = this.tabPage_Help;
 
@@ -119,6 +126,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbPortable,
                 "For ZIP deployments, store configuration files in the application folder (useful if running from a USB thumb drive).\n" +
                 "Default is in your User roaming profile.");
+            ToolTips.SetToolTip(cbTelemetryDisabled, "Prevent OGCS sending anonymous usage statistics.");
             ToolTips.SetToolTip(cbCreateFiles,
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
@@ -383,6 +391,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            cbTelemetryDisabled.Checked = Settings.Instance.TelemetryDisabled;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             #endregion
             updateGUIsettings_Proxy();
@@ -1114,7 +1123,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 188; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
-                    case "Logging": section.Height = 93; break;
+                    case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
@@ -1570,6 +1579,21 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Settings.Instance.CloudLogging = cbCloudLogging.Checked;
         }
 
+        private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {
+            if (!cbTelemetryDisabled.Checked) {
+                Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
+                return;
+            }
+            DialogResult dr = MessageBox.Show("The telemetry only captures anonymised usage statistics, such as your version of OGCS and Outlook. " +
+                "This helps focus ongoing improvements. Are you sure you wish to disable telemetry?", "OGCS Usage Statistics", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dr == DialogResult.No) {
+                cbTelemetryDisabled.CheckedChanged -= cbTelemetryDisabled_CheckedChanged;
+                cbTelemetryDisabled.Checked = false;
+                cbTelemetryDisabled.CheckedChanged += cbTelemetryDisabled_CheckedChanged;
+            }
+            log.Info("Telemetry has been " + (cbTelemetryDisabled.Checked ? "dis" : "en") + "abled.");
+            Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
+        }
         #region Proxy
         private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
             bool result = rbProxyCustom.Checked;

@@ -148,7 +148,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         OGCSexception.AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
                     else {
                         OGCSexception.Analyse(ex);
-                        Forms.Main.Instance.Console.Update("Unable to communicate with Google services.", Console.Markup.warning);
+                        Forms.Main.Instance.Console.Update("Unable to communicate with Google services. " + (ex.InnerException != null ? ex.InnerException.Message : ex.Message), Console.Markup.warning);
                     }
                     authenticated = false;
                     return;
@@ -225,6 +225,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
+                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException != null ? ex.InnerException : ex));
                         throw;
                     }
                 }
@@ -306,6 +307,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 OGCSexception.AnalyseTokenResponse(ex);
+
+            } catch (Google.GoogleApiException ex) {
+                switch (GoogleOgcs.Calendar.HandleAPIlimits(ex, null)) {
+                    case Calendar.ApiException.throwException: throw;
+                    case Calendar.ApiException.freeAPIexhausted:
+                        System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
+                        OGCSexception.LogAsFail(ref aex);
+                        GoogleOgcs.Calendar.Instance.Service = null;
+                        throw aex;
+                }
 
             } catch (System.Exception ex) {
                 log.Error(ex.Message);

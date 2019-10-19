@@ -40,14 +40,18 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Send(Analytics.Category category, Analytics.Action action, String label) {
             String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
-            String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&cid=" + cid;
+            String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&aip=1&cid=" + cid;
 
             if (action == Analytics.Action.debug) {
                 label = "v" + System.Windows.Forms.Application.ProductVersion + ";" + label;
             }
             String analyticsUrl = baseAnalyticsUrl + "&ec=" + category.ToString() + "&ea=" + action.ToString() + "&el=" + System.Net.WebUtility.UrlEncode(label);
             log.Debug("Retrieving URL: " + analyticsUrl);
-            if (Program.InDeveloperMode) return;
+            
+            if (Settings.Instance.TelemetryDisabled || Program.InDeveloperMode) {
+                log.Debug("Telemetry is disabled.");
+                return;
+            }
 
             Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
             wc.DownloadStringCompleted += new DownloadStringCompletedEventHandler(sendTelemetry_completed);

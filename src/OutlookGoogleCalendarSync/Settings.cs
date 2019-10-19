@@ -319,9 +319,11 @@ namespace OutlookGoogleCalendarSync {
             set {
                 cloudLogging = value;
                 GoogleOgcs.ErrorReporting.SetThreshold(value ?? false);
+                if (value == null) GoogleOgcs.ErrorReporting.ErrorOccurred = false;
                 if (!loading()) XMLManager.ExportElement("CloudLogging", value, ConfigFile);
             }
         }
+        [DataMember] public bool TelemetryDisabled { get; set; }
         //Proxy
         [DataMember] public SettingsProxy Proxy { get; set; }
         #endregion
