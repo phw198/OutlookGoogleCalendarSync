@@ -8,21 +8,21 @@ assignees: ''
 ---
 
 <!-- 
-- Use the below template to report your issue.  
-- Upgrade to the latest alpha release to check if the problem is already fixed.  
-- To aid investigation, provide your OGcalsync.log file; a how-to is at https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file
+1. Upgrade to the latest alpha release to check if the problem is already fixed.  
+2. Reproduce the issue and then, to aid investigation, provide your OGcalsync.log file. A how-to is at https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file
+3. Use the below template to report your issue.  
 -->
 
 **OGCS Version**: v1.2.3.4  
 **Installed or Portable**: Installed
 
 **Bug Description**  
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. 
 
 **Steps to Reproduce the Issue**  
 1. Go to...
 1. Click on...
 
 **Any other information**  
-Any additional information that may help troubleshoot the issue. 
+Any additional information that may help troubleshoot the issue.  
 :paperclip: Attach your `OGcalsync.log` file.
