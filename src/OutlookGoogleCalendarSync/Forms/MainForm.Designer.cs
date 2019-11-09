@@ -135,8 +135,8 @@
             this.cbIntervalUnit = new System.Windows.Forms.ComboBox();
             this.tbInterval = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.tbDaysInTheFuture = new System.Windows.Forms.NumericUpDown();
-            this.tbDaysInThePast = new System.Windows.Forms.NumericUpDown();
+            this.tbDaysInTheFuture = new Extensions.OgcsNumericUpDown();
+            this.tbDaysInThePast = new Extensions.OgcsNumericUpDown();
             this.lDaysInFuture = new System.Windows.Forms.Label();
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
@@ -914,6 +914,7 @@
             this.tbClientSecret.UseSystemPasswordChar = true;
             this.tbClientSecret.Visible = false;
             this.tbClientSecret.TextChanged += new System.EventHandler(this.tbClientSecret_TextChanged);
+            this.tbClientSecret.Leave += new System.EventHandler(this.personalApiKey_Leave);
             // 
             // tbClientID
             // 
@@ -926,6 +927,7 @@
             this.tbClientID.TabIndex = 2;
             this.tbClientID.Visible = false;
             this.tbClientID.TextChanged += new System.EventHandler(this.tbClientID_TextChanged);
+            this.tbClientID.Leave += new System.EventHandler(this.personalApiKey_Leave);
             // 
             // lClientID
             // 
@@ -3158,8 +3160,8 @@
         private System.Windows.Forms.GroupBox gbSyncOptions_When;
         private System.Windows.Forms.CheckBox cbOutlookPush;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown tbDaysInTheFuture;
-        private System.Windows.Forms.NumericUpDown tbDaysInThePast;
+        private Extensions.OgcsNumericUpDown tbDaysInTheFuture;
+        private Extensions.OgcsNumericUpDown tbDaysInThePast;
         private System.Windows.Forms.Label lDaysInFuture;
         private System.Windows.Forms.Label lDaysInPast;
         private System.Windows.Forms.Label lDateRange;

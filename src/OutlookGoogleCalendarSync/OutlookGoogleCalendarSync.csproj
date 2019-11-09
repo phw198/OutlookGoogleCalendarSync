@@ -262,6 +262,9 @@
     </Compile>
     <Compile Include="Extensions\DateTime.cs" />
     <Compile Include="Extensions\MessageBox.cs" />
+    <Compile Include="Extensions\NumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Extensions\WebClient.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -335,10 +335,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.gbSyncOptions_When.SuspendLayout();
             tbDaysInThePast.Text = Settings.Instance.DaysInThePast.ToString();
             tbDaysInTheFuture.Text = Settings.Instance.DaysInTheFuture.ToString();
-            if (Settings.Instance.UsingPersonalAPIkeys()) {
-                tbDaysInTheFuture.Maximum = 365*10;
-                tbDaysInThePast.Maximum = 365*10;
-            }
+            setMaxSyncRange();
             tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
             tbInterval.Value = Settings.Instance.SyncInterval;
             tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
@@ -1103,13 +1100,26 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void tbClientID_TextChanged(object sender, EventArgs e) {
             Settings.Instance.PersonalClientIdentifier = tbClientID.Text;
         }
-
         private void tbClientSecret_TextChanged(object sender, EventArgs e) {
             Settings.Instance.PersonalClientSecret = tbClientSecret.Text;
             cbShowClientSecret.Enabled = (tbClientSecret.Text != "");
         }
+        private void personalApiKey_Leave(object sender, EventArgs e) {
+            setMaxSyncRange();
+        }
+
         private void cbShowClientSecret_CheckedChanged(object sender, EventArgs e) {
             tbClientSecret.UseSystemPasswordChar = !cbShowClientSecret.Checked;
+        }
+
+        private void setMaxSyncRange() {
+            if (Settings.Instance.UsingPersonalAPIkeys()) {
+                tbDaysInTheFuture.Maximum = Int32.MaxValue;
+                tbDaysInThePast.Maximum = Int32.MaxValue;
+            } else {
+                tbDaysInTheFuture.Maximum = 365;
+                tbDaysInThePast.Maximum = 365;
+            }
         }
         #endregion
         #endregion
@@ -1325,16 +1335,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void tbDaysInThePast_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInThePast = (int)tbDaysInThePast.Value;
-            if (this.Visible && !Settings.Instance.UsingPersonalAPIkeys() && tbDaysInThePast.Value == tbDaysInThePast.Maximum) {
-                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInThePast);
-            }
         }
 
         private void tbDaysInTheFuture_ValueChanged(object sender, EventArgs e) {
             Settings.Instance.DaysInTheFuture = (int)tbDaysInTheFuture.Value;
-            if (this.Visible && !Settings.Instance.UsingPersonalAPIkeys() && tbDaysInTheFuture.Value == tbDaysInTheFuture.Maximum) {
-                this.ToolTips.Show("Limited to 1 year unless personal API keys are used. See 'Developer Options' on Google tab.", tbDaysInTheFuture);
-            }
         }
 
         private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
