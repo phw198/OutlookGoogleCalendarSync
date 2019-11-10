@@ -131,7 +131,7 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="outlookTimezone">The string stored in Outlook by appointment organiser, eg "(GMT+10:00) AUS Eastern Standard Time"</param>
         /// <returns>Offset, if present</returns>
         public static Int16? GetTimezoneOffset(String outlookTimezone) {
-            //WebEx is known to store timezones like this.
+            //timezone = "(GMT+10:00) AUS Eastern Standard Time"; <== WebEx is known to store timezones like this.
             try {
                 Regex rgx = new Regex(@"^\((GMT|UTC)([+-]\d{1,2})*:*\d{0,2}\)\s.*$");
                 MatchCollection matches = rgx.Matches(outlookTimezone);
@@ -161,12 +161,13 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Could not map IANA timezone '" + IanaTimezone + "' to UTC offset.");
                 } else {
                     NodaTime.DateTimeZone tz = tzProvider[IanaTimezone];
-                    NodaTime.Offset offset = tz.GetUtcOffset(new NodaTime.Instant());
+                    NodaTime.Instant instant = NodaTime.Instant.FromDateTimeUtc(DateTime.UtcNow);
+                    NodaTime.Offset offset = tz.GetUtcOffset(instant);
                     utcOffset = Convert.ToInt16(offset.Seconds / 3600);
-    }
+                }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.", ex);
-}
+            }
             return utcOffset;
         }
     }
