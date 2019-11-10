@@ -58,8 +58,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Checking for new timezone database...");
                 String nodatimeURL = "http://nodatime.org/tzdb/latest.txt";
                 String html = "";
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
                 try {
                     html = wc.DownloadString(nodatimeURL);
                 } catch (System.Exception ex) {
@@ -121,8 +120,7 @@ namespace OutlookGoogleCalendarSync {
                     return fixedTimezone;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed to detect and translate Alexa timezone: " + timezone);
-                OGCSexception.Analyse(ex);
+                OGCSexception.Analyse("Failed to detect and translate Alexa timezone: " + timezone, ex);
             }
             return timezone;
         }
@@ -130,12 +128,13 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Sometime an Outlook timezone name contains a GMT offset, which isn't valid.
         /// </summary>
+        /// <param name="outlookTimezone">The string stored in Outlook by appointment organiser, eg "(GMT+10:00) AUS Eastern Standard Time"</param>
         /// <returns>Offset, if present</returns>
-        public static Int16? GetTimezoneOffset(String timezone) {
-            //timezone = "(GMT+10:00) AUS Eastern Standard Time"; //WebEx is known to do this
+        public static Int16? GetTimezoneOffset(String outlookTimezone) {
+            //WebEx is known to store timezones like this.
             try {
                 Regex rgx = new Regex(@"^\((GMT|UTC)([+-]\d{1,2})*:*\d{0,2}\)\s.*$");
-                MatchCollection matches = rgx.Matches(timezone);
+                MatchCollection matches = rgx.Matches(outlookTimezone);
                 if (matches != null && matches.Count > 0) {
                     String gmtOffset_str = matches[0].Groups[2].Value.Trim();
                     if (string.IsNullOrEmpty(gmtOffset_str)) return 0;
@@ -144,10 +143,31 @@ namespace OutlookGoogleCalendarSync {
                     return gmtOffset;
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed to detect any timezone offset for: " + timezone);
-                OGCSexception.Analyse(ex);
+                OGCSexception.Analyse("Failed to detect any timezone offset for: " + outlookTimezone, ex);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Convert IANA timezone to a UTC offset.
+        /// </summary>
+        /// <param name="IanaTimezone">eg "America/Vancouver"</param>
+        /// <returns>The offset eg -7</returns>
+        public static Int16 GetUtcOffset(String IanaTimezone) {
+            Int16 utcOffset = 0;
+            try {
+                NodaTime.IDateTimeZoneProvider tzProvider = NodaTime.DateTimeZoneProviders.Tzdb;
+                if (!tzProvider.Ids.Contains(IanaTimezone)) {
+                    log.Warn("Could not map IANA timezone '" + IanaTimezone + "' to UTC offset.");
+                } else {
+                    NodaTime.DateTimeZone tz = tzProvider[IanaTimezone];
+                    NodaTime.Offset offset = tz.GetUtcOffset(new NodaTime.Instant());
+                    utcOffset = Convert.ToInt16(offset.Seconds / 3600);
+    }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.", ex);
+}
+            return utcOffset;
         }
     }
 }

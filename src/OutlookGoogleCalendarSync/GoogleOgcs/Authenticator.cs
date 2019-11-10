@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (ex.Error.Error == "access_denied") {
                     String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
                     log.Warn("User did not provide authorisation code. Sync will not be able to work.");
-                    MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
@@ -134,6 +134,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
+            if (Settings.Instance.Proxy.Type == "Custom")
+                GoogleOgcs.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
 
             if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.UtcNow.AddMinutes(-1)) {
                 log.Debug("Access token needs refreshing.");
@@ -181,9 +183,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String jsonString = "";
             log.Debug("Retrieving email address associated with Google account.");
             try {
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.Headers.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
-                jsonString = wc.DownloadString("https://www.googleapis.com/oauth2/v2/userinfo?fields=email&access_token=" + accessToken);
+                jsonString = new Extensions.OgcsWebClient().DownloadString("https://www.googleapis.com/oauth2/v2/userinfo?fields=email&access_token=" + accessToken);
                 JObject jo = Newtonsoft.Json.Linq.JObject.Parse(jsonString);
                 JToken jtEmail = jo["email"];
                 String email = jtEmail.ToString();
@@ -213,7 +213,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (rgx.IsMatch(ex.Message)) {
                         if (Settings.Instance.UsingPersonalAPIkeys()) {
                             String msg = "If you are using your own API keys, you must also enable the Google+ API.";
-                            MessageBox.Show(msg, "Missing API Service", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            OgcsMessageBox.Show(msg, "Missing API Service", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                             throw new System.ApplicationException(msg);
                         } else {
                             if (getEmailAttempts > 1) {

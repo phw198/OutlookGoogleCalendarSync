@@ -24,6 +24,8 @@
                     if (components != null) {
                         components.Dispose();
                     }
+                    if (Sync.Engine.Instance.SyncingNow)
+                        Sync.Engine.Instance.AbortSync();
                 }
                 base.Dispose(disposing);
             }

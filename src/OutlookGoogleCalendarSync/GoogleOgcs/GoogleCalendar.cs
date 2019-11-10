@@ -78,6 +78,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private static Random random = new Random();
         public long MinDefaultReminder = long.MinValue;
+        public Int16 UTCoffset { get; internal set; }
         public String SubscriptionInvite {
             get {
                 String invite = "Google's free daily Calendar quota has been exhausted! New quota comes into effect 08:00 GMT";
@@ -315,7 +316,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } else {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Event creation failed.", ex);
                         OGCSexception.Analyse(ex, true);
-                        if (MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (OgcsMessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -332,7 +333,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "New event failed to save.", ex);
                     OGCSexception.Analyse(ex, true);
-                    if (MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (OgcsMessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -499,7 +500,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, true) + "Event update failed.", ex);
                         if (ex is System.Runtime.InteropServices.COMException) throw;
                         OGCSexception.Analyse(ex, true);
-                        if (MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (OgcsMessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -514,7 +515,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, true) + "Updated event failed to save.", ex);
                         OGCSexception.Analyse(ex, true);
-                        if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -540,7 +541,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError("Updated event failed to save.", ex);
                         OGCSexception.Analyse(ex, true);
-                        if (MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -570,6 +571,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             String aiSummary = OutlookOgcs.Calendar.GetEventSummary(ai);
             log.Debug("Processing >> " + aiSummary);
+
+            if (!(ev.Creator.Self ?? false) && ev.Recurrence != null) {
+                log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
+                log.Fine("Owner: " + ev.Creator.Email);
+                return ev;
+            }
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine(aiSummary);
@@ -615,6 +622,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 if (!rrule.Contains(oRrule_bit)) {
                                     if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
                                         ev.Recurrence[r] = oRrules.First();
+                                        break;
                                     }
                                 }
                             }
@@ -628,9 +636,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } else {
                 if (oRrules != null && ev.RecurringEventId == null) {
-                    log.Debug("Converting to recurring event.");
-                    Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
-                    ev.Recurrence = oRrules;
+                    if (!(ev.Creator.Self ?? false)) {
+                        log.Warn("Cannot convert Event organised by another to a recurring series.");
+                    } else {
+                        log.Debug("Converting to recurring event.");
+                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
+                        ev.Recurrence = oRrules;
+                    }
                 }
             }
 
@@ -812,6 +824,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         #endregion
 
+        //void ShowError(String message, Window windowToBlock) {
+        //    if (this.Dispatcher.CheckAccess())
+        //        OgcsMessageBox.Show(windowToBlock, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //    else {
+        //        this.Dispatcher.Invoke(
+        //            new Action(() => {
+        //                OgcsMessageBox.Show(windowToBlock, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            }));
+        //    }
+        //}
+
         #region Delete
         public void DeleteCalendarEntries(List<Event> events) {
             for (int g = events.Count - 1; g >= 0; g--) {
@@ -824,7 +847,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Event deletion failed.", ex);
                     OGCSexception.Analyse(ex, true);
-                    if (MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (OgcsMessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
                         throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -837,7 +860,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Deleted event failed to remove.", ex);
                     OGCSexception.Analyse(ex, true);
-                    if (MessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else {
                         throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -851,7 +874,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Boolean doDelete = true;
 
             if (Settings.Instance.ConfirmOnDelete) {
-                if (MessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
+                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
                     doDelete = false;
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
@@ -948,7 +971,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                     log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
                 } else {
-                    if (MessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
+                    if (OgcsMessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
                         "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
                         "or you may wish to merge with unmatched events. Continue with deletions?",
                         "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
@@ -1254,13 +1277,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             return (itemModified > 0);
         }
-
-        public void GetSetting(string setting) {
+        
+        /// <summary>
+        /// Get the global Calendar settings
+        /// </summary>
+        public void GetSettings() {
             try {
-                Service.Settings.Get(setting).ExecuteAsync();
-            } catch { }
+                //Get the timezone offset - convert from IANA string to UTC offset integer
+                Setting setting = Service.Settings.Get("timezone").Execute();
+                this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
+            }
+            getCalendarSettings();
         }
-        public void GetCalendarSettings() {
+        private void getCalendarSettings() {
             if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
             try {
                 CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
@@ -1270,8 +1301,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 else
                     this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
-                log.Error("Failed to get calendar settings.");
-                log.Error(ex.Message);
+                OGCSexception.Analyse("Failed to get calendar settings.", ex);
             }
         }
 
@@ -1591,9 +1621,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 //Delay next scheduled sync until after the new quota
                 if (Settings.Instance.SyncInterval != 0) {
-                    DateTime utcNow = DateTime.UtcNow;
-                    DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                DateTime utcNow = DateTime.UtcNow;
+                DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
                     int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
                     Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true);
                     Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);

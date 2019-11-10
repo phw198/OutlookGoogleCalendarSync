@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting credential attributes");
             try {
                 try {
-                    html = new System.Net.WebClient().DownloadString(cloudCredsURL);
+                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);
                     html = html.Replace("\n", "");
                 } catch (System.Exception ex) {
                     log.Error("Failed to retrieve data: " + ex.Message);
@@ -71,7 +71,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             //} catch (System.Exception ex) {
                 //Logging isn't initialised yet, so don't catch this error - let it crash out so user is aware and hopefully reports it!
-                //System.Windows.Forms.MessageBox.Show(ex.Message);
+                //System.Windows.Forms.OgcsMessageBox.Show(ex.Message);
                 //log.Debug("Failed to initialise error reporting.");
                 //OGCSexception.Analyse(ex);
             }

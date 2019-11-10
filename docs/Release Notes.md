@@ -1,6 +1,20 @@
 | Release Notes |
 |:---|
 
+# v2.8.2.0 - Alpha
+
+**Enhancements**
+- Use any configured proxy for _all_ web calls
+- New `/t` command line option to append custom text to application title
+- Don't attempt update of recurring Google series owned by another
+- Pop-up message boxes now associated with main application form
+- Improved feedback on API quota exhausted
+- Ability to disable telemetry
+
+**Bugfix**
+- Convert recurrence end date to local time
+- Error reporting DLLs updated
+
 # v2.8.1.0 - Alpha
 
 **Enhancements**
