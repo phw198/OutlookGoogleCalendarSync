@@ -520,7 +520,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ai.BusyStatus = gFreeBusy;
             }
 
-            if (Settings.Instance.AddColours) {
+            if (Settings.Instance.AddColours || Settings.Instance.SetEntriesColour) {
                 log.Fine("Comparing colours/categories");
                 List<String> aiCategories = new List<string>();
                 String oCategoryName = "";

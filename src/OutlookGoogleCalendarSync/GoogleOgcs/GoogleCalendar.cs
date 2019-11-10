@@ -687,10 +687,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Transparency = oFreeBusy;
             }
 
-            Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
-            Palette oColour = getColour(ai.Categories, gColour);
-            if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.HexValue, oColour.HexValue, sb, ref itemModified)) {
-                ev.ColorId = oColour.Id;
+            if (Settings.Instance.AddColours || Settings.Instance.SetEntriesColour) {
+                Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
+                Palette oColour = getColour(ai.Categories, gColour);
+                if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.HexValue, oColour.HexValue, sb, ref itemModified)) {
+                    ev.ColorId = oColour.Id;
+                }
             }
 
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
@@ -1390,7 +1392,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 getOutlookCategoryColour(aiCategories, ref categoryColour);
             }
-            if (categoryColour == null) return Palette.NullPalette;
+            if (categoryColour == null || categoryColour == OlCategoryColor.olCategoryColorNone) 
+                return Palette.NullPalette;
             else {
                 System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
                 Palette closest = ColourPalette.GetClosestColour(color);
