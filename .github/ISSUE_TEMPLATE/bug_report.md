@@ -15,7 +15,7 @@ assignees: ''
 -->
 
 **OGCS Version**: v1.2.3.4  
-**Edition**: Installed / Portable
+**Edition**: Installed / Portable  
 **Sync Direction**: G->O / O->G / O<->G
 
 **Bug Description**  
