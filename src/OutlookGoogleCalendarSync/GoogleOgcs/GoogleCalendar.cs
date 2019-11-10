@@ -1315,10 +1315,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!Settings.Instance.SetEntriesPrivate)
                 return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
 
-            if (Settings.Instance.SyncDirection != Sync.Direction.Bidirectional) {
+            if (Settings.Instance.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
                 return "private";
             } else {
-                if (Settings.Instance.TargetCalendar == Sync.Direction.GoogleToOutlook) { //Privacy enforcement is in other direction
+                if (Settings.Instance.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
                     if (gVisibility == null)
                         return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
                     else if (gVisibility == "private" && oSensitivity != OlSensitivity.olPrivate) {
@@ -1344,10 +1344,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!Settings.Instance.SetEntriesAvailable)
                 return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
-            if (Settings.Instance.SyncDirection != Sync.Direction.Bidirectional) {
+            if (Settings.Instance.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
                 return "transparent";
             } else {
-                if (Settings.Instance.TargetCalendar == Sync.Direction.GoogleToOutlook) { //Availability enforcement is in other direction
+                if (Settings.Instance.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Availability enforcement is in other direction
                     if (gTransparency == null)
                         return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
                     else if (gTransparency == "transparent" && oBusyStatus != OlBusyStatus.olFree) {
@@ -1375,7 +1375,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             OlCategoryColor? categoryColour = null;
 
             if (Settings.Instance.SetEntriesColour) {
-                if (Settings.Instance.TargetCalendar == Sync.Direction.GoogleToOutlook) { //Colour forced to sync in other direction
+                if (Settings.Instance.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Colour forced to sync in other direction
                     if (gColour == null) //Creating item
                         getOutlookCategoryColour(aiCategories, ref categoryColour);
                     else return gColour;
