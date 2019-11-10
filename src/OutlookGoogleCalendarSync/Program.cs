@@ -136,7 +136,7 @@ namespace OutlookGoogleCalendarSync {
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
             
-            log.Info("Storing user files in directory: " + UserFilePath);
+            log.Info("Storing user files in directory: " + MaskFilePath(UserFilePath));
 
             //Before settings have been loaded, early config of cloud logging
             GoogleOgcs.ErrorReporting.UpdateLogUuId();
@@ -236,7 +236,7 @@ namespace OutlookGoogleCalendarSync {
                 if (Environment.GetCommandLineArgs().Count() > 1)
                     log.Info("Invoked with arguments: "+ string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
             }
-            log.Info("Logging to: " + logPath + "\\" + logFilename);
+            log.Info("Logging to: " + MaskFilePath(UserFilePath) + "\\" + logFilename);
             purgeLogFiles(30);
         }
 
@@ -244,7 +244,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Purging log files older than "+ retention +" days...");
             foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
-                    log.Debug("Deleted "+ file);
+                    log.Debug("Deleted "+ MaskFilePath(file));
                     System.IO.File.Delete(file);
                 }
             }
@@ -498,6 +498,20 @@ namespace OutlookGoogleCalendarSync {
 
         public static Boolean InDeveloperMode {
             get { return System.Diagnostics.Debugger.IsAttached; }
+        }
+
+        /// <summary>
+        /// Replace the %USERNAME% element, if present in a file path, with <userid>
+        /// </summary>
+        /// <param name="path">The path to check</param>
+        /// <returns>The maskes path</returns>
+        public static string MaskFilePath(String path) {
+            String userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+            if (path.StartsWith(userProfile)) {
+                String userProfileMasked = userProfile.Replace(Environment.GetEnvironmentVariable("USERNAME"), "<userid>");
+                return path.Replace(userProfile, userProfileMasked);
+            } else
+                return path;
         }
     }
 }
