@@ -1454,37 +1454,42 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             log.Debug("CSV export: " + action);
 
-            TextWriter tw;
+            Stream stream = null;
+            TextWriter tw = null;
             try {
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath, filename));
+            try {
+                stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
+                tw = new StreamWriter(stream, Encoding.UTF8);
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
                 log.Error("Error opening file '" + filename + "' for writing.");
                 log.Error(ex.Message);
                 return;
             }
-            try {
-                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
-                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
-                CSVheader += "Google EventID,Google CalendarID,";
-                CSVheader += "Outlook EntryID,Outlook GlobalID,Outlook CalendarID,";
-                CSVheader += "OGCS Modified,Force Save,API Limited";
+                try {
+                    String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                    CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
+                    CSVheader += "Google EventID,Google CalendarID,";
+                    CSVheader += "Outlook EntryID,Outlook GlobalID,Outlook CalendarID,";
+                    CSVheader += "OGCS Modified,Force Save,API Limited";
 
-                tw.WriteLine(CSVheader);
+                    tw.WriteLine(CSVheader);
 
-                foreach (Event ev in events) {
-                    try {
-                        tw.WriteLine(exportToCSV(ev));
-                    } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.Update("Failed to output following Google event to CSV:-<br/>" + GetEventSummary(ev), Console.Markup.warning);
-                        OGCSexception.Analyse(ex);
+                    foreach (Event ev in events) {
+                        try {
+                            tw.WriteLine(exportToCSV(ev));
+                        } catch (System.Exception ex) {
+                            Forms.Main.Instance.Console.Update("Failed to output following Google event to CSV:-<br/>" + GetEventSummary(ev), Console.Markup.warning);
+                            OGCSexception.Analyse(ex, true);
+                        }
                     }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to output Google events to CSV.", Console.Markup.error);
+                    OGCSexception.Analyse(ex);
                 }
-            } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to output Google events to CSV.", Console.Markup.error);
-                OGCSexception.Analyse(ex);
             } finally {
                 if (tw != null) tw.Close();
+                if (stream != null) stream.Close();
             }
             log.Fine("CSV export done.");
         }

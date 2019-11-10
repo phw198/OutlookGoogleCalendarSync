@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Text;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
@@ -410,7 +412,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String evSummary = GoogleOgcs.Calendar.GetEventSummary(ev);
             log.Debug("Processing >> " + evSummary);
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine(evSummary);
 
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) {
@@ -1033,14 +1035,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static Boolean comErrorInWiki(System.Exception ex) {
             String hResult = OGCSexception.GetErrorCode(ex);
             String wikiUrl = "";
-            System.Text.RegularExpressions.Regex rgx;
+            Regex rgx;
             
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);
                 log.Debug("Extracting specific COM error code from Exception error message.");
                 try {
-                    rgx = new System.Text.RegularExpressions.Regex(@"HRESULT: (0x[\dA-F]{8})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                    System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(ex.Message);
+                    rgx = new Regex(@"HRESULT: (0x[\dA-F]{8})", RegexOptions.IgnoreCase);
+                    MatchCollection matches = rgx.Matches(ex.Message);
                     if (matches.Count == 0) {
                         log.Error("Could not regex HRESULT out of the error message");
                         hResult = "";
@@ -1063,8 +1065,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     if (!string.IsNullOrEmpty(html)) {
                         html = html.Replace("\n", "");
-                        rgx = new System.Text.RegularExpressions.Regex(@"<h2><a.*?href=\""(#" + hResult + ".*?)\"", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                        System.Text.RegularExpressions.MatchCollection sourceAnchors = rgx.Matches(html);
+                        rgx = new Regex(@"<h2><a.*?href=\""(#" + hResult + ".*?)\"", RegexOptions.IgnoreCase);
+                        MatchCollection sourceAnchors = rgx.Matches(html);
                         if (sourceAnchors.Count == 0) {
                             log.Debug("Could not find the COM error " + hResult + " in the wiki.");
                         } else {
@@ -1119,39 +1121,44 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             log.Debug("CSV export: " + action);
 
-            TextWriter tw;
+            Stream stream = null;
+            TextWriter tw = null;
             try {
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath, filename));
+                try {
+                stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
+                tw = new StreamWriter(stream, Encoding.UTF8);
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
                 log.Error("Error opening file '" + filename + "' for writing.");
                 OGCSexception.Analyse(ex);
                 return;
             }
-            try {
-                String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
-                CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
-                CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
-                CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Copied";
-                tw.WriteLine(CSVheader);
-                foreach (AppointmentItem ai in ais) {
-                    try {
-                        tw.WriteLine(exportToCSV(ai));
-                    } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.Update("Failed to output following Outlook appointment to CSV:-<br/>" + GetEventSummary(ai), Console.Markup.warning);
-                        OGCSexception.Analyse(ex);
+                try {
+                    String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                    CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
+                    CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
+                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Copied";
+                    tw.WriteLine(CSVheader);
+                    foreach (AppointmentItem ai in ais) {
+                        try {
+                            tw.WriteLine(exportToCSV(ai));
+                        } catch (System.Exception ex) {
+                            Forms.Main.Instance.Console.Update("Failed to output following Outlook appointment to CSV:-<br/>" + GetEventSummary(ai), Console.Markup.warning);
+                            OGCSexception.Analyse(ex, true);
+                        }
                     }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to output Outlook events to CSV.", Console.Markup.error);
+                    OGCSexception.Analyse(ex);
                 }
-            } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to output Outlook events to CSV.", Console.Markup.error);
-                OGCSexception.Analyse(ex);
             } finally {
                 if (tw != null) tw.Close();
+                if (stream != null) stream.Close();
             }
             log.Fine("CSV export done.");
         }
         private static string exportToCSV(AppointmentItem ai) {
-            System.Text.StringBuilder csv = new System.Text.StringBuilder();
+            StringBuilder csv = new StringBuilder();
 
             csv.Append(ai.Start.ToPreciseString() + ",");
             csv.Append(ai.End.ToPreciseString() + ",");
