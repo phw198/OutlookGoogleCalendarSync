@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (!Settings.Instance.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
                     if (Settings.Instance.AddAttendees) {
-                        System.Windows.Forms.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
+                        System.Windows.Forms.OgcsMessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
                             "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
                             "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
                             System.Windows.Forms.MessageBoxIcon.Warning);
@@ -271,8 +271,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 defaultCalendar = calendarFolders.FirstOrDefault().Value;
                 if (defaultCalendar == null) {
                     log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
-                    System.Windows.Forms.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
-                        "Reverting to the default mailbox calendar", "Calendar not found", System.Windows.Forms.MessageBoxButtons.OK);
+                    System.Windows.Forms.OgcsMessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                        "Reverting to the default mailbox calendar", "Calendar not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     getDefaultCalendar(oNS, ref defaultCalendar);
                     Forms.Main.Instance.ddMailboxName.Text = "";
                 }
@@ -339,7 +339,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (interactive) {
                     String sharerName = ".";
                     if (sharer != null) sharerName = " for '" + sharer.Name + "'.";
-                    MessageBox.Show("Could not find shared calendar" + sharerName, "No shared calendar found",
+                    OgcsMessageBox.Show("Could not find shared calendar" + sharerName, "No shared calendar found",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return null;
                 } else {
@@ -363,12 +363,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
 
                 Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Getting calendars");
 
                 findCalendars(oNS.DefaultStore.GetRootFolder().Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
 
                 Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Select calendar");
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
                 throw;
@@ -409,7 +409,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
                         OGCSexception.Analyse("Failed to recurse MAPI folders.", ex);
-                        MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.",
+                        OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.",
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
