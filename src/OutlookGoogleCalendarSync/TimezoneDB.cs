@@ -163,10 +163,10 @@ namespace OutlookGoogleCalendarSync {
                     NodaTime.DateTimeZone tz = tzProvider[IanaTimezone];
                     NodaTime.Offset offset = tz.GetUtcOffset(new NodaTime.Instant());
                     utcOffset = Convert.ToInt16(offset.Seconds / 3600);
-    }
+                }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.", ex);
-}
+            }
             return utcOffset;
         }
     }

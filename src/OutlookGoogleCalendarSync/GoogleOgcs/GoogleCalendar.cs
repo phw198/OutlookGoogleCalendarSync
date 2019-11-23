@@ -824,17 +824,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         #endregion
 
-        //void ShowError(String message, Window windowToBlock) {
-        //    if (this.Dispatcher.CheckAccess())
-        //        OgcsMessageBox.Show(windowToBlock, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        //    else {
-        //        this.Dispatcher.Invoke(
-        //            new Action(() => {
-        //                OgcsMessageBox.Show(windowToBlock, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }));
-        //    }
-        //}
-
         #region Delete
         public void DeleteCalendarEntries(List<Event> events) {
             for (int g = events.Count - 1; g >= 0; g--) {
