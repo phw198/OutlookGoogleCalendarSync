@@ -112,13 +112,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     throw;
                 }
             } catch (System.Runtime.InteropServices.COMException ex) {
-                log.Warn(ex.Message);
-                OutlookOgcs.Calendar.Instance.Reset();
-                filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+                if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.Message.Contains("You must specify a time.")) {
+                    OGCSexception.LogAsFail(ref ex);
+                    ex.Data.Add("OGCS", "Corrupted item(s) with no start/end date exist in your Outlook calendar that need fixing or removing before a sync can run.<br/>" +
+                        "Switch the calendar folder to <i>List View</i>, sort by date and look for entries with no start and/or end date.");
+                }
+                throw;
 
             } catch (System.NullReferenceException ex) {
                 if (Instance.UseOutlookCalendar == null) {
-                    log.Warn(ex.Message);
+                    OGCSexception.LogAsFail(ref ex);
+                    OGCSexception.Analyse(ex);
                     OutlookOgcs.Calendar.Instance.Reset();
                     filtered = FilterCalendarEntries(Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
                 } else throw;
@@ -175,6 +179,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         if (ai.End == min) continue; //Required for midnight to midnight events 
                     } catch (System.NullReferenceException) {
+                        log.Debug("NullReferenceException accessing ai.End");
                         try {
                             DateTime start = ai.Start;
                         } catch (System.NullReferenceException) {

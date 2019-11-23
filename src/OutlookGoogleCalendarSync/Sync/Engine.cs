@@ -548,9 +548,11 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 return SyncResult.OK;
             } finally {
-                for (int o = outlookEntries.Count() - 1; o >= 0; o--) {
-                    outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
-                    outlookEntries.RemoveAt(o);
+                if (outlookEntries != null) {
+                    for (int o = outlookEntries.Count() - 1; o >= 0; o--) {
+                        outlookEntries[o] = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(outlookEntries[o]);
+                        outlookEntries.RemoveAt(o);
+                    }
                 }
             }
         }
