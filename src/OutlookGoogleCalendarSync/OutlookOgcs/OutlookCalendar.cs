@@ -404,8 +404,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             }
 
-            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster)
-                log.Debug("Processing recurring master appointment.");
+            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster || ai.RecurrenceState == OlRecurrenceState.olApptException)
+                log.Debug("Processing recurring " + (ai.RecurrenceState == OlRecurrenceState.olApptMaster ? "master" : "exception") + " appointment.");
 
             String evSummary = GoogleOgcs.Calendar.GetEventSummary(ev);
             log.Debug("Processing >> " + evSummary);
@@ -520,7 +520,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ai.BusyStatus = gFreeBusy;
             }
 
-            if (Settings.Instance.AddColours) {
+            if (Settings.Instance.AddColours && (
+                ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
+                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring)) 
+            {
                 log.Fine("Comparing colours/categories");
                 List<String> aiCategories = new List<string>();
                 String oCategoryName = "";
