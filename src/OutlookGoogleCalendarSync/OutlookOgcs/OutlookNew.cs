@@ -773,7 +773,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (tzi != null) return tzi;
                 }
 
-
                 //Try searching just by timezone offset. This would at least get the right time for the appointment, eg if the tzDescription doesn't match
                 //because they it is in a different language that the user's system data.
                 Int16? offset = null;
@@ -793,6 +792,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             List<TimeZoneInfo> countryTzis = tzis.Where(t => t.DisplayName.Contains(tzCountry)).ToList();
                             if (countryTzis.Count == 0) {
                                 log.Warn("Could not find timezone with GMT offset of " + offset + " for country " + tzCountry + ". Picking the first offset match regardless of country.");
+                                System.Threading.Thread tzThread = new System.Threading.Thread(() =>
+                                    new Forms.TimezoneMap(tzDescription, tzis.FirstOrDefault()).ShowDialog());
+                                tzThread.SetApartmentState(System.Threading.ApartmentState.STA);
+                                tzThread.Start();
+                                tzThread.Join();
                                 return tzis.FirstOrDefault();
                             } else if (countryTzis.Count == 1)
                                 return countryTzis.First();

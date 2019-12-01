@@ -240,6 +240,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -276,6 +277,12 @@
     </Compile>
     <Compile Include="Forms\Social.Designer.cs">
       <DependentUpon>Social.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TimezoneMap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TimezoneMap.Designer.cs">
+      <DependentUpon>TimezoneMap.cs</DependentUpon>
     </Compile>
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
@@ -346,6 +353,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Social.resx">
       <DependentUpon>Social.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TimezoneMap.resx">
+      <DependentUpon>TimezoneMap.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>

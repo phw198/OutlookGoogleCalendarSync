@@ -950,6 +950,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.OnlyRespondedInvites = cbOnlyRespondedInvites.Checked;
         }
 
+        private void btCustomTzMap_Click(object sender, EventArgs e) {
+            new Forms.TimezoneMap().ShowDialog(this);
+        }
+
         #region Datetime Format
         private void cbOutlookDateFormat_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<string, string> selectedFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.SelectedItem;
@@ -1765,6 +1769,5 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
-
     }
 }
