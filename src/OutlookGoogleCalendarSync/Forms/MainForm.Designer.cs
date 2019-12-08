@@ -526,7 +526,7 @@
             // 
             this.btCustomTzMap.Location = new System.Drawing.Point(12, 264);
             this.btCustomTzMap.Name = "btCustomTzMap";
-            this.btCustomTzMap.Size = new System.Drawing.Size(160, 23);
+            this.btCustomTzMap.Size = new System.Drawing.Size(189, 23);
             this.btCustomTzMap.TabIndex = 46;
             this.btCustomTzMap.Text = "Custom Timezone Mapping";
             this.btCustomTzMap.UseVisualStyleBackColor = true;
@@ -3308,6 +3308,6 @@
         private System.Windows.Forms.Button btSocialGitHub;
         private System.Windows.Forms.Button btFbLike;
         private System.Windows.Forms.CheckBox cbTelemetryDisabled;
-        private System.Windows.Forms.Button btCustomTzMap;
+        public System.Windows.Forms.Button btCustomTzMap;
     }
 }

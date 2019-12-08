@@ -224,6 +224,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             #endregion
             cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
+            btCustomTzMap.Visible = Settings.Instance.TimezoneMapping.Count != 0;
             #region DateTime Format / Locale
             Dictionary<string, string> customDates = new Dictionary<string, string>();
             customDates.Add("Default", "g");

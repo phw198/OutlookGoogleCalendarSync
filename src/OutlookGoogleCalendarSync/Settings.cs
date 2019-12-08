@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -188,6 +189,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading() && Forms.Main.Instance.IsHandleCreated) Forms.Main.Instance.FeaturesBlockedByCorpPolicy(value);
             }
         }
+        public Dictionary<String, String> TimezoneMapping { get; internal set; }
         #endregion
         #region Google
         [DataMember] public String AssignedClientIdentifier {
@@ -394,7 +396,9 @@ namespace OutlookGoogleCalendarSync {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
+                LoadTimezoneMap();
                 Settings.isLoaded = true;
+
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 ResetFile(XMLfile);
@@ -406,6 +410,14 @@ namespace OutlookGoogleCalendarSync {
                     OGCSexception.Analyse(ex2);
                 }
             }
+        }
+
+        public static void LoadTimezoneMap() {
+            Settings.Instance.TimezoneMapping = Forms.TimezoneMap.LoadConfigFromXml();
+            if (Settings.Instance.TimezoneMapping.Count > 0)
+                log.Fine("User custom timezone mappings loaded.");
+            if (Forms.Main.Instance != null)
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.btCustomTzMap, "Visible", Settings.Instance.TimezoneMapping.Count != 0);
         }
 
         public static void ResetFile(String XMLfile = null) {

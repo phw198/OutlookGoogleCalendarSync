@@ -14,11 +14,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         private static readonly ILog log = LogManager.GetLogger(typeof(TimezoneMap));
         private const string tzMapFile = "tzmap.xml";
 
+        public static TimeZoneInfo TimezoneMap_StaThread(String organiserTz, TimeZoneInfo bestEffortTzi, System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ) {
+            System.Threading.Thread tzThread = new System.Threading.Thread(() => new TimezoneMap(organiserTz, bestEffortTzi).ShowDialog());
+            tzThread.SetApartmentState(System.Threading.ApartmentState.STA);
+            tzThread.Start();
+            tzThread.Join();
+            return GetSystemTimezone(organiserTz, sysTZ);
+        }
+
         public TimezoneMap() {
             InitializeComponent();
             initialiseDataGridView();
         }
-        public TimezoneMap(String organiserTz, TimeZoneInfo organiserTzi) {
+        private TimezoneMap(String organiserTz, TimeZoneInfo organiserTzi) {
             InitializeComponent();
             initialiseDataGridView();
             addRow(organiserTz, organiserTzi.Id);
@@ -43,39 +51,22 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tzGridView.Columns.RemoveAt(1);
                 tzGridView.Columns.Add(col);
 
-                loadConfigFromXml();
+                loadConfig();
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
         }
-        
-        private void loadConfigFromXml() {
-            try {
-                String xmlFile = Path.Combine(Program.UserFilePath, tzMapFile);
-                if (!File.Exists(xmlFile)) return;
 
-                log.Debug("Loading timezone mappings from " + tzMapFile);
-                XmlDocument xmlDoc = new XmlDocument();
-                FileStream fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                try {
-                    xmlDoc.Load(fs);
-                    XmlNodeList nodeList = xmlDoc.DocumentElement.SelectNodes("/TimeZoneMaps/TimeZoneMap");
-                    if (nodeList.Count > 0) tzGridView.Rows.Clear();
-                    foreach (XmlNode node in nodeList) {
-                        addRow(node.SelectSingleNode("OrganiserTz").InnerText, node.SelectSingleNode("SystemTz").InnerText);
-                    }
-                } catch (System.Xml.XmlException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80131940") { //Root element is missing.
-                        log.Debug(tzMapFile + " is empty.");
-                    } else
-                        throw;
-                } finally {
-                    fs.Close();
+        private void loadConfig() {
+            try {
+                if (Settings.Instance.TimezoneMapping.Count > 0) tzGridView.Rows.Clear();
+                foreach (KeyValuePair<String, String> tzMap in Settings.Instance.TimezoneMapping) {
+                    addRow(tzMap.Key, tzMap.Value);
                 }
                 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                OGCSexception.Analyse("Populating gridview cells from Settings.", ex);
             }
         }
 
@@ -99,6 +90,50 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
+        public static Dictionary<String, String> LoadConfigFromXml() {
+            Dictionary<String, String> config = new Dictionary<String, String>();
+
+            try {
+                String xmlFile = Path.Combine(Program.UserFilePath, tzMapFile);
+                if (!File.Exists(xmlFile)) return config;
+
+                log.Debug("Loading timezone mappings from " + tzMapFile);
+                XmlDocument xmlDoc = new XmlDocument();
+                FileStream fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
+                try {
+                    xmlDoc.Load(fs);
+                    XmlNodeList nodeList = xmlDoc.DocumentElement.SelectNodes("/TimeZoneMaps/TimeZoneMap");
+                    foreach (XmlNode node in nodeList) {
+                        config.Add(node.SelectSingleNode("OrganiserTz").InnerText, node.SelectSingleNode("SystemTz").InnerText);
+                    }
+                } catch (System.Xml.XmlException ex) {
+                    if (OGCSexception.GetErrorCode(ex) == "0x80131940") { //Root element is missing.
+                        log.Debug(tzMapFile + " is empty.");
+                    } else
+                        throw;
+                } finally {
+                    fs.Close();
+                }
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+            return config;
+        }
+
+        public static TimeZoneInfo GetSystemTimezone(String organiserTz, System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ) {
+            TimeZoneInfo tzi = null;
+            if (Settings.Instance.TimezoneMapping.ContainsKey(organiserTz)) {
+                tzi = sysTZ.FirstOrDefault(t => t.Id == Settings.Instance.TimezoneMapping[organiserTz]);
+                if (tzi != null) {
+                    log.Debug("Using custom timezone mapping ID '" + tzi.Id + "' for '" + organiserTz + "'");
+                    return tzi;
+                } else log.Warn("Failed to convert custom timezone mapping to any available system timezone.");
+            }
+            return tzi;
+        }
+
+        #region EVENTS
         private void btSave_Click(object sender, EventArgs e) {
             try {
                 //Building dataTable
@@ -133,6 +168,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Could not save timezone mappings to XML.", ex);
             } finally {
+                Settings.LoadTimezoneMap();
                 this.Close();
             }
         }
@@ -155,16 +191,16 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        //private void tzGridView_CellEnter(object sender, DataGridViewCellEventArgs e) {
         private void tzGridView_CellClick(object sender, DataGridViewCellEventArgs e) {
             if (!this.Visible) return;
 
             Boolean validClick = (e.RowIndex != -1 && e.ColumnIndex != -1); //Make sure the clicked row/column is valid.
             //Check to make sure the cell clicked is the cell containing the combobox 
-            if (tzGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn && validClick) {
+            if (validClick && tzGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) {
                 tzGridView.BeginEdit(true);
                 ((ComboBox)tzGridView.EditingControl).DroppedDown = true;
             }
         }
+        #endregion
     }
 }

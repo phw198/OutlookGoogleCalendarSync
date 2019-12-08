@@ -760,6 +760,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == tzDescription|| t.StandardName == tzDescription || t.Id == tzDescription);
                 if (tzi != null) return tzi;
 
+                //Next see if we already have a custom mapping by the user
+                tzi = Forms.TimezoneMap.GetSystemTimezone(tzDescription, sysTZ);
+                if (tzi != null) return tzi;
+
+                //Finally, fuzzy logic
                 log.Warn("Could not find timezone ID based on given description. Attempting some fuzzy logic...");
                 if (tzDescription.StartsWith("(GMT")) {
                     log.Fine("Replace GMT with UTC");
@@ -773,7 +778,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (tzi != null) return tzi;
                 }
 
-                //Try searching just by timezone offset. This would at least get the right time for the appointment, eg if the tzDescription doesn't match
+                //Try searching just by timezone offset. This would at least get the right time for the appointment (notwithstanding DST!), eg if the tzDescription doesn't match
                 //because they it is in a different language that the user's system data.
                 Int16? offset = null;
                 offset = TimezoneDB.GetTimezoneOffset(tzDescription);
@@ -787,21 +792,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         String tzCountry = tzDescription.Substring(tzDescription.LastIndexOf("/") + 1);
                         if (string.IsNullOrEmpty(tzCountry)) {
                             log.Warn("Could not determine country; and multiple timezones exist with same GMT offset of " + offset + ". Picking the first.");
+                            tzi = Forms.TimezoneMap.TimezoneMap_StaThread(tzDescription, tzis.FirstOrDefault(), sysTZ);
+                            if (tzi != null) return tzi;
                             return tzis.FirstOrDefault();
                         } else {
                             List<TimeZoneInfo> countryTzis = tzis.Where(t => t.DisplayName.Contains(tzCountry)).ToList();
                             if (countryTzis.Count == 0) {
                                 log.Warn("Could not find timezone with GMT offset of " + offset + " for country " + tzCountry + ". Picking the first offset match regardless of country.");
-                                System.Threading.Thread tzThread = new System.Threading.Thread(() =>
-                                    new Forms.TimezoneMap(tzDescription, tzis.FirstOrDefault()).ShowDialog());
-                                tzThread.SetApartmentState(System.Threading.ApartmentState.STA);
-                                tzThread.Start();
-                                tzThread.Join();
+                                tzi = Forms.TimezoneMap.TimezoneMap_StaThread(tzDescription, tzis.FirstOrDefault(), sysTZ);
+                                if (tzi != null) return tzi;
                                 return tzis.FirstOrDefault();
                             } else if (countryTzis.Count == 1)
                                 return countryTzis.First();
                             else {
                                 log.Warn("Could not find unique timezone with GMT offset of " + offset + " for country " + tzCountry + ". Picking the first.");
+                                tzi = Forms.TimezoneMap.TimezoneMap_StaThread(tzDescription, countryTzis.FirstOrDefault(), sysTZ);
+                                if (tzi != null) return tzi;
                                 return countryTzis.FirstOrDefault();
                             }
                         }
