@@ -572,7 +572,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String aiSummary = OutlookOgcs.Calendar.GetEventSummary(ai);
             log.Debug("Processing >> " + aiSummary);
 
-            if (!(ev.Creator.Self ?? false) && ev.Recurrence != null) {
+            if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
                 log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
                 log.Fine("Owner: " + ev.Creator.Email);
                 return ev;
@@ -636,7 +636,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } else {
                 if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? false)) {
+                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
                         log.Warn("Cannot convert Event organised by another to a recurring series.");
                     } else {
                         log.Debug("Converting to recurring event.");
