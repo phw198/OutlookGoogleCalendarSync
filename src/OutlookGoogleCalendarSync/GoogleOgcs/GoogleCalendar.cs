@@ -572,7 +572,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String aiSummary = OutlookOgcs.Calendar.GetEventSummary(ai);
             log.Debug("Processing >> " + aiSummary);
 
-            if (!(ev.Creator.Self ?? false) && ev.Recurrence != null) {
+            if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
                 log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
                 log.Fine("Owner: " + ev.Creator.Email);
                 return ev;
@@ -593,6 +593,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
                     ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                 }
+                //If there was no change in the start/end time, make sure we still have dates populated
+                if (ev.Start.Date == null) ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                if (ev.End.Date == null) ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+
             } else {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
                 if (ev.Start.DateTime == null && evStart == ai.Start && evEnd == ai.End) {
@@ -609,6 +613,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
                     ev.End.DateTime = ai.End;
                 }
+                //If there was no change in the start/end time, make sure we still have dates populated
+                if (ev.Start.DateTime == null) ev.Start.DateTime = ai.Start;
+                if (ev.End.DateTime == null) ev.End.DateTime = ai.End;
             }
 
             List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
@@ -636,14 +643,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } else {
                 if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? false)) {
+                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
                         log.Warn("Cannot convert Event organised by another to a recurring series.");
                     } else {
-                    log.Debug("Converting to recurring event.");
-                    Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
-                    ev.Recurrence = oRrules;
+                        log.Debug("Converting to recurring event.");
+                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
+                        ev.Recurrence = oRrules;
+                    }
                 }
-            }
             }
 
             //TimeZone
