@@ -25,16 +25,17 @@
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimezoneMap));
             this.tzGridView = new System.Windows.Forms.DataGridView();
-            this.OrganiserTz = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SystemTz = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.btSave = new System.Windows.Forms.Button();
             this.btCancel = new System.Windows.Forms.Button();
             this.txtInfo = new System.Windows.Forms.TextBox();
+            this.OrganiserTz = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SystemTz = new System.Windows.Forms.DataGridViewComboBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.tzGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // tzGridView
             // 
+            this.tzGridView.AllowUserToAddRows = false;
             this.tzGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -48,22 +49,6 @@
             this.tzGridView.TabIndex = 0;
             this.tzGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.tzGridView_CellClick);
             this.tzGridView.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.tzGridView_DataError);
-            // 
-            // OrganiserTz
-            // 
-            this.OrganiserTz.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.OrganiserTz.DividerWidth = 2;
-            this.OrganiserTz.FillWeight = 50F;
-            this.OrganiserTz.HeaderText = "Meeting Organiser Timezone";
-            this.OrganiserTz.Name = "OrganiserTz";
-            // 
-            // SystemTz
-            // 
-            this.SystemTz.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.SystemTz.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.SystemTz.FillWeight = 50F;
-            this.SystemTz.HeaderText = "System Timezone";
-            this.SystemTz.Name = "SystemTz";
             // 
             // btSave
             // 
@@ -100,6 +85,23 @@
             this.txtInfo.Size = new System.Drawing.Size(468, 77);
             this.txtInfo.TabIndex = 9;
             this.txtInfo.Text = resources.GetString("txtInfo.Text");
+            // 
+            // OrganiserTz
+            // 
+            this.OrganiserTz.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.OrganiserTz.DividerWidth = 2;
+            this.OrganiserTz.FillWeight = 50F;
+            this.OrganiserTz.HeaderText = "Meeting Organiser Timezone";
+            this.OrganiserTz.Name = "OrganiserTz";
+            this.OrganiserTz.ReadOnly = true;
+            // 
+            // SystemTz
+            // 
+            this.SystemTz.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.SystemTz.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.SystemTz.FillWeight = 50F;
+            this.SystemTz.HeaderText = "System Timezone";
+            this.SystemTz.Name = "SystemTz";
             // 
             // TimezoneMap
             // 

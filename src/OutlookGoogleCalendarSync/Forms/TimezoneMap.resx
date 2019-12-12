@@ -124,9 +124,9 @@
     <value>True</value>
   </metadata>
   <data name="txtInfo.Text" xml:space="preserve">
-    <value>Sometimes, for Outlook recurring meeting invites from an organiser in a different timezone, a little help is needed matching their timezone to the correct one on your computer.
+    <value>Sometimes, for Outlook recurring meeting invites from an organiser in a different timezone, a little manual help is needed matching their timezone to the correct one on your computer.
 
-In the first column below are listed such timezone(s) - simply select the equivalent timzone from the dropdown on the right and click Save.</value>
+In the first column below are listed such timezone(s) - simply select the equivalent system timezone from the dropdown on the right and click Save.</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

@@ -25,11 +25,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         public TimezoneMap() {
             InitializeComponent();
             initialiseDataGridView();
+            tzGridView.AllowUserToAddRows = false;
         }
         private TimezoneMap(String organiserTz, TimeZoneInfo organiserTzi) {
             InitializeComponent();
             initialiseDataGridView();
             addRow(organiserTz, organiserTzi.Id);
+            tzGridView.AllowUserToAddRows = false;
         }
 
         private void initialiseDataGridView() {
@@ -60,11 +62,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void loadConfig() {
             try {
+                tzGridView.AllowUserToAddRows = true;
                 if (Settings.Instance.TimezoneMapping.Count > 0) tzGridView.Rows.Clear();
                 foreach (KeyValuePair<String, String> tzMap in Settings.Instance.TimezoneMapping) {
                     addRow(tzMap.Key, tzMap.Value);
                 }
-                
+
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Populating gridview cells from Settings.", ex);
             }
@@ -76,15 +79,16 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lastRow = tzGridView.Rows.GetLastRow(DataGridViewElementStates.None);
                 Object currentValue = tzGridView.Rows[lastRow].Cells["OrganiserTz"].Value;
                 if (currentValue != null && currentValue.ToString() != "") {
-                    tzGridView.CurrentCell = tzGridView.Rows[lastRow].Cells[1];
-                    tzGridView.NotifyCurrentCellDirty(true);
-                    tzGridView.NotifyCurrentCellDirty(false);
                     lastRow++;
                     tzGridView.Rows.Insert(lastRow);
                 }
                 tzGridView.Rows[lastRow].Cells["OrganiserTz"].Value = organiserTz;
                 tzGridView.Rows[lastRow].Cells["SystemTz"].Value = systemTz;
-                
+
+                tzGridView.CurrentCell = tzGridView.Rows[lastRow].Cells[1];
+                tzGridView.NotifyCurrentCellDirty(true);
+                tzGridView.NotifyCurrentCellDirty(false);
+
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Adding timezone map row #" + lastRow, ex);
             }
