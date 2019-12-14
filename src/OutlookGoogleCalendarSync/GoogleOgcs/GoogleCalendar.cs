@@ -593,6 +593,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
                     ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                 }
+                //If there was no change in the start/end time, make sure we still have dates populated
+                if (ev.Start.Date == null) ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                if (ev.End.Date == null) ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+
             } else {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
                 if (ev.Start.DateTime == null && evStart == ai.Start && evEnd == ai.End) {
@@ -609,6 +613,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
                     ev.End.DateTime = ai.End;
                 }
+                //If there was no change in the start/end time, make sure we still have dates populated
+                if (ev.Start.DateTime == null) ev.Start.DateTime = ai.Start;
+                if (ev.End.DateTime == null) ev.End.DateTime = ai.End;
             }
 
             List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
@@ -1279,7 +1286,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             return (itemModified > 0);
         }
-        
+
         /// <summary>
         /// Get the global Calendar settings
         /// </summary>
@@ -1290,7 +1297,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
-            }
+        }
             getCalendarSettings();
         }
         private void getCalendarSettings() {
