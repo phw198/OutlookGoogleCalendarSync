@@ -63,8 +63,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void loadConfig() {
             try {
                 tzGridView.AllowUserToAddRows = true;
-                if (Settings.Instance.TimezoneMapping.Count > 0) tzGridView.Rows.Clear();
-                foreach (KeyValuePair<String, String> tzMap in Settings.Instance.TimezoneMapping) {
+                if (Settings.Instance.TimezoneMaps.Count > 0) tzGridView.Rows.Clear();
+                foreach (KeyValuePair<String, String> tzMap in Settings.Instance.TimezoneMaps) {
                     addRow(tzMap.Key, tzMap.Value);
                 }
 
@@ -94,41 +94,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        public static Dictionary<String, String> LoadConfigFromXml() {
-            Dictionary<String, String> config = new Dictionary<String, String>();
-
-            try {
-                String xmlFile = Path.Combine(Program.UserFilePath, tzMapFile);
-                if (!File.Exists(xmlFile)) return config;
-
-                log.Debug("Loading timezone mappings from " + tzMapFile);
-                XmlDocument xmlDoc = new XmlDocument();
-                FileStream fs = new FileStream(xmlFile, FileMode.Open, FileAccess.Read);
-                try {
-                    xmlDoc.Load(fs);
-                    XmlNodeList nodeList = xmlDoc.DocumentElement.SelectNodes("/TimeZoneMaps/TimeZoneMap");
-                    foreach (XmlNode node in nodeList) {
-                        config.Add(node.SelectSingleNode("OrganiserTz").InnerText, node.SelectSingleNode("SystemTz").InnerText);
-                    }
-                } catch (System.Xml.XmlException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80131940") { //Root element is missing.
-                        log.Debug(tzMapFile + " is empty.");
-                    } else
-                        throw;
-                } finally {
-                    fs.Close();
-                }
-
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-            }
-            return config;
-        }
-
         public static TimeZoneInfo GetSystemTimezone(String organiserTz, System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ) {
             TimeZoneInfo tzi = null;
-            if (Settings.Instance.TimezoneMapping.ContainsKey(organiserTz)) {
-                tzi = sysTZ.FirstOrDefault(t => t.Id == Settings.Instance.TimezoneMapping[organiserTz]);
+            if (Settings.Instance.TimezoneMaps.ContainsKey(organiserTz)) {
+                tzi = sysTZ.FirstOrDefault(t => t.Id == Settings.Instance.TimezoneMaps[organiserTz]);
                 if (tzi != null) {
                     log.Debug("Using custom timezone mapping ID '" + tzi.Id + "' for '" + organiserTz + "'");
                     return tzi;
@@ -140,39 +109,20 @@ namespace OutlookGoogleCalendarSync.Forms {
         #region EVENTS
         private void btSave_Click(object sender, EventArgs e) {
             try {
-                //Building dataTable
-                DataTable dt = new DataTable();
-                dt.TableName = "TimeZoneMap";
-
-                foreach (DataGridViewColumn col in tzGridView.Columns) {
-                    DataColumn dc = new DataColumn(col.Name);
-                    dt.Columns.Add(dc);
-                }
+                Settings.Instance.TimezoneMaps.Clear();
                 foreach (DataGridViewRow row in tzGridView.Rows) {
                     if (row.Cells[0].Value == null || row.Cells[0].Value.ToString().Trim() == "") continue;
-                    DataRow dr = dt.NewRow();
-                    dr[0] = row.Cells[0].Value;
-                    dr[1] = row.Cells[1].Value;
-                    dt.Rows.Add(dr);
+                    try {
+                        Settings.Instance.TimezoneMaps.Add(row.Cells[0].Value.ToString(), row.Cells[1].Value.ToString());
+                    } catch (System.ArgumentException ex) {
+                        if (OGCSexception.GetErrorCode(ex) == "0x80070057") {
+                            //An item with the same key has already been added
+                        } else throw;
+                    }
                 }
-                DataSet ds = new DataSet();
-                ds.DataSetName = "TimeZoneMaps";
-                ds.Tables.Add(dt);
-
-                XmlTextWriter xmlSave = null;
-                try {
-                    xmlSave = new XmlTextWriter(System.IO.Path.Combine(Program.UserFilePath, tzMapFile), Encoding.UTF8);
-                    xmlSave.Formatting = Formatting.Indented;
-                    xmlSave.Indentation = 4;
-                    ds.WriteXml(xmlSave);
-                } finally {
-                    xmlSave.Close();
-                }
-
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not save timezone mappings to XML.", ex);
+                OGCSexception.Analyse("Could not save timezone mappings to Settings.", ex);
             } finally {
-                Settings.LoadTimezoneMap();
                 this.Close();
             }
         }

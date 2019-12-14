@@ -350,15 +350,19 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\ErrorReporting.resx">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Social.resx">
       <DependentUpon>Social.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TimezoneMap.resx">
       <DependentUpon>TimezoneMap.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateInfo.resx">
       <DependentUpon>UpdateInfo.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
