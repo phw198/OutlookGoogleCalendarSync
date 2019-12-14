@@ -260,9 +260,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     binFolders = oNS.Folders;
                     binStore = binFolders[Settings.Instance.MailboxName].Store;
                     pa = binStore.PropertyAccessor;
-                    object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
-                    string excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
-
+                    string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
+                    try {
+                        object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
+                        excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Could not access 'Deleted Items' folder property.", OGCSexception.LogAsFail(ex));
+                    }
                     Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
                     Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
                     findCalendars(oNS.Folders[Settings.Instance.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
