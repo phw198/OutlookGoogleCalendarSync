@@ -224,6 +224,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             #endregion
             cbOnlyRespondedInvites.Checked = Settings.Instance.OnlyRespondedInvites;
+            btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
             #region DateTime Format / Locale
             Dictionary<string, string> customDates = new Dictionary<string, string>();
             customDates.Add("Default", "g");
@@ -945,6 +946,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbOnlyRespondedInvites_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.OnlyRespondedInvites = cbOnlyRespondedInvites.Checked;
+        }
+
+        private void btCustomTzMap_Click(object sender, EventArgs e) {
+            new Forms.TimezoneMap().ShowDialog(this);
         }
 
         #region Datetime Format
@@ -1769,6 +1774,5 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
-
     }
 }

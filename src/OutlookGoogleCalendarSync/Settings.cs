@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -89,6 +90,7 @@ namespace OutlookGoogleCalendarSync {
             OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
+            TimezoneMaps = new TimezoneMappingDictionary();
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
             apiLimit_inEffect = false;
@@ -188,6 +190,15 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading() && Forms.Main.Instance.IsHandleCreated) Forms.Main.Instance.FeaturesBlockedByCorpPolicy(value);
             }
         }
+
+        [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
+        [CollectionDataContract(
+            ItemName = "TimeZoneMap",
+            KeyName = "OrganiserTz",
+            ValueName = "SystemTz",
+            Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
+        )]
+        public class TimezoneMappingDictionary : Dictionary<String, String> { }
         #endregion
         #region Google
         [DataMember] public String AssignedClientIdentifier {
@@ -395,6 +406,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
                 Settings.isLoaded = true;
+
             } catch (ApplicationException ex) {
                 log.Error(ex.Message);
                 ResetFile(XMLfile);
@@ -446,6 +458,10 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
+            if (TimezoneMaps.Count > 0) {
+                log.Info("  Custom Timezone Mapping:-");
+                TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));
+            }
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString()));
