@@ -83,12 +83,6 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Runtime.InteropServices.COMException ex) {
                     OGCSexception.Analyse(ex);
                     throw new ApplicationException("Suggest startup delay");
-
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex, true);
-                    log.Fatal("Application unexpectedly terminated!");
-                    MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    throw new ApplicationException();
                 }
 
             } catch (ApplicationException aex) {
@@ -99,20 +93,25 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                } else
-                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
 
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex, true);
+                log.Fatal("Application unexpectedly terminated!");
+                MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            } finally {
                 log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
                 OutlookOgcs.Calendar.Disconnect();
+                Forms.Splash.CloseMe();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                while (Updater != null && Updater.IsBusy) {
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(100);
+                }
+                log.Info("Application closed.");
             }
-            Forms.Splash.CloseMe();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            while (Updater != null && Updater.IsBusy) {
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(100);
-            }
-            log.Info("Application closed.");
         }
 
         private static void parseArgumentsAndInitialise(string[] args) {

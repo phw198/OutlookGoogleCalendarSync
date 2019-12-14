@@ -208,7 +208,18 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 c++;
             }
-            if (cbOutlookCalendars.SelectedIndex == -1) cbOutlookCalendars.SelectedIndex = 0;
+            if (cbOutlookCalendars.SelectedIndex == -1) {
+                if (!string.IsNullOrEmpty(Settings.Instance.UseOutlookCalendar.Id)) {
+                    log.Warn("Outlook calendar '" + Settings.Instance.UseOutlookCalendar.Name + "' could no longer be found. Selected calendar '" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' instead.");
+                    OgcsMessageBox.Show("The Outlook calendar '" + Settings.Instance.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                        "'" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
+                        "Outlook Calendar Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    Settings.Instance.SyncInterval = 0;
+                    Settings.Instance.OutlookPush = false;
+                    Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                }
+                cbOutlookCalendars.SelectedIndex = 0;
+            }
             #endregion
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?

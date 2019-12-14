@@ -258,7 +258,27 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 PropertyAccessor pa = null;
                 try {
                     binFolders = oNS.Folders;
-                    binStore = binFolders[Settings.Instance.MailboxName].Store;
+                    log.Fine("Checking mailbox name is still accessible.");
+                    Boolean folderExists = false;
+                    foreach(MAPIFolder fld in binFolders) {
+                        if (fld.Name == Settings.Instance.MailboxName) {
+                            folderExists = true;
+                            break;
+                        }
+                    }
+                    if (folderExists) {
+                        binStore = binFolders[Settings.Instance.MailboxName].Store;
+                    } else {
+                        binStore = binFolders.GetFirst().Store;
+                        log.Warn("Alternate mailbox '" + Settings.Instance.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
+                        OgcsMessageBox.Show("The alternate mailbox '" + Settings.Instance.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                            "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
+                            "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        Settings.Instance.MailboxName = binStore.DisplayName;
+                        Settings.Instance.SyncInterval = 0;
+                        Settings.Instance.OutlookPush = false;
+                        Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                    }
                     pa = binStore.PropertyAccessor;
                     string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
                     try {
@@ -275,7 +295,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse("Failed to find calendar folders in alternate mailbox '" + Settings.Instance.MailboxName + "'.", ex, true);
                     if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
-                        throw new System.Exception("Failed to access alternate mailbox calendar.", ex);
+                        throw new System.Exception("Failed to access alternate mailbox calendar '" + Settings.Instance.MailboxName + "'", ex);
                 } finally {
                     pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
                     binStore = (Store)OutlookOgcs.Calendar.ReleaseObject(binStore);
