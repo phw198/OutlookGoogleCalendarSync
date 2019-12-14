@@ -636,7 +636,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } else {
                 if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? false)) {
+                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
                         log.Warn("Cannot convert Event organised by another to a recurring series.");
                     } else {
                         log.Debug("Converting to recurring event.");
