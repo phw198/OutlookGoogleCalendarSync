@@ -1119,13 +1119,24 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             log.Debug("CSV export: " + action);
 
+            String fullFilename = Path.Combine(Program.UserFilePath, filename);
+            try {
+                if (File.Exists(fullFilename)) {
+                    String backupFilename = Path.Combine(Program.UserFilePath, Path.GetFileNameWithoutExtension(filename) + "-prev") + Path.GetExtension(filename);
+                    if (File.Exists(backupFilename)) File.Delete(backupFilename);
+                    File.Move(fullFilename, backupFilename);
+                    log.Debug("Previous export renamed to " + backupFilename);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to backup previous CSV file.", ex);
+            }
+
             TextWriter tw;
             try {
-                tw = new StreamWriter(Path.Combine(Program.UserFilePath, filename));
+                tw = new StreamWriter(fullFilename);
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
-                log.Error("Error opening file '" + filename + "' for writing.");
-                OGCSexception.Analyse(ex);
+                OGCSexception.Analyse("Error opening file '" + filename + "' for writing.", ex);
                 return;
             }
             try {
