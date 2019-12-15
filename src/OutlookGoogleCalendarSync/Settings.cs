@@ -38,14 +38,14 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (!File.Exists(ConfigFile)) {
-                log.Info("No settings.xml file found in " + Program.WorkingFilesDirectory);
+                log.Info("No settings.xml file found in " + Program.MaskFilePath(Program.WorkingFilesDirectory));
                 Settings.Instance.Save(ConfigFile);
                 log.Info("New blank template created.");
                 if (!Program.IsInstalled)
                     XMLManager.ExportElement("Portable", true, ConfigFile);
             }
 
-            log.Info("Running OGCS from " + System.Windows.Forms.Application.ExecutablePath);
+            log.Info("Running OGCS from " + Program.MaskFilePath(System.Windows.Forms.Application.ExecutablePath));
         }
 
         private static Settings instance;

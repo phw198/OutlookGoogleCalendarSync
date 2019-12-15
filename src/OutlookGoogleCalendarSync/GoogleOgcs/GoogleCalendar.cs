@@ -883,7 +883,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Boolean doDelete = true;
 
             if (Settings.Instance.ConfirmOnDelete) {
-                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
+                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
                     doDelete = false;
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
@@ -1011,7 +1011,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             //Order by start date (same as Outlook) for quickest matching
             google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
-            
+
             // Count backwards so that we can remove found items without affecting the order of remaining items
             int metadataEnhanced = 0;
             for (int g = google.Count - 1; g >= 0; g--) {
@@ -1297,7 +1297,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
-        }
+            }
             getCalendarSettings();
         }
         private void getCalendarSettings() {
@@ -1399,7 +1399,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 getOutlookCategoryColour(aiCategories, ref categoryColour);
             }
-            if (categoryColour == null || categoryColour == OlCategoryColor.olCategoryColorNone) 
+            if (categoryColour == null || categoryColour == OlCategoryColor.olCategoryColorNone)
                 return Palette.NullPalette;
             else {
                 System.Drawing.Color color = OutlookOgcs.CategoryMap.RgbColour((OlCategoryColor)categoryColour);
@@ -1464,18 +1464,29 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             log.Debug("CSV export: " + action);
 
+            String fullFilename = Path.Combine(Program.UserFilePath, filename);
+            try {
+                if (File.Exists(fullFilename)) {
+                    String backupFilename = Path.Combine(Program.UserFilePath, Path.GetFileNameWithoutExtension(filename) + "-prev") + Path.GetExtension(filename);
+                    if (File.Exists(backupFilename)) File.Delete(backupFilename);
+                    File.Move(fullFilename, backupFilename);
+                    log.Debug("Previous export renamed to " + backupFilename);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to backup previous CSV file.", ex);
+            }
+
             Stream stream = null;
             TextWriter tw = null;
             try {
-            try {
-                stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
-                tw = new StreamWriter(stream, Encoding.UTF8);
-            } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
-                log.Error("Error opening file '" + filename + "' for writing.");
-                log.Error(ex.Message);
-                return;
-            }
+                try {
+                    stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
+                    tw = new StreamWriter(stream, Encoding.UTF8);
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
+                    OGCSexception.Analyse("Error opening file '" + filename + "' for writing.", ex);
+                    return;
+                }
                 try {
                     String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                     CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";

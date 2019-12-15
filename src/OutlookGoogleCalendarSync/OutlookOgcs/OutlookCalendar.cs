@@ -707,7 +707,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Boolean doDelete = true;
 
             if (Settings.Instance.ConfirmOnDelete) {
-                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Deletion Confirmation",
+                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
                     doDelete = false;
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
@@ -1129,18 +1129,29 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             log.Debug("CSV export: " + action);
 
+            String fullFilename = Path.Combine(Program.UserFilePath, filename);
+            try {
+                if (File.Exists(fullFilename)) {
+                    String backupFilename = Path.Combine(Program.UserFilePath, Path.GetFileNameWithoutExtension(filename) + "-prev") + Path.GetExtension(filename);
+                    if (File.Exists(backupFilename)) File.Delete(backupFilename);
+                    File.Move(fullFilename, backupFilename);
+                    log.Debug("Previous export renamed to " + backupFilename);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to backup previous CSV file.", ex);
+            }
+
             Stream stream = null;
             TextWriter tw = null;
             try {
                 try {
-                stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
-                tw = new StreamWriter(stream, Encoding.UTF8);
-            } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
-                log.Error("Error opening file '" + filename + "' for writing.");
-                OGCSexception.Analyse(ex);
-                return;
-            }
+                    stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
+                    tw = new StreamWriter(stream, Encoding.UTF8);
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
+                    OGCSexception.Analyse("Error opening file '" + filename + "' for writing.", ex);
+                    return;
+                }
                 try {
                     String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                     CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";

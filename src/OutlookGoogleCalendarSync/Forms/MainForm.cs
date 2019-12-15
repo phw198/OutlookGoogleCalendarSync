@@ -1193,7 +1193,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (tbTargetCalendar.Items.Contains("target calendar"))
                     tbTargetCalendar.Items.Remove("target calendar");
                 tbTargetCalendar.SelectedIndex = 0;
-                tbTargetCalendar.Enabled = cbPrivate.Checked || cbAvailable.Checked || cbColour.Checked;
+                tbTargetCalendar.Enabled = true;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id - 1;
@@ -1302,18 +1302,15 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesPrivate = cbPrivate.Checked;
-            tbTargetCalendar.Enabled = cbPrivate.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesAvailable = cbAvailable.Checked;
-            tbTargetCalendar.Enabled = cbAvailable.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
         }
 
         private void cbColour_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesColour = cbColour.Checked;
             ddCategoryColour.Enabled = cbColour.Checked;
-            tbTargetCalendar.Enabled = cbColour.Checked && Settings.Instance.SyncDirection == Sync.Direction.Bidirectional;
         }
 
         private void ddCategoryColour_SelectedIndexChanged(object sender, EventArgs e) {
