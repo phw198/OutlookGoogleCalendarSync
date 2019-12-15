@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.8.2-alpha</version>
+    <version>2.8.3-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,21 +12,25 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.8.2?
+# What's New In v2.8.3?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Use any configured proxy for _all_ web calls
-- New `/t` command line option to append custom text to application title
-- Don't attempt update of recurring Google series owned by another
-- Pop-up message boxes now associated with main application form
-- Improved feedback on API quota exhausted
-- Ability to disable telemetry
+- Provision for custom timezone mapping when required for meeting organiser in different timezone
+- Handle when corporate policy/AV blocks access to current user's name in Outlook
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Convert recurrence end date to local time
-- Error reporting DLLs updated
+- Handle mailboxes that have no Deleted Items folder
+- Check configured Outlook mailbox and calendar are stil available on startup
+- Properly detect sync direction when forcing attributes in target calendar
+- Only update category/colour if configured to
+- Don't attempt to sync colours for recurring series exceptions
+- Take into account DST for UTC offsets
+- Handle recurrence end dates with no time element
+- Ensure start/end Event values are populated
+- Encode CSVs to UTF8
+- Fix error reporting DLL reference
     </releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

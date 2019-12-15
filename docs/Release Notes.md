@@ -1,6 +1,24 @@
 | Release Notes |
 |:---|
 
+# v2.8.3.0 - Alpha
+
+**Enhancements**
+- Provision for custom timezone mapping when required for meeting organiser in different timezone
+- Handle when corporate policy/AV blocks access to current user's name in Outlook
+
+**Bugfix**
+- Handle mailboxes that have no Deleted Items folder
+- Check configured Outlook mailbox and calendar are stil available on startup
+- Properly detect sync direction when forcing attributes in target calendar
+- Only update category/colour if configured to
+- Don't attempt to sync colours for recurring series exceptions
+- Take into account DST for UTC offsets
+- Handle recurrence end dates with no time element
+- Ensure start/end Event values are populated
+- Encode CSVs to UTF8
+- Fix error reporting DLL reference
+
 # v2.8.2.0 - Alpha
 
 **Enhancements**
