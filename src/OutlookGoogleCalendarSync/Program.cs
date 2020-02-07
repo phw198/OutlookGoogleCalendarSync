@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static String RoamingProfileOGCS;
 
-        private static Boolean? isInstalled = null;
+        private static Boolean isInstalled = null;
         public static Boolean IsInstalled {
             get {
                 isInstalled = isInstalled ?? Updater.IsSquirrelInstall();
