@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a problem you've encountered and help improve OGCS
 title: ''
 labels: bug
 assignees: ''

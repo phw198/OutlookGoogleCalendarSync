@@ -1,6 +1,6 @@
 ---
 name: Seeking guidance
-about: Post your questions here
+about: Unsure how to get OGCS to do something? Post your questions here.
 title: ''
 labels: question
 assignees: ''
