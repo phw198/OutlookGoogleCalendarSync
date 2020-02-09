@@ -11,10 +11,18 @@ namespace OutlookGoogleCalendarSync.Forms {
         private const string tzMapFile = "tzmap.xml";
 
         public static TimeZoneInfo TimezoneMap_StaThread(String organiserTz, TimeZoneInfo bestEffortTzi, System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ) {
-            System.Threading.Thread tzThread = new System.Threading.Thread(() => new TimezoneMap(organiserTz, bestEffortTzi).ShowDialog());
+            System.Threading.Thread tzThread = new System.Threading.Thread(() => {
+                TimezoneMap tzMap = new TimezoneMap(organiserTz, bestEffortTzi);
+                //This is "safe" in that this form won't access the Main form thread - and if it does we can do that bit threadsafe
+                //More important to get this form displaying on top of the Main form though, hence this hack
+                Control.CheckForIllegalCrossThreadCalls = false;
+                tzMap.ShowDialog(Forms.Main.Instance);
+                Control.CheckForIllegalCrossThreadCalls = true;
+            });
             tzThread.SetApartmentState(System.Threading.ApartmentState.STA);
             tzThread.Start();
             tzThread.Join();
+
             return GetSystemTimezone(organiserTz, sysTZ);
         }
 
@@ -120,6 +128,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 OGCSexception.Analyse("Could not save timezone mappings to Settings.", ex);
             } finally {
                 this.Close();
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.btCustomTzMap, "Visible", Settings.Instance.TimezoneMaps.Count != 0);
+                Settings.Instance.Save();
             }
         }
 
