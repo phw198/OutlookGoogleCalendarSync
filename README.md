@@ -14,6 +14,14 @@ As per [Microsoft documentation](https://support.microsoft.com/en-gb/help/290779
 1. Deploy the `VbaProject.otm` file
 2. Manually create project files and paste in the code
 
+## Enable Macros
+
+Before any code is able to be run, macros settings need to be checked:
+
+`File` > `Options` > `Trust Center` > `Trust Center Settings` > `Macro Settings` > Enable either
+* Notifications for all macros; or
+* Enable all macros
+
 ## Deploy the `VbaProject.otm` File
 
 :warning: Only use this option if there is no code already in the VBA Outlook Project
