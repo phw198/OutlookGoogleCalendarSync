@@ -7,7 +7,7 @@ The Visual Basic for Applications (VBA) code available here can be used for the 
     * OGCS is not running in the background
     * an already synced Outlook appointment is copied-and-pasted
 
-The VBA project code for Outlook is accessed by pressing `alt`+`F11`. If this shows you already have code in the  `ThisOutlookSession` file, then you will most likely need to follow option #2 below.
+The VBA project code for Outlook is accessed by pressing `alt`+`F11` and/or by [setting the developer tab to show](https://support.office.com/en-us/article/show-the-developer-tab-e1192344-5e56-4d45-931b-e5fd9bea2d45) and clicking the VBA icon. If this shows you already have code in the  `ThisOutlookSession` file, then you will most likely need to follow option #2 below.
 
 As per [Microsoft documentation](https://support.microsoft.com/en-gb/help/290779/managing-and-distributing-outlook-visual-basic-for-vba), Microsoft Outlook only supports one VBA project at a time. There are two methods by which to use the code provided here:
 

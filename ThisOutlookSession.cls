@@ -30,7 +30,7 @@ Public ogcsStartWithOutlook As Boolean
 
 Private Sub Configure()
     'Set these variables as appropriate for your installation of OGCS
-    ThisOutlookSession.ogcsDirectory = Environ("LOCALAPPDATA") & "\OutlookGoogleCalendarSync\app-2.8.0-beta"
+    ThisOutlookSession.ogcsDirectory = Environ("LOCALAPPDATA") & "\OutlookGoogleCalendarSync"
     ThisOutlookSession.ogcsExecutable = "OutlookGoogleCalendarSync.exe"
     ThisOutlookSession.ogcsProcessName = Replace(ThisOutlookSession.ogcsExecutable, ".exe", "", 1, 1, vbTextCompare)
     ThisOutlookSession.ogcsStartWithOutlook = False
@@ -40,6 +40,10 @@ Private Sub Configure()
     Debug.Print ("ogcsExecutable = " & ThisOutlookSession.ogcsExecutable)
     Debug.Print ("ogcsProcessName = " & ThisOutlookSession.ogcsProcessName)
     Debug.Print ("ogcsStartWithOutlook = " & ThisOutlookSession.ogcsStartWithOutlook)
+    
+    If (Len(Dir(ThisOutlookSession.ogcsDirectory & "\" & ThisOutlookSession.ogcsExecutable)) = 0) Then
+        MsgBox "The specified location of OGCS is not valid." & Chr(13) & "Please update the VBA configuration section.", vbCritical, "Invalid OGCS VBA Configuration"
+    End If
 End Sub
 
 Private Sub Application_Startup()
@@ -49,7 +53,21 @@ Private Sub Application_Startup()
         'Start OGCS
         Dim RetVal As Long
         On Error Resume Next
-        RetVal = ShellExecute(0, "open", ThisOutlookSession.ogcsDirectory & "\" & ThisOutlookSession.ogcsProcessName, " ", ThisOutlookSession.ogcsDirectory, 3)
+        
+        'https://docs.microsoft.com/en-us/windows/win32/shell/shell-shellexecute#parameters
+        Const ogcsWindowSize_Normal = 1
+        Const ogcsWindowSize_Minimised = 2
+        Const ogcsWindowSize_Maximised = 3
+        Const ogcsWindowSize_RecentSizeAndPosition = 4
+        Const ogcsWindowSize_CurrentSizeAndPosition = 5
+        Const ogcsWindowSize_MinimisedActiveWindowRemains = 7
+        Const ogcsWindowSize_DefaultState = 10
+        Dim ogcsWindowSize
+        ogcsWindowSize = ogcsWindowSize_Normal
+        
+        
+        RetVal = ShellExecute(0, "open", ThisOutlookSession.ogcsDirectory & "\" & ThisOutlookSession.ogcsProcessName, _
+            ogcsWindowSize_Normal, ThisOutlookSession.ogcsDirectory, 3)
     End If
     
     InitiateClass
