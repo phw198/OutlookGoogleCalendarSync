@@ -10,24 +10,7 @@ namespace OutlookGoogleCalendarSync {
             if (Program.InDeveloperMode) return;
 
             //OUTLOOK CLIENT
-            String outlookVersion = "Unknown";
-            try {
-                switch (OutlookOgcs.Factory.OutlookVersion) {
-                    case 11: outlookVersion = "2003"; break;
-                    case 12: outlookVersion = "2007"; break;
-                    case 14: outlookVersion = "2010"; break;
-                    case 15: outlookVersion = "2013"; break;
-                    case 16: outlookVersion = "2016"; break;
-                    case 17: outlookVersion = "2019"; break;
-                    default: outlookVersion = "Unknown-" + OutlookOgcs.Factory.OutlookVersion; break;
-                }
-            } catch (System.Exception ex) {
-                log.Fail("Failed determining Outlook client version.");
-                if (ex is ApplicationException) { throw; }
-                OGCSexception.Analyse(ex);
-                outlookVersion = "Unknown";
-            }
-            Send(Analytics.Category.outlook, Analytics.Action.version, outlookVersion);
+            Send(Analytics.Category.outlook, Analytics.Action.version, OutlookOgcs.Factory.OutlookVersionNameFull.Replace("Outlook", ""));
 
             //OGCS APPLICATION
             Send(Analytics.Category.ogcs, Analytics.Action.version, System.Windows.Forms.Application.ProductVersion);

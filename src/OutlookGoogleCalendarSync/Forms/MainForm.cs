@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #region Outlook box
             #region Mailbox
-            if (OutlookOgcs.Factory.Is2003()) {
+            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                 rbOutlookDefaultMB.Checked = true;
                 rbOutlookAltMB.Enabled = false;
                 rbOutlookSharedCal.Enabled = false;
@@ -224,7 +224,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?
                 "Include" : "Exclude";
-            if (OutlookOgcs.Factory.OutlookVersion < 12) {
+            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                 clbCategories.Items.Clear();
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;

@@ -118,6 +118,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         log.Fine("Backing up " + metaDataId.ToString());
                         backupValue = up.Value;
                         if (!(backupValue == null || (backupValue is DateTime && (DateTime)backupValue == new DateTime()))) {
+                            log.Fine("Property value: " + backupValue);
                             propertyBackup.Add(metaDataId, backupValue);
                         }
                     } finally {
@@ -157,6 +158,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else
                         addOutlookCustomProperty(ref copiedAi, property.Key, OlUserPropertyType.olText, property.Value);
                 }
+                log.Fine("Restored properties:-");
                 OutlookOgcs.CustomProperty.LogProperties(copiedAi, log4net.Core.Level.Debug);
                 copiedAi.Save();
 
