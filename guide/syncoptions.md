@@ -53,8 +53,8 @@ If a recurring appointment spans the date range specified, then it will also be 
 <div class="tip" style="padding-bottom:8px">:bulb: To optimise the sync speed, the smaller the date range the better. Try to avoid a large date range combined with a frequent sync interval.</div>
 
 **Interval:** The number of hours or minutes between automated syncs. 
-Setting it to zero turns off automated syncs, relying upon on-demand manual synchronisations.
-10 minutes is the minimum sync frequency allowed  
+Setting it to zero turns off automated syncs, relying upon on-demand manual synchronisations.  
+15 minutes is the minimum sync frequency allowed, unless Push Sync is _also_ enabled in which case it is 120 minutes.  
 **Push Outlook Changes Immediately:** Have OGCS detect when calendar items are changed within Outlook and sync them within 2 minutes.
 
 
