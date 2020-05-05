@@ -5,6 +5,11 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
         public ToolTip tooltip = new ToolTip();
 
+        public override string Text {
+            get { return base.Text; }
+            set { base.Text = value; }
+        }
+
         public override void UpButton() {
             base.UpButton();
             checkLimit();
