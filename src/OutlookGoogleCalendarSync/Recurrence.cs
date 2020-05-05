@@ -684,14 +684,13 @@ namespace OutlookGoogleCalendarSync {
                 ai = oExcp.AppointmentItem;
                 return false;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                OGCSexception.LogAsFail(ref ex);
                 if (ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") {
-                    log.Warn("This Outlook recurrence instance has become inaccessible, probably due to caching");
-                    return true;
+                    OGCSexception.Analyse("This Outlook recurrence instance has become inaccessible, probably due to caching", ex);
                 } else {
-                    log.Warn("Error when determining if Outlook recurrence is deleted or not.\r\n" + ex.Message);
-                    return true;
+                    OGCSexception.Analyse("Error when determining if Outlook recurrence is deleted or not.", ex);
                 }
+                return true;
             } finally {
                 ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
             }
