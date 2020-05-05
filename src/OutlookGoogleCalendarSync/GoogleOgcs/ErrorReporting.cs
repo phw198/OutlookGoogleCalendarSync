@@ -62,7 +62,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     newLines.Add(line);
                 }
-                File.WriteAllLines(credFile, newLines.ToArray());
+                try {
+                    File.WriteAllLines(credFile, newLines.ToArray());
+                } catch (System.IO.IOException ex) {
+                    if (OGCSexception.GetErrorCode(ex) == "0x80070020")
+                        log.Warn("ErrorReporting.json is being used by another process (perhaps multiple instances of OGCS are being started on system startup?)");
+                    else
+                        throw;
+                }
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credFile);
 
             } catch (ApplicationException ex) {
