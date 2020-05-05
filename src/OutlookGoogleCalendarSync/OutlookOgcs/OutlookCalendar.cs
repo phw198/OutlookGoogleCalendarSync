@@ -210,9 +210,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (!unfiltered) categoryFiltered++;
 
                         if (Settings.Instance.OnlyRespondedInvites) {
-                            if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded) {
-                                unfiltered = false;
-                                responseFiltered++;
+                            try {
+                                if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded) {
+                                    unfiltered = false;
+                                    responseFiltered++;
+                                }
+                            } catch (System.Exception ex) {
+                                OGCSexception.Analyse("Could not access ResponseStatus for appointment.", OGCSexception.LogAsFail(ex));
+                                log.Debug("Affected item: " + OutlookOgcs.Calendar.GetEventSummary(ai));
                             }
                         }
                         if (unfiltered) result.Add(ai);
