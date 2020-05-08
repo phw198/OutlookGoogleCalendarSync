@@ -889,6 +889,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     //ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
                     EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                     try {
+                        //Event newEv = request.Execute();
                         ev = request.Execute();
                     } catch (Google.GoogleApiException ex) {
                         if (ex.Error.Code == 412) { //Precondition failed
@@ -913,8 +914,29 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                             log.Warn("The Event has changed since it was last retrieved - forcing an overwrite.");
                             request.ETagAction = Google.Apis.ETagAction.Ignore;
-                            ev = request.Execute();
-                            log.Debug("Forced save successful.");
+                            try {
+                                //ev.Location += " - FOO";
+                                //request = Service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id);
+                                ev = request.Execute();
+                                log.Debug("Forced save successful.");
+                            } catch (System.Exception ex2) {
+                                OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", ex2);
+                                request.ETagAction = Google.Apis.ETagAction.Default;
+                                log.Debug("Current eTag: " + ev.ETag);
+                                log.Debug("Current Updated: " + ev.UpdatedRaw);
+                                log.Debug("Refetching event from Google.");
+                                Event remoteEv = GetCalendarEntry(ev.Id);
+                                log.Debug("Remote eTag: " + remoteEv.ETag);
+                                log.Debug("Remote Updated: " + remoteEv.UpdatedRaw);
+                                log.Warn("Attempting trample of remote version.");
+                                ev.ETag = remoteEv.ETag;
+                                log.Debug("Saving...");
+                                ev = Service.Events.Update(ev, Settings.Instance.UseGoogleCalendar.Id, ev.Id).Execute();
+                                log.Debug("Successful!");
+                                OgcsMessageBox.Show("A PreCondition Failed [412] was avoided, but will still be thrown to help troubleshooting.\r\nPlease upload your logfile to GitHub.",
+                                    "Upload log for #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                                throw ex;
+                            }
                         } else
                             throw;
                     }
