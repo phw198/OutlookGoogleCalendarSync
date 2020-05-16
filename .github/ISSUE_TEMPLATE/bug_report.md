@@ -7,12 +7,16 @@ assignees: ''
 
 ---
 
-<!-- FAILURE TO FOLLOW THESE STEPS MAY RESULT IN YOUR ISSUE SIMPLY BEING CLOSED!
-
-1. Upgrade to the latest alpha release to check if the problem is already fixed.  
-2. Reproduce the issue and then, to aid investigation, provide your OGcalsync.log file. A how-to is at https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file
-3. Use the below template to report your issue.  
+<!-- 
+FAILURE TO FOLLOW THESE STEPS MAY RESULT IN YOUR ISSUE SIMPLY BEING CLOSED! 
+Items can be checked off after submitting the Issue
 -->
+
+> :eyes: Checklist:-
+> * [ ] [Upgrade](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Upgrading) to the latest release ![latest release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)
+> * [ ] Reproduce the issue
+> * [ ] Provide your `OGcalsync.log` file (see [how-to](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file))
+
 
 **OGCS Version**: v1.2.3.4  
 **Edition**: Installed / Portable  
@@ -26,5 +30,5 @@ A clear and concise description of what the bug is.
 1. Click on...
 
 **Any other information**  
-Any additional information that may help troubleshoot the issue.
+Any additional information that may help troubleshoot the issue.  
 :paperclip: Attach your `OGcalsync.log` file.
