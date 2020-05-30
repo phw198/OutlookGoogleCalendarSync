@@ -452,7 +452,7 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 log.Info("  Mailbox/FolderStore Name: " + MailboxName);
             }
-            log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.Name);
+            log.Info("  Calendar: "+ (UseOutlookCalendar.Name=="Calendar"?"Default ":"") + UseOutlookCalendar.ToString());
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
@@ -464,7 +464,7 @@ namespace OutlookGoogleCalendarSync {
             }
             
             log.Info("GOOGLE SETTINGS:-");
-            log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString()));
+            log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
             log.Info("    Client Secret: " + (PersonalClientSecret.Length < 5

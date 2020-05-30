@@ -39,6 +39,10 @@ namespace OutlookGoogleCalendarSync {
             return (readOnly ? "[Read Only] " : "") + Name;
         }
 
+        public string ToString(bool withId) {
+            return this.ToString() + (Id != null ? " (ID: " + Id + ")" : "");
+        }
+
         public string Sorted() {
             switch (AccessRole.ToLower()) {
                 case "owner": return (primary ? "0-" : "1-") + Name;
@@ -66,7 +70,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public override string ToString() {
-            return Name;
+            return Name + " (ID: " + Id + ")";
         }
     }
 }
