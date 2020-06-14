@@ -615,7 +615,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             //Reminders
-            Boolean googleReminders = ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup");
+            Boolean googleReminders = ev.Reminders != null && ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup");
             if (Settings.Instance.AddReminders) {
                 if (googleReminders) {
                     //Find the last popup reminder in Google
