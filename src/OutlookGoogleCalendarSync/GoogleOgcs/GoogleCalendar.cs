@@ -1664,7 +1664,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
                 return ApiException.throwException;
 
-            } else if (ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
+            } else if (ex.Error != null && ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Warn(ex.Message);
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;

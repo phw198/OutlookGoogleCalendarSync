@@ -95,7 +95,10 @@ namespace OutlookGoogleCalendarSync {
         public static String FriendlyMessage(System.Exception ex) {
             if (ex is Google.GoogleApiException) {
                 Google.GoogleApiException gaex = ex as Google.GoogleApiException;
-                return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
+                if (gaex.Error != null)
+                    return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
+                else
+                    return gaex.Message + " [" + gaex.HttpStatusCode + "]";
             } else {
                 return ex.Message + (ex.InnerException != null && !(ex.InnerException is Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
             }
