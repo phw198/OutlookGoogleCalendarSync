@@ -651,35 +651,39 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String organiserTZname = null;
             String organiserTZid = null;
             if (!Settings.Instance.OutlookGalBlocked && ai.Organizer != CurrentUserName()) {
-                log.Fine("Meeting organiser is someone else - checking their timezone.");
-                try {
-                    PropertyAccessor pa = null;
+                if (Settings.Instance.DisregardOrganiserTimezone)
+                    log.Debug("Meeting organiser is someone else - disregarding.");
+                else {
+                    log.Fine("Meeting organiser is someone else - checking their timezone.");
                     try {
-                        pa = ai.PropertyAccessor;
-                        organiserTZname = pa.GetProperty(PR_ORGANISER_TIMEZONE).ToString();
-                    } finally {
-                        pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                        PropertyAccessor pa = null;
+                        try {
+                            pa = ai.PropertyAccessor;
+                            organiserTZname = pa.GetProperty(PR_ORGANISER_TIMEZONE).ToString();
+                        } finally {
+                            pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                        }
+                        if (organiserTZname != ai.StartTimeZone.Name) {
+                            log.Fine("Appointment's timezone: " + ai.StartTimeZone.Name);
+                            log.Fine("Organiser's timezone:   " + organiserTZname);
+                            if (organiserTZname == "Customized Time Zone") {
+                                System.Exception ex = new System.Exception("Cannot translate " + organiserTZname + " to a timezone ID.");
+                                ex.Data.Add("OGCS", "");
+                                throw ex;
+                            }
+                            log.Debug("Retrieving the meeting organiser's timezone ID.");
+                            TimeZoneInfo tzi = getWindowsTimezoneFromDescription(organiserTZname);
+                            if (tzi == null) log.Error("No timezone ID exists for organiser's timezone " + organiserTZname);
+                            else organiserTZid = tzi.Id;
+                        }
+                    } catch (System.Exception ex) {
+                        Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
+                            "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
+                        if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
+                        else OGCSexception.Analyse(ex);
+                        organiserTZname = null;
+                        organiserTZid = null;
                     }
-                    if (organiserTZname != ai.StartTimeZone.Name) {
-                        log.Fine("Appointment's timezone: " + ai.StartTimeZone.Name);
-                        log.Fine("Organiser's timezone:   " + organiserTZname);
-                        if (organiserTZname == "Customized Time Zone") {
-                            System.Exception ex = new System.Exception("Cannot translate " + organiserTZname + " to a timezone ID.");
-                            ex.Data.Add("OGCS", "");
-                            throw ex;
-                        } 
-                        log.Debug("Retrieving the meeting organiser's timezone ID.");
-                        TimeZoneInfo tzi = getWindowsTimezoneFromDescription(organiserTZname);
-                        if (tzi == null) log.Error("No timezone ID exists for organiser's timezone " + organiserTZname);
-                        else organiserTZid = tzi.Id;
-                    }
-                } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
-                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
-                    if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
-                    else OGCSexception.Analyse(ex);
-                    organiserTZname = null;
-                    organiserTZid = null;
                 }
             }
 

@@ -90,6 +90,7 @@ namespace OutlookGoogleCalendarSync {
             OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
+            DisregardOrganiserTimezone = false;
             TimezoneMaps = new TimezoneMappingDictionary();
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
@@ -169,7 +170,7 @@ namespace OutlookGoogleCalendarSync {
                 instance = value;
             }
         }
-        
+
         #region Outlook
         public enum RestrictBy {
             Include, Exclude
@@ -191,6 +192,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        [DataMember] public Boolean DisregardOrganiserTimezone { get; private set; }
         [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
         [CollectionDataContract(
             ItemName = "TimeZoneMap",
@@ -458,6 +460,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
+            if (DisregardOrganiserTimezone) log.Info("  DisregardOrganiserTimezone: True");
             if (TimezoneMaps.Count > 0) {
                 log.Info("  Custom Timezone Mapping:-");
                 TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));
