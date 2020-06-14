@@ -9,6 +9,7 @@ namespace OutlookGoogleCalendarSync {
 
         public static String BuildFakeEmailAddress(String recipientName, out Boolean builtFakeEmail) {
             String buildFakeEmail = Regex.Replace(recipientName, @"[^\w\.-]", "");
+            buildFakeEmail = buildFakeEmail.Trim('.');
             buildFakeEmail += "@unknownemail.com";
             log.Debug("Built a fake email for them: " + buildFakeEmail);
             builtFakeEmail = true;
