@@ -95,7 +95,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             gCalendarId,
             ogcsModified,
             forceSave,
-            locallyCopied
+            locallyCopied,
+            originalStartDate
         }
 
         /// <summary>

@@ -3173,8 +3173,8 @@
         private System.Windows.Forms.GroupBox gbSyncOptions_When;
         private System.Windows.Forms.CheckBox cbOutlookPush;
         private System.Windows.Forms.Label label1;
-        private Extensions.OgcsNumericUpDown tbDaysInTheFuture;
-        private Extensions.OgcsNumericUpDown tbDaysInThePast;
+        public Extensions.OgcsNumericUpDown tbDaysInTheFuture;
+        public Extensions.OgcsNumericUpDown tbDaysInThePast;
         private System.Windows.Forms.Label lDaysInFuture;
         private System.Windows.Forms.Label lDaysInPast;
         private System.Windows.Forms.Label lDateRange;

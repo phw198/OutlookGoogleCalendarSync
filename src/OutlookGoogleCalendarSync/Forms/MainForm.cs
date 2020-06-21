@@ -1694,9 +1694,11 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         #region Thread safe access to form components
         //private delegate Control getControlThreadSafeDelegate(Control control);
-        //Used to update the logbox from the Sync() thread
+
         private delegate void setControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
         private delegate object getControlPropertyThreadSafeDelegate(Control control, string propertyName);
+
+        private delegate void callControlMethodThreadSafeDelegate(Control control, string methodName, object methodArgValue);
 
         //private static Control getControlThreadSafe(Control control) {
         //    if (control.InvokeRequired) {
@@ -1705,6 +1707,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         //        return control;
         //    }
         //}
+
         public object GetControlPropertyThreadSafe(Control control, string propertyName) {
             if (control.InvokeRequired) {
                 return control.Invoke(new getControlPropertyThreadSafeDelegate(GetControlPropertyThreadSafe), new object[] { control, propertyName });
@@ -1722,6 +1725,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                     tb.SelectionStart = tb.Text.Length;
                     tb.ScrollToCaret();
                 }
+            }
+        }
+
+        public void CallControlMethodThreadSafe(Control control, string methodName, object methodArgValue) {
+            if (control.InvokeRequired) {
+                control.Invoke(new callControlMethodThreadSafeDelegate(CallControlMethodThreadSafe), new object[] { control, methodName, methodArgValue });
+            } else {
+                var theObject = control.GetType().InvokeMember(methodName, System.Reflection.BindingFlags.InvokeMethod, null, control, new object[] { methodArgValue });
             }
         }
         #endregion

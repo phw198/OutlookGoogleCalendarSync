@@ -73,6 +73,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         String entryID = copiedAi.EntryID;
                         if (OutlookOgcs.CustomProperty.Exists(copiedAi, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
                             Dictionary<String, object> propertyBackup = cleanIDs(ref copiedAi);
+                            OutlookOgcs.CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.originalStartDate, copiedAi.Start);
+                            copiedAi.Save();
                             System.Threading.Thread repopIDsThrd = new System.Threading.Thread(() => repopulateIDs(entryID, propertyBackup));
                             repopIDsThrd.Start();
 
@@ -118,6 +120,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         log.Fine("Backing up " + metaDataId.ToString());
                         backupValue = up.Value;
                         if (!(backupValue == null || (backupValue is DateTime && (DateTime)backupValue == new DateTime()))) {
+                            log.Fine("Property value: " + backupValue);
                             propertyBackup.Add(metaDataId, backupValue);
                         }
                     } finally {
@@ -157,6 +160,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else
                         addOutlookCustomProperty(ref copiedAi, property.Key, OlUserPropertyType.olText, property.Value);
                 }
+                log.Fine("Restored properties:-");
                 OutlookOgcs.CustomProperty.LogProperties(copiedAi, log4net.Core.Level.Debug);
                 copiedAi.Save();
 
@@ -180,21 +184,48 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     throw new System.Exception("Could not find Outlook item with entryID " + entryID + " for post-processing.");
                 }
                 log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
-                UserProperties ups = null;
-                UserProperty prop = null;
-                try {
-                    String propertyName = OutlookOgcs.CustomProperty.MetadataId.locallyCopied.ToString();
-                    ups = copiedAi.UserProperties;
-                    prop = ups.Find(propertyName);
-                    if (prop != null) {
-                        prop.Delete();
-                        log.Debug("Removed " + propertyName + " property.");
-                    }
-                } finally {
-                    prop = (UserProperty)Calendar.ReleaseObject(prop);
-                    ups = (UserProperties)Calendar.ReleaseObject(ups);
-                }
+                String deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.locallyCopied.ToString());
+                deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.originalStartDate.ToString());
                 copiedAi.Save();
+
+                if (!String.IsNullOrEmpty(deletedPropVal)) {
+                    DateTime origStartDate = DateTime.Parse(deletedPropVal);
+                    if (origStartDate != copiedAi.Start) { /* Item moved, not copied */
+                        if (origStartDate < Settings.Instance.SyncStart && copiedAi.Start >= Settings.Instance.SyncStart) {
+                            Int16 newDaysInPast = (Int16)(Settings.Instance.SyncStart.Date - origStartDate.Date).TotalDays;
+                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved back into the synced date range.\r\n" +
+                                "In order to avoid it being deleted, configuration has automatically been updated to " + (Settings.Instance.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
+                                "After the next sync you may revert it to " + Settings.Instance.DaysInThePast + ".", "Appointment moved into synced date range",
+                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (Settings.Instance.DaysInThePast + newDaysInPast).ToString());
+
+                        } else if (origStartDate >= Settings.Instance.SyncStart && copiedAi.Start < Settings.Instance.SyncStart) {
+                            Int16 newDaysInPast = (Int16)(Settings.Instance.SyncStart.Date - copiedAi.Start.Date).TotalDays;
+                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved out of the synced date range.\r\n" +
+                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
+                                "After the next sync you may revert it to " + Settings.Instance.DaysInThePast + ".", "Appointment moved out of synced date range",
+                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (Settings.Instance.DaysInThePast + newDaysInPast).ToString());
+
+                        } else if (origStartDate > Settings.Instance.SyncEnd && copiedAi.Start <= Settings.Instance.SyncEnd) {
+                            Int16 newDaysInFuture = (Int16)(origStartDate - Settings.Instance.SyncEnd.Date).TotalDays;
+                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved into the synced date range.\r\n" +
+                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
+                                "After the next sync you may revert it to " + Settings.Instance.DaysInTheFuture + ".", "Appointment moved into synced date range",
+                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (Settings.Instance.DaysInTheFuture + newDaysInFuture).ToString());
+
+                        } else if (origStartDate <= Settings.Instance.SyncEnd && copiedAi.Start > Settings.Instance.SyncEnd) {
+                            Int16 newDaysInFuture = (Int16)(copiedAi.Start.Date - Settings.Instance.SyncEnd.Date).TotalDays;
+                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved out of the synced date range.\r\n" +
+                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
+                                "After the next sync you may revert it to " + Settings.Instance.DaysInTheFuture + ".", "Appointment moved out of synced date range",
+                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (Settings.Instance.DaysInTheFuture + newDaysInFuture).ToString());
+                        }
+                    }
+                }
+
             } catch (System.Exception ex) {
                 log.Warn("Failed to remove OGCS 'copied' property on copied item.");
                 OGCSexception.Analyse(ex);
@@ -222,6 +253,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
+        }
+
+        private String deleteOutlookCustomProperty(ref AppointmentItem copiedAi, String propertyName) {
+            UserProperties ups = null;
+            UserProperty prop = null;
+            String propertyValue = null;
+            try {
+                ups = copiedAi.UserProperties;
+                prop = ups.Find(propertyName);
+                if (prop != null) {
+                    propertyValue = prop.Value.ToString();
+                    prop.Delete();
+                    log.Debug("Removed " + propertyName + " property.");
+                }
+            } finally {
+                prop = (UserProperty)Calendar.ReleaseObject(prop);
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
+            }
+            return propertyValue;
         }
     }
 }
