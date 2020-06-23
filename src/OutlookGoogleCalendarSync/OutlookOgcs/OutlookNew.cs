@@ -444,7 +444,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
                         OGCSexception.Analyse("Failed to recurse MAPI folders.", ex);
-                        OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.",
+                        OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }

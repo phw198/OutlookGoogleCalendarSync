@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #region Outlook box
             #region Mailbox
-            if (OutlookOgcs.Factory.Is2003()) {
+            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                 rbOutlookDefaultMB.Checked = true;
                 rbOutlookAltMB.Enabled = false;
                 rbOutlookSharedCal.Enabled = false;
@@ -224,7 +224,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Categories
             cbCategoryFilter.SelectedItem = Settings.Instance.CategoriesRestrictBy == Settings.RestrictBy.Include ?
                 "Include" : "Exclude";
-            if (OutlookOgcs.Factory.OutlookVersion < 12) {
+            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                 clbCategories.Items.Clear();
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;
@@ -909,6 +909,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
             OutlookOgcs.Calendar.Instance.UseOutlookCalendar = calendar.Value;
+            
+            log.Warn("Outlook calendar selection changed to: " + Settings.Instance.UseOutlookCalendar.ToString());
         }
 
         #region Categories
@@ -1073,6 +1075,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabGoogle"];
             }
+            log.Warn("Google calendar selection changed to: " + Settings.Instance.UseGoogleCalendar.ToString(true));
         }
 
         private void btResetGCal_Click(object sender, EventArgs e) {
