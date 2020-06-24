@@ -34,7 +34,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             //The following are faux numbers to distinguish v16 code base releases
             ProPlusRetail = 17,
             ProPlus2019Retail = 18,
-            O365ProPlusRetail = 19
+            O365ProPlusRetail = 19,
+            O365HomePremRetail = 20
         }
 
         private const Boolean testing2003 = false;
@@ -109,8 +110,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     regKey = regKey.OpenSubKey("Configuration");
                                     if (regKey.GetValueNames().Contains("ProductReleaseIds")) {
                                         regReleaseValue = regKey.GetValue("ProductReleaseIds").ToString();
-                                        if (Enum.TryParse(regReleaseValue, true, out outlookVersionName)) {
-                                            outlookVersionNameFull = outlookVersionName.ToString();
+                                        OutlookVersionNames outlookVersionNameFor2016;
+                                        if (Enum.TryParse(regReleaseValue, true, out outlookVersionNameFor2016)) {
+                                            outlookVersionNameFull = outlookVersionNameFor2016.ToString();
                                         } else {
                                             log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
                                         }
