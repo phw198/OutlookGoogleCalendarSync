@@ -110,10 +110,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     regKey = regKey.OpenSubKey("Configuration");
                                     if (regKey.GetValueNames().Contains("ProductReleaseIds")) {
                                         regReleaseValue = regKey.GetValue("ProductReleaseIds").ToString();
-                                        OutlookVersionNames outlookVersionNameFor2016;
-                                        if (Enum.TryParse(regReleaseValue, true, out outlookVersionNameFor2016)) {
-                                            outlookVersionNameFull = outlookVersionNameFor2016.ToString();
-                                        } else {
+                                        OutlookVersionNames outlookVersionNameFor2016 = OutlookVersionNames.Unknown;
+                                        foreach (var product in regReleaseValue.Split(',')) {
+                                            if (Enum.TryParse(product, true, out outlookVersionNameFor2016)) {
+                                                outlookVersionNameFull = outlookVersionNameFor2016.ToString();
+                                                break;
+                                            }
+                                        }
+                                        if (outlookVersionNameFor2016 == OutlookVersionNames.Unknown) {
                                             log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
                                         }
                                     } else {
