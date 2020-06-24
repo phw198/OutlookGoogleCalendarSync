@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.8.3-alpha</version>
+    <version>2.8.4-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,27 +12,24 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.8.3?
+# What's New In v2.8.4?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Provision for custom timezone mapping when required for meeting organiser in different timezone
-- Handle when corporate policy/AV blocks access to current user's name in Outlook
+- Ability to specify custom maps between Google colours and Outlook categories
+- Detect movement of Outlook appointments into/out of sync window bounds
+- Improved detection of Outlook versions after 2016
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Handle mailboxes that have no Deleted Items folder
-- Check configured Outlook mailbox and calendar are stil available on startup
-- Properly detect sync direction when forcing attributes in target calendar
-- Only update category/colour if configured to
-- Don't attempt to sync colours for recurring series exceptions
-- Take into account DST for UTC offsets
-- Handle recurrence end dates with no time element
-- Ensure start/end Event values are populated
-- Encode CSVs to UTF8
-- Fix error reporting DLL reference
+- Broken upgrade mechanism (fixed from this release onwards)
+- Save timezone mappings on exit of config screen
+- Issue reading ErrorReporting.json file when starting multiple instances of OGCS
+- Silently reconnect to Outlook if disconnected and using Push Sync
+- Syncing Google reminder but none exists
+- Properly report Google API exception errors
     </releaseNotes>
-    <copyright>Copyright 2019</copyright>
+    <copyright>Copyright 2020</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>

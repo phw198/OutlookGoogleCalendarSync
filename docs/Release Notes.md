@@ -1,6 +1,21 @@
 | Release Notes |
 |:---|
 
+# v2.8.4.0 - Alpha
+
+**Enhancements**
+- Ability to specify custom maps between Google colours and Outlook categories
+- Detect movement of Outlook appointments into/out of sync window bounds
+- Improved detection of Outlook versions after 2016
+
+**Bugfix**
+- Broken upgrade mechanism (fixed from this release onwards)
+- Save timezone mappings on exit of config screen
+- Issue reading ErrorReporting.json file when starting multiple instances of OGCS
+- Silently reconnect to Outlook if disconnected and using Push Sync
+- Syncing Google reminder but none exists
+- Properly report Google API exception errors
+
 # v2.8.3.0 - Alpha
 
 **Enhancements**
