@@ -49,7 +49,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 //Replace existing TZ column with custom dropdown
                 DataGridViewComboBoxColumn col = tzGridView.Columns[1] as DataGridViewComboBoxColumn;
-                col.DataSource = new BindingSource(cbTz, null); //bs;
+                col.DataSource = new BindingSource(cbTz, null);
                 col.DisplayMember = "Value";
                 col.ValueMember = "Key";
                 col.DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox;

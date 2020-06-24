@@ -15,6 +15,12 @@ namespace OutlookGoogleCalendarSync {
         public string Id { get; internal set; }
         [DataMember]
         private string AccessRole { get; set; }
+        private string colourId = "0";
+        [DataMember]
+        public string ColourId {
+            get { return colourId; }
+            internal set { colourId = value; }
+        }
 
         private bool primary { get; set; }
 
@@ -33,6 +39,7 @@ namespace OutlookGoogleCalendarSync {
             Id = init.Id;
             Name = init.SummaryOverride ?? init.Summary;
             primary = init.Primary ?? false;
+            colourId = init.ColorId;
         }
 
         public override string ToString() {

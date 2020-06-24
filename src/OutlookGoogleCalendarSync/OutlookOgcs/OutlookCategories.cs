@@ -7,6 +7,89 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public class Categories {
+        public class ColourInfo {
+            public String Text { get; }
+            public Outlook.OlCategoryColor OutlookCategory { get; }
+            public Color Colour { get; }
+
+            public ColourInfo(Outlook.OlCategoryColor category, Color colour, String name = "") {
+                this.Text = string.IsNullOrEmpty(name) ? OutlookOgcs.Categories.FriendlyCategoryName(category) : name;
+                this.Colour = colour;
+                this.OutlookCategory = category;
+            }
+        }
+
+        public class Map {
+            private static readonly ILog log = LogManager.GetLogger(typeof(Map));
+
+            //Source: https://msdn.microsoft.com/en-us/library/ee203806%28v=exchg.80%29.aspx
+            public static Dictionary<Outlook.OlCategoryColor, Color> Colours { get; }
+            static Map() {
+                Colours = new Dictionary<Outlook.OlCategoryColor, Color> {
+                { Outlook.OlCategoryColor.olCategoryColorBlack, Color.FromArgb(28,28,28) },
+                { Outlook.OlCategoryColor.olCategoryColorBlue, Color.FromArgb(50, 103, 184) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkBlue, Color.FromArgb(42, 81, 145 ) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkGray, Color.FromArgb(165, 165, 165) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkGreen, Color.FromArgb(53, 121, 43) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkMaroon, Color.FromArgb(130, 55, 95) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkOlive, Color.FromArgb(95, 108, 58) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkOrange, Color.FromArgb(177, 79, 13 ) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkPeach, Color.FromArgb(171, 123, 5 ) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkPurple, Color.FromArgb(80, 50, 143) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkRed, Color.FromArgb(175, 30, 37) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkSteel, Color.FromArgb(140, 156, 189) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkTeal, Color.FromArgb(46, 125, 100) },
+                { Outlook.OlCategoryColor.olCategoryColorDarkYellow, Color.FromArgb(153, 148, 0) },
+                { Outlook.OlCategoryColor.olCategoryColorGray, Color.FromArgb(196, 196, 196) },
+                { Outlook.OlCategoryColor.olCategoryColorGreen, Color.FromArgb(74, 182, 63) },
+                { Outlook.OlCategoryColor.olCategoryColorMaroon, Color.FromArgb(163, 78, 120) },
+                { Outlook.OlCategoryColor.olCategoryColorNone, Color.FromArgb(255, 255, 255) },
+                { Outlook.OlCategoryColor.olCategoryColorOlive, Color.FromArgb(133, 154, 82) },
+                { Outlook.OlCategoryColor.olCategoryColorOrange, Color.FromArgb(240, 108, 21) },
+                { Outlook.OlCategoryColor.olCategoryColorPeach, Color.FromArgb(255, 202, 76) },
+                { Outlook.OlCategoryColor.olCategoryColorPurple, Color.FromArgb(97, 61, 180) },
+                { Outlook.OlCategoryColor.olCategoryColorRed, Color.FromArgb(214, 37, 46) },
+                { Outlook.OlCategoryColor.olCategoryColorSteel, Color.FromArgb(196, 204, 221) },
+                { Outlook.OlCategoryColor.olCategoryColorTeal, Color.FromArgb(64, 189, 149) },
+                { Outlook.OlCategoryColor.olCategoryColorYellow, Color.FromArgb(255, 254, 61) }
+            };
+            }
+
+            /// <summary>
+            /// Convert from Outlook category colour to Color
+            /// </summary>
+            public static Color RgbColour(Outlook.OlCategoryColor colour) {
+                log.Fine("Converting " + colour + " to RGB value.");
+                return Colours[colour];
+            }
+
+            /// <summary>
+            /// Convert from HTML hex string to Color
+            /// </summary>
+            public static Color RgbColour(String hexColour) {
+                Color colour = new Color();
+                try {
+                    colour = ColorTranslator.FromHtml(hexColour);
+                    log.Fine("Converted " + hexColour + " to " + colour.ToString());
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.", ex);
+                }
+                return colour;
+            }
+
+            public static Outlook.OlCategoryColor GetClosestCategory(GoogleOgcs.EventColour.Palette basePalette) {
+                try {
+                    var colourDistance = Colours.Select(x => new { Value = x, Diff = GoogleOgcs.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
+                    var minDistance = colourDistance.Min(x => x.Diff);
+                    return colourDistance.Find(x => x.Diff == minDistance).Value.Key;
+                } catch (System.Exception ex) {
+                    log.Warn("Failed to get closest Outlook category for " + basePalette.ToString());
+                    OGCSexception.Analyse(ex);
+                    return Outlook.OlCategoryColor.olCategoryColorNone;
+                }
+            }
+        }
+
         private static readonly ILog log = LogManager.GetLogger(typeof(Categories));
         private Outlook.Categories categories;
         public String Delimiter { get; }
@@ -66,7 +149,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         /// <summary>
-        /// Get the Outlook category from the name given to the category
+        /// Get the Outlook category colour from the name given to the category
         /// </summary>
         /// <param name="categoryName">The user named Outlook category</param>
         /// <returns>The Outlook category type</returns>
@@ -96,14 +179,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// Get the Outlook categories as List of ColourInfo
         /// </summary>
         /// <returns>List to be used in dropdown, for example</returns>
-        public List<Extensions.ColourPicker.ColourInfo> DropdownItems() {
-            List<Extensions.ColourPicker.ColourInfo> items = new List<Extensions.ColourPicker.ColourInfo>();
+        public List<OutlookOgcs.Categories.ColourInfo> DropdownItems() {
+            List<OutlookOgcs.Categories.ColourInfo> items = new List<OutlookOgcs.Categories.ColourInfo>();
             if (this.categories != null) {
                 foreach (Outlook.Category category in this.categories) {
-                    items.Add(new Extensions.ColourPicker.ColourInfo(category.Color, CategoryMap.RgbColour(category.Color), category.Name));
+                    items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
                 }
             }
-            return items;
+            return items.OrderBy(i => i.Text).ToList();
         }
 
         /// <summary>
@@ -112,19 +195,28 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         /// <param name="olCategory">The Outlook category to search by</param>
         /// <param name="categoryName">Optional: The Outlook category name to also search by</param>
+        /// <param name="createMissingCategory">Optional: Create unused category colour?</param>
         /// <returns>The matching category name</returns>
-        public String FindName(Outlook.OlCategoryColor olCategory, String categoryName = null) {
-            if (olCategory == Outlook.OlCategoryColor.olCategoryColorNone) return "";
+        public String FindName(Outlook.OlCategoryColor? olCategory, String categoryName = null, Boolean createMissingCategory = true) {
+            if (olCategory == null || olCategory == Outlook.OlCategoryColor.olCategoryColorNone) return "";
 
             Outlook.Category failSafeCategory = null;
             foreach (Outlook.Category category in this.categories) {
-                if (category.Color == olCategory) {
-                    if (categoryName == null) {
-                        if (category.Name.StartsWith("OGCS ")) return category.Name;
-                    } else {
-                        if (category.Name == categoryName) return category.Name;
-                        if (category.Name.StartsWith("OGCS ")) failSafeCategory = category;
+                try {
+                    if (category.Color == olCategory) {
+                        if (categoryName == null) {
+                            if (category.Name.StartsWith("OGCS ")) return category.Name;
+                            else if (!createMissingCategory) return category.Name;
+                        } else {
+                            if (category.Name == categoryName) return category.Name;
+                            if (category.Name.StartsWith("OGCS ")) failSafeCategory = category;
+                        }
                     }
+                } catch (System.Runtime.InteropServices.COMException ex) {
+                    if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //The operation failed.
+                        log.Warn("It seems a category has been manually removed in Outlook.");
+                        OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+                    } else throw;
                 }
             }
 
@@ -135,79 +227,21 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
-            Outlook.Category newCategory = categories.Add("OGCS " + FriendlyCategoryName(olCategory), olCategory);
-            log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
-            return newCategory.Name;
-        }
-
-        public static String FriendlyCategoryName(Outlook.OlCategoryColor olCategory) {
-            return olCategory.ToString().Replace("olCategoryColor", "").Replace("Dark", "Dark ");
-        }
-    }
-    
-    public class CategoryMap {
-        private static readonly ILog log = LogManager.GetLogger(typeof(CategoryMap));
-
-        //Source: https://msdn.microsoft.com/en-us/library/ee203806%28v=exchg.80%29.aspx
-        public static Dictionary<Outlook.OlCategoryColor, Color> Colours { get; }
-        static CategoryMap() {
-            Colours = new Dictionary<Outlook.OlCategoryColor, Color> {
-                { Outlook.OlCategoryColor.olCategoryColorBlack, Color.FromArgb(28,28,28) },
-                { Outlook.OlCategoryColor.olCategoryColorBlue, Color.FromArgb(50, 103, 184) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkBlue, Color.FromArgb(42, 81, 145 ) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkGray, Color.FromArgb(165, 165, 165) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkGreen, Color.FromArgb(53, 121, 43) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkMaroon, Color.FromArgb(130, 55, 95) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkOlive, Color.FromArgb(95, 108, 58) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkOrange, Color.FromArgb(177, 79, 13 ) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkPeach, Color.FromArgb(171, 123, 5 ) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkPurple, Color.FromArgb(80, 50, 143) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkRed, Color.FromArgb(175, 30, 37) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkSteel, Color.FromArgb(140, 156, 189) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkTeal, Color.FromArgb(46, 125, 100) },
-                { Outlook.OlCategoryColor.olCategoryColorDarkYellow, Color.FromArgb(153, 148, 0) },
-                { Outlook.OlCategoryColor.olCategoryColorGray, Color.FromArgb(196, 196, 196) },
-                { Outlook.OlCategoryColor.olCategoryColorGreen, Color.FromArgb(74, 182, 63) },
-                { Outlook.OlCategoryColor.olCategoryColorMaroon, Color.FromArgb(163, 78, 120) },
-                { Outlook.OlCategoryColor.olCategoryColorNone, Color.FromArgb(255, 255, 255) },
-                { Outlook.OlCategoryColor.olCategoryColorOlive, Color.FromArgb(133, 154, 82) },
-                { Outlook.OlCategoryColor.olCategoryColorOrange, Color.FromArgb(240, 108, 21) },
-                { Outlook.OlCategoryColor.olCategoryColorPeach, Color.FromArgb(255, 202, 76) },
-                { Outlook.OlCategoryColor.olCategoryColorPurple, Color.FromArgb(97, 61, 180) },
-                { Outlook.OlCategoryColor.olCategoryColorRed, Color.FromArgb(214, 37, 46) },
-                { Outlook.OlCategoryColor.olCategoryColorSteel, Color.FromArgb(196, 204, 221) },
-                { Outlook.OlCategoryColor.olCategoryColorTeal, Color.FromArgb(64, 189, 149) },
-                { Outlook.OlCategoryColor.olCategoryColorYellow, Color.FromArgb(255, 254, 61) }
-            };
-        }
-
-        /// <summary>
-        /// Convert from Outlook category colour to Color
-        /// </summary>
-        public static Color RgbColour(Outlook.OlCategoryColor colour) {
-            log.Fine("Converting " + colour + " to RGB value.");
-            return Colours[colour];
-        }
-
-        /// <summary>
-        /// Convert from HTML hex string to Color
-        /// </summary>
-        public static Color RgbColour(String hexColour) {
-            Color colour = ColorTranslator.FromHtml(hexColour);
-            log.Fine("Converted " + hexColour + " to " + colour.ToString());
-            return colour;
-        }
-
-        public static Outlook.OlCategoryColor GetClosestCategory(GoogleOgcs.Palette basePalette) {
-            try {
-                var colourDistance = Colours.Select(x => new { Value = x, Diff = GoogleOgcs.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
-                var minDistance = colourDistance.Min(x => x.Diff);
-                return colourDistance.Find(x => x.Diff == minDistance).Value.Key;
-            } catch (System.Exception ex) {
-                log.Warn("Failed to get closest Outlook category for " + basePalette.ToString());
-                OGCSexception.Analyse(ex);
-                return Outlook.OlCategoryColor.olCategoryColorNone;
+            String newCategoryName = "OGCS " + FriendlyCategoryName(olCategory);
+            if (!createMissingCategory) {
+                createMissingCategory = System.Windows.Forms.OgcsMessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
+                    "Create new Outlook category?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes;
             }
+            if (createMissingCategory) {
+                Outlook.Category newCategory = categories.Add(newCategoryName, olCategory);
+                log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
+                return newCategory.Name;
+            }
+            return "";
+        }
+
+        public static String FriendlyCategoryName(Outlook.OlCategoryColor? olCategory) {
+            return olCategory.ToString().Replace("olCategoryColor", "").Replace("Dark", "Dark ");
         }
     }
 }

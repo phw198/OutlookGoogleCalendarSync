@@ -308,8 +308,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbDisableDeletion.Checked = Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Enabled = !Settings.Instance.DisableDelete;
             cbConfirmOnDelete.Checked = Settings.Instance.ConfirmOnDelete;
+            
+            //Obfuscate Options
             cbOfuscate.Checked = Settings.Instance.Obfuscation.Enabled;
-            //More Options
             howObfuscatePanel.Visible = false;
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
                 tbCreatedItemsOnly.SelectedIndex = Settings.Instance.CreatedItemsOnly ? 1 : 0;
@@ -323,19 +324,31 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbTargetCalendar_SelectedItemChanged(null, null);
             cbPrivate.Checked = Settings.Instance.SetEntriesPrivate;
             cbAvailable.Checked = Settings.Instance.SetEntriesAvailable;
+            
             cbColour.Checked = Settings.Instance.SetEntriesColour;
-            foreach (Extensions.ColourPicker.ColourInfo cInfo in ddCategoryColour.Items) {
+            ddOutlookColour.AddColourItems();
+            foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
                 if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
                     cInfo.Text == Settings.Instance.SetEntriesColourName) {
-                    ddCategoryColour.SelectedItem = cInfo;
+                    ddOutlookColour.SelectedItem = cInfo;
+                    break;
                 }
             }
-            ddCategoryColour.Enabled = cbColour.Checked;
+            if (ddOutlookColour.SelectedIndex == -1 && ddOutlookColour.Items.Count > 0)
+                ddOutlookColour.SelectedIndex = 0;
+            ddOutlookColour.Enabled = cbColour.Checked;
+            //Not connect to Google yet, so just add in single item from Settings
+            GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(Settings.Instance.SetEntriesColourGoogleId, null, Color.Transparent);
+            ddGoogleColour.Items.Add(localPalette);
+            ddGoogleColour.SelectedItem = localPalette;
+            ddGoogleColour.Enabled = cbColour.Checked;
+
             //Obfuscate Direction dropdown
             for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                 Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
                 if (sd.Id == Settings.Instance.Obfuscation.Direction.Id) {
                     cbObfuscateDirection.SelectedIndex = i;
+                    break;
                 }
             }
             if (cbObfuscateDirection.SelectedIndex == -1) cbObfuscateDirection.SelectedIndex = 0;
@@ -375,6 +388,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dtDNDstart.Value = Settings.Instance.ReminderDNDstart;
             dtDNDend.Value = Settings.Instance.ReminderDNDend;
             cbAddColours.Checked = Settings.Instance.AddColours;
+            btColourMap.Enabled = Settings.Instance.AddColours;
             this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #endregion
@@ -1052,7 +1066,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 calendars.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
                 foreach (GoogleCalendarListEntry mcle in calendars) {
                     cbGoogleCalendars.Items.Add(mcle);
-                    if (cbGoogleCalendars.SelectedIndex == -1 && mcle.Id == Settings.Instance.UseGoogleCalendar.Id)
+                    if (cbGoogleCalendars.SelectedIndex == -1 && Settings.Instance.UseGoogleCalendar != null && mcle.Id == Settings.Instance.UseGoogleCalendar.Id)
                         cbGoogleCalendars.SelectedItem = mcle;
                 }
                 if (cbGoogleCalendars.SelectedIndex == -1) {
@@ -1218,6 +1232,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.dtDNDstart.Visible = false;
                 this.dtDNDend.Visible = false;
                 this.lDNDand.Visible = false;
+                this.ddGoogleColour.Visible = false;
+                this.ddOutlookColour.Visible = true;
             }
             if (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle) {
                 this.cbOutlookPush.Enabled = true;
@@ -1225,6 +1241,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.dtDNDstart.Visible = true;
                 this.dtDNDend.Visible = true;
                 this.lDNDand.Visible = true;
+                this.ddGoogleColour.Visible = true;
+                this.ddOutlookColour.Visible = false;
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
@@ -1297,8 +1315,18 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!this.Visible) return;
 
             switch (tbTargetCalendar.Text) {
-                case "Google calendar": Settings.Instance.TargetCalendar = Sync.Direction.OutlookToGoogle; break;
-                case "Outlook calendar": Settings.Instance.TargetCalendar = Sync.Direction.GoogleToOutlook; break;
+                case "Google calendar": {
+                        Settings.Instance.TargetCalendar = Sync.Direction.OutlookToGoogle;
+                        this.ddGoogleColour.Visible = true;
+                        this.ddOutlookColour.Visible = false;
+                        break;
+                    }
+                case "Outlook calendar": {
+                        Settings.Instance.TargetCalendar = Sync.Direction.GoogleToOutlook;
+                        this.ddGoogleColour.Visible = false;
+                        this.ddOutlookColour.Visible = true;
+                        break;
+                    }
                 case "target calendar": Settings.Instance.TargetCalendar = Settings.Instance.SyncDirection; break;
             }
         }
@@ -1313,14 +1341,48 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbColour_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.SetEntriesColour = cbColour.Checked;
-            ddCategoryColour.Enabled = cbColour.Checked;
+            ddOutlookColour.Enabled = cbColour.Checked;
+            ddGoogleColour.Enabled = cbColour.Checked;
         }
 
-        private void ddCategoryColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void ddOutlookColour_SelectedIndexChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
 
-            Settings.Instance.SetEntriesColourValue = ddCategoryColour.SelectedItem.OutlookCategory.ToString();
-            Settings.Instance.SetEntriesColourName = ddCategoryColour.SelectedItem.Text;
+            Settings.Instance.SetEntriesColourValue = ddOutlookColour.SelectedItem.OutlookCategory.ToString();
+            Settings.Instance.SetEntriesColourName = ddOutlookColour.SelectedItem.Text;
+
+            if (sender == null || ddGoogleColour.Items.Count <= 1) return;
+            try {
+                ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
+                ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+                ddGoogleColour_SelectedIndexChanged(null, null);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
+            } finally {
+                ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
+            }
+        }
+
+        private void ddGoogleColour_SelectedIndexChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+            
+            Settings.Instance.SetEntriesColourGoogleId = ddGoogleColour.SelectedItem.Id;
+
+            if (sender == null) return;
+            try {
+                ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
+                String oCatName = OutlookOgcs.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id);
+                foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
+                    if (cInfo.Text == oCatName) {
+                        ddOutlookColour.SelectedItem = cInfo;
+                    }
+                }
+                ddOutlookColour_SelectedIndexChanged(null, null);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
+            } finally {
+                ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
+            }
         }
         #endregion
 
@@ -1490,6 +1552,14 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbAddColours_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddColours = cbAddColours.Checked;
+            btColourMap.Enabled = Settings.Instance.AddColours;
+        }
+        private void btColourMap_Click(object sender, EventArgs e) {
+            if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
+                OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            new Forms.ColourMap().ShowDialog(this);
         }
         #endregion
         #endregion
