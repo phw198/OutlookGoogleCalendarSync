@@ -1297,6 +1297,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
+                throw new System.ApplicationException("Unable to retrieve Google calendar's global timezone.", ex);
             }
             getCalendarSettings();
         }
@@ -1311,6 +1312,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to get calendar settings.", ex);
+                throw new System.ApplicationException("Unable to retrieve Google calendar's reminder settings.", ex);
             }
         }
 
