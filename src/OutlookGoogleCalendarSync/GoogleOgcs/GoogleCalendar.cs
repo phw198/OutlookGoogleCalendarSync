@@ -926,73 +926,88 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         #endregion
 
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
-            log.Debug("Scanning " + gEvents.Count + " Google events for orphans to reclaim...");
-            String consoleTitle = "Reclaiming Google calendar entries";
+            if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) return;
 
-            //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
-            List<Event> unclaimedEvents = new List<Event>();
+            Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
+            try {
+                log.Debug("Scanning " + gEvents.Count + " Google events for orphans to reclaim...");
+                String consoleTitle = "Reclaiming Google calendar entries";
 
-            for (int g = gEvents.Count - 1; g >= 0; g--) {
-                if (Sync.Engine.Instance.CancellationPending) return;
-                Event ev = gEvents[g];
-                CustomProperty.LogProperties(ev, Program.MyFineLevel);
+                //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
+                List<Event> unclaimedEvents = new List<Event>();
 
-                //Find entries with no Outlook ID
-                if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
+                for (int g = gEvents.Count - 1; g >= 0; g--) {
+                    if (Sync.Engine.Instance.CancellationPending) return;
+                    Event ev = gEvents[g];
+                    CustomProperty.LogProperties(ev, Program.MyFineLevel);
 
-                    //Use simple matching on start,end,subject,location to pair events
-                    String sigEv = signature(ev);
-                    if (String.IsNullOrEmpty(sigEv)) {
-                        gEvents.Remove(ev);
-                        continue;
-                    }
+                    //Find entries with no Outlook ID
+                    if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
 
-                    unclaimedEvents.Add(ev);
-                    foreach (AppointmentItem ai in oAppointments) {
-                        if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(ai))) {
-                            try {
-                                Event originalEv = ev;
-                                CustomProperty.AddOutlookIDs(ref ev, ai);
-                                UpdateCalendarEntry_save(ref ev);
-                                unclaimedEvents.Remove(originalEv);
-                                if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
-                                consoleTitle = "";
-                                Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
-                                gEvents[g] = ev;
-                            } catch (System.Exception ex) {
-                                log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
-                                log.Debug(ex.Message);
-                                log.Debug("Event status: " + ev.Status);
+                        //Use simple matching on start,end,subject,location to pair events
+                        String sigEv = signature(ev);
+                        if (String.IsNullOrEmpty(sigEv)) {
+                            gEvents.Remove(ev);
+                            continue;
+                        }
+
+                        unclaimedEvents.Add(ev);
+                        for (int o = oAppointments.Count - 1; o >= 0; o--) {
+                            AppointmentItem ai = oAppointments[o];
+                            if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(ai))) {
+                                try {
+                                    Event originalEv = ev;
+                                    CustomProperty.AddOutlookIDs(ref ev, ai);
+                                    UpdateCalendarEntry_save(ref ev);
+                                    unclaimedEvents.Remove(originalEv);
+                                    if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
+                                    consoleTitle = "";
+                                    Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
+                                    gEvents[g] = ev;
+                                    if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
+                                        log.Debug("Updating the Google event IDs in Outlook appointment.");
+                                        OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, ev);
+                                        ai.Save();
+                                    }
+                                } catch (System.Exception ex) {
+                                    log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
+                                    log.Debug(ex.Message);
+                                    log.Debug("Event status: " + ev.Status);
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
+                    if (Sync.Engine.Instance.CancellationPending) return;
                 }
-            }
-            log.Debug(unclaimedEvents.Count + " unclaimed.");
-            if (!neverDelete && unclaimedEvents.Count > 0 &&
-                (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle ||
-                 Settings.Instance.SyncDirection == Sync.Direction.Bidirectional)) 
-            {
-                log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
-                if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
-                    log.Info("These will be kept due to configuration settings.");
-                } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
-                    log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
-                } else {
-                    if (OgcsMessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
-                        "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
-                        "or you may wish to merge with unmatched events. Continue with deletions?",
-                        "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
-
-                        log.Info("User has requested to keep them.");
-                        foreach (Event e in unclaimedEvents) {
-                            gEvents.Remove(e);
-                        }
+                log.Debug(unclaimedEvents.Count + " unclaimed.");
+                if (!neverDelete && unclaimedEvents.Count > 0 &&
+                    (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle ||
+                     Settings.Instance.SyncDirection == Sync.Direction.Bidirectional)) 
+                {
+                    log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
+                    if (Settings.Instance.MergeItems || Settings.Instance.DisableDelete || Settings.Instance.ConfirmOnDelete) {
+                        log.Info("These will be kept due to configuration settings.");
+                    } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) {
+                        log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
                     } else {
-                        log.Info("User has opted to delete them.");
+                        if (OgcsMessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
+                            "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
+                            "or you may wish to merge with unmatched events. Continue with deletions?",
+                            "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+
+                            log.Info("User has requested to keep them.");
+                            foreach (Event e in unclaimedEvents) {
+                                gEvents.Remove(e);
+                            }
+                        } else {
+                            log.Info("User has opted to delete them.");
+                        }
                     }
                 }
+            } catch (System.Exception) {
+                Forms.Main.Instance.Console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
+                throw;
             }
         }
 

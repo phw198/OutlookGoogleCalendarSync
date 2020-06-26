@@ -524,6 +524,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return extirpateCustomProperties(outlookEntries, googleEntries);
                 }
 
+                //Reclaim orphans
+                GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntries, ref outlookEntries);
+                if (CancellationPending) return SyncResult.UserCancelled;
+                
+                OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
+                if (CancellationPending) return SyncResult.UserCancelled;
+                
+                //Sync
                 if (Settings.Instance.SyncDirection != Direction.GoogleToOutlook) {
                     success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
                     if (CancellationPending) return SyncResult.UserCancelled;
@@ -558,16 +566,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-
-            try {
-                Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
-                GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntriesToBeDeleted, ref outlookEntries);
-                if (CancellationPending) return false;
-            } catch (System.Exception) {
-                console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
-                throw;
-            }
-
+            
             DateTime timeSection = DateTime.Now;
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
@@ -678,14 +677,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-
-            try {
-                OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntriesToBeDeleted, ref outlookEntriesToBeCreated);
-                if (CancellationPending) return false;
-            } catch (System.Exception) {
-                console.Update("Unable to reclaim orphan calendar entries in Outlook calendar.", Console.Markup.error);
-                throw;
-            }
+            
             try {
                 OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;
