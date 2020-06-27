@@ -102,7 +102,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     request = Service.CalendarList.List().Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ex, null)) {
+                    switch (HandleAPIlimits(ref ex, null)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -153,7 +153,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             log.Debug("Page " + pageNum + " received.");
                             break;
                         } catch (Google.GoogleApiException ex) {
-                            switch (HandleAPIlimits(ex, null)) {
+                            switch (HandleAPIlimits(ref ex, null)) {
                                 case ApiException.throwException: throw;
                                 case ApiException.freeAPIexhausted:
                                     System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -204,7 +204,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             log.Fail("Could not find Google Event with specified ID " + eventId);
                             return null;
                         }
-                        switch (HandleAPIlimits(ex, null)) {
+                        switch (HandleAPIlimits(ref ex, null)) {
                             case ApiException.throwException: throw;
                             case ApiException.freeAPIexhausted:
                                 System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -262,7 +262,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         log.Debug("Page " + pageNum + " received.");
                         break;
                     } catch (Google.GoogleApiException ex) {
-                        switch (HandleAPIlimits(ex, null)) {
+                        switch (HandleAPIlimits(ref ex, null)) {
                             case ApiException.throwException: throw;
                             case ApiException.freeAPIexhausted:
                                 System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -452,7 +452,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ex, ev)) {
+                    switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -821,7 +821,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ex, ev)) {
+                    switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -913,7 +913,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     string request = Service.Events.Delete(Settings.Instance.UseGoogleCalendar.Id, ev.Id).Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ex, ev)) {
+                    switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
@@ -1668,7 +1668,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             return ea;
         }
 
-        public static ApiException HandleAPIlimits(Google.GoogleApiException ex, Event ev) {
+        public static ApiException HandleAPIlimits(ref Google.GoogleApiException ex, Event ev) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
             if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
@@ -1696,9 +1696,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 //Delay next scheduled sync until after the new quota
                 if (Settings.Instance.SyncInterval != 0) {
-                DateTime utcNow = DateTime.UtcNow;
-                DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                    DateTime utcNow = DateTime.UtcNow;
+                    DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
                     int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
                     Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true);
                     Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
@@ -1716,6 +1716,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else if (ex.Error != null && ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Warn(ex.Message);
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
+                return ApiException.backoffThenRetry;
+
+            } else if (ex.Error != null && ex.Error.Code == 500) {
+                log.Fail(OGCSexception.FriendlyMessage(ex));
+                OGCSexception.LogAsFail(ref ex);
                 return ApiException.backoffThenRetry;
 
             } else {
