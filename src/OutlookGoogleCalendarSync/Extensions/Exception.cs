@@ -171,6 +171,14 @@ namespace OutlookGoogleCalendarSync {
                 ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
         }
 
+        /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
+        public static void LogAsFail(ref Google.GoogleApiException ex) {
+            if (ex.Data.Contains(LogAs))
+                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+            else
+                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+        }
+
         /// <summary>
         /// Check if this exception has been set to log as log4net FAIL (not ERROR)
         /// </summary>
