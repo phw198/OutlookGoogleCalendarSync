@@ -35,6 +35,7 @@
   <files>
     <!--<file src="bin\Release\*.*" target="lib\net45\" />-->
 		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
+		<file src="bin\Release\OutlookGoogleCalendarSync.pdb" target="lib\net45\" />
 		<file src="bin\Release\*.dll" target="lib\net45\" />
 		<file src="bin\Release\ErrorReportingTemplate.json" target="lib\net45\" />
 		<file src="bin\Release\logger.xml" target="lib\net45\" />

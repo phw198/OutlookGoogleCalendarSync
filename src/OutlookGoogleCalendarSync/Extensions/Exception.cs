@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace OutlookGoogleCalendarSync {
     class UserCancelledSyncException : System.Exception {
@@ -24,8 +25,18 @@ namespace OutlookGoogleCalendarSync {
             }
            
             log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
+            String errorLocation = "; Location: ";
+            try {
+                errorLocation += ex.TargetSite.Name + "() in ";
+                System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
+                String[] frameBits = st.GetFrame(0).ToString().Split('\\');
+                if (frameBits.Count() == 1) throw new Exception();
+                errorLocation += frameBits.LastOrDefault().Trim();
+            } catch {
+                errorLocation += "<Unknown File>";
+            }
             int errorCode = getErrorCode(ex);
-            log.ErrorOrFail("Code: 0x" + errorCode.ToString("X8") + ";" + errorCode.ToString(), logLevel);
+            log.ErrorOrFail("Code: 0x" + errorCode.ToString("X8") + "," + errorCode.ToString() + errorLocation, logLevel);
 
             if (ex.InnerException != null) {
                 log.ErrorOrFail("InnerException:-", logLevel);
