@@ -279,6 +279,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbClientSecret.ReadOnly = false;
             }
 
+            cbExcludeGoals.Checked = Settings.Instance.ExcludeGoals;
+            cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
+
             if (Settings.Instance.UsingPersonalAPIkeys()) {
                 cbShowDeveloperOptions.Checked = true;
                 tbClientID.Text = Settings.Instance.PersonalClientIdentifier;
@@ -1089,6 +1092,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabGoogle"];
             }
+            cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
             log.Warn("Google calendar selection changed to: " + Settings.Instance.UseGoogleCalendar.ToString(true));
         }
 
@@ -1110,6 +1114,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ExcludeGoals = cbExcludeGoals.Checked;
         }
 
         #region Developer Options

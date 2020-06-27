@@ -93,6 +93,7 @@ namespace OutlookGoogleCalendarSync {
             TimezoneMaps = new TimezoneMappingDictionary();
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
+            ExcludeGoals = true;
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
@@ -217,6 +218,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), ConfigFile);
             }
         }
+        [DataMember] public Boolean ExcludeGoals { get; set; }
         private String personalClientIdentifier;
         private String personalClientSecret;
         [DataMember] public String PersonalClientIdentifier {
@@ -480,6 +482,7 @@ namespace OutlookGoogleCalendarSync {
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Exclude Goals: " + ExcludeGoals);
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
             log.Info("    Client Secret: " + (PersonalClientSecret.Length < 5

@@ -298,6 +298,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
+            if ((IsDefaultCalendar() ?? true) && Settings.Instance.ExcludeGoals) {
+                List<Event> goals = result.Where(ev =>
+                    !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
+                    ev.Organizer != null && ev.Organizer.Email == "unknownorganizer@calendar.google.com" && ev.Organizer.DisplayName == "Google Calendar").ToList();
+                if (goals.Count > 0) {
+                    log.Debug(goals.Count + " Google Events are Goals and will be excluded.");
+                    result = result.Except(goals).ToList();
+                }
+            }
+
             return result;
         }
 
@@ -1712,6 +1722,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Warn(ex.Message);
                 return ApiException.throwException;
             }
+        }
+
+        public static Boolean? IsDefaultCalendar() {
+            if (!Settings.InstanceInitialiased() || (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
+                return null;
+
+            return Settings.Instance.UseGoogleCalendar.Id == Settings.Instance.GaccountEmail;
         }
         #endregion
     }

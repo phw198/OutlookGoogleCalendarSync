@@ -42,6 +42,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
             this.cbMuteClicks = new System.Windows.Forms.CheckBox();
@@ -84,6 +85,7 @@
             this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
             this.tabGoogle = new System.Windows.Forms.TabPage();
+            this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.tbConnectedAcc = new System.Windows.Forms.TextBox();
             this.gbDeveloperOptions = new System.Windows.Forms.GroupBox();
@@ -249,6 +251,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.pbSocialDonate = new System.Windows.Forms.PictureBox();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AboutColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AboutColumnValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabApp.SuspendLayout();
@@ -818,6 +824,7 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
+            this.tabGoogle.Controls.Add(this.cbExcludeGoals);
             this.tabGoogle.Controls.Add(this.label7);
             this.tabGoogle.Controls.Add(this.tbConnectedAcc);
             this.tabGoogle.Controls.Add(this.gbDeveloperOptions);
@@ -835,6 +842,17 @@
             this.tabGoogle.Size = new System.Drawing.Size(392, 462);
             this.tabGoogle.TabIndex = 1;
             this.tabGoogle.Text = "  Google";
+            // 
+            // cbExcludeGoals
+            // 
+            this.cbExcludeGoals.AutoSize = true;
+            this.cbExcludeGoals.Location = new System.Drawing.Point(14, 197);
+            this.cbExcludeGoals.Name = "cbExcludeGoals";
+            this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
+            this.cbExcludeGoals.TabIndex = 46;
+            this.cbExcludeGoals.Text = "Exclude \"Goal\" events from sync";
+            this.cbExcludeGoals.UseVisualStyleBackColor = true;
+            this.cbExcludeGoals.CheckedChanged += new System.EventHandler(this.cbExcludeGoals_CheckedChanged);
             // 
             // label7
             // 
@@ -867,7 +885,7 @@
             this.gbDeveloperOptions.Controls.Add(this.tbClientID);
             this.gbDeveloperOptions.Controls.Add(this.lClientID);
             this.gbDeveloperOptions.Controls.Add(this.lSecret);
-            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 227);
+            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 240);
             this.gbDeveloperOptions.Name = "gbDeveloperOptions";
             this.gbDeveloperOptions.Size = new System.Drawing.Size(364, 171);
             this.gbDeveloperOptions.TabIndex = 31;
@@ -966,7 +984,7 @@
             // cbShowDeveloperOptions
             // 
             this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 204);
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 217);
             this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
             this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
             this.cbShowDeveloperOptions.TabIndex = 30;
@@ -3045,6 +3063,32 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn1.HeaderText = "Find";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn2.HeaderText = "Replace";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle4;
+            this.dataGridViewTextBoxColumn3.HeaderText = "AboutName";
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.Width = 5;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             // AboutColumnLabel
             // 
             this.AboutColumnLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
@@ -3346,5 +3390,10 @@
         public Extensions.GoogleColourPicker ddGoogleColour;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnValue;
+        private System.Windows.Forms.CheckBox cbExcludeGoals;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
