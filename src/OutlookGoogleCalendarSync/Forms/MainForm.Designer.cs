@@ -2423,9 +2423,9 @@
             this.tbTS2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbTS2.Location = new System.Drawing.Point(92, 492);
             this.tbTS2.Name = "tbTS2";
-            this.tbTS2.Size = new System.Drawing.Size(297, 13);
+            this.tbTS2.Size = new System.Drawing.Size(310, 13);
             this.tbTS2.TabIndex = 55;
-            this.tbTS2.Text = "  - reproduce the problem";
+            this.tbTS2.Text = "  - reproduce the problem on the latest release, alpha if available";
             // 
             // linkTShoot_logfile
             // 
