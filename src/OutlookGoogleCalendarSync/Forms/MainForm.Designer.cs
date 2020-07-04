@@ -251,6 +251,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.pbSocialDonate = new System.Windows.Forms.PictureBox();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.ddAvailabilty = new System.Windows.Forms.ComboBox();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -1174,6 +1175,7 @@
             // 
             this.howMorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.howMorePanel.Controls.Add(this.ddAvailabilty);
             this.howMorePanel.Controls.Add(this.ddGoogleColour);
             this.howMorePanel.Controls.Add(this.ddOutlookColour);
             this.howMorePanel.Controls.Add(this.cbColour);
@@ -1185,7 +1187,7 @@
             this.howMorePanel.Controls.Add(this.label6);
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
             this.howMorePanel.Name = "howMorePanel";
-            this.howMorePanel.Size = new System.Drawing.Size(353, 85);
+            this.howMorePanel.Size = new System.Drawing.Size(353, 90);
             this.howMorePanel.TabIndex = 48;
             // 
             // ddGoogleColour
@@ -1196,7 +1198,7 @@
             this.ddGoogleColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddGoogleColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ddGoogleColour.FormattingEnabled = true;
-            this.ddGoogleColour.Location = new System.Drawing.Point(178, 58);
+            this.ddGoogleColour.Location = new System.Drawing.Point(178, 62);
             this.ddGoogleColour.MinimumSize = new System.Drawing.Size(158, 0);
             this.ddGoogleColour.Name = "ddGoogleColour";
             this.ddGoogleColour.SelectedItem = null;
@@ -1212,7 +1214,7 @@
             this.ddOutlookColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddOutlookColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ddOutlookColour.FormattingEnabled = true;
-            this.ddOutlookColour.Location = new System.Drawing.Point(178, 58);
+            this.ddOutlookColour.Location = new System.Drawing.Point(178, 62);
             this.ddOutlookColour.MinimumSize = new System.Drawing.Size(158, 0);
             this.ddOutlookColour.Name = "ddOutlookColour";
             this.ddOutlookColour.SelectedItem = null;
@@ -1224,7 +1226,7 @@
             // 
             this.cbColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbColour.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbColour.Location = new System.Drawing.Point(48, 60);
+            this.cbColour.Location = new System.Drawing.Point(48, 64);
             this.cbColour.Name = "cbColour";
             this.cbColour.Size = new System.Drawing.Size(132, 17);
             this.cbColour.TabIndex = 44;
@@ -1267,7 +1269,7 @@
             // 
             this.cbAvailable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAvailable.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAvailable.Location = new System.Drawing.Point(48, 42);
+            this.cbAvailable.Location = new System.Drawing.Point(48, 44);
             this.cbAvailable.Name = "cbAvailable";
             this.cbAvailable.Size = new System.Drawing.Size(163, 17);
             this.cbAvailable.TabIndex = 40;
@@ -3063,6 +3065,20 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Outlook Google Calendar Sync";
             // 
+            // ddAvailabilty
+            // 
+            this.ddAvailabilty.DisplayMember = "Value";
+            this.ddAvailabilty.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddAvailabilty.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ddAvailabilty.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ddAvailabilty.FormattingEnabled = true;
+            this.ddAvailabilty.Location = new System.Drawing.Point(133, 40);
+            this.ddAvailabilty.Name = "ddAvailabilty";
+            this.ddAvailabilty.Size = new System.Drawing.Size(84, 21);
+            this.ddAvailabilty.TabIndex = 46;
+            this.ddAvailabilty.ValueMember = "Key";
+            this.ddAvailabilty.SelectedIndexChanged += new System.EventHandler(this.ddAvailabilty_SelectedIndexChanged);
+            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -3082,6 +3098,7 @@
             this.dataGridViewTextBoxColumn3.DefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridViewTextBoxColumn3.HeaderText = "AboutName";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
             this.dataGridViewTextBoxColumn3.Width = 5;
             // 
             // dataGridViewTextBoxColumn4
@@ -3089,6 +3106,8 @@
             this.dataGridViewTextBoxColumn4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            // 
             // AboutColumnLabel
             // 
             this.AboutColumnLabel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
@@ -3395,5 +3414,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.ComboBox ddAvailabilty;
     }
 }

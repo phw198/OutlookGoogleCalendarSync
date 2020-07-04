@@ -123,6 +123,7 @@ namespace OutlookGoogleCalendarSync {
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
             SetEntriesAvailable = false;
+            AvailabilityStatus = Microsoft.Office.Interop.Outlook.OlBusyStatus.olFree.ToString();
             SetEntriesColour = false;
             SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
             SetEntriesColourName = "None";
@@ -282,6 +283,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
+        [DataMember] public String AvailabilityStatus { get; set; }
         [DataMember] public bool SetEntriesColour { get; set; }
         /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
         [DataMember] public String SetEntriesColourValue { get; set; }
@@ -500,7 +502,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
-            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
+            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
             log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
             if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);

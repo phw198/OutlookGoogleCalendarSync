@@ -1380,20 +1380,27 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!Settings.Instance.SetEntriesAvailable)
                 return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
+            String overrideTransparency = "transparent";
+            OlBusyStatus fbStatus = OlBusyStatus.olFree;
+            try {
+                Enum.TryParse(Settings.Instance.AvailabilityStatus, out fbStatus);
+                if (fbStatus != OlBusyStatus.olFree)
+                    overrideTransparency = "opaque";
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not convert string '" + Settings.Instance.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.", ex);
+            }
+
             if (Settings.Instance.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return "transparent";
+                return overrideTransparency;
             } else {
                 if (Settings.Instance.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Availability enforcement is in other direction
                     if (gTransparency == null)
                         return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
-                    else if (gTransparency == "transparent" && oBusyStatus != OlBusyStatus.olFree) {
-                        log.Fine("Source of truth for Availability is already set available and target is NOT - so syncing this back.");
-                        return "opaque";
-                    } else
+                    else
                         return gTransparency;
                 } else {
                     if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && gTransparency == null))
-                        return "transparent";
+                        return overrideTransparency;
                     else
                         return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
                 }

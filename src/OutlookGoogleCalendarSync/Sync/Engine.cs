@@ -52,13 +52,13 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         #region Push Sync
         public void RegisterForPushSync() {
-            if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
-                log.Debug("Create the timer for the push synchronisation");
-                if (OgcsPushTimer == null)
-                    OgcsPushTimer = Sync.PushSyncTimer.Instance;
-                if (!OgcsPushTimer.Running())
-                    OgcsPushTimer.Switch(true);
-            }
+            if (!Settings.Instance.OutlookPush || Settings.Instance.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
+
+            log.Debug("Create the timer for the push synchronisation");
+            if (OgcsPushTimer == null)
+                OgcsPushTimer = Sync.PushSyncTimer.Instance;
+            if (!OgcsPushTimer.Running())
+                OgcsPushTimer.Switch(true);
         }
 
         public void DeregisterForPushSync() {

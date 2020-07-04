@@ -867,20 +867,24 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (!Settings.Instance.SetEntriesAvailable)
                 return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
 
+            OlBusyStatus overrideFbStatus = OlBusyStatus.olFree;
+            try {
+                Enum.TryParse(Settings.Instance.AvailabilityStatus, out overrideFbStatus);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not convert string '" + Settings.Instance.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.", ex);
+            }
+
             if (Settings.Instance.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return OlBusyStatus.olFree;
+                return overrideFbStatus;
             } else {
                 if (Settings.Instance.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
                     if (oBusyStatus == null)
                         return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
-                    else if (oBusyStatus == OlBusyStatus.olFree && gTransparency != "transparent") {
-                        log.Fine("Source of truth for Availability is already set available and target is NOT - so syncing this back.");
-                        return OlBusyStatus.olBusy;
-                    } else
+                    else
                         return (OlBusyStatus)oBusyStatus;
                 } else {
                     if (!Settings.Instance.CreatedItemsOnly || (Settings.Instance.CreatedItemsOnly && oBusyStatus == null))
-                        return OlBusyStatus.olFree;
+                        return overrideFbStatus;
                     else
                         return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                 }
