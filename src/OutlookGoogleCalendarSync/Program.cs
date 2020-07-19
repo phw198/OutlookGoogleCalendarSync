@@ -243,8 +243,12 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Purging log files older than "+ retention +" days...");
             foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
-                    log.Debug("Deleted "+ MaskFilePath(file));
-                    System.IO.File.Delete(file);
+                    try {
+                        System.IO.File.Delete(file);
+                        log.Debug("Deleted " + MaskFilePath(file));
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Could not delete file " + file, OGCSexception.LogAsFail(ex));
+                    }
                 }
             }
             log.Info("Purge complete.");
