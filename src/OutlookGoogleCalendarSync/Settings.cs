@@ -579,6 +579,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+            TimeZone curTimeZone = TimeZone.CurrentTimeZone;
+            log.Info("  System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now));
             log.Info("  Completed Syncs: "+ CompletedSyncs);
         }
 

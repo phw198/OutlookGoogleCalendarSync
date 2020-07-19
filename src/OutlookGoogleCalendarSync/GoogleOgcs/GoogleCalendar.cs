@@ -634,7 +634,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     String rrule = ev.Recurrence[r];
                     if (rrule.StartsWith("RRULE:")) {
                         if (oRrules != null) {
+                            String[] gRrule_bits = rrule.Split(';');
                             String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
+                            if (gRrule_bits.Count() != oRrule_bits.Count()) {
+                                if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                    ev.Recurrence[r] = oRrules.First();
+                                    break;
+                                }
+                            }
                             foreach (String oRrule_bit in oRrule_bits) {
                                 if (!rrule.Contains(oRrule_bit)) {
                                     if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {

@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimezoneMap));
             this.tzGridView = new System.Windows.Forms.DataGridView();
-            this.btSave = new System.Windows.Forms.Button();
+            this.btOK = new System.Windows.Forms.Button();
             this.btCancel = new System.Windows.Forms.Button();
             this.txtInfo = new System.Windows.Forms.TextBox();
             this.OrganiserTz = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,17 +50,17 @@
             this.tzGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.tzGridView_CellClick);
             this.tzGridView.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.tzGridView_DataError);
             // 
-            // btSave
+            // btOK
             // 
-            this.btSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btSave.Location = new System.Drawing.Point(405, 211);
-            this.btSave.Name = "btSave";
-            this.btSave.Size = new System.Drawing.Size(75, 23);
-            this.btSave.TabIndex = 1;
-            this.btSave.Text = "Save";
-            this.btSave.UseVisualStyleBackColor = false;
-            this.btSave.Click += new System.EventHandler(this.btSave_Click);
+            this.btOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btOK.Location = new System.Drawing.Point(405, 211);
+            this.btOK.Name = "btOK";
+            this.btOK.Size = new System.Drawing.Size(75, 23);
+            this.btOK.TabIndex = 1;
+            this.btOK.Text = "OK";
+            this.btOK.UseVisualStyleBackColor = false;
+            this.btOK.Click += new System.EventHandler(this.btOK_Click);
             // 
             // btCancel
             // 
@@ -105,14 +105,14 @@
             // 
             // TimezoneMap
             // 
-            this.AcceptButton = this.btSave;
+            this.AcceptButton = this.btOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btCancel;
             this.ClientSize = new System.Drawing.Size(492, 242);
             this.Controls.Add(this.txtInfo);
             this.Controls.Add(this.btCancel);
-            this.Controls.Add(this.btSave);
+            this.Controls.Add(this.btOK);
             this.Controls.Add(this.tzGridView);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "TimezoneMap";
@@ -127,7 +127,7 @@
         #endregion
 
         private System.Windows.Forms.DataGridView tzGridView;
-        private System.Windows.Forms.Button btSave;
+        private System.Windows.Forms.Button btOK;
         private System.Windows.Forms.Button btCancel;
         private System.Windows.Forms.TextBox txtInfo;
         private System.Windows.Forms.DataGridViewTextBoxColumn OrganiserTz;
