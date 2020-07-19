@@ -1440,7 +1440,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     String category = aiCategories.Split(new[] { OutlookOgcs.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
                     categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
-                    if (categoryColour == null) log.Warn("Could not convert category name '" + category + "' into Outlook category type.");
                 } catch (System.Exception ex) {
                     log.Error("Failed determining colour for Event from AppointmentItem categories: " + aiCategories);
                     OGCSexception.Analyse(ex);
