@@ -1215,6 +1215,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             foundAttendee = true;
                             removeAttendee.Remove(attendee);
 
+                            if (Settings.Instance.CloakEmail != ogcsAttendee.IsCloaked()) {
+                                Sync.Engine.CompareAttribute("Attendee updated", Sync.Direction.OutlookToGoogle, attendee.Email, EventAttendee.CloakEmail(attendee.Email), sb, ref itemModified);
+                                attendee.Email = EventAttendee.CloakEmail(attendee.Email);
+                            }
+
                             //Optional attendee
                             bool oOptional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
                             bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
