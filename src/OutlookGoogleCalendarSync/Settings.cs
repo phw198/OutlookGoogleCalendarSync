@@ -459,7 +459,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void LogSettings() {
-            log.Info(ConfigFile);
+            log.Info(Program.MaskFilePath(ConfigFile));
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
