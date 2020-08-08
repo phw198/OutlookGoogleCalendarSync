@@ -1322,7 +1322,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (!CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID) ||
-                        outlook[o].LastModificationTime > Settings.Instance.LastSyncDate)
+                        outlook[o].LastModificationTime > Sync.Engine.Instance.SyncStarted)
                         outlook.Remove(outlook[o]);
                 }
             }
