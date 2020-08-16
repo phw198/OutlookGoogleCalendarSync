@@ -163,7 +163,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
+
+                List<Object> restrictedItems = new List<Object>();
                 foreach (Object obj in OutlookItems.Restrict(filter)) {
+                    restrictedItems.Add(obj);
+                }
+                OutlookOld.KeepRecurring(OutlookItems, ref restrictedItems);
+
+                foreach (Object obj in restrictedItems) {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
@@ -224,7 +231,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     if (result.Count == 0 && (categoryFiltered + responseFiltered > 0))
                         Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
-                }
+                }                
             }
             log.Fine("Filtered down to " + result.Count);
             return result;
