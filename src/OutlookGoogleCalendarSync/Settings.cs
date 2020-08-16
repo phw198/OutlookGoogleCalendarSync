@@ -505,8 +505,11 @@ namespace OutlookGoogleCalendarSync {
             }
             if (ColourMaps.Count > 0) {
                 log.Info("  Custom Colour/Category Mapping:-");
-                ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":"+ c.Key + " <=> " + 
-                    c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
+                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                    log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
+                else
+                    ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                        c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
             }
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {

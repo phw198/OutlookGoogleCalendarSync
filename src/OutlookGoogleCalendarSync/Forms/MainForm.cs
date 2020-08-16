@@ -205,6 +205,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             foreach (KeyValuePair<String, MAPIFolder> calendarFolder in OutlookOgcs.Calendar.Instance.CalendarFolders) {
                 if (calendarFolder.Value.EntryID == Settings.Instance.UseOutlookCalendar.Id) {
                     cbOutlookCalendars.SelectedIndex = c;
+                    break;
                 }
                 c++;
             }
@@ -226,9 +227,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Include" : "Exclude";
             if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                 clbCategories.Items.Clear();
+                clbCategories.Items.Add("Outlook 2003 has no categories");
                 cbCategoryFilter.Enabled = false;
                 clbCategories.Enabled = false;
                 lFilterCategories.Enabled = false;
+                btColourMap.Visible = false;
+                Settings.Instance.AddColours = false;
+                cbAddColours.Enabled = false;
             } else {
                 OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
                 enableOutlookSettingsUI(true);
@@ -300,6 +305,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Sync.Direction sd = (syncDirection.Items[i] as Sync.Direction);
                 if (sd.Id == Settings.Instance.SyncDirection.Id) {
                     syncDirection.SelectedIndex = i;
+                    break;
                 }
             }
             if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
@@ -1325,9 +1331,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                         Settings.Instance.TargetCalendar = Sync.Direction.GoogleToOutlook;
                         this.ddGoogleColour.Visible = false;
                         this.ddOutlookColour.Visible = true;
+                        if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                            this.cbColour.Checked = false;
                         break;
                     }
-                case "target calendar": Settings.Instance.TargetCalendar = Settings.Instance.SyncDirection; break;
+                case "target calendar": {
+                        Settings.Instance.TargetCalendar = Settings.Instance.SyncDirection;
+                        if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 
+                            && Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook)
+                            this.cbColour.Checked = false;
+                        break;
+                    }
             }
         }
 

@@ -669,6 +669,7 @@
             // 
             // btTestOutlookFilter
             // 
+            this.btTestOutlookFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btTestOutlookFilter.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btTestOutlookFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btTestOutlookFilter.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -904,6 +905,7 @@
             // 
             // lGoogleAPIInstructions
             // 
+            this.lGoogleAPIInstructions.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lGoogleAPIInstructions.BackColor = System.Drawing.SystemColors.Window;
             this.lGoogleAPIInstructions.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lGoogleAPIInstructions.Location = new System.Drawing.Point(13, 20);
