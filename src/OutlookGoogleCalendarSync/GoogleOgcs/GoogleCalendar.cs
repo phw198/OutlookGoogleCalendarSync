@@ -1644,6 +1644,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static ApiException HandleAPIlimits(Google.GoogleApiException ex, Event ev) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
+            log.Fail(ex.Message);
             if (Settings.Instance.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
                 //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
                 //This happens because too many attendees have been added in a short period of time.
@@ -1659,11 +1660,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
                 return ApiException.justContinue;
 
-            } else if (ex.Message.Contains("Rate Limit Exceeded")) {
+            } else if (ex.Error.Errors.First().Reason == "rateLimitExceeded" && ex.Message.Contains("limit 'Queries per day'")) {
                 return ApiException.backoffThenRetry;
 
             } else if (ex.Message.Contains("Daily Limit Exceeded")) {
-                log.Warn(ex.Message);
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
 
@@ -1680,19 +1680,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ApiException.freeAPIexhausted;
 
             } else if (ex.Message.Contains("Daily Limit for Unauthenticated Use Exceeded. Continued use requires signup. [403]")) {
-                log.Warn(ex.Message);
                 Forms.Main.Instance.Console.Update("You are not properly authenticated to Google.<br/>" +
                     "On the Settings > Google tab, please disconnect and re-authenticate your account.", Console.Markup.error);
                 ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
                 return ApiException.throwException;
 
             } else if (ex.Error != null && ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
-                log.Warn(ex.Message);
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;
 
             } else {
-                log.Warn(ex.Message);
+                log.Warn("Unhandled API exception.");
                 return ApiException.throwException;
             }
         }
