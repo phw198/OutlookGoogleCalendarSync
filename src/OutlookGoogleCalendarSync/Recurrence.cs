@@ -33,7 +33,7 @@ namespace OutlookGoogleCalendarSync {
             RecurrencePattern rp = null;
             try {
                 rp = ai.GetRecurrencePattern();
-                gPattern.Add("RRULE:" + buildRrule(rp));
+                gPattern.Add("RRULE:" + buildRrule(rp, ai.Start.TimeOfDay));
             } finally {
                 rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
             }
@@ -212,7 +212,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private String buildRrule(RecurrencePattern oPattern) {
+        private String buildRrule(RecurrencePattern oPattern, TimeSpan startTime) {
             log.Fine("Building RRULE");
             rrule = new Dictionary<String, String>();
             #region RECURRENCE PATTERN
@@ -290,7 +290,8 @@ namespace OutlookGoogleCalendarSync {
             #region RECURRENCE RANGE
             if (!oPattern.NoEndDate) {
                 log.Fine("Checking end date.");
-                addRule(rrule, "UNTIL", Recurrence.IANAdate(oPattern.PatternEndDate + oPattern.StartTime.TimeOfDay));
+                //oPattern.StartTime is for the organisers timezone, not the recipient - unlike ai.Start;
+                addRule(rrule, "UNTIL", Recurrence.IANAdate(oPattern.PatternEndDate + startTime));
             }
             #endregion
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
