@@ -1293,32 +1293,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void GetSettings() {
             try {
                 log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
-                SettingsResource.GetRequest gr = Service.Settings.Get("timezone");
-                int backoff = 0;
-                while (backoff < backoffLimit) {
-                    try {
-                        Setting setting = gr.Execute();
-                        this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
-                    } catch (Google.GoogleApiException ex) {
-                        switch (HandleAPIlimits(ex, null)) {
-                            case ApiException.throwException: throw;
-                            case ApiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                                OGCSexception.LogAsFail(ref aex);
-                                throw aex;
-                            case ApiException.backoffThenRetry:
-                                backoff++;
-                                if (backoff == backoffLimit) {
-                                    log.Error("API limit backoff was not successful. Retrieve failed.");
-                                    throw;
-                                } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
-                                }
-                                break;
-                        }
-                    }
-                }
+                Setting setting = Service.Settings.Get("timezone").Execute();
+                this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
             }
@@ -1327,39 +1303,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private void getCalendarSettings() {
             if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
             try {
-                CalendarListResource.GetRequest gr = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
-                int backoff = 0;
-                while (backoff < backoffLimit) {
-                    try {
-                        CalendarListEntry cal = gr.Execute();
-                        if (cal.DefaultReminders.Count == 0)
-                            this.MinDefaultReminder = long.MinValue;
-                        else
-                            this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
-
-                    } catch (Google.GoogleApiException ex) {
-                        switch (HandleAPIlimits(ex, null)) {
-                            case ApiException.throwException: throw;
-                            case ApiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                                OGCSexception.LogAsFail(ref aex);
-                                throw aex;
-                            case ApiException.backoffThenRetry:
-                                backoff++;
-                                if (backoff == backoffLimit) {
-                                    log.Error("API limit backoff was not successful. Retrieve failed.");
-                                    throw;
-                                } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
-                                }
-                                break;
-                        }
-                    }
-                }
+                CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
+                CalendarListEntry cal = request.Execute();
+                if (cal.DefaultReminders.Count == 0)
+                    this.MinDefaultReminder = long.MinValue;
+                else
+                    this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to get calendar settings.", ex);
-                this.MinDefaultReminder = long.MinValue;
             }
         }
 
@@ -1708,7 +1659,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
                 return ApiException.justContinue;
-                
+
             } else if (ex.Message.Contains("Daily Limit Exceeded") ||
                 (ex.Error.Errors.First().Reason == "rateLimitExceeded" && ex.Message.Contains("limit 'Queries per day'"))) {
 
