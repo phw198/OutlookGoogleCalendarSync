@@ -15,7 +15,18 @@ namespace OutlookGoogleCalendarSync {
         private String content = "";
         public String DocumentText {
             get {
-                return (this.wb == null ? null : this.wb.DocumentText);
+                String documentText = "";
+                if (this.wb == null)
+                    return null;
+                else {
+                    if (this.wb.InvokeRequired) {
+                        this.wb.Invoke((MethodInvoker)(() => {
+                            documentText = wb.DocumentText;
+                        }));
+                    } else
+                        documentText = this.wb.DocumentText;
+                }
+                return documentText;
             }
         }
         
@@ -271,7 +282,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 //Don't add append line break to Markup that's already wrapped in <div> tags
-                if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.error }.ToList()).Contains((Markup)markupPrefix))
+                if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
 

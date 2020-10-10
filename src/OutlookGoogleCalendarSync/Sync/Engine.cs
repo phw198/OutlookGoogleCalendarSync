@@ -288,7 +288,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
+                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", 
+                        new SyncResult[] { SyncResult.UserCancelled, SyncResult.Abandon }.Contains(syncResult) ? Console.Markup.fail : Console.Markup.error);
                 }
 
                 setNextSync(syncStarted, syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
@@ -499,8 +500,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 }
                             }
-                        } catch (System.Exception) {
-                            console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Console.Markup.error);
+                        } catch (System.Exception ex) {
+                            console.Update("Failed to retrieve master for Google recurring event outside of sync range.", OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error);
                             throw;
                         } finally {
                             oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);

@@ -69,7 +69,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             set { service = value; }
         }
         public static Boolean APIlimitReached_attendee = false;
-        private const int backoffLimit = 5;
+        public const int backoffLimit = 5;
         public enum ApiException {
             justContinue,
             backoffThenRetry,
@@ -105,7 +105,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (HandleAPIlimits(ex, null)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse(ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -156,7 +158,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             switch (HandleAPIlimits(ex, null)) {
                                 case ApiException.throwException: throw;
                                 case ApiException.freeAPIexhausted:
-                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    OGCSexception.LogAsFail(ref ex);
+                                    OGCSexception.Analyse(ex);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                                     OGCSexception.LogAsFail(ref aex);
                                     throw aex;
                                 case ApiException.backoffThenRetry:
@@ -207,7 +211,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         switch (HandleAPIlimits(ex, null)) {
                             case ApiException.throwException: throw;
                             case ApiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                OGCSexception.LogAsFail(ref ex);
+                                OGCSexception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -229,8 +235,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 else
                     throw new System.Exception("Returned null");
             } catch (System.Exception ex) {
+                if (ex is ApplicationException) throw;
                 Forms.Main.Instance.Console.Update("Failed to retrieve Google event", Console.Markup.error);
-                log.Error(ex.Message);
                 return null;
             }
         }
@@ -265,7 +271,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         switch (HandleAPIlimits(ex, null)) {
                             case ApiException.throwException: throw;
                             case ApiException.freeAPIexhausted:
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                OGCSexception.LogAsFail(ref ex);
+                                OGCSexception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -445,7 +453,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (HandleAPIlimits(ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse(ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.justContinue: break;
@@ -814,7 +824,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (HandleAPIlimits(ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse(ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -906,7 +918,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     switch (HandleAPIlimits(ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse(ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -1663,7 +1677,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ApiException.justContinue;
 
             } else if (ex.Message.Contains("Daily Limit Exceeded") ||
-                (ex.Error.Errors.First().Reason == "rateLimitExceeded" && ex.Message.Contains("limit 'Queries per day'"))) {
+                (ex.Message.Contains("limit 'Queries per day'") && ex.Error != null && ex.Error.Errors != null && ex.Error.Errors.First().Reason == "rateLimitExceeded")) {
 
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
@@ -1696,5 +1710,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         #endregion
+
+        /// <summary>
+        /// This is solely for purposefully causing an error to assist when developing
+        /// </summary>
+        private void throwApiException() {
+            Google.GoogleApiException ex = new Google.GoogleApiException("Service", "limit 'Queries per day'");
+            Google.Apis.Requests.SingleError err = new Google.Apis.Requests.SingleError();
+            err.Reason = "rateLimitExceeded";
+            ex.Error = new Google.Apis.Requests.RequestError { Errors = new List<Google.Apis.Requests.SingleError>() };
+            ex.Error.Errors.Add(err);
+            throw ex;
+        }
     }
 }
