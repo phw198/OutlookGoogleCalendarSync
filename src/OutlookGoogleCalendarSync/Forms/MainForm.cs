@@ -344,7 +344,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.SelectedIndex = 0;
             ddOutlookColour.Enabled = cbColour.Checked;
             //Not connect to Google yet, so just add in single item from Settings
-            GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(Settings.Instance.SetEntriesColourGoogleId, null, Color.Transparent);
+            GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(GoogleOgcs.EventColour.Palette.Type.Event, Settings.Instance.SetEntriesColourGoogleId, null, Color.Transparent);
             ddGoogleColour.Items.Add(localPalette);
             ddGoogleColour.SelectedItem = localPalette;
             ddGoogleColour.Enabled = cbColour.Checked;

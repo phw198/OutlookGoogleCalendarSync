@@ -138,6 +138,7 @@
             this.colourGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.colourGridView_CurrentCellDirtyStateChanged);
             this.colourGridView.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.colourGridView_DataError);
             this.colourGridView.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.colourGridView_EditingControlShowing);
+            this.colourGridView.SelectionChanged += new System.EventHandler(this.colourGridView_SelectionChanged);
             // 
             // OutlookColour
             // 

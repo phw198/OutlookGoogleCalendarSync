@@ -97,7 +97,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             try {
                 GoogleOgcs.EventColour.Palette currentSelection = (GoogleOgcs.EventColour.Palette)SelectedItem;
 
-                if (GoogleOgcs.Calendar.IsInstanceNull) {
+                if (GoogleOgcs.Calendar.IsInstanceNull || Items.Count <= 1) {
                     loading.SetToolTip(this, "Retrieving colours from Google...");
                     loading.ShowAlways = true;
                     loading.InitialDelay = 0;
