@@ -729,7 +729,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle) return;
 
             if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook)
-                Forms.Main.Instance.Console.Update("Checking for orphaned items...", verbose: true);
+                Forms.Main.Instance.Console.Update("Checking for orphaned Outlook items...", verbose: true);
 
             try {
                 log.Debug("Scanning " + oAppointments.Count + " Outlook appointments for orphans to reclaim...");

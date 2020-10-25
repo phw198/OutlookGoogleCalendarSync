@@ -489,11 +489,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ai.Save();
             }
             //DOS ourself by triggering API limit
-            //for (int i = 1; i <= 30; i++) {
-            //    Forms.Main.Instance.Console.Update("Add #" + i, verbose:true);
-            //    Event result = service.Events.Insert(e, Settings.Instance.UseGoogleCalendar.Id).Fetch();
+            //for (int i = 1; i <= 100; i++) {
+            //    Forms.Main.Instance.Console.Update("Add #" + i, verbose: true);
+            //    Event result = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Execute();
             //    System.Threading.Thread.Sleep(300);
-            //    GoogleOgcs.Calendar.Instance.deleteCalendarEntry(result);
+            //    GoogleOgcs.Calendar.Instance.deleteCalendarEntry_save(result);
             //    System.Threading.Thread.Sleep(300);
             //}
             return createdEvent;
@@ -959,7 +959,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook) return;
 
-            Forms.Main.Instance.Console.Update("Checking for orphaned items", verbose: true);
+            if (!neverDelete) Forms.Main.Instance.Console.Update("Checking for orphaned Google items", verbose: true);
             try {
                 log.Debug("Scanning " + gEvents.Count + " Google events for orphans to reclaim...");
                 String consoleTitle = "Reclaiming Google calendar entries";

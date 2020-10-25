@@ -1,6 +1,27 @@
 | Release Notes |
 |:---|
 
+# v2.8.5.0 - Alpha
+
+**Enhancements**
+- Improved detection of Outlook versions after 2016
+- Option to exclude sync of Google 'goals'
+- Option to set exact type of availablity in Outlook (eg Out of Office)
+- Sync deletion in Outlook on first two-way sync (not second)
+- Log exact code location of any errors
+- Log Google 500 errors as `FAIL` to avoid error reporting
+- Further masking of Outlook profile email address in log file
+
+**Bugfix**
+- Quota limit error updated to match changed Google error
+- Reclaim calendar entries in both Google _and_ Outlook at start of sync
+- Proper calculation of recurrence end time from organiser's local time
+- Compare recurrence rule if number of elements have changed
+- Compare attendee cloaked email addresses properly after config change
+- Handle configured category mappings for categories that no longer exist in Outlook
+- Don't error if log file deletion fails
+- Improved support for Outlook2003
+
 # v2.8.4.0 - Alpha
 
 **Enhancements**

@@ -145,8 +145,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 while (backoff < Calendar.BackoffLimit) {
                     try {
                         GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                        break;
                     } catch (Google.GoogleApiException ex) {
-                        switch (Calendar.HandleAPIlimits(ex, null)) {
+                        switch (Calendar.HandleAPIlimits(ref ex, null)) {
                             case Calendar.ApiException.throwException: throw;
                             case Calendar.ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);

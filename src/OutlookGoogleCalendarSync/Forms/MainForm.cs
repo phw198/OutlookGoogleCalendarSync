@@ -797,12 +797,16 @@ namespace OutlookGoogleCalendarSync.Forms {
         #region Anti "Log" File
         //Try and stop people pasting the sync summary text as their log file!!!
         private void Console_KeyDown(object sender, PreviewKeyDownEventArgs e) {
-            if (e.KeyData == (Keys.Control | Keys.C) || e.KeyData == (Keys.Control | Keys.A)) {
-                if (e.KeyData == (Keys.Control | Keys.A))
-                    consoleWebBrowser.Document.ExecCommand("SelectAll", false, null);
-                if (e.KeyData == (Keys.Control | Keys.C) && consoleWebBrowser.Document.Body.InnerText != null)
-                    Clipboard.SetText(consoleWebBrowser.Document.Body.InnerText);
-                notLogFile();
+            try {
+                if (e.KeyData == (Keys.Control | Keys.C) || e.KeyData == (Keys.Control | Keys.A)) {
+                    if (e.KeyData == (Keys.Control | Keys.A))
+                        consoleWebBrowser.Document.ExecCommand("SelectAll", false, null);
+                    if (e.KeyData == (Keys.Control | Keys.C) && consoleWebBrowser.Document.Body.InnerText != null)
+                        Clipboard.SetText(consoleWebBrowser.Document.Body.InnerText);
+                    notLogFile();
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Console_KeyDown detected.", OGCSexception.LogAsFail(ex));
             }
         }
 
