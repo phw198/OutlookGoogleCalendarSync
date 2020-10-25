@@ -336,7 +336,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 OGCSexception.AnalyseTokenResponse(ex);
 
             } catch (Google.GoogleApiException ex) {
-                switch (GoogleOgcs.Calendar.HandleAPIlimits(ex, null)) {
+                switch (GoogleOgcs.Calendar.HandleAPIlimits(ref ex, null)) {
                     case Calendar.ApiException.throwException: throw;
                     case Calendar.ApiException.freeAPIexhausted:
                         OGCSexception.LogAsFail(ref ex);

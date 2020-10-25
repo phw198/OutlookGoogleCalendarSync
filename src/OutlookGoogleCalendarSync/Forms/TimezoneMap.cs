@@ -111,7 +111,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         #region EVENTS
-        private void btSave_Click(object sender, EventArgs e) {
+        private void btOK_Click(object sender, EventArgs e) {
             try {
                 Settings.Instance.TimezoneMaps.Clear();
                 foreach (DataGridViewRow row in tzGridView.Rows) {

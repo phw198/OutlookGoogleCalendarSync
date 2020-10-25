@@ -32,10 +32,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Outlook2013 = 15,
             Outlook2016 = 16,
             //The following are faux numbers to distinguish v16 code base releases
+            //https://docs.microsoft.com/en-us/office365/troubleshoot/installation/product-ids-supported-office-deployment-click-to-run
             ProPlusRetail = 17,
             ProPlus2019Retail = 18,
             O365ProPlusRetail = 19,
-            O365HomePremRetail = 20
+            O365HomePremRetail = 20,
+            O365BusinessRetail = 21,
+            HomeBusinessRetail = 22,
+            HomeBusiness2019Retail = 23,
+            HomeStudentRetail = 24,
+            HomeStudent2019Retail = 25,
+            OutlookRetail = 26,
+            Outlook2019Retail = 27,
+            Outlook2019Volume = 28,
+            Personal2019Retail = 29
         }
 
         private const Boolean testing2003 = false;
@@ -110,10 +120,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     regKey = regKey.OpenSubKey("Configuration");
                                     if (regKey.GetValueNames().Contains("ProductReleaseIds")) {
                                         regReleaseValue = regKey.GetValue("ProductReleaseIds").ToString();
-                                        OutlookVersionNames outlookVersionNameFor2016;
-                                        if (Enum.TryParse(regReleaseValue, true, out outlookVersionNameFor2016)) {
-                                            outlookVersionNameFull = outlookVersionNameFor2016.ToString();
-                                        } else {
+                                        OutlookVersionNames outlookVersionNameFor2016 = OutlookVersionNames.Unknown;
+                                        foreach (String product in regReleaseValue.Split(',')) {
+                                            if (Enum.TryParse(product, true, out outlookVersionNameFor2016)) {
+                                                outlookVersionNameFull = outlookVersionNameFor2016.ToString();
+                                                break;
+                                            }
+                                        }
+                                        if (outlookVersionNameFor2016 == OutlookVersionNames.Unknown) {
                                             log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
                                         }
                                     } else {
