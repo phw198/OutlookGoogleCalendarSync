@@ -13,7 +13,7 @@ Items can be checked off after submitting the Issue
 -->
 
 > Checklist:-
-> * [ ] [Upgrade](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Upgrading) to the latest release ![latest release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)
+> * [ ] [Upgrade](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Upgrading) to the latest release (alpha if available) ![latest release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)
 > * [ ] Reproduce the issue
 > * [ ] Complete the information below
 > * [ ] Provide your `OGcalsync.log` file (see [how-to](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-problems#locating-your-ogcalsynclog-file))
