@@ -192,18 +192,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 SyncResult syncResult = SyncResult.Fail;
                 int failedAttempts = 0;
                 Telemetry.TrackSync();
-                try {
-                    GoogleOgcs.Calendar.Instance.GetSettings();
-                } catch (System.AggregateException ae) {
-                    OGCSexception.AnalyseAggregate(ae);
-                    syncResult = SyncResult.AutoRetry;
-                } catch (System.ApplicationException ex) {
-                    mainFrm.Console.Update(ex.Message, Console.Markup.warning);
-                    syncResult = SyncResult.AutoRetry;
-                } catch (System.Exception ex) {
-                    log.Warn(ex.Message);
-                    syncResult = SyncResult.AutoRetry;
-                }
+
                 while ((syncResult == SyncResult.Fail || syncResult == SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                     if (failedAttempts > (syncResult == SyncResult.ReconnectThenRetry ? 1 : 0)) {
                         if (OgcsMessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
@@ -301,7 +290,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
-                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
+                    mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", 
+                        new SyncResult[] { SyncResult.UserCancelled, SyncResult.Abandon }.Contains(syncResult) ? Console.Markup.fail : Console.Markup.error);
                 }
 
                 setNextSync(syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
@@ -389,6 +379,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 #region Read Google items
                 console.Update("Scanning Google calendar...");
                 try {
+                    GoogleOgcs.Calendar.Instance.GetSettings();
                     googleEntries = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange();
                 } catch (AggregateException agex) {
                     OGCSexception.AnalyseAggregate(agex);
@@ -510,8 +501,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 }
                             }
-                        } catch (System.Exception) {
-                            console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Console.Markup.error);
+                        } catch (System.Exception ex) {
+                            console.Update("Failed to retrieve master for Google recurring event outside of sync range.", OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error);
                             throw;
                         } finally {
                             oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);

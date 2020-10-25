@@ -76,7 +76,6 @@ namespace OutlookGoogleCalendarSync {
             uninstall,  //squirrel
             upgrade,    //squirrel
             version     //outlook,ogcs
-        }
-        
+        }        
     }
 }
