@@ -300,6 +300,8 @@ namespace OutlookGoogleCalendarSync {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
+        /// <summary>Only allow Outlook to have one category assigned</summary>
+        [DataMember] public Boolean SingleCategoryOnly { get; set; }
         
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
@@ -516,6 +518,7 @@ namespace OutlookGoogleCalendarSync {
                     ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
                         c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
             }
+            log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {
                 if (Settings.Instance.Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");

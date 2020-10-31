@@ -540,8 +540,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
                 if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
-                    //Only allow one OGCS category at a time (Google Events can only have one colour)
-                    aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    if (Settings.Instance.SingleCategoryOnly)
+                        aiCategories = new List<string>();
+                    else {
+                        //Only allow one OGCS category at a time (Google Events can only have one colour)
+                        aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    }
                     aiCategories.Insert(0, gCategoryName);
                     ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
                 }
