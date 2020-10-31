@@ -200,7 +200,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     colourGridView.NotifyCurrentCellDirty(false);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Adding colour/category map row #" + lastRow, ex);
+                OGCSexception.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow, ex);
             }            
         }
 
@@ -296,5 +296,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
         #endregion
+
+        private void colourGridView_SelectionChanged(object sender, EventArgs e) {
+            //Protect against the last row being selected for deletion
+            try {
+                if (colourGridView.SelectedRows.Count == 0) return;
+
+                int selectedRow = colourGridView.SelectedRows[colourGridView.SelectedRows.Count - 1].Index;
+                if (selectedRow == colourGridView.Rows.Count - 1) {
+                    log.Debug("Last row");
+                    colourGridView.Rows[selectedRow].Selected = false;
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private void watchForPasteEvents(Explorer newExplorer) {
             if (!watchExplorers.Contains(newExplorer)) {
-                log.Debug("Adding listener for Explorer '" + newExplorer.Caption + "'");
+                log.Debug("Adding listener for Explorer '" + System.Text.RegularExpressions.Regex.Replace(newExplorer.Caption, @"\s.+@.+\s", " <email address> ") + "'");
                 newExplorer.BeforeItemPaste += new ExplorerEvents_10_BeforeItemPasteEventHandler(beforeItemPaste);
                 watchExplorers.Add(newExplorer);
             }

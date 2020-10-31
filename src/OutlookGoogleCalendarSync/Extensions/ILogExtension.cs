@@ -80,10 +80,10 @@ namespace OutlookGoogleCalendarSync {
             else configSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
 
             if (!string.IsNullOrEmpty(configSetting)) {
-                if (configSetting == "true" && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "ALL") {
+                if (Convert.ToBoolean(configSetting) && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "ALL") {
                     GoogleOgcs.ErrorReporting.SetThreshold(true);
                     replayLogs();
-                } else if (configSetting == "false" && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "OFF") {
+                } else if (!Convert.ToBoolean(configSetting) && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "OFF") {
                     GoogleOgcs.ErrorReporting.SetThreshold(false);
                 }
                 return;

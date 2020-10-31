@@ -155,10 +155,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>The Outlook category type</returns>
         public Outlook.OlCategoryColor? OutlookColour(String categoryName) {
             if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
+            
+            if (this.categories == null)
+                OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
 
             foreach (Outlook.Category category in this.categories) {
                 if (category.Name == categoryName.Trim()) return category.Color;
             }
+
+            log.Warn("Could not convert category name '" + categoryName + "' into Outlook category type.");
             return null;
         }
 

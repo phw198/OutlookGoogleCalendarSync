@@ -93,6 +93,7 @@ namespace OutlookGoogleCalendarSync {
             TimezoneMaps = new TimezoneMappingDictionary();
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
+            ExcludeGoals = true;
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
             GaccountEmail = "";
@@ -122,6 +123,7 @@ namespace OutlookGoogleCalendarSync {
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
             SetEntriesAvailable = false;
+            AvailabilityStatus = Microsoft.Office.Interop.Outlook.OlBusyStatus.olFree.ToString();
             SetEntriesColour = false;
             SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
             SetEntriesColourName = "None";
@@ -217,6 +219,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), ConfigFile);
             }
         }
+        [DataMember] public Boolean ExcludeGoals { get; set; }
         private String personalClientIdentifier;
         private String personalClientSecret;
         [DataMember] public String PersonalClientIdentifier {
@@ -280,6 +283,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
+        [DataMember] public String AvailabilityStatus { get; set; }
         [DataMember] public bool SetEntriesColour { get; set; }
         /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
         [DataMember] public String SetEntriesColourValue { get; set; }
@@ -459,7 +463,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void LogSettings() {
-            log.Info(ConfigFile);
+            log.Info(Program.MaskFilePath(ConfigFile));
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
@@ -480,6 +484,7 @@ namespace OutlookGoogleCalendarSync {
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Exclude Goals: " + ExcludeGoals);
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
             log.Info("    Client Secret: " + (PersonalClientSecret.Length < 5
@@ -497,7 +502,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
-            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable);
+            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
             log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
             if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
@@ -505,8 +510,11 @@ namespace OutlookGoogleCalendarSync {
             }
             if (ColourMaps.Count > 0) {
                 log.Info("  Custom Colour/Category Mapping:-");
-                ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":"+ c.Key + " <=> " + 
-                    c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
+                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                    log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
+                else
+                    ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                        c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
             }
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {
@@ -574,6 +582,8 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Current Locale: " + System.Globalization.CultureInfo.CurrentCulture.Name);
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+            TimeZone curTimeZone = TimeZone.CurrentTimeZone;
+            log.Info("  System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now));
             log.Info("  Completed Syncs: "+ CompletedSyncs);
         }
 

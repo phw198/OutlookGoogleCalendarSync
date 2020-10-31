@@ -93,7 +93,8 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                }
+                } else
+                    MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
@@ -197,10 +198,14 @@ namespace OutlookGoogleCalendarSync {
                             throw new ApplicationException("The /" + arg + " parameter must be used with a filename.");
                         }
                         details["Directory"] = System.IO.Path.GetDirectoryName(argVal.TrimStart(("/" + arg + ":").ToCharArray()));
+                        if (!System.IO.Directory.Exists(details["Directory"])) {
+                            throw new ApplicationException("The specified directory '" + details["Directory"] + "' does not exist.\r\n" +
+                                "Please correct the parameter value passed or create the directory.");
+                        }
                     }
                 }
             } catch (System.Exception ex) {
-                throw new ApplicationException("Failed processing /" + arg + " parameter. " + ex.Message);
+                throw new ApplicationException("Failed processing /" + arg + " parameter.\r\n" + ex.Message);
             }
             return details;
         }
@@ -243,8 +248,12 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Purging log files older than "+ retention +" days...");
             foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
-                    log.Debug("Deleted "+ MaskFilePath(file));
-                    System.IO.File.Delete(file);
+                    try {
+                        System.IO.File.Delete(file);
+                        log.Debug("Deleted " + MaskFilePath(file));
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Could not delete file " + file, OGCSexception.LogAsFail(ex));
+                    }
                 }
             }
             log.Info("Purge complete.");
