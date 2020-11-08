@@ -896,6 +896,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (doDelete) deleteCalendarEntry_save(ev);
                     else events.Remove(ev);
                 } catch (System.Exception ex) {
+                    if (ex is Google.GoogleApiException) {
+                        Google.GoogleApiException gex = ex as Google.GoogleApiException;
+                        if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
+                            log.Error("This event is already deleted! Ignoring failed request to delete.");
+                            continue;
+                        }
+                    }
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Deleted event failed to remove.", ex);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
