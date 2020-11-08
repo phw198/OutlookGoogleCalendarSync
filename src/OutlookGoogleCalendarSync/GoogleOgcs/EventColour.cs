@@ -225,7 +225,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="colourId">Google ID</param>
         public Palette GetColour(String colourId) {
             Palette gColour = this.ActivePalette.Where(x => x.Id == colourId).FirstOrDefault();
-            if (gColour != null)
+            if (colourId != "0" && gColour != null)
                 return gColour;
             else
                 return Palette.NullPalette;
