@@ -258,6 +258,7 @@
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AboutColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AboutColumnValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -826,6 +827,7 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
+            this.tabGoogle.Controls.Add(this.cbExcludeDeclinedInvites);
             this.tabGoogle.Controls.Add(this.cbExcludeGoals);
             this.tabGoogle.Controls.Add(this.label7);
             this.tabGoogle.Controls.Add(this.tbConnectedAcc);
@@ -848,7 +850,7 @@
             // cbExcludeGoals
             // 
             this.cbExcludeGoals.AutoSize = true;
-            this.cbExcludeGoals.Location = new System.Drawing.Point(14, 197);
+            this.cbExcludeGoals.Location = new System.Drawing.Point(14, 216);
             this.cbExcludeGoals.Name = "cbExcludeGoals";
             this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
             this.cbExcludeGoals.TabIndex = 46;
@@ -887,7 +889,7 @@
             this.gbDeveloperOptions.Controls.Add(this.tbClientID);
             this.gbDeveloperOptions.Controls.Add(this.lClientID);
             this.gbDeveloperOptions.Controls.Add(this.lSecret);
-            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 240);
+            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 257);
             this.gbDeveloperOptions.Name = "gbDeveloperOptions";
             this.gbDeveloperOptions.Size = new System.Drawing.Size(364, 171);
             this.gbDeveloperOptions.TabIndex = 31;
@@ -987,7 +989,7 @@
             // cbShowDeveloperOptions
             // 
             this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 217);
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 235);
             this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
             this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
             this.cbShowDeveloperOptions.TabIndex = 30;
@@ -3127,6 +3129,17 @@
             this.AboutColumnValue.Name = "AboutColumnValue";
             this.AboutColumnValue.ReadOnly = true;
             // 
+            // cbExcludeDeclinedInvites
+            // 
+            this.cbExcludeDeclinedInvites.AutoSize = true;
+            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(14, 197);
+            this.cbExcludeDeclinedInvites.Name = "cbExcludeDeclinedInvites";
+            this.cbExcludeDeclinedInvites.Size = new System.Drawing.Size(190, 17);
+            this.cbExcludeDeclinedInvites.TabIndex = 47;
+            this.cbExcludeDeclinedInvites.Text = "Exclude invitations I have declined";
+            this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
+            this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3417,5 +3430,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.ComboBox ddAvailabilty;
+        private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
     }
 }

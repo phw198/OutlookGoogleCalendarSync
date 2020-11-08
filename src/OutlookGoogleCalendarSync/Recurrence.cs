@@ -720,7 +720,15 @@ namespace OutlookGoogleCalendarSync {
                         getOutlookInstance(oPattern, oExcpDate, ref newAiExcp);
                         if (newAiExcp == null) continue;
 
-                        if (gExcp.Status != "cancelled") {
+                        if (gExcp.Status == "cancelled") {
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
+                            newAiExcp.Delete();
+
+                        } else if (Settings.Instance.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Declined.", Console.Markup.calendar);
+                            newAiExcp.Delete();
+
+                        } else {
                             int itemModified = 0;
                             OutlookOgcs.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, forceCompare);
                             if (itemModified > 0) {
@@ -734,9 +742,6 @@ namespace OutlookGoogleCalendarSync {
                                     }
                                 }
                             }
-                        } else {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
-                            newAiExcp.Delete();
                         }
                     } finally {
                         newAiExcp = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(newAiExcp);

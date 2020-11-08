@@ -284,6 +284,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbClientSecret.ReadOnly = false;
             }
 
+            cbExcludeDeclinedInvites.Checked = Settings.Instance.ExcludeDeclinedInvites;
             cbExcludeGoals.Checked = Settings.Instance.ExcludeGoals;
             cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
 
@@ -1157,6 +1158,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
+        private void cbExcludeDeclinedInvites_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ExcludeDeclinedInvites = cbExcludeDeclinedInvites.Checked;
+        }
         private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.ExcludeGoals = cbExcludeGoals.Checked;
         }

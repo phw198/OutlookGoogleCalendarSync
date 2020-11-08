@@ -306,6 +306,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
+            if (Settings.Instance.ExcludeDeclinedInvites) {
+                List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
+                if (declined.Count > 0) {
+                    log.Debug(declined.Count + " Google Event invites have been declined and will be excluded.");
+                    result = result.Except(declined).ToList();
+                }
+            }
+
             if ((IsDefaultCalendar() ?? true) && Settings.Instance.ExcludeGoals) {
                 List<Event> goals = result.Where(ev =>
                     !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
