@@ -32,7 +32,7 @@ google_analytics: UA-19426033-4
 # Current software releases
 show_alpha_downloads: true
 beta-version: 2.8.0
-alpha-version: 2.8.4
+alpha-version: 2.8.5
 
 # Build settings
 markdown: kramdown
