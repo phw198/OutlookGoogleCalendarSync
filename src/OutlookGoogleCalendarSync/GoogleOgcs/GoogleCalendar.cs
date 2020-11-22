@@ -1342,29 +1342,54 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// Get the global Calendar settings
         /// </summary>
         public void GetSettings() {
-            try {
-                log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
-                Setting setting = Service.Settings.Get("timezone").Execute();
-                this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's global timezone.", ex);
+            int backoff = 0;
+            String stage = "retrieve Google calendar's global timezone";
+            while (backoff < BackoffLimit) {
+                try {
+                    log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
+                    Setting setting = Service.Settings.Get("timezone").Execute();
+                    this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+                    stage = "retrieve settings for synced Google calendar";
+                    getCalendarSettings();
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (HandleAPIlimits(ref ex, null)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse("Not able to " + stage, ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref aex);
+                            throw aex;
+                        case ApiException.backoffThenRetry:
+                            backoff++;
+                            if (backoff == BackoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                    }
+                    OGCSexception.Analyse("Not able to " + stage, ex);
+                    throw new System.ApplicationException("Unable to " + stage + ".", ex);
+
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Not able to retrieve " + stage, ex);
+                    throw new System.ApplicationException("Unable to retrieve " + stage + ".", ex);
+                }
             }
-            getCalendarSettings();
         }
         private void getCalendarSettings() {
             if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
-            try {
-                CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
-                CalendarListEntry cal = request.Execute();
-                if (cal.DefaultReminders.Count == 0)
-                    this.MinDefaultReminder = long.MinValue;
-                else
-                    this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to get calendar settings.", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's reminder settings.", ex);
-            }
+
+            CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
+            CalendarListEntry cal = request.Execute();
+            if (cal.DefaultReminders.Count == 0)
+                this.MinDefaultReminder = long.MinValue;
+            else
+                this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
         }
 
         /// <summary>
