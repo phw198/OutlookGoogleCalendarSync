@@ -259,6 +259,7 @@
             this.AboutColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AboutColumnValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
+            this.cbSingleCategoryOnly = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1673,6 +1674,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbSingleCategoryOnly);
             this.gbSyncOptions_What.Controls.Add(this.btColourMap);
             this.gbSyncOptions_What.Controls.Add(this.cbCloakEmail);
             this.gbSyncOptions_What.Controls.Add(this.lDNDand);
@@ -3140,6 +3142,18 @@
             this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
             this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
             // 
+            // cbSingleCategoryOnly
+            // 
+            this.cbSingleCategoryOnly.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbSingleCategoryOnly.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbSingleCategoryOnly.Location = new System.Drawing.Point(226, 96);
+            this.cbSingleCategoryOnly.Name = "cbSingleCategoryOnly";
+            this.cbSingleCategoryOnly.Size = new System.Drawing.Size(121, 18);
+            this.cbSingleCategoryOnly.TabIndex = 47;
+            this.cbSingleCategoryOnly.Text = "Single category only";
+            this.cbSingleCategoryOnly.UseVisualStyleBackColor = true;
+            this.cbSingleCategoryOnly.CheckedChanged += new System.EventHandler(this.cbSingleCategoryOnly_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3431,5 +3445,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.ComboBox ddAvailabilty;
         private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
+        private System.Windows.Forms.CheckBox cbSingleCategoryOnly;
     }
 }
