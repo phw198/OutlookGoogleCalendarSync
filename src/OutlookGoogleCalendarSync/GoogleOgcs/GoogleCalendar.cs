@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -160,7 +160,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 case ApiException.freeAPIexhausted:
                                     OGCSexception.LogAsFail(ref ex);
                                     OGCSexception.Analyse(ex);
-                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                     OGCSexception.LogAsFail(ref aex);
                                     throw aex;
                                 case ApiException.backoffThenRetry:
@@ -213,7 +213,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -273,7 +273,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -465,7 +465,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.justContinue: break;
@@ -843,7 +843,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -937,7 +937,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
