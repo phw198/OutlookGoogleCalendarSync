@@ -173,7 +173,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 List<Palette> activePalette = new List<Palette>();
                 if (Settings.Instance.UseGoogleCalendar == null) return activePalette;
-
+                
+                if (Settings.Instance.UseGoogleCalendar.ColourId == null) {
+                    List<GoogleCalendarListEntry> gCals = GoogleOgcs.Calendar.Instance.GetCalendars();
+                    Settings.Instance.UseGoogleCalendar.ColourId = gCals.Find(c => c.Id == Settings.Instance.UseGoogleCalendar.Id).ColourId;
+                }
+                
                 //Palette currentCal = calendarPalette.Find(p => p.Id == Settings.Instance.UseGoogleCalendar.ColourId);
                 Palette currentCal = null;
                 foreach (Palette cal in calendarPalette) {
