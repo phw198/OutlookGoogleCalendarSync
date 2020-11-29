@@ -517,9 +517,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             ExchangeUser eu = null;
                             try {
                                 eu = addressEntry.GetExchangeUser();
-                                if (eu != null && eu.PrimarySmtpAddress != null)
-                                    retEmail = eu.PrimarySmtpAddress;
-                                else {
+                                if (eu != null) {
+                                    try {
+                                        retEmail = eu.PrimarySmtpAddress;
+                                    } catch (System.Exception ex) {
+                                        OGCSexception.Analyse("Could not access Exchange users's primary SMTP.", OGCSexception.LogAsFail(ex));
+                                    }
+                                }
+                                if (eu == null || string.IsNullOrEmpty(retEmail)) {
                                     log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
                                     Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
                                     try {
@@ -800,7 +805,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (tzi != null) return tzi;
 
                 //Finally, fuzzy logic
-                log.Warn("Could not find timezone ID based on given description. Attempting some fuzzy logic...");
+                log.Warn("Could not find timezone ID based on given description, '" + tzDescription + "'. Attempting some fuzzy logic...");
                 if (tzDescription.StartsWith("(GMT")) {
                     log.Fine("Replace GMT with UTC");
                     String modTzDescription = tzDescription.Replace("(GMT", "(UTC");
