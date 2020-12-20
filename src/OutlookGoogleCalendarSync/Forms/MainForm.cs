@@ -1753,6 +1753,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
             if (!cbTelemetryDisabled.Checked) {
                 Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
                 return;
