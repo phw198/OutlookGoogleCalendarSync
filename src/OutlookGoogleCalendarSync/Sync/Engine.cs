@@ -450,8 +450,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             continue;
                         }
                     } catch (System.Exception ex) {
-                        log.Warn("Encountered error casting calendar object to AppointmentItem - cannot sync it.");
-                        log.Debug(ex.Message);
+                        OGCSexception.Analyse("Encountered error casting calendar object to AppointmentItem - cannot sync it.", OGCSexception.LogAsFail(ex));
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
@@ -464,8 +463,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         DateTime checkDates = ai.Start;
                         checkDates = ai.End;
                     } catch (System.Exception ex) {
-                        log.Warn("Calendar item does not have a proper date range - cannot sync it.");
-                        log.Debug(ex.Message);
+                        OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it.", OGCSexception.LogAsFail(ex));
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
