@@ -1756,7 +1756,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
                     if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
                     int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
-                    Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true);
+                    Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                     Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
                 }
 
