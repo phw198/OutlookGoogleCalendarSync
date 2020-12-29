@@ -1,5 +1,4 @@
-﻿using Google.Apis.Calendar.v3.Data;
-using log4net;
+﻿using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             NotificationTray = new NotificationTray(this.trayIcon);
 
             log.Debug("Create the timer for the auto synchronisation");
-            Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
+            Sync.Engine.Instance.OgcsTimer.Initialise();
 
             //Set up listener for Outlook calendar changes
             if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
@@ -56,7 +55,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!this.IsHandleCreated) this.CreateHandle();
                 this.WindowState = FormWindowState.Minimized;
             }
-            if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
+            if (Settings.Instance.SyncInterval == 0 || (Sync.Engine.Instance.OgcsTimer.NextSyncDate - DateTime.Now).TotalMinutes > 5) {
                 OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
             }
             while (!Forms.Splash.BeenAndGone) {

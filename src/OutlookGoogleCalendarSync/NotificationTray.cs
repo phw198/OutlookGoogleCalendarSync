@@ -127,8 +127,8 @@ namespace OutlookGoogleCalendarSync {
                     XMLManager.ExportElement("SyncInterval", 1, Settings.ConfigFile);
                     XMLManager.ExportElement("SyncIntervalUnit", "Hours", Settings.ConfigFile);
                 }
-                if (Sync.Engine.Instance.OgcsTimer == null) Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
-                Sync.Engine.Instance.OgcsTimer.Switch(true);
+                if (Sync.Engine.Instance.OgcsTimer == null) (Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer()).Initialise();
+                Sync.Engine.Instance.OgcsTimer.Activate(true);
                 Forms.Main.Instance.StrikeOutNextSyncVal(false);
                 if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
                 UpdateAutoSyncItems();
@@ -137,7 +137,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Auto sync timer not initialised.");
                     return;
                 }
-                Sync.Engine.Instance.OgcsTimer.Switch(false);
+                Sync.Engine.Instance.OgcsTimer.Activate(false);
                 Forms.Main.Instance.StrikeOutNextSyncVal(true);
                 if (Settings.Instance.OutlookPush) Sync.Engine.Instance.DeregisterForPushSync();
                 UpdateAutoSyncItems();
