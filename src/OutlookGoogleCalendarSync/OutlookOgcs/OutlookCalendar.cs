@@ -163,7 +163,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
-                foreach (Object obj in OutlookItems.Restrict(filter)) {
+                foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;

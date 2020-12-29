@@ -480,6 +480,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
+        public List<Object> FilterItems(Items outlookItems, String filter) {
+            List<Object> restrictedItems = new List<Object>();
+            foreach (Object obj in outlookItems.Restrict(filter)) {
+                restrictedItems.Add(obj);
+            }
+            return restrictedItems;
+        }
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = oApp.GetNamespace("mapi");
             ai = ns.GetItemFromID(entryID) as AppointmentItem;
