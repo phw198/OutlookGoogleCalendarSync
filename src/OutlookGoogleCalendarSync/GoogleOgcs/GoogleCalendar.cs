@@ -306,6 +306,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
+            if (Settings.Instance.ExcludeDeclinedInvites) {
+                List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
+                if (declined.Count > 0) {
+                    log.Debug(declined.Count + " Google Event invites have been declined and will be excluded.");
+                    result = result.Except(declined).ToList();
+                }
+            }
+
             if ((IsDefaultCalendar() ?? true) && Settings.Instance.ExcludeGoals) {
                 List<Event> goals = result.Where(ev =>
                     !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
@@ -486,6 +494,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
             //DOS ourself by triggering API limit
@@ -896,6 +905,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (doDelete) deleteCalendarEntry_save(ev);
                     else events.Remove(ev);
                 } catch (System.Exception ex) {
+                    if (ex is Google.GoogleApiException) {
+                        Google.GoogleApiException gex = ex as Google.GoogleApiException;
+                        if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
+                            log.Fail("This event is already deleted! Ignoring failed request to delete.");
+                            continue;
+                        }
+                    }
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Deleted event failed to remove.", ex);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -1348,7 +1364,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's global timezone.", ex);
+                throw;
             }
             getCalendarSettings();
         }
@@ -1362,8 +1378,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 else
                     this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to get calendar settings.", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's reminder settings.", ex);
+                OGCSexception.Analyse("Failed to get calendar's reminder settings.", ex);
+                throw;
             }
         }
 

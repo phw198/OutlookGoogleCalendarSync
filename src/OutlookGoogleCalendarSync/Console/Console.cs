@@ -267,6 +267,7 @@ namespace OutlookGoogleCalendarSync {
                 if (logit) {
                     //Log the output sans HTML tags
                     String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
+                    tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
                     tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
                     String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                     if (markupPrefix == Markup.warning)
@@ -351,7 +352,7 @@ namespace OutlookGoogleCalendarSync {
                 
                 output = output.Replace(":calendar:", "<span class='em em-date' style='margin-top:5px'></span>");
                 output = output.Replace("(R)", "<span class='em em-repeat'></span>");
-                output = output.Replace("=>", "");
+                output = output.Replace("=> ", "");
 
             } catch (System.Exception ex) {
                 log.Error("Failed parsing for emoji.");

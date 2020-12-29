@@ -113,6 +113,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbCloakEmail,
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
                 "This option safeguards against that by appending '"+ GoogleOgcs.EventAttendee.EmailCloak +"' to their email address.");
+            ToolTips.SetToolTip(cbSingleCategoryOnly,
+                "Only allow a single Outlook category - ie 1:1 sync with Google.\n" +
+                "Otherwise, for multiple categories and only one synced with OGCS, manually prefix the category name(s) with \"OGCS \".");
             ToolTips.SetToolTip(cbReminderDND,
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
 
@@ -284,6 +287,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbClientSecret.ReadOnly = false;
             }
 
+            cbExcludeDeclinedInvites.Checked = Settings.Instance.ExcludeDeclinedInvites;
             cbExcludeGoals.Checked = Settings.Instance.ExcludeGoals;
             cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
 
@@ -398,6 +402,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             dtDNDend.Value = Settings.Instance.ReminderDNDend;
             cbAddColours.Checked = Settings.Instance.AddColours;
             btColourMap.Enabled = Settings.Instance.AddColours;
+            cbSingleCategoryOnly.Checked = Settings.Instance.SingleCategoryOnly;
+            cbSingleCategoryOnly.Enabled = Settings.Instance.AddColours && Settings.Instance.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
             this.gbSyncOptions_What.ResumeLayout();
             #endregion
             #endregion
@@ -1157,6 +1163,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
+        private void cbExcludeDeclinedInvites_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ExcludeDeclinedInvites = cbExcludeDeclinedInvites.Checked;
+        }
         private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.ExcludeGoals = cbExcludeGoals.Checked;
         }
@@ -1261,6 +1270,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     tbTargetCalendar.Items.Remove("target calendar");
                 tbTargetCalendar.SelectedIndex = 0;
                 tbTargetCalendar.Enabled = true;
+                cbSingleCategoryOnly.Visible = true;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = Settings.Instance.SyncDirection.Id - 1;
@@ -1284,6 +1294,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.lDNDand.Visible = false;
                 this.ddGoogleColour.Visible = false;
                 this.ddOutlookColour.Visible = true;
+                this.cbSingleCategoryOnly.Visible = true;
             }
             if (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle) {
                 Sync.Engine.Instance.RegisterForPushSync();
@@ -1294,6 +1305,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.lDNDand.Visible = true;
                 this.ddGoogleColour.Visible = true;
                 this.ddOutlookColour.Visible = false;
+                this.cbSingleCategoryOnly.Visible = false;
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
@@ -1620,6 +1632,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbAddColours_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.AddColours = cbAddColours.Checked;
             btColourMap.Enabled = Settings.Instance.AddColours;
+            cbSingleCategoryOnly.Enabled = Settings.Instance.AddColours;
         }
         private void btColourMap_Click(object sender, EventArgs e) {
             if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
@@ -1627,6 +1640,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 return;
             }
             new Forms.ColourMap().ShowDialog(this);
+        }
+        private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
         }
         #endregion
         #endregion
@@ -1737,6 +1753,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {
+            if (!this.Visible) return;
+
             if (!cbTelemetryDisabled.Checked) {
                 Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
                 return;

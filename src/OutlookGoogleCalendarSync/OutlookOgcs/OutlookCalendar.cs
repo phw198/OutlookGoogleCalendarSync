@@ -547,8 +547,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
                 if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
+                    if (Settings.Instance.SingleCategoryOnly)
+                        aiCategories = new List<string>();
+                    else {
                     //Only allow one OGCS category at a time (Google Events can only have one colour)
                     aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    }
                     aiCategories.Insert(0, gCategoryName);
                     ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
                 }
@@ -1352,7 +1356,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (!CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID) ||
-                        outlook[o].LastModificationTime > Sync.Engine.Instance.SyncStarted)
+                        CustomProperty.GetOGCSlastModified(outlook[o]) > Sync.Engine.Instance.SyncStarted)
                         outlook.Remove(outlook[o]);
                 }
             }
