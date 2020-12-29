@@ -163,14 +163,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
-
-                List<Object> restrictedItems = new List<Object>();
-                foreach (Object obj in OutlookItems.Restrict(filter)) {
-                    restrictedItems.Add(obj);
-                }
-                OutlookOld.KeepRecurring(OutlookItems, ref restrictedItems);
-
-                foreach (Object obj in restrictedItems) {
+                foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
