@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case Calendar.ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(Calendar.Instance.SubscriptionInvite);
+                                System.ApplicationException aex = new System.ApplicationException(Calendar.Instance.SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 authenticated = false;
                                 return authenticated;
@@ -342,7 +342,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     case Calendar.ApiException.freeAPIexhausted:
                         OGCSexception.LogAsFail(ref ex);
                         OGCSexception.Analyse(ex);
-                        System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite);
+                        System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
                         OGCSexception.LogAsFail(ref aex);
                         GoogleOgcs.Calendar.Instance.Service = null;
                         throw aex;

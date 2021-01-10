@@ -1,5 +1,4 @@
-﻿using Google.Apis.Calendar.v3.Data;
-using log4net;
+﻿using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             NotificationTray = new NotificationTray(this.trayIcon);
 
             log.Debug("Create the timer for the auto synchronisation");
-            Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer();
+            Sync.Engine.Instance.OgcsTimer.Initialise();
 
             //Set up listener for Outlook calendar changes
             if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
@@ -56,7 +55,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!this.IsHandleCreated) this.CreateHandle();
                 this.WindowState = FormWindowState.Minimized;
             }
-            if (((Sync.Engine.Instance.OgcsTimer.NextSyncDate ?? DateTime.Now.AddMinutes(10)) - DateTime.Now).TotalMinutes > 5) {
+            if (Settings.Instance.SyncInterval == 0 || (Sync.Engine.Instance.OgcsTimer.NextSyncDate - DateTime.Now).TotalMinutes > 5) {
                 OutlookOgcs.Calendar.Disconnect(onlyWhenNoGUI: true);
             }
             while (!Forms.Splash.BeenAndGone) {
@@ -606,24 +605,43 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public enum SyncNotes {
             QuotaExhaustedInfo,
+            QuotaExhaustedPreviously,
             RecentSubscription,
             SubscriptionPendingExpire,
             SubscriptionExpired,
             NotLogFile
         }
         public void SyncNote(SyncNotes syncNote, Object extraData, Boolean show = true) {
-            if (!this.tbSyncNote.Visible && !show) return; //Already hidden
+            if (this.Visible && !this.tbSyncNote.Visible && !show) return; //Already hidden
 
             String note = "";
             String url = "";
             String urlStub = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=";
             String cr = "\r\n";
+
+            if (syncNote == SyncNotes.QuotaExhaustedInfo && !show && this.tbSyncNote.Text.Contains("quota is exhausted")) {
+                syncNote = SyncNotes.QuotaExhaustedPreviously;
+                show = true;
+            }
+
             switch (syncNote) {
                 case SyncNotes.QuotaExhaustedInfo:
                     note =  "  Google's daily free calendar quota is exhausted!" + cr +
                             "     Either wait for new quota at 08:00GMT or     " + cr +
                             "  get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    break;
+                case SyncNotes.QuotaExhaustedPreviously:
+                    DateTime utcNow = DateTime.UtcNow;
+                    DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                    int delayHours = (int)(quotaReset - DateTime.Now).TotalHours + 1;
+                    note =  "Google's daily free calendar quota was exhausted!" + cr +
+                            "  Syncs were delayed "+ delayHours +" hours until 08:00GMT  " + cr +
+                            " Get yourself guaranteed quota for just £1/month.";
+                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    System.Threading.Thread hide = new System.Threading.Thread(() => { System.Threading.Thread.Sleep((delayHours + 3) * 60 * 60 * 1000); SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false); });
+                    hide.Start();
                     break;
                 case SyncNotes.RecentSubscription:
                     note =  "                                                  " + cr +
@@ -778,10 +796,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void MainFormShow() {
+            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
             this.Show(); //Show minimised back in taskbar
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
             this.TopMost = true;
+            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
             this.Show(); //Now restore
             this.TopMost = false;
             this.Refresh();
