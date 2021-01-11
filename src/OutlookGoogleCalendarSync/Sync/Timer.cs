@@ -66,15 +66,18 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (Settings.Instance.SyncInterval != 0) {
                 DateTime now = DateTime.Now;
                 this.NextSyncDate = fromNow ? now.AddMinutes(delayMins) : LastSyncDate.AddMinutes(delayMins);
-                if (calculateInterval) CalculateInterval();
+            }
+            if (calculateInterval) CalculateInterval();
+        }
 
-            } else {
+        public void CalculateInterval() {
+            if (Settings.Instance.SyncInterval == 0) {
                 Forms.Main.Instance.NextSyncVal = "Inactive";
                 Activate(false);
                 log.Info("Schedule disabled.");
+                return;
             }
-        }
-        public void CalculateInterval() {
+
             DateTime now = DateTime.Now;
             double interval = (this.nextSyncDate - now).TotalMinutes;
 
