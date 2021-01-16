@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     this.NextSyncDate = now.AddMinutes(1);
                     this.Interval = 1 * 60000;
                 } else {
-                    this.Interval = (int)(interval * 60000);
+                    this.Interval = (int)Math.Min((interval * 60000), int.MaxValue);
                 }
             }
             Activate(true);
