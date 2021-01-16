@@ -1074,7 +1074,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
-            List<GoogleCalendarListEntry> calendars = null;
+            List<GoogleCalendarListEntry> calendars = new List<GoogleCalendarListEntry>();
             try {
                 calendars = GoogleOgcs.Calendar.Instance.GetCalendars();
             } catch (AggregateException agex) {
@@ -1105,7 +1105,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
             }
-            if (calendars != null) {
+            if (calendars.Count > 0) {
                 cbGoogleCalendars.Items.Clear();
                 calendars.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
                 foreach (GoogleCalendarListEntry mcle in calendars) {

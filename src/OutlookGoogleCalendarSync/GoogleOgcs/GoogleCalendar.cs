@@ -96,44 +96,51 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public List<GoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
+            String pageToken = null;
+            List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
             int backoff = 0;
-            while (backoff < BackoffLimit) {
-                try {
-                    request = Service.CalendarList.List().Execute();
-                    break;
-                } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ref ex, null)) {
-                        case ApiException.throwException: throw;
-                        case ApiException.freeAPIexhausted:
-                            OGCSexception.LogAsFail(ref ex);
-                            OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
-                            OGCSexception.LogAsFail(ref aex);
-                            throw aex;
-                        case ApiException.backoffThenRetry:
-                            backoff++;
-                            if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
-                                throw;
-                            } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
-                            }
-                            break;
+
+            do {
+                while (backoff < BackoffLimit) {
+                    try {
+                        CalendarListResource.ListRequest lr = Service.CalendarList.List();
+                        lr.PageToken = pageToken;
+                        request = lr.Execute();
+                        break;
+                    } catch (Google.GoogleApiException ex) {
+                        switch (HandleAPIlimits(ref ex, null)) {
+                            case ApiException.throwException: throw;
+                            case ApiException.freeAPIexhausted:
+                                OGCSexception.LogAsFail(ref ex);
+                                OGCSexception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                OGCSexception.LogAsFail(ref aex);
+                                throw aex;
+                            case ApiException.backoffThenRetry:
+                                backoff++;
+                                if (backoff == BackoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                }
+                                break;
+                        }
                     }
                 }
-            }
 
-            if (request != null) {
-                List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
-                foreach (CalendarListEntry cle in request.Items) {
-                    result.Add(new GoogleCalendarListEntry(cle));
+                if (request != null) {
+                    pageToken = request.NextPageToken;
+                    foreach (CalendarListEntry cle in request.Items) {
+                        result.Add(new GoogleCalendarListEntry(cle));
+                    }
+                } else {
+                    log.Error("Handshaking with the Google calendar service failed.");
                 }
-                return result;
-            } else {
-                log.Error("Handshaking with the Google calendar service failed.");
-            }
-            return null;
+            } while (pageToken != null);
+
+            return result;
         }
 
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
