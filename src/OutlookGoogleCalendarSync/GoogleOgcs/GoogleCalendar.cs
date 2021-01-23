@@ -193,8 +193,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return result;
 
             } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events", OGCSexception.LogAsFail(ex));
-                OGCSexception.Analyse(ex);
+                Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", OGCSexception.LogAsFail(ex));
+                OGCSexception.Analyse("recurringEventId: " + recurringEventId, ex);
                 return null;
             }
         }

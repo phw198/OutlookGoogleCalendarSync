@@ -650,7 +650,7 @@ namespace OutlookGoogleCalendarSync {
                                         }
                                     }
                                 } else {
-                                    log.Debug("No matching Google Event recurrence found.");
+                                    log.Warn("No matching Google Event recurrence found.");
                                     if (oIsDeleted) log.Debug("The Outlook appointment is deleted, so not a problem.");
                                 }
                             } finally {

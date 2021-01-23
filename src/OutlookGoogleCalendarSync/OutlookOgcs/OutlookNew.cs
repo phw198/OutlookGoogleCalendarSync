@@ -645,7 +645,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void RefreshCategories() {
             log.Debug("Refreshing categories...");
-            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+            try {
+                OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+            } catch (System.Exception ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x800706BA") { //RPC Server Unavailable
+                    OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+                    OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+                }
+            }
             Forms.Main.Instance.ddOutlookColour.AddColourItems();
             foreach (OutlookOgcs.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
                 if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&

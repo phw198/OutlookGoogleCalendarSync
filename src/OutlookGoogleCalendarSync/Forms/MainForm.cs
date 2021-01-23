@@ -788,6 +788,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             } finally {
                 bSave.Enabled = true;
                 bSave.Text = "Save";
+                OutlookOgcs.Calendar.Disconnect(true);
             }
         }
 
@@ -1077,6 +1078,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void btTestOutlookFilter_Click(object sender, EventArgs e) {
             log.Debug("Testing the Outlook filter string.");
             int filterCount = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items, false).Count();
+            OutlookOgcs.Calendar.Disconnect(true);
             String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";
             msg += Settings.Instance.SyncStart.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             msg += " and " + Settings.Instance.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
