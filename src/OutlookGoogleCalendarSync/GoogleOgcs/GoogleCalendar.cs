@@ -785,7 +785,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         } //if Google reminder found
                     } //foreach reminder
 
-                } else { //no Google reminders set
+                } else { //no Google popup reminders set
                     if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
@@ -795,7 +795,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
-                    } else {
+
+                    } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
                         Boolean newVal = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
 
                         //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
