@@ -27,7 +27,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         /// <summary>The time the current sync started</summary>
         public DateTime SyncStarted { get; protected set; }
-        public SyncTimer OgcsTimer;
+        public SyncTimer OgcsTimer = new SyncTimer();
         public Sync.PushSyncTimer OgcsPushTimer;
         private AbortableBackgroundWorker bwSync;
         public Boolean SyncingNow {
@@ -60,13 +60,13 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (OgcsPushTimer == null)
                 OgcsPushTimer = Sync.PushSyncTimer.Instance;
             if (!OgcsPushTimer.Running())
-                OgcsPushTimer.Switch(true);
+                OgcsPushTimer.Activate(true);
         }
 
         public void DeregisterForPushSync() {
             log.Info("Stop monitoring for Outlook appointment changes...");
             if (OgcsPushTimer != null && OgcsPushTimer.Running())
-                OgcsPushTimer.Switch(false);
+                OgcsPushTimer.Activate(false);
         }
         #endregion
 
@@ -151,7 +151,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 //Check network availability
                 if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
                     mainFrm.Console.Update("There does not appear to be any network available! Sync aborted.", Console.Markup.warning, notifyBubble: true);
-                    setNextSync(false, updateSyncSchedule, cacheNextSync);
+                    setNextSync(false, updateSyncSchedule);
                     return;
                 }
                 //Check if Outlook is Online
@@ -159,7 +159,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (OutlookOgcs.Calendar.Instance.IOutlook.Offline() && Settings.Instance.AddAttendees) {
                         mainFrm.Console.Update("<p>You have selected to sync attendees but Outlook is currently offline.</p>" +
                             "<p>Either put Outlook online or do not sync attendees.</p>", Console.Markup.error, notifyBubble: true);
-                        setNextSync(false, updateSyncSchedule, cacheNextSync);
+                        setNextSync(false, updateSyncSchedule);
                         return;
                     }
                 } catch (System.Exception ex) {
@@ -278,15 +278,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
-                    //***Simplify this one settings profiles in place
-                    if (!("Inactive;Push Sync Active;In progress...".Contains(Forms.Main.Instance.NextSyncVal)) &&
-                        DateTime.ParseExact(Forms.Main.Instance.NextSyncVal.Replace(" + Push", ""),
-                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern + " @ " +
-                            System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern,
-                            System.Globalization.CultureInfo.CurrentCulture) > DateTime.Now) {
-                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + mainFrm.NextSyncVal);
+                    if (OgcsTimer.NextSyncDate != null && OgcsTimer.NextSyncDate > DateTime.Now) {
+                        log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + OgcsTimer.NextSyncDateText);
                         updateSyncSchedule = false;
-                        cacheNextSync = mainFrm.NextSyncVal;
                     }
                 } else {
                     consecutiveSyncFails += failedAttempts;
@@ -294,7 +288,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         new SyncResult[] { SyncResult.UserCancelled, SyncResult.Abandon }.Contains(syncResult) ? Console.Markup.fail : Console.Markup.error);
                 }
 
-                setNextSync(syncResult == SyncResult.OK, updateSyncSchedule, cacheNextSync);
+                setNextSync(syncResult == SyncResult.OK, updateSyncSchedule);
+                OgcsTimer.CalculateInterval();
                 mainFrm.CheckSyncMilestone();
 
             } finally {
@@ -317,13 +312,14 @@ namespace OutlookGoogleCalendarSync.Sync {
         /// <param name="updateSyncSchedule">Whether to calculate the next sync time or not</param>
         /// <param name="cacheNextSync">The time previously calculated for the next sync when the current one started.
         /// If updateSyncSchedule is false, this value persists.</param>
-        private void setNextSync(Boolean syncedOk, Boolean updateSyncSchedule, String cacheNextSync) {
+        private void setNextSync(Boolean syncedOk, Boolean updateSyncSchedule) {
             if (syncedOk) {
                 Forms.Main.Instance.LastSyncVal = this.SyncStarted.ToLongDateString() + " @ " + this.SyncStarted.ToLongTimeString();
                 Settings.Instance.LastSyncDate = this.SyncStarted;
             }
             if (!updateSyncSchedule) {
-                Forms.Main.Instance.NextSyncVal = cacheNextSync;
+                Forms.Main.Instance.NextSyncVal = OgcsTimer.NextSyncDateText;
+                OgcsTimer.Activate(true);
             } else {
                 if (syncedOk) {
                     OgcsTimer.LastSyncDate = this.SyncStarted;

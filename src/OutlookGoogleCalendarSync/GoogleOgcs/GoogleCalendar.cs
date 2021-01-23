@@ -96,44 +96,51 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public List<GoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
+            String pageToken = null;
+            List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
             int backoff = 0;
-            while (backoff < BackoffLimit) {
-                try {
-                    request = Service.CalendarList.List().Execute();
-                    break;
-                } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ref ex, null)) {
-                        case ApiException.throwException: throw;
-                        case ApiException.freeAPIexhausted:
-                            OGCSexception.LogAsFail(ref ex);
-                            OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
-                            OGCSexception.LogAsFail(ref aex);
-                            throw aex;
-                        case ApiException.backoffThenRetry:
-                            backoff++;
-                            if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
-                                throw;
-                            } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
-                            }
-                            break;
+
+            do {
+                while (backoff < BackoffLimit) {
+                    try {
+                        CalendarListResource.ListRequest lr = Service.CalendarList.List();
+                        lr.PageToken = pageToken;
+                        request = lr.Execute();
+                        break;
+                    } catch (Google.GoogleApiException ex) {
+                        switch (HandleAPIlimits(ref ex, null)) {
+                            case ApiException.throwException: throw;
+                            case ApiException.freeAPIexhausted:
+                                OGCSexception.LogAsFail(ref ex);
+                                OGCSexception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                OGCSexception.LogAsFail(ref aex);
+                                throw aex;
+                            case ApiException.backoffThenRetry:
+                                backoff++;
+                                if (backoff == BackoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                }
+                                break;
+                        }
                     }
                 }
-            }
 
-            if (request != null) {
-                List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
-                foreach (CalendarListEntry cle in request.Items) {
-                    result.Add(new GoogleCalendarListEntry(cle));
+                if (request != null) {
+                    pageToken = request.NextPageToken;
+                    foreach (CalendarListEntry cle in request.Items) {
+                        result.Add(new GoogleCalendarListEntry(cle));
+                    }
+                } else {
+                    log.Error("Handshaking with the Google calendar service failed.");
                 }
-                return result;
-            } else {
-                log.Error("Handshaking with the Google calendar service failed.");
-            }
-            return null;
+            } while (pageToken != null);
+
+            return result;
         }
 
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
@@ -160,7 +167,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 case ApiException.freeAPIexhausted:
                                     OGCSexception.LogAsFail(ref ex);
                                     OGCSexception.Analyse(ex);
-                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                     OGCSexception.LogAsFail(ref aex);
                                     throw aex;
                                 case ApiException.backoffThenRetry:
@@ -186,8 +193,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return result;
 
             } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to retrieve recurring events", Console.Markup.error);
-                log.Error(ex.Message);
+                Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", OGCSexception.LogAsFail(ex));
+                OGCSexception.Analyse("recurringEventId: " + recurringEventId, ex);
                 return null;
             }
         }
@@ -213,7 +220,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -273,7 +280,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             case ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                                System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
                             case ApiException.backoffThenRetry:
@@ -304,6 +311,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (cancelled.Count > 0) {
                 log.Debug(cancelled.Count + " Google Events are cancelled and will be excluded.");
                 result = result.Except(cancelled).ToList();
+            }
+
+            if (Settings.Instance.ExcludeDeclinedInvites) {
+                List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
+                if (declined.Count > 0) {
+                    log.Debug(declined.Count + " Google Event invites have been declined and will be excluded.");
+                    result = result.Except(declined).ToList();
+                }
             }
 
             if ((IsDefaultCalendar() ?? true) && Settings.Instance.ExcludeGoals) {
@@ -465,7 +480,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.justContinue: break;
@@ -486,6 +501,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
             //DOS ourself by triggering API limit
@@ -776,7 +792,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         } //if Google reminder found
                     } //foreach reminder
 
-                } else { //no Google reminders set
+                } else { //no Google popup reminders set
                     if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
@@ -786,7 +802,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
-                    } else {
+
+                    } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
                         Boolean newVal = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
 
                         //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
@@ -843,7 +860,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -896,6 +913,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (doDelete) deleteCalendarEntry_save(ev);
                     else events.Remove(ev);
                 } catch (System.Exception ex) {
+                    if (ex is Google.GoogleApiException) {
+                        Google.GoogleApiException gex = ex as Google.GoogleApiException;
+                        if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
+                            log.Fail("This event is already deleted! Ignoring failed request to delete.");
+                            continue;
+                        }
+                    }
                     Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Deleted event failed to remove.", ex);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -937,7 +961,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
                             OGCSexception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             OGCSexception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
@@ -1342,29 +1366,54 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// Get the global Calendar settings
         /// </summary>
         public void GetSettings() {
-            try {
-                log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
-                Setting setting = Service.Settings.Get("timezone").Execute();
-                this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Not able to retrieve Google calendar's global timezone", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's global timezone.", ex);
+            int backoff = 0;
+            String stage = "retrieve Google calendar's global timezone";
+            while (backoff < BackoffLimit) {
+                try {
+                    log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
+                    Setting setting = Service.Settings.Get("timezone").Execute();
+                    this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+                    stage = "retrieve settings for synced Google calendar";
+                    getCalendarSettings();
+                    break;
+                } catch (Google.GoogleApiException ex) {
+                    switch (HandleAPIlimits(ref ex, null)) {
+                        case ApiException.throwException: throw;
+                        case ApiException.freeAPIexhausted:
+                            OGCSexception.LogAsFail(ref ex);
+                            OGCSexception.Analyse("Not able to " + stage, ex);
+                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                            OGCSexception.LogAsFail(ref aex);
+                            throw aex;
+                        case ApiException.backoffThenRetry:
+                            backoff++;
+                            if (backoff == BackoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoff * 1000);
+                            }
+                            break;
+                    }
+                    OGCSexception.Analyse("Not able to " + stage, ex);
+                    throw new System.ApplicationException("Unable to " + stage + ".", ex);
+
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Not able to retrieve " + stage, ex);
+                    throw;
+                }
             }
-            getCalendarSettings();
         }
         private void getCalendarSettings() {
             if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
-            try {
-                CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
-                CalendarListEntry cal = request.Execute();
-                if (cal.DefaultReminders.Count == 0)
-                    this.MinDefaultReminder = long.MinValue;
-                else
-                    this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to get calendar settings.", ex);
-                throw new System.ApplicationException("Unable to retrieve Google calendar's reminder settings.", ex);
-            }
+
+            CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
+            CalendarListEntry cal = request.Execute();
+            if (cal.DefaultReminders.Count == 0)
+                this.MinDefaultReminder = long.MinValue;
+            else
+                this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
         }
 
         /// <summary>
@@ -1731,7 +1780,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
                     if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
                     int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
-                    Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true);
+                    Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                     Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
                 }
 

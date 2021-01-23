@@ -23,6 +23,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             InitializeComponent();
             loadConfig();
+            OutlookOgcs.Calendar.Disconnect(true);
         }
         
         private void loadConfig() {
