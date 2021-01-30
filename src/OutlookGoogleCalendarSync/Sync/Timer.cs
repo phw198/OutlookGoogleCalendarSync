@@ -75,6 +75,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
         }
         public void CalculateInterval() {
+            if (Settings.Instance.SyncInterval == 0) return;
+
             DateTime now = DateTime.Now;
             double interval = (this.nextSyncDate - now).TotalMinutes;
 
