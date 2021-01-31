@@ -95,14 +95,16 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else
                     MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
                 log.Fatal("Application unexpectedly terminated!");
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Warn("OGCS has crashed out.");
 
             } finally {
-                log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
+                log.Debug("Shutting down application.");
                 OutlookOgcs.Calendar.Disconnect();
                 Forms.Splash.CloseMe();
                 GC.Collect();
