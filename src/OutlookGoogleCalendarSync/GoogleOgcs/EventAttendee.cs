@@ -24,7 +24,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public new String Email {
             get { return decloakEmail(base.Email); }
-            set { base.Email = cloakEmail(value); }
+            set { base.Email = CloakEmail(value); }
         }
 
         private static String decloakEmail(String email) {
@@ -32,10 +32,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (email.EndsWith(EmailCloak)) return email.Substring(0, email.Length - EmailCloak.Length);
             return email;
         }
-        private static String cloakEmail(String email) {
+        public static String CloakEmail(String email) {
             if (string.IsNullOrWhiteSpace(email)) return email;
             String decloakedEmail = decloakEmail(email);
             return (decloakedEmail + (Settings.Instance.CloakEmail ? EmailCloak : ""));
+        }
+
+        public Boolean IsCloaked() {
+            return (base.Email.EndsWith(EmailCloak));
         }
     }
 }

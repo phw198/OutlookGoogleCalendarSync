@@ -10,6 +10,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
     public class EventColour {
         public class Palette {
             private Boolean UseWebAppColours = true;
+            public enum Type {
+                Calendar,
+                Event
+            }
+            private Type colourType = Type.Event;
             public String Id { get; }
 
             private String hexValue;
@@ -18,8 +23,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (UseWebAppColours) {
                         if (!string.IsNullOrEmpty(Id)) {
                             int idx = Convert.ToInt16(Id);
-                            if (names.ContainsKey(idx))
-                                return names[idx].WebAppHexValue ?? hexValue;
+                            if (this.colourType == Type.Event) {
+                                if (eventColourNames.ContainsKey(idx))
+                                    return eventColourNames[idx].WebAppHexValue ?? hexValue;
+                            } else {
+                                if (calendarColourNames.ContainsKey(idx))
+                                    return calendarColourNames[idx].WebAppHexValue ?? hexValue;
+                            }
                         } else
                             return hexValue;
                     }
@@ -50,16 +60,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            public static Palette NullPalette = new Palette(null, null, Color.Transparent);
+            public static Palette NullPalette = new Palette(Type.Event, null, null, Color.Transparent);
 
-            public Palette(String id, String hexValue, Color rgbValue) {
+            public Palette(Type colourType, String id, String hexValue, Color rgbValue) {
+                this.colourType = colourType;
                 this.Id = id;
                 this.HexValue = hexValue;
                 this.RgbValue = rgbValue;
             }
 
             public override String ToString() {
-                return "ID: " + Id + "; HexValue: " + HexValue + "; RgbValue: " + RgbValue +"; Name: "+ Name;
+                return "Type: " + this.colourType + "; ID: " + Id + "; HexValue: " + HexValue + "; RgbValue: " + RgbValue + "; Name: " + Name;
             }
             
             private class Metadata {
@@ -72,7 +83,35 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            private static Dictionary<int, Metadata> names = new Dictionary<int, Metadata> {
+            private static Dictionary<int, Metadata> calendarColourNames = new Dictionary<int, Metadata> {
+                { 0, new Metadata("Custom colour", null) }, //Although custom colour has it's own (correct!) Hex code, Google sets the ID to closest match!
+                { 1, new Metadata("Cocoa", "#795548") },
+                { 2, new Metadata("Flamingo", "#E67C73") },
+                { 3, new Metadata("Tomato", "#D50000") },
+                { 4, new Metadata("Tangerine", "#F4511E") },
+                { 5, new Metadata("Pumpkin", "#EF6C00") },
+                { 6, new Metadata("Mango", "#F09300") },
+                { 7, new Metadata("Eucalyptus", "#009688") },
+                { 8, new Metadata("Basil", "#0B8043") },
+                { 9, new Metadata("Pistachio", "#7CB342") },
+                { 10, new Metadata("Avocado", "#C0CA33") },
+                { 11, new Metadata("Citron", "#E4C441") },
+                { 12, new Metadata("Banana", "#F6BF26") },
+                { 13, new Metadata("Sage", "#33B679") },
+                { 14, new Metadata("Peacock", "#039BE5") },
+                { 15, new Metadata("Cobalt", "#4285F4") },
+                { 16, new Metadata("Blueberry", "#3F51B5") },
+                { 17, new Metadata("Lavendar", "#7986CB") },
+                { 18, new Metadata("Wisteria", "#B39DDB") },
+                { 19, new Metadata("Graphite", "#616161") },
+                { 20, new Metadata("Birch", "#A79B8E") },
+                { 21, new Metadata("Beetroot", "#AD1457") },
+                { 22, new Metadata("Cherry Blossom", "#D81B60") },
+                { 23, new Metadata("Grape", "#8E24AA") },
+                { 24, new Metadata("Amethyst", "#9E69AF") }
+            };
+
+            private static Dictionary<int, Metadata> eventColourNames = new Dictionary<int, Metadata> {
                 { 0, new Metadata("Calendar Default", null) },
                 { 1, new Metadata("Lavendar", "#7986CB") },
                 { 2, new Metadata("Sage", "#33B679") },
@@ -95,7 +134,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             public static String GetColourId(String name) {
                 String id = null;
                 try {
-                    id = names.First(n => (n.Value as Metadata).Name == name).Key.ToString();
+                    id = eventColourNames.First(n => (n.Value as Metadata).Name == name).Key.ToString();
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse("Could not find colour ID for '" + name + "'.", ex);
                 }
@@ -113,8 +152,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 String name = null;
                 try {
                     int idx = Convert.ToInt16(id);
-                    if (names.ContainsKey(idx))
-                        name = (names[idx] as Metadata).Name;
+                    if (eventColourNames.ContainsKey(idx))
+                        name = (eventColourNames[idx] as Metadata).Name;
                     else
                         log.Error("GetColourName(): ID '" + id + "' not found.");
                 } catch (System.Exception ex) {
@@ -134,7 +173,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 List<Palette> activePalette = new List<Palette>();
                 if (Settings.Instance.UseGoogleCalendar == null) return activePalette;
-
+                
+                if (Settings.Instance.UseGoogleCalendar.ColourId == null) {
+                    List<GoogleCalendarListEntry> gCals = GoogleOgcs.Calendar.Instance.GetCalendars();
+                    Settings.Instance.UseGoogleCalendar.ColourId = gCals.Find(c => c.Id == Settings.Instance.UseGoogleCalendar.Id).ColourId;
+                }
+                
                 //Palette currentCal = calendarPalette.Find(p => p.Id == Settings.Instance.UseGoogleCalendar.ColourId);
                 Palette currentCal = null;
                 foreach (Palette cal in calendarPalette) {
@@ -144,7 +188,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                 }
                 if (currentCal != null)
-                    activePalette.Add(new Palette("0", currentCal.HexValue, currentCal.RgbValue));
+                    activePalette.Add(new Palette(Palette.Type.Calendar, "0", currentCal.HexValue, currentCal.RgbValue));
 
                 activePalette.AddRange(eventPalette);
                 return activePalette;
@@ -173,10 +217,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             else log.Debug(colours.Event__.Count() + " event colours and "+ colours.Calendar.Count() +" calendars (with a colour) found.");
             
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Event__) {
-                eventPalette.Add(new Palette(colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
             }
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Calendar) {
-                calendarPalette.Add(new Palette(colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                calendarPalette.Add(new Palette(Palette.Type.Calendar, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
             }
         }
 
@@ -186,7 +230,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <param name="colourId">Google ID</param>
         public Palette GetColour(String colourId) {
             Palette gColour = this.ActivePalette.Where(x => x.Id == colourId).FirstOrDefault();
-            if (gColour != null)
+            if (colourId != "0" && gColour != null)
                 return gColour;
             else
                 return Palette.NullPalette;

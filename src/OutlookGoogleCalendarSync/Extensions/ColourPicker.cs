@@ -35,7 +35,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Add just the colours associated with categories
         /// </summary>
         public void AddCategoryColours() {
-            Items.AddRange(OutlookOgcs.Calendar.Categories.DropdownItems().ToArray());
+            if (OutlookOgcs.Factory.OutlookVersionName != OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) 
+                Items.AddRange(OutlookOgcs.Calendar.Categories.DropdownItems().ToArray());
         }
 
         public void ColourPicker_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e) {
@@ -96,7 +97,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             try {
                 GoogleOgcs.EventColour.Palette currentSelection = (GoogleOgcs.EventColour.Palette)SelectedItem;
 
-                if (GoogleOgcs.Calendar.IsInstanceNull) {
+                if (GoogleOgcs.Calendar.IsInstanceNull || Items.Count <= 1) {
                     loading.SetToolTip(this, "Retrieving colours from Google...");
                     loading.ShowAlways = true;
                     loading.InitialDelay = 0;

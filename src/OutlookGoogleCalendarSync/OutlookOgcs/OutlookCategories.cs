@@ -155,11 +155,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>The Outlook category type</returns>
         public Outlook.OlCategoryColor? OutlookColour(String categoryName) {
             if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
+            
+                try {
+                    if (this.categories != null && this.categories.Count > 0) { }
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Categories are not accessible!", OGCSexception.LogAsFail(ex));
+                    this.categories = null;
+                }
 
-            foreach (Outlook.Category category in this.categories) {
-                if (category.Name == categoryName.Trim()) return category.Color;
-            }
-            return null;
+                if (this.categories == null || OutlookOgcs.Calendar.Categories == null) {
+                    OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+                    this.categories = Calendar.Categories.categories;
+                }
+
+                foreach (Outlook.Category category in this.categories) {
+                    if (category.Name == categoryName.Trim()) return category.Color;
+                }
+
+                log.Warn("Could not convert category name '" + categoryName + "' into Outlook category type.");
+                return null;
         }
 
         /// <summary>
@@ -181,6 +195,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>List to be used in dropdown, for example</returns>
         public List<OutlookOgcs.Categories.ColourInfo> DropdownItems() {
             List<OutlookOgcs.Categories.ColourInfo> items = new List<OutlookOgcs.Categories.ColourInfo>();
+            if (this.categories == null) {
+                OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+                this.categories = Calendar.Categories.categories;
+            }
             if (this.categories != null) {
                 foreach (Outlook.Category category in this.categories) {
                     items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));

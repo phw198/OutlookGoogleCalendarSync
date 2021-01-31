@@ -143,7 +143,7 @@ namespace OutlookGoogleCalendarSync {
             LogAsFail(ref ex);
             return ex;
         }
-        
+
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged
         /// </summary>

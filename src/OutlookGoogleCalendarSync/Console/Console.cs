@@ -15,7 +15,18 @@ namespace OutlookGoogleCalendarSync {
         private String content = "";
         public String DocumentText {
             get {
-                return (this.wb == null ? null : this.wb.DocumentText);
+                String documentText = "";
+                if (this.wb == null)
+                    return null;
+                else {
+                    if (this.wb.InvokeRequired) {
+                        this.wb.Invoke((MethodInvoker)(() => {
+                            documentText = wb.DocumentText;
+                        }));
+                    } else
+                        documentText = this.wb.DocumentText;
+                }
+                return documentText;
             }
         }
         
@@ -256,6 +267,7 @@ namespace OutlookGoogleCalendarSync {
                 if (logit) {
                     //Log the output sans HTML tags
                     String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
+                    tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
                     tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
                     String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                     if (markupPrefix == Markup.warning)
@@ -271,7 +283,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 //Don't add append line break to Markup that's already wrapped in <div> tags
-                if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.error }.ToList()).Contains((Markup)markupPrefix))
+                if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
 
@@ -340,7 +352,7 @@ namespace OutlookGoogleCalendarSync {
                 
                 output = output.Replace(":calendar:", "<span class='em em-date' style='margin-top:5px'></span>");
                 output = output.Replace("(R)", "<span class='em em-repeat'></span>");
-                output = output.Replace("=>", "");
+                output = output.Replace("=> ", "");
 
             } catch (System.Exception ex) {
                 log.Error("Failed parsing for emoji.");
@@ -359,7 +371,7 @@ namespace OutlookGoogleCalendarSync {
             table.Append("<tr><th class='eventChanges'>Attribute</th><th class='eventChanges'>Change</th></tr>");
             for (int l = 1; l < lines.Count(); l++) {
                 String newRow = "<tr>";
-                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/]\w+|Attendee (added|removed|.*?Status|.*?Optional Check)):\s*", "<td class='eventChanges'>$1</td><td>");
+                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/]\w+|Attendee (added|updated|removed|.*?Status|.*?Optional Check)):\s*", "<td class='eventChanges'>$1</td><td>");
                 newRow = newRow.Replace("=>", "→");
                 table.Append(newRow + "</td></tr>");
             }

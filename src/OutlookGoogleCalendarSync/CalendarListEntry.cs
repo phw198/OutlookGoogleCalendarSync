@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
             Id = init.Id;
             Name = init.SummaryOverride ?? init.Summary;
             primary = init.Primary ?? false;
-            colourId = init.ColorId;
+            ColourId = init.ColorId;
         }
 
         public override string ToString() {

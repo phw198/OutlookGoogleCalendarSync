@@ -163,7 +163,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
-                foreach (Object obj in OutlookItems.Restrict(filter)) {
+                foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
@@ -540,8 +540,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
                 if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
-                    //Only allow one OGCS category at a time (Google Events can only have one colour)
-                    aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    if (Settings.Instance.SingleCategoryOnly)
+                        aiCategories = new List<string>();
+                    else {
+                        //Only allow one OGCS category at a time (Google Events can only have one colour)
+                        aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
+                    }
                     aiCategories.Insert(0, gCategoryName);
                     ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
                 }
@@ -729,7 +733,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (Settings.Instance.SyncDirection == Sync.Direction.OutlookToGoogle) return;
 
             if (Settings.Instance.SyncDirection == Sync.Direction.GoogleToOutlook)
-                Forms.Main.Instance.Console.Update("Checking for orphaned items...", verbose: true);
+                Forms.Main.Instance.Console.Update("Checking for orphaned Outlook items...", verbose: true);
 
             try {
                 log.Debug("Scanning " + oAppointments.Count + " Outlook appointments for orphans to reclaim...");
@@ -915,7 +919,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } else {
-                return GetCategoryColour(gColourId);
+                return GetCategoryColour(gColourId ?? "0");
             }
         }
         public String GetCategoryColour(String gColourId, Boolean createMissingCategory = true) {
@@ -934,6 +938,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             //Algorithmic closest colour matching
             GoogleOgcs.EventColour.Palette pallete = GoogleOgcs.Calendar.Instance.ColourPalette.GetColour(gColourId);
+            if (pallete == GoogleOgcs.EventColour.Palette.NullPalette) return null;
+
             outlookColour = Categories.Map.GetClosestCategory(pallete);
             return Categories.FindName(outlookColour, createMissingCategory: createMissingCategory);
         }
@@ -1343,7 +1349,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (!CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID) ||
-                        outlook[o].LastModificationTime > Settings.Instance.LastSyncDate)
+                        CustomProperty.GetOGCSlastModified(outlook[o]) > Sync.Engine.Instance.SyncStarted)
                         outlook.Remove(outlook[o]);
                 }
             }

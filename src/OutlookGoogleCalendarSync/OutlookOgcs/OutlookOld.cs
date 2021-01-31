@@ -259,10 +259,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
 
                 Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Getting calendars");
                 findCalendars(((MAPIFolder)defaultCalendar.Parent).Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
                 Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Select calendar");
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
                 throw;
@@ -337,6 +337,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
             }
+        }
+
+        public List<Object> FilterItems(Items outlookItems, String filter) {
+            List<Object> restrictedItems = new List<Object>();
+            foreach (Object obj in outlookItems.Restrict(filter)) {
+                restrictedItems.Add(obj);
+            }
+
+            // Recurring items with start dates before the synced date range are excluded incorrectly - this retains them
+            List<Object> o2003recurring = new List<Object>();
+            try {
+                for (int i = 1; i <= outlookItems.Count; i++) {
+                    AppointmentItem ai = null;
+                    if (outlookItems[i] is AppointmentItem) {
+                        ai = outlookItems[i] as AppointmentItem;
+                        if (ai.IsRecurring && ai.Start.Date < Settings.Instance.SyncStart && ai.End.Date < Settings.Instance.SyncStart)
+                            o2003recurring.Add(outlookItems[i]);
+                    }
+                }
+                log.Info(o2003recurring.Count + " recurring items successfully kept for Outlook 2003.");
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Unable to iterate Outlook items.", ex);
+            }
+            restrictedItems.AddRange(o2003recurring);
+
+            return restrictedItems;
         }
 
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
@@ -423,7 +449,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void RefreshCategories() { }
-
+        
         #region Addin Express Code
         //This code has been sourced from:
         //https://www.add-in-express.com/creating-addins-blog/2009/05/08/outlook-exchange-email-address-smtp/

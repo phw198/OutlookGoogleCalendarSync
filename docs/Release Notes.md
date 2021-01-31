@@ -1,6 +1,46 @@
 | Release Notes |
 |:---|
 
+# v2.8.6.0 - Alpha
+
+**Enhancements**
+- Optionally exclude declined Google invitiations from sync
+- Additional colour sync setting to only sync single category to Outlook
+- Don't set Outlook category to default Google calendar colour (unless mapped)
+- Retrieve all Google calendars, not just first 30
+
+**Bugfix**
+- Outlook 2003: Retain recurring items starting before, but spanning sync date range
+- Cater for nothing being returned when getting Google item recurrences
+- Handle Google error code 410 [Gone]
+- Correctly delay next sync when quota exhausted
+- Google calendar colours in dropdown may be offset incorrectly by 1
+- Handle failure to get email address from Exchange meeting attendee
+- Fixed regression of network failure preventing future automated sync
+- Telemetry popup box every time OGCS starts in system tray
+- Default Google reminder errors if only email notification set on event
+
+# v2.8.5.0 - Alpha
+
+**Enhancements**
+- Improved detection of Outlook versions after 2016
+- Option to exclude sync of Google 'goals'
+- Option to set exact type of availablity in Outlook (eg Out of Office)
+- Sync deletion in Outlook on first two-way sync (not second)
+- Log exact code location of any errors
+- Log Google 500 errors as `FAIL` to avoid error reporting
+- Further masking of Outlook profile email address in log file
+
+**Bugfix**
+- Quota limit error updated to match changed Google error
+- Reclaim calendar entries in both Google _and_ Outlook at start of sync
+- Proper calculation of recurrence end time from organiser's local time
+- Compare recurrence rule if number of elements have changed
+- Compare attendee cloaked email addresses properly after config change
+- Handle configured category mappings for categories that no longer exist in Outlook
+- Don't error if log file deletion fails
+- Improved support for Outlook2003
+
 # v2.8.4.0 - Alpha
 
 **Enhancements**

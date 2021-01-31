@@ -93,6 +93,7 @@ namespace OutlookGoogleCalendarSync {
             TimezoneMaps = new TimezoneMappingDictionary();
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
+            ExcludeDeclinedInvites = true;
             ExcludeGoals = true;
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
@@ -219,6 +220,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading()) XMLManager.ExportElement("AssignedClientSecret", value.Trim(), ConfigFile);
             }
         }
+        [DataMember] public Boolean ExcludeDeclinedInvites { get; set; }
         [DataMember] public Boolean ExcludeGoals { get; set; }
         private String personalClientIdentifier;
         private String personalClientSecret;
@@ -300,6 +302,8 @@ namespace OutlookGoogleCalendarSync {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
+        /// <summary>Only allow Outlook to have one category assigned</summary>
+        [DataMember] public Boolean SingleCategoryOnly { get; set; }
         
         //Obfuscation
         [DataMember] public Obfuscate Obfuscation { get; set; }
@@ -463,7 +467,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void LogSettings() {
-            log.Info(ConfigFile);
+            log.Info(Program.MaskFilePath(ConfigFile));
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: "+ OutlookService.ToString());
             if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
@@ -484,6 +488,7 @@ namespace OutlookGoogleCalendarSync {
             
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
@@ -510,9 +515,13 @@ namespace OutlookGoogleCalendarSync {
             }
             if (ColourMaps.Count > 0) {
                 log.Info("  Custom Colour/Category Mapping:-");
-                ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":"+ c.Key + " <=> " + 
-                    c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
+                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                    log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
+                else
+                    ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                        c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
             }
+            log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
             if (Obfuscation.Enabled) {
                 if (Settings.Instance.Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");

@@ -480,6 +480,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
+        public List<Object> FilterItems(Items outlookItems, String filter) {
+            List<Object> restrictedItems = new List<Object>();
+            foreach (Object obj in outlookItems.Restrict(filter)) {
+                restrictedItems.Add(obj);
+            }
+            return restrictedItems;
+        }
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = oApp.GetNamespace("mapi");
             ai = ns.GetItemFromID(entryID) as AppointmentItem;
@@ -517,9 +525,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             ExchangeUser eu = null;
                             try {
                                 eu = addressEntry.GetExchangeUser();
-                                if (eu != null && eu.PrimarySmtpAddress != null)
-                                    retEmail = eu.PrimarySmtpAddress;
-                                else {
+                                if (eu != null) {
+                                    try {
+                                        retEmail = eu.PrimarySmtpAddress;
+                                    } catch (System.Exception ex) {
+                                        OGCSexception.Analyse("Could not access Exchange users's primary SMTP.", OGCSexception.LogAsFail(ex));
+                                    }
+                                }
+                                if (eu == null || string.IsNullOrEmpty(retEmail)) {
                                     log.Warn("Exchange does not have an email for recipient: " + recipient.Name);
                                     Microsoft.Office.Interop.Outlook.PropertyAccessor pa = null;
                                     try {
@@ -632,7 +645,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         public void RefreshCategories() {
             log.Debug("Refreshing categories...");
-            OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+            try {
+                OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+            } catch (System.Exception ex) {
+                if (OGCSexception.GetErrorCode(ex) == "0x800706BA") { //RPC Server Unavailable
+                    OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+                    OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
+                }
+            }
             Forms.Main.Instance.ddOutlookColour.AddColourItems();
             foreach (OutlookOgcs.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
                 if (cInfo.OutlookCategory.ToString() == Settings.Instance.SetEntriesColourValue &&
@@ -800,7 +820,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (tzi != null) return tzi;
 
                 //Finally, fuzzy logic
-                log.Warn("Could not find timezone ID based on given description. Attempting some fuzzy logic...");
+                log.Warn("Could not find timezone ID based on given description, '" + tzDescription + "'. Attempting some fuzzy logic...");
                 if (tzDescription.StartsWith("(GMT")) {
                     log.Fine("Replace GMT with UTC");
                     String modTzDescription = tzDescription.Replace("(GMT", "(UTC");
