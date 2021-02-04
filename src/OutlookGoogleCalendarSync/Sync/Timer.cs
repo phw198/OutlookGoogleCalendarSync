@@ -134,8 +134,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 log.Fine("Updating calendar item count following Push Sync.");
                 this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true).Count;
-            } catch {
-                log.Error("Failed to update item count following a Push Sync.");
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to update item count following a Push Sync.", ex);
             }
         }
 
@@ -144,6 +144,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.Fine("Push sync triggered.");
 
             try {
+                if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
+
                 System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true);
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {

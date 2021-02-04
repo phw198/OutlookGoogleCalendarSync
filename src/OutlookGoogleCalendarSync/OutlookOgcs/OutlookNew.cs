@@ -108,7 +108,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
             if (!onlyWhenNoGUI ||
-                (onlyWhenNoGUI && (oApp == null || oApp.Explorers.Count == 0)))
+                (onlyWhenNoGUI && NoGUIexists()))
             {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
@@ -131,6 +131,35 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 oApp = null;
                 GC.Collect();
             }
+        }
+
+        public Boolean NoGUIexists() {
+            Boolean retVal = (oApp == null);
+            if (!retVal) {
+                Explorers explorers = null;
+                try {
+                    explorers = oApp.Explorers;
+                    retVal = (explorers.Count == 0);
+                } catch (System.Exception) {
+                    if (System.Diagnostics.Process.GetProcessesByName("OUTLOOK").Count() == 0) {
+                        log.Fine("No running outlook.exe process found.");
+                        retVal = true;
+                    } else {
+                        OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
+                        try {
+                            explorers = oApp.Explorers;
+                            retVal = (explorers.Count == 0);
+                        } catch {
+                            log.Warn("Failed to reattach to Outlook instance.");
+                            retVal = true;
+                        }
+                    }
+                } finally {
+                    explorers = (Explorers)OutlookOgcs.Calendar.ReleaseObject(explorers);
+                }
+            }
+            if (retVal) log.Fine("No Outlook GUI detected.");
+            return retVal;
         }
 
         public Folders Folders() { return folders; }
