@@ -318,8 +318,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Settings.Instance.LastSyncDate = this.SyncStarted;
             }
             if (!updateSyncSchedule) {
-                Forms.Main.Instance.NextSyncVal = OgcsTimer.NextSyncDateText;
-                OgcsTimer.Activate(true);
+                if (Settings.Instance.SyncInterval != 0) {
+                    Forms.Main.Instance.NextSyncVal = OgcsTimer.NextSyncDateText;
+                    OgcsTimer.Activate(true);
+                } else Forms.Main.Instance.NextSyncVal = "Inactive";
             } else {
                 if (syncedOk) {
                     OgcsTimer.LastSyncDate = this.SyncStarted;
