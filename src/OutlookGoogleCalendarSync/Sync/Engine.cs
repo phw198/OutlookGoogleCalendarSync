@@ -213,7 +213,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Kick off the sync in the background thread
                     bwSync.DoWork += new DoWorkEventHandler(
                         delegate (object o, DoWorkEventArgs args) {
-                            BackgroundWorker b = o as BackgroundWorker;
                             try {
                                 syncResult = synchronize();
                             } catch (System.Exception ex) {

@@ -640,8 +640,23 @@ namespace OutlookGoogleCalendarSync.Forms {
                             "  Syncs were delayed "+ delayHours +" hours until 08:00GMT  " + cr +
                             " Get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
-                    System.Threading.Thread hide = new System.Threading.Thread(() => { System.Threading.Thread.Sleep((delayHours + 3) * 60 * 60 * 1000); SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false); });
-                    hide.Start();
+
+                    //Display the note for 3 hours after the quota has been renewed
+                    System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
+                    bwHideNote.WorkerReportsProgress = false;
+                    bwHideNote.WorkerSupportsCancellation = true;
+                    bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
+                        delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
+                            try {
+                                DateTime showUntil = DateTime.Now.AddHours((int)args.Argument + 3);
+                                while (DateTime.Now < showUntil) {
+                                    System.Threading.Thread.Sleep(60 * 1000);
+                                }
+                                SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
+                            } catch { }
+                        });
+                    bwHideNote.RunWorkerAsync(delayHours);
+
                     break;
                 case SyncNotes.RecentSubscription:
                     note =  "                                                  " + cr +
