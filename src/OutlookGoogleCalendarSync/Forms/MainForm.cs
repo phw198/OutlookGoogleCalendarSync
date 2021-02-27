@@ -109,6 +109,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+            ToolTips.SetToolTip(tbMaxAttendees,
+                "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
                 "This option safeguards against that by appending '"+ GoogleOgcs.EventAttendee.EmailCloak +"' to their email address.");
@@ -388,6 +390,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
+            tbMaxAttendees.Value = Settings.Instance.MaxAttendees;
             cbCloakEmail.Checked = Settings.Instance.CloakEmail;
             cbCloakEmail.Visible = cbAddAttendees.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
@@ -640,8 +643,23 @@ namespace OutlookGoogleCalendarSync.Forms {
                             "  Syncs were delayed "+ delayHours +" hours until 08:00GMT  " + cr +
                             " Get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
-                    System.Threading.Thread hide = new System.Threading.Thread(() => { System.Threading.Thread.Sleep((delayHours + 3) * 60 * 60 * 1000); SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false); });
-                    hide.Start();
+
+                    //Display the note for 3 hours after the quota has been renewed
+                    System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
+                    bwHideNote.WorkerReportsProgress = false;
+                    bwHideNote.WorkerSupportsCancellation = true;
+                    bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
+                        delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
+                            try {
+                                DateTime showUntil = DateTime.Now.AddHours((int)args.Argument + 3);
+                                while (DateTime.Now < showUntil) {
+                                    System.Threading.Thread.Sleep(60 * 1000);
+                                }
+                                SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
+                            } catch { }
+                        });
+                    bwHideNote.RunWorkerAsync(delayHours);
+
                     break;
                 case SyncNotes.RecentSubscription:
                     note =  "                                                  " + cr +
@@ -788,6 +806,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             } finally {
                 bSave.Enabled = true;
                 bSave.Text = "Save";
+                OutlookOgcs.Calendar.Disconnect(true);
             }
         }
 
@@ -1077,6 +1096,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void btTestOutlookFilter_Click(object sender, EventArgs e) {
             log.Debug("Testing the Outlook filter string.");
             int filterCount = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items, false).Count();
+            OutlookOgcs.Calendar.Disconnect(true);
             String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";
             msg += Settings.Instance.SyncStart.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             msg += " and " + Settings.Instance.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
@@ -1100,7 +1120,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
-            List<GoogleCalendarListEntry> calendars = null;
+            List<GoogleCalendarListEntry> calendars = new List<GoogleCalendarListEntry>();
             try {
                 calendars = GoogleOgcs.Calendar.Instance.GetCalendars();
             } catch (AggregateException agex) {
@@ -1131,7 +1151,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
             }
-            if (calendars != null) {
+            if (calendars.Count > 0) {
                 cbGoogleCalendars.Items.Clear();
                 calendars.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
                 foreach (GoogleCalendarListEntry mcle in calendars) {
@@ -1637,14 +1657,19 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (cbAddAttendees.Checked && Settings.Instance.OutlookGalBlocked) {
                 cbAddAttendees.Checked = false;
                 cbCloakEmail.Enabled = false;
+                tbMaxAttendees.Enabled = false;
                 return;
             }
             if (this.Visible) Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
             if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
                 OutlookOgcs.Calendar.Instance.IOutlook.GetCurrentUser(null);
             }
+        }
+        private void tbMaxAttendees_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.MaxAttendees = (int)tbMaxAttendees.Value;
         }
         private void cbCloakEmail_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CloakEmail = cbCloakEmail.Checked;

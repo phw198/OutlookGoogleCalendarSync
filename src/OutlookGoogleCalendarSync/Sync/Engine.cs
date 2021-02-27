@@ -213,7 +213,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Kick off the sync in the background thread
                     bwSync.DoWork += new DoWorkEventHandler(
                         delegate (object o, DoWorkEventArgs args) {
-                            BackgroundWorker b = o as BackgroundWorker;
                             try {
                                 syncResult = synchronize();
                             } catch (System.Exception ex) {
@@ -318,8 +317,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Settings.Instance.LastSyncDate = this.SyncStarted;
             }
             if (!updateSyncSchedule) {
-                Forms.Main.Instance.NextSyncVal = OgcsTimer.NextSyncDateText;
-                OgcsTimer.Activate(true);
+                if (Settings.Instance.SyncInterval != 0) {
+                    Forms.Main.Instance.NextSyncVal = OgcsTimer.NextSyncDateText;
+                    OgcsTimer.Activate(true);
+                } else Forms.Main.Instance.NextSyncVal = "Inactive";
             } else {
                 if (syncedOk) {
                     OgcsTimer.LastSyncDate = this.SyncStarted;
@@ -332,8 +333,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
             }
             Forms.Main.Instance.bSyncNow.Enabled = true;
-            if (OgcsPushTimer != null)
-                OgcsPushTimer.ResetLastRun(); //Reset Push flag regardless of success (don't want it trying every 2 mins)
         }
 
         private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {

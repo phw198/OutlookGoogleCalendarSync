@@ -96,10 +96,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public List<GoogleCalendarListEntry> GetCalendars() {
             CalendarList request = null;
+            String pageToken = null;
+            List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
             int backoff = 0;
+
+            do {
             while (backoff < BackoffLimit) {
                 try {
-                    request = Service.CalendarList.List().Execute();
+                        CalendarListResource.ListRequest lr = Service.CalendarList.List();
+                        lr.PageToken = pageToken;
+                        request = lr.Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
                     switch (HandleAPIlimits(ref ex, null)) {
@@ -125,15 +131,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (request != null) {
-                List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
+                    pageToken = request.NextPageToken;
                 foreach (CalendarListEntry cle in request.Items) {
                     result.Add(new GoogleCalendarListEntry(cle));
                 }
-                return result;
             } else {
                 log.Error("Handshaking with the Google calendar service failed.");
             }
-            return null;
+            } while (pageToken != null);
+
+            return result;
         }
 
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
@@ -186,8 +193,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return result;
 
             } catch (System.Exception ex) {
-                Forms.Main.Instance.Console.Update("Failed to retrieve recurring events", Console.Markup.error);
-                log.Error(ex.Message);
+                Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", OGCSexception.LogAsFail(ex));
+                OGCSexception.Analyse("recurringEventId: " + recurringEventId, ex);
                 return null;
             }
         }
@@ -411,9 +418,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
+                if (ai.Recipients.Count > Settings.Instance.MaxAttendees) {
+                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
                 if (ai.Recipients.Count >= 200) {
                     Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
                         "more than 200, which Google does not allow.", Console.Markup.warning);
+                    }
                 } else {
                     foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
                         Google.Apis.Calendar.v3.Data.EventAttendee ea = GoogleOgcs.Calendar.CreateAttendee(recipient, ai.Organizer == recipient.Name);
@@ -739,10 +749,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
+                if (ai.Recipients.Count > Settings.Instance.MaxAttendees) {
+                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
                 if (ai.Recipients.Count >= 200) {
                     Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>Attendees will not be synced for this meeting as it has " +
                         "more than 200, which Google does not allow.", Console.Markup.warning);
-                    ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
+                    }
+                } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional &&
+                        ev.Attendees.Count > Settings.Instance.MaxAttendees && ai.Recipients.Count <= Settings.Instance.MaxAttendees) {
+                    log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
                     try {
                         CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
@@ -785,7 +800,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         } //if Google reminder found
                     } //foreach reminder
 
-                } else { //no Google reminders set
+                } else { //no Google popup reminders set
                     if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
@@ -795,7 +810,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Reminders.Overrides = new List<EventReminder>();
                         ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
-                    } else {
+
+                    } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
                         Boolean newVal = OKtoSyncReminder ? Settings.Instance.UseGoogleDefaultReminder : false;
 
                         //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
@@ -1393,7 +1409,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } catch (System.Exception ex) {
                     OGCSexception.Analyse("Not able to retrieve " + stage, ex);
-                    throw new System.ApplicationException("Unable to retrieve " + stage + ".", ex);
+                    throw;
             }
         }
         }

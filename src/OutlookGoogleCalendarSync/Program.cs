@@ -95,14 +95,16 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else
                     MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
                 log.Fatal("Application unexpectedly terminated!");
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Warn("OGCS has crashed out.");
 
             } finally {
-                log.Warn("Tidying down any remaining Outlook references, as OGCS crashed out.");
+                log.Debug("Shutting down application.");
                 OutlookOgcs.Calendar.Disconnect();
                 Forms.Splash.CloseMe();
                 GC.Collect();
@@ -198,7 +200,7 @@ namespace OutlookGoogleCalendarSync {
                             throw new ApplicationException("The /" + arg + " parameter must be used with a filename.");
                         }
                         details["Directory"] = System.IO.Path.GetDirectoryName(argVal.TrimStart(("/" + arg + ":").ToCharArray()));
-                        if (!System.IO.Directory.Exists(details["Directory"])) {
+                        if (!string.IsNullOrEmpty(details["Directory"]) && !System.IO.Directory.Exists(details["Directory"])) {
                             throw new ApplicationException("The specified directory '" + details["Directory"] + "' does not exist.\r\n" +
                                 "Please correct the parameter value passed or create the directory.");
                         }
