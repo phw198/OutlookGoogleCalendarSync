@@ -109,6 +109,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+            ToolTips.SetToolTip(tbMaxAttendees,
+                "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
                 "This option safeguards against that by appending '"+ GoogleOgcs.EventAttendee.EmailCloak +"' to their email address.");
@@ -388,6 +390,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
+            tbMaxAttendees.Value = Settings.Instance.MaxAttendees;
             cbCloakEmail.Checked = Settings.Instance.CloakEmail;
             cbCloakEmail.Visible = cbAddAttendees.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
@@ -1672,14 +1675,19 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (cbAddAttendees.Checked && Settings.Instance.OutlookGalBlocked) {
                 cbAddAttendees.Checked = false;
                 cbCloakEmail.Enabled = false;
+                tbMaxAttendees.Enabled = false;
                 return;
             }
             if (this.Visible) Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
             if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
                 OutlookOgcs.Calendar.Instance.IOutlook.GetCurrentUser(null);
             }
+        }
+        private void tbMaxAttendees_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.MaxAttendees = (int)tbMaxAttendees.Value;
         }
         private void cbCloakEmail_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CloakEmail = cbCloakEmail.Checked;

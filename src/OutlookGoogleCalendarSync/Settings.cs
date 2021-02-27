@@ -116,6 +116,7 @@ namespace OutlookGoogleCalendarSync {
             ReminderDNDstart = DateTime.Now.Date.AddHours(22);
             ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
             AddAttendees = false;
+            MaxAttendees = 200;
             AddColours = false;
             MergeItems = true;
             DisableDelete = true;
@@ -277,6 +278,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public DateTime ReminderDNDstart { get; set; }
         [DataMember] public DateTime ReminderDNDend { get; set; }
         [DataMember] public bool AddAttendees { get; set; }
+        [DataMember] public int MaxAttendees { get; set; }
         [DataMember] public bool AddColours { get; set; }
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
@@ -540,7 +542,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info(" What");
             log.Info("  AddLocation: " + AddLocation);
             log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddAttendees: " + AddAttendees);
+            log.Info("  AddAttendees: " + AddAttendees + " <" + MaxAttendees);
             log.Info("  AddColours: " + AddColours);
             log.Info("  AddReminders: " + AddReminders);
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
