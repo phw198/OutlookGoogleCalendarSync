@@ -296,7 +296,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ai.Categories = getColour(ev.ColorId, null);
 
             if (Settings.Instance.AddAttendees && ev.Attendees != null) {
-                if (ev.Attendees.Count > Settings.Instance.MaxAttendees) {
+                if (ev.Attendees != null && ev.Attendees.Count > Settings.Instance.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum.");
                 } else {
                     foreach (EventAttendee ea in ev.Attendees) {
@@ -556,10 +556,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             if (Settings.Instance.AddAttendees) {
-                if (ev.Attendees.Count > Settings.Instance.MaxAttendees) {
+                if (ev.Attendees != null && ev.Attendees.Count > Settings.Instance.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum.");
                 } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional &&
-                        ai.Recipients.Count > Settings.Instance.MaxAttendees && ev.Attendees.Count <= Settings.Instance.MaxAttendees) {
+                        ai.Recipients.Count > Settings.Instance.MaxAttendees && (ev.Attendees == null ? 0 : ev.Attendees.Count) <= Settings.Instance.MaxAttendees) {
                     log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
                     log.Fine("Comparing meeting attendees");

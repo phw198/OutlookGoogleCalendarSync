@@ -756,7 +756,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         "more than 200, which Google does not allow.", Console.Markup.warning);
                     }
                 } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional &&
-                        ev.Attendees.Count > Settings.Instance.MaxAttendees && ai.Recipients.Count <= Settings.Instance.MaxAttendees) {
+                        ev.Attendees != null && ev.Attendees.Count > Settings.Instance.MaxAttendees && ai.Recipients.Count <= Settings.Instance.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
                     try {
