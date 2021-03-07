@@ -138,12 +138,21 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             UserProperties ups = null;
             try {
                 ups = ai.UserProperties;
+                log.Fine(ups.Count + " user properties found.");
                 for (int p = 1; p <= ups.Count; p++) {
                     UserProperty up = null;
                     try {
                         up = ups[p];
-                        if (up.Name.StartsWith(calendarKeyName))
+                        log.Fine(p + ": " + up.Name);
+                        if (up.Name.StartsWith(calendarKeyName)) {
+                            object val = up.Value;
+                            log.Fine("Value retrieved.");
+                            log.Fine("Value=" + val.ToString());
                             calendarKeys.Add(up.Name, up.Value.ToString());
+                        }
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Could not access user property.", ex);
+                        throw;
                     } finally {
                         up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
                     }
