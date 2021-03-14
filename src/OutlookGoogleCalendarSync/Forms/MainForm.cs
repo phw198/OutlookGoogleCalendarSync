@@ -1972,7 +1972,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case 10000: isMilestone = true; break;
                 }
                 if (isMilestone) {
-                    new Forms.Social().Show();
+                    new Forms.Social().ShowDialog();
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");
