@@ -563,11 +563,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
-                    if (ev == null && CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
-                        ev = compare.Value;
-
-                    if (ev == null || compare.Value.Updated > compare.Key.LastModificationTime) continue;
-
+                    if (ev == null) {
+                        if (CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
+                            ev = compare.Value;
+                        else if (compare.Value.Updated > compare.Key.LastModificationTime)
+                            continue;
+                    }
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
                     CustomProperty.SetOGCSlastModified(ref ev);
