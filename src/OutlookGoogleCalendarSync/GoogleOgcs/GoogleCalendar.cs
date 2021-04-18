@@ -417,14 +417,27 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev.ColorId = getColour(ai.Categories, null).Id;
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
-            if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
-                if (ai.Recipients.Count >= 200) {
-                    Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
-                        "more than 200, which Google does not allow.", Console.Markup.warning);
-                } else {
-                    foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
-                        Google.Apis.Calendar.v3.Data.EventAttendee ea = GoogleOgcs.Calendar.CreateAttendee(recipient, ai.Organizer == recipient.Name);
-                        ev.Attendees.Add(ea);
+            if (Settings.Instance.AddAttendees && !APIlimitReached_attendee) {
+                int recipientCount = 0;
+                try {
+                    recipientCount = ai.Recipients.Count;
+                } catch (System.Exception ex) {
+                    if (OGCSexception.GetErrorCode(ex) == "0x80004004") { //E_ABORT
+                        log.Warn("Corporate policy or possibly anti-virus is blocking access to appointment recipient object.");
+                        Forms.Main.Instance.Console.Update("The appointment's recipients are not accessible programmatically.<br/>Attendee synchronisation has been disabled.", Console.Markup.warning, logit: true);
+                        Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbAddAttendees, "Checked", false);
+                    } else
+                        OGCSexception.Analyse("Could not access appointment recipient object.", ex);
+                }
+                if (recipientCount > 1) { //Don't add attendees if there's only 1 (me)
+                    if (ai.Recipients.Count >= 200) {
+                        Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
+                            "more than 200, which Google does not allow.", Console.Markup.warning);
+                    } else {
+                        foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
+                            Google.Apis.Calendar.v3.Data.EventAttendee ea = GoogleOgcs.Calendar.CreateAttendee(recipient, ai.Organizer == recipient.Name);
+                            ev.Attendees.Add(ea);
+                        }
                     }
                 }
             }

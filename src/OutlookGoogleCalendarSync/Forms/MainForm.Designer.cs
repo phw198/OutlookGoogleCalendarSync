@@ -3307,7 +3307,7 @@
         private System.Windows.Forms.CheckBox cbAddDescription_OnlyToGoogle;
         private System.Windows.Forms.CheckBox cbAddReminders;
         private System.Windows.Forms.Label lAttributes;
-        private System.Windows.Forms.CheckBox cbAddAttendees;
+        public System.Windows.Forms.CheckBox cbAddAttendees;
         private System.Windows.Forms.CheckBox cbAddDescription;
         private System.Windows.Forms.GroupBox gbSyncOptions_How;
         private System.Windows.Forms.CheckBox cbOfuscate;
