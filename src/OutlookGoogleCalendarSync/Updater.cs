@@ -113,97 +113,80 @@ namespace OutlookGoogleCalendarSync {
                     if (updates.CurrentlyInstalledVersion != null)
                         log.Info("Currently installed version: " + updates.CurrentlyInstalledVersion.Version.ToString());
                     log.Info("Found " + updates.ReleasesToApply.Count() + " newer releases available.");
+                    log.Info("Download directory = " + updates.PackageDirectory);
+
+                    DialogResult dr = DialogResult.Cancel;
+                    String squirrelAnalyticsLabel = "";
+                    String releaseNotes = "";
+                    String releaseVersion = "";
+                    String releaseType = "";
 
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
-                        log.Info("Found a new " + update.Version.SpecialVersion + " version: " + update.Version.Version.ToString());
+                        log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
 
                         if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion) {
                             log.Info("The user has previously requested to skip this version.");
                             break;
                         }
-
-                        String releaseNotes = "";                        
-                        if (nonGitHubReleaseUri != null) {
-                            releaseNotes = update.GetReleaseNotes(nonGitHubReleaseUri);
-                        } else {
-                            //Somewhat annoyingly we have to download the release in order to get the release notes, as they are embedded in the .nupkg upgrade file(s)
-                            try {
-                                updateManager.DownloadReleases(new[] { update }).Wait(30 * 1000);
-                                System.Collections.Generic.Dictionary<ReleaseEntry, String> allReleaseNotes = updates.FetchReleaseNotes();
-                                releaseNotes = allReleaseNotes[update];
-                            } catch (System.Exception ex) {
-                                OGCSexception.Analyse(ex);
-                                log.Error("Failed pre-fetching release notes. " + ex.Message);
-                                releaseNotes = null;
-                            }
+                        
+                        try {
+                            //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
+                            String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                            log.Debug("Downloading " + nupkgUrl);
+                            new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, updates.PackageDirectory + "\\" + update.Filename);
+                            log.Debug("Download completed");
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse("Failed downloading release file for "+ update.Version, ex);
+                            throw new ApplicationException("Failed upgrading OGCS.", ex);
                         }
 
-                        DialogResult dr = DialogResult.Cancel;
-                        if (!string.IsNullOrEmpty(releaseNotes)) log.Debug("Release notes retrieved.");
-                        var t = new System.Threading.Thread(() => new Forms.UpdateInfo(update.Version.Version.ToString(), update.Version.SpecialVersion, releaseNotes, out dr));
-                        t.SetApartmentState(System.Threading.ApartmentState.STA);
-                        t.Start();
-                        t.Join();
+                        if (string.IsNullOrEmpty(releaseNotes)) {
+                            log.Debug("Retrieving release notes.");
+                            releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
+                            releaseVersion = update.Version.Version.ToString();
+                            releaseType = update.Version.SpecialVersion;
+                            squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
+                        }
+                    }
+                    
+                    var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
+                    t.SetApartmentState(System.Threading.ApartmentState.STA);
+                    t.Start();
+                    t.Join();
 
-                        String squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
-                        if (dr == DialogResult.No) {
-                            log.Info("User chose not to upgrade right now.");
-                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
+                    if (dr == DialogResult.No) {
+                        log.Info("User chose not to upgrade right now.");
+                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
 
-                        } else if (dr == DialogResult.Ignore) {
-                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
+                    } else if (dr == DialogResult.Ignore) {
+                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
 
-                        } else if (dr == DialogResult.Yes) {
-                            log.Debug("Download started...");
-                            if (!updateManager.DownloadReleases(new[] { update }).Wait(60 * 1000)) {
-                                log.Warn("The download failed to completed within 60 seconds.");
-                                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";timedout");
-                                if (OgcsMessageBox.Show("The update failed to download.", "Download timed out", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Retry) {
-                                    if (!updateManager.DownloadReleases(new[] { update }).Wait(60 * 1000)) {
-                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";retry-timedout");
-                                        if (OgcsMessageBox.Show("The update failed to download again.\nTo download from the project website, click Yes.", "Download timed out", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
-                                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/");
-                                        } else
-                                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
-                                        break;
-                                    }
-                                } else {
-                                    if (OgcsMessageBox.Show("Would you like to download directly from the project website?", "Go to OGCS website", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";from-website");
-                                        System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/");
-                                    } else
-                                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";gave-up");
-                                    break;
-                                }
-                            }
+                    } else if (dr == DialogResult.Yes) {
+                        try {
+                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
+                            log.Info("Applying the updated release...");
+                            //updateManager.ApplyReleases(updates).Wait();
+                            updateManager.UpdateApp().Wait();
 
-                            try {
-                                log.Debug("Download complete.");
-                                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
-                                log.Info("Applying the updated release...");
-                                updateManager.ApplyReleases(updates).Wait();
+                            log.Info("The application has been successfully updated.");
+                            OgcsMessageBox.Show("The application has been updated and will now restart.",
+                                "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            restartUpdateExe = updateManager.RootAppDirectory + "\\Update.exe";
+                            return true;
 
-                                log.Info("The application has been successfully updated.");
-                                OgcsMessageBox.Show("The application has been updated and will now restart.",
-                                    "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                restartUpdateExe = updateManager.RootAppDirectory + "\\Update.exe";
-                                return true;
-
-                            } catch (System.AggregateException ae) {
-                                foreach (System.Exception ex in ae.InnerExceptions) {
-                                    OGCSexception.Analyse(ex, true);
-                                    ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
-                                    throw new ApplicationException("Failed upgrading OGCS.", ex);
-                                }
-                            } catch (System.Exception ex) {
+                        } catch (System.AggregateException ae) {
+                            foreach (System.Exception ex in ae.InnerExceptions) {
                                 OGCSexception.Analyse(ex, true);
                                 ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             }
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse(ex, true);
+                            ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
+                            throw new ApplicationException("Failed upgrading OGCS.", ex);
                         }
-                        break;
                     }
+
                 } else {
                     log.Info("Already running the latest version of OGCS.");
                     if (this.isManualCheck) { //Was a manual check, so give feedback
