@@ -88,8 +88,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
-            if (!onlyWhenNoGUI ||
-                (onlyWhenNoGUI && oApp.Explorers.Count == 0)) 
+            if (Settings.Instance.DisconnectOutlookBetweenSync ||
+                !onlyWhenNoGUI ||
+                (onlyWhenNoGUI && (oApp == null || oApp.Explorers.Count == 0)))
             {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
