@@ -128,16 +128,21 @@ namespace OutlookGoogleCalendarSync {
                             log.Info("The user has previously requested to skip this version.");
                             break;
                         }
-                        
-                        try {
-                            //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
-                            String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
-                            log.Debug("Downloading " + nupkgUrl);
-                            new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, updates.PackageDirectory + "\\" + update.Filename);
-                            log.Debug("Download completed");
-                        } catch (System.Exception ex) {
-                            OGCSexception.Analyse("Failed downloading release file for "+ update.Version, ex);
-                            throw new ApplicationException("Failed upgrading OGCS.", ex);
+
+                        String localFile = updates.PackageDirectory + "\\" + update.Filename;
+                        if (updateManager.CheckIfAlreadyDownloaded(update, localFile)) {
+                            log.Debug("This has already been downloaded.");
+                        } else {
+                            try {
+                                //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
+                                String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                                log.Debug("Downloading " + nupkgUrl);
+                                new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
+                                log.Debug("Download complete.");
+                            } catch (System.Exception ex) {
+                                OGCSexception.Analyse("Failed downloading release file for " + update.Version, ex);
+                                throw new ApplicationException("Failed upgrading OGCS.", ex);
+                            }
                         }
 
                         if (string.IsNullOrEmpty(releaseNotes)) {
@@ -164,9 +169,32 @@ namespace OutlookGoogleCalendarSync {
                     } else if (dr == DialogResult.Yes) {
                         try {
                             Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
-                            log.Info("Applying the updated release...");
-                            //updateManager.ApplyReleases(updates).Wait();
-                            updateManager.UpdateApp().Wait();
+                            log.Info("Applying the updated release(s)...");
+                            //updateManager.UpdateApp().Wait();
+
+                            int ApplyAttempt = 1;
+                            while (ApplyAttempt <= 5) {
+                                try {
+                                    updateManager.ApplyReleases(updates).Wait();
+                                    break;
+                                } catch (System.AggregateException ex) {
+                                    ApplyAttempt++;
+                                    if (OGCSexception.GetErrorCode(ex.InnerException) == "0x80070057") { //File does not exist
+                                        //File does not exist: C:\Users\Paul\AppData\Local\OutlookGoogleCalendarSync\packages\OutlookGoogleCalendarSync-2.8.4-alpha-full.nupkg
+                                        //Extract the nupkg filename
+                                        String regexMatch = ".*" + updates.PackageDirectory.Replace(@"\", @"\\") + @"\\(.*?([\d\.]+-\w+).*)$";
+                                        System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(ex.InnerException.Message, regexMatch);
+
+                                        if (match?.Groups?.Count == 3) {
+                                            log.Warn("Could not update as missing file " + match.Groups[1]);
+                                            String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + match.Groups[2] + "/" + match.Groups[1];
+                                            log.Debug("Downloading " + nupkgUrl);
+                                            new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, updates.PackageDirectory + "\\" + match.Groups[1]);
+                                            log.Debug("Download complete.");
+                                        }
+                                    } else throw;
+                                }
+                            }
 
                             log.Info("The application has been successfully updated.");
                             OgcsMessageBox.Show("The application has been updated and will now restart.",
