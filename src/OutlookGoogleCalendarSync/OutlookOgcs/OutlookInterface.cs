@@ -9,6 +9,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public interface Interface {
         void Connect();
         void Disconnect(Boolean onlyWhenNoGUI = false);
+        Boolean NoGUIexists();
         Folders Folders();
         Dictionary<string, MAPIFolder> CalendarFolders();
         MAPIFolder UseOutlookCalendar();

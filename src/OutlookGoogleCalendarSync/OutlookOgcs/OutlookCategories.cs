@@ -70,7 +70,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Color colour = new Color();
                 try {
                     colour = ColorTranslator.FromHtml(hexColour);
-                    log.Fine("Converted " + hexColour + " to " + colour.ToString());
+                    log.Fine("Converted '" + hexColour + "' to " + colour.ToString());
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.", ex);
                 }
