@@ -26,10 +26,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null || instance.Folders == null) {
+                    if (instance == null)
                         instance = new Calendar();
+                    if (instance.Folders == null)
                         instance.IOutlook.Connect();
-                    }
+
                 } catch (System.ApplicationException) {
                     throw;
                 } catch (System.Exception ex) {
