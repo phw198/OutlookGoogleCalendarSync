@@ -18,7 +18,7 @@
   
   <appender name="GoogleStackdriver" type="Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender,Google.Cloud.Logging.Log4Net">
     <layout type="log4net.Layout.PatternLayout">
-      <conversionPattern value="%property{CloudLogUuid} %-4timestamp [%thread] %-5level %logger - %message" />
+      <conversionPattern value="%property{CloudLogUuid} %thread %-5level %logger [%L] - %message" />
     </layout>
     <projectId value="outlook-google-calendar-sync" />
     <logId type="log4net.Util.PatternString" value="%property{CloudLogId}" />
