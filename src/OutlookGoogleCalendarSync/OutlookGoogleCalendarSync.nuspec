@@ -16,7 +16,6 @@
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-**Enhancements**
 - Optionally exclude declined Google invitiations from sync
 - Additional colour sync setting to only sync single category to Outlook
 - Don't set Outlook category to default Google calendar colour (unless mapped)

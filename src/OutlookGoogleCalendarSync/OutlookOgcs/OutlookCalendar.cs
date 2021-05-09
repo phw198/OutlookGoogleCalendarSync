@@ -1281,9 +1281,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     eventSummary += '"' + ai.Subject + '"';
                     if (onlyIfNotVerbose) eventSummary += "<br/>";
 
+                } catch (System.Runtime.InteropServices.COMException ex) { 
+                    if (OGCSexception.GetErrorCode(ex) == "0x8004010F")
+                        throw new System.Exception("Cannot access Outlook OST/PST file. Try restarting Outlook.", ex);
+                    else
+                        OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
+
                 } catch (System.Exception ex) {
-                    log.Warn("Failed to get appointment summary: " + eventSummary);
-                    OGCSexception.Analyse(ex, true);
+                    OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
                 }
             }
             return eventSummary;
