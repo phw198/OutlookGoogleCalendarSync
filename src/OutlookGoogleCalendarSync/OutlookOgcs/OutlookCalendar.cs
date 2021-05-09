@@ -389,7 +389,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
-                            if (ai.LastModificationTime > compare.Value.Updated) continue;
+                            if (ai.LastModificationTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                                continue;
 
                             log.Debug("Doing a dummy update in order to update the last modified date.");
                             CustomProperty.SetOGCSlastModified(ref ai);
