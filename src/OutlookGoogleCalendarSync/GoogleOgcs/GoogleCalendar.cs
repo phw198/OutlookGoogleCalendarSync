@@ -567,9 +567,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 if (itemModified == 0) {
                     if (ev == null) {
-                        if (CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
+                        if (compare.Value.Updated < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
                             ev = compare.Value;
-                        else if (compare.Value.Updated > compare.Key.LastModificationTime)
+                        else 
                             continue;
                     }
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
