@@ -2,7 +2,7 @@
 
 ## How can I sync entries between Outlook and Google calendars?
 
-1. Visit the [Outlook Google Calendar Sync](https://phw198.github.io/OutlookGoogleCalendarSync) website
+1. Visit the [Outlook Google Calendar Sync]({{ site.github-repo }}) website
 1. Download the `Setup.exe` file for latest stable or alpha release
 1. Double-click the downloaded file to install - it will automatically start the application afterwards
 1. The main "Outlook Google Calendar Sync" screen will appear

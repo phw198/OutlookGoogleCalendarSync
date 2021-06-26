@@ -14,7 +14,7 @@ Follow this [quick start guide](quickstart) and have OGCS up and running in minu
 
 ## In-depth Guide
 Each of the screens is explained in detail.  
-<img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png" style="position: absolute; clip: rect(0px, 300px, 75px, 0px)"/>
+<img src="{{ site.github-repo }}/raw/master/docs/images/home_screen1.png" style="position: absolute; clip: rect(0px, 300px, 75px, 0px)"/>
 
 <br/><br/>
 

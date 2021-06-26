@@ -17,7 +17,9 @@ After much searching, I happened across the early stages of [an open source proj
 ## Summary
 Thousands of spare-time hours have now gone in to this project, and I'd like to think it's come a long way.
 
-Beta releases should now be pretty stable, but if you find a bug [you can help](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-Problems) squash it! :beetle:  
+Beta releases should now be pretty stable, but if you find a bug [you can help]({{ site.github-repo }}/wiki/Reporting-Problems) squash it! :beetle:  
+
+See the [history of enhancements](release-notes.html) and bug fixes thus far.
 
 If you would like to support this tool and its further development, your donations are very welcome...
 

@@ -68,9 +68,9 @@ With all of these settings, when turned **on** they will only sync from that poi
 <p style="margin-left:40px; margin-top:-20px"><b>One-way to Google:</b> If two-way sync is configured, optionally only sync the description to Google. Because has a maximum of 8kb held in plain text, it may cause information or formatting to be lost if subsequently synced back from Google.</p>
 
 **Attendees:** Sync the meeting attendees, using their email address as their unique identifier. 
-<div class="tip">:warning:This option is likely to trigger the Outlook security popup. If you cannot prevent this through <a href="https://github.com/phw198/outlookgooglecalendarsync/wiki/FAQs---Outlook-Security#how-can-i-stop-it-happening">standard settings</a>, it may be best to stop syncing attendees.</div>
+<div class="tip">:warning:This option is likely to trigger the Outlook security popup. If you cannot prevent this through <a href="{{ site.github-repo }}/wiki/FAQs---Outlook-Security#how-can-i-stop-it-happening">standard settings</a>, it may be best to stop syncing attendees.</div>
 
-<p style="margin-left:40px;"><b>Cloak email in Google:</b> Google has been known to <a href="https://github.com/phw198/outlookgooglecalendarsync/wiki/FAQs#why-are-my-meeting-attendees-getting-notified-of-updates-to-events-in-google">send out unsolicited notification emails</a> to attendees. To prevent this, the default is to “cloak” the attendee’s email address by appending <code class="highlighter-rouge">.ogcs</code>, thus making any such emails undeliverable.</p>
+<p style="margin-left:40px;"><b>Cloak email in Google:</b> Google has been known to <a href="{{ site.github-repo }}/wiki/FAQs#why-are-my-meeting-attendees-getting-notified-of-updates-to-events-in-google">send out unsolicited notification emails</a> to attendees. To prevent this, the default is to “cloak” the attendee’s email address by appending <code class="highlighter-rouge">.ogcs</code>, thus making any such emails undeliverable.</p>
 
 **Reminders:** Include reminders/alerts in order to be notified of upcoming meetings. 
 

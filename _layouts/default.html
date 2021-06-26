@@ -30,7 +30,9 @@
     </script>
     {% endif %}
     
-    <script data-ad-client="ca-pub-5710461137665920" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    {% if site.google_ad_client %}
+    <script data-ad-client="{{ site.google_ad_client }}" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    {% endif %}
     
     <title>{{ site.title }}{% if page.title %} | {{ page.title }}{% endif %}</title>
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">

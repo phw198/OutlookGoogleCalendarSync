@@ -4,7 +4,7 @@ The wiki is a great resource to have a browse through and help you get going wit
 
 Why not have a look around now?
 <div style="margin: auto; text-align: center;">
-  <a href="https://github.com/phw198/outlookgooglecalendarsync/wiki" class="button" onClick="handleClickEvent('outbound', 'Project Wiki');">
+  <a href="{{ site.github-repo }}/wiki" class="button" onClick="handleClickEvent('outbound', 'Project Wiki');">
     <small>View GitHub project</small>Wiki
   </a>
 </div>

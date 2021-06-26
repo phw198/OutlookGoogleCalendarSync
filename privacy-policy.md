@@ -4,7 +4,7 @@ layout: page
 # Privacy Policy Notice
 
 ## The policy:
-This privacy policy notice is served by Outlook Google Calendar Sync under the website; [https://phw198.github.io/OutlookGoogleCalendarSync](https://phw198.github.io/OutlookGoogleCalendarSync). The purpose of this policy is to explain to you how we control, process, handle and protect your personal information through the business and while you browse or use this website. If you do not agree to the following policy you may wish to cease viewing / using this website and assocaited application, and or refrain from submitting your personal data to us.
+This privacy policy notice is served by Outlook Google Calendar Sync under the website; [{{ site.url }}]({{ site.url }}). The purpose of this policy is to explain to you how we control, process, handle and protect your personal information through the business and while you browse or use this website. If you do not agree to the following policy you may wish to cease viewing / using this website and assocaited application, and or refrain from submitting your personal data to us.
 
 ## Policy key definitions:
 "I", "our", "us", or "we" refer to the open source software and developer of *Outlook Google Calendar Sync*, as obtained from this website.

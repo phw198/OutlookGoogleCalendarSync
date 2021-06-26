@@ -50,6 +50,6 @@ layout: page
 
 
 
-<img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png" width="450px" />
-<img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen2.png" width="450px" />
-<img src="https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen3.png" width="450px" />
+<img src="{{ site.github-repo }}/raw/master/docs/images/home_screen1.png" width="450px" />
+<img src="{{ site.github-repo }}/raw/master/docs/images/home_screen2.png" width="450px" />
+<img src="{{ site.github-repo }}/raw/master/docs/images/home_screen3.png" width="450px" />

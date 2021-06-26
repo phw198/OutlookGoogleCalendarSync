@@ -22,10 +22,10 @@ next-url: help
 **Close button minimises:** Prevent the application from closing when clicking on the standard top right “close” button. Instead it will simply minimise.   
 **Show bubble tooltip in tray when syncing:** Get notifications when a sync begins and a summary of the changes on completion.  
 **Make application portable:** Only available, but enabled by default, if the portable ZIP application is being used.  
-**Create CSV files of calendar entries:** This can be turned on to aid investigation of a possible problem, usually under instruction having raised a [GitHub Issue](https://github.com/phw198/OutlookGoogleCalendarSync/issues).  
+**Create CSV files of calendar entries:** This can be turned on to aid investigation of a possible problem, usually under instruction having raised a [GitHub Issue]({{ site.github-repo }}/issues).  
 
 ### Logging
-**Logging level:** Set the level of detail captured in the log file. From `OFF` through to `ALL`, with `DEBUG` being the default. Ensure it is set to `DEBUG` or greater if attaching it to a [GitHub Issue](https://github.com/phw198/OutlookGoogleCalendarSync/issues).
+**Logging level:** Set the level of detail captured in the log file. From `OFF` through to `ALL`, with `DEBUG` being the default. Ensure it is set to `DEBUG` or greater if attaching it to a [GitHub Issue]({{ site.github-repo }}/issues).
 
 ## Proxy Settings
 **No Proxy:** When there is a direct connection to the internet, for example, using home broadband.

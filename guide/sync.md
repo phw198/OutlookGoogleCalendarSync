@@ -8,7 +8,7 @@ next-url: settings
 
 # Sync
 
-![Sync Screenshot](https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/images/home_screen1.png)
+![Sync Screenshot]({{ site.github-repo }}/raw/master/docs/images/home_screen1.png)
 
 **Last Successful:** The last time a sync was successfully completed, whether it be an automated/scheduled sync, or a manual.  
 **Next Scheduled:** If you have set an sync interval, this will display the next time an automated sync is scheduled.
