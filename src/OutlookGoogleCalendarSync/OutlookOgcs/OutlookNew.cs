@@ -417,6 +417,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private void getDefaultCalendar(NameSpace oNS, ref MAPIFolder defaultCalendar) {
             log.Debug("Finding default Mailbox calendar folders");
+            Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars, "The Outlook calendar to synchonize with.");
             try {
                 Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
                 Forms.Main.Instance.rbOutlookDefaultMB.Checked = true;
@@ -465,10 +466,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
                     }
                 } catch (System.Exception ex) {
-                    if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
-                        OGCSexception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
-                        OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
-                        log.Warn(ex.Message);
+                    if (OutlookOgcs.Calendar.Instance.ExchangeIsUnavailable(ex)) {
                         log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
                         Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
@@ -477,6 +475,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
+                    break;
                 }
             }
             p.Dispose();

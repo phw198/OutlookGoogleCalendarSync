@@ -97,6 +97,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         /// <summary>
+        /// Check if an exception relates to Exchange being unavailable
+        /// </summary>
+        /// <param name="ex">The exception object</param>
+        public Boolean ExchangeIsUnavailable(System.Exception ex) {
+            if (ex is System.Runtime.InteropServices.COMException) {
+                if (IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected") ||
+                        OGCSexception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
+                        OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                    log.Warn(ex.Message);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Get all calendar entries within the defined date-range for sync
         /// </summary>
         /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
@@ -117,6 +133,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     OGCSexception.LogAsFail(ref ex);
                     ex.Data.Add("OGCS", "Corrupted item(s) with no start/end date exist in your Outlook calendar that need fixing or removing before a sync can run.<br/>" +
                         "Switch the calendar folder to <i>List View</i>, sort by date and look for entries with no start and/or end date.");
+                } else if (ExchangeIsUnavailable(ex)) {
+                    OGCSexception.LogAsFail(ref ex);
+                    ex.Data.Add("OGCS", ex.Message +" Please try again later.");
                 }
                 throw;
 
