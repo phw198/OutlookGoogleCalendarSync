@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 name: Outlook ↔ Google Calendar Sync
-title: OGCS
+title: Outlook Google Calendar Sync - OGCS
 email: ogcs@paulwoolcock.co.uk
 description: #> # this means to ignore newlines until "baseurl:"
   Sync your Outlook and Google calendars securely and for free!
