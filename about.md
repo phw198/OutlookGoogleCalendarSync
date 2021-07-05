@@ -1,7 +1,6 @@
 ---
 layout: page
 title: About
-permalink: /about
 ---
 # About
 When Google removed their calendar synchronisation tool, I went in search of a replacement. As expected, there were a slew of paid solutions as well as freemium efforts with varying restrictions.  
