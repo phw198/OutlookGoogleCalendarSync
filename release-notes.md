@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Release Notes
-permalink: /release-notes
 ---
 
 <style type="text/css">
