@@ -28,6 +28,17 @@ p {
 - Check if install files are already downloaded
 - Regression bug syncs every minute after manual sync, even with no schedule
 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-5710461137665920"
+     data-ad-slot="7911595401"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
 ## v2.8.6.0 - Alpha
 
 :high_brightness: **Enhancements**
