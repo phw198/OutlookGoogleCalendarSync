@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 }
 
                                 if (regReleaseValue == null)
-                                    log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
+                                    log.Error("Could not determine exact Outlook version with codebase v16.");
 
                             } catch (System.Exception ex) {
                                 OGCSexception.Analyse("Failed determining Click-to-Run release.", ex);

@@ -109,6 +109,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+            ToolTips.SetToolTip(tbMaxAttendees,
+                "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
                 "This option safeguards against that by appending '"+ GoogleOgcs.EventAttendee.EmailCloak +"' to their email address.");
@@ -388,6 +390,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAddDescription.Checked = Settings.Instance.AddDescription;
             cbAddDescription_OnlyToGoogle.Checked = Settings.Instance.AddDescription_OnlyToGoogle;
             cbAddAttendees.Checked = Settings.Instance.AddAttendees;
+            tbMaxAttendees.Value = Settings.Instance.MaxAttendees;
             cbCloakEmail.Checked = Settings.Instance.CloakEmail;
             cbCloakEmail.Visible = cbAddAttendees.Checked && Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbAddReminders.Checked = Settings.Instance.AddReminders;
@@ -623,6 +626,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 syncNote = SyncNotes.QuotaExhaustedPreviously;
                 show = true;
             }
+            String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
 
             switch (syncNote) {
                 case SyncNotes.QuotaExhaustedInfo:
@@ -634,28 +638,46 @@ namespace OutlookGoogleCalendarSync.Forms {
                 case SyncNotes.QuotaExhaustedPreviously:
                     DateTime utcNow = DateTime.UtcNow;
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                    int delayHours = (int)(quotaReset - DateTime.Now).TotalHours + 1;
+                    if ((utcNow - quotaReset).Ticks < -TimeSpan.TicksPerMinute) {
+                        //Successful sync before new quota at 8GMT
+                        SetControlPropertyThreadSafe(tbSyncNote, "Visible", false);
+                        SetControlPropertyThreadSafe(panelSyncNote, "Visible", false);
+                        show = false;
+                        break;
+                    }
+                    int delayHours = (int)(DateTime.Now - Settings.Instance.LastSyncDate).TotalHours;
+                    String delay = delayHours + " hours";
+                    if (delayHours == 0) {
+                        delay = (int)(DateTime.Now - Settings.Instance.LastSyncDate).TotalMinutes + " mins";
+                    }
                     note =  "Google's daily free calendar quota was exhausted!" + cr +
-                            "  Syncs were delayed "+ delayHours +" hours until 08:00GMT  " + cr +
+                            "    Previous successful sync was "+ delay +" ago." + cr +
                             " Get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
 
-                    //Display the note for 3 hours after the quota has been renewed
-                    System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
-                    bwHideNote.WorkerReportsProgress = false;
-                    bwHideNote.WorkerSupportsCancellation = true;
-                    bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
-                        delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
-                            try {
-                                DateTime showUntil = DateTime.Now.AddHours((int)args.Argument + 3);
-                                while (DateTime.Now < showUntil) {
-                                    System.Threading.Thread.Sleep(60 * 1000);
-                                }
-                                SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
-                            } catch { }
-                        });
-                    bwHideNote.RunWorkerAsync(delayHours);
+                    if (!show && existingNote.Contains("free calendar quota was exhausted")) {
+                        log.Debug("Removing quota exhausted advisory notice.");
+                        SetControlPropertyThreadSafe(tbSyncNote, "Visible", show);
+                        SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
+                    } else {
+                        //Display the note for 3 hours after the quota has been renewed
+                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
+                        bwHideNote.WorkerReportsProgress = false;
+                        bwHideNote.WorkerSupportsCancellation = true;
+                        bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
+                            delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
+                                try {
+                                    DateTime showUntil = DateTime.Now.AddHours(3);
+                                    log.Debug("Showing quota exhausted advisory until " + showUntil.ToString());
+                                    while (DateTime.Now < showUntil) {
+                                        System.Threading.Thread.Sleep(60 * 1000);
+                                    }
+                                    log.Debug("Quota exhausted advisory notice period ending.");
+                                    SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
+                                } catch { }
+                            });
+                        bwHideNote.RunWorkerAsync();
+                    }
 
                     break;
                 case SyncNotes.RecentSubscription:
@@ -685,7 +707,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                     url = "file://" + Program.UserFilePath;
                     break;
             }
-            String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
             if (note != existingNote.Replace("\n", "\r\n") && !show) return; //Trying to hide a note that isn't currently displaying
             SetControlPropertyThreadSafe(tbSyncNote, "Text", note);
             SetControlPropertyThreadSafe(tbSyncNote, "Tag", url);
@@ -1654,14 +1675,19 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (cbAddAttendees.Checked && Settings.Instance.OutlookGalBlocked) {
                 cbAddAttendees.Checked = false;
                 cbCloakEmail.Enabled = false;
+                tbMaxAttendees.Enabled = false;
                 return;
             }
             if (this.Visible) Settings.Instance.AddAttendees = cbAddAttendees.Checked;
+            tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
             if (cbAddAttendees.Checked && string.IsNullOrEmpty(OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
                 OutlookOgcs.Calendar.Instance.IOutlook.GetCurrentUser(null);
             }
+        }
+        private void tbMaxAttendees_ValueChanged(object sender, EventArgs e) {
+            Settings.Instance.MaxAttendees = (int)tbMaxAttendees.Value;
         }
         private void cbCloakEmail_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.CloakEmail = cbCloakEmail.Checked;
@@ -1954,7 +1980,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case 10000: isMilestone = true; break;
                 }
                 if (isMilestone) {
-                    new Forms.Social().Show();
+                    new Forms.Social().ShowDialog();
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");

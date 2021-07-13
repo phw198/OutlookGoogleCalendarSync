@@ -90,7 +90,8 @@ namespace OutlookGoogleCalendarSync {
             OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
-            TimezoneMaps = new TimezoneMappingDictionary();
+            DisconnectOutlookBetweenSync = false;
+            TimezoneMaps = new TimezoneMappingDictionary();            
 
             UseGoogleCalendar = new GoogleCalendarListEntry();
             ExcludeDeclinedInvites = true;
@@ -116,6 +117,7 @@ namespace OutlookGoogleCalendarSync {
             ReminderDNDstart = DateTime.Now.Date.AddHours(22);
             ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
             AddAttendees = false;
+            MaxAttendees = 200;
             AddColours = false;
             MergeItems = true;
             DisableDelete = true;
@@ -195,6 +197,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!loading() && Forms.Main.Instance.IsHandleCreated) Forms.Main.Instance.FeaturesBlockedByCorpPolicy(value);
             }
         }
+        [DataMember] public Boolean DisconnectOutlookBetweenSync { get; set; }
 
         [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
         [CollectionDataContract(
@@ -277,6 +280,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public DateTime ReminderDNDstart { get; set; }
         [DataMember] public DateTime ReminderDNDend { get; set; }
         [DataMember] public bool AddAttendees { get; set; }
+        [DataMember] public int MaxAttendees { get; set; }
         [DataMember] public bool AddColours { get; set; }
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
@@ -481,6 +485,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
+            log.Info("  Disconnect Between Sync: " + DisconnectOutlookBetweenSync);
             if (TimezoneMaps.Count > 0) {
                 log.Info("  Custom Timezone Mapping:-");
                 TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));
@@ -540,7 +545,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info(" What");
             log.Info("  AddLocation: " + AddLocation);
             log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddAttendees: " + AddAttendees);
+            log.Info("  AddAttendees: " + AddAttendees + " <" + MaxAttendees);
             log.Info("  AddColours: " + AddColours);
             log.Info("  AddReminders: " + AddReminders);
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);

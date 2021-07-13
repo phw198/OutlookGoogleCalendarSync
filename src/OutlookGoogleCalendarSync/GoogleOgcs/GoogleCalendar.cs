@@ -418,9 +418,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
-                if (ai.Recipients.Count >= 200) {
-                    Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
-                        "more than 200, which Google does not allow.", Console.Markup.warning);
+                if (ai.Recipients.Count > Settings.Instance.MaxAttendees) {
+                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
+                    if (ai.Recipients.Count >= 200) {
+                        Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
+                            "more than 200, which Google does not allow.", Console.Markup.warning);
+                    }
                 } else {
                     foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
                         Google.Apis.Calendar.v3.Data.EventAttendee ea = GoogleOgcs.Calendar.CreateAttendee(recipient, ai.Organizer == recipient.Name);
@@ -563,11 +566,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
-                    if (ev == null && CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
-                        ev = compare.Value;
-
-                    if (ev == null || compare.Value.Updated > compare.Key.LastModificationTime) continue;
-
+                    if (ev == null) {
+                        if (compare.Value.Updated < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
+                            ev = compare.Value;
+                        else 
+                            continue;
+                    }
                     log.Debug("Doing a dummy update in order to update the last modified date of " +
                         (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
                     CustomProperty.SetOGCSlastModified(ref ev);
@@ -746,10 +750,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (Settings.Instance.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
-                if (ai.Recipients.Count >= 200) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>Attendees will not be synced for this meeting as it has " +
-                        "more than 200, which Google does not allow.", Console.Markup.warning);
-                    ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
+                if (ai.Recipients.Count > Settings.Instance.MaxAttendees) {
+                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
+                    if (ai.Recipients.Count >= 200) {
+                        Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>Attendees will not be synced for this meeting as it has " +
+                            "more than 200, which Google does not allow.", Console.Markup.warning);
+                    }
+                } else if (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional &&
+                        ev.Attendees != null && ev.Attendees.Count > Settings.Instance.MaxAttendees && ai.Recipients.Count <= Settings.Instance.MaxAttendees) {
+                    log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
                     try {
                         CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
@@ -937,7 +946,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (Settings.Instance.ConfirmOnDelete) {
                 if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
                 } else {
@@ -1779,7 +1788,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     DateTime utcNow = DateTime.UtcNow;
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
                     if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                    int delayMins = (int)(quotaReset - DateTime.Now).TotalMinutes;
+                    int delayMins = (int)(quotaReset - utcNow).TotalMinutes;
                     Sync.Engine.Instance.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                     Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
                 }
