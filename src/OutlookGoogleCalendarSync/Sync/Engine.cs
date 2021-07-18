@@ -149,7 +149,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (Settings.Instance.MuteClickSounds) Console.MuteClicks(true);
 
                 //Check network availability
-                if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
+                if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() || !Program.HasInternetConnection()) {
                     mainFrm.Console.Update("There does not appear to be any network available! Sync aborted.", Console.Markup.warning, notifyBubble: true);
                     setNextSync(false, updateSyncSchedule);
                     return;
