@@ -510,6 +510,17 @@ namespace OutlookGoogleCalendarSync {
             get { return System.Diagnostics.Debugger.IsAttached; }
         }
 
+        //Consider using COM NetworkListManager.get_IsConnectedToInternet()
+        //Also monitor for status changes?
+        public static Boolean HasInternetConnection() {
+            try {
+                System.Net.Dns.GetHostEntry("www.google.com");
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Replace the %USERNAME% element, if present in a file path, with <userid>
         /// </summary>
