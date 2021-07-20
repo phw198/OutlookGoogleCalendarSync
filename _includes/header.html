@@ -1,24 +1,37 @@
 <header>
   <div class="inner">
-    <table style="width:73%">
+    <table>
       <tr>
-        <td style="text-align:left">
+        <td style="text-align:left; width:63%">
           <h1 onClick="window.location='{{ site.baseurl }}/'" style="cursor:pointer; cursor:hand"> {{ site.name }} </h1>
         </td>
-        <td rowspan="2" style="text-align:left" valign="middle">
+        <td rowspan="2" style="text-align:left; padding-right:25px; width:150px" valign="middle">
           <img src="{{ site.baseurl }}/images/ogcs128x128.png" width="100"/>
-        </td>
+        </td>    
+        <td rowspan="2">
+          <a href="{{ site.github-repo }}" class="button" onClick="handleClickEvent('outbound', 'GitHub Project Website');">
+            <small>View project on</small> GitHub
+          </a>
+          <div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+          <!-- Header Ad -->
+          <ins class="adsbygoogle"
+              style="display:inline-block;width:202px;height:80px;padding-top:83px"
+              data-ad-client="{{ site.google_ad_client }}"
+              data-ad-slot="1867805500"
+              data-adtest="{{ site.google_ad_testing }}"></ins>
+          <script>
+               (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+          </div>
+        </td>    
       </tr>
       <tr>
         <td style="text-align:left"><h2>Feature Packed, Open Source .... and Free!</h2></td>
       </tr>
-    </table>    
-    
-    <a href="{{ site.github-repo }}" class="button" onClick="handleClickEvent('outbound', 'GitHub Project Website');">
-      <small>View project on</small> GitHub
-    </a>
-  </div>
+    </table>
+  </div>  
 </header>
+
 <div class="inner">
   <div class="inner" id="section-buttons">
     <a href="{{ site.baseurl }}/guide/index.html" class="button">User Guide</a>

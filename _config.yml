@@ -24,7 +24,7 @@ description: #> # this means to ignore newlines until "baseurl:"
   No install necessary, works behind web proxies and actively developed.
 # baseurl: "/OutlookGoogleCalendarSync" # needed when not using custom domain (ie phw198.github.io/<baseurl>)
 baseurl: 
-#url: "https://phw198.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+# url: "https://phw198.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 url: https://www.outlookgooglecalendarsync.com
 github-repo: https://github.com/phw198/OutlookGoogleCalendarSync
 
@@ -33,6 +33,8 @@ github_username:  phw198
 
 google_analytics: UA-19426033-4
 google_ad_client: ca-pub-5710461137665920
+# google_ad_testing: "on"
+google_ad_testing: "off"
 
 # Current software releases
 show_alpha_downloads: true
