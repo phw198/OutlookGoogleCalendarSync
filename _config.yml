@@ -50,6 +50,7 @@ theme: jekyll-theme-architect
 plugins:
   - jekyll-feed
   - jemoji
+  - jekyll-sitemap
   
 #github-pages (163) still depends on jemoji (= 0.8.1) not 0.11.1 where this is hopefully fixed?
 #Once fixed, this can be removed.
