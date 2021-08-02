@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "What is (and isn't) calendar syncing"
-date:   2021-08-01T10:00:00
-categories: guide blog
+date:   2021-08-01
+categories: blog
 ---
 
 The internet is awash with articles, guidance and videos on how to "sync" your calendars, when what they actually talk about is __sharing__ a calendar through the use of an `.ics` file or URL.
