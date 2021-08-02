@@ -22,6 +22,7 @@ description: #> # this means to ignore newlines until "baseurl:"
   Ideal for liberating your corporate Exchange calendar, making it available
   on any of your devices with access to Google Calendar.
   No install necessary, works behind web proxies and actively developed.
+timezone: Europe/London
 # baseurl: "/OutlookGoogleCalendarSync" # needed when not using custom domain (ie phw198.github.io/<baseurl>)
 baseurl: 
 # url: "https://phw198.github.io" # the base hostname & protocol for your site, e.g. http://example.com
