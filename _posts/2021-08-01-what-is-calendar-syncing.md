@@ -43,5 +43,4 @@ Some guides suggest using Microsoft's cloud offering for integration and synchro
 
 ### So how do I sync my Google and Outlook calendars properly then?
 
-Using something like OGCS, of course! For a step-by-step guide, see my other blog posts:
-* [How to sync calendars from Outlook to Google]({{ site.baseurl }}{% post_url 2021-07-24-how-to-sync-calendars-from-outlook-to-google %}) 
+Using something like OGCS, of course!
