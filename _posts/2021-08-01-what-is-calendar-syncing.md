@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "What is (and isn't) calendar syncing"
-date:   2021-08-01
+date:   2021-08-01T10:00:00
 categories: guide blog
 ---
 
