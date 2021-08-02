@@ -13,4 +13,4 @@ Why not have a look around now?
 
 ## Calendar Synchronisation
 
-* What is calendar syncing
+* [What is calendar syncing]({{ site.baseurl }}{% post_url 2021-08-01-what-is-calendar-syncing %})
