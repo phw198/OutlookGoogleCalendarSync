@@ -14,4 +14,3 @@ Why not have a look around now?
 ## Calendar Synchronisation
 
 * What is calendar syncing
-* {{ site.baseurl }}/blog/2021/08/01/what-is-calendar-syncing
