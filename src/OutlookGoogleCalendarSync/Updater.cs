@@ -64,7 +64,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (ApplicationException ex) {
                 log.Error(ex.Message + " " + ex.InnerException.Message);
                 if (OgcsMessageBox.Show("The upgrade failed.\nWould you like to get the latest version from the project website manually?", "Upgrade Failed", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                    System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/");
+                    System.Diagnostics.Process.Start(Program.OgcsWebsite);
                 }
 
             } catch (System.Exception ex) {

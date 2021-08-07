@@ -13,6 +13,7 @@ namespace OutlookGoogleCalendarSync {
     internal sealed class Program {
         public static string UserFilePath;
         private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        public const string OgcsWebsite = "https://phw198.github.io/OutlookGoogleCalendarSync";
         private const string logSettingsFile = "logger.xml";
         private const string defaultLogFilename = "OGcalsync.log";
         public static String WorkingFilesDirectory;
@@ -455,7 +456,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
-                    System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md");
+                    System.Diagnostics.Process.Start(OgcsWebsite + "/release-notes.html");
                     if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }

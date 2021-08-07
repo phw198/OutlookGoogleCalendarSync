@@ -743,40 +743,40 @@ namespace OutlookGoogleCalendarSync.Forms {
                         focusedPage = Forms.Main.Instance.tabApp.SelectedTab;
 
                         if (focusedPage == null) {
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                             return true;
                         }
 
                         if (focusedPage.Name == "tabPage_Sync")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/sync");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/sync");
 
                         else if (focusedPage.Name == "tabPage_Settings") {
                             if (this.tabAppSettings.SelectedTab.Name == "tabOutlook")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/outlook");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/outlook");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabGoogle")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/google");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/google");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabSyncOptions")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/syncoptions");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/syncoptions");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabAppBehaviour")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/appbehaviour");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/appbehaviour");
                             else
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/settings");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/settings");
 
                         } else if (focusedPage.Name == "tabPage_Help")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/help");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/help");
 
                         else if (focusedPage.Name == "tabPage_About")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/about");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/about");
 
                         else
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
 
                         return true; //This keystroke was handled, don't pass to the control with the focus
 
                     } catch (System.Exception ex) {
                         log.Warn("Failed to process captured F1 key.");
                         OGCSexception.Analyse(ex);
-                        System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                        System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                         return true;
                     }
                 }
@@ -1850,7 +1850,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btCheckBrowserAgent_Click(object sender, EventArgs e) {
             try {
-                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/browseruseragent");
+                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/browseruseragent");
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to check browser's user agent.", ex);
             }

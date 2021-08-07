@@ -630,6 +630,16 @@ namespace OutlookGoogleCalendarSync {
                                             log.Fine("Difference in days between G and O exception: " + modifiedDiff);
                                             Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);
+                                            if (forceCompare && excp_itemModified == 0 && DateTime.Now > aiExcp.LastModificationTime.AddDays(1)) {
+                                                GoogleOgcs.CustomProperty.SetOGCSlastModified(ref gExcp);
+                                                try {
+                                                    log.Debug("Doing a dummy update in order to update the last modified date of Google recurring series exception.");
+                                                    GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
+                                                } catch (System.Exception ex) {
+                                                    OGCSexception.Analyse("Dummy update of unchanged exception for Google recurring series failed.", ex);
+                                                }
+                                                continue;
+                                            }
                                         } catch (System.Exception ex) {
                                             log.Error(ex.Message);
                                             log.Error(ex.StackTrace);

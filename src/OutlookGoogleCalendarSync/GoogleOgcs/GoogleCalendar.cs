@@ -1777,6 +1777,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
                 return ApiException.justContinue;
 
+            } else if (ex.Message.Contains("limit 'Queries per minute'") && ex.Error != null && ex.Error.Errors != null && ex.Error.Errors.First().Reason == "rateLimitExceeded") {
+                log.Fail(OGCSexception.FriendlyMessage(ex));
+                OGCSexception.LogAsFail(ref ex);
+                return ApiException.backoffThenRetry;
+
             } else if (ex.Message.Contains("Daily Limit Exceeded") ||
                 (ex.Message.Contains("limit 'Queries per day'") && ex.Error != null && ex.Error.Errors != null && ex.Error.Errors.First().Reason == "rateLimitExceeded")) {
 
