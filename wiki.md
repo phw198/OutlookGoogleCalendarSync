@@ -14,3 +14,4 @@ Why not have a look around now?
 ## Calendar Synchronisation
 
 * [What is calendar syncing]({{ site.baseurl }}{% post_url 2021-08-01-what-is-calendar-syncing %})
+* [How to sync calendars from Outlook to Google]({{ site.baseurl }}{% post_url 2021-08-08-how-to-sync-calendars-from-outlook-to-google %})

@@ -22,7 +22,7 @@ An `ics` file is generally a static file residing on your computer or in an emai
 
 ![google ics subscribe]({{ site.baseurl }}/images/posts/subscribe-ics.png)
 
-This works well for slowly changing feeds, as calendar like Google will only check the subscribed link for updates every 6 to 48 hours. Despite this, many guides will go through the process of making your Google calendar accessible via an `ics` URL, and then subscribing to it in Outlook calendar. This is unsatisfactory for two reasons:
+This works well for slowly changing feeds, as calendars like Google will only check the subscribed link for updates every 6 to 48 hours. Despite this, many guides will go through the process of making your Google calendar accessible via an `ics` URL, and then subscribing to it in Outlook calendar. This is unsatisfactory for two reasons:
 1. All your calendar data is now available publically.
 1. The update frequency is too low - most people want a meeting invite to appear almost immediately in their synced calendar
 
@@ -30,7 +30,7 @@ This isn't synchronisation either.
 
 ### True synchronisation
 
-Google and Outlook don't like to let their calendars "talk" with each other, so true synchronisation is much harder to achieve. To do the job properly, it therefore requires a dedicated application to translate changes happening in one calendar and pushing them across to the other. Google used to provide a calendar sync application of their own, but they stopped making it available several years back and this became the reason for OGCS.
+Google and Microsoft don't like to let their calendars "talk" with each other, so true synchronisation is much harder to achieve. To do the job properly, it therefore requires a dedicated application to translate changes happening in one calendar and pushing them across to the other. Google used to provide a calendar sync application of their own, but they stopped making it available several years back and this became the reason for OGCS.
 
 Having a dedicated sync application also allows users to configure exactly what syncs, when and how. For example, setting a sync to run every hour, only for items in the next month that have a specific category assigned and for which the invitation has been accepted. Similarly, the appointment title could be included in the sync, but the description omitted whilst also forcing all items to show as "private" in the synced calendar, so anyone else with view rights on it cannot see the detail.
 
@@ -43,4 +43,6 @@ Some guides suggest using Microsoft's cloud offering for integration and synchro
 
 ### So how do I sync my Google and Outlook calendars properly then?
 
-Using something like OGCS, of course!
+Using something like OGCS, of course! See my other blogs on:
+* [How to sync Outlook calendars to Google]({{ site.baseurl }}{% post_url 2021-08-08-how-to-sync-calendars-from-outlook-to-google %})
+* How to sync Google calendars to Outlook (coming soon)

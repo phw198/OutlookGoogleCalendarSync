@@ -4,7 +4,7 @@ layout: page
 <div align="center" style="font-size:18px; line-height:18px; font-family:'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">
   <p>:small_blue_diamond: Sync your Outlook and Google calendars securely, including meeting attendees, reminders, full description and more.</p>
   <p>:small_blue_diamond: Ideal for liberating your corporate Exchange calendar, making it available on any of your devices with access to Google Calendar.</p>
-  <p>:small_blue_diamond: No install necessary, works behind web proxies and actively developed.</p>
+  <p>:small_blue_diamond: No install necessary, works behind web proxies and actively developed.<br/>Get <a href="guide">syncing in minutes</a>.</p>
 </div>
 
 ## Functionality

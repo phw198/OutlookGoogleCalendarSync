@@ -1,9 +1,21 @@
 ---
 layout: page
+title: Application Versions
 ---
-# Application Versions
 
-The software can either be installed or run as a "portable" application. The installed version will suffice for the majority of people. 
+## Release Types
+
+Because the software is open source and has no formal support, OGCS is released as alphas and betas to indicate it might not be as polished a product as one that is being sold and has telephone support! __However__, having been available for several years and constantly being improved, it _is_ a stable product - the naming is now simply more to do with the frequency of releases.
+
+### Alpha
+The most recent version of the applicaton, with more regular updates than the beta. If you want to see the latest functionality, or see if a possible bug has already been fixed, you should use the alpha release.
+
+### Beta
+After several alphas have been released, the new features and improvements will be "rolled up" into a new beta release. If you don't need new features and prefer to work on an application that doesn't require frequent updates, then the beta is probably for you.
+
+## Application Versions
+
+Both release types of the software can either be installed or run as a "portable" application. The installed version will suffice for the majority of people. 
 
 In terms of functionality, both versions are the same, but here's a quick comparison:
 
@@ -16,4 +28,4 @@ In terms of functionality, both versions are the same, but here's a quick compar
 | OS Permissions Required | None. | None. |
 | Multiple versions | Only one version at a time. | Each extracted application is standalone, so multiple versions is fine. You may want this to experiment with different releases of OGCS. |
 | Multiple configurations/settings | Only one. | Settings are specific to each extract of OGCS, by default. |
-| Sync multiple calendars | Not yet possible. | Configure a calendar for each OGCS deployment. |
+| Sync multiple calendars | [Coming Soon!]({{ site.github-repo }}/issues/165) | Configure a calendar for each OGCS deployment. |
