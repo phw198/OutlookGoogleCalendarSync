@@ -1,6 +1,25 @@
 | Release Notes |
 |:---|
 
+# v2.9.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- Customisable attendee limit for sync
+- Option to exclude sync of declined Google invitiations
+- Option to exclude sync of Google 'goals'
+- Option to set exact type of availablity in Outlook (eg Out of Office)
+- Provision for custom timezone mapping when required for meeting organiser in different timezone
+- Ability to specify custom maps between Google colours and Outlook categories
+- Additional colour sync setting to only sync single category to Outlook
+- Retrieve all Google calendars, not just first 30
+- Order the Google calendar dropdown: primary, writeable, read-only
+- Warn if read-only calendar selected for sync; deny for two-way sync
+- Sync deletion in Outlook on first two-way sync (not second)
+- New /t command line option to append custom text to application title
+- Set Outlook organisers as having "accepted" in Google
+
+----
+
 # v2.8.7.0 - Alpha
 
 **Enhancements**
