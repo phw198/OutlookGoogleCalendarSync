@@ -1355,6 +1355,12 @@
             The port to connect to, in the range 1 to 65535 inclusive.
             </summary>
         </member>
+        <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.#ctor(System.String)">
+            <summary>
+            Creates a new endpoint with the given host, using a port of 443.
+            </summary>
+            <param name="host">The host name to connect to. Must not be null or empty.</param>
+        </member>
         <member name="M:Google.Api.Gax.Grpc.ServiceEndpoint.#ctor(System.String,System.Int32)">
             <summary>
             Creates a new endpoint with the given host and port.

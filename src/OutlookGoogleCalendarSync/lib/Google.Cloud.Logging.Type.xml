@@ -68,7 +68,8 @@
         <member name="P:Google.Cloud.Logging.Type.HttpRequest.UserAgent">
             <summary>
             The user agent sent by the client. Example:
-            `"Mozilla/4.0 (compatible; MSIE 6.0; Windows 98; Q312461; .NET CLR 1.0.3705)"`.
+            `"Mozilla/4.0 (compatible; MSIE 6.0; Windows 98; Q312461; .NET
+            CLR 1.0.3705)"`.
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Type.HttpRequest.RemoteIpFieldNumber">
@@ -95,7 +96,8 @@
         <member name="P:Google.Cloud.Logging.Type.HttpRequest.Referer">
             <summary>
             The referer URL of the request, as defined in
-            [HTTP/1.1 Header Field Definitions](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
+            [HTTP/1.1 Header Field
+            Definitions](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Type.HttpRequest.LatencyFieldNumber">
@@ -141,6 +143,14 @@
             <summary>
             The number of HTTP response bytes inserted into cache. Set only when a
             cache fill was attempted.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.Logging.Type.HttpRequest.ProtocolFieldNumber">
+            <summary>Field number for the "protocol" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Type.HttpRequest.Protocol">
+            <summary>
+            Protocol used for the request. Examples: "HTTP/1.1", "HTTP/2", "websocket"
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.Type.LogSeverityReflection">
