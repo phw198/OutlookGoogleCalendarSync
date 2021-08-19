@@ -50,6 +50,7 @@ namespace OutlookGoogleCalendarSync {
             Application.SetCompatibleTextRenderingDefault(false);
 
             try {
+                setSecurityProtocols();
                 GoogleOgcs.ErrorReporting.Initialise();
 
                 RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
@@ -524,5 +525,13 @@ namespace OutlookGoogleCalendarSync {
             } else
                 return path;
         }
+
+        private static void setSecurityProtocols() {
+            //Enable TSL1.1,1.2
+            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
+            //Disable SSL3?
+            //System.Net.ServicePointManager.SecurityProtocol &= ~System.Net.SecurityProtocolType.Ssl3;
+        }
+
     }
 }

@@ -14,9 +14,6 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(SettingsProxy));
 
         public SettingsProxy() {
-            //Turn on additional new protocols
-            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
-
             setDefaults();
         }
 
