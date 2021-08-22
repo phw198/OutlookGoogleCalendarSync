@@ -1063,7 +1063,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } else if (!comErrorInWiki(ex)) {
                     OGCSexception.Analyse("COM error not in wiki.", ex);
                     if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
                         alreadyRedirectedToWikiForComError.Add(hResult);
                     }
                     throw new ApplicationException("COM error " + hResult + " encountered.\r\n" +
@@ -1163,7 +1163,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             log.Warn(ex.Message);
             if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
-                System.Diagnostics.Process.Start(wikiUrl);
+                Helper.OpenBrowser(wikiUrl);
                 alreadyRedirectedToWikiForComError.Add(hResult);
             }
             throw new ApplicationException("A problem was encountered with your Office install.\r\n" +

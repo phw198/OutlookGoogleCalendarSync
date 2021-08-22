@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void btOpenLog_Click(object sender, EventArgs e) {
-            System.Diagnostics.Process.Start(logFile);
+            System.Diagnostics.Process.Start("explorer.exe", logFile);
         }
 
         private void CloudLogging_Shown(object sender, EventArgs e) {

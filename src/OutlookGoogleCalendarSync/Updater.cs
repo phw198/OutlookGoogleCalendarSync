@@ -64,7 +64,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (ApplicationException ex) {
                 log.Error(ex.Message + " " + ex.InnerException.Message);
                 if (OgcsMessageBox.Show("The upgrade failed.\nWould you like to get the latest version from the project website manually?", "Upgrade Failed", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes) {
-                    System.Diagnostics.Process.Start(Program.OgcsWebsite);
+                    Helper.OpenBrowser(Program.OgcsWebsite);
                 }
 
             } catch (System.Exception ex) {
@@ -316,7 +316,7 @@ namespace OutlookGoogleCalendarSync {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     log.Debug("User opted to give feedback.");
                     Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, Application.ProductVersion + "-feedback");
-                    System.Diagnostics.Process.Start("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
+                    Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
                 } else {
                     log.Debug("User opted not to give feedback.");
                 }
@@ -429,7 +429,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
                     DialogResult dr = OgcsMessageBox.Show("A new " + releaseType + " release is available for OGCS. Would you like to upgrade to v" + releaseVersion + "?", "New OGCS Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (dr == DialogResult.Yes) {
-                        System.Diagnostics.Process.Start(releaseURL);
+                        Helper.OpenBrowser(releaseURL);
                     }
                 } else {
                     log.Info("Already on latest ZIP release.");

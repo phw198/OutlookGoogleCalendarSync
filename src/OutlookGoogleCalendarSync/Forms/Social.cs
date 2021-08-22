@@ -61,33 +61,33 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public static void Twitter_tweet() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://twitter.com/intent/tweet?&url=http://bit.ly/OGCalSync&text=" + urlEncode(text) + "&via=ogcalsync");
+            Helper.OpenBrowser("http://twitter.com/intent/tweet?&url=http://bit.ly/OGCalSync&text=" + urlEncode(text) + "&via=ogcalsync");
         }
         public static void Twitter_follow() {
-            System.Diagnostics.Process.Start("https://twitter.com/OGcalsync");
+            Helper.OpenBrowser("https://twitter.com/OGcalsync");
         }
 
         public static void Facebook_share() {
-            System.Diagnostics.Process.Start("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGCalSync");
+            Helper.OpenBrowser("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGCalSync");
         }
         public static void Facebook_like() {
             if (OgcsMessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
                 "Like on Facebook", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK) {
-                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync");
+                Helper.OpenBrowser("https://phw198.github.io/OutlookGoogleCalendarSync");
             }
         }
 
         public static void RSS_follow() {
-            System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/releases.atom");
+            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/releases.atom");
         }
 
         public static void Linkedin_share() {
             string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            System.Diagnostics.Process.Start("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/OGCalSync&summary=" + urlEncode(text));
+            Helper.OpenBrowser("http://www.linkedin.com/shareArticle?mini=true&url=http://bit.ly/OGCalSync&summary=" + urlEncode(text));
         }
 
         public static void GitHub() {
-            System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/");
+            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/");
         }
 
         private static String urlEncode(String text) {

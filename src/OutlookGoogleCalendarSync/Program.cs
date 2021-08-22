@@ -95,7 +95,7 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                } else
+                } else if (!string.IsNullOrEmpty(aex.Message))
                     MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
@@ -457,7 +457,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
-                    System.Diagnostics.Process.Start(OgcsWebsite + "/release-notes.html");
+                    Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
                     if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }
@@ -483,7 +483,7 @@ namespace OutlookGoogleCalendarSync {
                         OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
                             "Click 'OK' for further details.", "Improper Install Location",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
                     }
                 }
             } catch (System.Exception ex) {
@@ -505,7 +505,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void Donate() {
-            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+            Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
 
         public static Boolean InDeveloperMode {
