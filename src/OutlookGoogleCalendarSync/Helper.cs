@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using log4net;
+﻿using log4net;
 using Microsoft.Win32;
+using System;
 
 namespace OutlookGoogleCalendarSync {
     public class Helper {
@@ -12,8 +8,8 @@ namespace OutlookGoogleCalendarSync {
 
         public static void OpenBrowser(String url) {
             try {
-                //System.Diagnostics.Process.Start(url);
-                //return;
+                System.Diagnostics.Process.Start(url);
+                return;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Could not open default browser.", OGCSexception.LogAsFail(ex));
             }

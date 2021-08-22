@@ -32,6 +32,7 @@
             this.lTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btSkipVersion = new System.Windows.Forms.Button();
+            this.llViewOnGithub = new System.Windows.Forms.LinkLabel();
             this.wbPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,6 +65,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.wbPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.wbPanel.Controls.Add(this.llViewOnGithub);
             this.wbPanel.Controls.Add(this.webBrowser);
             this.wbPanel.Location = new System.Drawing.Point(15, 80);
             this.wbPanel.Name = "wbPanel";
@@ -122,6 +124,21 @@
             this.btSkipVersion.UseVisualStyleBackColor = true;
             this.btSkipVersion.Click += new System.EventHandler(this.btSkipVersion_Click);
             // 
+            // llViewOnGithub
+            // 
+            this.llViewOnGithub.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.llViewOnGithub.AutoSize = true;
+            this.llViewOnGithub.BackColor = System.Drawing.Color.White;
+            this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
+            this.llViewOnGithub.Name = "llViewOnGithub";
+            this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
+            this.llViewOnGithub.TabIndex = 9;
+            this.llViewOnGithub.TabStop = true;
+            this.llViewOnGithub.Text = "View Release Notes Online";
+            this.llViewOnGithub.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.llViewOnGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llViewOnGithub_LinkClicked);
+            // 
             // UpdateInfo
             // 
             this.AcceptButton = this.btUpgrade;
@@ -144,6 +161,7 @@
             this.Text = "OGCS Update Available";
             this.TopMost = true;
             this.wbPanel.ResumeLayout(false);
+            this.wbPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -159,5 +177,6 @@
         private System.Windows.Forms.Label lTitle;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btSkipVersion;
+        private System.Windows.Forms.LinkLabel llViewOnGithub;
     }
 }

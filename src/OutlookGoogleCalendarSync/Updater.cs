@@ -109,7 +109,9 @@ namespace OutlookGoogleCalendarSync {
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
 
                 UpdateInfo updates = await updateManager.CheckForUpdate();
-                if (updates.ReleasesToApply.Any()) {
+                if ((Settings.Instance.AlphaReleases && updates.ReleasesToApply.Any()) ||
+                    updates.ReleasesToApply.Any(r => r.Version.SpecialVersion != "alpha")) {
+
                     if (updates.CurrentlyInstalledVersion != null)
                         log.Info("Currently installed version: " + updates.CurrentlyInstalledVersion.Version.ToString());
                     log.Info("Found " + updates.ReleasesToApply.Count() + " newer releases available.");
@@ -153,7 +155,7 @@ namespace OutlookGoogleCalendarSync {
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
                         }
                     }
-                    
+
                     var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
                     t.Start();

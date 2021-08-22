@@ -33,13 +33,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lSummary.Text = "Would you like to upgrade to v" + releaseVersion + " now?";
 
                 if (html == null) {
-                    String githubReleaseNotes = "https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/Release%20Notes.md";
+                    String githubReleaseNotes = Program.OgcsWebsite + "/release-notes";
                     anchorRequested = "v" + releaseVersion.Replace(".", "") + "---" + releaseType;
                     log.Debug("Browser anchor: " + anchorRequested);
-                    webBrowser.DocumentCompleted += WebBrowser_DocumentCompleted;
-                    webBrowser.Navigate(githubReleaseNotes);
+                    llViewOnGithub.Tag = githubReleaseNotes +"#"+ anchorRequested;
+                    llViewOnGithub.Visible = true;
 
                 } else {
+                    llViewOnGithub.Visible = false;
                     html = html.TrimStart("< ![CDATA[".ToCharArray());
                     html = html.TrimEnd("]]>".ToCharArray());
                     html = htmlHead + html + "</body></html>";
@@ -73,6 +74,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             log.Info("User has opted to skip upgrading to this version.");
             Settings.Instance.SkipVersion = version;
             this.Close();
+        }
+
+        private void llViewOnGithub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            Helper.OpenBrowser(llViewOnGithub.Tag.ToString());
         }
     }
 }
