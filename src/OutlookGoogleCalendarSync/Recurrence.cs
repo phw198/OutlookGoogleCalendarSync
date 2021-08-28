@@ -33,8 +33,13 @@ namespace OutlookGoogleCalendarSync {
             RecurrencePattern rp = null;
             try {
                 rp = ai.GetRecurrencePattern();
-                DateTime localEnd = rp.PatternEndDate + ai.EndInEndTimeZone.TimeOfDay;
-                DateTime utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(ai.EndTimeZone.ID));
+                DateTime utcEnd;
+                if (ai.AllDayEvent)
+                    utcEnd = rp.PatternEndDate;
+                else {
+                    DateTime localEnd = rp.PatternEndDate + ai.EndInEndTimeZone.TimeOfDay;
+                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(ai.EndTimeZone.ID));
+                }
                 gPattern.Add("RRULE:" + buildRrule(rp, utcEnd));
             } finally {
                 rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
