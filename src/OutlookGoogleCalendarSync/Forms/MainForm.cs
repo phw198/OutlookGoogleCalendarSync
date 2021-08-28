@@ -87,6 +87,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "The Google calendar to synchonize with.");
             ToolTips.SetToolTip(btResetGCal,
                 "Reset the Google account being used to synchonize with.");
+            ToolTips.SetToolTip(cbListHiddenGcals,
+                "Include hidden calendars in the above drop down.");
 
             //Settings
             ToolTips.SetToolTip(tbInterval,
@@ -1138,9 +1140,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
-            List<GoogleCalendarListEntry> calendars = new List<GoogleCalendarListEntry>();
             try {
-                calendars = GoogleOgcs.Calendar.Instance.GetCalendars();
+                GoogleOgcs.Calendar.Instance.GetCalendars();
             } catch (AggregateException agex) {
                 OGCSexception.AnalyseAggregate(agex, false);
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -1169,10 +1170,20 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
             }
-            if (calendars.Count > 0) {
+
+            cbGoogleCalendars_BuildList();
+
+            bGetGoogleCalendars.Enabled = true;
+            cbGoogleCalendars.Enabled = true;
+            bGetGoogleCalendars.Text = "Retrieve Calendars";
+        }
+
+        private void cbGoogleCalendars_BuildList() {
+            if (GoogleOgcs.Calendar.Instance.CalendarList.Count > 0) {
                 cbGoogleCalendars.Items.Clear();
-                calendars.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
-                foreach (GoogleCalendarListEntry mcle in calendars) {
+                GoogleOgcs.Calendar.Instance.CalendarList.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
+                foreach (GoogleCalendarListEntry mcle in GoogleOgcs.Calendar.Instance.CalendarList) {
+                    if (!cbListHiddenGcals.Checked && mcle.Hidden) continue;
                     cbGoogleCalendars.Items.Add(mcle);
                     if (cbGoogleCalendars.SelectedIndex == -1 && Settings.Instance.UseGoogleCalendar != null && mcle.Id == Settings.Instance.UseGoogleCalendar.Id)
                         cbGoogleCalendars.SelectedItem = mcle;
@@ -1183,10 +1194,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbClientID.ReadOnly = true;
                 tbClientSecret.ReadOnly = true;
             }
-
-            bGetGoogleCalendars.Enabled = true;
-            cbGoogleCalendars.Enabled = true;
-            bGetGoogleCalendars.Text = "Retrieve Calendars";
         }
 
         private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1219,6 +1226,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void cbListHiddenGcals_CheckedChanged(object sender, EventArgs e) {
+            cbGoogleCalendars_BuildList();
         }
 
         private void cbExcludeDeclinedInvites_CheckedChanged(object sender, EventArgs e) {
