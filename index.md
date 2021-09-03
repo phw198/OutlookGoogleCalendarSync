@@ -9,7 +9,7 @@ layout: page
 
 ## Functionality
 
-- Supports all versions of Outlook from 2003 to 2016 64-bit!
+- Supports all versions of Outlook from 2003 to 2019/Microsoft365 64-bit!
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
@@ -40,7 +40,7 @@ layout: page
 
 ## Minimal Requirements
 - Any version of Windows with .Net Framework 4.5 installed*
-- Outlook 2003 to 2016, 32 or 64-bit
+- Outlook 2003 to 2019/Microsoft 365, 32 or 64-bit
 
 \* Installed by OGCS Setup.exe if necessary.
 
