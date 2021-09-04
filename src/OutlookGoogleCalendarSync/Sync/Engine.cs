@@ -531,7 +531,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                 
                 OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                 if (CancellationPending) return SyncResult.UserCancelled;
-                
+
+                GoogleOgcs.Calendar.Instance.CleanDuplicateEntries(ref googleEntries);
+
                 //Sync
                 if (Settings.Instance.SyncDirection != Direction.GoogleToOutlook) {
                     success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
@@ -567,7 +569,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-            
+
             DateTime timeSection = DateTime.Now;
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
@@ -678,7 +680,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-            
+
             try {
                 OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;
