@@ -515,14 +515,27 @@ namespace OutlookGoogleCalendarSync {
         /// Replace the %USERNAME% element, if present in a file path, with <userid>
         /// </summary>
         /// <param name="path">The path to check</param>
-        /// <returns>The maskes path</returns>
+        /// <returns>The masked path</returns>
         public static string MaskFilePath(String path) {
-            String userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-            if (path.StartsWith(userProfile)) {
-                String userProfileMasked = userProfile.Replace(Environment.GetEnvironmentVariable("USERNAME"), "<userid>");
-                return path.Replace(userProfile, userProfileMasked);
-            } else
+            try {
+                String userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+                if (path.StartsWith(userProfile)) {
+                    String username = Environment.GetEnvironmentVariable("USERNAME");
+                    if (username == null) {
+                        log.Warn("%USERNAME% environment variable not available.");
+                        log.Debug("User: " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.User));
+                        log.Debug("Prcess: " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.Process));
+                        log.Debug("Machine: " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.Machine));
+                        return path;
+                    }
+                    String userProfileMasked = userProfile.Replace(username, "<userid>");
+                    return path.Replace(userProfile, userProfileMasked);
+                } else
+                    return path;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Problems accessing environment variables.", ex);
                 return path;
+            }
         }
     }
 }
