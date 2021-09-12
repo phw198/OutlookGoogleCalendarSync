@@ -1,30 +1,43 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using Microsoft.Office.Interop.Outlook;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
     /// Description of CalendarListEntry.
     /// </summary>
-    
+
     [DataContract]
     public class GoogleCalendarListEntry {
+        //Default values before loading from xml and attribute not yet serialized
+        [OnDeserializing]
+        void OnDeserializing(StreamingContext context) {
+            setDefaults();
+        }
+
+        private void setDefaults() {
+            this.colourId = "0";
+        }
+
         [DataMember]
-        private string Name { get; set; }
+        private String Name { get; set; }
         [DataMember]
-        public string Id { get; internal set; }
+        public String Id { get; internal set; }
         [DataMember]
-        private string AccessRole { get; set; }
-        private string colourId = "0";
+        private String AccessRole { get; set; }
+        private String colourId = "0";
         [DataMember]
-        public string ColourId {
+        public String ColourId {
             get { return colourId; }
             internal set { colourId = value; }
         }
 
-        private bool primary { get; set; }
+        private Boolean primary { get; set; }
+        public Boolean Hidden { get; protected set; }
 
-        private bool readOnly {
+        private Boolean readOnly {
             get {
                 if (AccessRole == null) return false;
                 return AccessRole.ToLower().Contains("reader");
@@ -39,11 +52,19 @@ namespace OutlookGoogleCalendarSync {
             Id = init.Id;
             Name = init.SummaryOverride ?? init.Summary;
             primary = init.Primary ?? false;
+            Hidden = init.Hidden ?? false;
             ColourId = init.ColorId;
         }
 
-        public override string ToString() {
-            return (readOnly ? "[Read Only] " : "") + Name;
+        public override String ToString() {
+            List<String> prefix = new List<String>();
+            if (readOnly) prefix.Add("Read Only");
+            if (Hidden) prefix.Add("Hidden");
+
+            if (prefix.Count > 0)
+                return "[" + string.Join(",", prefix) + "] " + Name;
+
+            return Name;
         }
 
         public string ToString(bool withId) {
@@ -64,9 +85,9 @@ namespace OutlookGoogleCalendarSync {
     [DataContract]
     public class OutlookCalendarListEntry {
         [DataMember]
-        public string Name { get; internal set; }
+        public String Name { get; internal set; }
         [DataMember]
-        public string Id { get; internal set; }
+        public String Id { get; internal set; }
 
         public OutlookCalendarListEntry() {
         }
@@ -76,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
             Name = calendarFolder.Name;
         }
 
-        public override string ToString() {
+        public override String ToString() {
             return Name + " (ID: " + Id + ")";
         }
     }

@@ -94,7 +94,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
-        public List<GoogleCalendarListEntry> GetCalendars() {
+        private List<GoogleCalendarListEntry> calendarList = new List<GoogleCalendarListEntry>();
+        public List<GoogleCalendarListEntry> CalendarList {
+            get { return calendarList; }
+            protected set { calendarList = value; }
+        }
+
+        public void GetCalendars() {
             CalendarList request = null;
             String pageToken = null;
             List<GoogleCalendarListEntry> result = new List<GoogleCalendarListEntry>();
@@ -105,6 +111,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     try {
                         CalendarListResource.ListRequest lr = Service.CalendarList.List();
                         lr.PageToken = pageToken;
+                        lr.ShowHidden = true;
                         request = lr.Execute();
                         break;
                     } catch (Google.GoogleApiException ex) {
@@ -140,7 +147,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             } while (pageToken != null);
 
-            return result;
+            this.CalendarList = result;
         }
 
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {

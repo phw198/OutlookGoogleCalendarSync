@@ -252,6 +252,7 @@
             this.pbSocialDonate = new System.Windows.Forms.PictureBox();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.ddAvailabilty = new System.Windows.Forms.ComboBox();
+            this.cbListHiddenGcals = new System.Windows.Forms.CheckBox();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -830,6 +831,7 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
+            this.tabGoogle.Controls.Add(this.cbListHiddenGcals);
             this.tabGoogle.Controls.Add(this.cbExcludeDeclinedInvites);
             this.tabGoogle.Controls.Add(this.cbExcludeGoals);
             this.tabGoogle.Controls.Add(this.label7);
@@ -3088,6 +3090,17 @@
             this.ddAvailabilty.ValueMember = "Key";
             this.ddAvailabilty.SelectedIndexChanged += new System.EventHandler(this.ddAvailabilty_SelectedIndexChanged);
             // 
+            // cbListHiddenGcals
+            // 
+            this.cbListHiddenGcals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbListHiddenGcals.Location = new System.Drawing.Point(299, 197);
+            this.cbListHiddenGcals.Name = "cbListHiddenGcals";
+            this.cbListHiddenGcals.Size = new System.Drawing.Size(79, 17);
+            this.cbListHiddenGcals.TabIndex = 30;
+            this.cbListHiddenGcals.Text = "List Hidden";
+            this.cbListHiddenGcals.UseVisualStyleBackColor = true;
+            this.cbListHiddenGcals.CheckedChanged += new System.EventHandler(this.cbListHiddenGcals_CheckedChanged);
+            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -3483,5 +3496,6 @@
         private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
         private System.Windows.Forms.CheckBox cbSingleCategoryOnly;
         private System.Windows.Forms.NumericUpDown tbMaxAttendees;
+        private System.Windows.Forms.CheckBox cbListHiddenGcals;
     }
 }
