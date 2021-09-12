@@ -6,12 +6,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         private ToolTip toolTips;
         public Social() {
             InitializeComponent();
-            
-            toolTips = new ToolTip();
-            toolTips.AutoPopDelay = 10000;
-            toolTips.InitialDelay = 500;
-            toolTips.ReshowDelay = 200;
-            toolTips.ShowAlways = true;
+
+            toolTips = new ToolTip {
+                AutoPopDelay = 10000,
+                InitialDelay = 500,
+                ReshowDelay = 200,
+                ShowAlways = true
+            };
             if (Settings.Instance.UserIsBenefactor()) {
                 pbDonate.Visible = false;
                 lDonateTip.Visible = false;

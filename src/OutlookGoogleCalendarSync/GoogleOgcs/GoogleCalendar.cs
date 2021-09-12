@@ -21,8 +21,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static Calendar Instance {
             get {
                 if (instance == null) {
-                    instance = new GoogleOgcs.Calendar();
-                    instance.Authenticator = new GoogleOgcs.Authenticator();
+                    instance = new GoogleOgcs.Calendar {
+                        Authenticator = new GoogleOgcs.Authenticator()
+                    };
                     instance.Authenticator.GetAuthenticated();
                     if (instance.Authenticator.Authenticated)
                         instance.Authenticator.OgcsUserStatus();
@@ -438,11 +439,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.ReminderSet) {
                         ev.Reminders.UseDefault = false;
-                        EventReminder reminder = new EventReminder();
-                        reminder.Method = "popup";
-                        reminder.Minutes = ai.ReminderMinutesBeforeStart;
-                        ev.Reminders.Overrides = new List<EventReminder>();
-                        ev.Reminders.Overrides.Add(reminder);
+                        EventReminder reminder = new EventReminder {
+                            Method = "popup",
+                            Minutes = ai.ReminderMinutesBeforeStart
+                        };
+                        ev.Reminders.Overrides = new List<EventReminder> { reminder };
                     } else {
                         ev.Reminders.UseDefault = Settings.Instance.UseGoogleDefaultReminder;
                     }
@@ -805,11 +806,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (ai.ReminderSet && OKtoSyncReminder) {
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
-                        EventReminder newReminder = new EventReminder();
-                        newReminder.Method = "popup";
-                        newReminder.Minutes = ai.ReminderMinutesBeforeStart;
-                        ev.Reminders.Overrides = new List<EventReminder>();
-                        ev.Reminders.Overrides.Add(newReminder);
+                        EventReminder newReminder = new EventReminder {
+                            Method = "popup",
+                            Minutes = ai.ReminderMinutesBeforeStart
+                        };
+                        ev.Reminders.Overrides = new List<EventReminder> { newReminder };
                         itemModified++;
 
                     } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
@@ -1834,8 +1835,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// </summary>
         private void throwApiException() {
             Google.GoogleApiException ex = new Google.GoogleApiException("Service", "limit 'Queries per day'");
-            Google.Apis.Requests.SingleError err = new Google.Apis.Requests.SingleError();
-            err.Reason = "rateLimitExceeded";
+            Google.Apis.Requests.SingleError err = new Google.Apis.Requests.SingleError { Reason = "rateLimitExceeded" };
             ex.Error = new Google.Apis.Requests.RequestError { Errors = new List<Google.Apis.Requests.SingleError>() };
             ex.Error.Errors.Add(err);
             throw ex;

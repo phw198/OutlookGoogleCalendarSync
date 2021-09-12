@@ -282,6 +282,7 @@
     <Compile Include="Forms\TimezoneMap.Designer.cs">
       <DependentUpon>TimezoneMap.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
@@ -402,6 +403,9 @@
     <Content Include="ErrorReportingTemplate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="Resources\fb_like.png" />
     <None Include="Resources\twitter.png" />
     <None Include="Resources\github.png" />

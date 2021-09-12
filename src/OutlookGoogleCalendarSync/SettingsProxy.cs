@@ -64,8 +64,7 @@ namespace OutlookGoogleCalendarSync {
 
             } else if (Type == "Custom") {
                 log.Info("Setting custom proxy.");
-                WebProxy wp = new WebProxy();
-                wp.Address = new System.Uri(string.Format("http://{0}:{1}", ServerName, Port));
+                WebProxy wp = new WebProxy { Address = new System.Uri(string.Format("http://{0}:{1}", ServerName, Port)) };
                 log.Debug("Using " + wp.Address);
                 wp.BypassProxyOnLocal = true;
                 if (AuthenticationRequired && !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password)) {

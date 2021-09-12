@@ -370,9 +370,10 @@ namespace OutlookGoogleCalendarSync {
 
         #region ZIP
         private void zipChecker() {
-            BackgroundWorker bwUpdater = new BackgroundWorker();
-            bwUpdater.WorkerReportsProgress = false;
-            bwUpdater.WorkerSupportsCancellation = false;
+            BackgroundWorker bwUpdater = new BackgroundWorker {
+                WorkerReportsProgress = false,
+                WorkerSupportsCancellation = false
+            };
             bwUpdater.DoWork += new DoWorkEventHandler(checkForZip);
             bwUpdater.RunWorkerCompleted += new RunWorkerCompletedEventHandler(checkForZip_completed);
             bwUpdater.RunWorkerAsync();

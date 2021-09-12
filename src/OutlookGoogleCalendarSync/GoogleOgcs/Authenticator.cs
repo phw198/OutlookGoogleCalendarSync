@@ -253,7 +253,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException != null ? ex.InnerException : ex));
+                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException ?? ex));
                         throw;
                     }
                 }

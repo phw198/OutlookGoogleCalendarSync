@@ -70,11 +70,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.SuspendLayout();
             #region Tooltips
             //set up tooltips for some controls
-            ToolTips = new ToolTip();
-            ToolTips.AutoPopDelay = 10000;
-            ToolTips.InitialDelay = 500;
-            ToolTips.ReshowDelay = 200;
-            ToolTips.ShowAlways = true;
+            ToolTips = new ToolTip {
+                AutoPopDelay = 10000,
+                InitialDelay = 500,
+                ReshowDelay = 200,
+                ShowAlways = true
+            };
 
             //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
@@ -661,9 +662,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                         SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
                     } else {
                         //Display the note for 3 hours after the quota has been renewed
-                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
-                        bwHideNote.WorkerReportsProgress = false;
-                        bwHideNote.WorkerSupportsCancellation = true;
+                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker {
+                            WorkerReportsProgress = false,
+                            WorkerSupportsCancellation = true
+                        };
                         bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
                             delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
                                 try {
@@ -960,9 +962,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             e.Graphics.FillRectangle(Brushes.White, tabAppSettings_background);
 
             // Draw string and align the text.
-            StringFormat stringFlags = new StringFormat();
-            stringFlags.Alignment = StringAlignment.Far;
-            stringFlags.LineAlignment = StringAlignment.Center;
+            StringFormat stringFlags = new StringFormat {
+                Alignment = StringAlignment.Far,
+                LineAlignment = StringAlignment.Center
+            };
             g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
         }
         #region Outlook settings

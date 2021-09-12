@@ -123,10 +123,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         String metaDataId = up.Name;
                         log.Fine("Backing up " + metaDataId.ToString());
                         backupValue = up.Value;
-                        if (!(backupValue == null || (backupValue is DateTime && (DateTime)backupValue == new DateTime()))) {
-                            log.Fine("Property value: " + backupValue);
-                            propertyBackup.Add(metaDataId, backupValue);
+                        if (backupValue == null || (backupValue is DateTime time && time == new DateTime())) {
+                            continue;
                         }
+                        log.Fine("Property value: " + backupValue);
+                        propertyBackup.Add(metaDataId, backupValue);
                     } finally {
                         up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
                     }
