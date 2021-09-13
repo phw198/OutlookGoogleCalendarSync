@@ -320,6 +320,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)) == from)).ToList();
+            if (endsOnSyncStart.Count > 0) {
+                log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
+                result = result.Except(endsOnSyncStart).ToList();
+            }
+
             if (Settings.Instance.ExcludeDeclinedInvites) {
                 List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
                 if (declined.Count > 0) {
