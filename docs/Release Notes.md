@@ -1,6 +1,42 @@
 | Release Notes |
 |:---|
 
+# v2.9.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- Customisable attendee limit for sync
+- Option to exclude sync of declined Google invitiations
+- Option to exclude sync of Google 'goals'
+- Option to set exact type of availablity in Outlook (eg Out of Office)
+- Provision for custom timezone mapping when required for meeting organiser in different timezone
+- Ability to specify custom maps between Google colours and Outlook categories
+- Additional colour sync setting to only sync single category to Outlook
+- Retrieve all Google calendars, not just first 30
+- Order the Google calendar dropdown: primary, writeable, read-only
+- Warn if read-only calendar selected for sync; deny for two-way sync
+- Sync deletion in Outlook on first two-way sync (not second)
+- New /t command line option to append custom text to application title
+- Set Outlook organisers as having "accepted" in Google
+
+----
+
+# v2.8.7.0 - Alpha
+
+**Enhancements**
+- Customisable attendee limit for sync
+- Set "No" as default for deletion prompts
+- Advanced hidden configuration option to disconnect from Outlook between syncs
+- For Push Sync, check Outlook is actually running
+
+**Bugfix**
+- Hide quota exhausted notification after correct amount of time
+- Get new Google access token if expiring imminently
+- Ensure milestone window is always responsive
+- Actually save calendar item if "force" flag is set
+- Download all delta install file(s) to allow for successful upgrade
+- Check if install files are already downloaded
+- Regression bug syncs every minute after manual sync, even with no schedule
+
 # v2.8.6.0 - Alpha
 
 **Enhancements**

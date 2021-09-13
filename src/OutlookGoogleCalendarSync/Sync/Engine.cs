@@ -168,7 +168,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return;
                 }
                 GoogleOgcs.Calendar.APIlimitReached_attendee = false;
-                mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
                 mainFrm.bSyncNow.Text = "Stop Sync";
                 mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
@@ -274,6 +273,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Settings.Instance.CompletedSyncs++;
                     consecutiveSyncFails = 0;
                     mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
+                    mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
                 } else if (syncResult == SyncResult.AutoRetry) {
                     consecutiveSyncFails++;
                     mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
@@ -445,8 +445,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                             continue;
                         }
                     } catch (System.Exception ex) {
-                        log.Warn("Encountered error casting calendar object to AppointmentItem - cannot sync it.");
-                        log.Debug(ex.Message);
+                        OGCSexception.Analyse("Encountered error casting calendar object to AppointmentItem - cannot sync it. ExchangeMode=" + 
+                            OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;
@@ -459,8 +459,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                         DateTime checkDates = ai.Start;
                         checkDates = ai.End;
                     } catch (System.Exception ex) {
-                        log.Warn("Calendar item does not have a proper date range - cannot sync it.");
-                        log.Debug(ex.Message);
+                        //"Your server administrator has limited the number of items you can open simultaneously."
+                        //Once we have the error code for above message, need to abort sync - and suggest using cached Exchange mode
+                        OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" + 
+                            OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                         skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                         ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                         continue;

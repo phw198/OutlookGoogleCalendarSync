@@ -83,7 +83,7 @@ namespace OutlookGoogleCalendarSync {
 
                         System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
                         if (matches.Count > 0) {
-                            log.Debug("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
+                            log.Fine("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
                             if (cells[Obfuscate.replaceCol].Value == null) cells[Obfuscate.replaceCol].Value = "";
                             retStr = rgx.Replace(retStr, cells[Obfuscate.replaceCol].Value.ToString());
                         }

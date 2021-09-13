@@ -626,6 +626,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 syncNote = SyncNotes.QuotaExhaustedPreviously;
                 show = true;
             }
+            String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
 
             switch (syncNote) {
                 case SyncNotes.QuotaExhaustedInfo:
@@ -637,28 +638,46 @@ namespace OutlookGoogleCalendarSync.Forms {
                 case SyncNotes.QuotaExhaustedPreviously:
                     DateTime utcNow = DateTime.UtcNow;
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                    int delayHours = (int)(quotaReset - DateTime.Now).TotalHours + 1;
+                    if ((utcNow - quotaReset).Ticks < -TimeSpan.TicksPerMinute) {
+                        //Successful sync before new quota at 8GMT
+                        SetControlPropertyThreadSafe(tbSyncNote, "Visible", false);
+                        SetControlPropertyThreadSafe(panelSyncNote, "Visible", false);
+                        show = false;
+                        break;
+                    }
+                    int delayHours = (int)(DateTime.Now - Settings.Instance.LastSyncDate).TotalHours;
+                    String delay = delayHours + " hours";
+                    if (delayHours == 0) {
+                        delay = (int)(DateTime.Now - Settings.Instance.LastSyncDate).TotalMinutes + " mins";
+                    }
                     note =  "Google's daily free calendar quota was exhausted!" + cr +
-                            "  Syncs were delayed "+ delayHours +" hours until 08:00GMT  " + cr +
+                            "    Previous successful sync was "+ delay +" ago." + cr +
                             " Get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
 
-                    //Display the note for 3 hours after the quota has been renewed
-                    System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
-                    bwHideNote.WorkerReportsProgress = false;
-                    bwHideNote.WorkerSupportsCancellation = true;
-                    bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
-                        delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
-                            try {
-                                DateTime showUntil = DateTime.Now.AddHours((int)args.Argument + 3);
-                                while (DateTime.Now < showUntil) {
-                                    System.Threading.Thread.Sleep(60 * 1000);
-                                }
-                                SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
-                            } catch { }
-                        });
-                    bwHideNote.RunWorkerAsync(delayHours);
+                    if (!show && existingNote.Contains("free calendar quota was exhausted")) {
+                        log.Debug("Removing quota exhausted advisory notice.");
+                        SetControlPropertyThreadSafe(tbSyncNote, "Visible", show);
+                        SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
+                    } else {
+                        //Display the note for 3 hours after the quota has been renewed
+                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
+                        bwHideNote.WorkerReportsProgress = false;
+                        bwHideNote.WorkerSupportsCancellation = true;
+                        bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
+                            delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
+                                try {
+                                    DateTime showUntil = DateTime.Now.AddHours(3);
+                                    log.Debug("Showing quota exhausted advisory until " + showUntil.ToString());
+                                    while (DateTime.Now < showUntil) {
+                                        System.Threading.Thread.Sleep(60 * 1000);
+                                    }
+                                    log.Debug("Quota exhausted advisory notice period ending.");
+                                    SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
+                                } catch { }
+                            });
+                        bwHideNote.RunWorkerAsync();
+                    }
 
                     break;
                 case SyncNotes.RecentSubscription:
@@ -688,7 +707,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                     url = "file://" + Program.UserFilePath;
                     break;
             }
-            String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
             if (note != existingNote.Replace("\n", "\r\n") && !show) return; //Trying to hide a note that isn't currently displaying
             SetControlPropertyThreadSafe(tbSyncNote, "Text", note);
             SetControlPropertyThreadSafe(tbSyncNote, "Tag", url);
@@ -725,40 +743,40 @@ namespace OutlookGoogleCalendarSync.Forms {
                         focusedPage = Forms.Main.Instance.tabApp.SelectedTab;
 
                         if (focusedPage == null) {
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                             return true;
                         }
 
                         if (focusedPage.Name == "tabPage_Sync")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/sync");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/sync");
 
                         else if (focusedPage.Name == "tabPage_Settings") {
                             if (this.tabAppSettings.SelectedTab.Name == "tabOutlook")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/outlook");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/outlook");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabGoogle")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/google");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/google");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabSyncOptions")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/syncoptions");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/syncoptions");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabAppBehaviour")
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/appbehaviour");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/appbehaviour");
                             else
-                                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/settings");
+                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/settings");
 
                         } else if (focusedPage.Name == "tabPage_Help")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/help");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/help");
 
                         else if (focusedPage.Name == "tabPage_About")
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide/about");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/about");
 
                         else
-                            System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
 
                         return true; //This keystroke was handled, don't pass to the control with the focus
 
                     } catch (System.Exception ex) {
                         log.Warn("Failed to process captured F1 key.");
                         OGCSexception.Analyse(ex);
-                        System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/guide");
+                        System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                         return true;
                     }
                 }
@@ -1832,7 +1850,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btCheckBrowserAgent_Click(object sender, EventArgs e) {
             try {
-                System.Diagnostics.Process.Start("https://phw198.github.io/OutlookGoogleCalendarSync/browseruseragent");
+                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/browseruseragent");
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to check browser's user agent.", ex);
             }
@@ -1962,7 +1980,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case 10000: isMilestone = true; break;
                 }
                 if (isMilestone) {
-                    new Forms.Social().Show();
+                    new Forms.Social().ShowDialog();
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");

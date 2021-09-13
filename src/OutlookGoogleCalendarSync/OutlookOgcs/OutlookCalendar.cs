@@ -26,10 +26,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null || instance.Folders == null) {
+                    if (instance == null)
                         instance = new Calendar();
+                    if (instance.Folders == null)
                         instance.IOutlook.Connect();
-                    }
+
                 } catch (System.ApplicationException) {
                     throw;
                 } catch (System.Exception ex) {
@@ -388,7 +389,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
-                            if (ai.LastModificationTime > compare.Value.Updated) continue;
+                            if (ai.LastModificationTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                                continue;
 
                             log.Debug("Doing a dummy update in order to update the last modified date.");
                             CustomProperty.SetOGCSlastModified(ref ai);
@@ -718,7 +720,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             if (Settings.Instance.ConfirmOnDelete) {
                 if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) {
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
                 } else {
@@ -1279,9 +1281,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     eventSummary += '"' + ai.Subject + '"';
                     if (onlyIfNotVerbose) eventSummary += "<br/>";
 
+                } catch (System.Runtime.InteropServices.COMException ex) { 
+                    if (OGCSexception.GetErrorCode(ex) == "0x8004010F")
+                        throw new System.Exception("Cannot access Outlook OST/PST file. Try restarting Outlook.", ex);
+                    else
+                        OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
+
                 } catch (System.Exception ex) {
-                    log.Warn("Failed to get appointment summary: " + eventSummary);
-                    OGCSexception.Analyse(ex, true);
+                    OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
                 }
             }
             return eventSummary;
