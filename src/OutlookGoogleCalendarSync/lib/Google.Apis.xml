@@ -231,7 +231,7 @@
         <member name="F:Google.Apis.ETagAction.IfNoneMatch">
             <summary>
             The ETag will be added as an "If-None-Match" header.
-            A request sent with an "If-Match" header will only succeed if both ETags are not identical.
+            A request sent with an "If-None-Match" header will only succeed if ETags are not identical.
             </summary>
         </member>
         <member name="T:Google.Apis.Media.MediaApiErrorHandling">
@@ -355,6 +355,13 @@
         <member name="F:Google.Apis.Requests.ClientServiceRequest._executeInterceptors">
             <summary>Unsuccessful response handlers for this request only.</summary>
         </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest.Credential">
+            <summary>
+            Credential to use for this request.
+            If <see cref="P:Google.Apis.Requests.ClientServiceRequest.Credential"/> implements <see cref="T:Google.Apis.Http.IHttpUnsuccessfulResponseHandler"/>
+            then it will also be included as a handler of an unsuccessful response.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Requests.ClientServiceRequest.AddUnsuccessfulResponseHandler(Google.Apis.Http.IHttpUnsuccessfulResponseHandler)">
             <summary>
             Add an unsuccessful response handler for this request only.
@@ -392,6 +399,14 @@
         <member name="P:Google.Apis.Requests.ClientServiceRequest`1.ModifyRequest">
             <summary>
             Gets or sets the callback for modifying HTTP requests made by this service request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.ValidateParameters">
+            <summary>
+            Override for service-wide validation configuration in <see cref="P:Google.Apis.Services.BaseClientService.Initializer.ValidateParameters"/>.
+            If this is null (the default) then the value from the service initializer is used to determine
+            whether or not parameters should be validated client-side. If this is non-null, it overrides
+            whatever value is specified in the service.
             </summary>
         </member>
         <member name="P:Google.Apis.Requests.ClientServiceRequest`1.MethodName">
@@ -470,6 +485,22 @@
         </member>
         <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddParameters(Google.Apis.Requests.RequestBuilder,Google.Apis.Requests.Parameters.ParameterCollection)">
             <summary>Adds path and query parameters to the given <c>requestBuilder</c>.</summary>
+        </member>
+        <member name="T:Google.Apis.Requests.ClientServiceRequestExtensions">
+            <summary>
+            Extension methods for request objects.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequestExtensions.Configure``1(``0,System.Action{``0})">
+            <summary>
+            Allows a request to be configured in a fluent manner, where normally separate statements are required
+            after the request creation method is called.
+            </summary>
+            <typeparam name="TRequest">The type of the request to configure.</typeparam>
+            <param name="request">The request to configure. Must not be null.</param>
+            <param name="configurationAction">The configuration action to apply to the request. This is typically
+            setting properties. Must not be null.</param>
+            <returns>The value of <paramref name="request"/>, after applying the configuration action.</returns>
         </member>
         <member name="T:Google.Apis.Requests.HttpRequestMessageExtenstions">
             <summary>Extension methods to <see cref="T:System.Net.Http.HttpRequestMessage"/>.</summary>
@@ -626,6 +657,45 @@
             <returns>A task whose result (when complete) is the complete set of results fetched starting with the given
             request, and continuing to make further requests until a response has no "next page" token.</returns>
         </member>
+        <member name="T:Google.Apis.Requests.VersionHeaderBuilder">
+            <summary>
+            Helps build version strings for the x-goog-api-client header.
+            The value is a space-separated list of name/value pairs, where the value
+            should be a semantic version string. Names must be unique.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Requests.VersionHeaderBuilder.HeaderName">
+            <summary>
+            The name of the header to set.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.AppendVersion(System.String,System.String)">
+            <summary>
+            Appends the given name/version string to the list.
+            </summary>
+            <param name="name">The name. Must not be null or empty, or contain a space or a slash.</param>
+            <param name="version">The version. Must not be null, or contain a space or a slash.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.AppendAssemblyVersion(System.String,System.Type)">
+            <summary>
+            Appends a name/version string, taking the version from the version of the assembly
+            containing the given type.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.AppendDotNetEnvironment">
+            <summary>
+            Appends the .NET environment information to the list.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.Clone">
+            <summary>
+            Clones this VersionHeaderBuilder, creating an independent copy with the same names/values.
+            </summary>
+            <returns>A clone of this builder.</returns>
+        </member>
         <member name="T:Google.Apis.Services.BaseClientService">
             <summary>
             A base class for a client service which provides common mechanism for all services, like 
@@ -701,11 +771,31 @@
             the default base URI for the service is used.
             </summary>
         </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.VersionHeaderBuilder">
+            <summary>
+            Builder for the x-goog-api-client header, collecting version information.
+            Services automatically add the API library version to this.
+            Most users will never need to configure this, but higher level abstraction Google libraries
+            may add their own version here.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.ValidateParameters">
+            <summary>
+            Determines whether request parameters are validated (client-side) by default.
+            Defaults to true. This can be overridden on a per-request basis using <see cref="P:Google.Apis.Requests.ClientServiceRequest`1.ValidateParameters"/>.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Services.BaseClientService.Initializer.#ctor">
             <summary>Constructs a new initializer with default values.</summary>
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.#ctor(Google.Apis.Services.BaseClientService.Initializer)">
             <summary>Constructs a new base client with the specified initializer.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.ValidateParameters">
+            <summary>
+            Determines whether or not request parameters should be validated client-side.
+            This may be overridden on a per-request basis.
+            </summary>
         </member>
         <member name="P:Google.Apis.Services.BaseClientService.BaseUriOverride">
             <summary>
@@ -930,6 +1020,11 @@
         <member name="F:Google.Apis.Upload.ResumableUpload.ZeroByteContentRangeHeader">
             <summary>Content-Range header value for the body upload of zero length files.</summary>
         </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.DefaultGoogleApiClientHeader">
+            <summary>
+            The x-goog-api-client header value used for resumable uploads initiated without any options or an HttpClient.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Upload.ResumableUpload.#ctor(System.IO.Stream,Google.Apis.Upload.ResumableUploadOptions)">
             <summary>
             Creates a <see cref="T:Google.Apis.Upload.ResumableUpload"/> instance.
@@ -969,17 +1064,13 @@
             unknown. 
             </summary>
         </member>
-        <member name="P:Google.Apis.Upload.ResumableUpload.LastMediaRequest">
+        <member name="P:Google.Apis.Upload.ResumableUpload.Buffer">
             <summary>
-            Gets or sets the content of the last buffer request to the server or <c>null</c>. It is used when the media
-            content length is unknown, for resending it in case of server error.
-            Only used with a non-seekable stream.
-            </summary>
-        </member>
-        <member name="P:Google.Apis.Upload.ResumableUpload.LastMediaLength">
-            <summary>
-            Gets or sets the last request length.
-            Only used with a non-seekable stream.
+            The buffer used for reading from the stream, to prepare HTTP requests.
+            This is used for both seekable and non-seekable streams, but in a slightly different way:
+            with seekable streams, we never reuse any *data* between chunks, just the allocated byte arrays.
+            For non-seekable streams, if some of the data we sent was not received by the server,
+            we reuse the data in the buffer.
             </summary>
         </member>
         <member name="P:Google.Apis.Upload.ResumableUpload.UploadUri">
@@ -1219,10 +1310,10 @@
         <member name="M:Google.Apis.Upload.ResumableUpload.MediaCompleted(System.Net.Http.HttpResponseMessage)">
             <summary>A callback when the media was uploaded successfully.</summary>
         </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareNextChunkUnknownSize(System.IO.Stream,System.Threading.CancellationToken,System.Byte[]@,System.Int32@)">
+        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareBufferUnknownSizeAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <summary>Prepares the given request with the next chunk in case the steam length is unknown.</summary>
         </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareNextChunkKnownSize(System.IO.Stream,System.Threading.CancellationToken,System.Byte[]@,System.Int32@)">
+        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareBufferKnownSizeAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <summary>Prepares the given request with the next chunk in case the steam length is known.</summary>
         </member>
         <member name="M:Google.Apis.Upload.ResumableUpload.GetNextByte(System.String)">
@@ -1244,6 +1335,77 @@
             <param name="chunkStart">Start of the chunk.</param>
             <param name="chunkSize">Size of the chunk being sent.</param>
             <returns>The content range header value.</returns>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload.UploadBuffer">
+            <summary>
+            A buffer to be uploaded. This abstraction allows us to use small byte arrays,
+            avoiding anything which might end up on the large object heap.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.UploadBuffer.upload">
+            <summary>
+            The upload using this buffer; used to find the chunk size etc.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.UploadBuffer.Capacity">
+            <summary>
+            The capacity of this buffer; <see cref="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.PopulateFromStreamAsync(System.IO.Stream,System.Threading.CancellationToken)"/>
+            will read until the buffer contains this much data.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.UploadBuffer.Length">
+            <summary>
+            The amount of usable data within the buffer.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.UploadBuffer.blocks">
+            <summary>
+            The data in the buffer, divided into blocks each of size (at most) <see cref="F:Google.Apis.Upload.ResumableUpload.UploadBuffer.BlockSize"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.PopulateFromStreamAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Reads from the stream until the stream has run out of data, or the buffer is full.
+            </summary>
+            <param name="stream">The stream to read from</param>
+            <param name="cancellationToken"></param>
+            <returns>true if the stream is exhausted; false otherwise</returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.Reset">
+            <summary>
+            Resets the length of this buffer to 0, *effectively* discarding the data within it.
+            (The blocks are actually retained for reuse.)
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.EnsureBlockAtPosition(System.Int32,System.Int32@)">
+            <summary>
+            Returns the block that contains the specified offset, creating it if necessary.
+            </summary>
+            <param name="bufferOffset">The offset within the buffer to fetch the block for.</param>
+            <param name="blockOffset">The offset within the returned block corresponding to <paramref name="bufferOffset"/> within the buffer.</param>
+            <returns>The block for the given position.</returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.MoveUnsentDataToStartOfBuffer(System.Int64,System.Int64)">
+            <summary>
+            Moves any unsent data to the start of this buffer, based on the number of bytes we actually sent,
+            and the number of bytes the server received.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.CreateContent(System.Int32@)">
+            <summary>
+            Creates an HttpContent for the data in this buffer, up to <paramref name="contentLength"/> bytes.
+            </summary>
+            <param name="contentLength">The length of the content.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadBuffer.GetActualUploadChunkSize">
+            <summary>
+            Determines how much data should actually be sent from this buffer.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload.UploadBuffer.BufferViewStream">
+            <summary>
+            A read-only stream reading from an UploadBuffer, reading all the blocks in turn.
+            </summary>
         </member>
         <member name="T:Google.Apis.Upload.ResumableUpload`1">
             <summary>
@@ -1344,10 +1506,21 @@
             <param name="contentStream">The stream containing the content to upload.</param>
             <param name="contentType">Content type of the content to be uploaded.</param>
             <remarks>
-            The stream <paramref name="contentStream"/> must support the "Length" property.
+            Considerations regarding <paramref name="contentStream"/>:
+            <list type="bullet">
+            <item><description>
+            If <paramref name="contentStream"/> is seekable, then the stream position will be reset to
+            <c>0</c> before reading commences. If <paramref name="contentStream"/> is not
+            seekable, then it will be read from its current position.
+            </description></item>
+            <item><description>
             Caller is responsible for maintaining the <paramref name="contentStream"/> open until the 
             upload is completed.
+            </description></item>
+            <item><description>
             Caller is responsible for closing the <paramref name="contentStream"/>.
+            </description></item>
+            </list>
             </remarks>
         </member>
         <member name="P:Google.Apis.Upload.ResumableUpload`2.ResponseBody">

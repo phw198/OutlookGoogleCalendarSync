@@ -423,13 +423,16 @@ namespace OutlookGoogleCalendarSync {
                     log.Fine("Unmuting navigation click sounds.");
                     soundRegKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Default", false);
                     if (soundRegKey != null) {
-                        String defaultSound = soundRegKey.GetValue(defaultKeyName) as String;
-                        Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Current", true).SetValue(defaultKeyName, defaultSound);
+                        String defaultSound = soundRegKey.GetValue(defaultKeyName, "", RegistryValueOptions.DoNotExpandEnvironmentNames) as String;
+                        if (string.IsNullOrEmpty(defaultSound))
+                            log.Warn("No default navigation sound found to reinstate as current.");
+                        else
+                            Microsoft.Win32.Registry.CurrentUser.OpenSubKey(navigatingKeyPath + ".Current", true).SetValue(defaultKeyName, defaultSound);
                     } else
-                        log.Warn("Could not find default navigation sound.");
+                        log.Warn("Could not find default navigation sound registry key.");
                 }
             } catch (System.Exception ex) {
-                log.Error(ex.Message);
+                OGCSexception.Analyse(ex);
             }
         }
         #endregion

@@ -435,11 +435,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static void DrawComboboxItemColour(Boolean comboEnabled, Brush boxColour, Brush textColour, String itemDescription, Graphics graphics, Rectangle cellBounds) {
             try {
                 // Draw colour box
-                Rectangle colourbox = new Rectangle();
-                colourbox.X = cellBounds.X + 2;
-                colourbox.Y = cellBounds.Y + 2;
-                colourbox.Height = cellBounds.Height - 5;
-                colourbox.Width = 18;
+                Rectangle colourbox = new Rectangle {
+                    X = cellBounds.X + 2,
+                    Y = cellBounds.Y + 2,
+                    Height = cellBounds.Height - 5,
+                    Width = 18
+                };
                 graphics.FillRectangle(boxColour, colourbox);
                 graphics.DrawRectangle(comboEnabled ? SystemPens.WindowText : SystemPens.InactiveBorder, colourbox);
 

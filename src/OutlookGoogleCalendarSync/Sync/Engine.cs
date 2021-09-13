@@ -204,10 +204,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                     //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
-                    bwSync = new AbortableBackgroundWorker();
-                    //Don't need thread to report back. The logbox is updated from the thread anyway.
-                    bwSync.WorkerReportsProgress = false;
-                    bwSync.WorkerSupportsCancellation = true;
+                    bwSync = new AbortableBackgroundWorker {
+                        //Don't need thread to report back. The logbox is updated from the thread anyway.
+                        WorkerReportsProgress = false,
+                        WorkerSupportsCancellation = true
+                    };
 
                     //Kick off the sync in the background thread
                     bwSync.DoWork += new DoWorkEventHandler(
