@@ -12,7 +12,7 @@
         protected override void Dispose(bool disposing) {
             System.Boolean notificationTrayExited = false;
             try {
-                notificationTrayExited = Forms.Main.Instance.NotificationTray.Exited;
+                notificationTrayExited = Forms.Main.Instance.NotificationTray?.Exited ?? true;
             } catch {
                 notificationTrayExited = true;
             }

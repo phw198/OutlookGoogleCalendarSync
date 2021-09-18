@@ -93,7 +93,7 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                } else
+                } else if (!string.IsNullOrEmpty(aex.Message))
                     MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
@@ -493,7 +493,7 @@ namespace OutlookGoogleCalendarSync {
         private static Boolean isCLIstartup() {
             try {
                 if (File.Exists(logSettingsFile)) return false;
-                else if (File.Exists(Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), logSettingsFile))) return true;
+                else if (File.Exists(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), logSettingsFile))) return true;
                 else return false;
             } catch (System.Exception ex) {
                 log.Error("Failed to determine if OGCS was started by CLI.");

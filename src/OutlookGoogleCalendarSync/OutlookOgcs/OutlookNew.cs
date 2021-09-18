@@ -94,10 +94,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 explorerWatcher = new ExplorerWatcher(oApp);
                 
             } catch (System.Runtime.InteropServices.COMException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
+                String errCode = OGCSexception.GetErrorCode(ex);
+                if (errCode == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                             "Please perform an Office Repair or reinstall Outlook and then try running OGCS again.");
+                } else if (errCode == "0x8004011D") { //The attempt to log on to Microsoft Exchange has failed. [Eg VPN connectivity down]
+                    throw new ApplicationException(ex.Message);
                 } else throw;
 
             } finally {
@@ -121,7 +124,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
-                    Calendar.Categories.Dispose();
+                    Calendar.Categories?.Dispose();
                     explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
@@ -435,6 +438,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
                 Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Select calendar");
+            } catch (System.Runtime.InteropServices.COMException) {
+                throw;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex, true);
                 throw;
