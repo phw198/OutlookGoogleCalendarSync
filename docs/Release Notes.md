@@ -1,6 +1,18 @@
 | Release Notes |
 |:---|
 
+# v2.9.1.0 - Alpha
+
+**Enhancements**
+- More reliable method to open browser
+- Option to show and sync with hidden Google calendars
+- Update of third-party DLL files
+
+**Bugfix**
+- Don't alert for alpha releases if user not opted in
+- Correctly sync Google "this and following events" recurring event changes
+- Fix end time of all day recurring items in non-GMT timezone
+
 # v2.9.0.0 - Beta
 
 **Enhancements** rolled in from Alpha releases

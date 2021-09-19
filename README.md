@@ -29,8 +29,20 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.0-beta/OutlookGoogleCalendarSync-2.9.0-beta-full.nupkg.svg)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.0-beta/OutlookGoogleCalendarSync-2.9.0-beta-delta.nupkg.svg)
 
+### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.9.1-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.1-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.9.1-alpha)
+
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.9.1-alpha/Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.1-alpha/Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.9.1-alpha/Setup.exe)
+ 
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.9.1-alpha/Portable_OGCS_v2.9.1.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.1-alpha/Portable_OGCS_v2.9.1.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.9.1-alpha/Portable_OGCS_v2.9.1.zip)
+
+:information_source: Upgrades to this release  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.1-alpha/OutlookGoogleCalendarSync-2.9.1-alpha-full.nupkg.svg)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.9.1-alpha/OutlookGoogleCalendarSync-2.9.1-alpha-delta.nupkg.svg)
+
 ## Functionality
-- Supports all versions of Outlook from 2003 to 2019 64-bit!
+- Supports all versions of Outlook from 2003 to 2019/Microsoft365 64-bit!
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
