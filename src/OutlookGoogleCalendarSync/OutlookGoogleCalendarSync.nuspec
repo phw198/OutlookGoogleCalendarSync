@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.9.0-beta</version>
+    <version>2.9.1-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,18 +12,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.9.0?
+# What's New In v2.9.1?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Customisable attendee limit for sync
-- Option to exclude sync of declined Google invitiations
-- Option to exclude sync of Google 'goals'
-- Option to set exact type of availablity in Outlook (eg Out of Office)
-- Provision for custom timezone mapping when required for meeting organiser in different timezone
-- Ability to specify custom maps between Google colours and Outlook categories
-- Additional colour sync setting to only sync single category to Outlook
-- Retrieve all Google calendars, not just first 30
+- More reliable method to open browser
+- Option to show and sync with hidden Google calendars
+- Update of third-party DLL files
 - Order the Google calendar dropdown: primary, writeable, read-only
 - Warn if read-only calendar selected for sync; deny for two-way sync
 - Sync deletion in Outlook on first two-way sync (not second)
@@ -32,7 +27,9 @@
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Numerous bug fixes
+- Don't alert for alpha releases if user not opted in
+- Correctly sync Google "this and following events" recurring event changes
+- Fix end time of all day recurring items in non-GMT timezone
     </releaseNotes>
     <copyright>Copyright 2021</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
