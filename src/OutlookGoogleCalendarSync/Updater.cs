@@ -142,7 +142,8 @@ namespace OutlookGoogleCalendarSync {
                                 new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
                                 log.Debug("Download complete.");
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed downloading release file for " + update.Version, ex);
+                                OGCSexception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
+                                ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             }
                         }

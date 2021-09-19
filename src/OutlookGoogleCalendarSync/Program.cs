@@ -267,21 +267,20 @@ namespace OutlookGoogleCalendarSync {
         #region Startup Registry Key
         private static String startupKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-        public static void ManageStartupRegKey(Boolean recreate = false) {
+        public static void ManageStartupRegKey() {
             //Check for legacy Startup menu shortcut <=v2.1.4
             Boolean startupConfigExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
             if (startupConfigExists) 
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
             startupConfigExists = checkRegKey();
-            
-            if (Settings.Instance.StartOnStartup && !startupConfigExists)
+
+            if (Settings.Instance.StartOnStartup) {
+                if (startupConfigExists) log.Debug("Forcing update of startup registry key.");
                 addRegKey();
-            else if (!Settings.Instance.StartOnStartup && startupConfigExists)
-                removeRegKey();
-            else if (startupConfigExists && recreate) {
-                log.Debug("Forcing update of startup registry key.");
-                addRegKey();
+            } else {
+                if (startupConfigExists) removeRegKey();
+                else log.Debug("No startup registry key to remove.");
             }
         }
 
@@ -450,7 +449,7 @@ namespace OutlookGoogleCalendarSync {
             if (settingsVersion != Application.ProductVersion) {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 try {
-                    Program.ManageStartupRegKey(recreate: true);
+                    Program.ManageStartupRegKey();
                 } catch (System.Exception ex) {
                     if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
                     OGCSexception.Analyse("Failed accessing registry for startup key.", ex);

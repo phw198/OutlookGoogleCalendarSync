@@ -809,7 +809,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         void Save_Click(object sender, EventArgs e) {
             if (tbStartupDelay.Value != Settings.Instance.StartupDelay) {
                 Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
-                if (cbStartOnStartup.Checked) Program.ManageStartupRegKey(true);
+                if (cbStartOnStartup.Checked) Program.ManageStartupRegKey();
             }
             bSave.Enabled = false;
             bSave.Text = "Saving...";
