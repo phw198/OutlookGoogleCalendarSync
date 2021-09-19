@@ -22,8 +22,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public static void ShowMe() {
             if (splashThread == null) {
-                splashThread = new Thread(new ThreadStart(doShowSplash));
-                splashThread.IsBackground = true;
+                splashThread = new Thread(new ThreadStart(doShowSplash)) { IsBackground = true };
                 splashThread.Start();
                 while (!initialised) {
                     //Stop the program continuing until splash screen has finished accessing settings.xml
@@ -55,11 +54,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 splash.cbHideSplash.Checked = hideSplash;
                 if (subscribed == DateTime.Parse("01-Jan-2000") && !donor) {
-                    ToolTips = new ToolTip();
-                    ToolTips.AutoPopDelay = 10000;
-                    ToolTips.InitialDelay = 500;
-                    ToolTips.ReshowDelay = 200;
-                    ToolTips.ShowAlways = true;
+                    ToolTips = new ToolTip {
+                        AutoPopDelay = 10000,
+                        InitialDelay = 500,
+                        ReshowDelay = 200,
+                        ShowAlways = true
+                    };
 
                     ToolTips.SetToolTip(splash.cbHideSplash, "Donate £10 or more to enable this feature.");
                 } else if (hideSplash) {

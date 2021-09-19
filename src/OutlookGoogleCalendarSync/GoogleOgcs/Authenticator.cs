@@ -128,6 +128,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
             }
 
+            if (credential == null) return false;
+
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
                 log.Info("Refresh and Access token successfully retrieved.");
                 log.Debug("Access token expires " + credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
@@ -253,7 +255,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException != null ? ex.InnerException : ex));
+                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException ?? ex));
                         throw;
                     }
                 }

@@ -71,6 +71,14 @@
             this is to allow for possible local-client clock skew. Defaults to zero seconds.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings.CertificateCache">
+            <summary>
+            CertificateCache for testing purposes.
+            If null, the default CertificateCache
+            <see cref="F:Google.Apis.Auth.SignedTokenVerification.s_certificateCache"/> will
+            be used.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(System.String,Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings)">
             <summary>
             Validates a Google-issued Json Web Token (JWT).
@@ -96,7 +104,8 @@
             </remarks>
             <param name="jwt">The JWT to validate.</param>
             <param name="validationSettings">Specifies how to carry out the validation.</param>
-            <returns></returns>
+            <returns>The payload of the verified token.</returns>
+            <exception cref="T:Google.Apis.Auth.InvalidJwtException">If the token does not pass verification.</exception>
         </member>
         <member name="T:Google.Apis.Auth.GoogleJsonWebSignature.Header">
             <summary>
@@ -192,6 +201,31 @@
             JSON Web Signature (JWS) implementation as specified in 
             http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-11.
             </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.JsonWebSignature.VerifySignedTokenAsync(System.String,Google.Apis.Auth.SignedTokenVerificationOptions,System.Threading.CancellationToken)">
+            <summary>
+            Verifies that the given token is a valid, not expired, signed token.
+            </summary>
+            <param name="signedJwt">The token to verify.</param>
+            <param name="options">The options to use for verification.
+            May be null in which case default options will be used.</param>
+            <param name="cancellationToken">The cancellation token for the operation.</param>
+            <returns>The payload contained by the token.</returns>
+            <exception cref="T:Google.Apis.Auth.InvalidJwtException">If the token is invalid or expired.</exception>
+        </member>
+        <member name="M:Google.Apis.Auth.JsonWebSignature.VerifySignedTokenAsync``1(System.String,Google.Apis.Auth.SignedTokenVerificationOptions,System.Threading.CancellationToken)">
+            <summary>
+            Verifies that the given token is a valid, not expired, signed token.
+            </summary>
+            <param name="signedJwt">The token to verify.</param>
+            <param name="options">The options to use for verification.
+            May be null in which case default options will be used.</param>
+            <param name="cancellationToken">The cancellation token for the operation.</param>
+            <returns>The payload contained by the token.</returns>
+            <exception cref="T:Google.Apis.Auth.InvalidJwtException">If the token is invalid or expired.</exception>
+            <typeparam name="TPayload">The type of the payload to return, so user code can validate
+            additional claims. Should extend <see cref="T:Google.Apis.Auth.JsonWebSignature.Payload"/>. Payload information will be deserialized
+            using <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/>.</typeparam>
         </member>
         <member name="T:Google.Apis.Auth.JsonWebSignature.Header">
             <summary>
@@ -295,6 +329,13 @@
             a string or list) or <c>null</c>.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.JsonWebToken.Payload.TargetAudience">
+            <summary>
+            Gets or sets the target audience claim that identifies the audience that an OIDC token generated from
+            this JWT is intended for. Maybe be null. Multiple target audiences are not supported.
+            <c>null</c>.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Auth.JsonWebToken.Payload.ExpirationTimeSeconds">
             <summary>
             Gets or sets expiration time claim that identifies the expiration time (in seconds) on or after which 
@@ -332,6 +373,91 @@
         </member>
         <member name="P:Google.Apis.Auth.JsonWebToken.Payload.AudienceAsList">
             <summary>Gets the audience property as a list.</summary>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.AccessTokenCredential">
+            <summary>
+            Represents a credential that simply wraps an access token.
+            The origin of said access token is not relevant, but that means
+            that the credential cannot refresh the access token when it has expired.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenCredential.QuotaProject">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#HasExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#SupportsExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithQuotaProject(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithUserForDomainWideDelegation(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenCredential.GetAccessTokenWithHeadersForRequestAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders">
+            <summary>
+            Represents an access token that can be used to authorize a request.
+            The token might be accompanied by extra information that should be sent
+            in the form of headers.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.#ctor(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Collections.Generic.IReadOnlyList{System.String}})">
+            <summary>
+            Constructs an <see cref="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders"/> based on a given token and headers.
+            </summary>
+            <param name="token">The token to build this instance for. May be null.</param>
+            <param name="headers">The collection of headers that may accompany the token. May be null.</param>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.AccessToken">
+            <summary>
+            An access token that can be used to authorize a request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.Headers">
+            <summary>
+            Extra headers, if any, that should be included in the request.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.AddHeaders(System.Net.Http.Headers.HttpRequestHeaders)">
+            <summary>
+             Adds the headers in this object to the given header collection.
+            </summary>
+            <param name="requestHeaders">The header collection to add the headers to.</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.AddHeaders(System.Net.Http.HttpRequestMessage)">
+            <summary>
+             Adds the headers in this object to the given request.
+            </summary>
+            <param name="request">The request to add the headers to.</param>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.Builder">
+            <summary>
+            Builder class for <see cref="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders"/> to simplify common scenarios.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.Builder.QuotaProject">
+            <summary>
+            The GCP project ID used for quota and billing purposes. May be null.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders.Builder.Build(System.String)">
+            <summary>
+            Builds and instance of <see cref="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders"/> with the given
+            token and the value set on this builder.
+            </summary>
+            <param name="token">The token to build the <see cref="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders"/> for.</param>
+            <returns>An <see cref="T:Google.Apis.Auth.OAuth2.AccessTokenWithHeaders"/>.</returns>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.AuthorizationCodeInstalledApp">
             <summary>
@@ -382,8 +508,12 @@
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.BearerToken.QueryParameterAccessMethod">
             <summary>
+            Obsolete.
             Thread-safe OAuth 2.0 method for accessing protected resources using an <c>access_token</c> query parameter
             as specified in http://tools.ietf.org/html/rfc6750#section-2.3.
+            This access method is being made obsolete. Please read here for more up to date information:
+            `https://developers.google.com/identity/protocols/oauth2/index.html#4.-send-the-access-token-to-an-api.`.
+            Please use <see cref="T:Google.Apis.Auth.OAuth2.BearerToken.AuthorizationHeaderAccessMethod"/> instead.
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.BearerToken.QueryParameterAccessMethod.Intercept(System.Net.Http.HttpRequestMessage,System.String)">
@@ -414,7 +544,8 @@
             </summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.ComputeCredential.MetadataServerUrl">
-            <summary>The metadata server url.</summary>
+            <summary>The metadata server url. This can be overridden (for the purposes of Compute environment detection and
+            auth token retrieval) using the GCE_METADATA_HOST environment variable.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.ComputeCredential.isRunningOnComputeEngineCached">
             <summary>Caches result from first call to <c>IsRunningOnComputeEngine</c> </summary>
@@ -432,17 +563,39 @@
         <member name="F:Google.Apis.Auth.OAuth2.ComputeCredential.GoogleMetadataHeader">
             <summary>The Metadata header response indicating Google.</summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ComputeCredential.OidcTokenUrl">
+            <summary>
+            Gets the OIDC Token URL.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#HasExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#SupportsExplicitScopes">
+            <inheritdoc/>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.ComputeCredential.Initializer">
             <summary>
             An initializer class for the Compute credential. It uses <see cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.ComputeTokenUrl"/>
-            as the token server URL.
+            as the token server URL (optionally overriding the host using the GCE_METADATA_HOST environment variable).
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ComputeCredential.Initializer.OidcTokenUrl">
+            <summary>
+            Gets the OIDC Token URL.
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Initializer.#ctor">
-            <summary>Constructs a new initializer using the default compute token URL.</summary>
+            <summary>Constructs a new initializer using the default compute token URL
+            and the default OIDC token URL.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Initializer.#ctor(System.String)">
-            <summary>Constructs a new initializer using the given token URL.</summary>
+            <summary>Constructs a new initializer using the given token URL
+            and the default OIDC token URL.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Initializer.#ctor(System.String,System.String)">
+            <summary>Constructs a new initializer using the given token URL
+            and OIDC token URL (optionally overriding the host using the GCE_METADATA_HOST environment variable).</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.#ctor">
             <summary>Constructs a new Compute credential instance.</summary>
@@ -450,7 +603,22 @@
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.#ctor(Google.Apis.Auth.OAuth2.ComputeCredential.Initializer)">
             <summary>Constructs a new Compute credential instance.</summary>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithQuotaProject(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithUserForDomainWideDelegation(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.RequestAccessTokenAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.GetOidcTokenAsync(Google.Apis.Auth.OAuth2.OidcTokenOptions,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ComputeCredential.IsRunningOnComputeEngine">
@@ -506,10 +674,10 @@
         <member name="M:Google.Apis.Auth.OAuth2.DefaultCredentialProvider.CreateDefaultCredentialAsync">
             <summary>Creates a new default credential.</summary>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.DefaultCredentialProvider.CreateDefaultCredentialFromFile(System.String)">
-            <summary>Creates a default credential from a JSON file.</summary>
-        </member>
         <member name="M:Google.Apis.Auth.OAuth2.DefaultCredentialProvider.CreateDefaultCredentialFromStream(System.IO.Stream)">
+            <summary>Creates a default credential from a stream that contains JSON credential data.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.DefaultCredentialProvider.CreateDefaultCredentialFromStreamAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <summary>Creates a default credential from a stream that contains JSON credential data.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.DefaultCredentialProvider.CreateDefaultCredentialFromJson(System.String)">
@@ -611,6 +779,11 @@
             <param name="authorizationServerUrl">Authorization server URL</param>
             <param name="tokenServerUrl">Token server URL</param>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer.#ctor(Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow)">
+            <summary>
+            Constructs a new initializer from the given <see cref="T:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow"/>
+            </summary>
+        </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.TokenServerUrl">
             <summary>Gets the token server URL.</summary>
         </member>
@@ -631,6 +804,9 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.#ctor(Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Initializer)">
             <summary>Constructs a new flow using the initializer's properties.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.Google#Apis#Auth#OAuth2#Flows#IHttpAuthorizationFlow#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.Flows.AuthorizationCodeFlow.AccessMethod">
             <inheritdoc/>
@@ -715,6 +891,9 @@
         <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.#ctor(Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer)">
             <summary>Constructs a new Google authorization code flow.</summary>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Google#Apis#Auth#OAuth2#Flows#IHttpAuthorizationFlow#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.CreateAuthorizationCodeRequest(System.String)">
             <inheritdoc/>
         </member>
@@ -762,6 +941,11 @@
             Constructs a new initializer. Sets Authorization server URL to 
             <see cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.OidcAuthorizationUrl"/>, and Token server URL to 
             <see cref="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.OidcTokenUrl"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer.#ctor(Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow)">
+            <summary>
+            Constructs a new initializer from the given <see cref="T:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow"/>.
             </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer.#ctor(System.String,System.String,System.String)">
@@ -839,6 +1023,22 @@
             Indicates if a new token needs to be retrieved and stored regardless of normal circumstances.
             </summary>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.Flows.IHttpAuthorizationFlow">
+            <summary>
+            Authorization flow that performs HTTP operations, for instance,
+            for obtaining or refreshing tokens.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.Flows.IHttpAuthorizationFlow.WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <summary>
+            Return a new instance of the same type as this but that uses the
+            given HTTP client factory.
+            </summary>
+            <param name="httpClientFactory">The http client factory to be used by the new instance.
+            May be null, in which case the default <see cref="T:Google.Apis.Http.HttpClientFactory"/> will be used.</param>
+            <returns>A new instance with the same type as this but that will use <paramref name="httpClientFactory"/>
+            to obtain an <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> to be used for token related operations.</returns>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.GoogleAuthConsts">
             <summary>
             Google OAuth2 constants.
@@ -880,11 +1080,47 @@
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.JsonWebKeySetUrl">
             <summary>The OpenID Connect Json Web Key Set (jwks) URL.</summary>
         </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IapKeySetUrl">
+            <summary>The IAP Json Web Key Set (jwks) URL.</summary>
+        </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.InstalledAppRedirectUri">
             <summary>Installed application redirect URI.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.LocalhostRedirectUri">
             <summary>Installed application localhost redirect URI.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IamServiceAccountEndpointCommonPrefix">
+            <summary>IAM access token endpoint for service account.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IamAccessTokenEndpointFormatString">
+            <summary>IAM access token endpoint format string. To use it insert the service account email.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IamSignEndpointFormatString">
+            <summary>IAM signBlob endpoint format string. To use it insert the service account email.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IamIdTokenEndpointFormatString">
+            <summary>IAM ID token endpoint format string. To use it insert the service account email.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.GoogleAuthConsts.IamScope">
+            <summary>Scope needed for source credential in impersonated credential.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.GoogleAuthConsts.EffectiveComputeTokenUrl">
+            <summary>
+            The effective Compute Engine authorization token server URL.
+            This takes account of the GCE_METADATA_HOST environment variable.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.GoogleAuthConsts.EffectiveComputeOidcTokenUrl">
+            <summary>
+            The effective Compute Engine authorization token server URL for OIDC. This requires an audience parameter to be added.
+            This takes account of the GCE_METADATA_HOST environment variable.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.GoogleAuthConsts.EffectiveMetadataServerUrl">
+            <summary>
+            The effective Compute Engine metadata token server URL (with no path).
+            This takes account of the GCE_METADATA_HOST environment variable.
+            </summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.GoogleClientSecrets">
             <summary>
@@ -902,6 +1138,20 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.Load(System.IO.Stream)">
             <summary>Loads the Google client secret from the input stream.</summary>
+            <remarks>This method has been made obsolete in favour of <see cref="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.FromStream(System.IO.Stream)"/>
+            which only differs in name.</remarks>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.FromStream(System.IO.Stream)">
+            <summary>Loads the Google client secret from the input stream.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.FromStreamAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>Asynchronously loads the Google client secret from the input stream.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.FromFile(System.String)">
+            <summary>Loads the Google client secret from a JSON file.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleClientSecrets.FromFileAsync(System.String,System.Threading.CancellationToken)">
+            <summary>Asynchronously loads the Google client secret from a JSON file.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.GoogleCredential">
             <summary>
@@ -910,7 +1160,7 @@
             credentials (like <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/>, <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/>
             or <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/>) in a unified way.
             <para>
-            See <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync"/> for the credential retrieval logic.
+            See <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)"/> for the credential retrieval logic.
             </para>
             </summary>
         </member>
@@ -920,10 +1170,17 @@
         <member name="F:Google.Apis.Auth.OAuth2.GoogleCredential.credential">
             <summary>The underlying credential being wrapped by this object.</summary>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.#ctor(Google.Apis.Auth.OAuth2.ICredential)">
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.#ctor(Google.Apis.Auth.OAuth2.IGoogleCredential)">
             <summary>Creates a new <c>GoogleCredential</c>.</summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync">
+            <summary>
+            Returns the Application Default Credentials which are ambient credentials that identify and authorize
+            the whole application. See <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)"/> for more details.
+            </summary>
+            <returns>A task which completes with the application default credentials.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)">
             <summary>
             <para>Returns the Application Default Credentials which are ambient credentials that identify and authorize
             the whole application.</para>
@@ -959,18 +1216,33 @@
             </item>
             </list>
             </summary>
+            <remarks>
+            If the cancellation token is cancelled while the underlying operation is loading Application Default Credentials,
+            the underlying operation will still be used for any further requests. No actual work is cancelled via this cancellation
+            token; it just allows the returned task to transition to a cancelled state.
+            </remarks>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
             <returns>A task which completes with the application default credentials.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefault">
             <summary>
             <para>Synchronously returns the Application Default Credentials which are ambient credentials that identify and authorize
-            the whole application. See <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync"/> for details on application default credentials.</para>
+            the whole application. See <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)"/> for details on application default credentials.</para>
             <para>This method will block until the credentials are available (or an exception is thrown).
-            It is highly preferable to call <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync"/> where possible.</para>
+            It is highly preferable to call <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)"/> where possible.</para>
             </summary>
             <returns>The application default credentials.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.FromStream(System.IO.Stream)">
+            <summary>
+            Loads credential from stream containing JSON credential data.
+            <para>
+            The stream can contain a Service Account key file in JSON format from the Google Developers
+            Console or a stored user credential using the format supported by the Cloud SDK.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.FromStreamAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <summary>
             Loads credential from stream containing JSON credential data.
             <para>
@@ -988,6 +1260,18 @@
             </para>
             </summary>
             <param name="path">The path to the credential file.</param>
+            <returns>The loaded credentials.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.FromFileAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Loads credential from the specified file containing JSON credential data.
+            <para>
+            The file can contain a Service Account key file in JSON format from the Google Developers
+            Console or a stored user credential using the format supported by the Cloud SDK.
+            </para>
+            </summary>
+            <param name="path">The path to the credential file.</param>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
             <returns>The loaded credentials.</returns>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.FromJson(System.String)">
@@ -1013,7 +1297,7 @@
             <summary>
             Create a <see cref="T:Google.Apis.Auth.OAuth2.GoogleCredential"/> from a <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/>.
             In general, do not use this method. Call <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefault"/> or
-            <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync"/>, which will provide the most suitable
+            <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetApplicationDefaultAsync(System.Threading.CancellationToken)"/>, which will provide the most suitable
             credentials for the current platform.
             </summary>
             <param name="computeCredential">Optional. The compute credential to use in the returned <see cref="T:Google.Apis.Auth.OAuth2.GoogleCredential"/>.
@@ -1022,54 +1306,56 @@
             <returns>A <see cref="T:Google.Apis.Auth.OAuth2.GoogleCredential"/> with an underlying <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/>.</returns>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.GoogleCredential.IsCreateScopedRequired">
-             <summary>
-             <para>Returns <c>true</c> only if this credential type has no scopes by default and requires
-             a call to <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})"/> before use.</para>
-            
-             <para>Credentials need to have scopes in them before they can be used to access Google services.
-             Some Credential types have scopes built-in, and some don't. This property indicates whether
-             the Credential type has scopes built-in.</para>
-             
-             <list type="number">
-             <item>
-             <description>
-             <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/> has scopes built-in. Nothing additional is required.
-             </description>
-             </item>
-             <item>
-             <description>
-             <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/> has scopes built-in, as they were obtained during the consent
-             screen. Nothing additional is required.</description>
-             </item>
-             <item>
-             <description>
-             <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> does not have scopes built-in by default. Caller should
-             invoke <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})"/> to add scopes to the credential.
-             </description>
-             </item>
-             </list>
-             </summary>
-        </member>
-        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
-            If the credential supports scopes, creates a copy with the specified scopes. Otherwise, it returns the same
-            instance.
+            <para>
+            Returns <c>true</c> only if this credential supports explicit scopes to be set
+            via this library but no explicit scopes have been set.
+            A credential with explicit scopes set
+            may be created by calling <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})"/>.
+            </para>
+            <para>
+            For accessing Google services, credentials need to be scoped. Credentials 
+            have some default scoping, but this library supports explicit scopes to be set
+            for certain credentials.
+            </para>
+            <list type="number">
+            <item>
+            <description>
+            <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/> is scoped by default. This library doesn't currently
+            support explicit scopes to be set on a <see cref="T:Google.Apis.Auth.OAuth2.ComputeCredential"/>.
+            </description>
+            </item>
+            <item>
+            <description>
+            <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/> is scoped by default, as scopes were obtained during the consent
+            screen. It's not possible to change the default scopes of a <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/>.
+            </description>
+            </item>
+            <item>
+            <description>
+            <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> is not scoped by default but when used without
+            explicit scopes to access a Google service, the service's default scopes will be assumed.
+            It's possible to create a <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> with explicit scopes set
+            by calling <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})"/>
+            </description>
+            </item>
+            <item>
+            <description>
+            <see cref="T:Google.Apis.Auth.OAuth2.ImpersonatedCredential"/> is not scoped by default but when used without
+            explicit scopes to access a Google service, the service's default scopes will be assumed.
+            Note that the scopes of an <see cref="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.SourceCredential"/> have no
+            bearings on the <see cref="T:Google.Apis.Auth.OAuth2.ImpersonatedCredential"/> scopes.
+            It's possible to create an <see cref="T:Google.Apis.Auth.OAuth2.ImpersonatedCredential"/> with explicit scopes set
+            by calling <see cref="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})"/>
+            </description>
+            </item>
+            </list>
             </summary>
         </member>
-        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateWithUser(System.String)">
+        <member name="P:Google.Apis.Auth.OAuth2.GoogleCredential.QuotaProject">
             <summary>
-            If the credential supports setting the user, creates a copy with the specified user.
-            Otherwise, it throws <see cref="T:System.InvalidOperationException"/>.
-            Only Service Credentials support this operation.
-            </summary>
-            <param name="user">The user to set in the returned credential.</param>
-            <returns>This credential with the user set to <paramref name="user"/>.</returns>
-            <exception cref="T:System.InvalidOperationException">When the credential type doesn't support setting the user.</exception>
-        </member>
-        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.String[])">
-            <summary>
-            If the credential supports scopes, creates a copy with the specified scopes. Otherwise, it returns the same
-            instance.
+            The ID of the project associated to this credential for the purposes of
+            quota calculation and billing. May be null.
             </summary>
         </member>
         <member name="P:Google.Apis.Auth.OAuth2.GoogleCredential.UnderlyingCredential">
@@ -1077,15 +1363,69 @@
             Gets the underlying credential instance being wrapped.
             </summary>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            If this library supports setting explicit scopes on this credential,
+            this method will creates a copy of the credential with the specified scopes.
+            Otherwise, it returns the same instance.
+            See <see cref="P:Google.Apis.Auth.OAuth2.GoogleCredential.IsCreateScopedRequired"/> for more information.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateScoped(System.String[])">
+            <summary>
+            If the credential supports scopes, creates a copy with the specified scopes. Otherwise, it returns the same
+            instance.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateWithUser(System.String)">
+            <summary>
+            If the credential supports Domain Wide Delegation, this method creates a copy of the credential
+            with the specified user.
+            Otherwise, it throws <see cref="T:System.InvalidOperationException"/>.
+            At the moment only <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> supports Domain Wide Delegation.
+            </summary>
+            <param name="user">The user that the returned credential will be a delegate for.</param>
+            <returns>A copy of this credential with the user set to <paramref name="user"/>.</returns>
+            <exception cref="T:System.InvalidOperationException">When the credential type doesn't support
+            Domain Wide Delegation.</exception>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateWithQuotaProject(System.String)">
+            <summary>
+            Creates a copy of this credential with the specified quota project.
+            </summary>
+            <param name="quotaProject">The quota project to use for the copy. May be null.</param>
+            <returns>A copy of this credential with <see cref="P:Google.Apis.Auth.OAuth2.GoogleCredential.QuotaProject"/> set to <paramref name="quotaProject"/>.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.CreateWithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <summary>
+            Creates a copy of this credential with the specified HTTP client factory.
+            </summary>
+            <param name="factory">The HTTP client factory to be used by the new credential.
+            May be null, in which case the default <see cref="T:Google.Apis.Http.HttpClientFactory"/> will be used.</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.GetOidcTokenAsync(Google.Apis.Auth.OAuth2.OidcTokenOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.SignBlobAsync(System.Byte[],System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.Impersonate(Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer)">
+            <summary>
+            Allows this credential to impersonate the <see cref="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.TargetPrincipal"/>.
+            Only <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> and <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/> support impersonation,
+            so this method will throw <see cref="T:System.InvalidOperationException"/> if this credential's
+            <see cref="P:Google.Apis.Auth.OAuth2.GoogleCredential.UnderlyingCredential"/> is not of one of those supported types.
+            </summary>
+            <param name="initializer">Initializer containing the configuration for the impersonated credential.</param>
+            <remarks>
+            For impersonation, a credential needs to be scoped to https://www.googleapis.com/auth/iam. When using a
+            <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> as the source credential, this is not a problem, since the credential
+            can be scoped on demand. When using a <see cref="T:Google.Apis.Auth.OAuth2.UserCredential"/> the credential needs to have been obtained
+            with the required scope, else, when attempting and impersonated request, you'll receive an authorization error.
+            </remarks>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.GoogleCredential.FromServiceAccountCredential(Google.Apis.Auth.OAuth2.ServiceAccountCredential)">
             <summary>Creates a <c>GoogleCredential</c> wrapping a <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/>.</summary>
-        </member>
-        <member name="T:Google.Apis.Auth.OAuth2.GoogleCredential.ServiceAccountGoogleCredential">
-            <summary>
-            Wraps <c>ServiceAccountCredential</c> as <c>GoogleCredential</c>.
-            We need this subclass because wrapping <c>ServiceAccountCredential</c> (unlike other wrapped credential
-            types) requires special handling for <c>IsCreateScopedRequired</c> and <c>CreateScoped</c> members.
-            </summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker">
             <summary>A helper utility to manage the authorization code flow.</summary>
@@ -1203,6 +1543,19 @@
             <param name="taskCancellationToken">Cancellation token to cancel an operation</param>
             <returns>The user's credential</returns>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.IBlobSigner">
+            <summary>
+            Represents a data blob signer. 
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IBlobSigner.SignBlobAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Returns the base64 encoded signature of the given blob.
+            </summary>
+            <param name="blob">The blob to sign.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The base64 encoded signature.</returns>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.ICodeReceiver">
             <summary>OAuth 2.0 verification code receiver.</summary>
         </member>
@@ -1224,6 +1577,177 @@
             More details are available in the specific implementations.
             </summary>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.IGoogleCredential">
+            <summary>
+            Represents a Google credential. Defines functionality that
+            credential types that can be used as an underlying credential in <see cref="T:Google.Apis.Auth.OAuth2.GoogleCredential"/>
+            should implement in contrast to <see cref="T:Google.Apis.Auth.OAuth2.ICredential"/> that defines public functionality.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.IGoogleCredential.QuotaProject">
+            <summary>
+            The ID of the project associated to this credential for the purposes of
+            quota calculation and billing. May be null.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IGoogleCredential.WithQuotaProject(System.String)">
+            <summary>
+            Returns a new instance of the same type as this but with the
+            given quota project value.
+            </summary>
+            <param name="quotaProject">The quota project value for the new instance.</param>
+            <returns>A new instance with the same type as this but with <see cref="P:Google.Apis.Auth.OAuth2.IGoogleCredential.QuotaProject"/>
+            set to <paramref name="quotaProject"/>.</returns>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.IGoogleCredential.HasExplicitScopes">
+            <summary>
+            Returns true if this credential scopes have been explicitly set via this library.
+            Returns false otherwise.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.IGoogleCredential.SupportsExplicitScopes">
+            <summary>
+            Returns true if this credential accepts explicit scopes to be set
+            via this library.
+            Returns false otherwise.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IGoogleCredential.MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            If the credential supports scopes, creates a copy with the specified scopes. Otherwise, it returns the same
+            instance.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IGoogleCredential.WithUserForDomainWideDelegation(System.String)">
+            <summary>
+            If the credential supports domain wide delegation this method will create a copy of the
+            credential with the specified user set.
+            Otherwise, it throws <see cref="T:System.InvalidOperationException"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IGoogleCredential.WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <summary>
+            Return a new instance of the same type as this but that uses the
+            given HTTP client factory.
+            </summary>
+            <param name="httpClientFactory">The http client factory to be used by the new instance.
+            May be null in which case the default <see cref="T:Google.Apis.Http.HttpClientFactory"/> will be used.</param>
+            <returns>A new instance with the same type as this but that will use <paramref name="httpClientFactory"/>
+            to obtain an <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> to be used for token and other operations.</returns>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.ImpersonatedCredential">
+            <summary>
+            Allows a service account or user credential to impersonate a service account.
+            See https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials
+            and https://cloud.google.com/iam/docs/impersonating-service-accounts
+            for more information.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer">
+            <summary>An initializer class for the impersonated credential. </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.TargetPrincipal">
+            <summary>
+            Gets the service account to impersonate.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.DelegateAccounts">
+            <summary>
+            Gets the chained list of delegate service accounts. May be null or empty.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.Scopes">
+            <summary>
+            Gets the scopes to request during the authorization grant. May be null or empty.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.Lifetime">
+            <summary>
+            Gets or sets for how long the delegated credential should be valid.
+            Defaults to 1 hour or 3600 seconds.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer.#ctor(System.String)">
+            <summary>Constructs a new initializer.</summary>
+            <param name="targetPrincipal">The principal that will be impersonated. Must not be null.</param>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.SourceCredential">
+            <summary>
+            Gets the source credential used to acquire the impersonated credentials.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.TargetPrincipal">
+            <summary>
+            Gets the service account to impersonate.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.DelegateAccounts">
+            <summary>
+            Gets the chained list of delegate service accounts. May be empty.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Scopes">
+            <summary>
+            Gets the scopes to request during the authorization grant. May be empty.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Lifetime">
+            <summary>
+            Gets the lifetime of the delegated credential.
+            This is how long the delegated credential should be valid from the time
+            of the first request made with this credential.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#HasExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#SupportsExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.#ctor(Google.Apis.Auth.OAuth2.ImpersonatedCredential.Initializer)">
+            <summary>Constructs a new impersonated credential using the given initializer.</summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithQuotaProject(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithUserForDomainWideDelegation(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.RequestAccessTokenAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.GetOidcTokenAsync(Google.Apis.Auth.OAuth2.OidcTokenOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ImpersonatedCredential.SignBlobAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Signs the provided blob using the private key associated with the impersonated service account.
+            </summary>
+            <param name="blob">The blob to sign.</param>
+            <param name="cancellationToken">Cancellation token to cancel operation.</param>
+            <returns>The base64 encoded signature.</returns>
+            <exception cref="T:System.Net.Http.HttpRequestException">When signing request fails.</exception>
+            <exception cref="T:Newtonsoft.Json.JsonException">When signing response is not a valid JSON.</exception>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.IOidcTokenProvider">
+            <summary>
+            Represents an OIDC token provider.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.IOidcTokenProvider.GetOidcTokenAsync(Google.Apis.Auth.OAuth2.OidcTokenOptions,System.Threading.CancellationToken)">
+            <summary>
+            Returns an OIDC token for the given options.
+            </summary>
+            <param name="options">The options to create the token from.</param>
+            <param name="cancellationToken">The cancellation token that may be used to cancel the request.</param>
+            <returns>The OIDC token.</returns>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.ITokenAccess">
             <summary>
             Allows direct retrieval of access tokens to authenticate requests.
@@ -1244,6 +1768,30 @@
             <param name="authUri">The URI the returned token will grant access to.</param>
             <param name="cancellationToken">The cancellation token.</param>
             <returns>The access token.</returns>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.ITokenAccessWithHeaders">
+            <summary>
+            Allows direct retrieval of access tokens to authenticate requests.
+            The access tokens obtained can be accompanied by extra information 
+            that either describes the access token or is associated with it.
+            This information should acompany the token as headers when the token
+            is used to access a resource.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ITokenAccessWithHeaders.GetAccessTokenWithHeadersForRequestAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets an access token to authorize a request.
+            The token might be accompanied by extra information that should be sent
+            in the form of headers.
+            Implementations should handle automatic refreshes of the token
+            if they are supported.
+            The <paramref name="authUri"/> might be required by some credential types
+            (e.g. the JWT access token) while other credential types
+            migth just ignore it.
+            </summary>
+            <param name="authUri">The URI the returned token will grant access to.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The access token with headers if any.</returns>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.JsonCredentialParameters">
             <summary>
@@ -1271,6 +1819,12 @@
             Project ID associated with this credential.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.JsonCredentialParameters.QuotaProject">
+            <summary>
+            Project ID associated with this credential for the purposes
+            of quota calculations and billing.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Auth.OAuth2.JsonCredentialParameters.ClientId">
             <summary>
             Client Id associated with UserCredential created by
@@ -1295,6 +1849,12 @@
             <a href="https://console.developers.google.com">Google Developers Console</a>.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.JsonCredentialParameters.PrivateKeyId">
+            <summary>
+            Private Key ID associated with ServiceAccountCredential obtained from
+            <a href="https://console.developers.google.com">Google Developers Console</a>.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Auth.OAuth2.JsonCredentialParameters.RefreshToken">
             <summary>
             Refresh Token associated with UserCredential created by
@@ -1307,14 +1867,30 @@
             authorization verification code.
             </summary>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooserStrategy">
+            <summary>
+            Describes the different strategies for the selection of the callback URI.
+            127.0.0.1 is recommended, but can't be done in non-admin Windows 7 and 8 at least.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooserStrategy.Default">
+            <summary>
+            Use heuristics to attempt to connect to the recommended URI 127.0.0.1
+            but use localhost if that fails.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooserStrategy.ForceLoopbackIp">
+            <summary>
+            Force 127.0.0.1 as the callback URI. No checks are performed.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooserStrategy.ForceLocalhost">
+            <summary>
+            Force localhost as the callback URI. No checks are performed.
+            </summary>
+        </member>
         <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.LoopbackCallbackPath">
             <summary>The call back request path.</summary>
-        </member>
-        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriTemplateLocalhost">
-            <summary>Localhost callback URI, expects a port parameter.</summary>
-        </member>
-        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriTemplate127001">
-            <summary>127.0.0.1 callback URI, expects a port parameter.</summary>
         </member>
         <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.DefaultClosePageResponse">
             <summary>Close HTML tag to return the browser so it will close itself.</summary>
@@ -1329,6 +1905,13 @@
             Create an instance of <see cref="T:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver"/>.
             </summary>
             <param name="closePageResponse">Custom close page response for this instance</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.#ctor(System.String,Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooserStrategy)">
+            <summary>
+            Create an instance of <see cref="T:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver"/>.
+            </summary>
+            <param name="closePageResponse">Custom close page response for this instance</param>
+            <param name="strategy">The strategy to use to determine the callback URI</param>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.LimitedLocalhostHttpServer">
             <summary>
@@ -1346,6 +1929,99 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.GetRandomUnusedPort">
             <summary>Returns a random, unused port.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooser.CallbackUriTemplateLocalhost">
+            <summary>Localhost callback URI, expects a port parameter.</summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.LocalServerCodeReceiver.CallbackUriChooser.CallbackUriTemplate127001">
+            <summary>127.0.0.1 callback URI, expects a port parameter.</summary>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.OidcToken">
+            <summary>
+            Represents an OIDC Token.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.OidcToken.TokenResponse">
+            <summary>
+            The <see cref="P:Google.Apis.Auth.OAuth2.OidcToken.TokenResponse"/> this OIDC token is built from.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.OidcToken.GetAccessTokenAsync(System.Threading.CancellationToken)">
+            <summary>
+            Gets the access token that should be included in headers when performing
+            requests with this <see cref="T:Google.Apis.Auth.OAuth2.OidcToken"/>.
+            This method will refresh the access token if the current one has expired.
+            </summary>
+            <param name="cancellationToken">The cancellation token to use for cancelling the operation.</param>
+            <returns>The valid access token associated to this <see cref="T:Google.Apis.Auth.OAuth2.OidcToken"/>.</returns>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.OidcTokenFormat">
+            <summary>
+            Represents the OIDC token formats supported when the token is obtained using the GCE metadata server.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.OidcTokenFormat.Standard">
+            <summary>
+            Specifies that the project and instance details should not be
+            included in the payload of the JWT token returned by the GCE
+            metadata server.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.OidcTokenFormat.Full">
+            <summary>
+            Specifies that the project and instance details should be
+            included in the payload of the JWT token returned by the GCE
+            metadata server.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Auth.OAuth2.OidcTokenFormat.FullWithLicences">
+            <summary>
+            Same as <see cref="F:Google.Apis.Auth.OAuth2.OidcTokenFormat.Full"/>. License codes for images associated with the
+            GCE instance the token is being obtained from will also be included in the
+            payload of the JWT token returned by the GCE metadata server.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.OidcTokenOptions">
+            <summary>
+            Options used to create an <see cref="T:Google.Apis.Auth.OAuth2.OidcToken"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.OidcTokenOptions.TargetAudience">
+            <summary>
+            The target audience the generated token should be valid for.
+            Must not be null.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.OidcTokenOptions.TokenFormat">
+            <summary>
+            The token format of the expected OIDC token when obtained from the
+            GCE metadata server.
+            This value will be ignored when the token provider is other then the GCE
+            metadata server.
+            <see cref="T:Google.Apis.Auth.OAuth2.OidcTokenFormat"/> for the meaning of each value.
+            Defaults to <see cref="F:Google.Apis.Auth.OAuth2.OidcTokenFormat.Full"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.OidcTokenOptions.FromTargetAudience(System.String)">
+            <summary>
+            Builds new <see cref="T:Google.Apis.Auth.OAuth2.OidcTokenOptions"/> from the given target audience.
+            </summary>
+            <param name="targetAudience">The target audience to build these options from. Must no be null.</param>
+            <returns>A new set of options that can be used with a <see cref="T:Google.Apis.Auth.OAuth2.IOidcTokenProvider"/> to obtain an <see cref="T:Google.Apis.Auth.OAuth2.OidcToken"/>.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.OidcTokenOptions.WithTargetAudience(System.String)">
+            <summary>
+            Builds a new set of options with the same options as this one, except for the target audience.
+            </summary>
+            <param name="targetAudience">The new target audience. Must not be null.</param>
+            <returns>A new set of options with the given target audience.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.OidcTokenOptions.WithTokenFormat(Google.Apis.Auth.OAuth2.OidcTokenFormat)">
+            <summary>
+            Builds a new set of options with the same options as this one, except for the token format.
+            </summary>
+            <param name="tokenFormat">The new token format.</param>
+            <returns>A new set of options with the given token format.</returns>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Pkcs8.Asn1">
             <summary>
@@ -1552,6 +2228,47 @@
         <member name="M:Google.Apis.Auth.OAuth2.Requests.GoogleRevokeTokenRequest.Build">
             <summary>Creates a <see cref="T:System.Uri"/> which is used to request the authorization code.</summary>
         </member>
+        <member name="T:Google.Apis.Auth.OAuth2.Requests.ImpersonationAccessTokenRequest">
+            <summary>
+            Access token request for impersonated credential as specified in https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-oauth.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationAccessTokenRequest.Scopes">
+            <summary>
+            Gets or sets the scopes to request during the authorization grant.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationAccessTokenRequest.Lifetime">
+            <summary>
+            Gets or sets how long the delegated credential should be valid. Its format is the number of
+            seconds followed by a letter "s", for example "300s".
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Auth.OAuth2.Requests.ImpersonationOIdCTokenRequest">
+            <summary>
+            OIDC token request for impersonated credential as specified in https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-oauth.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationOIdCTokenRequest.Audience">
+            <summary>
+            Gets or sets the audience of the requested OIDC token.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationOIdCTokenRequest.IncludeEmail">
+            <summary>
+            Gets or sets whether email address should be included in the requested OIDC token.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationRequest.DelegateAccounts">
+            <summary>
+            Gets or sets the chained list of delegate service accounts.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Requests.ImpersonationSignBlobRequest.Payload">
+            <summary>
+            Gets or sets the payload to be signed.
+            </summary>
+        </member>
         <member name="T:Google.Apis.Auth.OAuth2.Requests.RefreshTokenRequest">
             <summary>
             OAuth 2.0 request to refresh an access token using a refresh token as specified in 
@@ -1642,6 +2359,11 @@
             Gets or sets the URI identifying a human-readable web page with provides information about the error.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Responses.AuthorizationCodeResponseUrl.AdditionalParameters">
+            <summary>
+            Contains any extra parameters in the authorization code response URL query string.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.Responses.AuthorizationCodeResponseUrl.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>Constructs a new authorization code response URL from the specified dictionary.</summary>
         </member>
@@ -1653,6 +2375,9 @@
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Responses.AuthorizationCodeResponseUrl.#ctor">
             <summary>Constructs a new empty authorization code response URL.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Responses.ImpersonationSignBlobResponse.SignedBlob">
+            <summary>Gets or sets the signed blob.</summary>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.Responses.TokenErrorResponse">
             <summary>
@@ -1735,15 +2460,33 @@
             This should be set by the CLIENT after the token was received from the server.
             </remarks>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.ImpersonatedAccessToken">
+            <summary>Access token for impersonated credentials.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.ImpersonatedIdToken">
+            <summary>ID token for impersonated credentials.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.ImpersonatedAccessTokenExpireTime">
+            <summary>
+            Access token expiration time for impersonated credentials. It has the RFC3339
+            format: "yyyy-MM-dd'T'HH:mm:sssssssss'Z'". For example: 2020-05-13T16:00:00.045123456Z.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.Responses.TokenResponse.IsExpired(Google.Apis.Util.IClock)">
             <summary>
-            Returns <c>true</c> if the token is expired or it's going expire soon.
+            Returns true if the token is expired or it's going to expire soon.
             </summary>
+            <remarks>If a token response doens't have at least one of <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.AccessToken"/>
+            or <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.IdToken"/> set then it's considered expired.
+            If <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.ExpiresInSeconds"/> is null, the token is also considered expired. </remarks>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Responses.TokenResponse.IsEffectivelyExpired(Google.Apis.Util.IClock)">
             <summary>
-            Returns true if the token is missing, expired, or sufficiently close to expiry that it shouldn't be used.
+            Returns true if the token is expired or it's so close to expiring that it shouldn't be used.
             </summary>
+            <remarks>If a token response doens't have at least one of <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.AccessToken"/>
+            or <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.IdToken"/> set then it's considered expired.
+            If <see cref="P:Google.Apis.Auth.OAuth2.Responses.TokenResponse.ExpiresInSeconds"/> is null, the token is also considered expired. </remarks>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.Responses.TokenResponse.FromHttpResponseAsync(System.Net.Http.HttpResponseMessage,Google.Apis.Util.IClock,Google.Apis.Logging.ILogger)">
             <summary>
@@ -1822,6 +2565,16 @@
             https://developers.google.com/accounts/docs/OAuth2ServiceAccount#computingsignature.
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.KeyId">
+            <summary>
+            Gets or sets the service account key ID.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.UseJwtAccessWithScopes">
+            <summary>
+            Gets or sets the flag preferring use of self-signed JWTs over OAuth tokens when OAuth scopes are explicitly set.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.#ctor(System.String)">
             <summary>Constructs a new initializer using the given id.</summary>
         </member>
@@ -1860,8 +2613,27 @@
             https://developers.google.com/accounts/docs/OAuth2ServiceAccount#computingsignature.
             </summary>
         </member>
-        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.HasScopes">
-            <summary><c>true</c> if this credential has any scopes associated with it.</summary>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.KeyId">
+            <summary>
+            Gets the key id of the key which is used to sign the request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UseJwtAccessWithScopes">
+            <summary>
+            Gets the flag indicating whether Self-Signed JWT should be used when OAuth scopes are set
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.HasExplicitScopes">
+            <summary>
+            Returns true if this credential scopes have been explicitly set via this library.
+            Returns false otherwise.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#HasExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#SupportsExplicitScopes">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.#ctor(Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer)">
             <summary>Constructs a new service account credential using the given initializer.</summary>
@@ -1876,6 +2648,29 @@
             </exception>
             <returns>The credentials parsed from the service account key data.</returns>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.WithUseJwtAccessWithScopes(System.Boolean)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> but with the
+            given <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UseJwtAccessWithScopes"/> value.
+            </summary>
+            <param name="useJwtAccessWithScopes">A flag preferring use of self-signed JWTs over OAuth tokens 
+            when OAuth scopes are explicitly set.</param>
+            <returns>A new instance of the <see cref="T:Google.Apis.Auth.OAuth2.ServiceAccountCredential"/> but with the
+            given <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UseJwtAccessWithScopes"/> value.
+            </returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithQuotaProject(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithUserForDomainWideDelegation(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.RequestAccessTokenAsync(System.Threading.CancellationToken)">
             <summary>
             Requests a new token as specified in 
@@ -1887,14 +2682,20 @@
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.GetAccessTokenForRequestAsync(System.String,System.Threading.CancellationToken)">
             <summary>
             Gets an access token to authorize a request.
-            If <paramref name="authUri"/> is set and this credential has no scopes associated
-            with it, a locally signed JWT access token for given <paramref name="authUri"/>
-            is returned. Otherwise, an OAuth2 access token obtained from token server will be returned.
+            If this credential has <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Scopes"/> associated, but <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UseJwtAccessWithScopes"/>
+            is false, an OAuth2 access token obtained from <see cref="P:Google.Apis.Auth.OAuth2.ServiceCredential.TokenServerUrl"/> will be returned.
+            Otherwise, a locally signed JWT will be returned. 
+            The signed JWT will contain a "scope" claim with the scopes in <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Scopes"/> if there are any,
+            otherwise it will contain an "aud" claim with <paramref name="authUri"/>.
             A cached token is used if possible and the token is only refreshed once it's close to its expiry.
             </summary>
-            <param name="authUri">The URI the returned token will grant access to.</param>
+            <param name="authUri">The URI the returned token will grant access to. 
+            Should be specified if no <see cref="P:Google.Apis.Auth.OAuth2.ServiceAccountCredential.Scopes"/> have been specified for the credential.</param>
             <param name="cancellationToken">The cancellation token.</param>
             <returns>The access token.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.GetOidcTokenAsync(Google.Apis.Auth.OAuth2.OidcTokenOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.CreateJwtAccessToken(System.String,System.DateTime,System.DateTime)">
             <summary>
@@ -1918,6 +2719,9 @@
             <param name="data">The data to hash and sign. Must not be null.</param>
             <returns>The base-64 encoded signature.</returns>
         </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.SignBlobAsync(System.Byte[],System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.CreateSerializedHeader">
             <summary>
             Creates a serialized header as specified in 
@@ -1929,21 +2733,6 @@
             Creates a claim set as specified in 
             https://developers.google.com/accounts/docs/OAuth2ServiceAccount#formingclaimset.
             </summary>
-        </member>
-        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UrlSafeBase64Encode(System.String)">
-            <summary>Encodes the provided UTF8 string into an URL safe base64 string.</summary>
-            <param name="value">Value to encode.</param>
-            <returns>The URL safe base64 string.</returns>
-        </member>
-        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UrlSafeBase64Encode(System.Byte[])">
-            <summary>Encodes the byte array into an URL safe base64 string.</summary>
-            <param name="bytes">Byte array to encode.</param>
-            <returns>The URL safe base64 string.</returns>
-        </member>
-        <member name="M:Google.Apis.Auth.OAuth2.ServiceAccountCredential.UrlSafeEncode(System.String)">
-            <summary>Encodes the base64 string into an URL safe string.</summary>
-            <param name="base64Value">The base64 string to make URL safe.</param>
-            <returns>The URL safe base64 string.</returns>
         </member>
         <member name="T:Google.Apis.Auth.OAuth2.ServiceCredential">
             <summary>
@@ -1995,6 +2784,19 @@
             implementation (using <see cref="T:Google.Apis.Http.BackOffHandler"/>).
             </summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.Initializer.QuotaProject">
+            <summary>
+            The ID of the project associated to this credential for the purposes of
+            quota calculation and billing. May be null.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.Initializer.HttpClientInitializers">
+            <summary>
+            Initializers to be sent to the <see cref="P:Google.Apis.Auth.OAuth2.ServiceCredential.Initializer.HttpClientFactory"/> to be set
+            on the <see cref="P:Google.Apis.Auth.OAuth2.ServiceCredential.HttpClient"/> that will be used by the credential to perform
+            token operations.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceCredential.Initializer.#ctor(System.String)">
             <summary>Constructs a new initializer using the given token server URL.</summary>
         </member>
@@ -2010,8 +2812,21 @@
         <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.HttpClient">
             <summary>Gets the HTTP client used to make authentication requests to the server.</summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.HttpClientInitializers">
+            <summary>
+            Initializers to be sent to the <see cref="P:Google.Apis.Auth.OAuth2.ServiceCredential.HttpClientFactory"/> to be set
+            on the <see cref="P:Google.Apis.Auth.OAuth2.ServiceCredential.HttpClient"/> that will be used by the credential to perform
+            token operations.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.Token">
             <summary>Gets the token response which contains the access token.</summary>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.ServiceCredential.QuotaProject">
+            <summary>
+            The ID of the project associated to this credential for the purposes of
+            quota calculation and billing. May be null.
+            </summary>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceCredential.#ctor(Google.Apis.Auth.OAuth2.ServiceCredential.Initializer)">
             <summary>Constructs a new service account credential using the given initializer.</summary>
@@ -2033,6 +2848,9 @@
             Gets an access token to authorize a request. If the existing token expires soon, try to refresh it first.
             <seealso cref="M:Google.Apis.Auth.OAuth2.ITokenAccess.GetAccessTokenForRequestAsync(System.String,System.Threading.CancellationToken)"/>
             </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.ServiceCredential.GetAccessTokenWithHeadersForRequestAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.ServiceCredential.RequestAccessTokenAsync(System.Threading.CancellationToken)">
             <summary>Requests a new token.</summary>
@@ -2071,11 +2889,40 @@
         <member name="P:Google.Apis.Auth.OAuth2.UserCredential.UserId">
             <summary>Gets the user identity.</summary>
         </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.QuotaProject">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#HasExplicitScopes">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#SupportsExplicitScopes">
+            <inheritdoc/>
+        </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.#ctor(Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow,System.String,Google.Apis.Auth.OAuth2.Responses.TokenResponse)">
             <summary>Constructs a new credential instance.</summary>
             <param name="flow">Authorization code flow.</param>
             <param name="userId">User identifier.</param>
             <param name="token">An initial token for the user.</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.#ctor(Google.Apis.Auth.OAuth2.Flows.IAuthorizationCodeFlow,System.String,Google.Apis.Auth.OAuth2.Responses.TokenResponse,System.String)">
+            <summary>Constructs a new credential instance.</summary>
+            <param name="flow">Authorization code flow.</param>
+            <param name="userId">User identifier.</param>
+            <param name="token">An initial token for the user.</param>
+            <param name="quotaProjectId">The ID of the project associated 
+            to this credential for the purposes of quota calculation and billing. Can be null.</param>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithQuotaProject(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#MaybeWithScopes(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithUserForDomainWideDelegation(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.Google#Apis#Auth#OAuth2#IGoogleCredential#WithHttpClientFactory(Google.Apis.Http.IHttpClientFactory)">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.InterceptAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
             <summary>
@@ -2091,6 +2938,9 @@
             <inheritdoc/>
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.GetAccessTokenForRequestAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Apis.Auth.OAuth2.UserCredential.GetAccessTokenWithHeadersForRequestAsync(System.String,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="M:Google.Apis.Auth.OAuth2.UserCredential.RefreshTokenAsync(System.Threading.CancellationToken)">
@@ -2185,6 +3035,128 @@
             The authorization state parameter which we got back from the authorization server.
             </param>
             <returns>Redirect URI to the address which initializes the authorization code flow.</returns>
+        </member>
+        <member name="T:Google.Apis.Auth.SignedToken`2">
+            <summary>
+            Represents a signed token, could be a <see cref="T:Google.Apis.Auth.JsonWebSignature"/> or
+            a <see cref="T:Google.Apis.Auth.GoogleJsonWebSignature"/> but this not only holds the payload
+            and headers, but also the signature itself. It's meant to help with signed
+            token verification and with obtaining token information.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Auth.SignedTokenVerificationOptions">
+            <summary>
+            Options to use when verifying signed JWTs.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.SignedTokenVerificationOptions.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:Google.Apis.Auth.SignedTokenVerificationOptions"/>
+            with default values for all options (or null for those whose default is unset).
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.SignedTokenVerificationOptions.#ctor(Google.Apis.Auth.SignedTokenVerificationOptions)">
+            <summary>
+            Creates a new instance of <see cref="T:Google.Apis.Auth.SignedTokenVerificationOptions"/>
+            by copying over all the values from <paramref name="other"/>.
+            </summary>
+            <param name="other">The option set to build this instance from.</param>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.TrustedAudiences">
+            <summary>
+            Trusted audiences for the token.
+            All the audiences the token is intended for should be in the
+            trusted audiences list.
+            If the list is empty, the token audience won't be verified.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.CertificatesUrl">
+            <summary>
+            The URL from where to obtain certificates from.
+            May be null, in which case, default certificate locations will be used:
+            <list type="bullet">
+            <item>For RS256 signed certificates, https://www.googleapis.com/oauth2/v3/certs will be used.</item>
+            <item>For ES256 signed certificates, https://www.gstatic.com/iap/verify/public_key-jwk will be used.</item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.TrustedIssuers">
+            <summary>
+            List of trusted issuers to verify the token issuer against.
+            The token issuer must be contained in this list.
+            May be null, in which case the token issuer won't be verified.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.ForceCertificateRefresh">
+            <summary>
+            Forces certificate refresh.
+            Internal to be used only for backward compatibility.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.IssuedAtClockTolerance">
+            <summary>
+            Clock tolerance for the issued-at check.
+            Causes a JWT to pass validation up to this duration before it is really valid;
+            this is to allow for possible local-client clock skew.
+            Defaults to zero.
+            Internal to be used only for backward compatibility.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.ExpiryClockTolerance">
+            <summary>
+            Clock tolerance for the expiration check.
+            Causes a JWT to pass validation up to this duration after it really expired;
+            this is to allow for possible local-client clock skew.
+            Defaults to zero.
+            Internal to be used only for backward compatibility.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.Clock">
+            <summary>
+            Clock for testing purposes. Defaults to <see cref="F:Google.Apis.Util.SystemClock.Default"/>.
+            Must not be null.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Auth.SignedTokenVerificationOptions.CertificateCache">
+            <summary>
+            CertificateCache for testing purposes.
+            If null, the true CertificateCache will be used.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.TaskExtensions.WithCancellationToken``1(System.Threading.Tasks.Task{``0},System.Threading.CancellationToken)">
+            <summary>
+            Returns a task which can be cancelled by the given cancellation token, but otherwise observes the original
+            task's state. This does *not* cancel any work that the original task was doing, and should be used carefully.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Auth.TokenEncodingHelpers.Base64UrlToString(System.String)">
+            <summary>
+            Decodes the provided URL safe base 64 string.
+            </summary>
+            <param name="base64Url">The URL safe base 64 string to decode.</param>
+            <returns>The UTF8 decoded string.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.TokenEncodingHelpers.Base64UrlDecode(System.String)">
+            <summary>
+            Decodes the provided URL safe base 64 string.
+            </summary>
+            <param name="base64Url">The URL safe base 64 string to decode.</param>
+            <returns>The UTF8 byte representation of the decoded string.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.TokenEncodingHelpers.UrlSafeBase64Encode(System.String)">
+            <summary>Encodes the provided UTF8 string into an URL safe base64 string.</summary>
+            <param name="value">Value to encode.</param>
+            <returns>The URL safe base64 string.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.TokenEncodingHelpers.UrlSafeBase64Encode(System.Byte[])">
+            <summary>Encodes the byte array into an URL safe base64 string.</summary>
+            <param name="bytes">Byte array to encode.</param>
+            <returns>The URL safe base64 string.</returns>
+        </member>
+        <member name="M:Google.Apis.Auth.TokenEncodingHelpers.UrlSafeEncode(System.String)">
+            <summary>Encodes the base64 string into an URL safe string.</summary>
+            <param name="base64Value">The base64 string to make URL safe.</param>
+            <returns>The URL safe base64 string.</returns>
         </member>
     </members>
 </doc>

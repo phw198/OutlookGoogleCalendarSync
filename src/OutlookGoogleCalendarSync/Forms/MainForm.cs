@@ -70,11 +70,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.SuspendLayout();
             #region Tooltips
             //set up tooltips for some controls
-            ToolTips = new ToolTip();
-            ToolTips.AutoPopDelay = 10000;
-            ToolTips.InitialDelay = 500;
-            ToolTips.ReshowDelay = 200;
-            ToolTips.ShowAlways = true;
+            ToolTips = new ToolTip {
+                AutoPopDelay = 10000,
+                InitialDelay = 500,
+                ReshowDelay = 200,
+                ShowAlways = true
+            };
 
             //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
@@ -663,9 +664,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                         SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
                     } else {
                         //Display the note for 3 hours after the quota has been renewed
-                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker();
-                        bwHideNote.WorkerReportsProgress = false;
-                        bwHideNote.WorkerSupportsCancellation = true;
+                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker {
+                            WorkerReportsProgress = false,
+                            WorkerSupportsCancellation = true
+                        };
                         bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
                             delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
                                 try {
@@ -745,33 +747,33 @@ namespace OutlookGoogleCalendarSync.Forms {
                         focusedPage = Forms.Main.Instance.tabApp.SelectedTab;
 
                         if (focusedPage == null) {
-                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
+                            Helper.OpenBrowser(Program.OgcsWebsite + "/guide");
                             return true;
                         }
 
                         if (focusedPage.Name == "tabPage_Sync")
-                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/sync");
+                            Helper.OpenBrowser(Program.OgcsWebsite + "/guide/sync");
 
                         else if (focusedPage.Name == "tabPage_Settings") {
                             if (this.tabAppSettings.SelectedTab.Name == "tabOutlook")
-                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/outlook");
+                                Helper.OpenBrowser(Program.OgcsWebsite + "/guide/outlook");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabGoogle")
-                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/google");
+                                Helper.OpenBrowser(Program.OgcsWebsite + "/guide/google");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabSyncOptions")
-                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/syncoptions");
+                                Helper.OpenBrowser(Program.OgcsWebsite + "/guide/syncoptions");
                             else if (this.tabAppSettings.SelectedTab.Name == "tabAppBehaviour")
-                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/appbehaviour");
+                                Helper.OpenBrowser(Program.OgcsWebsite + "/guide/appbehaviour");
                             else
-                                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/settings");
+                                Helper.OpenBrowser(Program.OgcsWebsite + "/guide/settings");
 
                         } else if (focusedPage.Name == "tabPage_Help")
-                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/help");
+                            Helper.OpenBrowser(Program.OgcsWebsite + "/guide/help");
 
                         else if (focusedPage.Name == "tabPage_About")
-                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/about");
+                            Helper.OpenBrowser(Program.OgcsWebsite + "/guide/about");
 
                         else
-                            System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
+                            Helper.OpenBrowser(Program.OgcsWebsite + "/guide");
 
                         return true; //This keystroke was handled, don't pass to the control with the focus
 
@@ -809,7 +811,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         void Save_Click(object sender, EventArgs e) {
             if (tbStartupDelay.Value != Settings.Instance.StartupDelay) {
                 Settings.Instance.StartupDelay = Convert.ToInt32(tbStartupDelay.Value);
-                if (cbStartOnStartup.Checked) Program.ManageStartupRegKey(true);
+                if (cbStartOnStartup.Checked) Program.ManageStartupRegKey();
             }
             bSave.Enabled = false;
             bSave.Text = "Saving...";
@@ -914,7 +916,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         OgcsMessageBox.Show("Before renewing, please ensure you don't already have an active recurring annual payment set up in PayPal :-)", 
                             "Recurring payment already configured?", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                    System.Diagnostics.Process.Start(tbSyncNote.Tag.ToString());
+                    Helper.OpenBrowser(tbSyncNote.Tag.ToString());
                 }
             }
         }
@@ -962,9 +964,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             e.Graphics.FillRectangle(Brushes.White, tabAppSettings_background);
 
             // Draw string and align the text.
-            StringFormat stringFlags = new StringFormat();
-            stringFlags.Alignment = StringAlignment.Far;
-            stringFlags.LineAlignment = StringAlignment.Center;
+            StringFormat stringFlags = new StringFormat {
+                Alignment = StringAlignment.Far,
+                LineAlignment = StringAlignment.Center
+            };
             g.DrawString(tabPage.Text, tabFont, textBrush, tabBounds, new StringFormat(stringFlags));
         }
         #region Outlook settings
@@ -1126,7 +1129,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void urlDateFormats_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://msdn.microsoft.com/en-us/library/az4se3k1%28v=vs.90%29.aspx");
+            Helper.OpenBrowser("https://msdn.microsoft.com/en-us/library/az4se3k1%28v=vs.90%29.aspx");
         }
         #endregion
         #endregion
@@ -1254,7 +1257,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void llAPIConsole_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start(llAPIConsole.Text);
+            Helper.OpenBrowser(llAPIConsole.Text);
         }
 
         private void tbClientID_TextChanged(object sender, EventArgs e) {
@@ -1811,9 +1814,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log4net.Appender.IAppender[] appenders = log.Logger.Repository.GetAppenders();
                 String logFileLocation = (((log4net.Appender.FileAppender)appenders[0]).File);
                 logFileLocation = logFileLocation.Substring(0, logFileLocation.LastIndexOf("\\"));
-                System.Diagnostics.Process.Start(@logFileLocation);
+                System.Diagnostics.Process.Start("explorer.exe", @logFileLocation);
             } catch {
-                System.Diagnostics.Process.Start(@Program.UserFilePath);
+                System.Diagnostics.Process.Start("explorer.exe", @Program.UserFilePath);
             }
         }
 
@@ -1861,7 +1864,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btCheckBrowserAgent_Click(object sender, EventArgs e) {
             try {
-                System.Diagnostics.Process.Start(Program.OgcsWebsite + "/browseruseragent");
+                Helper.OpenBrowser(Program.OgcsWebsite + "/browseruseragent");
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to check browser's user agent.", ex);
             }
@@ -1887,7 +1890,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void linkTShoot_issue_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues");
+            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues");
         }
 
         private void linkTShoot_logfile_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
@@ -1901,13 +1904,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (dgAbout[1, 1] == dgAbout.CurrentCell || dgAbout[1, 2] == dgAbout.CurrentCell) {
                     String path = dgAbout.CurrentCell.Value.ToString();
                     path = path.Substring(0, path.LastIndexOf("\\"));
-                    System.Diagnostics.Process.Start(path);
+                    System.Diagnostics.Process.Start("explorer.exe", path);
                 }
             } catch { }
         }
 
         private void lAboutURL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start(lAboutURL.Text);
+            Helper.OpenBrowser(lAboutURL.Text);
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {

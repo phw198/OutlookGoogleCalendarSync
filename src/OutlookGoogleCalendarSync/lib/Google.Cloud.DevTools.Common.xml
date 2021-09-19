@@ -1,0 +1,389 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Cloud.DevTools.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Cloud.DevTools.Source.V1.SourceContextReflection">
+            <summary>Holder for reflection information generated from google/devtools/source/v1/source_context.proto</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContextReflection.Descriptor">
+            <summary>File descriptor for google/devtools/source/v1/source_context.proto</summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.SourceContext">
+            <summary>
+            A SourceContext is a reference to a tree of files. A SourceContext together
+            with a path point to a unique revision of a single file or directory.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.CloudRepoFieldNumber">
+            <summary>Field number for the "cloud_repo" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.CloudRepo">
+            <summary>
+            A SourceContext referring to a revision in a cloud repo.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.CloudWorkspaceFieldNumber">
+            <summary>Field number for the "cloud_workspace" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.CloudWorkspace">
+            <summary>
+            A SourceContext referring to a snapshot in a cloud workspace.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.GerritFieldNumber">
+            <summary>Field number for the "gerrit" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.Gerrit">
+            <summary>
+            A SourceContext referring to a Gerrit project.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.GitFieldNumber">
+            <summary>Field number for the "git" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.Git">
+            <summary>
+            A SourceContext referring to any third party Git repo (e.g. GitHub).
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.SourceContext.ContextOneofCase">
+            <summary>Enum of possible cases for the "context" oneof.</summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.s_fileReadAllTextFunc">
+            <summary>
+            The func that reads file all text. Can be overridden by unit tests.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.s_fileExistsFunc">
+            <summary>
+            The func that tests if file exists. Can be overridden by unit tests.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.SourceContext.GitRevisionIdLogLabel">
+            <summary>
+            Gets the custom log label of Stackdriver Logging entry to set Git revision id.
+            When writing a Stackdriver Logging entry, the user should add this custom label,
+            with a value of the git revision id for the source code.
+            This enables Google Cloud Tools for Visual Studio to locate the source file revision
+            of the log entry. 
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.AppSourceContext">
+            <summary>
+            Gets the <seealso cref="T:Google.Cloud.DevTools.Source.V1.SourceContext"/> for the application.
+            </summary>
+            <exception cref="T:Google.Protobuf.InvalidProtocolBufferException">
+            The source context file is valid JSON, but is not valid as a SourceContext.
+            </exception>
+            <exception cref="T:Google.Protobuf.InvalidJsonException">
+            The source context file is not valid JSON.
+            </exception>
+            <exception cref="T:System.Security.SecurityException">
+            The application does not have permission to read the file.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The application is not authorized to access the file.
+            </exception>
+        </member>
+        <member name="M:Google.Cloud.DevTools.Source.V1.SourceContext.OpenParseFile">
+            <summary>
+            Open the source context file and parses it (as JSON) to a <seealso cref="T:Google.Cloud.DevTools.Source.V1.SourceContext"/> proto.
+            </summary>
+            <returns>
+            A <seealso cref="T:Google.Cloud.DevTools.Source.V1.SourceContext"/> object if the file is read and parsed successfully, or
+            null if there is an error reading/parsing the file or the source context file is not found.
+            </returns>
+        </member>
+        <member name="M:Google.Cloud.DevTools.Source.V1.SourceContext.Read">
+            <summary>
+            Finds the source context file and reads the content as a string.
+            </summary>
+        </member>
+        <member name="M:Google.Cloud.DevTools.Source.V1.SourceContext.ResetAppSourceContext">
+            <summary>
+            Intended to be used by unit test only.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.ExtendedSourceContext">
+            <summary>
+            An ExtendedSourceContext is a SourceContext combined with additional
+            details describing the context.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.ExtendedSourceContext.ContextFieldNumber">
+            <summary>Field number for the "context" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.ExtendedSourceContext.Context">
+            <summary>
+            Any source context.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.ExtendedSourceContext.LabelsFieldNumber">
+            <summary>Field number for the "labels" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.ExtendedSourceContext.Labels">
+            <summary>
+            Labels with user defined metadata.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.AliasContext">
+            <summary>
+            An alias to a repo revision.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.KindFieldNumber">
+            <summary>Field number for the "kind" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.AliasContext.Kind">
+            <summary>
+            The alias kind.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.AliasContext.Name">
+            <summary>
+            The alias name.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.AliasContext.Types">
+            <summary>Container for nested types declared in the AliasContext message type.</summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.AliasContext.Types.Kind">
+            <summary>
+            The type of an Alias.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.Types.Kind.Any">
+            <summary>
+            Do not use.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.Types.Kind.Fixed">
+            <summary>
+            Git tag
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.Types.Kind.Movable">
+            <summary>
+            Git branch
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.AliasContext.Types.Kind.Other">
+            <summary>
+            OTHER is used to specify non-standard aliases, those not of the kinds
+            above. For example, if a Git repo has a ref named "refs/foo/bar", it
+            is considered to be of kind OTHER.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext">
+            <summary>
+            A CloudRepoSourceContext denotes a particular revision in a cloud
+            repo (a repo hosted by the Google Cloud Platform).
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.RepoIdFieldNumber">
+            <summary>Field number for the "repo_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.RepoId">
+            <summary>
+            The ID of the repo.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.RevisionIdFieldNumber">
+            <summary>Field number for the "revision_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.RevisionId">
+            <summary>
+            A revision ID.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.AliasNameFieldNumber">
+            <summary>Field number for the "alias_name" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.AliasName">
+            <summary>
+            The name of an alias (branch, tag, etc.).
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.AliasContextFieldNumber">
+            <summary>Field number for the "alias_context" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.AliasContext">
+            <summary>
+            An alias, which may be a branch or tag.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.CloudRepoSourceContext.RevisionOneofCase">
+            <summary>Enum of possible cases for the "revision" oneof.</summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.CloudWorkspaceSourceContext">
+            <summary>
+            A CloudWorkspaceSourceContext denotes a workspace at a particular snapshot.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudWorkspaceSourceContext.WorkspaceIdFieldNumber">
+            <summary>Field number for the "workspace_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudWorkspaceSourceContext.WorkspaceId">
+            <summary>
+            The ID of the workspace.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudWorkspaceSourceContext.SnapshotIdFieldNumber">
+            <summary>Field number for the "snapshot_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudWorkspaceSourceContext.SnapshotId">
+            <summary>
+            The ID of the snapshot.
+            An empty snapshot_id refers to the most recent snapshot.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.GerritSourceContext">
+            <summary>
+            A SourceContext referring to a Gerrit project.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GerritSourceContext.HostUriFieldNumber">
+            <summary>Field number for the "host_uri" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GerritSourceContext.HostUri">
+            <summary>
+            The URI of a running Gerrit instance.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GerritSourceContext.GerritProjectFieldNumber">
+            <summary>Field number for the "gerrit_project" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GerritSourceContext.GerritProject">
+            <summary>
+            The full project name within the host. Projects may be nested, so
+            "project/subproject" is a valid project name.
+            The "repo name" is hostURI/project.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GerritSourceContext.RevisionIdFieldNumber">
+            <summary>Field number for the "revision_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GerritSourceContext.RevisionId">
+            <summary>
+            A revision (commit) ID.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GerritSourceContext.AliasNameFieldNumber">
+            <summary>Field number for the "alias_name" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GerritSourceContext.AliasName">
+            <summary>
+            The name of an alias (branch, tag, etc.).
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GerritSourceContext.AliasContextFieldNumber">
+            <summary>Field number for the "alias_context" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GerritSourceContext.AliasContext">
+            <summary>
+            An alias, which may be a branch or tag.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.GerritSourceContext.RevisionOneofCase">
+            <summary>Enum of possible cases for the "revision" oneof.</summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.GitSourceContext">
+            <summary>
+            A GitSourceContext denotes a particular revision in a third party Git
+            repository (e.g. GitHub).
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GitSourceContext.UrlFieldNumber">
+            <summary>Field number for the "url" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GitSourceContext.Url">
+            <summary>
+            Git repository URL.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.GitSourceContext.RevisionIdFieldNumber">
+            <summary>Field number for the "revision_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.GitSourceContext.RevisionId">
+            <summary>
+            Git commit hash.
+            required.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.RepoId">
+            <summary>
+            A unique identifier for a cloud repo.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.RepoId.ProjectRepoIdFieldNumber">
+            <summary>Field number for the "project_repo_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.RepoId.ProjectRepoId">
+            <summary>
+            A combination of a project ID and a repo name.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.RepoId.UidFieldNumber">
+            <summary>Field number for the "uid" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.RepoId.Uid">
+            <summary>
+            A server-assigned, globally unique identifier.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.RepoId.IdOneofCase">
+            <summary>Enum of possible cases for the "id" oneof.</summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.ProjectRepoId">
+            <summary>
+            Selects a repo using a Google Cloud Platform project ID
+            (e.g. winged-cargo-31) and a repo name within that project.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.ProjectRepoId.ProjectIdFieldNumber">
+            <summary>Field number for the "project_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.ProjectRepoId.ProjectId">
+            <summary>
+            The ID of the project.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.ProjectRepoId.RepoNameFieldNumber">
+            <summary>Field number for the "repo_name" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.ProjectRepoId.RepoName">
+            <summary>
+            The name of the repo. Leave empty for the default repo.
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.DevTools.Source.V1.CloudWorkspaceId">
+            <summary>
+            A CloudWorkspaceId is a unique identifier for a cloud workspace.
+            A cloud workspace is a place associated with a repo where modified files
+            can be stored before they are committed.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudWorkspaceId.RepoIdFieldNumber">
+            <summary>Field number for the "repo_id" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudWorkspaceId.RepoId">
+            <summary>
+            The ID of the repo containing the workspace.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.DevTools.Source.V1.CloudWorkspaceId.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.Cloud.DevTools.Source.V1.CloudWorkspaceId.Name">
+            <summary>
+            The unique name of the workspace within the repo.  This is the name
+            chosen by the client in the Source API's CreateWorkspace method.
+            </summary>
+        </member>
+    </members>
+</doc>

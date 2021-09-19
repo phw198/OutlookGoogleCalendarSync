@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync {
 
         private static int getErrorCode(System.Exception ex) {
             try {
-                var w32ex = ex as Win32Exception;
+                Win32Exception w32ex = ex as Win32Exception;
                 if (w32ex == null) {
                     w32ex = ex.InnerException as Win32Exception;
                 }

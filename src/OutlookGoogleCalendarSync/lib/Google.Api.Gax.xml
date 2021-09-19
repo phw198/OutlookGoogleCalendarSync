@@ -33,6 +33,73 @@
             The batch lifetime above which further processing of a batch will occur.
             </summary>
         </member>
+        <member name="T:Google.Api.Gax.CloudRunPlatformDetails">
+            <summary>
+            Google Cloud Run details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunPlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.CloudRunPlatformDetails"/> from the given metadata
+            and Cloud Run environment variables.
+            The metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.CloudRunPlatformDetails"/> if the metadata represents and GCE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunPlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructs details of a Google Cloud Run service revision.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be null.</param>
+            <param name="zone">The zone in which the service code is running. Must not be null.</param>
+            <param name="serviceName">The name of the service. Must not be null.</param>
+            <param name="revisionName">The name of the revision. Must not be null.</param>
+            <param name="configurationName">The name of the configuration. Must not be null.</param>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.ProjectId">
+            <summary>
+            The Project ID under which this service is running. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.Zone">
+            <summary>
+            The zone of the service, e.g. "us-central1-1". This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.Region">
+            <summary>
+            The region part of the zone. For example, a zone of "us-central1-1" has a region 
+            of "us-central1".
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.ServiceName">
+            <summary>
+            The name of the Cloud Run service being run. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.RevisionName">
+            <summary>
+            The name of the Cloud Run revision being run. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunPlatformDetails.ConfigurationName">
+            <summary>
+            The name of the Cloud Run configuration being run. This is never null.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunPlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
         <member name="T:Google.Api.Gax.EmptyDictionary`2">
             <summary>
             Provides cached instances of empty dictionaries.
@@ -151,6 +218,45 @@
             The maximum number of bytes that can be outstanding before data flow is restricted, or
             null if there is no specified limit.
             </summary>
+        </member>
+        <member name="T:Google.Api.Gax.GaePlatformDetails">
+            <summary>
+            Google App Engine details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google App Engine
+            </summary>
+            <param name="gcloudProject">The Project ID associated with your application,
+            which is visible in the Google Cloud Platform Console. Must not be <c>null</c>.</param>
+            <param name="gaeInstance">The name of the current instance. Must not be <c>null</c>.</param>
+            <param name="gaeService">The service name specified in your application's app.yaml file,
+            or if no service name is specified, it is set to default. Must not be <c>null</c>.</param>
+            <param name="gaeVersion">The version label of the current application. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.ProjectId">
+            <summary>
+            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.InstanceId">
+            <summary>
+            The name of the current instance.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.ServiceId">
+            <summary>
+            The service name specified in your application's app.yaml file, or if no service name is specified, it is set to default.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GaePlatformDetails.VersionId">
+            <summary>
+            The version label of the current application.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GaePlatformDetails.ToString">
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.GaxEqualityHelpers">
             <summary>
@@ -462,6 +568,211 @@
             </summary>
             <param name="value">The value to check.</param>
             <param name="paramName">The name of the parameter whose value is being tested.</param>
+        </member>
+        <member name="T:Google.Api.Gax.GcePlatformDetails">
+            <summary>
+            Google Compute Engine details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GcePlatformDetails"/> from the given metadata.
+            This metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GcePlatformDetails"/> if the metadata represents and GCE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Compute Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="instanceId">The instance ID. Must not be <c>null</c>.</param>
+            <param name="zoneName">The zone name. Must not be <c>null</c>.
+            If this value is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            then <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will return the <code>&lt;zone-name&gt;</code> part of this value.
+            If not, <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will throw <see cref="T:System.InvalidOperationException"/>.
+            If this value has been retrived from Google Compute Engine, the it's format will be the one
+            described above.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.ProjectId">
+            <summary>
+            The Project ID under which this GCE instance is running. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.InstanceId">
+            <summary>
+             The Instance ID of the GCE instance on which this is running. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.ZoneName">
+            <summary>
+            The zone where this GCE instance is running. This is never null.
+            This will be in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            id the value has been retrieved from Google Compute Engine.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GcePlatformDetails.Location">
+            <summary>
+            The zone name where this GCE instance is running.
+            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
+            this value will be the <code>&lt;zone-name&gt;</code> part in <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/>.
+            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in a different format then this getting the value of this property will
+            throw <see cref="T:System.InvalidOperationException"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GcePlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.GkePlatformDetails">
+            <summary>
+            Google Container (Kubernetes) Engine details.
+            </summary>
+        </member>
+        <member name="T:Google.Api.Gax.GkePlatformDetails.KubernetesData">
+            <summary>
+            Data from the Kubernetes API
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodName">
+            <summary>
+            The Kubernetes pod name
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceName">
+            <summary>
+            The Kubernetes namespace name
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceJson">
+            <summary>
+            JSON from https://kubernetes/api/v1/namespaces/{namespace}
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodJson">
+            <summary>
+            JSON from https://kubernetes/api/v1/namespaces/{namespace}/pods/{pod-name}
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.MountInfo">
+            <summary>
+            Lines from /proc/self/mountinfo
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata.
+            This metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String,Google.Api.Gax.GkePlatformDetails.KubernetesData)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata and kubernetes data.
+            The metadata is normally retrieved from the GCE metadata server.
+            The kubernetes data is normally retrieved using the kubernetes API.
+            This method attempts to return as much information as it is present on <paramref name="metadataJson"/>
+            and <paramref name="kubernetesData"/> but will return <see cref="F:System.String.Empty"/> for <see cref="T:Google.Api.Gax.GkePlatformDetails"/>
+            properties whose corresponding information is corrupt or missing in <paramref name="metadataJson"/>
+            or <paramref name="kubernetesData"/>.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <param name="kubernetesData">Kubernetes data, normally retrieved using the kubernetes API.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Container (Kubernetes) Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
+            <param name="location">The location. Must not be <c>null</c>.</param>
+            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct details of Google Container (Kubernetes) Engine
+            </summary>
+            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
+            <param name="location">The location. Must not be <c>null</c>.</param>
+            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
+            <param name="instanceId">The GCE instance ID. Must not be <c>null</c>.</param>
+            <param name="zone">The zone. Must not be <c>null</c>.</param>
+            <param name="namespaceId">The kubernetes namespace ID. Must not be <c>null</c>.</param>
+            <param name="podId">The kubernetes pod ID. Must not be <c>null</c>.</param>
+            <param name="containerName">The container name. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ProjectId">
+            <summary>
+            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ClusterName">
+            <summary>
+            The cluster name, which is visible in the Google Cloud Platform Console.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.Location">
+            <summary>
+            The cluster location, which is visible in the Google Cloud Platform Console.
+            This is equivalent to the value of the <code>&lt;zone-name&gt;</code> part in
+            <see cref="P:Google.Api.Gax.GkePlatformDetails.Zone"/>
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.HostName">
+            <summary>
+            The hostname of this instance.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.InstanceId">
+            <summary>
+            The GCE instance this container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.Zone">
+            <summary>
+            The GCE zone in which the instance is running.
+            This is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.NamespaceId">
+            <summary>
+            The cluster namespace the container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.PodId">
+            <summary>
+            The pos the container is running in.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ContainerName">
+            <summary>
+            The name of the container.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.GkePlatformDetails.ToString">
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.IClock">
             <summary>
@@ -1124,275 +1435,6 @@
             null for unnamed wildcards.
             </summary>
         </member>
-        <member name="T:Google.Api.Gax.PlatformType">
-            <summary>
-            Execution platform type.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.PlatformType.Unknown">
-            <summary>
-            Unknown execution platform.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.PlatformType.Gce">
-            <summary>
-            Execution platform is Google Compute Engine.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.PlatformType.Gae">
-            <summary>
-            Execution platform is Google App Engine.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.PlatformType.Gke">
-            <summary>
-            Execution platform is Google Container Engine (Kubernetes).
-            </summary>
-        </member>
-        <member name="T:Google.Api.Gax.GcePlatformDetails">
-            <summary>
-            Google Compute Engine details.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GcePlatformDetails.TryLoad(System.String)">
-            <summary>
-            Builds a <see cref="T:Google.Api.Gax.GcePlatformDetails"/> from the given metadata.
-            This metadata is normally retrieved from the GCE metadata server.
-            </summary>
-            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
-            Must not be <c>null</c>.</param>
-            <returns>A populated <see cref="T:Google.Api.Gax.GcePlatformDetails"/> if the metadata represents and GCE instance;
-            <c>null</c> otherwise.</returns>
-        </member>
-        <member name="M:Google.Api.Gax.GcePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
-            <summary>
-            Construct details of Google Compute Engine
-            </summary>
-            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
-            <param name="instanceId">The instance ID. Must not be <c>null</c>.</param>
-            <param name="zoneName">The zone name. Must not be <c>null</c>.
-            If this value is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
-            then <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will return the <code>&lt;zone-name&gt;</code> part of this value.
-            If not, <see cref="P:Google.Api.Gax.GcePlatformDetails.Location"/> will throw <see cref="T:System.InvalidOperationException"/>.
-            If this value has been retrived from Google Compute Engine, the it's format will be the one
-            described above.</param>
-        </member>
-        <member name="P:Google.Api.Gax.GcePlatformDetails.MetadataJson">
-            <summary>
-            The full JSON string retrieved from the metadata server.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GcePlatformDetails.ProjectId">
-            <summary>
-            The Project ID under which this GCE instance is running.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GcePlatformDetails.InstanceId">
-            <summary>
-             The Instance ID of the GCE instance on which this is running.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GcePlatformDetails.ZoneName">
-            <summary>
-            The zone where this GCE instance is running.
-            This will be in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
-            id the value has been retrieved from Google Compute Engine.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GcePlatformDetails.Location">
-            <summary>
-            The zone name where this GCE instance is running.
-            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>
-            this value will be the <code>&lt;zone-name&gt;</code> part in <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/>.
-            If <see cref="P:Google.Api.Gax.GcePlatformDetails.ZoneName"/> is in a different format then this getting the value of this property will
-            throw <see cref="T:System.InvalidOperationException"/>.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GcePlatformDetails.ToString">
-            <inheritdoc/>
-        </member>
-        <member name="T:Google.Api.Gax.GaePlatformDetails">
-            <summary>
-            Google App Engine details.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GaePlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
-            <summary>
-            Construct details of Google App Engine
-            </summary>
-            <param name="gcloudProject">The Project ID associated with your application,
-            which is visible in the Google Cloud Platform Console. Must not be <c>null</c>.</param>
-            <param name="gaeInstance">The name of the current instance. Must not be <c>null</c>.</param>
-            <param name="gaeService">The service name specified in your application's app.yaml file,
-            or if no service name is specified, it is set to default. Must not be <c>null</c>.</param>
-            <param name="gaeVersion">The version label of the current application. Must not be <c>null</c>.</param>
-        </member>
-        <member name="P:Google.Api.Gax.GaePlatformDetails.ProjectId">
-            <summary>
-            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GaePlatformDetails.InstanceId">
-            <summary>
-            The name of the current instance.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GaePlatformDetails.ServiceId">
-            <summary>
-            The service name specified in your application's app.yaml file, or if no service name is specified, it is set to default.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GaePlatformDetails.VersionId">
-            <summary>
-            The version label of the current application.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GaePlatformDetails.ToString">
-            <inheritdoc/>
-        </member>
-        <member name="T:Google.Api.Gax.GkePlatformDetails">
-            <summary>
-            Google Container (Kubernetes) Engine details.
-            </summary>
-        </member>
-        <member name="T:Google.Api.Gax.GkePlatformDetails.KubernetesData">
-            <summary>
-            Data from the Kubernetes API
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodName">
-            <summary>
-            The Kubernetes pod name
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceName">
-            <summary>
-            The Kubernetes namespace name
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.NamespaceJson">
-            <summary>
-            JSON from https://kubernetes/api/v1/namespaces/{namespace}
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.PodJson">
-            <summary>
-            JSON from https://kubernetes/api/v1/namespaces/{namespace}/pods/{pod-name}
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.KubernetesData.MountInfo">
-            <summary>
-            Lines from /proc/self/mountinfo
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String)">
-            <summary>
-            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata.
-            This metadata is normally retrieved from the GCE metadata server.
-            </summary>
-            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.</param>
-            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
-            <c>null</c> otherwise.</returns>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String,Google.Api.Gax.GkePlatformDetails.KubernetesData)">
-            <summary>
-            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata and kubernetes data.
-            The metadata is normally retrieved from the GCE metadata server.
-            The kubernetes data is normally retrieved using the kubernetes API.
-            This method attempts to return as much information as it is present on <paramref name="metadataJson"/>
-            and <paramref name="kubernetesData"/> but will return <see cref="F:System.String.Empty"/> for <see cref="T:Google.Api.Gax.GkePlatformDetails"/>
-            properties whose corresponding information is corrupt or missing in <paramref name="metadataJson"/>
-            or <paramref name="kubernetesData"/>.
-            </summary>
-            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
-            Must not be <c>null</c>.</param>
-            <param name="kubernetesData">Kubernetes data, normally retrieved using the kubernetes API.
-            Must not be <c>null</c>.</param>
-            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
-            <c>null</c> otherwise.</returns>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Construct details of Google Container (Kubernetes) Engine
-            </summary>
-            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
-            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
-            <param name="location">The location. Must not be <c>null</c>.</param>
-            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Construct details of Google Container (Kubernetes) Engine
-            </summary>
-            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
-            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
-            <param name="location">The location. Must not be <c>null</c>.</param>
-            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
-            <param name="instanceId">The GCE instance ID. Must not be <c>null</c>.</param>
-            <param name="zone">The zone. Must not be <c>null</c>.</param>
-            <param name="namespaceId">The kubernetes namespace ID. Must not be <c>null</c>.</param>
-            <param name="podId">The kubernetes pod ID. Must not be <c>null</c>.</param>
-            <param name="containerName">The container name. Must not be <c>null</c>.</param>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.MetadataJson">
-            <summary>
-            The full JSON string retrieved from the metadata server.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.ProjectId">
-            <summary>
-            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.ClusterName">
-            <summary>
-            The cluster name, which is visible in the Google Cloud Platform Console.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.Location">
-            <summary>
-            The cluster location, which is visible in the Google Cloud Platform Console.
-            This is equivalent to the value of the <code>&lt;zone-name&gt;</code> part in
-            <see cref="P:Google.Api.Gax.GkePlatformDetails.Zone"/>
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.HostName">
-            <summary>
-            The hostname of this instance.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.InstanceId">
-            <summary>
-            The GCE instance this container is running in.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.Zone">
-            <summary>
-            The GCE zone in which the instance is running.
-            This is in the format <code>projects/&lt;project-number&gt;/zones/&lt;zone-name&gt;</code>.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.NamespaceId">
-            <summary>
-            The cluster namespace the container is running in.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.PodId">
-            <summary>
-            The pos the container is running in.
-            </summary>
-        </member>
-        <member name="P:Google.Api.Gax.GkePlatformDetails.ContainerName">
-            <summary>
-            The name of the container.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.ToString">
-            <inheritdoc/>
-        </member>
         <member name="T:Google.Api.Gax.Platform">
             <summary>
             Information about the current execution platform.
@@ -1435,6 +1477,12 @@
             </summary>
             <param name="gkeDetails">Details of Google Container (Kubernetes) Engine.</param>
         </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor(Google.Api.Gax.CloudRunPlatformDetails)">
+            <summary>
+            Construct with details of Google Cloud Run.
+            </summary>
+            <param name="cloudRunDetails">Details of Google Cloud Run.</param>
+        </member>
         <member name="P:Google.Api.Gax.Platform.GaeDetails">
             <summary>
             Google App Engine (GAE) platform details.
@@ -1453,6 +1501,12 @@
             <c>null</c> if not executing on GKE. 
             </summary>
         </member>
+        <member name="P:Google.Api.Gax.Platform.CloudRunDetails">
+            <summary>
+            Google Cloud Run platform details.
+            <c>null</c> if not executing on Google Cloud Run. 
+            </summary>
+        </member>
         <member name="P:Google.Api.Gax.Platform.Type">
             <summary>
             The current execution platform.
@@ -1466,6 +1520,36 @@
         </member>
         <member name="M:Google.Api.Gax.Platform.ToString">
             <inheritdoc/>
+        </member>
+        <member name="T:Google.Api.Gax.PlatformType">
+            <summary>
+            Execution platform type.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Unknown">
+            <summary>
+            Unknown execution platform.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gce">
+            <summary>
+            Execution platform is Google Compute Engine.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gae">
+            <summary>
+            Execution platform is Google App Engine.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.Gke">
+            <summary>
+            Execution platform is Google Container Engine (Kubernetes).
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.CloudRun">
+            <summary>
+            Execution platform is Google Cloud Run.
+            </summary>
         </member>
         <member name="T:Google.Api.Gax.Polling">
             <summary>
@@ -1673,25 +1757,30 @@
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Parse(System.String)">
             <summary>
-            Parses the given billing account resource name in string form into a new
+            Parses the given billing resource name in string form into a new
             <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
             </summary>
-            <param name="BillingAccountName">The billing account resource name in string form. Must not be <c>null</c>.</param>
+            <param name="BillingAccountName">The billing resource name in string form. Must not be <c>null</c>.</param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.TryParse(System.String,Google.Api.Gax.ResourceNames.BillingAccountName@)">
             <summary>
-            Tries to parse the given billing account resource name in string form into a new
+            Tries to parse the given billing resource name in string form into a new
             <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
             </summary>
             <remarks>
             This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="BillingAccountName"/> is null,
             as this would usually indicate a programming error rather than a data error.
             </remarks>
-            <param name="BillingAccountName">The billing account resource name in string form. Must not be <c>null</c>.</param>
+            <param name="BillingAccountName">The billing resource name in string form. Must not be <c>null</c>.</param>
             <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>,
             or <c>null</c> if parsing fails.</param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Format(System.String)">
+            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>.</summary>
+            <param name="billingAccountId">The <c>billingAccount</c> ID. Must not be <c>null</c>.</param>
+            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.#ctor(System.String)">
             <summary>
@@ -1755,6 +1844,11 @@
             or <c>null</c> if parsing fails.</param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Format(System.String)">
+            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>.</summary>
+            <param name="folderId">The <c>folder</c> ID. Must not be <c>null</c>.</param>
+            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>.</returns>
+        </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.#ctor(System.String)">
             <summary>
             Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> resource name class
@@ -1788,6 +1882,80 @@
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.op_Inequality(Google.Api.Gax.ResourceNames.FolderName,Google.Api.Gax.ResourceNames.FolderName)">
             <inheritdoc />
         </member>
+        <member name="T:Google.Api.Gax.ResourceNames.LocationName">
+            <summary>
+            Resource name for the 'location' resource which is widespread across Google Cloud Platform.
+            While most resource names are generated on a per-API basis, many APIs use a location resource, and it's
+            useful to be able to pass values from one API to another.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Parse(System.String)">
+            <summary>
+            Parses the given location resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.
+            </summary>
+            <param name="locationName">The location resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.TryParse(System.String,Google.Api.Gax.ResourceNames.LocationName@)">
+            <summary>
+            Tries to parse the given location resource name in string form into a new
+            <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.
+            </summary>
+            <remarks>
+            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="locationName"/> is null,
+            as this would usually indicate a programming error rather than a data error.
+            </remarks>
+            <param name="locationName">The location resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>,
+            or <c>null</c> if parsing fails.</param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Format(System.String,System.String)">
+            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>.</summary>
+            <param name="projectId">The <c>project</c> ID. Must not be <c>null</c>.</param>
+            <param name="locationId">The <c>location</c> ID. Must not be <c>null</c>.</param>
+            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.#ctor(System.String,System.String)">
+            <summary>
+            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> resource name class
+            from its component parts.
+            </summary>
+            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="locationId">The location ID. Must not be <c>null</c>.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.ProjectId">
+            <summary>
+            The project ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.LocationId">
+            <summary>
+            The location ID. Never <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Equals(Google.Api.Gax.ResourceNames.LocationName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.op_Equality(Google.Api.Gax.ResourceNames.LocationName,Google.Api.Gax.ResourceNames.LocationName)">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.op_Inequality(Google.Api.Gax.ResourceNames.LocationName,Google.Api.Gax.ResourceNames.LocationName)">
+            <inheritdoc />
+        </member>
         <member name="T:Google.Api.Gax.ResourceNames.OrganizationName">
             <summary>
             Resource name for the 'organization' resource which is widespread across Google Cloud Platform.
@@ -1816,6 +1984,11 @@
             <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>,
             or <c>null</c> if parsing fails.</param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Format(System.String)">
+            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>.</summary>
+            <param name="organizationId">The <c>organization</c> ID. Must not be <c>null</c>.</param>
+            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.#ctor(System.String)">
             <summary>
@@ -1878,6 +2051,11 @@
             <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>,
             or <c>null</c> if parsing fails.</param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Format(System.String)">
+            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>.</summary>
+            <param name="projectId">The <c>project</c> ID. Must not be <c>null</c>.</param>
+            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.#ctor(System.String)">
             <summary>
