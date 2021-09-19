@@ -45,7 +45,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             OutlookRetail = 26,
             Outlook2019Retail = 27,
             Outlook2019Volume = 28,
-            Personal2019Retail = 29
+            Outlook2021Volume = 29,
+            Personal2019Retail = 30,
+            Standard2019Volume = 31,
+            Standard2021Volume = 32,
+            ProPlus2019Volume = 33,
+            ProPlus2021Volume = 34
         }
 
         private const Boolean testing2003 = false;
