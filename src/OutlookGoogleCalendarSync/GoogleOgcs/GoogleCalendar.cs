@@ -1094,30 +1094,34 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //This includes the private ExtendedProperties, containing the Outlook IDs - not good, these need to be detected and removed
 
             log.Debug("Checking for Events that have been duplicated.");
-            
-            List<Event> duplicateCheck = google.Where(w => w.ExtendedProperties != null && w.ExtendedProperties.Private__ != null).ToList();
-            duplicateCheck = duplicateCheck.
-                GroupBy(e => new { e.Created, oEntryId = e.ExtendedProperties?.Private__["outlook_EntryID"] }).
-                Where(g => g.Count() > 1).
-                SelectMany(x => x).ToList();
-            if (duplicateCheck.Count() == 0) return;
-            
-            log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
-            duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":"+ (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
-            //Skip the first one, the original 
-            DateTime? lastSeenDuplicateSet = null;
-            for (int g = 0; g < duplicateCheck.Count(); g++) {
-                Event ev = duplicateCheck[g];
-                if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
+
+            try {
+                List<Event> duplicateCheck = google.Where(w => CustomProperty.Exists(w, CustomProperty.MetadataId.oEntryId)).ToList();
+                duplicateCheck = duplicateCheck.
+                    GroupBy(e => new { e.Created, oEntryId = CustomProperty.Get(e, CustomProperty.MetadataId.oEntryId) }).
+                    Where(g => g.Count() > 1).
+                    SelectMany(x => x).ToList();
+                if (duplicateCheck.Count() == 0) return;
+
+                log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
+                duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":" + (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
+                //Skip the first one, the original 
+                DateTime? lastSeenDuplicateSet = null;
+                for (int g = 0; g < duplicateCheck.Count(); g++) {
+                    Event ev = duplicateCheck[g];
+                    if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
+                        lastSeenDuplicateSet = ev.Created;
+                        continue;
+                    }
+                    log.Info("Cleaning duplicate metadata from: " + GetEventSummary(ev));
+                    google.Remove(ev);
+                    CustomProperty.RemoveAll(ref ev);
+                    this.UpdateCalendarEntry_save(ref ev);
+                    google.Add(ev);
                     lastSeenDuplicateSet = ev.Created;
-                    continue;
                 }
-                log.Info("Cleaning duplicate metadata from: " + GetEventSummary(ev));
-                google.Remove(ev);
-                CustomProperty.RemoveAll(ref ev);
-                this.UpdateCalendarEntry_save(ref ev);
-                google.Add(ev);
-                lastSeenDuplicateSet = ev.Created;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
             }
         }
 
