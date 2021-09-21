@@ -11,6 +11,32 @@ p {
 
 # Release Notes
 
+## v2.9.1.0 - Alpha
+
+:high_brightness: **Enhancements**
+- More reliable method to open browser
+- Option to show and sync with hidden Google calendars
+- Update of third-party DLL files
+
+:lady_beetle: **Bugfix**
+- Don't alert for alpha releases if user not opted in
+- Correctly sync Google "this and following events" recurring event changes
+- Fix end time of all day recurring items in non-GMT timezone
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.9.0.0 - Beta
 
 :high_brightness: **Enhancements** rolled in from Alpha releases
@@ -52,7 +78,7 @@ p {
 - Advanced hidden configuration option to disconnect from Outlook between syncs
 - For Push Sync, check Outlook is actually running
   
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Hide quota exhausted notification after correct amount of time
 - Get new Google access token if expiring imminently
 - Ensure milestone window is always responsive
@@ -83,7 +109,7 @@ p {
 - Don't set Outlook category to default Google calendar colour (unless mapped)
 - Retrieve all Google calendars, not just first 30
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Outlook 2003: Retain recurring items starting before, but spanning sync date range
 - Cater for nothing being returned when getting Google item recurrences
 - Handle Google error code 410 [Gone]
@@ -119,7 +145,7 @@ p {
 - Log Google 500 errors as `FAIL` to avoid error reporting
 - Further masking of Outlook profile email address in log file
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Quota limit error updated to match changed Google error
 - Reclaim calendar entries in both Google _and_ Outlook at start of sync
 - Proper calculation of recurrence end time from organiser's local time
@@ -150,7 +176,7 @@ p {
 - Detect movement of Outlook appointments into/out of sync window bounds
 - Improved detection of Outlook versions after 2016
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Broken upgrade mechanism (fixed from this release onwards)
 - Save timezone mappings on exit of config screen
 - Issue reading ErrorReporting.json file when starting multiple instances of OGCS
@@ -178,7 +204,7 @@ p {
 - Provision for custom timezone mapping when required for meeting organiser in different timezone
 - Handle when corporate policy/AV blocks access to current user's name in Outlook
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Handle mailboxes that have no Deleted Items folder
 - Check configured Outlook mailbox and calendar are stil available on startup
 - Properly detect sync direction when forcing attributes in target calendar
@@ -214,7 +240,7 @@ p {
 - Improved feedback on API quota exhausted
 - Ability to disable telemetry
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Convert recurrence end date to local time
 - Error reporting DLLs updated
 
@@ -241,7 +267,7 @@ p {
 - Display custom Google calendar name, if set
 - Third-party DLLs updated
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Better error handling if Outlook closed mid-sync
 - Fix missing last occurrence in Google for recurring series from Outlook
 - Report correct COM error code and redirect to wiki for published solution
@@ -300,7 +326,7 @@ p {
 - Silently fail if check for OGCS update errors.
 - Use the OGCS logo for system tray notifications
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Copy and paste / click and drag Outlook appointment causing null references
 - Check for custom Google reminders before setting default
 - Improved handling of Exchange errors when obtaining attendee mail addresses
@@ -315,7 +341,7 @@ p {
 - Faster matching of calendar items
 - New advanced setting to extirpate all OGCS custom properties
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Don't try and update master Event custom attributes
 - Only compare colour/category if set to be synced
 - Email address cloaking
@@ -328,7 +354,7 @@ p {
 - Option to configure the browser's User Agent in the GUI
 - Options to use (or not) Outlook/Google calendar defaults for reminders
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Persist a push sync through a restart of Outlook
 - Persist selection of correct calendar when alternate mailbox is temporarily unavailable
 - Select correct alternate mailbox on startup
@@ -345,7 +371,7 @@ p {
 - Nicer output when authenticating with Google and reclaiming items
 - Show authorised Google account on Settings tab
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Fixed XML namespace for obfuscation sync direction
 - Stopped error reporting obstructing Squirrel events
 - Fixed crash on OGCS automated startup 
@@ -359,7 +385,7 @@ p {
 - G->O: Allow synced items to be assigned specific category (not just colour)
 - Added option for users to automatically feedback errors
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Google token expiry not calculated in UTC
 - Regression: Properly release Outlook if no Outlook GUI
 
@@ -377,7 +403,7 @@ p {
 - General error handling improvements
 - First code-signed release of OGCS! (Should reduce and finally eliminate anti-virus false positives)
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Cope with copy and paste of Outlook appointments
 - Stop Push syncs continually firing
 
@@ -389,7 +415,7 @@ p {
 - Command line parameters to support multi-instance OGCS
 - Detect Windows system timezone changes
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Only redirect to wiki once per COM error
 - Turn on support for TLS1.1 and 1.2 (GitHub removed support for TLS1.0)
 
@@ -401,7 +427,7 @@ p {
 - OGCS stays responsive whilst Oauth process takes place; can be cancelled
 - Code refactor to better prepare for future developments
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Translate annual recurrences into 12 monthly recurrences (Google apps work with this better)
 - Disconnection of Google account
 - Increase tolerance of when to compare recurring series exceptions
@@ -444,7 +470,7 @@ p {
 - Don't block subsequent scheduled syncs if network drop out caused transient failure.  
 - Continue switch to MD5.  
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Updating weekday recurrence interval back into Outlook.  
 - Remember obfuscation sync direction.  
 - Sync freezes if OGCS starts in notification tray.  
@@ -455,7 +481,7 @@ p {
 - Sync output now HTML, not plain text!
 - Change Sync button text when shift-clicking.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Updating weekday recurrence interval back into Outlook.
 
 ## v2.6.4.0 - Alpha
@@ -467,7 +493,7 @@ p {
 - Remove user configuration files upon uninstall
 - Better calendar security
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Forgetting obfuscation rules
 - Filter on items with multiple categories may not work
 
@@ -483,7 +509,7 @@ p {
 **Breaking Change**
 - If items were already configured to sync as "Private", this may need reconfiguring.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Forgetting `Add attendees` setting
 - Give user feedback when manually checking for update
 
@@ -496,7 +522,7 @@ p {
 - Automatically invert category selection when changing between include/exclude.
 - New pseudo Outlook category "No category assigned".
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Detect copied Outlook items and remove OGCS metadata from copy.
 - Handle failure to update notification tray icon if not present.
 
@@ -550,7 +576,7 @@ p {
 - Push users to wiki for COM errors for known fixes.
 - Updated bit.ly links to point to GitHub.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Handle Outlook calendars with the same name in a mailbox.
 - Only set annual recurrence if INTERVAL > 1
 - Subject obfuscation failing
@@ -563,7 +589,7 @@ p {
 - Added animated logo during installation.
 - Added logo to Control Panel > Uninstall Programs.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - No log file for startup on login / Squirrel start.
 - Set a default sync direction on virgin install.
 
@@ -576,7 +602,7 @@ p {
 - All references to CodePlex removed.
 - Improved management of API keys.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Continual retry to delete recurring all-day events
 - Failure to retrieve master for Google recurring event.
 - Saves failing to Google after adding calendar ID to event.
@@ -637,7 +663,7 @@ p {
 :spiral_notepad: Final .NET Framework v3.5 release.  
 <br/><br/>
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Could not access settings.xml file concurrently.
 
 ## v2.3.5.0 - Alpha
@@ -649,7 +675,7 @@ p {
 - Detect if OGCS and Outlook are running at different security elevations (1 as Administrator)
 - Alexa timezone issue backported to Outlook 2003.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Handle Outlook recipients with no AddressEntry.Type
 - Hiding of splash screen.
 - Recurrence for "last day of month" O->G
@@ -675,7 +701,7 @@ p {
 - Improved use of HRresult error codes and hex values.
 - Improved reporting of calendar items which could not be created/updated in Google.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Handle Outlook recipients with no valid email better.
 - Handle regex against appointments with null Subjects
 - Subscription expiry/rollover
@@ -687,7 +713,7 @@ p {
 - Allow single quotes at start/end of email address local-part
 - Log exception type and code number for errors (need to remove reliance on English error message text)
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Skip corrupted items and inform user of the problematic item(s)
 - Skip recurring iCalendar Events that have no RRULE - Outlook does not support them.
 - Handle non-Exchange recipients with no AddressEntry.
@@ -706,7 +732,7 @@ p {
 - Updated NodaTime.dll
 - Get exact error message when failed to retrieve refresh token & improved advice.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Sync recurring annual if month is within sync range
 - Regression - don't always do dummy update for Appointments
 
@@ -742,7 +768,7 @@ p {
 - Improved instantiation of Outlook if not already running.
 - Handle empty settings.xml file.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Error updating recurrence exception in Google.
 
 ## v2.2.4.0 - Alpha
@@ -752,7 +778,7 @@ p {
 - Proxy improvements.
 - Rework of COM handling for Outlook objects.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Sync reminders setting saves correctly.
 - Sync "no end date" recurring attribute.
 - Caching problems with Outlook items.
@@ -763,7 +789,7 @@ p {
 - Ability to filter O categories.
 - Give hint the sync summary is NOT the logfile.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Remember "custom O date format" setting.
 - Remember "description O->G only" setting.
 - Properly release O recurrence COM references.
@@ -780,7 +806,7 @@ p {
 - Improved handling of old IANA timezones (eg. Calcutta/Kolkata)
 - Improved display at >100% display magnification
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Don't throw away Event after updating it
 - Don't show program in alt-tab when minimised to task tray
 - Handle pseudo all-day events (midnight to midnight times)
@@ -791,7 +817,7 @@ p {
 - Improved exportToCSV functions.
 - Shift-click Sync button to force a compare of all items (not just if recently modified).
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Retrieve original yearly recurrence outside of sync range.
 - Recalculate sync range on every sync, not just load/settings update.
 - G->O for recurrence exception not syncing.
@@ -833,7 +859,7 @@ p {
 - Added option to use Google calendar default notification.
 - "About" tab includes config file location.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Select correct Outlook calendar on reconnect (x-thread compliant).
 - Ensure we have an Google username before subscribing.
 - Make splash screen disappear no matter initialisation state.
@@ -846,7 +872,7 @@ p {
 - Sync occurrences attribute of recurrence.
 - Ignore Google events without basic attributes (eg start date)
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Don't keep recreating startup short cut.
 - Failure to obtain recipient email address.
 - Handle transient "401 Unauthorised" API errors.
@@ -861,7 +887,7 @@ p {
 - Handle MeetingItems as well as AppointmentItems.
 - Discard items without a date range.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Allow recipient emails to start with underscore.
 - Error when no subscribers.
 - Remove single quote marks around an email address.
@@ -875,7 +901,7 @@ p {
 - Required permissions now include Google user ID.
 - "About" tab now shows location the executable is running from.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Handle appointments with no end date.
 - Interval of >1 hour not working properly.
 - Merging items G->O not reliable.
@@ -888,7 +914,7 @@ p {
 - Added links to TroubleShooting Help section.
 - Minimum of 10 mins sync interval.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Force sync of exceptions when creating recurring event.
 - Google signature when event has no start/end time.
 - Prevent concurrent syncs (push + manual).
@@ -918,7 +944,7 @@ p {
 - Proper API backoff when limit hit.
 - Simplified and more efficient mechanism to reprocess Events affected by attendee API limit.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Outlook date format initialisation.
 - Inadvertently making non-recurring events recurring.
 - Handle empty timezone strings.
@@ -926,7 +952,7 @@ p {
 - Repeated processing of affected Events while limit still in effect.
 
 ## v2.0.5.0 - Alpha
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Reliably get Appointment ID across all versions of Outlook
 - Custom code to determine if recurring Outlook exception has been deleted (unreliable API)
 
@@ -942,7 +968,7 @@ p {
 - Added better Google ExtendedProperty accessors.
 - Retrieve specific Google event if already know Event ID (for recurring master) - 2way sync enhancement.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Don't release Outlook items prematurely, if 2way sync.
 - New way of specifying Outlook date range - better support for non-English regions.
 - Handle release version numbers with parts >9 when checking for update.
@@ -954,7 +980,7 @@ p {
 - Cache Google exceptions when retrieved outside of sync date range.
 - Use modification time when comparing recurring Event exceptions.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Cancel sync if requested after an error.
 - G->O Handle null timezones events.
 - Getting Outlook recurrence exception if moved and deleted.
@@ -970,7 +996,7 @@ p {
    - Double click to start a sync.
    - Right click for menu.
    
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Syncing from notification tray icon when window minimised.
 - Handle exception and reinitialisation of correct Outlook calendar if Outlook is restarted.
 - Error on startup if offline and MAPI calendar folder unavailable.
@@ -990,7 +1016,7 @@ p {
 - Retrieve "master" Google events starting before sync date range.
 - Compare Google recurrence pattern to Outlook when updating.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Obfuscation - fonts and saving settings.
 - Duplication of recurring events.
 
@@ -1001,7 +1027,7 @@ p {
 - Menu added to notification tray icon.
 - Closing window does not exit application if minimising to notification tray.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Improve building of fake email address when none available.
 - Update check now uses proxy
 
@@ -1015,7 +1041,7 @@ p {
 - Protect against Outlook RTF descriptions being reformatted in Google and then trampling back into Outlook.
 - Back-off if hit Google API limit calls/user/second.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Continues on failure of sync.
 
 ----
@@ -1029,7 +1055,7 @@ p {
 - Improved logging during application startup.
 - Added social features (G+, twitter) & anonymous stats.
 
-:beetle: **Bugfix**
+:lady_beetle: **Bugfix**
 - Skip unavailable calendar folders if Exchange disconnected. (Thanks azmodan2k)
 - Truncation of Google descriptions to 8Kb
 - Default values on settings.xml deserialisation.
