@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
                 Updater.MakeSquirrelAware();
                 Forms.Splash.ShowMe();
 
+                SettingsStore.Upgrade.Check();
                 log.Debug("Loading settings from file.");
                 Settings.Load();
                 Settings.Instance.Proxy.Configure();
@@ -70,7 +71,7 @@ namespace OutlookGoogleCalendarSync {
                 TimezoneDB.Instance.CheckForUpdate();
 
                 try {
-                    String startingTab = Settings.Instance.LastSyncDate == new DateTime(0) ? "Help" : null;
+                    String startingTab = Settings.Instance.CompletedSyncs == 0 ? "Help" : null;
                     Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
                     String reportError = ex.Message;
@@ -84,6 +85,7 @@ namespace OutlookGoogleCalendarSync {
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
                     OGCSexception.Analyse(ex);
+                    MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException("Suggest startup delay");
                 }
 
@@ -96,7 +98,7 @@ namespace OutlookGoogleCalendarSync {
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 } else if (!string.IsNullOrEmpty(aex.Message))
-                    MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
@@ -467,16 +469,11 @@ namespace OutlookGoogleCalendarSync {
                     Int32 upgradedFrom = Int16.MaxValue;
                     String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                     expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
-                    String paddedVersion = "";
                     if (settingsVersion != "Unknown") {
-                        foreach (String versionBit in settingsVersion.Split('.')) {
-                            paddedVersion += versionBit.PadLeft(2, '0');
+                        upgradedFrom = Program.VersionToInt(settingsVersion);
                         }
-                        upgradedFrom = Convert.ToInt32(paddedVersion);
-
-                    }
-                    if ((settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
-                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) 
+                    if (!Program.InDeveloperMode && (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
+                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir))
                     {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
                         OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
@@ -507,6 +504,19 @@ namespace OutlookGoogleCalendarSync {
             Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
 
+        /// <summary>
+        /// Convert a semantic version number string to an integer.
+        /// </summary>
+        /// <param name="semanticVersion">The semantic version number.</param>
+        /// <returns>The converted integer version number.</returns>
+        public static Int32 VersionToInt(String semanticVersion) {
+            String paddedVersion = "";
+            foreach (String versionBit in semanticVersion.Split('.')) {
+                paddedVersion += versionBit.PadLeft(2, '0');
+            }
+            return Convert.ToInt32(paddedVersion);
+        }
+
         public static Boolean InDeveloperMode {
             get { return System.Diagnostics.Debugger.IsAttached; }
         }
@@ -530,7 +540,6 @@ namespace OutlookGoogleCalendarSync {
             System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
             //Disable SSL3?
             //System.Net.ServicePointManager.SecurityProtocol &= ~System.Net.SecurityProtocolType.Ssl3;
+        }
     }
-
-}
 }

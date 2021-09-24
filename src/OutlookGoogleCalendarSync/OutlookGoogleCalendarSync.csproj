@@ -190,6 +190,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Mono.Cecil.dll</HintPath>
       <Private>True</Private>
@@ -251,6 +252,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="Extensions\MenuButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Extensions\MessageBox.cs" />
     <Compile Include="Extensions\NumericUpDown.cs">
       <SubType>Component</SubType>
@@ -289,6 +293,9 @@
     <Compile Include="Helper.cs" />
     <Compile Include="OutlookOgcs\CustomProperty.cs" />
     <Compile Include="OutlookOgcs\OutlookCategories.cs" />
+    <Compile Include="SettingsStore\Calendar.cs" />
+    <Compile Include="SettingsStore\Proxy.cs" />
+    <Compile Include="SettingsStore\Upgrade.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -305,12 +312,12 @@
     <Compile Include="GoogleOgcs\Authenticator.cs" />
     <Compile Include="GoogleOgcs\EventAttendee.cs" />
     <Compile Include="OutlookOgcs\ExplorerWatcher.cs" />
+    <Compile Include="Sync\Calendar.cs" />
     <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
     <Compile Include="Recurrence.cs" />
-    <Compile Include="SettingsProxy.cs" />
     <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
@@ -339,7 +346,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="SettingsStore\Settings.cs" />
     <Compile Include="Sync\Direction.cs" />
     <Compile Include="Sync\Timer.cs">
       <SubType>Component</SubType>

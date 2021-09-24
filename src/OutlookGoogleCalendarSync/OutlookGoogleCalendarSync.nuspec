@@ -19,11 +19,6 @@
 - More reliable method to open browser
 - Option to show and sync with hidden Google calendars
 - Update of third-party DLL files
-- Order the Google calendar dropdown: primary, writeable, read-only
-- Warn if read-only calendar selected for sync; deny for two-way sync
-- Sync deletion in Outlook on first two-way sync (not second)
-- New /t command line option to append custom text to application title
-- Set Outlook organisers as having "accepted" in Google
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 

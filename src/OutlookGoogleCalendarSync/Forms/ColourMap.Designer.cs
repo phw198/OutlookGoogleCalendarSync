@@ -132,11 +132,6 @@
             this.colourGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellClick);
             this.colourGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEndEdit);
             this.colourGridView.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEnter);
-            this.colourGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.colourGridView_CellFormatting);
-            this.colourGridView.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.colourGridView_CellPainting);
-            this.colourGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellValueChanged);
-            this.colourGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.colourGridView_CurrentCellDirtyStateChanged);
-            this.colourGridView.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.colourGridView_DataError);
             this.colourGridView.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.colourGridView_EditingControlShowing);
             this.colourGridView.SelectionChanged += new System.EventHandler(this.colourGridView_SelectionChanged);
             // 

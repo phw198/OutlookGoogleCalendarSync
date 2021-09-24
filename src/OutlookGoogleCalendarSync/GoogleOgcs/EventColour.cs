@@ -48,7 +48,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 internal set { rgbValue = value; }
             }
 
-            public String Name { get {
+            public String Name {
+                get {
                     String name = "";
                     try {
                         name = GetColourName(Id);
@@ -72,11 +73,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             public override String ToString() {
                 return "Type: " + this.colourType + "; ID: " + Id + "; HexValue: " + HexValue + "; RgbValue: " + RgbValue + "; Name: " + Name;
             }
-            
+
             private class Metadata {
                 internal String Name { get; }
                 internal String WebAppHexValue { get; }
-                
+
                 internal Metadata(String name, String webAppHexValue) {
                     Name = name;
                     WebAppHexValue = webAppHexValue;
@@ -171,18 +172,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// </summary>
         public List<Palette> ActivePalette {
             get {
+                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
                 List<Palette> activePalette = new List<Palette>();
-                if (Settings.Instance.UseGoogleCalendar == null) return activePalette;
+                if (profile.UseGoogleCalendar == null) return activePalette;
                 
-                if (Settings.Instance.UseGoogleCalendar.ColourId == "0") {
+                if (profile.UseGoogleCalendar.ColourId == "0") {
                     GoogleOgcs.Calendar.Instance.GetCalendars();
-                    Settings.Instance.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == Settings.Instance.UseGoogleCalendar.Id).ColourId;
+                    profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id).ColourId;
                 }
-                
-                //Palette currentCal = calendarPalette.Find(p => p.Id == Settings.Instance.UseGoogleCalendar.ColourId);
+
+                //Palette currentCal = calendarPalette.Find(p => p.Id == profile.UseGoogleCalendar.ColourId);
                 Palette currentCal = null;
                 foreach (Palette cal in calendarPalette) {
-                    if (cal.Id == Settings.Instance.UseGoogleCalendar.ColourId) {
+                    if (cal.Id == profile.UseGoogleCalendar.ColourId) {
                         currentCal = cal;
                         break;
                     }
@@ -214,7 +216,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (colours == null) log.Warn("No colours found!");
-            else log.Debug(colours.Event__.Count() + " event colours and "+ colours.Calendar.Count() +" calendars (with a colour) found.");
+            else log.Debug(colours.Event__.Count() + " event colours and " + colours.Calendar.Count() + " calendars (with a colour) found.");
             
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Event__) {
                 eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));

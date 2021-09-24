@@ -12,7 +12,7 @@
         protected override void Dispose(bool disposing) {
             System.Boolean notificationTrayExited = false;
             try {
-                notificationTrayExited = Forms.Main.Instance.NotificationTray.Exited;
+                notificationTrayExited = Forms.Main.Instance.NotificationTray?.Exited ?? true;
             } catch {
                 notificationTrayExited = true;
             }
@@ -45,6 +45,8 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabApp = new System.Windows.Forms.TabControl();
             this.tabPage_Sync = new System.Windows.Forms.TabPage();
+            this.lProfileVal = new System.Windows.Forms.Label();
+            this.lProfile = new System.Windows.Forms.Label();
             this.cbMuteClicks = new System.Windows.Forms.CheckBox();
             this.consolePanel = new System.Windows.Forms.Panel();
             this.consoleWebBrowser = new System.Windows.Forms.WebBrowser();
@@ -59,6 +61,14 @@
             this.tabPage_Settings = new System.Windows.Forms.TabPage();
             this.lSettingInfo = new System.Windows.Forms.Label();
             this.tabAppSettings = new System.Windows.Forms.TabControl();
+            this.tabProfile = new System.Windows.Forms.TabPage();
+            this.btProfileAction = new OutlookGoogleCalendarSync.Extensions.MenuButton();
+            this.msProfileActions = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.miAddProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miDeleteProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.miRenameProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.ddProfile = new System.Windows.Forms.ComboBox();
+            this.label34 = new System.Windows.Forms.Label();
             this.tabOutlook = new System.Windows.Forms.TabPage();
             this.btCustomTzMap = new System.Windows.Forms.Button();
             this.cbOutlookCalendars = new System.Windows.Forms.ComboBox();
@@ -267,6 +277,8 @@
             this.consolePanel.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
             this.tabAppSettings.SuspendLayout();
+            this.tabProfile.SuspendLayout();
+            this.msProfileActions.SuspendLayout();
             this.tabOutlook.SuspendLayout();
             this.msCategories.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -328,6 +340,8 @@
             // tabPage_Sync
             // 
             this.tabPage_Sync.BackColor = System.Drawing.Color.White;
+            this.tabPage_Sync.Controls.Add(this.lProfileVal);
+            this.tabPage_Sync.Controls.Add(this.lProfile);
             this.tabPage_Sync.Controls.Add(this.cbMuteClicks);
             this.tabPage_Sync.Controls.Add(this.consolePanel);
             this.tabPage_Sync.Controls.Add(this.tbSyncNote);
@@ -344,6 +358,25 @@
             this.tabPage_Sync.Size = new System.Drawing.Size(487, 542);
             this.tabPage_Sync.TabIndex = 0;
             this.tabPage_Sync.Text = "Sync";
+            // 
+            // lProfileVal
+            // 
+            this.lProfileVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lProfileVal.Location = new System.Drawing.Point(109, 7);
+            this.lProfileVal.Name = "lProfileVal";
+            this.lProfileVal.Size = new System.Drawing.Size(370, 14);
+            this.lProfileVal.TabIndex = 41;
+            this.lProfileVal.Text = "Default";
+            // 
+            // lProfile
+            // 
+            this.lProfile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lProfile.Location = new System.Drawing.Point(6, 7);
+            this.lProfile.Name = "lProfile";
+            this.lProfile.Size = new System.Drawing.Size(62, 14);
+            this.lProfile.TabIndex = 40;
+            this.lProfile.Text = "Profile:";
             // 
             // cbMuteClicks
             // 
@@ -423,37 +456,41 @@
             // 
             // lNextSyncVal
             // 
-            this.lNextSyncVal.Location = new System.Drawing.Point(271, 28);
+            this.lNextSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lNextSyncVal.Location = new System.Drawing.Point(109, 37);
             this.lNextSyncVal.Name = "lNextSyncVal";
-            this.lNextSyncVal.Size = new System.Drawing.Size(216, 26);
+            this.lNextSyncVal.Size = new System.Drawing.Size(370, 14);
             this.lNextSyncVal.TabIndex = 4;
             this.lNextSyncVal.Text = "Unknown";
             // 
             // lLastSyncVal
             // 
-            this.lLastSyncVal.Location = new System.Drawing.Point(22, 28);
+            this.lLastSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lLastSyncVal.Location = new System.Drawing.Point(109, 22);
             this.lLastSyncVal.Name = "lLastSyncVal";
-            this.lLastSyncVal.Size = new System.Drawing.Size(224, 26);
+            this.lLastSyncVal.Size = new System.Drawing.Size(370, 14);
             this.lLastSyncVal.TabIndex = 3;
             this.lLastSyncVal.Text = "N/A";
             // 
             // lNextSync
             // 
             this.lNextSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lNextSync.Location = new System.Drawing.Point(252, 14);
+            this.lNextSync.Location = new System.Drawing.Point(6, 37);
             this.lNextSync.Name = "lNextSync";
-            this.lNextSync.Size = new System.Drawing.Size(232, 14);
+            this.lNextSync.Size = new System.Drawing.Size(120, 14);
             this.lNextSync.TabIndex = 2;
-            this.lNextSync.Text = "Next scheduled:-";
+            this.lNextSync.Text = "Next scheduled:";
             // 
             // lLastSync
             // 
             this.lLastSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lLastSync.Location = new System.Drawing.Point(5, 14);
+            this.lLastSync.Location = new System.Drawing.Point(5, 22);
             this.lLastSync.Name = "lLastSync";
-            this.lLastSync.Size = new System.Drawing.Size(251, 14);
+            this.lLastSync.Size = new System.Drawing.Size(107, 14);
             this.lLastSync.TabIndex = 2;
-            this.lLastSync.Text = "Last successful:-";
+            this.lLastSync.Text = "Last successful:";
             // 
             // bSyncNow
             // 
@@ -498,6 +535,7 @@
             this.tabAppSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabAppSettings.Controls.Add(this.tabProfile);
             this.tabAppSettings.Controls.Add(this.tabOutlook);
             this.tabAppSettings.Controls.Add(this.tabGoogle);
             this.tabAppSettings.Controls.Add(this.tabSyncOptions);
@@ -512,6 +550,88 @@
             this.tabAppSettings.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabAppSettings.TabIndex = 20;
             this.tabAppSettings.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.tabAppSettings_DrawItem);
+            // 
+            // tabProfile
+            // 
+            this.tabProfile.BackColor = System.Drawing.Color.White;
+            this.tabProfile.Controls.Add(this.btProfileAction);
+            this.tabProfile.Controls.Add(this.ddProfile);
+            this.tabProfile.Controls.Add(this.label34);
+            this.tabProfile.Location = new System.Drawing.Point(79, 4);
+            this.tabProfile.Name = "tabProfile";
+            this.tabProfile.Size = new System.Drawing.Size(392, 462);
+            this.tabProfile.TabIndex = 4;
+            this.tabProfile.Text = "  Profiles";
+            // 
+            // btProfileAction
+            // 
+            this.btProfileAction.Location = new System.Drawing.Point(175, 82);
+            this.btProfileAction.Menu = this.msProfileActions;
+            this.btProfileAction.Name = "btProfileAction";
+            this.btProfileAction.Size = new System.Drawing.Size(95, 23);
+            this.btProfileAction.TabIndex = 29;
+            this.btProfileAction.Text = "Add Profile";
+            this.btProfileAction.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btProfileAction.UseVisualStyleBackColor = true;
+            this.btProfileAction.Click += new System.EventHandler(this.btProfileAction_Click);
+            // 
+            // msProfileActions
+            // 
+            this.msProfileActions.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miAddProfile,
+            this.miDeleteProfile,
+            this.miRenameProfile});
+            this.msProfileActions.Name = "msProfileActions";
+            this.msProfileActions.ShowImageMargin = false;
+            this.msProfileActions.ShowItemToolTips = false;
+            this.msProfileActions.Size = new System.Drawing.Size(130, 70);
+            // 
+            // miAddProfile
+            // 
+            this.miAddProfile.Name = "miAddProfile";
+            this.miAddProfile.Size = new System.Drawing.Size(129, 22);
+            this.miAddProfile.Text = "Add Profile";
+            this.miAddProfile.Click += new System.EventHandler(this.miAddProfile_Click);
+            // 
+            // miDeleteProfile
+            // 
+            this.miDeleteProfile.Name = "miDeleteProfile";
+            this.miDeleteProfile.Size = new System.Drawing.Size(129, 22);
+            this.miDeleteProfile.Text = "Delete Profile";
+            this.miDeleteProfile.Click += new System.EventHandler(this.miDeleteProfile_Click);
+            // 
+            // miRenameProfile
+            // 
+            this.miRenameProfile.Name = "miRenameProfile";
+            this.miRenameProfile.Size = new System.Drawing.Size(129, 22);
+            this.miRenameProfile.Text = "Rename Profile";
+            this.miRenameProfile.Click += new System.EventHandler(this.miRenameProfile_Click);
+            // 
+            // ddProfile
+            // 
+            this.ddProfile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ddProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddProfile.FormattingEnabled = true;
+            this.ddProfile.Location = new System.Drawing.Point(66, 42);
+            this.ddProfile.Name = "ddProfile";
+            this.ddProfile.Size = new System.Drawing.Size(258, 21);
+            this.ddProfile.Sorted = true;
+            this.ddProfile.TabIndex = 28;
+            this.ddProfile.SelectedIndexChanged += new System.EventHandler(this.ddProfile_SelectedIndexChanged);
+            // 
+            // label34
+            // 
+            this.label34.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label34.AutoSize = true;
+            this.label34.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label34.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label34.Location = new System.Drawing.Point(172, 13);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(53, 15);
+            this.label34.TabIndex = 27;
+            this.label34.Text = "Profiles";
+            this.label34.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // tabOutlook
             // 
@@ -1195,6 +1315,7 @@
             this.howMorePanel.Controls.Add(this.cbPrivate);
             this.howMorePanel.Controls.Add(this.label6);
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
+            this.howMorePanel.MinimumSize = new System.Drawing.Size(353, 0);
             this.howMorePanel.Name = "howMorePanel";
             this.howMorePanel.Size = new System.Drawing.Size(353, 90);
             this.howMorePanel.TabIndex = 48;
@@ -1399,6 +1520,7 @@
             this.howObfuscatePanel.Controls.Add(this.label31);
             this.howObfuscatePanel.Controls.Add(this.dgObfuscateRegex);
             this.howObfuscatePanel.Location = new System.Drawing.Point(5, 109);
+            this.howObfuscatePanel.MinimumSize = new System.Drawing.Size(354, 0);
             this.howObfuscatePanel.Name = "howObfuscatePanel";
             this.howObfuscatePanel.Size = new System.Drawing.Size(354, 138);
             this.howObfuscatePanel.TabIndex = 46;
@@ -1467,6 +1589,7 @@
             this.dgObfuscateRegex.Location = new System.Drawing.Point(2, 30);
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.RowHeadersWidth = 27;
+            this.dgObfuscateRegex.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgObfuscateRegex.ShowCellToolTips = false;
             this.dgObfuscateRegex.Size = new System.Drawing.Size(351, 99);
             this.dgObfuscateRegex.TabIndex = 45;
@@ -3223,6 +3346,9 @@
             this.tabPage_Settings.ResumeLayout(false);
             this.tabPage_Settings.PerformLayout();
             this.tabAppSettings.ResumeLayout(false);
+            this.tabProfile.ResumeLayout(false);
+            this.tabProfile.PerformLayout();
+            this.msProfileActions.ResumeLayout(false);
             this.tabOutlook.ResumeLayout(false);
             this.tabOutlook.PerformLayout();
             this.msCategories.ResumeLayout(false);
@@ -3402,6 +3528,10 @@
         private System.Windows.Forms.ToolStripMenuItem miCatSelectAll;
         private System.Windows.Forms.ToolStripMenuItem miCatSelectNone;
         private System.Windows.Forms.ToolStripMenuItem miCatRefresh;
+        private System.Windows.Forms.ContextMenuStrip msProfileActions;
+        private System.Windows.Forms.ToolStripMenuItem miAddProfile;
+        private System.Windows.Forms.ToolStripMenuItem miDeleteProfile;
+        private System.Windows.Forms.ToolStripMenuItem miRenameProfile;
         private System.Windows.Forms.GroupBox gbDeveloperOptions;
         private System.Windows.Forms.LinkLabel llAPIConsole;
         private System.Windows.Forms.CheckBox cbShowClientSecret;
@@ -3496,6 +3626,12 @@
         private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
         private System.Windows.Forms.CheckBox cbSingleCategoryOnly;
         private System.Windows.Forms.NumericUpDown tbMaxAttendees;
+        private System.Windows.Forms.TabPage tabProfile;
         private System.Windows.Forms.CheckBox cbListHiddenGcals;
+        public System.Windows.Forms.ComboBox ddProfile;
+        private System.Windows.Forms.Label label34;
+        private Extensions.MenuButton btProfileAction;
+        private System.Windows.Forms.Label lProfileVal;
+        private System.Windows.Forms.Label lProfile;
     }
 }

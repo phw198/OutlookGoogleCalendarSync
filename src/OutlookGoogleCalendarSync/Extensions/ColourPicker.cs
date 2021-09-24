@@ -88,7 +88,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
         
         private void ColourPicker_Enter(object sender, EventArgs e) {
-            if (Settings.Instance.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.UseGoogleCalendar.Id)) {
+            if (Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar.Id)) {
                 OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -206,11 +206,6 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public override object DefaultNewRowValue {
             get {
                 return String.Empty;
-
-                //if (Forms.ColourMap.OutlookComboBox.Items.Count > 0)
-                //    return (Forms.ColourMap.OutlookComboBox.Items[0] as OutlookOgcs.Categories.ColourInfo).Text;
-                //else
-                //    return String.Empty;
             }
         }
 
@@ -276,12 +271,6 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public override object DefaultNewRowValue {
             get {
                 return String.Empty;
-
-                //int itemCount = Forms.ColourMap.GoogleComboBox.Items.Count;
-                //if (itemCount > 0)
-                //    return (Forms.ColourMap.GoogleComboBox.Items[itemCount - 1] as GoogleOgcs.EventColour.Palette).Name;
-                //else
-                //    return String.Empty;
             }
         }
 

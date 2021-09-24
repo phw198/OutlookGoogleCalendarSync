@@ -31,8 +31,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting credential attributes");
             try {
                 try {
-                    System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
-                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);                    
+                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);
                     html = html.Replace("\n", "");
                 } catch (System.Exception ex) {
                     log.Error("Failed to retrieve data: " + ex.Message);

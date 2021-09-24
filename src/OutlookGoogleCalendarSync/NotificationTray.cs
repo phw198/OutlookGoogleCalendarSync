@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using log4net;
+using System;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using log4net;
 
 namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
@@ -40,8 +38,8 @@ namespace OutlookGoogleCalendarSync {
         private void buildMenu() {
             this.icon.ContextMenuStrip.Items.Clear();
 
-            ToolStripMenuItem cfg = toolStripMenuItemWithHandler("&Sync Now", "sync", syncItem_Click);
-            cfg.Font = new System.Drawing.Font(cfg.Font, System.Drawing.FontStyle.Bold);
+            ToolStripMenuItem cfg = toolStripMenuItemWithHandler("&Sync Now", "sync", null);
+            Settings.Instance.Calendars.ForEach(cal => cfg.DropDown.Items.Add(toolStripMenuItemWithHandler(cal._ProfileName, "sync", syncItem_Click)));
             this.icon.ContextMenuStrip.Items.Add(cfg);
 
             cfg = toolStripMenuItemWithHandler("&Auto Sync", "autoSync", null);
@@ -54,8 +52,10 @@ namespace OutlookGoogleCalendarSync {
             });
             this.icon.ContextMenuStrip.Items.Add(cfg);
             this.icon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            
+
+            cfg.Font = new System.Drawing.Font(cfg.Font, System.Drawing.FontStyle.Bold);
             this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("Sho&w", "show", showItem_Click));
+            cfg.Font = new System.Drawing.Font(cfg.Font, System.Drawing.FontStyle.Regular);
 
             this.icon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             this.icon.ContextMenuStrip.Items.Add(toolStripMenuItemWithHandler("&Exit", "exit", ExitItem_Click));
@@ -96,9 +96,9 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public void UpdateAutoSyncItems() {
-            Boolean autoSyncing = (Sync.Engine.Instance.OgcsTimer == null 
-                ? Settings.Instance.SyncInterval != 0 || Settings.Instance.OutlookPush
-                : Sync.Engine.Instance.OgcsTimer.Running());
+            Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>
+                (c.OgcsTimer != null && c.OgcsTimer.Running()) ||
+                (c.OgcsTimer == null && (c.SyncInterval != 0 || c.OutlookPush)));
 
             UpdateItem("autoSyncToggle", autoSyncing ? "Disable" : "Enable");
             UpdateItem("delay1hr", null, autoSyncing);
@@ -113,96 +113,100 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void syncItem_Click(object sender, EventArgs e) {
+            String menuItemText = (sender as ToolStripMenuItem).Text;
+            Settings.Instance.Calendars.FirstOrDefault(cal => cal._ProfileName == menuItemText).SetActive();
             Sync.Engine.Instance.Sync_Requested();
         }
 
         private void autoSyncToggle_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            Forms.Main.Instance.Console.Update("Automatic sync "+ menuItemText.ToLower() +"d.");
+            Forms.Main.Instance.Console.Update("Automatic sync(s) " + menuItemText.ToLower() + "d.");
             if (menuItemText == "Enable") {
-                if (Settings.Instance.SyncInterval == 0) {
-                    log.Debug("Switching on automatic syncing - hourly.");
-                    Forms.Main.Instance.cbIntervalUnit.SelectedItem = "Hours";
-                    Forms.Main.Instance.tbInterval.Value = 1;
-                    XMLManager.ExportElement("SyncInterval", 1, Settings.ConfigFile);
-                    XMLManager.ExportElement("SyncIntervalUnit", "Hours", Settings.ConfigFile);
+                int cnt = 0;
+                foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                    if (cal.SyncInterval != 0) {
+                        log.Info("Enabled sync for profile: " + cal._ProfileName);
+                        cal.OgcsTimer.SetNextSync(1 + (3 * cnt), true);
+                    }
+                    if (cal.OutlookPush) cal.RegisterForPushSync();
                 }
-                if (Sync.Engine.Instance.OgcsTimer == null) (Sync.Engine.Instance.OgcsTimer = new Sync.SyncTimer()).Initialise();
-                Sync.Engine.Instance.OgcsTimer.Activate(true);
                 Forms.Main.Instance.StrikeOutNextSyncVal(false);
-                if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
                 UpdateAutoSyncItems();
+
             } else {
-                if (Sync.Engine.Instance.OgcsTimer == null) {
-                    log.Warn("Auto sync timer not initialised.");
-                    return;
+                foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                    log.Info("Disabled sync for profile: " + cal._ProfileName);
+                    if (cal.OgcsTimer == null) {
+                        log.Warn("Auto sync timer not initialised.");
+                        continue;
+                    }
+                    cal.OgcsTimer.Activate(false);
+                    if (cal.OutlookPush) cal.DeregisterForPushSync();
                 }
-                Sync.Engine.Instance.OgcsTimer.Activate(false);
                 Forms.Main.Instance.StrikeOutNextSyncVal(true);
-                if (Settings.Instance.OutlookPush) Sync.Engine.Instance.DeregisterForPushSync();
                 UpdateAutoSyncItems();
             }
         }
         private void delaySync1Hr_Click(object sender, EventArgs e) {
             Forms.Main.Instance.Console.Update("Next sync delayed for 1 hour.");
-            if (Sync.Engine.Instance.OgcsTimer == null) {
-                log.Warn("Auto sync timer not initialised.");
-                return;
+            foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                if (cal.OgcsTimer == null) continue;
+                log.Info("Delaying sync for 1 hour: " + cal._ProfileName);
+                cal.OgcsTimer.SetNextSync(60, fromNow: true);
+                cal.DeregisterForPushSync();
             }
-            Sync.Engine.Instance.OgcsTimer.SetNextSync(60, fromNow: true);
-            Sync.Engine.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync2Hr_Click(object sender, EventArgs e) {
             Forms.Main.Instance.Console.Update("Next sync delayed for 2 hours.");
-            if (Sync.Engine.Instance.OgcsTimer == null) {
-                log.Warn("Auto sync timer not initialised.");
-                return;
+            foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                if (cal.OgcsTimer == null) continue;
+                log.Info("Delaying sync for 2 hours: " + cal._ProfileName);
+                cal.OgcsTimer.SetNextSync(2 * 60, fromNow: true);
+                cal.DeregisterForPushSync();
             }
-            Sync.Engine.Instance.OgcsTimer.SetNextSync(2 * 60, fromNow: true);
-            Sync.Engine.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync4Hr_Click(object sender, EventArgs e) {
             Forms.Main.Instance.Console.Update("Next sync delayed for 4 hours.");
-            if (Sync.Engine.Instance.OgcsTimer == null) {
-                log.Warn("Auto sync timer not initialised.");
-                return;
+            foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                if (cal.OgcsTimer == null) continue;
+                log.Info("Delaying sync for 4 hours: " + cal._ProfileName);
+                cal.OgcsTimer.SetNextSync(4 * 60, fromNow: true);
+                cal.DeregisterForPushSync();
             }
-            Sync.Engine.Instance.OgcsTimer.SetNextSync(4 * 60, fromNow: true);
-            Sync.Engine.Instance.DeregisterForPushSync();
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySyncRemove_Click(object sender, EventArgs e) {
             Forms.Main.Instance.Console.Update("Next sync delay removed.");
-            if (Sync.Engine.Instance.OgcsTimer == null) {
-                log.Warn("Auto sync timer not initialised.");
-                return;
+            foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
+                if (cal.OgcsTimer == null) continue;
+                log.Info("Removing sync delay: " + cal._ProfileName);
+                cal.OgcsTimer.SetNextSync();
+                cal.RegisterForPushSync();
             }
-            Sync.Engine.Instance.OgcsTimer.SetNextSync();
-            if (Settings.Instance.OutlookPush) Sync.Engine.Instance.RegisterForPushSync();
             UpdateItem("delayRemove", enabled: false);
         }
 
         private void showItem_Click(object sender, EventArgs e) {
             Forms.Main.Instance.MainFormShow();
         }
-        
-        private void notifyIcon_Click(object sender, MouseEventArgs e) { 
+
+        private void notifyIcon_Click(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
                 Forms.Main.Instance.MainFormShow();
             }
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Left && !Sync.Engine.Instance.SyncingNow)
-                Sync.Engine.Instance.Sync_Requested();
+            if (e.Button == MouseButtons.Left)
+                Forms.Main.Instance.MainFormShow();
         }
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
             if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
                 Settings.Instance.ShowBubbleWhenMinimising = false;
-                XMLManager.ExportElement("ShowBubbleWhenMinimising", false, Settings.ConfigFile);
+                XMLManager.ExportElement(Settings.Instance, "ShowBubbleWhenMinimising", false, Settings.ConfigFile);
                 notifyIcon.Tag = "";
 
             } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {
