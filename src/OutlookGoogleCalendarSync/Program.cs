@@ -84,6 +84,7 @@ namespace OutlookGoogleCalendarSync {
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
                     OGCSexception.Analyse(ex);
+                    MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException("Suggest startup delay");
                 }
 
@@ -96,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 } else if (!string.IsNullOrEmpty(aex.Message))
-                    MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
