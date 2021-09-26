@@ -178,6 +178,7 @@
             this.Name = "ColourMap";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Custom Colour Mapping";
+            this.Shown += new System.EventHandler(this.ColourMap_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.colourGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
