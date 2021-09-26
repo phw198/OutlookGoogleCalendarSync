@@ -15,7 +15,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Event
             }
             private Type colourType = Type.Event;
-            public String Id { get; }
+            public String Id { get; internal set; }
 
             private String hexValue;
             public String HexValue {
@@ -41,12 +41,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             private Color rgbValue;
             public Color RgbValue {
                 get {
-                    if (UseWebAppColours)
-                        return OutlookOgcs.Categories.Map.RgbColour(HexValue);
+                    if (UseWebAppColours) {
+                        if (rgbConvertedFromHex.IsEmpty && HexValue != null) rgbConvertedFromHex = OutlookOgcs.Categories.Map.RgbColour(HexValue);
+                        return rgbConvertedFromHex;
+                    }
                     return rgbValue;
                 }
                 internal set { rgbValue = value; }
             }
+
+            private Color rgbConvertedFromHex;
 
             public String Name {
                 get {
@@ -178,7 +182,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 
                 if (profile.UseGoogleCalendar.ColourId == "0") {
                     GoogleOgcs.Calendar.Instance.GetCalendars();
-                    profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id).ColourId;
+                    profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
                 }
 
                 //Palette currentCal = calendarPalette.Find(p => p.Id == profile.UseGoogleCalendar.ColourId);

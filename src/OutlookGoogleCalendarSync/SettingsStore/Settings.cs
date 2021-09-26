@@ -350,12 +350,6 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("  Custom Timezone Mapping:-");
                 TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));
             }
-            log.Info("  Disconnect Between Sync: " + DisconnectOutlookBetweenSync);
-            if (TimezoneMaps.Count > 0) {
-                log.Info("  Custom Timezone Mapping:-");
-                TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));
-            }
-            
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Personal API Keys: " + UsingPersonalAPIkeys());
             log.Info("    Client Identifier: " + PersonalClientIdentifier);
@@ -436,7 +430,8 @@ namespace OutlookGoogleCalendarSync {
             StackTrace stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames().Reverse().ToArray();
 
-            String[] FormMethods = new String[] { "updateGUIsettings", "UpdateGUIsettings_Profile", "<StartSync>b__0", "miCatRefresh_Click", "GetMyGoogleCalendars_Click" };
+            String[] FormMethods = new String[] { "updateGUIsettings", "UpdateGUIsettings_Profile", "<StartSync>b__0", "miCatRefresh_Click", "GetMyGoogleCalendars_Click",
+                "btColourMap_Click", "ColourPicker_Enter", "ddGoogleColour_SelectedIndexChanged" };
             String[] TimerMethods = new String[] { "OnTick" };
 
             foreach (StackFrame frame in stackFrames) {
@@ -446,8 +441,11 @@ namespace OutlookGoogleCalendarSync {
                 else if (TimerMethods.Contains(frame.GetMethod().Name))
                     return Sync.Engine.Calendar.Instance.Profile;
             }
-            log.Warn(stackFrames.ToString());
-            return null;
+            String stackString = "";
+            stackFrames.Reverse().ToList().ForEach(sf => stackString += sf.GetMethod().Name + " < ");
+            log.Warn(stackString);
+            log.Error("Unknown profile being referenced.");
+            return Forms.Main.Instance.ActiveCalendarProfile;
         }
 
         /// <summary>

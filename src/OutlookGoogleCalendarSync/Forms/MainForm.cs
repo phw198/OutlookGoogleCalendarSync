@@ -295,7 +295,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                         theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
                     }
                 }
-                theFolders = (Folders)OutlookOgcs.Calendar.ReleaseObject(theFolders);
                 ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
                 ddMailboxName.SelectedItem = profile.MailboxName;
 
@@ -588,7 +587,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void buildAvailabilityDropdown() {
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Forms.Main.Instance.ActiveCalendarProfile;
             try {
                 this.ddAvailabilty.SelectedIndexChanged -= new System.EventHandler(this.ddAvailabilty_SelectedIndexChanged);
                 ddAvailabilty.DataSource = null;

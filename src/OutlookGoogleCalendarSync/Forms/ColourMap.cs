@@ -24,6 +24,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             OutlookOgcs.Calendar.Disconnect(true);
         }
         
+        private void ColourMap_Shown(object sender, EventArgs e) {
+            ddOutlookColour_SelectedIndexChanged(null, null);
+        }
+
         private void loadConfig() {
             try {
                 if (Forms.Main.Instance.ActiveCalendarProfile.ColourMaps.Count > 0) colourGridView.Rows.Clear();
@@ -38,7 +42,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (ddGoogleColour.Items.Count > 0)
                     ddGoogleColour.SelectedIndex = 0;
 
-            } catch (System.Exception ex) {
+                } catch (System.Exception ex) {
                 OGCSexception.Analyse("Populating gridview cells from Settings.", ex);
             }
         }
@@ -256,6 +260,15 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
+        }
+
+        private void colourGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
+            if (!this.Visible) return;
+            
+            if (colourGridView.CurrentCell.ColumnIndex == 0)
+                ddGoogleColour_SelectedIndexChanged(null, null);
+            else if (colourGridView.CurrentCell.ColumnIndex == 1)
+                ddOutlookColour_SelectedIndexChanged(null, null);
         }
     }
 }

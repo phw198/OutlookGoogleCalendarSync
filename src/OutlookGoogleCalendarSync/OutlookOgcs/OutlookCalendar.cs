@@ -947,7 +947,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public String GetCategoryColour(String gColourId, Boolean createMissingCategory = true) {
             OlCategoryColor? outlookColour = null;
 
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
             if (profile.ColourMaps.Count > 0) {
                 KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => cm.Value == gColourId);
                 if (kvp.Key != null) {

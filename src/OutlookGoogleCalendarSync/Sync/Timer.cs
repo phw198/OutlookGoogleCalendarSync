@@ -18,7 +18,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                     DateTime theDate = (DateTime)nextSyncDate;
                     var profile = owningProfile as SettingsStore.Calendar;
                     NextSyncDateText = theDate.ToLongDateString() + " @ " + theDate.ToLongTimeString() + (profile.OutlookPush ? " + Push" : "");
-                    log.Info("Next sync scheduled for " + NextSyncDateText);
                 }
             }
         }
@@ -39,6 +38,9 @@ namespace OutlookGoogleCalendarSync.Sync {
             this.Tag = "AutoSyncTimer";
             this.Tick += new EventHandler(ogcsTimer_Tick);
             this.Interval = int.MaxValue;
+
+            if (owningProfile is SettingsStore.Calendar)
+                this.LastSyncDate = (owningProfile as SettingsStore.Calendar).LastSyncDate;
 
             SetNextSync();
         }
@@ -82,9 +84,10 @@ namespace OutlookGoogleCalendarSync.Sync {
             
             if (syncInterval != 0) {
                 DateTime now = DateTime.Now;
-                this.nextSyncDate = fromNow ? now.AddMinutes(delayMins) : LastSyncDate.AddMinutes(delayMins);
+                this.nextSyncDate = fromNow ? now.AddMinutes(delayMins) : this.LastSyncDate.AddMinutes(delayMins);
                 if (calculateInterval) CalculateInterval();
                 else this.NextSyncDate = this.nextSyncDate;
+                log.Info("Next sync scheduled for " + this.NextSyncDateText);
             } else {
                 this.NextSyncDateText = "Inactive";
                 Activate(false);
@@ -108,7 +111,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 else
                     this.Interval = (int)Math.Min((interval * 60000), int.MaxValue);
                 this.NextSyncDate = now.AddMilliseconds(this.Interval);
-                return;
             }
             Activate(true);
         }
