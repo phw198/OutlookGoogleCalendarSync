@@ -414,11 +414,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 syncOptionSizing(gbSyncOptions_When, pbExpandWhen, false);
                 syncOptionSizing(gbSyncOptions_What, pbExpandWhat, false);
                 #region How
-                syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
-                syncDirection.Items.Add(Sync.Direction.GoogleToOutlook);
-                syncDirection.Items.Add(Sync.Direction.Bidirectional);
-                cbObfuscateDirection.Items.Add(Sync.Direction.OutlookToGoogle);
-                cbObfuscateDirection.Items.Add(Sync.Direction.GoogleToOutlook);
+                if (syncDirection.Items.Count == 0) {
+                    syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
+                    syncDirection.Items.Add(Sync.Direction.GoogleToOutlook);
+                    syncDirection.Items.Add(Sync.Direction.Bidirectional);
+                    cbObfuscateDirection.Items.Add(Sync.Direction.OutlookToGoogle);
+                    cbObfuscateDirection.Items.Add(Sync.Direction.GoogleToOutlook);
+                }
                 //Sync Direction dropdown
                 for (int i = 0; i < syncDirection.Items.Count; i++) {
                     Sync.Direction sd = (syncDirection.Items[i] as Sync.Direction);
@@ -459,10 +461,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (ddOutlookColour.SelectedIndex == -1 && ddOutlookColour.Items.Count > 0)
                     ddOutlookColour.SelectedIndex = 0;
                 ddOutlookColour.Enabled = cbColour.Checked;
-                //Not connect to Google yet, so just add in single item from Settings
+                
                 GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(
                     GoogleOgcs.EventColour.Palette.Type.Event, profile.SetEntriesColourGoogleId, null, Color.Transparent);
-                ddGoogleColour.Items.Add(localPalette);
+                if (!ddGoogleColour.Items.Cast<GoogleOgcs.EventColour.Palette>().Any(cbi => cbi.Id == localPalette.Id))
+                    ddGoogleColour.Items.Add(localPalette);
                 ddGoogleColour.SelectedItem = localPalette;
                 ddGoogleColour.Enabled = cbColour.Checked;
 

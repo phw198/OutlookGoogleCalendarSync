@@ -66,7 +66,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 // Get the Calendar folders
                 useOutlookCalendar = getCalendarStore(oNS);
-                if (Forms.Main.Instance.IsHandleCreated && profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName) {
+                if (Forms.Main.Instance.IsHandleCreated && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                     log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged -= Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
@@ -322,7 +322,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse("Could not access 'Deleted Items' folder property.", OGCSexception.LogAsFail(ex));
                     }
-                    Boolean updateGUI = profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName;
+                    Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                     if (updateGUI) {
                         Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
                         Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
@@ -354,7 +354,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } else if (profile.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
                 log.Debug("Finding shared calendar");
-                if (Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveCalendarProfile._ProfileName == profile._ProfileName && Forms.Main.Instance.ActiveControl?.Name == "rbOutlookSharedCal") {
+                if (Forms.Main.Instance.Visible && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) && Forms.Main.Instance.ActiveControl?.Name == "rbOutlookSharedCal") {
                     SelectNamesDialog snd;
                     try {
                         snd = oNS.GetSelectNamesDialog();
@@ -429,7 +429,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Finding default Mailbox calendar folders");
             try {
                 SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
-                Boolean updateGUI = profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName;
+                Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                 if (updateGUI) {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
                     Forms.Main.Instance.rbOutlookDefaultMB.Checked = true;
@@ -705,7 +705,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Extensions.OutlookColourPicker outlookColours = new Extensions.OutlookColourPicker();
             outlookColours.AddColourItems();
 
-            if (Settings.Instance.ProfileInPlay()?._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName) {
+            if (Settings.Instance.ProfileInPlay().Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                 Forms.Main.Instance.ddOutlookColour = outlookColours;
                 foreach (OutlookOgcs.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
                     if (cInfo.OutlookCategory.ToString() == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourValue &&

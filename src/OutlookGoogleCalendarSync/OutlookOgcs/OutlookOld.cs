@@ -57,7 +57,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 // Get the Calendar folders
                 useOutlookCalendar = getCalendarStore(oNS);
-                if (Forms.Main.Instance.IsHandleCreated && profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName) {
+                if (Forms.Main.Instance.IsHandleCreated && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                     log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged -= Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
@@ -284,7 +284,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Finding default Mailbox calendar folders");
             try {
                 SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
-                Boolean updateGUI = profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName;
+                Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                 if (updateGUI) {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
                     Forms.Main.Instance.rbOutlookDefaultMB.Checked = true;

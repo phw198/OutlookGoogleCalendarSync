@@ -197,7 +197,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Forms.Main.Instance.ActiveCalendarProfile = this;
 
             if (Forms.Main.Instance.Visible) 
-                Forms.Main.Instance.UpdateGUIsettings_Profile();
+                Forms.Main.Instance?.UpdateGUIsettings_Profile();
         }
 
         public void InitialiseTimer() {

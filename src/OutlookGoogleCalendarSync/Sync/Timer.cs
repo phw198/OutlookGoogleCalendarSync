@@ -219,7 +219,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (activate && !this.Enabled) {
                 ResetLastRun();
                 this.Start();
-                if (profile.SyncInterval == 0 && profile._ProfileName == Forms.Main.Instance.ActiveCalendarProfile._ProfileName) 
+                if (profile.SyncInterval == 0 && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) 
                     Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!activate && this.Enabled) {
                 this.Stop();
