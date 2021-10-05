@@ -95,23 +95,29 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
             ToolTip loading = new ToolTip();
             try {
-                GoogleOgcs.EventColour.Palette currentSelection = (GoogleOgcs.EventColour.Palette)SelectedItem;
+                GoogleOgcs.EventColour.Palette currentSelection = null;
 
-                if (GoogleOgcs.Calendar.IsInstanceNull || Items.Count <= 1) {
+                if (GoogleOgcs.Calendar.IsInstanceNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached()) {
                     loading.SetToolTip(this, "Retrieving colours from Google...");
                     loading.ShowAlways = true;
                     loading.InitialDelay = 0;
                     loading.Show("Retrieving colours from Google...", this, this.FindForm().PointToClient(this.Parent.PointToScreen(this.Location)));
 
+                    GoogleOgcs.Calendar.Instance.ColourPalette.Get();
+                    currentSelection = (GoogleOgcs.EventColour.Palette)SelectedItem;
+                    
+                    loading.Hide(this);
+                }
+                if (Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count) {
                     while (Items.Count > 0)
                         Items.RemoveAt(0);
                     AddPaletteColours(true);
+                }
 
-                    foreach (GoogleOgcs.EventColour.Palette pInfo in Items) {
-                        if (pInfo.Id == currentSelection.Id) {
-                            SelectedItem = pInfo;
-                            break;
-                        }
+                foreach (GoogleOgcs.EventColour.Palette pInfo in Items) {
+                    if (pInfo.Id == currentSelection?.Id) {
+                        SelectedItem = pInfo;
+                        break;
                     }
                 }
             } catch (System.Exception ex) {

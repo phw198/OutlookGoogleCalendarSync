@@ -451,6 +451,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbAvailable.Checked = profile.SetEntriesAvailable;
                 cbColour.Checked = profile.SetEntriesColour;
                 ddOutlookColour.AddColourItems();
+
+                ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
                 foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
                     if (cInfo.OutlookCategory.ToString() == profile.SetEntriesColourValue &&
                         cInfo.Text == profile.SetEntriesColourName) {
@@ -460,13 +462,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 if (ddOutlookColour.SelectedIndex == -1 && ddOutlookColour.Items.Count > 0)
                     ddOutlookColour.SelectedIndex = 0;
+
+                ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
                 ddOutlookColour.Enabled = cbColour.Checked;
-                
-                GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(
-                    GoogleOgcs.EventColour.Palette.Type.Event, profile.SetEntriesColourGoogleId, null, Color.Transparent);
-                if (!ddGoogleColour.Items.Cast<GoogleOgcs.EventColour.Palette>().Any(cbi => cbi.Id == localPalette.Id))
-                    ddGoogleColour.Items.Add(localPalette);
-                ddGoogleColour.SelectedItem = localPalette;
+
+                ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
+                offlineAddGoogleColour();
+                ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
                 ddGoogleColour.Enabled = cbColour.Checked;
 
                 //Obfuscate Direction dropdown
@@ -665,7 +667,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             switch (syncNote) {
                 case SyncNotes.QuotaExhaustedInfo:
-                    note =  "  Google's daily free calendar quota is exhausted!" + cr +
+                    note = "  Google's daily free calendar quota is exhausted!" + cr +
                             "     Either wait for new quota at 08:00GMT or     " + cr +
                             "  get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
@@ -1620,11 +1622,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SetEntriesColourValue = ddOutlookColour.SelectedItem.OutlookCategory.ToString();
             ActiveCalendarProfile.SetEntriesColourName = ddOutlookColour.SelectedItem.Text;
 
-            if (sender == null || ddGoogleColour.Items.Count <= 1) return;
+            if (sender == null) return;
             try {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
-                ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+
+                if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
+                    offlineAddGoogleColour();
+                else {
+                    if (ddGoogleColour.Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count)
+                        ddGoogleColour.AddPaletteColours();
+                    ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+                }
+                
                 ddGoogleColour_SelectedIndexChanged(null, null);
+                
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
             } finally {
@@ -1640,17 +1651,45 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (sender == null) return;
             try {
                 ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
-                String oCatName = OutlookOgcs.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id);
+
+                String oCatName = null;
+                if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
+                    oCatName = ActiveCalendarProfile.SetEntriesColourName;
+                else
+                    oCatName = OutlookOgcs.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id);
+                
                 foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
                     if (cInfo.Text == oCatName) {
                         ddOutlookColour.SelectedItem = cInfo;
+                        break;
                     }
                 }
+                
                 ddOutlookColour_SelectedIndexChanged(null, null);
+                
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
             } finally {
                 ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
+            }
+        }
+
+        /// <summary>
+        /// Avoid connecting to Google simply to add correct profile colour to dropdown
+        /// </summary>
+        private void offlineAddGoogleColour() {
+            GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(
+                    GoogleOgcs.EventColour.Palette.Type.Event, ActiveCalendarProfile.SetEntriesColourGoogleId, null, Color.Transparent);
+            if (!ddGoogleColour.Items.Cast<GoogleOgcs.EventColour.Palette>().Any(cbi => cbi.Id == localPalette.Id)) {
+                ddGoogleColour.Items.Add(localPalette);
+                ddGoogleColour.SelectedItem = localPalette;
+                return;
+            }
+            foreach (GoogleOgcs.EventColour.Palette item in ddGoogleColour.Items) {
+                if (item.Id == localPalette.Id) {
+                    ddGoogleColour.SelectedItem = item;
+                    break;
+                }
             }
         }
         #endregion

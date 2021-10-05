@@ -40,13 +40,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public Calendar() { }
         public GoogleOgcs.Authenticator Authenticator;
+        
         private GoogleOgcs.EventColour colourPalette;
+
+        public static Boolean IsColourPaletteNull { get { return instance?.colourPalette == null; } }
         public GoogleOgcs.EventColour ColourPalette {
             get {
-                if (colourPalette == null || colourPalette.ActivePalette.Count() == 0) {
+                if (colourPalette == null)
                     colourPalette = new EventColour();
+                if (Authenticator.Authenticated && !colourPalette.IsCached())
                     colourPalette.Get();
-                }
                 return colourPalette;
             }
         }
@@ -109,43 +112,43 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             do {
                 while (backoff < BackoffLimit) {
-                try {
+                    try {
                         CalendarListResource.ListRequest lr = Service.CalendarList.List();
                         lr.PageToken = pageToken;
                         lr.ShowHidden = true;
                         request = lr.Execute();
-                    break;
-                } catch (Google.GoogleApiException ex) {
+                        break;
+                    } catch (Google.GoogleApiException ex) {
                         switch (HandleAPIlimits(ref ex, null)) {
                             case ApiException.throwException: throw;
                             case ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
                                 System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                            OGCSexception.LogAsFail(ref aex);
-                            throw aex;
+                                OGCSexception.LogAsFail(ref aex);
+                                throw aex;
                             case ApiException.backoffThenRetry:
-                            backoff++;
+                                backoff++;
                                 if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
-                                throw;
-                            } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
-                            }
-                            break;
+                                    log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
+                                    throw;
+                                } else {
+                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                }
+                                break;
+                        }
                     }
                 }
-            }
 
-            if (request != null) {
+                if (request != null) {
                     pageToken = request.NextPageToken;
-                foreach (CalendarListEntry cle in request.Items) {
-                    result.Add(new GoogleCalendarListEntry(cle));
+                    foreach (CalendarListEntry cle in request.Items) {
+                        result.Add(new GoogleCalendarListEntry(cle));
+                    }
+                } else {
+                    log.Error("Handshaking with the Google calendar service failed.");
                 }
-            } else {
-                log.Error("Handshaking with the Google calendar service failed.");
-            }
             } while (pageToken != null);
 
             this.CalendarList = result;

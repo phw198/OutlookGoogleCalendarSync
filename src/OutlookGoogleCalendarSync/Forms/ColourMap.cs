@@ -37,12 +37,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.AddCategoryColours();
                 if (ddOutlookColour.Items.Count > 0)
                     ddOutlookColour.SelectedIndex = 0;
-                
+
                 ddGoogleColour.AddPaletteColours();
                 if (ddGoogleColour.Items.Count > 0)
                     ddGoogleColour.SelectedIndex = 0;
 
-                } catch (System.Exception ex) {
+            } catch (System.Exception ex) {
                 OGCSexception.Analyse("Populating gridview cells from Settings.", ex);
             }
         }
@@ -237,7 +237,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         }
                     }
                 }
-                ddOutlookColour.SelectedIndex = -1;
+                ddOutlookColour.SelectedIndex = 0;
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);

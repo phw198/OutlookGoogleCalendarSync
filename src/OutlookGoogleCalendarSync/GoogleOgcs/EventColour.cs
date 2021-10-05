@@ -171,6 +171,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private static readonly ILog log = LogManager.GetLogger(typeof(EventColour));
         private List<Palette> calendarPalette;
         private List<Palette> eventPalette;
+        public EventColour() { }
+
         /// <summary>
         /// All event colours, including currently used calendar "custom" colour
         /// </summary>
@@ -179,7 +181,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
                 List<Palette> activePalette = new List<Palette>();
                 if (profile.UseGoogleCalendar == null) return activePalette;
-                
+
                 if (profile.UseGoogleCalendar.ColourId == "0") {
                     GoogleOgcs.Calendar.Instance.GetCalendars();
                     profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
@@ -201,7 +203,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
-        public EventColour() { }
+        public Boolean IsCached() {
+            return (calendarPalette != null && calendarPalette.Count != 0 && eventPalette != null && eventPalette.Count != 0);
+        }
 
         /// <summary>
         /// Retrieve calendar's Event colours from Google
@@ -221,7 +225,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (colours == null) log.Warn("No colours found!");
             else log.Debug(colours.Event__.Count() + " event colours and " + colours.Calendar.Count() + " calendars (with a colour) found.");
-            
+
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Event__) {
                 eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
             }
