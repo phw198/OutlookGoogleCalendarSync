@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {
             if (settingsStore is SettingsStore.Calendar)
                 return settingsStore as SettingsStore.Calendar;
-            else throw new ArgumentException("Expected calendar settings, received " + Settings.GetProfileType(settingsStore));
+            else throw new ArgumentException("Expected calendar settings, received " + Settings.Profile.GetType(settingsStore));
         }
 
         #region Override Methods

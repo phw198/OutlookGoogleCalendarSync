@@ -49,7 +49,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 oNS = GetCurrentUser(oNS);
 
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
                 if (!profile.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
@@ -209,7 +209,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Recipient currentUser = null;
             try {
                 DateTime triggerOOMsecurity = DateTime.Now;
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 try {
                     currentUser = oNS.CurrentUser;
                     if (!Forms.Main.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
@@ -284,7 +284,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private MAPIFolder getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && profile.MailboxName != "") {
                 log.Debug("Finding Alternative Mailbox calendar folders");
                 Folders binFolders = null;
@@ -428,7 +428,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private void getDefaultCalendar(NameSpace oNS, ref MAPIFolder defaultCalendar) {
             log.Debug("Finding default Mailbox calendar folders");
             try {
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                 if (updateGUI) {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
@@ -705,7 +705,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Extensions.OutlookColourPicker outlookColours = new Extensions.OutlookColourPicker();
             outlookColours.AddColourItems();
 
-            if (Settings.Instance.ProfileInPlay().Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
+            if (Settings.Profile.InPlay().Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                 Forms.Main.Instance.ddOutlookColour = outlookColours;
                 foreach (OutlookOgcs.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
                     if (cInfo.OutlookCategory.ToString() == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourValue &&

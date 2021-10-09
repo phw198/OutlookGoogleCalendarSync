@@ -178,7 +178,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// </summary>
         public List<Palette> ActivePalette {
             get {
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 List<Palette> activePalette = new List<Palette>();
                 if (profile.UseGoogleCalendar == null) return activePalette;
 

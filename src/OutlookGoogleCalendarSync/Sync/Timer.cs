@@ -28,7 +28,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             set {
                 nextSyncDateText = value;
                 var profile = owningProfile as SettingsStore.Calendar;
-                if (Forms.Main.Instance.ProfileVal == profile._ProfileName)
+                if (profile.Equals(Forms.Main.Instance.ActiveCalendarProfile))
                     Forms.Main.Instance.NextSyncVal = value;
             }
         }
@@ -48,7 +48,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         private void ogcsTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
 
-            log.Debug("Scheduled sync triggered.");
+            log.Debug("Scheduled sync triggered for profile: "+ Settings.Profile.Name(this.owningProfile));
 
             if (!Sync.Engine.Instance.SyncingNow) {
                 Forms.Main.Instance.Sync_Click(sender, null);
@@ -87,7 +87,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 this.nextSyncDate = fromNow ? now.AddMinutes(delayMins) : this.LastSyncDate.AddMinutes(delayMins);
                 if (calculateInterval) CalculateInterval();
                 else this.NextSyncDate = this.nextSyncDate;
-                log.Info("Next sync scheduled for " + this.NextSyncDateText);
+                log.Info("Next sync scheduled for profile '"+ Settings.Profile.Name(owningProfile) +"' at " + this.NextSyncDateText);
             } else {
                 this.NextSyncDateText = "Inactive";
                 Activate(false);

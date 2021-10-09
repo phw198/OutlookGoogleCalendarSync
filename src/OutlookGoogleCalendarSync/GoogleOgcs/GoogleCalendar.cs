@@ -260,7 +260,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         public List<Event> GetCalendarEntriesInRange() {
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd);
         }
 
@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String pageToken = null;
             Int16 pageNum = 1;
 
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
             log.Debug("Retrieving all events from Google: " + from.ToShortDateString() + " -> " + to.ToShortDateString());
             do {
@@ -1485,7 +1485,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         private void getCalendarSettings() {
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
             if (!profile.AddReminders || !profile.UseGoogleDefaultReminder) return;
 
@@ -1604,7 +1604,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public EventColour.Palette GetColour(OlCategoryColor categoryColour) {
             EventColour.Palette gColour = null;
 
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             if (profile.ColourMaps.Count > 0) {
                 KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => OutlookOgcs.Calendar.Categories.OutlookColour(cm.Key) == categoryColour);
                 if (kvp.Key != null) {

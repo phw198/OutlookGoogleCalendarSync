@@ -83,20 +83,6 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     this.Profile.OgcsTimer.NextSyncDateText = "In progress...";
 
-                    StringBuilder sb = new StringBuilder();
-                    Forms.Main.Instance.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                    Forms.Main.Instance.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb);
-                    Forms.Main.Instance.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb);
-                    Forms.Main.Instance.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
-                        " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
-                    mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
-
-                    //Make the clock emoji show the right time
-                    int minsPastHour = DateTime.Now.Minute;
-                    minsPastHour = (int)minsPastHour - (minsPastHour % 30);
-                    sb.Insert(0, ":clock" + DateTime.Now.ToString("hh").TrimStart('0') + (minsPastHour == 00 ? "" : "30") + ":");
-                    mainFrm.Console.Update(sb);
-
                     if (this.Profile.OutlookPush) this.Profile.DeregisterForPushSync();
 
                     Sync.Engine.SyncResult syncResult = Sync.Engine.SyncResult.Fail;
@@ -110,9 +96,25 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 log.Info("User opted to abandon further syncs.");
                                 syncResult = Sync.Engine.SyncResult.Abandon;
                                 break;
-                            } else
+                            } else {
                                 log.Info("User opted to retry sync straight away.");
+                                mainFrm.Console.Clear();
+                            }
                         }
+
+                        StringBuilder sb = new StringBuilder();
+                        mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
+                        mainFrm.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb);
+                        mainFrm.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb);
+                        mainFrm.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
+                            " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
+                        mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
+
+                        //Make the clock emoji show the right time
+                        int minsPastHour = DateTime.Now.Minute;
+                        minsPastHour = (int)minsPastHour - (minsPastHour % 30);
+                        sb.Insert(0, ":clock" + DateTime.Now.ToString("hh").TrimStart('0') + (minsPastHour == 00 ? "" : "30") + ":");
+                        mainFrm.Console.Update(sb);
 
                         //Kick off the sync in the background thread
                         Sync.Engine.Instance.bwSync.DoWork += new DoWorkEventHandler(

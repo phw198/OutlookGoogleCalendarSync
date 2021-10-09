@@ -116,7 +116,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void Get(Outlook.Application oApp, Outlook.MAPIFolder calendar) {
             Outlook.Store store = null;
             try {
-                if (Settings.Instance.ProfileInPlay().OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
+                if (Settings.Profile.InPlay().OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox)
                     this.categories = oApp.Session.Categories;
                 else {
                     try {

@@ -40,7 +40,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Info("Exchange connection mode: " + exchangeConnectionMode.ToString());
 
                 oNS = GetCurrentUser(oNS);
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
                 if (!profile.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
@@ -178,7 +178,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private const String PR_IPM_WASTEBASKET_ENTRYID = "http://schemas.microsoft.com/mapi/proptag/0x35E30102";
 
         public NameSpace GetCurrentUser(NameSpace oNS) {
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
             //We only need the current user details when syncing meeting attendees.
             //If GAL had previously been detected as blocked, let's always try one attempt to see if it's been opened up
@@ -243,7 +243,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private MAPIFolder getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             if (profile.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) {
                 getDefaultCalendar(oNS, ref defaultCalendar);
             }
@@ -283,7 +283,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private void getDefaultCalendar(NameSpace oNS, ref MAPIFolder defaultCalendar) {
             log.Debug("Finding default Mailbox calendar folders");
             try {
-                SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                 if (updateGUI) {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
@@ -395,7 +395,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     AppointmentItem ai = null;
                     if (outlookItems[i] is AppointmentItem) {
                         ai = outlookItems[i] as AppointmentItem;
-                        SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+                        SettingsStore.Calendar profile = Settings.Profile.InPlay();
                         if (ai.IsRecurring && ai.Start.Date < profile.SyncStart && ai.End.Date < profile.SyncStart)
                             o2003recurring.Add(outlookItems[i]);
                     }

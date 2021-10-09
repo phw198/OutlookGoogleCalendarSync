@@ -412,48 +412,61 @@ namespace OutlookGoogleCalendarSync {
             ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
         }
 
-        public enum ProfileType {
-            Calendar,
-            Global,
-            Unknown
-        }
-        public static ProfileType GetProfileType(Object settingsStore) {
-            switch (settingsStore.GetType().ToString()) {
-                case "OutlookGoogleCalendarSync.Settings": return ProfileType.Global;
-                case "OutlookGoogleCalendarSync.SettingsStore.Calendar": return ProfileType.Calendar;
-            }
-            log.Warn("Unknown profile type: " + settingsStore.GetType().ToString());
-            return ProfileType.Unknown;
-        }
-
-        public SettingsStore.Calendar ProfileInPlay() {
-            StackTrace stackTrace = new StackTrace();
-            StackFrame[] stackFrames = stackTrace.GetFrames().Reverse().ToArray();
-
-            String[] FormMethods = new String[] { "updateGUIsettings", "UpdateGUIsettings_Profile", "<StartSync>b__0", "miCatRefresh_Click", "GetMyGoogleCalendars_Click",
-                "btColourMap_Click", "ColourPicker_Enter", "ddGoogleColour_SelectedIndexChanged" };
-            String[] TimerMethods = new String[] { "OnTick" };
-
-            foreach (StackFrame frame in stackFrames) {
-                //log.Debug("Frame:" + frame.GetMethod().Name);
-                if (FormMethods.Contains(frame.GetMethod().Name))
-                    return Forms.Main.Instance.ActiveCalendarProfile;
-                else if (TimerMethods.Contains(frame.GetMethod().Name))
-                    return Sync.Engine.Calendar.Instance.Profile;
-            }
-            String stackString = "";
-            stackFrames.Reverse().ToList().ForEach(sf => stackString += sf.GetMethod().Name + " < ");
-            log.Warn(stackString);
-            log.Error("Unknown profile being referenced.");
-            return Forms.Main.Instance.ActiveCalendarProfile;
-        }
-
         /// <summary>
         /// Deregister all profiles from Push Sync
         /// </summary>
         public void DeregisterAllForPushSync() {
-            foreach(SettingsStore.Calendar calendar in Settings.Instance.Calendars) {
+            foreach (SettingsStore.Calendar calendar in Settings.Instance.Calendars) {
                 calendar.DeregisterForPushSync();
+            }
+        }
+
+        public class Profile {
+            public enum Type {
+                Calendar,
+                Global,
+                Unknown
+            }
+            public static Type GetType(Object settingsStore) {
+                switch (settingsStore.GetType().ToString()) {
+                    case "OutlookGoogleCalendarSync.Settings": return Type.Global;
+                    case "OutlookGoogleCalendarSync.SettingsStore.Calendar": return Type.Calendar;
+                }
+                log.Warn("Unknown profile type: " + settingsStore.GetType().ToString());
+                return Type.Unknown;
+            }
+
+            public static String Name(Object settingsStore) {
+                switch (GetType(settingsStore)) {
+                    case Type.Calendar: return (settingsStore as SettingsStore.Calendar)._ProfileName;
+                }
+                return "";
+            }
+
+            /// <summary>
+            /// Dynamically determine which profile is being used.
+            /// </summary>
+            /// <returns>Currently hard-coded to a Calendar profile</returns>
+            public static SettingsStore.Calendar InPlay() {
+                StackTrace stackTrace = new StackTrace();
+                StackFrame[] stackFrames = stackTrace.GetFrames().Reverse().ToArray();
+
+                String[] FormMethods = new String[] { "updateGUIsettings", "UpdateGUIsettings_Profile", "<StartSync>b__0", "miCatRefresh_Click", "GetMyGoogleCalendars_Click",
+                "btColourMap_Click", "ColourPicker_Enter", "ddGoogleColour_SelectedIndexChanged" };
+                String[] TimerMethods = new String[] { "OnTick" };
+
+                foreach (StackFrame frame in stackFrames) {
+                    //log.Debug("Frame:" + frame.GetMethod().Name);
+                    if (FormMethods.Contains(frame.GetMethod().Name))
+                        return Forms.Main.Instance.ActiveCalendarProfile;
+                    else if (TimerMethods.Contains(frame.GetMethod().Name))
+                        return Sync.Engine.Calendar.Instance.Profile;
+                }
+                String stackString = "";
+                stackFrames.Reverse().ToList().ForEach(sf => stackString += sf.GetMethod().Name + " < ");
+                log.Warn(stackString);
+                log.Error("Unknown profile being referenced.");
+                return Forms.Main.Instance.ActiveCalendarProfile;
             }
         }
     }

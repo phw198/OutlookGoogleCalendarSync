@@ -148,7 +148,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (OutlookItems != null) {
                 log.Fine(OutlookItems.Count + " calendar items exist.");
                 if (profile is null)
-                    profile = Settings.Instance.ProfileInPlay();
+                    profile = Settings.Profile.InPlay();
 
                 OutlookItems.Sort("[Start]", Type.Missing);
                 OutlookItems.IncludeRecurrences = false;
@@ -947,7 +947,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public String GetCategoryColour(String gColourId, Boolean createMissingCategory = true) {
             OlCategoryColor? outlookColour = null;
 
-            SettingsStore.Calendar profile = Settings.Instance.ProfileInPlay();
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             if (profile.ColourMaps.Count > 0) {
                 KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => cm.Value == gColourId);
                 if (kvp.Key != null) {

@@ -54,10 +54,17 @@ namespace OutlookGoogleCalendarSync.Sync {
             Engine.Instance.Start(updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
         }
 
+        private Object activeProfile;
         /// <summary>
         /// The profile currently set to be synced, either manually from GUI settings or scheduled from a Timer.
         /// </summary>
-        public Object ActiveProfile;
+        public Object ActiveProfile { 
+            get { return activeProfile; } 
+            set { 
+                activeProfile = value;
+                log.Debug("ActiveProfile set to: " + Settings.Profile.Name(activeProfile));
+            }
+        }
 
         /// <summary>
         /// Get the earliest upcoming sync time
@@ -103,15 +110,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Forms.Main.Instance.NotificationTray.UpdateItem("delayRemove", enabled: false);
                 Timer aTimer = sender as Timer;
                 Object timerProfile = null;
-                String profileName = "";
 
                 if (aTimer.Tag.ToString() == "PushTimer" && aTimer is PushSyncTimer)
                     timerProfile = (aTimer as PushSyncTimer).owningProfile;
                 else if (aTimer.Tag.ToString() == "AutoSyncTimer" && aTimer is SyncTimer)
                     timerProfile = (aTimer as SyncTimer).owningProfile;
 
-                if (timerProfile is SettingsStore.Calendar)
-                    profileName = (timerProfile as SettingsStore.Calendar)._ProfileName;
+                String profileName = Settings.Profile.Name(timerProfile);
 
                 if (Sync.Engine.Instance.queue.Exists(q => q.ContainsKey(profileName)))
                     log.Warn("Sync of profile '" + profileName + "' requested by " + aTimer.Tag.ToString() + " already previously queued.");
@@ -175,7 +180,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
         private void Start(Boolean updateSyncSchedule = true) {
-            if (Settings.GetProfileType(this.ActiveProfile) == Settings.ProfileType.Calendar) {
+            if (Settings.Profile.GetType(this.ActiveProfile) == Settings.Profile.Type.Calendar) {
                 Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + (this.ActiveProfile as SettingsStore.Calendar).SyncDirection.Name + "...");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
                 Sync.Engine.Calendar.Instance.StartSync(updateSyncSchedule);
