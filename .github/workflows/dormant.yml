@@ -25,7 +25,6 @@ jobs:
     steps:
     - uses: actions/stale@v4
       with:
-        debug-only: github.event.inputs.test-run == 'y' #true
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-pr-stale: -1
         days-before-issue-stale: 30
@@ -36,3 +35,6 @@ jobs:
         days-before-close: 7
         start-date: '2020-01-01T00:00:00Z' # ISO 8601 or RFC 2822
         operations-per-run: 10
+
+        if: github.event.inputs.test-run == 'y'
+        debug-only: true
