@@ -30,7 +30,7 @@ jobs:
         days-before-issue-stale: 30
         stale-issue-label: 'dormant'
         only-labels: 'bug'
-        exempt-issue-labels: 'resolved,waiting fix confirmation,help wanted'
+        exempt-issue-labels: 'resolved,waiting fix confirmation,help wanted,backlog'
         stale-issue-message: 'This issue has been marked dormant because the last update is at least 30 days ago. If no update is made with the next 7 days, the issue will be closed.'
         days-before-close: 7
         start-date: '2020-01-01T00:00:00Z' # ISO 8601 or RFC 2822
