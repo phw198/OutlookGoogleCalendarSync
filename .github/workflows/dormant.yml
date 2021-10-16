@@ -7,6 +7,11 @@ name: Mark dormant issues and pull requests
 
 on:
   workflow_dispatch:
+    inputs:
+      test-run:
+        description: 'Dry run only (y/n)?'
+        required: false
+        default: 'y'
   schedule:
   - cron: '30 8 * * *'
 
@@ -20,7 +25,7 @@ jobs:
     steps:
     - uses: actions/stale@v4
       with:
-        debug-only: true
+        debug-only: github.event.inputs.test-run == 'y' #true
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-pr-stale: -1
         days-before-issue-stale: 30
