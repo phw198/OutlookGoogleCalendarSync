@@ -333,13 +333,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Boolean Loading() {
-            StackTrace stackTrace = new StackTrace();
-            foreach (StackFrame frame in stackTrace.GetFrames().Reverse()) {
-                if (new String[] {"Load","isNewVersion"}.Contains(frame.GetMethod().Name)) {
-                    return true;
-                }
-            }
-            return false;
+            return Program.CalledByProcess("Load,isNewVersion");
         }
 
         public void LogSettings() {
@@ -448,25 +442,16 @@ namespace OutlookGoogleCalendarSync {
             /// </summary>
             /// <returns>Currently hard-coded to a Calendar profile</returns>
             public static SettingsStore.Calendar InPlay() {
-                StackTrace stackTrace = new StackTrace();
-                StackFrame[] stackFrames = stackTrace.GetFrames().Reverse().ToArray();
+                SettingsStore.Calendar aProfile = null;
 
-                String[] FormMethods = new String[] { "updateGUIsettings", "UpdateGUIsettings_Profile", "<StartSync>b__0", "miCatRefresh_Click", "GetMyGoogleCalendars_Click",
-                "btColourMap_Click", "ColourPicker_Enter", "ddGoogleColour_SelectedIndexChanged" };
-                String[] TimerMethods = new String[] { "OnTick" };
-
-                foreach (StackFrame frame in stackFrames) {
-                    //log.Debug("Frame:" + frame.GetMethod().Name);
-                    if (FormMethods.Contains(frame.GetMethod().Name))
-                        return Forms.Main.Instance.ActiveCalendarProfile;
-                    else if (TimerMethods.Contains(frame.GetMethod().Name))
-                        return Sync.Engine.Calendar.Instance.Profile;
+                if (Program.CalledByProcess("OnTick")) {
+                    aProfile = Sync.Engine.Calendar.Instance.Profile;
+                    log.Fine("Using profile Sync.Engine.Calendar.Instance.Profile");
+                } else {
+                    aProfile = Forms.Main.Instance.ActiveCalendarProfile;
+                    log.Fine("Using profile Forms.Main.Instance.ActiveCalendarProfile");
                 }
-                String stackString = "";
-                stackFrames.Reverse().ToList().ForEach(sf => stackString += sf.GetMethod().Name + " < ");
-                log.Warn(stackString);
-                log.Error("Unknown profile being referenced.");
-                return Forms.Main.Instance.ActiveCalendarProfile;
+                return aProfile;
             }
         }
     }

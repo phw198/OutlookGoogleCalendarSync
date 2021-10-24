@@ -541,5 +541,32 @@ namespace OutlookGoogleCalendarSync {
             //Disable SSL3?
             //System.Net.ServicePointManager.SecurityProtocol &= ~System.Net.SecurityProtocolType.Ssl3;
         }
+
+        /// <summary>
+        /// Determine what process is in the current call stack
+        /// </summary>
+        /// <param name="callingProcessNames">A comma-separated list of process names</param>
+        /// <returns>True if the call stack contains any of the process names</returns>
+        public static Boolean CalledByProcess(String callingProcessNames) {
+            String[] processNames = callingProcessNames.Split(',');
+            System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
+            foreach (System.Diagnostics.StackFrame frame in stackTrace.GetFrames().Reverse()) {
+                if (processNames.Contains(frame.GetMethod().Name, StringComparer.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /*public static void StackTraceToString() {
+            try {
+                String stackString = "";
+                List<System.Diagnostics.StackFrame> stackFrames = new System.Diagnostics.StackTrace().GetFrames().ToList();
+                stackFrames.ForEach(sf => stackString += sf.GetMethod().Name + " < ");
+                log.Warn("StackTrace path: " + stackString);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+        }*/
     }
 }

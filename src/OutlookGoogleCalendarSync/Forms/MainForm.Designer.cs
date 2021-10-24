@@ -1342,7 +1342,7 @@
             this.howMorePanel.Controls.Add(this.cbPrivate);
             this.howMorePanel.Controls.Add(this.label6);
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
-            this.howMorePanel.MinimumSize = new System.Drawing.Size(353, 0);
+            this.howMorePanel.MinimumSize = new System.Drawing.Size(333, 0);
             this.howMorePanel.Name = "howMorePanel";
             this.howMorePanel.Size = new System.Drawing.Size(353, 90);
             this.howMorePanel.TabIndex = 48;
@@ -1561,7 +1561,7 @@
             this.howObfuscatePanel.Controls.Add(this.label31);
             this.howObfuscatePanel.Controls.Add(this.dgObfuscateRegex);
             this.howObfuscatePanel.Location = new System.Drawing.Point(5, 109);
-            this.howObfuscatePanel.MinimumSize = new System.Drawing.Size(354, 0);
+            this.howObfuscatePanel.MinimumSize = new System.Drawing.Size(334, 0);
             this.howObfuscatePanel.Name = "howObfuscatePanel";
             this.howObfuscatePanel.Size = new System.Drawing.Size(354, 138);
             this.howObfuscatePanel.TabIndex = 46;
