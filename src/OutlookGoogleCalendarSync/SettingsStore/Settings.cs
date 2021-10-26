@@ -419,22 +419,26 @@ namespace OutlookGoogleCalendarSync {
             public enum Type {
                 Calendar,
                 Global,
+                None,
                 Unknown
             }
             public static Type GetType(Object settingsStore) {
-                switch (settingsStore.GetType().ToString()) {
+                if (settingsStore == null) return Type.None;
+
+                switch (settingsStore?.GetType().ToString()) {
                     case "OutlookGoogleCalendarSync.Settings": return Type.Global;
                     case "OutlookGoogleCalendarSync.SettingsStore.Calendar": return Type.Calendar;
                 }
-                log.Warn("Unknown profile type: " + settingsStore.GetType().ToString());
+                log.Warn("Unknown profile type: " + settingsStore?.GetType().ToString());
                 return Type.Unknown;
             }
 
             public static String Name(Object settingsStore) {
-                switch (GetType(settingsStore)) {
+                Type settingsStoreType = GetType(settingsStore);
+                switch (settingsStoreType) {
                     case Type.Calendar: return (settingsStore as SettingsStore.Calendar)._ProfileName;
+                    default: return settingsStoreType.ToString();
                 }
-                return "";
             }
 
             /// <summary>

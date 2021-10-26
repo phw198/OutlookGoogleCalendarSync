@@ -47,11 +47,15 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (queue.Count() == 0) return;
             if (this.ActiveProfile != null) return;
 
-            Job job = queue[0].Values.First();
-            queue.RemoveAt(0);
-            log.Info("Scheduled sync started (" + job.RequestedBy + ") for profile: " + job.ProfileName);
-            this.ActiveProfile = job.Profile;
-            Engine.Instance.Start(updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
+            try {
+                Job job = queue[0].Values.First();
+                queue.RemoveAt(0);
+                log.Info("Scheduled sync started (" + job.RequestedBy + ") for profile: " + job.ProfileName);
+                this.ActiveProfile = job.Profile;
+                Engine.Instance.Start(updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
+            }
         }
 
         private Object activeProfile;
