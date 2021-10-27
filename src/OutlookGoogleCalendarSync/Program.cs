@@ -558,7 +558,7 @@ namespace OutlookGoogleCalendarSync {
             return false;
         }
 
-        /*public static void StackTraceToString() {
+        public static void StackTraceToString() {
             try {
                 String stackString = "";
                 List<System.Diagnostics.StackFrame> stackFrames = new System.Diagnostics.StackTrace().GetFrames().ToList();
@@ -567,6 +567,6 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
-        }*/
+        }
     }
 }

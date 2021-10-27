@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Profile = Sync.Engine.Instance.ActiveProfile as SettingsStore.Calendar;
             }
 
-            public void StartSync(Boolean updateSyncSchedule = true) {
+            public void StartSync(Boolean manualIgnition, Boolean updateSyncSchedule = true) {
                 Forms.Main mainFrm = Forms.Main.Instance;
                 mainFrm.bSyncNow.Text = "Stop Sync";
                 mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
@@ -121,7 +121,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             delegate (object o, DoWorkEventArgs args) {
                                 BackgroundWorker b = o as BackgroundWorker;
                                 try {
-                                    syncResult = synchronize();
+                                    syncResult = manualIgnition ? manualSynchronize() : synchronize();
                                 } catch (System.Exception ex) {
                                     String hResult = OGCSexception.GetErrorCode(ex);
 
@@ -262,6 +262,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Debug("Outlook object removed.");
                     outlookEntries.Remove(cai);
                 }
+            }
+
+            private SyncResult manualSynchronize() {
+                //This function is just a shim to determine how the sync was triggered when looking at the call stack
+                return synchronize();
             }
 
             private SyncResult synchronize() {

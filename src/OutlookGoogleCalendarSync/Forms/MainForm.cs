@@ -1179,7 +1179,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
-            OutlookOgcs.Calendar.Instance.UseOutlookCalendar = calendar.Value;
+            ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry(calendar.Value);
 
             log.Warn("Outlook calendar selection changed to: " + ActiveCalendarProfile.UseOutlookCalendar.ToString());
         }
@@ -1263,14 +1263,20 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btTestOutlookFilter_Click(object sender, EventArgs e) {
             log.Debug("Testing the Outlook filter string.");
-            int filterCount = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(this.ActiveCalendarProfile, OutlookOgcs.Calendar.Instance.UseOutlookCalendar.Items, false).Count();
-            OutlookOgcs.Calendar.Disconnect(true);
-            String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";
-            msg += ActiveCalendarProfile.SyncStart.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
-            msg += " and " + ActiveCalendarProfile.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+            try {
+                MAPIFolder calendar = OutlookOgcs.Calendar.Instance.IOutlook.GetFolderByID(this.ActiveCalendarProfile.UseOutlookCalendar.Id+"1");
+                int filterCount = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(this.ActiveCalendarProfile, false).Count();
+                OutlookOgcs.Calendar.Disconnect(true);
+                String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";
+                msg += ActiveCalendarProfile.SyncStart.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+                msg += " and " + ActiveCalendarProfile.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
 
-            log.Info(msg);
-            OgcsMessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                log.Info(msg);
+                OgcsMessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Profile '" + Settings.Profile.Name(ActiveCalendarProfile) + "', calendar ID " + ActiveCalendarProfile.UseOutlookCalendar.Id, ex);
+                OgcsMessageBox.Show(ex.Message, "Unable to perform test", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void urlDateFormats_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {

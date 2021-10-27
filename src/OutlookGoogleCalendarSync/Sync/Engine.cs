@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 queue.RemoveAt(0);
                 log.Info("Scheduled sync started (" + job.RequestedBy + ") for profile: " + job.ProfileName);
                 this.ActiveProfile = job.Profile;
-                Engine.Instance.Start(updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
+                Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
             }
@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ManualForceCompare = true;
                     }
                     this.ActiveProfile = Forms.Main.Instance.ActiveCalendarProfile;
-                    Start(updateSyncSchedule: false);
+                    Start(manualIgnition: true, updateSyncSchedule: false);
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
                     GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
@@ -177,17 +177,17 @@ namespace OutlookGoogleCalendarSync.Sync {
                 bwSync.Dispose();
                 bwSync = null;
             } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
-                        } finally {
+                OGCSexception.Analyse(ex);
+            } finally {
                 log.Warn("Sync thread forcefully aborted!");
-                        }
-                    }
+            }
+        }
 
-        private void Start(Boolean updateSyncSchedule = true) {
+        private void Start(Boolean manualIgnition, Boolean updateSyncSchedule) {
             if (Settings.Profile.GetType(this.ActiveProfile) == Settings.Profile.Type.Calendar) {
                 Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + (this.ActiveProfile as SettingsStore.Calendar).SyncDirection.Name + "...");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
-                Sync.Engine.Calendar.Instance.StartSync(updateSyncSchedule);
+                Sync.Engine.Calendar.Instance.StartSync(manualIgnition, updateSyncSchedule);
             }
         }
 

@@ -45,13 +45,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
-        public MAPIFolder UseOutlookCalendar {
-            get { return IOutlook.UseOutlookCalendar(); }
-            set {
-                IOutlook.UseOutlookCalendar(value);
-                Forms.Main.Instance.ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry(value);
-            }
-        }
         public Folders Folders {
             get { return IOutlook.Folders(); }
         }
@@ -104,7 +97,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public List<AppointmentItem> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories) {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             try {
-                filtered = FilterCalendarEntries(profile, UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
             } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
                     log.Warn(ex.Message);
@@ -120,18 +113,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 throw;
 
-            } catch (System.NullReferenceException ex) {
-                if (Instance.UseOutlookCalendar == null) {
-                    OGCSexception.LogAsFail(ref ex);
-                    OGCSexception.Analyse(ex);
-                    OutlookOgcs.Calendar.Instance.Reset();
-                    filtered = FilterCalendarEntries(profile, Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
-                } else throw;
-
             } catch (System.ArgumentNullException ex) {
                 OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
                 OutlookOgcs.Calendar.Instance.Reset();
-                filtered = FilterCalendarEntries(profile, Instance.UseOutlookCalendar.Items, suppressAdvisories: suppressAdvisories);
+                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
 
             } catch (System.Exception) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
@@ -140,16 +125,27 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Items OutlookItems, Boolean filterBySettings = true,
+        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
 
             List<AppointmentItem> result = new List<AppointmentItem>();
+            Items OutlookItems = null;
+
+            if (profile is null)
+                profile = Settings.Profile.InPlay();
+
+            try {
+                MAPIFolder thisUseOutlookCalendar = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
+                OutlookItems = thisUseOutlookCalendar.Items;
+            } catch {
+                log.Fail("Could not open '" + Settings.Profile.Name(profile) + "' profile calendar folder with ID " + profile.UseOutlookCalendar.Id);
+                throw;
+            }
+
             if (OutlookItems != null) {
                 log.Fine(OutlookItems.Count + " calendar items exist.");
-                if (profile is null)
-                    profile = Settings.Profile.InPlay();
-
+                
                 OutlookItems.Sort("[Start]", Type.Missing);
                 OutlookItems.IncludeRecurrences = false;
 
@@ -1265,7 +1261,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append(ai.ReminderSet + ",");
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
             csv.Append(OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
-            csv.Append(ai.EntryID + "," + OutlookOgcs.Calendar.instance.UseOutlookCalendar.EntryID + ",");
+            csv.Append(ai.EntryID + "," + Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) ?? "") + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
             csv.Append(CustomProperty.GetOGCSlastModified(ai).ToString() + ",");

@@ -537,10 +537,24 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return restrictedItems;
         }
 
+        public MAPIFolder GetFolderByID(String entryID) {
+            NameSpace ns = null;
+            try {
+                ns = oApp.GetNamespace("mapi");
+                return ns.GetFolderFromID(entryID);
+            } finally {
+                ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
+            }
+        }
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
-            NameSpace ns = oApp.GetNamespace("mapi");
-            ai = ns.GetItemFromID(entryID) as AppointmentItem;
-            ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
+            NameSpace ns = null;
+            try {
+                ns = oApp.GetNamespace("mapi");
+                ai = ns.GetItemFromID(entryID) as AppointmentItem;
+            } finally {
+                ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
+            }
         }
 
         public String GetRecipientEmail(Recipient recipient) {

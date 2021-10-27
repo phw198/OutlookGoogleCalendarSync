@@ -446,14 +446,21 @@ namespace OutlookGoogleCalendarSync {
             /// </summary>
             /// <returns>Currently hard-coded to a Calendar profile</returns>
             public static SettingsStore.Calendar InPlay() {
-                SettingsStore.Calendar aProfile = null;
+                SettingsStore.Calendar aProfile;
 
-                if (Program.CalledByProcess("OnTick")) {
-                    aProfile = Sync.Engine.Calendar.Instance.Profile;
-                    log.Fine("Using profile Sync.Engine.Calendar.Instance.Profile");
-                } else {
+                if (Program.CalledByProcess("manualSynchronize,updateGUIsettings,UpdateGUIsettings_Profile,miCatRefresh_Click," +
+                    "GetMyGoogleCalendars_Click,btColourMap_Click,ColourPicker_Enter,ddGoogleColour_SelectedIndexChanged")) {
                     aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                     log.Fine("Using profile Forms.Main.Instance.ActiveCalendarProfile");
+                
+                } else if (Program.CalledByProcess("synchronize,OnTick")) {
+                    aProfile = Sync.Engine.Calendar.Instance.Profile;
+                    log.Fine("Using profile Sync.Engine.Calendar.Instance.Profile");
+
+                } else {
+                    Program.StackTraceToString();
+                    log.Error("Unknown profile being referenced.");
+                    aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                 }
                 return aProfile;
             }

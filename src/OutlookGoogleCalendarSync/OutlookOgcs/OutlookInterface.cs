@@ -34,6 +34,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="filter">The logic by which to perform filter</param>
         /// <returns>Filtered items</returns>
         List<Object> FilterItems(Items outlookItems, String filter);
+        MAPIFolder GetFolderByID(String entryID);
         void GetAppointmentByID(String entryID, out AppointmentItem ai);
     }
 }

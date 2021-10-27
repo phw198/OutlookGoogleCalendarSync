@@ -1216,7 +1216,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         }
                     }
                     if (!foundMatch && profile.MergeItems &&
-                        GoogleOgcs.CustomProperty.Get(google[g], CustomProperty.MetadataId.oCalendarId) != OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+                        GoogleOgcs.CustomProperty.Get(google[g], CustomProperty.MetadataId.oCalendarId) != profile.UseOutlookCalendar.Id)
                         google.Remove(google[g]);
 
                 } else if (profile.MergeItems) {
@@ -1278,7 +1278,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 {
                     log.Fine("Comparing Outlook CalendarID");
                     gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId);
-                    if (gCompareID == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID) {
+                    if (gCompareID == profile.UseOutlookCalendar.Id) {
 
                         //But...if an appointment is copied within ones own calendar, the DATA part is the same (only the creation time changes)!
                         //So now compare the Entry ID too.
