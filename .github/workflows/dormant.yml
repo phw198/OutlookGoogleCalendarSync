@@ -35,4 +35,4 @@ jobs:
         days-before-close: 7
         start-date: '2020-01-01T00:00:00Z' # ISO 8601 or RFC 2822
         operations-per-run: 10        
-        debug-only: (github.event.inputs.test-run == 'y')
+        debug-only: ${{ (github.event.inputs.test-run == 'y') }}
