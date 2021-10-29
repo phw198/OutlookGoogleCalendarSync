@@ -1024,8 +1024,26 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void ddProfile_SelectedIndexChanged(object sender, EventArgs e) {
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
-                if (cal._ProfileName == ddProfile.Text)
-                    cal.SetActive();
+                if (cal._ProfileName == ddProfile.Text) {
+                    try {
+                        try {
+                            if (this.tabAppSettings.SelectedTab != this.tabOutlook) {
+                                this.tabAppSettings.SelectedTab.Controls.Add(this.panelProfileLoading);
+                                this.panelProfileLoading.BringToFront();
+                                this.panelProfileLoading.Visible = true;
+                                this.txtProfileLoading.Location = new Point((this.tabOutlook.Width - this.txtProfileLoading.Width) / 2, 9);
+                                this.tabAppSettings.Enabled = false;
+                            }
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse(ex);
+                        }
+                        cal.SetActive();
+                        break;
+                    } finally {
+                        this.panelProfileLoading.Visible = false;
+                        this.tabAppSettings.Enabled = true;
+                    }
+                }
             }
         }
 
@@ -1857,7 +1875,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
-            if (this.Visible) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
+            if (this.Visible && sender != null) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
             cbUseGoogleDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbUseOutlookDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection != Sync.Direction.OutlookToGoogle;
             cbReminderDND.Enabled = cbAddReminders.Checked;
@@ -1888,7 +1906,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbMaxAttendees.Enabled = false;
                 return;
             }
-            if (this.Visible) ActiveCalendarProfile.AddAttendees = cbAddAttendees.Checked;
+            if (this.Visible && sender != null) ActiveCalendarProfile.AddAttendees = cbAddAttendees.Checked;
             tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = ActiveCalendarProfile.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;

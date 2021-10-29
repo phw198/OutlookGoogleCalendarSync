@@ -484,7 +484,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
                     }
                 } catch (System.Exception ex) {
-                    if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
+                    if (oApp?.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ?? false ||
                         OGCSexception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
                         OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
                         log.Warn(ex.Message);

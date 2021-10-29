@@ -211,7 +211,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             log.Info("Start monitoring for Outlook appointments changes on profile: " + this._ProfileName);
             if (this.OgcsPushTimer == null)
-                this.OgcsPushTimer = Sync.PushSyncTimer.Instance(this);
+                this.OgcsPushTimer = new Sync.PushSyncTimer(this);
             if (!this.OgcsPushTimer.Running())
                 this.OgcsPushTimer.Activate(true);
         }

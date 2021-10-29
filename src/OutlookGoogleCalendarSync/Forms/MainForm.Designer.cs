@@ -95,6 +95,8 @@
             this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
             this.tabGoogle = new System.Windows.Forms.TabPage();
+            this.panelProfileLoading = new System.Windows.Forms.Panel();
+            this.txtProfileLoading = new System.Windows.Forms.Label();
             this.cbListHiddenGcals = new System.Windows.Forms.CheckBox();
             this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
             this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
@@ -284,6 +286,7 @@
             this.msCategories.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabGoogle.SuspendLayout();
+            this.panelProfileLoading.SuspendLayout();
             this.gbDeveloperOptions.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
             this.WhatPostit.SuspendLayout();
@@ -549,7 +552,6 @@
             // 
             // label34
             // 
-            this.label34.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label34.AutoSize = true;
             this.label34.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label34.ForeColor = System.Drawing.SystemColors.MenuHighlight;
@@ -956,6 +958,7 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
+            this.tabGoogle.Controls.Add(this.panelProfileLoading);
             this.tabGoogle.Controls.Add(this.cbListHiddenGcals);
             this.tabGoogle.Controls.Add(this.cbExcludeDeclinedInvites);
             this.tabGoogle.Controls.Add(this.cbExcludeGoals);
@@ -976,6 +979,31 @@
             this.tabGoogle.Size = new System.Drawing.Size(392, 455);
             this.tabGoogle.TabIndex = 1;
             this.tabGoogle.Text = "  Google";
+            // 
+            // panelProfileLoading
+            // 
+            this.panelProfileLoading.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelProfileLoading.BackColor = System.Drawing.Color.Gold;
+            this.panelProfileLoading.Controls.Add(this.txtProfileLoading);
+            this.panelProfileLoading.Location = new System.Drawing.Point(0, 87);
+            this.panelProfileLoading.Name = "panelProfileLoading";
+            this.panelProfileLoading.Size = new System.Drawing.Size(392, 44);
+            this.panelProfileLoading.TabIndex = 48;
+            // 
+            // txtProfileLoading
+            // 
+            this.txtProfileLoading.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.txtProfileLoading.AutoSize = true;
+            this.txtProfileLoading.BackColor = System.Drawing.Color.Transparent;
+            this.txtProfileLoading.Font = new System.Drawing.Font("MS Reference Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtProfileLoading.ForeColor = System.Drawing.Color.MediumBlue;
+            this.txtProfileLoading.Location = new System.Drawing.Point(87, 9);
+            this.txtProfileLoading.Name = "txtProfileLoading";
+            this.txtProfileLoading.Size = new System.Drawing.Size(223, 26);
+            this.txtProfileLoading.TabIndex = 0;
+            this.txtProfileLoading.Text = "PROFILE LOADING";
+            this.txtProfileLoading.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // cbListHiddenGcals
             // 
@@ -3359,6 +3387,8 @@
             this.groupBox1.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
+            this.panelProfileLoading.ResumeLayout(false);
+            this.panelProfileLoading.PerformLayout();
             this.gbDeveloperOptions.ResumeLayout(false);
             this.gbDeveloperOptions.PerformLayout();
             this.tabSyncOptions.ResumeLayout(false);
@@ -3636,5 +3666,7 @@
         private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
+        private System.Windows.Forms.Label txtProfileLoading;
+        private System.Windows.Forms.Panel panelProfileLoading;
     }
 }

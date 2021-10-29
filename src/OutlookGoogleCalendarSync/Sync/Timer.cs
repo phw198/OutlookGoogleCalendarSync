@@ -77,21 +77,20 @@ namespace OutlookGoogleCalendarSync.Sync {
         /// <param name="fromNow">From now or since last successful sync</param>
         /// <param name="calculateInterval">Calculate milliseconds to next sync and activate timer</param>
         public void SetNextSync(int delayMins, Boolean fromNow = false, Boolean calculateInterval = true) {
-            int syncInterval = 0;
-            if (owningProfile is SettingsStore.Calendar) {
-                syncInterval = SettingsStore.Calendar.GetCalendarProfile(owningProfile).SyncInterval;
-            }            
+            SettingsStore.Calendar profile = null;
+            if (owningProfile is SettingsStore.Calendar)
+                profile = SettingsStore.Calendar.GetCalendarProfile(owningProfile);
             
-            if (syncInterval != 0) {
+            if (profile == null || profile.SyncInterval == 0) {
+                this.NextSyncDateText = (profile?.OutlookPush ?? false) ? "Push Sync Active" : "Inactive";
+                Activate(false);
+                log.Info("Schedule disabled.");
+            } else {
                 DateTime now = DateTime.Now;
                 this.nextSyncDate = fromNow ? now.AddMinutes(delayMins) : this.LastSyncDate.AddMinutes(delayMins);
                 if (calculateInterval) CalculateInterval();
                 else this.NextSyncDate = this.nextSyncDate;
                 log.Info("Next sync scheduled for profile '"+ Settings.Profile.Name(owningProfile) +"' at " + this.NextSyncDateText);
-            } else {
-                this.NextSyncDateText = "Inactive";
-                Activate(false);
-                log.Info("Schedule disabled.");
             }
         }
 
@@ -144,15 +143,7 @@ namespace OutlookGoogleCalendarSync.Sync {
         private DateTime lastRunTime;
         private Int32 lastRunItemCount;
         private Int16 failures = 0;
-        private static PushSyncTimer instance;
-        public static PushSyncTimer Instance(Object owningProfile) {
-            if (instance == null) {
-                instance = new PushSyncTimer(owningProfile);
-            }
-            return instance;
-        }
-
-        private PushSyncTimer(Object owningProfile) {
+        public PushSyncTimer(Object owningProfile) {
             this.owningProfile = owningProfile;
             ResetLastRun();
             this.Tag = "PushTimer";
@@ -175,12 +166,13 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            log.Fine("Push sync triggered.");
-
+            log.UltraFine("Push sync triggered.");
+            
             try {
                 if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
 
                 SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
+                log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
                 System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
