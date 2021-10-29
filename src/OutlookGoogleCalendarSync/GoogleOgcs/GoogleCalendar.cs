@@ -78,7 +78,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             throwException
         }
         private static Random random = new Random();
-        public long MinDefaultReminder = long.MinValue;
+        public int MinDefaultReminder = int.MinValue;
         public Int16 UTCoffset { get; internal set; }
         public String SubscriptionInvite {
             get {
@@ -1465,12 +1465,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         private void getCalendarSettings() {
-            if (!Settings.Instance.AddReminders || !Settings.Instance.UseGoogleDefaultReminder) return;
+            if (!Settings.Instance.AddReminders) return;
 
             CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
             CalendarListEntry cal = request.Execute();
             if (cal.DefaultReminders.Count == 0)
-                this.MinDefaultReminder = long.MinValue;
+                    this.MinDefaultReminder = int.MinValue;
             else
                 this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
         }
