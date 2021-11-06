@@ -95,6 +95,69 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
+        public void AddProfileItem(String itemText) {
+            try {
+                ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find("sync", false);
+                if (items.Count() > 0) {
+                    ToolStripItem item = items.First();
+                    if (item is ToolStripMenuItem) {
+                        ToolStripMenuItem rootMenu = item as ToolStripMenuItem;
+                        items = rootMenu.DropDown.Items.Find("sync", false);
+                        if (items.Count(i => i.Text == itemText) > 0)
+                            log.Warn("There already exists a menu item with the name: " + itemText);
+                        else
+                            rootMenu.DropDown.Items.Add(toolStripMenuItemWithHandler(itemText, "sync", syncItem_Click));
+                    } else
+                        log.Error("'Sync Now' item found does not contain a menu");
+                } else
+                    log.Error("Could not find root 'sync' item");
+                    
+            } catch (System.Exception ex) {
+                if (Forms.Main.Instance.IsDisposed) return;
+                OGCSexception.Analyse(ex, true);
+            }
+        }
+        public void RenameProfileItem(String currentText, String newText) {
+            try {
+                ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find("sync", false);
+                if (items.Count() > 0) {
+                    ToolStripItem item = items.First();
+                    if (item is ToolStripMenuItem) {
+                        ToolStripMenuItem rootMenu = item as ToolStripMenuItem;
+                        items = rootMenu.DropDown.Items.Find("sync", false);
+                        items.ToList().Where(i => i.Text == currentText).ToList().ForEach(j => j.Text = newText);
+                    } else
+                        log.Error("'Sync Now' item found does not contain a menu");
+                } else
+                    log.Error("Could not find root 'sync' item");
+
+            } catch (System.Exception ex) {
+                if (Forms.Main.Instance.IsDisposed) return;
+                OGCSexception.Analyse(ex, true);
+            }
+        }
+
+        public void RemoveProfileItem(String itemText) {
+            try {
+                ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find("sync", false);
+                if (items.Count() > 0) {
+                    ToolStripItem item = items.First();
+                    if (item is ToolStripMenuItem) {
+                        ToolStripMenuItem rootMenu = item as ToolStripMenuItem;
+                        items = rootMenu.DropDown.Items.Find("sync", false);
+                        items.ToList().Where(i => i.Text == itemText).ToList().ForEach(j => rootMenu.DropDownItems.Remove(j));
+                    } else
+                        log.Error("'Sync Now' item found does not contain a menu");
+                } else
+                    log.Error("Could not find root 'sync' item");
+
+            } catch (System.Exception ex) {
+                if (Forms.Main.Instance.IsDisposed) return;
+                OGCSexception.Analyse(ex, true);
+            }
+        }
+
+
         public void UpdateAutoSyncItems() {
             Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>
                 (c.OgcsTimer != null && c.OgcsTimer.Running()) ||
@@ -114,8 +177,12 @@ namespace OutlookGoogleCalendarSync {
 
         private void syncItem_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            Settings.Instance.Calendars.FirstOrDefault(cal => cal._ProfileName == menuItemText).SetActive();
-            Sync.Engine.Instance.Sync_Requested();
+            SettingsStore.Calendar profile = Settings.Instance.Calendars.First(cal => cal._ProfileName == menuItemText);
+            if (profile != null) {
+                Sync.Engine.Instance.JobQueue.Add(new Sync.Engine.Job("NotificationTray", profile));
+            } else {
+                log.Error("Unable to find a profile by the name: " + menuItemText);
+            }
         }
 
         private void autoSyncToggle_Click(object sender, EventArgs e) {

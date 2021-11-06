@@ -1068,13 +1068,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Added new calendar settings '" + profileName + "'.");
                 int addedIdx = ddProfile.Items.Add(profileName);
                 ddProfile.SelectedIndex = addedIdx;
+                NotificationTray.AddProfileItem(profileName);
 
+                newCalendar.InitialiseTimer();
+                newCalendar.RegisterForPushSync();
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to add new profile.", ex);
-                throw ex;
+                throw;
             }
-            newCalendar.InitialiseTimer();
-            newCalendar.RegisterForPushSync();
         }
         private void miDeleteProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miDeleteProfile.Text;
@@ -1095,8 +1096,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddProfile.SelectedIndex = 0;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
-                throw ex;
+                throw;
             }
+            NotificationTray.RemoveProfileItem(profileName);
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miRenameProfile.Text;
@@ -1107,12 +1109,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (newProfileName == "") return;
 
                 ActiveCalendarProfile._ProfileName = newProfileName;
-                ddProfile.Text = newProfileName;
+                int idx = ddProfile.SelectedIndex;
+                ddProfile.Items.RemoveAt(idx);
+                ddProfile.Items.Insert(idx, newProfileName);
+                ddProfile.SelectedIndex = idx;
                 log.Info("Renamed calendar settings from '" + currentProfileName + "' to '" + newProfileName + "'.");
+
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.", ex);
-                throw ex;
+                throw;
             }
+            NotificationTray.RenameProfileItem(currentProfileName, newProfileName);
         }
         #endregion
         #region Outlook settings

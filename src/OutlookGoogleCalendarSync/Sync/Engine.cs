@@ -11,10 +11,59 @@ namespace OutlookGoogleCalendarSync.Sync {
             public String RequestedBy { get; internal set; }
             public String ProfileName { get; internal set; }
             public Object Profile { get; internal set; }
-            public Job(String requestBy, String profileName, Object profile) {
+            public Job(String requestBy, Object profile) {
                 this.RequestedBy = requestBy;
-                this.ProfileName = profileName;
+                this.ProfileName = Settings.Profile.Name(profile);
                 this.Profile = profile;
+            }
+
+            public class Queue {
+                //Generic Queue object would be nice, but then can't dedupe
+                private static readonly ILog log = LogManager.GetLogger(typeof(Queue));
+
+                Timer queueTimer;
+                List<Dictionary<String, Job>> queue; //Generic Queue object would be nice, but then can't dedupe
+
+                public Queue() {
+                    this.queue = new List<Dictionary<String, Job>>();
+                    this.queueTimer = new Timer();
+                    this.queueTimer.Interval = 1000;
+                    this.queueTimer.Tick += QueueTimer_Tick;
+                    this.queueTimer.Start();
+                }
+
+                public Boolean Add(Job job) {
+                    if (this.queue.Exists(q => q.ContainsKey(job.ProfileName)))
+                        return false;
+                    else {
+                        queue.Add(new Dictionary<string, Job>() { { job.ProfileName, job } });
+                        return true;
+                    }
+                }
+
+                public int Count() {
+                    return queue.Count();
+                }
+                public void Clear() {
+                    queue.Clear();
+                }
+
+                private void QueueTimer_Tick(object sender, EventArgs e) {
+                    log.UltraFine("Sync queue size: " + queue.Count());
+
+                    if (queue.Count() == 0) return;
+                    if (Engine.Instance.ActiveProfile != null) return;
+
+                    try {
+                        Job job = queue[0].Values.First();
+                        queue.RemoveAt(0);
+                        log.Info("Scheduled sync started (" + job.RequestedBy + ") for profile: " + job.ProfileName);
+                        Engine.Instance.ActiveProfile = job.Profile;
+                        Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
+                    } catch (System.Exception ex) {
+                        OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
+                    }
+                }
             }
         }
 
@@ -30,33 +79,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                 instance = value;
             }
         }
-        Timer queueTimer;
-        List<Dictionary<String, Job>> queue; //Generic Queue object would be nice, but then can't dedupe
 
         public Engine() {
-            this.queue = new List<Dictionary<String, Job>>();
-            this.queueTimer = new Timer();
-            this.queueTimer.Interval = 1000;
-            this.queueTimer.Tick += QueueTimer_Tick;
-            this.queueTimer.Start();
+            this.JobQueue = new Job.Queue();
         }
-
-        private void QueueTimer_Tick(object sender, EventArgs e) {
-            log.UltraFine("Sync queue size: "+ queue.Count());
-
-            if (queue.Count() == 0) return;
-            if (this.ActiveProfile != null) return;
-
-            try {
-                Job job = queue[0].Values.First();
-                queue.RemoveAt(0);
-                log.Info("Scheduled sync started (" + job.RequestedBy + ") for profile: " + job.ProfileName);
-                this.ActiveProfile = job.Profile;
-                Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
-            }
-        }
+        public Job.Queue JobQueue { get; protected set; }
 
         private Object activeProfile;
         /// <summary>
@@ -120,13 +147,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 else if (aTimer.Tag.ToString() == "AutoSyncTimer" && aTimer is SyncTimer)
                     timerProfile = (aTimer as SyncTimer).owningProfile;
 
-                String profileName = Settings.Profile.Name(timerProfile);
-
-                if (Sync.Engine.Instance.queue.Exists(q => q.ContainsKey(profileName)))
-                    log.Warn("Sync of profile '" + profileName + "' requested by " + aTimer.Tag.ToString() + " already previously queued.");
-                else {
-                    queue.Add(new Dictionary<String, Job>() { { profileName, new Job(aTimer.Tag.ToString(), profileName, timerProfile) } });
+                if (JobQueue.Add(new Job(aTimer.Tag.ToString(), timerProfile))) {
                     aTimer.Stop();
+                } else {
+                    log.Warn("Sync of profile '" + Settings.Profile.Name(timerProfile) + "' requested by " + aTimer.Tag.ToString() + " already previously queued.");
                 }
 
             } else { //Manual sync
@@ -160,11 +184,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Forms.Main.Instance.Console.Update("Repeated cancellation requested - forcefully aborting sync!", Console.Markup.warning);
                         AbortSync();
                     }
-                    if (queue.Count() > 0) {
-                        if (OgcsMessageBox.Show("There are " + queue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
+                    if (this.JobQueue.Count() > 0) {
+                        if (OgcsMessageBox.Show("There are " + this.JobQueue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
                             "Clear queued syncs?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             log.Info("User requested clear down of sync queue.");
-                            queue.Clear();
+                            this.JobQueue.Clear();
                         }
                     }
                 }
