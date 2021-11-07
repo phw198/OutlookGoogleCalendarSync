@@ -47,13 +47,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                 donor = (XMLManager.ImportElement("Donor", Settings.ConfigFile) ?? "false") == "true";
 
                 String subscribedDate = XMLManager.ImportElement("Subscribed", Settings.ConfigFile);
-                if (string.IsNullOrEmpty(subscribedDate)) subscribedDate = "01-Jan-2000";
-                subscribed = DateTime.Parse(subscribedDate);
+                if (!string.IsNullOrEmpty(subscribedDate)) subscribed = DateTime.Parse(subscribedDate); 
+                else subscribed = GoogleOgcs.Authenticator.SubscribedNever;
+                
                 Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Settings.ConfigFile) ?? "false") == "true";
                 initialised = true;
 
                 splash.cbHideSplash.Checked = hideSplash;
-                if (subscribed == DateTime.Parse("01-Jan-2000") && !donor) {
+                if (subscribed == GoogleOgcs.Authenticator.SubscribedNever && !donor) {
                     ToolTips = new ToolTip {
                         AutoPopDelay = 10000,
                         InitialDelay = 500,
@@ -114,7 +115,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
 
-            if (subscribed == DateTime.Parse("01-Jan-2000") && !donor) {
+            if (subscribed == GoogleOgcs.Authenticator.SubscribedNever && !donor) {
                 this.cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
                 this.cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;

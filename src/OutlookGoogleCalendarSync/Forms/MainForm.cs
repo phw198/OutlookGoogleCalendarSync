@@ -419,7 +419,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
-            cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
+            cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
             cbSuppressSocialPopup.Checked = Settings.Instance.SuppressSocialPopup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
@@ -453,7 +453,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dgAbout.Rows[r].Cells[1].Value = Settings.ConfigFile;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Subscription";
-            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
+            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed <= GoogleOgcs.Authenticator.SubscribedBefore) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Timezone DB";
             dgAbout.Rows[r].Cells[1].Value = TimezoneDB.Instance.Version;
