@@ -1056,26 +1056,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 miRenameProfile_Click(null, null);
         }
         private void miAddProfile_Click(object sender, EventArgs e) {
-            SettingsStore.Calendar newCalendar = null;
             btProfileAction.Text = miAddProfile.Text;
-            try {
-                String profileName = Microsoft.VisualBasic.Interaction.InputBox("Enter the name of the new profile", "Add Profile", "Profile #" + (Settings.Instance.Calendars.Count + 1));
-                if (string.IsNullOrEmpty(profileName)) return;
-
-                newCalendar = new SettingsStore.Calendar();
-                newCalendar._ProfileName = profileName;
-                Settings.Instance.Calendars.Add(newCalendar);
-                log.Info("Added new calendar settings '" + profileName + "'.");
-                int addedIdx = ddProfile.Items.Add(profileName);
-                ddProfile.SelectedIndex = addedIdx;
-                NotificationTray.AddProfileItem(profileName);
-
-                newCalendar.InitialiseTimer();
-                newCalendar.RegisterForPushSync();
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to add new profile.", ex);
-                throw;
-            }
+            new Forms.ProfileManage("Add", ddProfile).ShowDialog();
         }
         private void miDeleteProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miDeleteProfile.Text;
@@ -1102,24 +1084,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miRenameProfile.Text;
-            String currentProfileName = ddProfile.Text;
-            String newProfileName = "?";
-            try {
-                newProfileName = Microsoft.VisualBasic.Interaction.InputBox("Enter the new name of the profile", "Rename Profile", currentProfileName);
-                if (newProfileName == "") return;
-
-                ActiveCalendarProfile._ProfileName = newProfileName;
-                int idx = ddProfile.SelectedIndex;
-                ddProfile.Items.RemoveAt(idx);
-                ddProfile.Items.Insert(idx, newProfileName);
-                ddProfile.SelectedIndex = idx;
-                log.Info("Renamed calendar settings from '" + currentProfileName + "' to '" + newProfileName + "'.");
-
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.", ex);
-                throw;
-            }
-            NotificationTray.RenameProfileItem(currentProfileName, newProfileName);
+            new Forms.ProfileManage("Rename", ddProfile).ShowDialog();
         }
         #endregion
         #region Outlook settings

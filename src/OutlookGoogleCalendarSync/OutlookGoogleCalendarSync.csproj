@@ -230,6 +230,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -267,6 +268,12 @@
     </Compile>
     <Compile Include="Forms\ErrorReporting.Designer.cs">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ProfileManage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProfileManage.Designer.cs">
+      <DependentUpon>ProfileManage.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Social.cs">
       <SubType>Form</SubType>
@@ -358,6 +365,9 @@
     <EmbeddedResource Include="Forms\ErrorReporting.resx">
       <DependentUpon>ErrorReporting.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProfileManage.resx">
+      <DependentUpon>ProfileManage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Social.resx">
       <DependentUpon>Social.cs</DependentUpon>
