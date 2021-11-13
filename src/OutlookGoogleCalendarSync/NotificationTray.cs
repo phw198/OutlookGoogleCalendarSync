@@ -136,7 +136,6 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex, true);
             }
         }
-
         public void RemoveProfileItem(String itemText) {
             try {
                 ToolStripItem[] items = this.icon.ContextMenuStrip.Items.Find("sync", false);
@@ -156,7 +155,6 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex, true);
             }
         }
-
 
         public void UpdateAutoSyncItems() {
             Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>

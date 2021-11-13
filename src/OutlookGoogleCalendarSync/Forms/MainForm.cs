@@ -1266,7 +1266,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void btTestOutlookFilter_Click(object sender, EventArgs e) {
             log.Debug("Testing the Outlook filter string.");
             try {
-                MAPIFolder calendar = OutlookOgcs.Calendar.Instance.IOutlook.GetFolderByID(this.ActiveCalendarProfile.UseOutlookCalendar.Id+"1");
+                MAPIFolder calendar = OutlookOgcs.Calendar.Instance.IOutlook.GetFolderByID(this.ActiveCalendarProfile.UseOutlookCalendar.Id);
                 int filterCount = OutlookOgcs.Calendar.Instance.FilterCalendarEntries(this.ActiveCalendarProfile, false).Count();
                 OutlookOgcs.Calendar.Disconnect(true);
                 String msg = "The format '" + tbOutlookDateFormat.Text + "' returns " + filterCount + " calendar items within the date range ";

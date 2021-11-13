@@ -1,5 +1,8 @@
-﻿namespace System.Windows.Forms {
+﻿using log4net;
+
+namespace System.Windows.Forms {
     public static class OgcsMessageBox {
+        private static readonly ILog log = LogManager.GetLogger(typeof(OgcsMessageBox));
         private static DialogResult dr;
                 
         /// <summary>
@@ -11,6 +14,7 @@
         /// <param name="icon">Icon to display</param>
         public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
+            log.Debug(caption + ": " + text);
 
             if (mainFrm == null || mainFrm.IsDisposed)
                 return MessageBox.Show(text, caption, buttons, icon);
@@ -24,6 +28,7 @@
                 mainFrm.MainFormShow();
                 dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
             }
+            log.Debug("Response: " + dr.ToString());
             return dr;
         }
 
