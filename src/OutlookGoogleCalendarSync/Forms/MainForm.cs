@@ -261,8 +261,20 @@ namespace OutlookGoogleCalendarSync.Forms {
                     rbOutlookSharedCal.Enabled = false;
                 } else {
                     if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox) {
+                        if (rbOutlookAltMB.Checked) {
+                            //Toggle check to force refresh of calendar dropdowns
+                            rbOutlookAltMB.CheckedChanged -= new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+                            rbOutlookAltMB.Checked = false;
+                            rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+                        }
                         rbOutlookAltMB.Checked = true;
                     } else if (profile.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
+                        if (rbOutlookSharedCal.Checked) {
+                            //Toggle check to force refresh of calendar dropdowns
+                            rbOutlookSharedCal.CheckedChanged -= new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
+                            rbOutlookSharedCal.Checked = false;
+                            rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
+                        }
                         rbOutlookSharedCal.Checked = true;
                     } else {
                         rbOutlookDefaultMB.Checked = true;

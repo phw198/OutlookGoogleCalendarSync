@@ -34,8 +34,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 } catch (System.ApplicationException) {
                     throw;
                 } catch (System.Exception ex) {
+                    if (ex is System.Runtime.InteropServices.COMException) OGCSexception.LogAsFail(ref ex);
                     OGCSexception.Analyse(ex);
-                    log.Info("It appears Outlook has been restarted after OGCS was started. Reconnecting...");
+                    log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
                     instance.IOutlook.Connect();
                 }
