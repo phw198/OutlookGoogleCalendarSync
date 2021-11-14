@@ -137,9 +137,15 @@ namespace OutlookGoogleCalendarSync {
                         } else {
                             try {
                                 //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
-                                String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
-                                log.Debug("Downloading " + nupkgUrl);
-                                new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
+                                if (string.IsNullOrEmpty(nonGitHubReleaseUri)) {
+                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                                    log.Debug("Downloading " + nupkgUrl);
+                                    new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile); 
+                                } else {
+                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + update.Filename;
+                                    log.Debug("Downloading " + nupkgUrl);
+                                    new System.Net.WebClient().DownloadFile(nupkgUrl, localFile);
+                                }
                                 log.Debug("Download complete.");
                             } catch (System.Exception ex) {
                                 OGCSexception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
