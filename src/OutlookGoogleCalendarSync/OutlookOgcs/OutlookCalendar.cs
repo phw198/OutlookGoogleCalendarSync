@@ -182,7 +182,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         try {
                             DateTime start = ai.Start;
                         } catch (System.NullReferenceException) {
-                            log.Error("Appointment item seems unusable - no Start or End date! Discarding.");
+                            try { log.Debug("Subject: " + ai.Subject); } catch { }
+                            log.Fail("Appointment item seems unusable - no Start or End date! Discarding.");
                             continue;
                         }
                         log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));

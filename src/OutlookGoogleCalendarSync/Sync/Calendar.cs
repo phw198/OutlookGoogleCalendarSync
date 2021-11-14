@@ -99,6 +99,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                             } else {
                                 log.Info("User opted to retry sync straight away.");
                                 mainFrm.Console.Clear();
+                                Sync.Engine.Instance.bwSync = new AbortableBackgroundWorker() {
+                                    //Don't need thread to report back. The logbox is updated from the thread anyway.
+                                    WorkerReportsProgress = false,
+                                    WorkerSupportsCancellation = true
+                                };
                             }
                         }
 
@@ -373,12 +378,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                             entryID = outlookEntries[o].EntryID;
                             DateTime checkDates = ai.Start;
                             checkDates = ai.End;
-                        } catch (System.Exception ex) {
-                            //"Your server administrator has limited the number of items you can open simultaneously."
-                            //Once we have the error code for above message, need to abort sync - and suggest using cached Exchange mode
-                            OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
-                                OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
-                            skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
+                                skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
+                            } else {
+                                //"Your server administrator has limited the number of items you can open simultaneously."
+                                //Once we have the error code for above message, need to abort sync - and suggest using cached Exchange mode
+                                OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
+                                    OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
+                                skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
+                            }
                             ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
                             continue;
                         }
