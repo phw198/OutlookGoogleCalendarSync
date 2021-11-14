@@ -11,6 +11,31 @@ p {
 
 # Release Notes
 
+## v2.9.2.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Don't steal focus for messageboxes, flash icon instead
+- Improved UX for category/colour map tests
+- Proactively offer hiding of splash screen following donation
+
+:beetle: **Bugfix**
+- Fix missing Google default notification in Outlook appointment
+- Fix "the given key was not in the dictionary"
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.9.1.0 - Alpha
 
 :high_brightness: **Enhancements**
