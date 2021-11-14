@@ -167,7 +167,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
-            cbHideSplash.Checked = Settings.Instance.HideSplashScreen;
+            cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
             cbSuppressSocialPopup.Checked = Settings.Instance.SuppressSocialPopup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
@@ -201,7 +201,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dgAbout.Rows[r].Cells[1].Value = Settings.ConfigFile;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Subscription";
-            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
+            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed <= GoogleOgcs.Authenticator.SubscribedBefore) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Timezone DB";
             dgAbout.Rows[r].Cells[1].Value = TimezoneDB.Instance.Version;
@@ -868,14 +868,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.Activate();
         }
 
-        public void MainFormShow() {
+        public void MainFormShow(Boolean forceToTop = false) {
             this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
-            this.Show(); //Show minimised back in taskbar
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
-            this.TopMost = true;
+            if (forceToTop) this.TopMost = true;
             this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
-            this.Show(); //Now restore
             this.TopMost = false;
             this.Refresh();
             System.Windows.Forms.Application.DoEvents();
@@ -884,7 +882,6 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void mainFormResize(object sender, EventArgs e) {
             if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
                 this.ShowInTaskbar = false;
-                this.Hide();
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
                     NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", tagValue: "ShowBubbleWhenMinimising");
                 } else {

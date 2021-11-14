@@ -1,0 +1,38 @@
+# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+#
+# You can adjust the behavior by modifying this file.
+# For more information, see:
+# https://github.com/actions/stale
+name: Manage dormant issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-run:
+        description: 'Dry run only (y/n)?'
+        required: false
+        default: 'y'
+  schedule:
+  - cron: '30 8 * * *'
+
+jobs:
+  stale:
+
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+    - uses: actions/stale@v4
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        days-before-pr-stale: -1
+        days-before-issue-stale: 30
+        stale-issue-label: 'dormant'
+        only-labels: 'bug'
+        exempt-issue-labels: 'resolved,waiting fix confirmation,help wanted,backlog'
+        stale-issue-message: 'This issue has been marked dormant because the last update is at least 30 days ago. If no update is made with the next 7 days, the issue will be closed.'
+        days-before-close: 7
+        start-date: '2020-01-01T00:00:00Z' # ISO 8601 or RFC 2822
+        operations-per-run: 10        
+        debug-only: ${{ (github.event.inputs.test-run == 'y') }}

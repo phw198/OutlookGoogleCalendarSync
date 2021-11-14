@@ -67,7 +67,27 @@ namespace OutlookGoogleCalendarSync.Forms {
                 OGCSexception.Analyse("Adding colour/category map row #" + lastRow, ex);
             }
         }
-        
+
+        private void newRowNeeded() {
+            int lastRow = 0;
+            try {
+                lastRow = colourGridView.Rows.GetLastRow(DataGridViewElementStates.None);
+                Object currentOValue = colourGridView.Rows[lastRow].Cells["OutlookColour"].Value;
+                Object currentGValue = colourGridView.Rows[lastRow].Cells["GoogleColour"].Value;
+                if (currentOValue != null && currentOValue.ToString() != "" &&
+                    currentGValue != null && currentGValue.ToString() != "") {
+                    lastRow++;
+                    DataGridViewCell lastCell = colourGridView.Rows[lastRow - 1].Cells[1];
+                    if (lastCell != colourGridView.CurrentCell)
+                        colourGridView.CurrentCell = lastCell;
+                    colourGridView.NotifyCurrentCellDirty(true);
+                    colourGridView.NotifyCurrentCellDirty(false);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow, ex);
+            }
+        }
+
         #region EVENTS
         private void btOK_Click(object sender, EventArgs e) {
             log.Fine("Checking no duplicate mappings exist.");
@@ -150,31 +170,34 @@ namespace OutlookGoogleCalendarSync.Forms {
             newRowNeeded();
         }
 
-        private void newRowNeeded() {
-            int lastRow = 0;
-            try {
-                lastRow = colourGridView.Rows.GetLastRow(DataGridViewElementStates.None);
-                Object currentOValue = colourGridView.Rows[lastRow].Cells["OutlookColour"].Value;
-                Object currentGValue = colourGridView.Rows[lastRow].Cells["GoogleColour"].Value;
-                if (currentOValue != null && currentOValue.ToString() != "" &&
-                    currentGValue != null && currentGValue.ToString() != "")
-                {
-                    lastRow++;
-                    DataGridViewCell lastCell = colourGridView.Rows[lastRow - 1].Cells[1];
-                    if (lastCell != colourGridView.CurrentCell)
-                        colourGridView.CurrentCell = lastCell;
-                    colourGridView.NotifyCurrentCellDirty(true);
-                    colourGridView.NotifyCurrentCellDirty(false);
-                }
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow, ex);
-            }
+        private void colourGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
+            if (!this.Visible) return;
+            
+            if (colourGridView.CurrentCell.ColumnIndex == 0)
+                ddGoogleColour_SelectedIndexChanged(null, null);
+            else if (colourGridView.CurrentCell.ColumnIndex == 1)
+                ddOutlookColour_SelectedIndexChanged(null, null);
         }
-        
+
         private void colourGridView_CellEnter(object sender, DataGridViewCellEventArgs e) {
             if (colourGridView.CurrentRow.Index + 1 < colourGridView.Rows.Count) return;
 
             newRowNeeded();
+        }
+
+        private void colourGridView_SelectionChanged(object sender, EventArgs e) {
+            //Protect against the last row being selected for deletion
+            try {
+                if (colourGridView.SelectedRows.Count == 0) return;
+
+                int selectedRow = colourGridView.SelectedRows[colourGridView.SelectedRows.Count - 1].Index;
+                if (selectedRow == colourGridView.Rows.Count - 1) {
+                    log.Debug("Last row");
+                    colourGridView.Rows[selectedRow].Selected = false;
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
 
         private void ddOutlookColour_SelectedIndexChanged(object sender, EventArgs e) {
@@ -246,29 +269,5 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
         #endregion
-
-        private void colourGridView_SelectionChanged(object sender, EventArgs e) {
-            //Protect against the last row being selected for deletion
-            try {
-                if (colourGridView.SelectedRows.Count == 0) return;
-
-                int selectedRow = colourGridView.SelectedRows[colourGridView.SelectedRows.Count - 1].Index;
-                if (selectedRow == colourGridView.Rows.Count - 1) {
-                    log.Debug("Last row");
-                    colourGridView.Rows[selectedRow].Selected = false;
-                }
-            } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-            }
-        }
-
-        private void colourGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
-            if (!this.Visible) return;
-            
-            if (colourGridView.CurrentCell.ColumnIndex == 0)
-                ddGoogleColour_SelectedIndexChanged(null, null);
-            else if (colourGridView.CurrentCell.ColumnIndex == 1)
-                ddOutlookColour_SelectedIndexChanged(null, null);
-        }
     }
 }
