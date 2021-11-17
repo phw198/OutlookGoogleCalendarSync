@@ -1470,9 +1470,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             CalendarListResource.GetRequest request = Service.CalendarList.Get(Settings.Instance.UseGoogleCalendar.Id);
             CalendarListEntry cal = request.Execute();
             if (cal.DefaultReminders.Count == 0)
-                    this.MinDefaultReminder = int.MinValue;
+                this.MinDefaultReminder = int.MinValue;
             else
-                this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).First().Minutes.Value;
+                this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).FirstOrDefault()?.Minutes.Value ?? int.MinValue;
         }
 
         /// <summary>
