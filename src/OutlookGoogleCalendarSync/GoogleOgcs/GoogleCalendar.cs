@@ -1459,7 +1459,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     throw new System.ApplicationException("Unable to " + stage + ".", ex);
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Not able to retrieve " + stage, ex);
+                    OGCSexception.Analyse("Not able to " + stage, ex);
                     throw;
                 }
             }
