@@ -243,6 +243,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         createCalendarEntry(ev, ref newAi);
                     } catch (System.Exception ex) {
                         if (ex.GetType() == typeof(ApplicationException)) {
+                            OGCSexception.Analyse(ex, true);
                             Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, true) + "Appointment creation skipped.", Console.Markup.warning);
                             continue;
                         } else {
