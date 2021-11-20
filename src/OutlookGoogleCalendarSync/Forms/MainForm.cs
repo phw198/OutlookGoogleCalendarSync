@@ -838,10 +838,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void MainFormShow(Boolean forceToTop = false) {
             this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
+            this.Show(); //Show minimised back in taskbar
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
             if (forceToTop) this.TopMost = true;
             this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
+            this.Show(); //Now restore
             this.TopMost = false;
             this.Refresh();
             System.Windows.Forms.Application.DoEvents();
@@ -850,6 +852,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void mainFormResize(object sender, EventArgs e) {
             if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
                 this.ShowInTaskbar = false;
+                this.Hide();
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
                     NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", tagValue: "ShowBubbleWhenMinimising");
                 } else {
