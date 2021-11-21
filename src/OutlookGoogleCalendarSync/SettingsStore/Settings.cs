@@ -64,7 +64,10 @@ namespace OutlookGoogleCalendarSync {
         private Boolean suppressSocialPopup;
         private bool? cloudLogging;
 
-        private Settings() { }
+        private Settings() {
+            Settings.AreLoaded = false;
+            Settings.AreApplied = false;
+        }
 
         //Default values before Loading() from xml and attribute not yet serialized
         [OnDeserializing]
@@ -292,10 +295,12 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool MuteClickSounds { get; set; }
         [DataMember] public String SkipVersion { get; set; }
 
-        private static Boolean isLoaded = false;
-        public static Boolean IsLoaded {
-            get { return isLoaded; }
-        }
+        public static Boolean AreLoaded { get; protected set; }
+
+        /// <summary>
+        /// The settings file has been loaded and configuration applied
+        /// </summary>
+        public static Boolean AreApplied { get; set; }
 
         /// <summary>
         /// Load all OGCS settings as defined in the configuration file.
@@ -304,7 +309,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
-                Settings.isLoaded = true;
+                Settings.AreLoaded = true;
 
             } catch (ApplicationException ex) {
                 log.Error("Failed to load settings file '" + (XMLfile ?? ConfigFile) + "'. " + ex.Message);

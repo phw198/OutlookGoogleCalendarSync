@@ -23,6 +23,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private static readonly ILog log = LogManager.GetLogger(typeof(Main));
         private Rectangle tabAppSettings_background = new Rectangle();
         private float magnification = Graphics.FromHwnd(IntPtr.Zero).DpiY / 96; //Windows Display Magnifier (96DPI = 100%)
+        public Boolean LoadingProfileConfig { get; private set; }
 
         public Main(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
@@ -214,6 +215,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
             FeaturesBlockedByCorpPolicy(ActiveCalendarProfile.OutlookGalBlocked);
             this.ResumeLayout();
+            Settings.AreApplied = true;
         }
 
         private void updateGUIsettings_Proxy() {
@@ -248,301 +250,306 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             } else {
                 SettingsStore.Calendar profile = ActiveCalendarProfile;
-                #region Profile
-                ProfileVal = profile._ProfileName;
-                LastSyncVal = profile.LastSyncDateText;
-                NextSyncVal = profile.OgcsTimer?.NextSyncDateText;
-                #endregion
-                #region Outlook box
-                #region Mailbox
-                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
-                    rbOutlookDefaultMB.Checked = true;
-                    rbOutlookAltMB.Enabled = false;
-                    rbOutlookSharedCal.Enabled = false;
-                } else {
-                    if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox) {
-                        if (rbOutlookAltMB.Checked) {
-                            //Toggle check to force refresh of calendar dropdowns
-                            rbOutlookAltMB.CheckedChanged -= new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
-                            rbOutlookAltMB.Checked = false;
-                            rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
-                        }
-                        rbOutlookAltMB.Checked = true;
-                    } else if (profile.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
-                        if (rbOutlookSharedCal.Checked) {
-                            //Toggle check to force refresh of calendar dropdowns
-                            rbOutlookSharedCal.CheckedChanged -= new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
-                            rbOutlookSharedCal.Checked = false;
-                            rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
-                        }
-                        rbOutlookSharedCal.Checked = true;
-                    } else {
+                this.LoadingProfileConfig = true;
+                try {
+                    #region Profile
+                    ProfileVal = profile._ProfileName;
+                    LastSyncVal = profile.LastSyncDateText;
+                    NextSyncVal = profile.OgcsTimer?.NextSyncDateText;
+                    #endregion
+                    #region Outlook box
+                    #region Mailbox
+                    if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                         rbOutlookDefaultMB.Checked = true;
+                        rbOutlookAltMB.Enabled = false;
+                        rbOutlookSharedCal.Enabled = false;
+                    } else {
+                        if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox) {
+                            if (rbOutlookAltMB.Checked) {
+                                //Toggle check to force refresh of calendar dropdowns
+                                rbOutlookAltMB.CheckedChanged -= new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+                                rbOutlookAltMB.Checked = false;
+                                rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+                            }
+                            rbOutlookAltMB.Checked = true;
+                        } else if (profile.OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
+                            if (rbOutlookSharedCal.Checked) {
+                                //Toggle check to force refresh of calendar dropdowns
+                                rbOutlookSharedCal.CheckedChanged -= new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
+                                rbOutlookSharedCal.Checked = false;
+                                rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
+                            }
+                            rbOutlookSharedCal.Checked = true;
+                        } else {
+                            rbOutlookDefaultMB.Checked = true;
+                        }
                     }
-                }
 
-                //Mailboxes the user has access to
-                log.Debug("Find calendar folders");
-                if (OutlookOgcs.Calendar.Instance.Folders.Count == 1) {
-                    rbOutlookAltMB.Enabled = false;
-                    rbOutlookAltMB.Checked = false;
-                }
-                Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
-                Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-                for (int fld = 1; fld <= theFolders.Count; fld++) {
-                    MAPIFolder theFolder = theFolders[fld];
-                    try {
-                        if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
-                                                                                                          //Create a dictionary of folder names and a list of their ID(s)
-                            if (!folderIDs.ContainsKey(theFolder.Name)) {
-                                folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
-                            } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
-                                folderIDs[theFolder.Name].Add(theFolder.EntryID);
+                    //Mailboxes the user has access to
+                    log.Debug("Find calendar folders");
+                    if (OutlookOgcs.Calendar.Instance.Folders.Count == 1) {
+                        rbOutlookAltMB.Enabled = false;
+                        rbOutlookAltMB.Checked = false;
+                    }
+                    Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
+                    Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
+                    for (int fld = 1; fld <= theFolders.Count; fld++) {
+                        MAPIFolder theFolder = theFolders[fld];
+                        try {
+                            if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
+                                                                                                              //Create a dictionary of folder names and a list of their ID(s)
+                                if (!folderIDs.ContainsKey(theFolder.Name)) {
+                                    folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
+                                } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
+                                    folderIDs[theFolder.Name].Add(theFolder.EntryID);
+                                }
+                            }
+                        } catch (System.Exception ex) {
+                            log.Debug("Failed to get EntryID for folder: " + theFolder.Name);
+                            log.Debug(ex.Message);
+                        } finally {
+                            theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
+                        }
+                    }
+                    ddMailboxName.Items.Clear();
+                    ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
+                    ddMailboxName.SelectedItem = profile.MailboxName;
+
+                    if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
+                        if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
+                            log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
+
+                        ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                        ddMailboxName.SelectedIndex = 0;
+                        ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                    }
+
+                    log.Debug("List Calendar folders");
+                    cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
+                    cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
+                    cbOutlookCalendars.DisplayMember = "Key";
+                    cbOutlookCalendars.ValueMember = "Value";
+                    cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
+                    cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                    //Select the right calendar
+                    int c = 0;
+                    foreach (KeyValuePair<String, MAPIFolder> calendarFolder in OutlookOgcs.Calendar.Instance.CalendarFolders) {
+                        if (calendarFolder.Value.EntryID == profile.UseOutlookCalendar.Id) {
+                            cbOutlookCalendars.SelectedIndex = c;
+                            break;
+                        }
+                        c++;
+                    }
+                    if (cbOutlookCalendars.SelectedIndex == -1) {
+                        if (!string.IsNullOrEmpty(profile.UseOutlookCalendar.Id)) {
+                            log.Warn("Outlook calendar '" + profile.UseOutlookCalendar.Name + "' could no longer be found. Selected calendar '" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' instead.");
+                            OgcsMessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                                "'" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
+                                "Outlook Calendar Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            profile.SyncInterval = 0;
+                            profile.OutlookPush = false;
+                            Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                        }
+                        cbOutlookCalendars.SelectedIndex = 0;
+                    }
+                    #endregion
+                    #region Categories
+                    cbCategoryFilter.SelectedItem = profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include ?
+                    "Include" : "Exclude";
+                    if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
+                        clbCategories.Items.Clear();
+                        clbCategories.Items.Add("Outlook 2003 has no categories");
+                        cbCategoryFilter.Enabled = false;
+                        clbCategories.Enabled = false;
+                        lFilterCategories.Enabled = false;
+                        btColourMap.Visible = false;
+                        profile.AddColours = false;
+                        cbAddColours.Enabled = false;
+                    } else {
+                        OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
+                        enableOutlookSettingsUI(true);
+                    }
+                    #endregion
+                    cbOnlyRespondedInvites.Checked = profile.OnlyRespondedInvites;
+                    btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
+                    #region DateTime Format / Locale
+                    Dictionary<string, string> customDates = new Dictionary<string, string>();
+                    customDates.Add("Default", "g");
+                    String shortDate = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+                    //Outlook can't handle dates or times formatted with a . delimeter!
+                    switch (shortDate) {
+                        case "yyyy.MMdd": shortDate = "yyyy-MM-dd"; break;
+                        default: break;
+                    }
+                    String shortTime = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
+                    customDates.Add("Short Date & Time", shortDate + " " + shortTime);
+                    customDates.Add("Full (Short Time)", "f");
+                    customDates.Add("Full Month", "MMMM dd, yyyy hh:mm tt");
+                    customDates.Add("Generic", "yyyy-MM-dd hh:mm tt");
+                    customDates.Add("Custom", "yyyy-MM-dd hh:mm tt");
+                    cbOutlookDateFormat.DataSource = new BindingSource(customDates, null);
+                    cbOutlookDateFormat.DisplayMember = "Key";
+                    cbOutlookDateFormat.ValueMember = "Value";
+                    for (int i = 0; i < cbOutlookDateFormat.Items.Count; i++) {
+                        KeyValuePair<string, string> aFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.Items[i];
+                        if (aFormat.Value == profile.OutlookDateFormat) {
+                            cbOutlookDateFormat.SelectedIndex = i;
+                            break;
+                        } else if (i == cbOutlookDateFormat.Items.Count - 1 && cbOutlookDateFormat.SelectedIndex == 0) {
+                            cbOutlookDateFormat.SelectedIndex = i;
+                            tbOutlookDateFormat.Text = profile.OutlookDateFormat;
+                            tbOutlookDateFormat.ReadOnly = false;
+                        }
+                    }
+                    #endregion
+                    #endregion
+                    #region Google box
+                    tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
+                    if (profile.UseGoogleCalendar?.Id != null) {
+                        foreach (GoogleCalendarListEntry cle in this.cbGoogleCalendars.Items) {
+                            if (cle.Id == profile.UseGoogleCalendar.Id) {
+                                this.cbGoogleCalendars.SelectedItem = cle;
+                                break;
                             }
                         }
-                    } catch (System.Exception ex) {
-                        log.Debug("Failed to get EntryID for folder: " + theFolder.Name);
-                        log.Debug(ex.Message);
-                    } finally {
-                        theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
+                        if (cbGoogleCalendars.SelectedIndex == -1 || (cbGoogleCalendars.SelectedItem as GoogleCalendarListEntry).Id != profile.UseGoogleCalendar.Id) {
+                            cbGoogleCalendars.Items.Add(profile.UseGoogleCalendar);
+                            cbGoogleCalendars.SelectedIndex = cbGoogleCalendars.Items.Count - 1;
+                        }
+                        tbClientID.ReadOnly = true;
+                        tbClientSecret.ReadOnly = true;
+                    } else {
+                        tbClientID.ReadOnly = false;
+                        tbClientSecret.ReadOnly = false;
                     }
-                }
-                ddMailboxName.Items.Clear();
-                ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
-                ddMailboxName.SelectedItem = profile.MailboxName;
 
-                if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
-                    if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
-                        log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
+                    cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
+                    cbExcludeGoals.Checked = profile.ExcludeGoals;
+                    cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
 
-                    ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-                    ddMailboxName.SelectedIndex = 0;
-                    ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-                }
-
-                log.Debug("List Calendar folders");
-                cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
-                cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
-                cbOutlookCalendars.DisplayMember = "Key";
-                cbOutlookCalendars.ValueMember = "Value";
-                cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
-                cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
-                //Select the right calendar
-                int c = 0;
-                foreach (KeyValuePair<String, MAPIFolder> calendarFolder in OutlookOgcs.Calendar.Instance.CalendarFolders) {
-                    if (calendarFolder.Value.EntryID == profile.UseOutlookCalendar.Id) {
-                        cbOutlookCalendars.SelectedIndex = c;
-                        break;
+                    if (Settings.Instance.UsingPersonalAPIkeys()) {
+                        cbShowDeveloperOptions.Checked = true;
+                        tbClientID.Text = Settings.Instance.PersonalClientIdentifier;
+                        tbClientSecret.Text = Settings.Instance.PersonalClientSecret;
                     }
-                    c++;
-                }
-                if (cbOutlookCalendars.SelectedIndex == -1) {
-                    if (!string.IsNullOrEmpty(profile.UseOutlookCalendar.Id)) {
-                        log.Warn("Outlook calendar '" + profile.UseOutlookCalendar.Name + "' could no longer be found. Selected calendar '" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' instead.");
-                        OgcsMessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
-                            "'" + OutlookOgcs.Calendar.Instance.CalendarFolders.First().Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
-                            "Outlook Calendar Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        profile.SyncInterval = 0;
-                        profile.OutlookPush = false;
-                        Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                    #endregion
+                    #region Sync Options box
+                    syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
+                    syncOptionSizing(gbSyncOptions_When, pbExpandWhen, false);
+                    syncOptionSizing(gbSyncOptions_What, pbExpandWhat, false);
+                    #region How
+                    if (syncDirection.Items.Count == 0) {
+                        syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
+                        syncDirection.Items.Add(Sync.Direction.GoogleToOutlook);
+                        syncDirection.Items.Add(Sync.Direction.Bidirectional);
+                        cbObfuscateDirection.Items.Add(Sync.Direction.OutlookToGoogle);
+                        cbObfuscateDirection.Items.Add(Sync.Direction.GoogleToOutlook);
                     }
-                    cbOutlookCalendars.SelectedIndex = 0;
-                }
-                #endregion
-                #region Categories
-                cbCategoryFilter.SelectedItem = profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include ?
-                "Include" : "Exclude";
-                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
-                    clbCategories.Items.Clear();
-                    clbCategories.Items.Add("Outlook 2003 has no categories");
-                    cbCategoryFilter.Enabled = false;
-                    clbCategories.Enabled = false;
-                    lFilterCategories.Enabled = false;
-                    btColourMap.Visible = false;
-                    profile.AddColours = false;
-                    cbAddColours.Enabled = false;
-                } else {
-                    OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
-                    enableOutlookSettingsUI(true);
-                }
-                #endregion
-                cbOnlyRespondedInvites.Checked = profile.OnlyRespondedInvites;
-                btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
-                #region DateTime Format / Locale
-                Dictionary<string, string> customDates = new Dictionary<string, string>();
-                customDates.Add("Default", "g");
-                String shortDate = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-                //Outlook can't handle dates or times formatted with a . delimeter!
-                switch (shortDate) {
-                    case "yyyy.MMdd": shortDate = "yyyy-MM-dd"; break;
-                    default: break;
-                }
-                String shortTime = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Replace(".", ":");
-                customDates.Add("Short Date & Time", shortDate + " " + shortTime);
-                customDates.Add("Full (Short Time)", "f");
-                customDates.Add("Full Month", "MMMM dd, yyyy hh:mm tt");
-                customDates.Add("Generic", "yyyy-MM-dd hh:mm tt");
-                customDates.Add("Custom", "yyyy-MM-dd hh:mm tt");
-                cbOutlookDateFormat.DataSource = new BindingSource(customDates, null);
-                cbOutlookDateFormat.DisplayMember = "Key";
-                cbOutlookDateFormat.ValueMember = "Value";
-                for (int i = 0; i < cbOutlookDateFormat.Items.Count; i++) {
-                    KeyValuePair<string, string> aFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.Items[i];
-                    if (aFormat.Value == profile.OutlookDateFormat) {
-                        cbOutlookDateFormat.SelectedIndex = i;
-                        break;
-                    } else if (i == cbOutlookDateFormat.Items.Count - 1 && cbOutlookDateFormat.SelectedIndex == 0) {
-                        cbOutlookDateFormat.SelectedIndex = i;
-                        tbOutlookDateFormat.Text = profile.OutlookDateFormat;
-                        tbOutlookDateFormat.ReadOnly = false;
-                    }
-                }
-                #endregion
-                #endregion
-                #region Google box
-                tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
-                if (profile.UseGoogleCalendar?.Id != null) {
-                    foreach (GoogleCalendarListEntry cle in this.cbGoogleCalendars.Items) {
-                        if (cle.Id == profile.UseGoogleCalendar.Id) {
-                            this.cbGoogleCalendars.SelectedItem = cle;
+                    //Sync Direction dropdown
+                    for (int i = 0; i < syncDirection.Items.Count; i++) {
+                        Sync.Direction sd = (syncDirection.Items[i] as Sync.Direction);
+                        if (sd.Id == profile.SyncDirection.Id) {
+                            syncDirection.SelectedIndex = i;
                             break;
                         }
                     }
-                    if (cbGoogleCalendars.SelectedIndex == -1 || (cbGoogleCalendars.SelectedItem as GoogleCalendarListEntry).Id != profile.UseGoogleCalendar.Id) {
-                        cbGoogleCalendars.Items.Add(profile.UseGoogleCalendar);
-                        cbGoogleCalendars.SelectedIndex = cbGoogleCalendars.Items.Count - 1;
+                    if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
+                    this.gbSyncOptions_How.SuspendLayout();
+                    cbMergeItems.Checked = profile.MergeItems;
+                    cbDisableDeletion.Checked = profile.DisableDelete;
+                    cbConfirmOnDelete.Enabled = !profile.DisableDelete;
+                    cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
+                    cbOfuscate.Checked = profile.Obfuscation.Enabled;
+                    howObfuscatePanel.Visible = false;
+                    if (profile.SyncDirection == Sync.Direction.Bidirectional) {
+                        tbCreatedItemsOnly.SelectedIndex = profile.CreatedItemsOnly ? 1 : 0;
+                        if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
+                        if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
+                    } else {
+                        tbCreatedItemsOnly.SelectedIndex = 0;
+                        tbTargetCalendar.SelectedIndex = 2;
                     }
-                    tbClientID.ReadOnly = true;
-                    tbClientSecret.ReadOnly = true;
-                } else {
-                    tbClientID.ReadOnly = false;
-                    tbClientSecret.ReadOnly = false;
-                }
+                    tbCreatedItemsOnly_SelectedItemChanged(null, null);
+                    tbTargetCalendar_SelectedItemChanged(null, null);
+                    cbPrivate.Checked = profile.SetEntriesPrivate;
+                    cbAvailable.Checked = profile.SetEntriesAvailable;
+                    cbColour.Checked = profile.SetEntriesColour;
+                    ddOutlookColour.AddColourItems();
 
-                cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
-                cbExcludeGoals.Checked = profile.ExcludeGoals;
-                cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
-
-                if (Settings.Instance.UsingPersonalAPIkeys()) {
-                    cbShowDeveloperOptions.Checked = true;
-                    tbClientID.Text = Settings.Instance.PersonalClientIdentifier;
-                    tbClientSecret.Text = Settings.Instance.PersonalClientSecret;
-                }
-                #endregion
-                #region Sync Options box
-                syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
-                syncOptionSizing(gbSyncOptions_When, pbExpandWhen, false);
-                syncOptionSizing(gbSyncOptions_What, pbExpandWhat, false);
-                #region How
-                if (syncDirection.Items.Count == 0) {
-                    syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
-                    syncDirection.Items.Add(Sync.Direction.GoogleToOutlook);
-                    syncDirection.Items.Add(Sync.Direction.Bidirectional);
-                    cbObfuscateDirection.Items.Add(Sync.Direction.OutlookToGoogle);
-                    cbObfuscateDirection.Items.Add(Sync.Direction.GoogleToOutlook);
-                }
-                //Sync Direction dropdown
-                for (int i = 0; i < syncDirection.Items.Count; i++) {
-                    Sync.Direction sd = (syncDirection.Items[i] as Sync.Direction);
-                    if (sd.Id == profile.SyncDirection.Id) {
-                        syncDirection.SelectedIndex = i;
-                        break;
+                    ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
+                    foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
+                        if (cInfo.OutlookCategory.ToString() == profile.SetEntriesColourValue &&
+                            cInfo.Text == profile.SetEntriesColourName) {
+                            ddOutlookColour.SelectedItem = cInfo;
+                            break;
+                        }
                     }
-                }
-                if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
-                this.gbSyncOptions_How.SuspendLayout();
-                cbMergeItems.Checked = profile.MergeItems;
-                cbDisableDeletion.Checked = profile.DisableDelete;
-                cbConfirmOnDelete.Enabled = !profile.DisableDelete;
-                cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
-                cbOfuscate.Checked = profile.Obfuscation.Enabled;
-                howObfuscatePanel.Visible = false;
-                if (profile.SyncDirection == Sync.Direction.Bidirectional) {
-                    tbCreatedItemsOnly.SelectedIndex = profile.CreatedItemsOnly ? 1 : 0;
-                    if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
-                    if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
-                } else {
-                    tbCreatedItemsOnly.SelectedIndex = 0;
-                    tbTargetCalendar.SelectedIndex = 2;
-                }
-                tbCreatedItemsOnly_SelectedItemChanged(null, null);
-                tbTargetCalendar_SelectedItemChanged(null, null);
-                cbPrivate.Checked = profile.SetEntriesPrivate;
-                cbAvailable.Checked = profile.SetEntriesAvailable;
-                cbColour.Checked = profile.SetEntriesColour;
-                ddOutlookColour.AddColourItems();
+                    if (ddOutlookColour.SelectedIndex == -1 && ddOutlookColour.Items.Count > 0)
+                        ddOutlookColour.SelectedIndex = 0;
 
-                ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
-                foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
-                    if (cInfo.OutlookCategory.ToString() == profile.SetEntriesColourValue &&
-                        cInfo.Text == profile.SetEntriesColourName) {
-                        ddOutlookColour.SelectedItem = cInfo;
-                        break;
+                    ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
+                    ddOutlookColour.Enabled = cbColour.Checked;
+
+                    ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
+                    offlineAddGoogleColour();
+                    ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
+                    ddGoogleColour.Enabled = cbColour.Checked;
+
+                    //Obfuscate Direction dropdown
+                    for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
+                        Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
+                        if (sd.Id == profile.Obfuscation.Direction.Id) {
+                            cbObfuscateDirection.SelectedIndex = i;
+                            break;
+                        }
                     }
+                    if (cbObfuscateDirection.SelectedIndex == -1) cbObfuscateDirection.SelectedIndex = 0;
+                    cbObfuscateDirection.Enabled = profile.SyncDirection == Sync.Direction.Bidirectional;
+                    profile.Obfuscation.LoadRegex(dgObfuscateRegex);
+                    this.gbSyncOptions_How.ResumeLayout();
+                    #endregion
+                    #region When
+                    this.gbSyncOptions_When.SuspendLayout();
+                    tbDaysInThePast.Text = profile.DaysInThePast.ToString();
+                    tbDaysInTheFuture.Text = profile.DaysInTheFuture.ToString();
+                    setMaxSyncRange();
+                    tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
+                    tbInterval.Value = profile.SyncInterval;
+                    tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
+                    cbIntervalUnit.SelectedIndexChanged -= new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
+                    cbIntervalUnit.Text = profile.SyncIntervalUnit;
+                    cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
+                    cbOutlookPush.Checked = profile.OutlookPush;
+                    this.gbSyncOptions_When.ResumeLayout();
+                    #endregion
+                    #region What
+                    this.gbSyncOptions_What.SuspendLayout();
+                    cbLocation.Checked = profile.AddLocation;
+                    cbAddDescription.Checked = profile.AddDescription;
+                    cbAddDescription_OnlyToGoogle.Checked = profile.AddDescription_OnlyToGoogle;
+                    cbAddAttendees.Checked = profile.AddAttendees;
+                    tbMaxAttendees.Value = profile.MaxAttendees;
+                    cbCloakEmail.Checked = profile.CloakEmail;
+                    cbCloakEmail.Visible = cbAddAttendees.Checked && profile.SyncDirection != Sync.Direction.GoogleToOutlook;
+                    cbAddReminders.Checked = profile.AddReminders;
+                    cbUseGoogleDefaultReminder.Checked = profile.UseGoogleDefaultReminder;
+                    cbUseOutlookDefaultReminder.Checked = profile.UseOutlookDefaultReminder;
+                    cbReminderDND.Enabled = profile.AddReminders;
+                    cbReminderDND.Checked = profile.ReminderDND;
+                    dtDNDstart.Enabled = profile.AddReminders;
+                    dtDNDend.Enabled = profile.AddReminders;
+                    dtDNDstart.Value = profile.ReminderDNDstart;
+                    dtDNDend.Value = profile.ReminderDNDend;
+                    cbAddColours.Checked = profile.AddColours;
+                    btColourMap.Enabled = profile.AddColours;
+                    cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
+                    cbSingleCategoryOnly.Enabled = profile.AddColours && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
+                    this.gbSyncOptions_What.ResumeLayout();
+                    #endregion
+                    #endregion
+                } finally {
+                    this.LoadingProfileConfig = false;
                 }
-                if (ddOutlookColour.SelectedIndex == -1 && ddOutlookColour.Items.Count > 0)
-                    ddOutlookColour.SelectedIndex = 0;
-
-                ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
-                ddOutlookColour.Enabled = cbColour.Checked;
-
-                ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
-                offlineAddGoogleColour();
-                ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
-                ddGoogleColour.Enabled = cbColour.Checked;
-
-                //Obfuscate Direction dropdown
-                for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
-                    Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
-                    if (sd.Id == profile.Obfuscation.Direction.Id) {
-                        cbObfuscateDirection.SelectedIndex = i;
-                        break;
-                    }
-                }
-                if (cbObfuscateDirection.SelectedIndex == -1) cbObfuscateDirection.SelectedIndex = 0;
-                cbObfuscateDirection.Enabled = profile.SyncDirection == Sync.Direction.Bidirectional;
-                profile.Obfuscation.LoadRegex(dgObfuscateRegex);
-                this.gbSyncOptions_How.ResumeLayout();
-                #endregion
-                #region When
-                this.gbSyncOptions_When.SuspendLayout();
-                tbDaysInThePast.Text = profile.DaysInThePast.ToString();
-                tbDaysInTheFuture.Text = profile.DaysInTheFuture.ToString();
-                setMaxSyncRange();
-                tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
-                tbInterval.Value = profile.SyncInterval;
-                tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
-                cbIntervalUnit.SelectedIndexChanged -= new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
-                cbIntervalUnit.Text = profile.SyncIntervalUnit;
-                cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
-                cbOutlookPush.Checked = profile.OutlookPush;
-                this.gbSyncOptions_When.ResumeLayout();
-                #endregion
-                #region What
-                this.gbSyncOptions_What.SuspendLayout();
-                cbLocation.Checked = profile.AddLocation;
-                cbAddDescription.Checked = profile.AddDescription;
-                cbAddDescription_OnlyToGoogle.Checked = profile.AddDescription_OnlyToGoogle;
-                cbAddAttendees.Checked = profile.AddAttendees;
-                tbMaxAttendees.Value = profile.MaxAttendees;
-                cbCloakEmail.Checked = profile.CloakEmail;
-                cbCloakEmail.Visible = cbAddAttendees.Checked && profile.SyncDirection != Sync.Direction.GoogleToOutlook;
-                cbAddReminders.Checked = profile.AddReminders;
-                cbUseGoogleDefaultReminder.Checked = profile.UseGoogleDefaultReminder;
-                cbUseOutlookDefaultReminder.Checked = profile.UseOutlookDefaultReminder;
-                cbReminderDND.Enabled = profile.AddReminders;
-                cbReminderDND.Checked = profile.ReminderDND;
-                dtDNDstart.Enabled = profile.AddReminders;
-                dtDNDend.Enabled = profile.AddReminders;
-                dtDNDstart.Value = profile.ReminderDNDstart;
-                dtDNDend.Value = profile.ReminderDNDend;
-                cbAddColours.Checked = profile.AddColours;
-                btColourMap.Enabled = profile.AddColours;
-                cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
-                cbSingleCategoryOnly.Enabled = profile.AddColours && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
-                this.gbSyncOptions_What.ResumeLayout();
-                #endregion
-                #endregion
             }
         }
 
@@ -877,10 +884,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.TopMost = false;
             this.Refresh();
             System.Windows.Forms.Application.DoEvents();
+            log.Info("Application window restored.");
         }
 
         private void mainFormResize(object sender, EventArgs e) {
             if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
+                log.Info("Minimising application to task tray.");
                 this.ShowInTaskbar = false;
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
                     NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", tagValue: "ShowBubbleWhenMinimising");
@@ -1104,48 +1113,45 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (!Settings.AreApplied) return;
 
             if (rbOutlookDefaultMB.Checked) {
                 enableOutlookSettingsUI(false);
                 ActiveCalendarProfile.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
-                Boolean automatedEvent = Program.CalledByProcess("UpdateGUIsettings_Profile");
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
                 refreshCategories();
             }
         }
 
         private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (!Settings.AreApplied) return;
 
-            Boolean automatedEvent = false;
             if (rbOutlookAltMB.Checked) {
                 enableOutlookSettingsUI(false);
                 ActiveCalendarProfile.OutlookService = OutlookOgcs.Calendar.Service.AlternativeMailbox;
-                automatedEvent = Program.CalledByProcess("UpdateGUIsettings_Profile");
-                if (!automatedEvent)
+                if (!LoadingProfileConfig)
                     ActiveCalendarProfile.MailboxName = ddMailboxName.Text;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
                 refreshCategories();
             }
-            if (!automatedEvent)
+            if (!LoadingProfileConfig)
                 ActiveCalendarProfile.MailboxName = (rbOutlookAltMB.Checked ? ddMailboxName.Text : "");
         }
 
         private void rbOutlookSharedCal_CheckedChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (!Settings.AreApplied) return;
 
             if (rbOutlookSharedCal.Checked && ActiveCalendarProfile.OutlookGalBlocked) {
                 rbOutlookSharedCal.Checked = false;
@@ -1156,18 +1162,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.OutlookService = OutlookOgcs.Calendar.Service.SharedCalendar;
                 OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
-                Boolean automatedEvent = Program.CalledByProcess("UpdateGUIsettings_Profile");
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
                 cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
-                if (automatedEvent)
+                if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
                 refreshCategories();
             }
         }
 
         private void ddMailboxName_SelectedIndexChanged(object sender, EventArgs e) {
-            if (this.Visible && ActiveCalendarProfile.MailboxName != ddMailboxName.Text) {
+            if (Settings.AreApplied && ActiveCalendarProfile.MailboxName != ddMailboxName.Text) {
                 rbOutlookAltMB.Checked = true;
                 ActiveCalendarProfile.MailboxName = ddMailboxName.Text;
                 enableOutlookSettingsUI(false);
@@ -1185,7 +1190,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         #region Categories
         private void cbCategoryFilter_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
+
             ActiveCalendarProfile.CategoriesRestrictBy = (cbCategoryFilter.SelectedItem.ToString() == "Include") ?
                 SettingsStore.Calendar.RestrictBy.Include : SettingsStore.Calendar.RestrictBy.Exclude;
             //Invert selection
@@ -1196,7 +1202,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             ActiveCalendarProfile.Categories.Clear();
             foreach (object item in clbCategories.CheckedItems) {
@@ -1240,7 +1246,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             KeyValuePair<string, string> selectedFormat = (KeyValuePair<string, string>)cbOutlookDateFormat.SelectedItem;
             if (selectedFormat.Key != "Custom") {
                 tbOutlookDateFormat.Text = selectedFormat.Value;
-                if (this.Visible) ActiveCalendarProfile.OutlookDateFormat = tbOutlookDateFormat.Text;
+                if (!this.LoadingProfileConfig) ActiveCalendarProfile.OutlookDateFormat = tbOutlookDateFormat.Text;
             }
             tbOutlookDateFormat.ReadOnly = (selectedFormat.Key != "Custom");
         }
@@ -1350,7 +1356,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbGoogleCalendars_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
             if (cbGoogleCalendars.Text.StartsWith("[Read Only]") && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
@@ -1606,7 +1612,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void tbTargetCalendar_SelectedItemChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             switch (tbTargetCalendar.Text) {
                 case "Google calendar": {
@@ -1643,7 +1649,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ddAvailabilty.Enabled = cbAvailable.Checked;
         }
         private void ddAvailabilty_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             ActiveCalendarProfile.AvailabilityStatus = ddAvailabilty.SelectedValue.ToString();
         }
@@ -1655,7 +1661,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void ddOutlookColour_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             ActiveCalendarProfile.SetEntriesColourValue = ddOutlookColour.SelectedItem.OutlookCategory.ToString();
             ActiveCalendarProfile.SetEntriesColourName = ddOutlookColour.SelectedItem.Text;
@@ -1682,7 +1688,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void ddGoogleColour_SelectedIndexChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (this.LoadingProfileConfig) return;
 
             ActiveCalendarProfile.SetEntriesColourGoogleId = ddGoogleColour.SelectedItem.Id;
 
@@ -1734,7 +1740,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         #region Obfuscation Panel
         private void cbObfuscateDirection_SelectedIndexChanged(object sender, EventArgs e) {
-            if (this.Visible)
+            if (!this.LoadingProfileConfig)
                 ActiveCalendarProfile.Obfuscation.Direction = (Sync.Direction)cbObfuscateDirection.SelectedItem;
         }
 
@@ -1799,7 +1805,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbOutlookPush_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.OutlookPush = cbOutlookPush.Checked;
-            if (this.Visible) {
+            if (!this.LoadingProfileConfig) {
                 if (tbInterval.Value != 0) tbMinuteOffsets_ValueChanged(null, null);
                 if (cbOutlookPush.Checked) ActiveCalendarProfile.RegisterForPushSync();
                 else ActiveCalendarProfile.DeregisterForPushSync();
@@ -1819,8 +1825,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             switch (info) {
                 case "Description": {
                         tbWhatHelp.Text = "Google event descriptions don't support rich text (RTF) and truncate at 8Kb. So make sure you REALLY want to 2-way sync descriptions!";
-                        Boolean visible = (ActiveCalendarProfile.AddDescription &&
-                            ActiveCalendarProfile.SyncDirection == Sync.Direction.Bidirectional);
+                        Boolean visible = (ActiveCalendarProfile.AddDescription && ActiveCalendarProfile.SyncDirection == Sync.Direction.Bidirectional);
                         WhatPostit.Visible = visible && !ActiveCalendarProfile.AddDescription_OnlyToGoogle;
                         cbAddDescription_OnlyToGoogle.Visible = visible;
                         break;
@@ -1856,7 +1861,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
-            if (this.Visible && sender != null) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
+            if (!this.LoadingProfileConfig && sender != null) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
             cbUseGoogleDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbUseOutlookDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection != Sync.Direction.OutlookToGoogle;
             cbReminderDND.Enabled = cbAddReminders.Checked;
@@ -1887,7 +1892,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbMaxAttendees.Enabled = false;
                 return;
             }
-            if (this.Visible && sender != null) ActiveCalendarProfile.AddAttendees = cbAddAttendees.Checked;
+            if (!this.LoadingProfileConfig && sender != null) ActiveCalendarProfile.AddAttendees = cbAddAttendees.Checked;
             tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = ActiveCalendarProfile.SyncDirection != Sync.Direction.GoogleToOutlook;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
@@ -1976,7 +1981,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbPortable_CheckedChanged(object sender, EventArgs e) {
-            if (this.Visible) {
+            if (Settings.AreApplied) {
                 if (Program.StartedWithFileArgs)
                     OgcsMessageBox.Show("It is not possible to change portability of OGCS when it is started with command line parameters.",
                         "Cannot change portability", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -2001,7 +2006,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbLoggingLevel_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.configureLoggingLevel(this.cbLoggingLevel.Text);
-            if (this.Visible) Settings.Instance.LoggingLevel = this.cbLoggingLevel.Text.ToUpper();
+            if (!this.LoadingProfileConfig) Settings.Instance.LoggingLevel = this.cbLoggingLevel.Text.ToUpper();
         }
 
         private void btLogLocation_Click(object sender, EventArgs e) {
@@ -2016,7 +2021,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbCloudLogging_CheckStateChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (!Settings.AreApplied) return;
 
             if (cbCloudLogging.CheckState == CheckState.Indeterminate)
                 Settings.Instance.CloudLogging = null;
@@ -2025,7 +2030,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {
-            if (!this.Visible) return;
+            if (!Settings.AreApplied) return;
 
             if (!cbTelemetryDisabled.Checked) {
                 Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;

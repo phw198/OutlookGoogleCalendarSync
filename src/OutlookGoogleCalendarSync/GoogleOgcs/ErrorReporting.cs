@@ -110,7 +110,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String uuid = null;
             try {
                 //Check if Settings have been loaded yet and has Gmail account set
-                if (Settings.IsLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                if (Settings.AreLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
                     logUuid = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
 
                 } else { //Check if the raw settings file has Gmail account set

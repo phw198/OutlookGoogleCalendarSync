@@ -150,7 +150,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         String message = "It looks like Outlook was closed during the sync.";
                                         if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
                                         mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
-                                        System.Threading.Thread.Sleep(10 * 1000);
+                                        syncResult = SyncResult.ReconnectThenRetry;
+
+                                    } else if (ex is System.Runtime.InteropServices.COMException && 
+                                        OGCSexception.GetErrorCode(ex) == "0x80040201") { //The operation failed.  The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
+                                        mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 
                                     } else {
@@ -169,6 +173,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
                         try {
                             if (syncResult == SyncResult.ReconnectThenRetry) {
+                                mainFrm.Console.Update("Will retry syncing in a few seconds...");
+                                DateTime waitUntil = DateTime.Now.AddSeconds(10);
+                                while (DateTime.Now < waitUntil) {
+                                    System.Windows.Forms.Application.DoEvents();
+                                    System.Threading.Thread.Sleep(100);
+                                }                                
                                 mainFrm.Console.Update("Attempting to reconnect to Outlook...");
                                 try {
                                     OutlookOgcs.Calendar.Instance.Reset();
