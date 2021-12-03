@@ -21,9 +21,10 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="obj">The object that is to be serialized/exported to XML.</param>
         /// <param name="filename">The filename of the xml file to be written.</param>
         public static void Export(Object obj, string filename) {
-            XmlTextWriter writer = new XmlTextWriter(filename, null);
-            writer.Formatting = Formatting.Indented;
-            writer.Indentation = 4;
+            XmlTextWriter writer = new XmlTextWriter(filename, null) {
+                Formatting = Formatting.Indented,
+                Indentation = 4
+            };
             new DataContractSerializer(obj.GetType()).WriteObject(writer, obj);
             writer.Close();
         }

@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync {
         private String version;
         private Boolean donor;
         private DateTime subscribed;
-        private Boolean hideSplashScreen;
+        private bool? hideSplashScreen;
         private Boolean suppressSocialPopup;
         private bool? cloudLogging;
 
@@ -151,9 +151,9 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
-            subscribed = DateTime.Parse("01-Jan-2000");
+            subscribed = GoogleOgcs.Authenticator.SubscribedNever;
             donor = false;
-            hideSplashScreen = false;
+            hideSplashScreen = null;
             suppressSocialPopup = false;
 
             ExtirpateOgcsMetadata = false;
@@ -314,12 +314,12 @@ namespace OutlookGoogleCalendarSync {
 
         #endregion
         #region App behaviour
-        [DataMember] public bool HideSplashScreen {
+        [DataMember] public bool? HideSplashScreen {
             get { return hideSplashScreen; }
             set {
                 if (!loading() && hideSplashScreen != value) {
                     XMLManager.ExportElement("HideSplashScreen", value, ConfigFile);
-                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value;
+                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value ?? false;
                 }
                 hideSplashScreen = value;
             }
@@ -383,7 +383,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public Boolean UserIsBenefactor() {
-            return Subscribed != DateTime.Parse("01-Jan-2000") || donor;
+            return Subscribed != GoogleOgcs.Authenticator.SubscribedNever || donor;
         }
         [DataMember] public DateTime Subscribed {
             get { return subscribed; }

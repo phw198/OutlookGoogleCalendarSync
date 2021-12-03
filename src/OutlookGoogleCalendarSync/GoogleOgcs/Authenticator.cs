@@ -79,7 +79,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 ApiKeyring apiKeyring = new ApiKeyring();
 
-                if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != DateTime.Parse("01-Jan-2000"))
+                if (Settings.Instance.Subscribed != null && Settings.Instance.Subscribed != SubscribedNever && Settings.Instance.Subscribed != SubscribedBefore)
                     apiKeyring.PickKey(ApiKeyring.KeyType.Subscriber);
                 else
                     apiKeyring.PickKey(ApiKeyring.KeyType.Standard);
@@ -127,6 +127,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 OGCSexception.Analyse(ex);
                 Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
             }
+
+            if (credential == null) return false;
 
             if (credential.Token.AccessToken != "" && credential.Token.RefreshToken != "") {
                 log.Info("Refresh and Access token successfully retrieved.");
@@ -253,7 +255,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                         }
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException != null ? ex.InnerException : ex));
+                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException ?? ex));
                         throw;
                     }
                 }
@@ -296,11 +298,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
 
         #region OGCS user status
+        public static readonly DateTime SubscribedNever = new DateTime(2000, 1, 1);
+        public static readonly DateTime SubscribedBefore = new DateTime(2001, 1, 1);
+
         public void OgcsUserStatus() {
             if (!checkedOgcsUserStatus) {
                 UserSubscriptionCheck();
                 userDonationCheck();
                 checkedOgcsUserStatus = true;
+
+                if (Settings.Instance.UserIsBenefactor() && Settings.Instance.HideSplashScreen == null) {
+                    DialogResult dr = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    Settings.Instance.HideSplashScreen = (dr == DialogResult.Yes);
+                }
             }
         }
 
@@ -357,7 +369,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             List<Event> subscriptions = result.Where(x => x.Summary == HashedGmailAccount).ToList();
             if (subscriptions.Count == 0) {
                 log.Fine("This user has never subscribed.");
-                Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
+                Settings.Instance.Subscribed = SubscribedNever;
                 return false;
             } else {
                 Boolean subscribed;
@@ -383,7 +395,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Settings.Instance.Subscribed = subscriptionStart;
                 } else {
                     log.Info("User has no active subscription.");
-                    Settings.Instance.Subscribed = DateTime.Parse("01-Jan-2000");
+                    Settings.Instance.Subscribed = SubscribedBefore;
                 }
 
                 //Check for any unmigrated entries
@@ -392,8 +404,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Forms.Main.Instance.Console.CallGappScript("subscriber");
 
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
-                    if (prevSubscriptionStart == DateTime.Parse("01-Jan-2000")            //No longer a subscriber
-                        || Settings.Instance.Subscribed == DateTime.Parse("01-Jan-2000")) //New subscriber
+                    if (((Settings.Instance.Subscribed != SubscribedNever && Settings.Instance.Subscribed != SubscribedBefore) &&
+                        (prevSubscriptionStart == SubscribedNever || prevSubscriptionStart == SubscribedBefore)) //Newly subscribed
+                        ||
+                        ((Settings.Instance.Subscribed == SubscribedNever || Settings.Instance.Subscribed == SubscribedBefore) &&
+                        (prevSubscriptionStart != SubscribedNever && prevSubscriptionStart != SubscribedBefore))) //No longer subscribed
                     {
                         ApiKeyring.ChangeKeys();
                     }

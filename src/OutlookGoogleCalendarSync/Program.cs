@@ -50,6 +50,7 @@ namespace OutlookGoogleCalendarSync {
             Application.SetCompatibleTextRenderingDefault(false);
 
             try {
+                setSecurityProtocols();
                 GoogleOgcs.ErrorReporting.Initialise();
 
                 RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
@@ -83,6 +84,7 @@ namespace OutlookGoogleCalendarSync {
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
                     OGCSexception.Analyse(ex);
+                    MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException("Suggest startup delay");
                 }
 
@@ -94,8 +96,8 @@ namespace OutlookGoogleCalendarSync {
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                } else
-                    MessageBox.Show(aex.Message, "Application terminated", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } else if (!string.IsNullOrEmpty(aex.Message))
+                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
@@ -266,21 +268,20 @@ namespace OutlookGoogleCalendarSync {
         #region Startup Registry Key
         private static String startupKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-        public static void ManageStartupRegKey(Boolean recreate = false) {
+        public static void ManageStartupRegKey() {
             //Check for legacy Startup menu shortcut <=v2.1.4
             Boolean startupConfigExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
             if (startupConfigExists) 
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
             startupConfigExists = checkRegKey();
-            
-            if (Settings.Instance.StartOnStartup && !startupConfigExists)
+
+            if (Settings.Instance.StartOnStartup) {
+                if (startupConfigExists) log.Debug("Forcing update of startup registry key.");
                 addRegKey();
-            else if (!Settings.Instance.StartOnStartup && startupConfigExists)
-                removeRegKey();
-            else if (startupConfigExists && recreate) {
-                log.Debug("Forcing update of startup registry key.");
-                addRegKey();
+            } else {
+                if (startupConfigExists) removeRegKey();
+                else log.Debug("No startup registry key to remove.");
             }
         }
 
@@ -449,14 +450,14 @@ namespace OutlookGoogleCalendarSync {
             if (settingsVersion != Application.ProductVersion) {
                 log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
                 try {
-                    Program.ManageStartupRegKey(recreate: true);
+                    Program.ManageStartupRegKey();
                 } catch (System.Exception ex) {
                     if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
                     OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
                 }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
-                    System.Diagnostics.Process.Start(OgcsWebsite + "/release-notes.html");
+                    Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
                     if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                 }
             }
@@ -482,7 +483,7 @@ namespace OutlookGoogleCalendarSync {
                         OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
                             "Click 'OK' for further details.", "Improper Install Location",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
                     }
                 }
             } catch (System.Exception ex) {
@@ -504,7 +505,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void Donate() {
-            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+            Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
 
         public static Boolean InDeveloperMode {
@@ -537,5 +538,13 @@ namespace OutlookGoogleCalendarSync {
                 return path;
             }
         }
+
+        private static void setSecurityProtocols() {
+            //Enable TSL1.1,1.2
+            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
+            //Disable SSL3?
+            //System.Net.ServicePointManager.SecurityProtocol &= ~System.Net.SecurityProtocolType.Ssl3;
+        }
+
     }
 }

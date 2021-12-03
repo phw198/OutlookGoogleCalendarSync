@@ -204,10 +204,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                     //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
-                    bwSync = new AbortableBackgroundWorker();
-                    //Don't need thread to report back. The logbox is updated from the thread anyway.
-                    bwSync.WorkerReportsProgress = false;
-                    bwSync.WorkerSupportsCancellation = true;
+                    bwSync = new AbortableBackgroundWorker {
+                        //Don't need thread to report back. The logbox is updated from the thread anyway.
+                        WorkerReportsProgress = false,
+                        WorkerSupportsCancellation = true
+                    };
 
                     //Kick off the sync in the background thread
                     bwSync.DoWork += new DoWorkEventHandler(
@@ -531,7 +532,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                 
                 OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                 if (CancellationPending) return SyncResult.UserCancelled;
-                
+
+                GoogleOgcs.Calendar.Instance.CleanDuplicateEntries(ref googleEntries);
+
                 //Sync
                 if (Settings.Instance.SyncDirection != Direction.GoogleToOutlook) {
                     success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
@@ -567,7 +570,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-            
+
             DateTime timeSection = DateTime.Now;
             try {
                 GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
@@ -678,7 +681,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             Dictionary<AppointmentItem, Event> entriesToBeCompared = new Dictionary<AppointmentItem, Event>();
 
             Console console = Forms.Main.Instance.Console;
-            
+
             try {
                 OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
                 if (CancellationPending) return false;

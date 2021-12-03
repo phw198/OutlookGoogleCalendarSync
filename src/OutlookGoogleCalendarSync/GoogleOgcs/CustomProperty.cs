@@ -260,10 +260,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static void RemoveAll(ref Event ev) {
             Remove(ref ev, MetadataId.apiLimitHit);
             Remove(ref ev, MetadataId.forceSave);
-            Remove(ref ev, MetadataId.oCalendarId);
             Remove(ref ev, MetadataId.oEntryId);
             Remove(ref ev, MetadataId.ogcsModified);
             Remove(ref ev, MetadataId.oGlobalApptId);
+            Remove(ref ev, MetadataId.oCalendarId); //This one must be removed last
         }
         public static void Remove(ref Event ev, MetadataId id) {
             String key;

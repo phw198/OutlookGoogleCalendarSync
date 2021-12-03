@@ -185,12 +185,12 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private void showItem_Click(object sender, EventArgs e) {
-            Forms.Main.Instance.MainFormShow();
+            Forms.Main.Instance.MainFormShow(true);
         }
         
         private void notifyIcon_Click(object sender, MouseEventArgs e) { 
             if (e.Button == MouseButtons.Left) {
-                Forms.Main.Instance.MainFormShow();
+                Forms.Main.Instance.MainFormShow(true);
             }
         }
         private void notifyIcon_DoubleClick(object sender, MouseEventArgs e) {
@@ -206,13 +206,11 @@ namespace OutlookGoogleCalendarSync {
                 notifyIcon.Tag = "";
 
             } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {
-                System.Diagnostics.Process.Start("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
+                Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
                 notifyIcon.Tag = "";
 
             } else {
-                Forms.Main.Instance.TopMost = true;
-                Forms.Main.Instance.MainFormShow();
-                Forms.Main.Instance.TopMost = false;
+                Forms.Main.Instance.MainFormShow(true);
                 Forms.Main.Instance.tabApp.SelectedTab = Forms.Main.Instance.tabPage_Sync;
             }
         }

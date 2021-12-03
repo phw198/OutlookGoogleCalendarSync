@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.9.0-beta</version>
+    <version>2.9.2-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,27 +12,21 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.9.0?
+# What's New In v2.9.2?
+
+&lt;i class="em em-pushpin"&gt;&lt;/i&gt; The following release, v2.9.3, should bring the much requested feature of **Profiles**!  
+Don't want to wait until then? Try it out now by upgrading to v2.9.2 and then &lt;a href="https://github.com/phw198/OutlookGoogleCalendarSync/issues/1307" target="_blank"&gt;applying the latest Profiles build&lt;/a&gt;.  
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Customisable attendee limit for sync
-- Option to exclude sync of declined Google invitiations
-- Option to exclude sync of Google 'goals'
-- Option to set exact type of availablity in Outlook (eg Out of Office)
-- Provision for custom timezone mapping when required for meeting organiser in different timezone
-- Ability to specify custom maps between Google colours and Outlook categories
-- Additional colour sync setting to only sync single category to Outlook
-- Retrieve all Google calendars, not just first 30
-- Order the Google calendar dropdown: primary, writeable, read-only
-- Warn if read-only calendar selected for sync; deny for two-way sync
-- Sync deletion in Outlook on first two-way sync (not second)
-- New /t command line option to append custom text to application title
-- Set Outlook organisers as having "accepted" in Google
+- Don't steal focus for messageboxes, flash icon instead
+- Improved UX for category/colour map tests
+- Proactively offer hiding of splash screen following donation
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Numerous bug fixes
+- Fix missing Google default notification in Outlook appointment
+- Fix "the given key was not in the dictionary"
     </releaseNotes>
     <copyright>Copyright 2021</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
