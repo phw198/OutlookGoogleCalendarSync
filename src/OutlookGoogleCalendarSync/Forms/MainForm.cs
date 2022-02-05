@@ -473,6 +473,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     tbTargetCalendar_SelectedItemChanged(null, null);
                     cbPrivate.Checked = profile.SetEntriesPrivate;
                     cbAvailable.Checked = profile.SetEntriesAvailable;
+                    buildAvailabilityDropdown();
                     cbColour.Checked = profile.SetEntriesColour;
                     ddOutlookColour.AddColourItems();
 
@@ -1040,17 +1041,16 @@ namespace OutlookGoogleCalendarSync.Forms {
         /// </summary>
         public SettingsStore.Calendar ActiveCalendarProfile { get; internal set; }
 
-        private void ddProfile_SelectedIndexChanged(object sender, EventArgs e) {
+        private void ddProfile_SelectedIndexChanged(object sender, EventArgs e) {            
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal._ProfileName == ddProfile.Text) {
                     try {
                         try {
                             if (this.tabAppSettings.SelectedTab != this.tabOutlook) {
-                                this.tabAppSettings.SelectedTab.Controls.Add(this.panelProfileLoading);
-                                this.panelProfileLoading.BringToFront();
-                                this.panelProfileLoading.Visible = true;
-                                this.txtProfileLoading.Location = new Point((this.tabOutlook.Width - this.txtProfileLoading.Width) / 2, 9);
-                                this.tabAppSettings.Enabled = false;
+                                this.tabAppSettings.SelectedTab.Controls.Add(this.panelObscure);
+                                this.panelObscure.BringToFront();
+                                this.panelObscure.Dock = DockStyle.Fill;
+                                this.panelObscure.Visible = true;
                             }
                         } catch (System.Exception ex) {
                             OGCSexception.Analyse(ex);
@@ -1058,7 +1058,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         cal.SetActive();
                         break;
                     } finally {
-                        this.panelProfileLoading.Visible = false;
+                        this.panelObscure.Visible = false;
                         this.tabAppSettings.Enabled = true;
                     }
                 }

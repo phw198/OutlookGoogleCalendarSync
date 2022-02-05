@@ -95,6 +95,7 @@
             this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
             this.tabGoogle = new System.Windows.Forms.TabPage();
+            this.panelObscure = new System.Windows.Forms.Panel();
             this.panelProfileLoading = new System.Windows.Forms.Panel();
             this.txtProfileLoading = new System.Windows.Forms.Label();
             this.cbListHiddenGcals = new System.Windows.Forms.CheckBox();
@@ -286,6 +287,7 @@
             this.msCategories.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabGoogle.SuspendLayout();
+            this.panelObscure.SuspendLayout();
             this.panelProfileLoading.SuspendLayout();
             this.gbDeveloperOptions.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
@@ -665,6 +667,7 @@
             // 
             // btCustomTzMap
             // 
+            this.btCustomTzMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btCustomTzMap.Location = new System.Drawing.Point(12, 264);
             this.btCustomTzMap.Name = "btCustomTzMap";
             this.btCustomTzMap.Size = new System.Drawing.Size(189, 23);
@@ -958,7 +961,7 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
-            this.tabGoogle.Controls.Add(this.panelProfileLoading);
+            this.tabGoogle.Controls.Add(this.panelObscure);
             this.tabGoogle.Controls.Add(this.cbListHiddenGcals);
             this.tabGoogle.Controls.Add(this.cbExcludeDeclinedInvites);
             this.tabGoogle.Controls.Add(this.cbExcludeGoals);
@@ -980,13 +983,21 @@
             this.tabGoogle.TabIndex = 1;
             this.tabGoogle.Text = "  Google";
             // 
+            // panelObscure
+            // 
+            this.panelObscure.BackColor = System.Drawing.SystemColors.Control;
+            this.panelObscure.Controls.Add(this.panelProfileLoading);
+            this.panelObscure.Location = new System.Drawing.Point(0, 75);
+            this.panelObscure.Name = "panelObscure";
+            this.panelObscure.Size = new System.Drawing.Size(392, 78);
+            this.panelObscure.TabIndex = 49;
+            // 
             // panelProfileLoading
             // 
-            this.panelProfileLoading.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelProfileLoading.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.panelProfileLoading.BackColor = System.Drawing.Color.Gold;
             this.panelProfileLoading.Controls.Add(this.txtProfileLoading);
-            this.panelProfileLoading.Location = new System.Drawing.Point(0, 87);
+            this.panelProfileLoading.Location = new System.Drawing.Point(0, 15);
             this.panelProfileLoading.Name = "panelProfileLoading";
             this.panelProfileLoading.Size = new System.Drawing.Size(392, 44);
             this.panelProfileLoading.TabIndex = 48;
@@ -3362,7 +3373,7 @@
             this.ClientSize = new System.Drawing.Size(524, 630);
             this.Controls.Add(this.tabApp);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(540, 630);
+            this.MinimumSize = new System.Drawing.Size(540, 668);
             this.Name = "Main";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -3387,6 +3398,7 @@
             this.groupBox1.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
+            this.panelObscure.ResumeLayout(false);
             this.panelProfileLoading.ResumeLayout(false);
             this.panelProfileLoading.PerformLayout();
             this.gbDeveloperOptions.ResumeLayout(false);
@@ -3668,5 +3680,6 @@
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.Label txtProfileLoading;
         private System.Windows.Forms.Panel panelProfileLoading;
+        private System.Windows.Forms.Panel panelObscure;
     }
 }
