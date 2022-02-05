@@ -969,6 +969,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Info("Attaching to the already running Outlook process.");
                 try {
                     oApp = System.Runtime.InteropServices.Marshal.GetActiveObject("Outlook.Application") as Microsoft.Office.Interop.Outlook.Application;
+                    if (oApp == null)
+                        throw new ApplicationException("GetActiveObject() returned NULL without throwing an error.");
                 } catch (System.Exception ex) {
                     if (OGCSexception.GetErrorCode(ex) == "0x800401E3") { //MK_E_UNAVAILABLE
                         log.Warn("Attachment failed - Outlook is running without GUI for programmatic access.");
