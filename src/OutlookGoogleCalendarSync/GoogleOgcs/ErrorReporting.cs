@@ -31,8 +31,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Getting credential attributes");
             try {
                 try {
-                    System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls12;
-                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);                    
+                    html = new Extensions.OgcsWebClient().DownloadString(cloudCredsURL);
                     html = html.Replace("\n", "");
                 } catch (System.Exception ex) {
                     log.Error("Failed to retrieve data: " + ex.Message);
@@ -111,7 +110,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             String uuid = null;
             try {
                 //Check if Settings have been loaded yet and has Gmail account set
-                if (Settings.IsLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                if (Settings.AreLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
                     logUuid = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
 
                 } else { //Check if the raw settings file has Gmail account set

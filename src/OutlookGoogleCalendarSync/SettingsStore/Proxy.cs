@@ -8,12 +8,12 @@ using log4net;
 //The Google API needs updating so we don't have to rely on System proxy setting
 //service.RequestFactory.Proxy = new WebProxy();
 
-namespace OutlookGoogleCalendarSync {
-    [DataContract]
-    public class SettingsProxy {
-        private static readonly ILog log = LogManager.GetLogger(typeof(SettingsProxy));
+namespace OutlookGoogleCalendarSync.SettingsStore {
+    [DataContract(Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync")]
+    public class Proxy {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Proxy));
 
-        public SettingsProxy() {
+        public Proxy() {
             setDefaults();
         }
 
@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync {
             //"Other" can be used as a fallback
             this.BrowserUserAgent = DefaultBrowserAgent;
         }
-        
+
         [DataMember]
         public string Type { get; set; }
 
@@ -81,7 +81,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
                 WebRequest.DefaultWebProxy = wp;
-                
+
             } else { //IE
                 log.Info("Using default proxy (app.config / IE).");
                 log.Info("Setting system-wide proxy.");
@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync {
                                 }
                             } else
                                 OGCSexception.Analyse("Testing proxy connection failed.", ex);
-                        }                        
+                        }
                     }
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse("Failed to confirm proxy settings.", ex);

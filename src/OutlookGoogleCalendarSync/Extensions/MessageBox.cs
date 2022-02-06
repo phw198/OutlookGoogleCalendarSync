@@ -1,9 +1,11 @@
 ﻿using System.Runtime.InteropServices;
+using log4net;
 
 namespace System.Windows.Forms {
     public static class OgcsMessageBox {
+        private static readonly ILog log = LogManager.GetLogger(typeof(OgcsMessageBox));
         private static DialogResult dr;
-
+                
         #region Window flashing
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -65,6 +67,7 @@ namespace System.Windows.Forms {
         /// <param name="icon">Icon to display</param>
         public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
+            log.Debug(caption + ": " + text);
 
             if (mainFrm == null || mainFrm.IsDisposed)
                 return MessageBox.Show(text, caption, buttons, icon);
@@ -80,6 +83,7 @@ namespace System.Windows.Forms {
                 FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
                 dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
             }
+            log.Debug("Response: " + dr.ToString());
             return dr;
         }
 
@@ -93,13 +97,14 @@ namespace System.Windows.Forms {
         /// <param name="defaultButton">Button to focus</param>
         public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
+            log.Debug(caption + ": " + text);
 
             if (mainFrm == null || mainFrm.IsDisposed)
                 return MessageBox.Show(text, caption, buttons, icon, defaultButton);
 
             if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
-                    mainFrm.MainFormShow(); 
+                    mainFrm.MainFormShow();
                     FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
                     dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
                 }));
@@ -108,6 +113,7 @@ namespace System.Windows.Forms {
                 FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
                 dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
             }
+            log.Debug("Response: " + dr.ToString());
             return dr;
         }
     }

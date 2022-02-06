@@ -76,7 +76,7 @@ namespace OutlookGoogleCalendarSync {
             GoogleOgcs.ErrorReporting.ErrorOccurred = true;
             String configSetting = null;
 
-            if (Settings.IsLoaded) configSetting = Settings.Instance.CloudLogging.ToString();
+            if (Settings.AreLoaded) configSetting = Settings.Instance.CloudLogging.ToString();
             else configSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
 
             if (!string.IsNullOrEmpty(configSetting)) {
@@ -97,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             Boolean confirmative = dr == DialogResult.Yes;
-            if (Settings.IsLoaded) Settings.Instance.CloudLogging = confirmative;
+            if (Settings.AreLoaded) Settings.Instance.CloudLogging = confirmative;
             Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "CloudLogging=" + confirmative.ToString());
 
             try {

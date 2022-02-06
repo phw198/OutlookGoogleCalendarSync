@@ -5,39 +5,53 @@ using System.Windows.Forms;
 namespace OutlookGoogleCalendarSync.Sync {
     public class SyncTimer : Timer {
         private static readonly ILog log = LogManager.GetLogger(typeof(SyncTimer));
-        public DateTime LastSyncDate { private get; set; }
-        private DateTime nextSyncDate;
-        public DateTime NextSyncDate {
+        public object owningProfile { get; internal set; }
+        
+        public DateTime LastSyncDate { internal get; set; }
+
+        private DateTime? nextSyncDate;
+        public DateTime? NextSyncDate {
             get { return nextSyncDate; }
-            private set {
+            set {
                 nextSyncDate = value;
-                NextSyncDateText = nextSyncDate.ToLongDateString() + " @ " + nextSyncDate.ToLongTimeString();
-                if (Settings.Instance.OutlookPush) NextSyncDateText += " + Push";
-                Forms.Main.Instance.NextSyncVal = NextSyncDateText;
-                log.Info("Next sync scheduled for " + NextSyncDateText);
+                if (nextSyncDate != null) {
+                    DateTime theDate = (DateTime)nextSyncDate;
+                    var profile = owningProfile as SettingsStore.Calendar;
+                    NextSyncDateText = theDate.ToLongDateString() + " @ " + theDate.ToLongTimeString() + (profile.OutlookPush ? " + Push" : "");
+                }
             }
         }
-        public String NextSyncDateText { get; private set; }
+
+        private String nextSyncDateText;
+        public String NextSyncDateText {
+            get { return nextSyncDateText; }
+            set {
+                nextSyncDateText = value;
+                var profile = owningProfile as SettingsStore.Calendar;
+                if (profile.Equals(Forms.Main.Instance.ActiveCalendarProfile))
+                    Forms.Main.Instance.NextSyncVal = value;
+            }
+        }
         
-        public void Initialise() {
+        public SyncTimer(Object owningProfile) {
+            this.owningProfile = owningProfile;
             this.Tag = "AutoSyncTimer";
             this.Tick += new EventHandler(ogcsTimer_Tick);
             this.Interval = int.MaxValue;
 
-            //Refresh synchronizations (last and next)
-            this.LastSyncDate = Settings.Instance.LastSyncDate;
-            Forms.Main.Instance.LastSyncVal = LastSyncDate.ToLongDateString() + " @ " + LastSyncDate.ToLongTimeString();
+            if (owningProfile is SettingsStore.Calendar)
+                this.LastSyncDate = (owningProfile as SettingsStore.Calendar).LastSyncDate;
+
             SetNextSync();
         }
 
         private void ogcsTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            log.Debug("Scheduled sync triggered.");
 
-            Forms.Main frm = Forms.Main.Instance;
-            frm.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
+            log.Debug("Scheduled sync triggered for profile: "+ Settings.Profile.Name(this.owningProfile));
+
             if (!Sync.Engine.Instance.SyncingNow) {
-                frm.Sync_Click(sender, null);
+                Forms.Main.Instance.Sync_Click(sender, null);
             } else {
                 log.Debug("Busy syncing already. Rescheduled for 5 mins time.");
                 SetNextSync(5, fromNow: true);
@@ -45,8 +59,9 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         private int getResyncInterval() {
-            int min = Settings.Instance.SyncInterval;
-            if (Settings.Instance.SyncIntervalUnit == "Hours") {
+            var profile = (this.owningProfile as SettingsStore.Calendar);
+            int min = profile.SyncInterval;
+            if (profile.SyncIntervalUnit == "Hours") {
                 min *= 60;
             }
             return min;
@@ -56,39 +71,45 @@ namespace OutlookGoogleCalendarSync.Sync {
         public void SetNextSync() {
             SetNextSync(getResyncInterval());
         }
-        /// <summary>
-        /// Configure the next sync that override any configured schedule in Settings.</summary>
-        /// </summary>
+
+        /// <summary>Configure the next sync that override any configured schedule in Settings.</summary>
         /// <param name="delayMins">Number of minutes to next sync</param>
         /// <param name="fromNow">From now or since last successful sync</param>
         /// <param name="calculateInterval">Calculate milliseconds to next sync and activate timer</param>
         public void SetNextSync(int delayMins, Boolean fromNow = false, Boolean calculateInterval = true) {
-            if (Settings.Instance.SyncInterval != 0) {
-                DateTime now = DateTime.Now;
-                this.NextSyncDate = fromNow ? now.AddMinutes(delayMins) : LastSyncDate.AddMinutes(delayMins);
-                if (calculateInterval) CalculateInterval();
-
-            } else {
-                Forms.Main.Instance.NextSyncVal = "Inactive";
+            SettingsStore.Calendar profile = null;
+            if (owningProfile is SettingsStore.Calendar)
+                profile = SettingsStore.Calendar.GetCalendarProfile(owningProfile);
+            
+            if (profile == null || profile.SyncInterval == 0) {
+                this.NextSyncDateText = (profile?.OutlookPush ?? false) ? "Push Sync Active" : "Inactive";
                 Activate(false);
                 log.Info("Schedule disabled.");
+            } else {
+                DateTime now = DateTime.Now;
+                this.nextSyncDate = fromNow ? now.AddMinutes(delayMins) : this.LastSyncDate.AddMinutes(delayMins);
+                if (calculateInterval) CalculateInterval();
+                else this.NextSyncDate = this.nextSyncDate;
+                log.Info("Next sync scheduled for profile '"+ Settings.Profile.Name(owningProfile) +"' at " + this.NextSyncDateText);
             }
         }
+
         public void CalculateInterval() {
-            if (Settings.Instance.SyncInterval == 0) return;
+            if ((owningProfile as SettingsStore.Calendar).SyncInterval == 0) return;
 
             DateTime now = DateTime.Now;
-            double interval = (this.nextSyncDate - now).TotalMinutes;
+            double interval = ((DateTime)this.nextSyncDate - now).TotalMinutes;
 
             if (this.Interval != (interval * 60000)) {
                 Activate(false);
                 if (interval < 0) {
                     log.Debug("Moving past sync into imminent future.");
-                    this.NextSyncDate = now.AddMinutes(1);
                     this.Interval = 1 * 60000;
-                } else {
+                } else if (interval == 0)
+                    this.Interval = 1000;
+                else
                     this.Interval = (int)Math.Min((interval * 60000), int.MaxValue);
-                }
+                this.NextSyncDate = now.AddMilliseconds(this.Interval);
             }
             Activate(true);
         }
@@ -106,36 +127,38 @@ namespace OutlookGoogleCalendarSync.Sync {
         public Boolean Running() {
             return this.Enabled;
         }
+
+        public String Status() {
+            var profile = (owningProfile as SettingsStore.Calendar);
+            if (this.Running()) return NextSyncDateText;
+            else if (profile.OgcsPushTimer != null && profile.OgcsPushTimer.Running()) return "Push Sync Active";
+            else return "Inactive";
+        }
     }
 
 
     public class PushSyncTimer : Timer {
         private static readonly ILog log = LogManager.GetLogger(typeof(PushSyncTimer));
+        public object owningProfile { get; internal set; }
         private DateTime lastRunTime;
         private Int32 lastRunItemCount;
         private Int16 failures = 0;
-        private static PushSyncTimer instance;
-        public static PushSyncTimer Instance {
-            get {
-                if (instance == null) {
-                    instance = new PushSyncTimer();
-                }
-                return instance;
-            }
-        }
-
-        private PushSyncTimer() {
+        public PushSyncTimer(Object owningProfile) {
+            this.owningProfile = owningProfile;
             ResetLastRun();
             this.Tag = "PushTimer";
             this.Interval = 2 * 60000;
             this.Tick += new EventHandler(ogcsPushTimer_Tick);
         }
 
+        /// <summary>
+        /// Recalculate item count as of now.
+        /// </summary>
         public void ResetLastRun() {
             this.lastRunTime = DateTime.Now;
             try {
                 log.Fine("Updating calendar item count following Push Sync.");
-                this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true).Count;
+                this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to update item count following a Push Sync.", ex);
             }
@@ -143,22 +166,19 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            log.Fine("Push sync triggered.");
-
+            log.UltraFine("Push sync triggered.");
+            
             try {
                 if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
 
-                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(true);
+                SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
+                log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
+                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
                     log.Debug("Changes found for Push sync.");
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + Settings.Instance.SyncDirection.Name + "...");
-                    if (!Sync.Engine.Instance.SyncingNow) {
                         Forms.Main.Instance.Sync_Click(sender, null);
                     } else {
-                        log.Debug("Busy syncing already. No need to push.");
-                    }
-                } else {
                     log.Fine("No changes found.");
                 }
                 failures = 0;
@@ -187,13 +207,15 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         public void Activate(Boolean activate) {
+            SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
             if (activate && !this.Enabled) {
                 ResetLastRun();
                 this.Start();
-                if (Settings.Instance.SyncInterval == 0) Forms.Main.Instance.NextSyncVal = "Push Sync Active";
+                if (profile.SyncInterval == 0 && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) 
+                    Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!activate && this.Enabled) {
                 this.Stop();
-                Sync.Engine.Instance.OgcsTimer.SetNextSync();
+                profile.OgcsTimer.SetNextSync();
             }
         }
         public Boolean Running() {

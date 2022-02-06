@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
                 Updater.MakeSquirrelAware();
                 Forms.Splash.ShowMe();
 
+                SettingsStore.Upgrade.Check();
                 log.Debug("Loading settings from file.");
                 Settings.Load();
                 Settings.Instance.Proxy.Configure();
@@ -70,7 +71,7 @@ namespace OutlookGoogleCalendarSync {
                 TimezoneDB.Instance.CheckForUpdate();
 
                 try {
-                    String startingTab = Settings.Instance.LastSyncDate == new DateTime(0) ? "Help" : null;
+                    String startingTab = Settings.Instance.CompletedSyncs == 0 ? "Help" : null;
                     Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
                     String reportError = ex.Message;
@@ -275,7 +276,7 @@ namespace OutlookGoogleCalendarSync {
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
             startupConfigExists = checkRegKey();
-
+            
             if (Settings.Instance.StartOnStartup) {
                 if (startupConfigExists) log.Debug("Forcing update of startup registry key.");
                 addRegKey();
@@ -468,16 +469,11 @@ namespace OutlookGoogleCalendarSync {
                     Int32 upgradedFrom = Int16.MaxValue;
                     String expectedInstallDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                     expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
-                    String paddedVersion = "";
                     if (settingsVersion != "Unknown") {
-                        foreach (String versionBit in settingsVersion.Split('.')) {
-                            paddedVersion += versionBit.PadLeft(2, '0');
+                        upgradedFrom = Program.VersionToInt(settingsVersion);
                         }
-                        upgradedFrom = Convert.ToInt32(paddedVersion);
-
-                    }
-                    if ((settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
-                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir)) 
+                    if (!Program.InDeveloperMode && (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
+                        !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir))
                     {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
                         OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
@@ -508,6 +504,19 @@ namespace OutlookGoogleCalendarSync {
             Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
         }
 
+        /// <summary>
+        /// Convert a semantic version number string to an integer.
+        /// </summary>
+        /// <param name="semanticVersion">The semantic version number.</param>
+        /// <returns>The converted integer version number.</returns>
+        public static Int32 VersionToInt(String semanticVersion) {
+            String paddedVersion = "";
+            foreach (String versionBit in semanticVersion.Split('.')) {
+                paddedVersion += versionBit.PadLeft(2, '0');
+            }
+            return Convert.ToInt32(paddedVersion);
+        }
+
         public static Boolean InDeveloperMode {
             get { return System.Diagnostics.Debugger.IsAttached; }
         }
@@ -533,5 +542,31 @@ namespace OutlookGoogleCalendarSync {
             //System.Net.ServicePointManager.SecurityProtocol &= ~System.Net.SecurityProtocolType.Ssl3;
         }
 
+        /// <summary>
+        /// Determine what process is in the current call stack
+        /// </summary>
+        /// <param name="callingProcessNames">A comma-separated list of process names</param>
+        /// <returns>True if the call stack contains any of the process names</returns>
+        public static Boolean CalledByProcess(String callingProcessNames) {
+            String[] processNames = callingProcessNames.Split(',');
+            System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
+            foreach (System.Diagnostics.StackFrame frame in stackTrace.GetFrames().Reverse()) {
+                if (processNames.Contains(frame.GetMethod().Name, StringComparer.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static void StackTraceToString() {
+            try {
+                String stackString = "";
+                List<System.Diagnostics.StackFrame> stackFrames = new System.Diagnostics.StackTrace().GetFrames().ToList();
+                stackFrames.ForEach(sf => stackString += sf.GetMethod().Name + " < ");
+                log.Warn("StackTrace path: " + stackString);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+        }
     }
 }

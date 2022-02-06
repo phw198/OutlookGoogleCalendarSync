@@ -469,7 +469,7 @@ namespace OutlookGoogleCalendarSync {
             if (OutlookOgcs.CustomProperty.Exists(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
                 String googleIdValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID);
                 String googleCalValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId);
-                if (googleCalValue == null || googleCalValue == Settings.Instance.UseGoogleCalendar.Id) {
+                if (googleCalValue == null || googleCalValue == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id) {
                     Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
                     if (ev != null) {
                         events.Add(ev);
@@ -480,7 +480,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (!haveMatchingEv) {
                 events = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
-                if (Settings.Instance.SyncDirection != Sync.Direction.GoogleToOutlook) {
+                if (Sync.Engine.Calendar.Instance.Profile.SyncDirection != Sync.Direction.GoogleToOutlook) {
                     List<AppointmentItem> ais = new List<AppointmentItem>();
                     ais.Add(ai);
                     GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
@@ -604,7 +604,7 @@ namespace OutlookGoogleCalendarSync {
                                     aiExcp = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(aiExcp);
                                 }
                             
-                                if (oExcp_currDate < Settings.Instance.SyncStart.Date || oExcp_currDate > Settings.Instance.SyncEnd.Date) {
+                                if (oExcp_currDate < Sync.Engine.Calendar.Instance.Profile.SyncStart.Date || oExcp_currDate > Sync.Engine.Calendar.Instance.Profile.SyncEnd.Date) {
                                     log.Fine("Exception is" + logDeleted + " outside date range being synced: " + oExcp_currDate.Date.ToString("dd/MM/yyyy"));
                                     continue;
                                 }
@@ -616,7 +616,7 @@ namespace OutlookGoogleCalendarSync {
                                         log.Debug("It is deleted in Google, so cannot compare items.");
                                         if (!oIsDeleted) {
                                             log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
-                                            String syncDirectionTip = (Settings.Instance.SyncDirection == Sync.Direction.Bidirectional) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
+                                            String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection == Sync.Direction.Bidirectional) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
                                             Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>" +
                                                 "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook.<br/>" +
                                                 "This can happen if, for example, you declined the occurrence (which is synced to Google) and proposed a new time that is subsequently accepted by the organiser.<br/>" +
@@ -741,7 +741,7 @@ namespace OutlookGoogleCalendarSync {
                             Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
                             newAiExcp.Delete();
 
-                        } else if (Settings.Instance.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
+                        } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
                             Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Declined.", Console.Markup.calendar);
                             newAiExcp.Delete();
 
