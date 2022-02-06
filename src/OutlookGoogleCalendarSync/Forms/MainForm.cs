@@ -1044,7 +1044,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         /// </summary>
         public SettingsStore.Calendar ActiveCalendarProfile { get; internal set; }
 
-        private void ddProfile_SelectedIndexChanged(object sender, EventArgs e) {            
+        private void ddProfile_SelectedIndexChanged(object sender, EventArgs e) {
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal._ProfileName == ddProfile.Text) {
                     try {
