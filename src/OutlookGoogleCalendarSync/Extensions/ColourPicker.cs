@@ -248,7 +248,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     ctl.SelectedIndex = 0;
                 else {
                     String currentText = this.Value.ToString();
-                    if (ctl.Items.Count == 0) 
+                    if (ctl.Items.Count == 0)
                         ctl.PopulateDropdownItems();
                     if (!string.IsNullOrEmpty(currentText)) this.Value = currentText;
 
@@ -289,7 +289,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     return;
 
                 foreach (GoogleOgcs.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
-                    if (ci.Name == this.Value.ToString()) {
+                    if (ci.Name == this.Value?.ToString()) {
                         Brush boxBrush = new SolidBrush(ci.RgbValue);
                         Brush textBrush = SystemBrushes.WindowText;
                         Extensions.ColourCombobox.DrawComboboxItemColour(true, boxBrush, textBrush, this.Value.ToString(), graphics, cellBounds);

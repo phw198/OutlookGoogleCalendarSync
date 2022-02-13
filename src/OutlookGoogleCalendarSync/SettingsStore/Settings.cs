@@ -454,7 +454,7 @@ namespace OutlookGoogleCalendarSync {
                 SettingsStore.Calendar aProfile;
 
                 if (Program.CalledByProcess("manualSynchronize,Sync_Click,updateGUIsettings,UpdateGUIsettings_Profile,miCatRefresh_Click," +
-                    "GetMyGoogleCalendars_Click,btColourMap_Click,ColourPicker_Enter,OnSelectedIndexChanged,OnCheckedChanged")) {
+                    "GetMyGoogleCalendars_Click,btColourMap_Click,btTestOutlookFilter_Click,ColourPicker_Enter,OnSelectedIndexChanged,OnCheckedChanged")) {
                     aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                     log.Fine("Using profile Forms.Main.Instance.ActiveCalendarProfile");
                 
@@ -467,6 +467,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Error("Unknown profile being referenced.");
                     aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                 }
+                if (aProfile == null) log.Warn("The profile in play is NULL!");
                 return aProfile;
             }
         }

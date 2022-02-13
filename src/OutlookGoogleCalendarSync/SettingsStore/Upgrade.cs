@@ -131,11 +131,24 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             } finally {
                 if (xml != null) {
                     xml.Root.Sort();
-                    try {
-                        xml.Save(Settings.ConfigFile);
-                    } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
-                        throw ex;
+                    while (true) {
+                        try {
+                            xml.Save(Settings.ConfigFile);
+                            break;
+                        } catch (System.IO.IOException ex) {
+                            log.Fail("Another process has locked file " + Settings.ConfigFile);
+                            if (MessageBox.Show("Another program is using the settings file " + Settings.ConfigFile +
+                                "\r\nPlease close any other instance of OGCS that may be using it.",
+                                "Settings Cannot Be Saved", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Cancel) 
+                            {
+                                log.Warn("User cancelled attempt to save new settings file.");
+                                OGCSexception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                                throw;
+                            }
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                            throw;
+                        }
                     }
                 }
             }
