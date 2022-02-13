@@ -137,9 +137,15 @@ namespace OutlookGoogleCalendarSync {
                         } else {
                             try {
                                 //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
-                                String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
-                                log.Debug("Downloading " + nupkgUrl);
-                                new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
+                                if (string.IsNullOrEmpty(nonGitHubReleaseUri)) {
+                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                                    log.Debug("Downloading " + nupkgUrl);
+                                    new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile); 
+                                } else {
+                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + update.Filename;
+                                    log.Debug("Downloading " + nupkgUrl);
+                                    new System.Net.WebClient().DownloadFile(nupkgUrl, localFile);
+                                }
                                 log.Debug("Download complete.");
                             } catch (System.Exception ex) {
                                 OGCSexception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
@@ -156,7 +162,7 @@ namespace OutlookGoogleCalendarSync {
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
                         }
                     }
-
+                    
                     var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
                     t.Start();
@@ -419,16 +425,8 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (releaseVersion != null) {
-                String paddedVersion = "";
-                foreach (String versionBit in releaseVersion.Split('.')) {
-                    paddedVersion += versionBit.PadLeft(2, '0');
-                }
-                Int32 releaseNum = Convert.ToInt32(paddedVersion);
-                paddedVersion = "";
-                foreach (String versionBit in Application.ProductVersion.Split('.')) {
-                    paddedVersion += versionBit.PadLeft(2, '0');
-                }
-                Int32 myReleaseNum = Convert.ToInt32(paddedVersion);
+                Int32 releaseNum = Program.VersionToInt(releaseVersion);
+                Int32 myReleaseNum = Program.VersionToInt(Application.ProductVersion);
                 if (releaseNum > myReleaseNum) {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
                     DialogResult dr = OgcsMessageBox.Show("A new " + releaseType + " release is available for OGCS. Would you like to upgrade to v" + releaseVersion + "?", "New OGCS Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

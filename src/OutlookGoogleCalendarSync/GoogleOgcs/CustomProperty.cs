@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 //For backward compatibility, always default to key names with no set number appended
                 if (calendarKeys.Count == 0||
-                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName)) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id)
                 {
                     maxSet = -1;
                     return returnVal;
@@ -156,7 +156,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (matches[0].Groups[1].Value != "")
                             appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
                         if (appendedNos - maxSet == 1) maxSet = appendedNos;
-                        if (kvp.Value == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID)
+                        if (kvp.Value == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id)
                             returnSet = (matches[0].Groups[1].Value == "") ? "0" : matches[0].Groups[1].Value;
                     }
                 }
@@ -198,9 +198,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int? keySet = getKeySet(ev, out maxSet);
             if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
             if (searchId == MetadataId.oCalendarId)
-                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && ev.ExtendedProperties.Private__[searchKey] == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
+                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && ev.ExtendedProperties.Private__[searchKey] == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id;
             else
-                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID;
+                return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id;
         }
 
         public static Boolean ExistsAny(Event ev) {
@@ -214,7 +214,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// Add the Outlook appointment IDs into Google event.
         /// </summary>
         public static void AddOutlookIDs(ref Event ev, AppointmentItem ai) {
-            Add(ref ev, MetadataId.oCalendarId, OutlookOgcs.Calendar.Instance.UseOutlookCalendar.EntryID);
+            Add(ref ev, MetadataId.oCalendarId, Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
             Add(ref ev, MetadataId.oEntryId, ai.EntryID);
             Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
             CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);

@@ -74,7 +74,7 @@ namespace OutlookGoogleCalendarSync {
 
         public static String ApplyRegex(String source, Sync.Direction direction) {
             String retStr = source ?? "";
-            if (Settings.Instance.Obfuscation.Enabled && direction.Id == Settings.Instance.Obfuscation.Direction.Id) {
+            if (Sync.Engine.Calendar.Instance.Profile.Obfuscation.Enabled && direction.Id == Sync.Engine.Calendar.Instance.Profile.Obfuscation.Direction.Id) {
                 foreach (DataGridViewRow row in Forms.Main.Instance.dgObfuscateRegex.Rows) {
                     DataGridViewCellCollection cells = row.Cells;
                     if (cells[Obfuscate.findCol].Value != null) {

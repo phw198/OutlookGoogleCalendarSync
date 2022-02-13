@@ -2,6 +2,7 @@
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
     class ExplorerWatcher {
@@ -195,38 +196,46 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 if (!String.IsNullOrEmpty(deletedPropVal)) {
                     DateTime origStartDate = DateTime.Parse(deletedPropVal);
+
                     if (origStartDate != copiedAi.Start) { /* Item moved, not copied */
-                        if (origStartDate < Settings.Instance.SyncStart && copiedAi.Start >= Settings.Instance.SyncStart) {
-                            Int16 newDaysInPast = (Int16)(Settings.Instance.SyncStart.Date - origStartDate.Date).TotalDays;
-                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved back into the synced date range.\r\n" +
-                                "In order to avoid it being deleted, configuration has automatically been updated to " + (Settings.Instance.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
-                                "After the next sync you may revert it to " + Settings.Instance.DaysInThePast + ".", "Appointment moved into synced date range",
-                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (Settings.Instance.DaysInThePast + newDaysInPast).ToString());
+                        foreach (SettingsStore.Calendar profile in Settings.Instance.Calendars) {
 
-                        } else if (origStartDate >= Settings.Instance.SyncStart && copiedAi.Start < Settings.Instance.SyncStart) {
-                            Int16 newDaysInPast = (Int16)(Settings.Instance.SyncStart.Date - copiedAi.Start.Date).TotalDays;
-                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved out of the synced date range.\r\n" +
-                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
-                                "After the next sync you may revert it to " + Settings.Instance.DaysInThePast + ".", "Appointment moved out of synced date range",
-                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (Settings.Instance.DaysInThePast + newDaysInPast).ToString());
+                            if (origStartDate < profile.SyncStart && copiedAi.Start >= profile.SyncStart) {
+                                Int16 newDaysInPast = (Int16)(profile.SyncStart.Date - origStartDate.Date).TotalDays;
+                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                    "An already synced appointment has been moved back into the synced date range.\r\n" +
+                                    "In order to avoid it being deleted, configuration has automatically been updated to " + (profile.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
+                                    "After the next sync you may revert it to " + profile.DaysInThePast + ".", "Appointment moved into synced date range",
+                                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (profile.DaysInThePast + newDaysInPast).ToString());
 
-                        } else if (origStartDate > Settings.Instance.SyncEnd && copiedAi.Start <= Settings.Instance.SyncEnd) {
-                            Int16 newDaysInFuture = (Int16)(origStartDate - Settings.Instance.SyncEnd.Date).TotalDays;
-                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved into the synced date range.\r\n" +
-                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
-                                "After the next sync you may revert it to " + Settings.Instance.DaysInTheFuture + ".", "Appointment moved into synced date range",
-                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (Settings.Instance.DaysInTheFuture + newDaysInFuture).ToString());
+                            } else if (origStartDate >= profile.SyncStart && copiedAi.Start < profile.SyncStart) {
+                                Int16 newDaysInPast = (Int16)(profile.SyncStart.Date - copiedAi.Start.Date).TotalDays;
+                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                    "An already synced appointment has been moved out of the synced date range.\r\n" +
+                                    "In order this is synced, configuration has automatically been updated to " + (profile.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
+                                    "After the next sync you may revert it to " + profile.DaysInThePast + ".", "Appointment moved out of synced date range",
+                                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInThePast, "Text", (profile.DaysInThePast + newDaysInPast).ToString());
 
-                        } else if (origStartDate <= Settings.Instance.SyncEnd && copiedAi.Start > Settings.Instance.SyncEnd) {
-                            Int16 newDaysInFuture = (Int16)(copiedAi.Start.Date - Settings.Instance.SyncEnd.Date).TotalDays;
-                            System.Windows.Forms.OgcsMessageBox.Show("An already synced appointment has been moved out of the synced date range.\r\n" +
-                                "In order this is synced, configuration has automatically been updated to " + (Settings.Instance.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
-                                "After the next sync you may revert it to " + Settings.Instance.DaysInTheFuture + ".", "Appointment moved out of synced date range",
-                                System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (Settings.Instance.DaysInTheFuture + newDaysInFuture).ToString());
+                            } else if (origStartDate > profile.SyncEnd && copiedAi.Start <= profile.SyncEnd) {
+                                Int16 newDaysInFuture = (Int16)(origStartDate - profile.SyncEnd.Date).TotalDays;
+                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                    "An already synced appointment has been moved into the synced date range.\r\n" +
+                                    "In order this is synced, configuration has automatically been updated to " + (profile.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
+                                    "After the next sync you may revert it to " + profile.DaysInTheFuture + ".", "Appointment moved into synced date range",
+                                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (profile.DaysInTheFuture + newDaysInFuture).ToString());
+
+                            } else if (origStartDate <= profile.SyncEnd && copiedAi.Start > profile.SyncEnd) {
+                                Int16 newDaysInFuture = (Int16)(copiedAi.Start.Date - profile.SyncEnd.Date).TotalDays;
+                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                    "An already synced appointment has been moved out of the synced date range.\r\n" +
+                                    "In order this is synced, configuration has automatically been updated to " + (profile.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
+                                    "After the next sync you may revert it to " + profile.DaysInTheFuture + ".", "Appointment moved out of synced date range",
+                                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbDaysInTheFuture, "Text", (profile.DaysInTheFuture + newDaysInFuture).ToString());
+                            }
                         }
                     }
                 }

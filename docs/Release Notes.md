@@ -1,6 +1,27 @@
 | Release Notes |
 |:---|
 
+# v2.9.3.0 - Alpha
+
+**Enhancements**
+- The arrival of Profiles brings multi-calendar sync! :tada: 
+
+**Bugfix**
+- Don't error if Google event has no "popup" notification
+- Rolled back incompatible SharpCompress DLL
+- Remove alt-tab icon when minimised to system tray
+
+# v2.9.2.0 - Alpha
+
+**Enhancements**
+- Don't steal focus for messageboxes, flash icon instead
+- Improved UX for category/colour map tests
+- Proactively offer hiding of splash screen following donation
+
+**Bugfix**
+- Fix missing Google default notification in Outlook appointment
+- Fix "the given key was not in the dictionary"
+
 # v2.9.1.0 - Alpha
 
 **Enhancements**
