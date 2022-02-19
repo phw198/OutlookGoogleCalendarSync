@@ -27,5 +27,5 @@ In terms of functionality, both versions are the same, but here's a quick compar
 | Upgrading OGCS | Simply accept the upgrade prompt when a newer version is detected. | The newer ZIP file will need manually downloading, either to replace the existing location of OGCS, or a new location. |
 | OS Permissions Required | None. | None. |
 | Multiple versions | Only one version at a time. | Each extracted application is standalone, so multiple versions is fine. You may want this to experiment with different releases of OGCS. |
-| Multiple configurations/settings | Only one. | Settings are specific to each extract of OGCS, by default. |
-| Sync multiple calendars | [Coming Soon!]({{ site.github-repo }}/issues/165) | Configure a calendar for each OGCS deployment. |
+| Multiple Google accounts | Only one. | Settings are specific to each extract of OGCS, by default. Further [details in the wiki](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS). |
+| Sync multiple calendars | From v2.9.3 | From v2.9.3. Or configure a single calendar for [each deployment](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS) of an earlier release. |
