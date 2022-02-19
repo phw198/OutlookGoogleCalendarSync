@@ -20,6 +20,8 @@ REM src\packages\squirrel.windows.1.9.0\tools\signtool.exe sign /n "Open Source 
 
 REM Build ZIP
 PAUSE
+rename src\Releases\Setup.exe OGCS_Setup.exe
+
 cd src\OutlookGoogleCalendarSync\bin\Release
 del Portable_OGCS_v2.9.3.zip
 "c:\Program Files\7-Zip\7z.exe" u Portable_OGCS_v2.9.2.zip -u- -up0q0r2x2y2z1w2!Portable_OGCS_v2.9.3.zip *.dll *.ps1 ErrorReportingTemplate.json logger.xml tzdb.nzd OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.exe.config OutlookGoogleCalendarSync.pdb Console\* 
