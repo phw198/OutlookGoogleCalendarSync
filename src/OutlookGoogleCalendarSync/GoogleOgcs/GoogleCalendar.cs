@@ -741,15 +741,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (profile.AddDescription) {
                 String outlookBody = ai.Body;
-                //Check for Google description truncated @ 8Kb
-                if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
-                    && ev.Description.Length == 8 * 1024
-                    && outlookBody.Length > 8 * 1024) 
+                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                    string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {
-                    outlookBody = outlookBody.Substring(0, 8 * 1024);
+                    log.Warn("Avoided loss of Google description, as none exists in Outlook.");
+                } else {
+                    //Check for Google description truncated @ 8Kb
+                    if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
+                        && ev.Description.Length == 8 * 1024
+                        && outlookBody.Length > 8 * 1024) 
+                    {
+                        outlookBody = outlookBody.Substring(0, 8 * 1024);
+                    }
+                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
+                        ev.Description = outlookBody;
                 }
-                if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
-                    ev.Description = outlookBody;
             }
 
             if (profile.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
