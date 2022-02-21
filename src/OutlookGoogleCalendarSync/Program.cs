@@ -529,12 +529,25 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="path">The path to check</param>
         /// <returns>The maskes path</returns>
         public static string MaskFilePath(String path) {
-            String userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-            if (path.StartsWith(userProfile)) {
-                String userProfileMasked = userProfile.Replace(Environment.GetEnvironmentVariable("USERNAME"), "<userid>");
-                return path.Replace(userProfile, userProfileMasked);
-            } else
+            try {
+                String userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+                if (path.StartsWith(userProfile)) {
+                    String username = Environment.GetEnvironmentVariable("USERNAME");
+                    if (username == null) {
+                        log.Debug("User:    " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.User));
+                        log.Debug("Process: " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.Process));
+                        log.Debug("Machine: " + Environment.GetEnvironmentVariable("USERNAME", EnvironmentVariableTarget.Machine));
+                        log.Error("%USERNAME% environment variable not available. This may well fix itself with a reboot #1282");
+                        return path;
+                    }
+                    String userProfileMasked = userProfile.Replace(username, "<userid>");
+                    return path.Replace(userProfile, userProfileMasked);
+                } else
+                    return path;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Problems accessing environment variables.", ex);
                 return path;
+            }
         }
 
         private static void setSecurityProtocols() {
