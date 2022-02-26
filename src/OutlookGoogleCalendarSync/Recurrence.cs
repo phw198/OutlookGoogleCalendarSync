@@ -709,7 +709,7 @@ namespace OutlookGoogleCalendarSync {
                 } else {
                     OGCSexception.Analyse("Error when determining if Outlook recurrence is deleted or not.", ex);
                 }
-                return true;
+                return false;
             } finally {
                 ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
             }
