@@ -297,7 +297,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 try {
                     #region Read Outlook items
                     console.Update("Scanning Outlook calendar...");
-                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(null, false);
+                    OutlookOgcs.Calendar.Instance.IOutlook.UseOutlookCalendar(OutlookOgcs.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id));
+                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                     console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
