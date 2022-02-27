@@ -161,7 +161,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Int16 pageNum = 1;
 
             try {
-                log.Debug("Retrieving all recurring event instances from Google.");
+                log.Debug("Retrieving all recurring event instances from Google for " + recurringEventId);
                 do {
                     EventsResource.InstancesRequest ir = Service.Events.Instances(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, recurringEventId);
                     ir.ShowDeleted = true;
@@ -201,6 +201,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
+                log.Fine(request.Items.Count + " recurring event instances found.");
                 return result;
 
             } catch (System.Exception ex) {
