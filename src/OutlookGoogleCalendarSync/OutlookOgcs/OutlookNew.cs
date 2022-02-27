@@ -540,6 +540,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public MAPIFolder GetFolderByID(String entryID) {
             NameSpace ns = null;
             try {
+                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 ns = oApp.GetNamespace("mapi");
                 return ns.GetFolderFromID(entryID);
             } finally {
@@ -550,6 +551,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
+                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 ns = oApp.GetNamespace("mapi");
                 ai = ns.GetItemFromID(entryID) as AppointmentItem;
             } finally {

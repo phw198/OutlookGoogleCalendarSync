@@ -19,6 +19,10 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             setDefaults();
         }
 
+        public override String ToString() {
+            return this._ProfileName + ": O[" + this.UseOutlookCalendar.Name + "] " + this.SyncDirection.ToString() + " G[" + this.UseGoogleCalendar.ToString() + "]";
+        }
+
         //Default values before loading from xml and attribute not yet serialized
         [OnDeserializing]
         void OnDeserializing(StreamingContext context) {
