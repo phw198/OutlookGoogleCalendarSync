@@ -466,6 +466,17 @@ namespace OutlookGoogleCalendarSync.Sync {
                     OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 
+                    if (this.Profile.AddColours || this.Profile.SetEntriesColour) OutlookOgcs.Calendar.Categories.ValidateCategories();
+                    if (this.Profile.ColourMaps.Count > 0) {
+                        this.Profile.ColourMaps.ToList().ForEach(c => {
+                            if (OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) == null) {
+                                if (OgcsMessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
+                                    "Invalid colour map", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == DialogResult.Yes)
+                                    new Forms.ColourMap().ShowDialog();
+                            }
+                        });
+                    }
+
                     //Sync
                     if (this.Profile.SyncDirection.Id != Direction.GoogleToOutlook.Id) {
                         success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
