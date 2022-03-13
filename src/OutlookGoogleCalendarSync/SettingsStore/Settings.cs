@@ -199,11 +199,11 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool? HideSplashScreen {
             get { return hideSplashScreen; }
             set {
+                hideSplashScreen = value;
                 if (!Loading() && hideSplashScreen != value) {
                     XMLManager.ExportElement(this, "HideSplashScreen", value, ConfigFile);
                     if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value ?? false;
                 }
-                hideSplashScreen = value;
             }
         }
 

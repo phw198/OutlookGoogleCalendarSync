@@ -449,7 +449,8 @@ namespace OutlookGoogleCalendarSync {
         private static void isNewVersion(Boolean isSquirrelInstall) {
             string settingsVersion = string.IsNullOrEmpty(Settings.Instance.Version) ? "Unknown" : Settings.Instance.Version;
             if (settingsVersion != Application.ProductVersion) {
-                log.Info("New version detected - upgraded from " + settingsVersion + " to " + Application.ProductVersion);
+                if (settingsVersion == "Unknown") log.Info("New install and/or brand new settings file detected.");
+                else log.Info("New upgraded version detected: from " + settingsVersion + " to " + Application.ProductVersion);
                 try {
                     Program.ManageStartupRegKey();
                 } catch (System.Exception ex) {

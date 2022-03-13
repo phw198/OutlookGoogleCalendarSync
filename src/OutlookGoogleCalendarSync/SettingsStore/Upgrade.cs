@@ -26,7 +26,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         private static Boolean upgradePerformed() {
             try {
-                if (settingsVersionNum < multipleCalendars) {
+                if (settingsVersionNum > 0 && settingsVersionNum < multipleCalendars) {
                     upgradeToMultiCalendar();
                     settingsVersionNum = multipleCalendars;
                     return true;
