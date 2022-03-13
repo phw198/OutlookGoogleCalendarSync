@@ -630,7 +630,7 @@ namespace OutlookGoogleCalendarSync {
                                 if (gExcp != null) {
                                     log.Debug("Matching Google Event recurrence found.");
                                     if (gExcp.Status == "cancelled") {
-                                        log.Debug("It is deleted in Google, so cannot compare items.");
+                                        log.Debug("It is deleted in Google, which " + (oIsDeleted == DeletionState.Deleted ? "matches" : "does not match") + " Outlook.");
                                         if (oIsDeleted == DeletionState.NotDeleted) {
                                             log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
                                             String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection == Sync.Direction.Bidirectional) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
