@@ -421,7 +421,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
-            ev.Summary = Obfuscate.ApplyRegex(ai.Subject, Sync.Direction.OutlookToGoogle);
+            ev.Summary = Obfuscate.ApplyRegex(ai.Subject, null, Sync.Direction.OutlookToGoogle);
             if (profile.AddDescription) {
                 try {
                     ev.Description = ai.Body;
@@ -735,7 +735,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
             }
 
-            String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, Sync.Direction.OutlookToGoogle);
+            String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
             }
@@ -1672,9 +1672,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (profile.Obfuscation.Enabled) {
                 if (profile.Obfuscation.Direction.Id == Sync.Direction.OutlookToGoogle.Id)
-                    sigAi = Obfuscate.ApplyRegex(sigAi, Sync.Direction.OutlookToGoogle);
+                    sigAi = Obfuscate.ApplyRegex(sigAi, null, Sync.Direction.OutlookToGoogle);
                 else
-                    sigEv = Obfuscate.ApplyRegex(sigEv, Sync.Direction.GoogleToOutlook);
+                    sigEv = Obfuscate.ApplyRegex(sigEv, null, Sync.Direction.GoogleToOutlook);
             }
             return (sigEv == sigAi);
         }

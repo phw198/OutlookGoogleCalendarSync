@@ -290,7 +290,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             Recurrence.Instance.BuildOutlookPattern(ev, ai);
 
-            ai.Subject = Obfuscate.ApplyRegex(ev.Summary, Sync.Direction.GoogleToOutlook);
+            ai.Subject = Obfuscate.ApplyRegex(ev.Summary, null, Sync.Direction.GoogleToOutlook);
             if (profile.AddDescription && ev.Description != null) ai.Body = ev.Description;
             if (profile.AddLocation) ai.Location = ev.Location;
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
@@ -513,7 +513,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
             #endregion
 
-            String summaryObfuscated = Obfuscate.ApplyRegex(ev.Summary, Sync.Direction.GoogleToOutlook);
+            String summaryObfuscated = Obfuscate.ApplyRegex(ev.Summary, ai.Subject, Sync.Direction.GoogleToOutlook);
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.GoogleToOutlook, summaryObfuscated, ai.Subject, sb, ref itemModified)) {
                 ai.Subject = summaryObfuscated;
             }
