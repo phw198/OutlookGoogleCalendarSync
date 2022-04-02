@@ -1363,7 +1363,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
             if (cbGoogleCalendars.Text.StartsWith("[Read Only]") && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
-                OgcsMessageBox.Show("You cannot " + (ActiveCalendarProfile.SyncDirection == Sync.Direction.Bidirectional ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
+                OgcsMessageBox.Show("You cannot " + (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
                     "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabGoogle"];
             }

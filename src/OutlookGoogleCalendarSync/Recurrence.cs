@@ -480,7 +480,7 @@ namespace OutlookGoogleCalendarSync {
             }
             if (!haveMatchingEv) {
                 events = GoogleOgcs.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
-                if (Sync.Engine.Calendar.Instance.Profile.SyncDirection != Sync.Direction.GoogleToOutlook) {
+                if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
                     List<AppointmentItem> ais = new List<AppointmentItem>();
                     ais.Add(ai);
                     GoogleOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref events, ref ais, neverDelete: true);
@@ -616,7 +616,7 @@ namespace OutlookGoogleCalendarSync {
                                         log.Debug("It is deleted in Google, so cannot compare items.");
                                         if (!oIsDeleted) {
                                             log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
-                                            String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection == Sync.Direction.Bidirectional) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
+                                            String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
                                             Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>" +
                                                 "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook.<br/>" +
                                                 "This can happen if, for example, you declined the occurrence (which is synced to Google) and proposed a new time that is subsequently accepted by the organiser.<br/>" +
