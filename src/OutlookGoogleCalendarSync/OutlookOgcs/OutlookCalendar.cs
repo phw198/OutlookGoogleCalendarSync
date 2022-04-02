@@ -1028,9 +1028,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static void openOutlook(ref Microsoft.Office.Interop.Outlook.Application oApp, Boolean withSystemCall = false) {
             log.Info("Starting a new instance of Outlook.");
             try {
-                if (!withSystemCall)
+                if (!withSystemCall) {
+                    //throw new System.Runtime.InteropServices.COMException("RPC_E_CALL_REJECTED", unchecked((int)0x80010001));
                     oApp = new Microsoft.Office.Interop.Outlook.Application();
-                else {
+                } else {
                     System.Diagnostics.Process oProcess = new System.Diagnostics.Process();
                     oProcess.StartInfo.FileName = "outlook";
                     oProcess.StartInfo.Arguments = "/recycle";

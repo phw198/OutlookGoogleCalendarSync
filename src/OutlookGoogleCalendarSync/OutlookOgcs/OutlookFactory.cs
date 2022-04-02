@@ -69,6 +69,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Microsoft.Office.Interop.Outlook.Application oApp = null;
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
             try {
+                //throw new System.Runtime.InteropServices.COMException("RPC_E_CALL_REJECTED", unchecked((int)0x80010001));
+                log.Debug("About to access Outlook oApp.version property...");
                 outlookVersionFull = oApp.Version;
 
                 log.Info("Outlook Version: " + outlookVersionFull);
