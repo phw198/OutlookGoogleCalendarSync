@@ -621,7 +621,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         foreach (EventAttendee gAttendee in addAttendees) {
                             GoogleOgcs.EventAttendee attendee = new GoogleOgcs.EventAttendee(gAttendee);
-                            if (attendee.DisplayName == ai.Organizer) continue; //Attendee in Google is owner in Outlook, so can't also be added as a recipient)
+                            if ((attendee.DisplayName ?? attendee.Email) == ai.Organizer) continue; //Attendee in Google is owner in Outlook, so can't also be added as a recipient)
 
                             sb.AppendLine("Recipient added: " + (attendee.DisplayName ?? attendee.Email));
                             createRecipient(attendee, ref recipients);
