@@ -436,7 +436,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Location = ai.Location;
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
-            ev.ColorId = getColour(ai.Categories, null).Id;
+            ev.ColorId = getColour(ai.Categories, null)?.Id ?? EventColour.Palette.NullPalette.Id;
 
             ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
             if (profile.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
@@ -770,8 +770,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (profile.AddColours || profile.SetEntriesColour) {
                 EventColour.Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
                 EventColour.Palette oColour = getColour(ai.Categories, gColour);
-                if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
-                    ev.ColorId = oColour.Id;
+                if (!string.IsNullOrEmpty(ai.Categories) && oColour == null)
+                    log.Warn("Not comparing colour as there is a problem with the mapping.");
+                else {
+                    if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
+                        ev.ColorId = oColour.Id;
+                    }
                 }
             }
 
@@ -1595,7 +1599,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 getOutlookCategoryColour(aiCategories, ref categoryColour);
             }
-            if (categoryColour == null || categoryColour == OlCategoryColor.olCategoryColorNone)
+            if (categoryColour == null)
+                return null;
+            else if (categoryColour == OlCategoryColor.olCategoryColorNone)
                 return EventColour.Palette.NullPalette;
             else
                 return GetColour((OlCategoryColor)categoryColour);

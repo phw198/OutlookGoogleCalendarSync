@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
@@ -155,25 +156,46 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>The Outlook category type</returns>
         public Outlook.OlCategoryColor? OutlookColour(String categoryName) {
             if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
-            
+
+            foreach (Outlook.Category category in this.categories) {
+                if (category.Name == categoryName.Trim()) return category.Color;
+            }
+
+            log.Warn("Could not convert category name '" + categoryName + "' into Outlook category type.");
+            return null;
+        }
+
+        /// <summary>
+        /// Check all the Outlook categories can still be accessed. If not, refresh them.
+        /// </summary>
+        public void ValidateCategories() {
+            try {
+                if (this.categories != null && this.categories.Count > 0) { }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Categories are not accessible!", OGCSexception.LogAsFail(ex));
+                this.categories = null;
+            }
+            if (this.categories == null || OutlookOgcs.Calendar.Categories == null) {
+                OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+            } else {
+                String catName = "";
                 try {
-                    if (this.categories != null && this.categories.Count > 0) { }
+                    foreach (Outlook.Category cat in this.categories) {
+                        catName = cat.Name;
+                        Outlook.OlCategoryColor catColour = cat.Color;
+                    }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Categories are not accessible!", OGCSexception.LogAsFail(ex));
-                    this.categories = null;
+                    if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
+                        log.Warn("Outlook category '" + catName + "' seems to have changed!");
+                        OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+                    } else {
+                        OGCSexception.Analyse("Could not access all the Outlook categories.", ex);
+                        this.categories = null;
+                        return;
+                    }
                 }
-
-                if (this.categories == null || OutlookOgcs.Calendar.Categories == null) {
-                    OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
-                    this.categories = Calendar.Categories.categories;
-                }
-
-                foreach (Outlook.Category category in this.categories) {
-                    if (category.Name == categoryName.Trim()) return category.Color;
-                }
-
-                log.Warn("Could not convert category name '" + categoryName + "' into Outlook category type.");
-                return null;
+            }
+            this.categories = Calendar.Categories.categories;
         }
 
         /// <summary>
@@ -195,10 +217,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>List to be used in dropdown, for example</returns>
         public List<OutlookOgcs.Categories.ColourInfo> DropdownItems() {
             List<OutlookOgcs.Categories.ColourInfo> items = new List<OutlookOgcs.Categories.ColourInfo>();
-            if (this.categories == null) {
-                OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
-                this.categories = Calendar.Categories.categories;
-            }
             if (this.categories != null) {
                 foreach (Outlook.Category category in this.categories) {
                     items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
@@ -247,8 +265,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
             String newCategoryName = "OGCS " + FriendlyCategoryName(olCategory);
             if (!createMissingCategory) {
-                createMissingCategory = System.Windows.Forms.OgcsMessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
-                    "Create new Outlook category?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes;
+                createMissingCategory = OgcsMessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
+                    "Create new Outlook category?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
             }
             if (createMissingCategory) {
                 Outlook.Category newCategory = categories.Add(newCategoryName, olCategory);
