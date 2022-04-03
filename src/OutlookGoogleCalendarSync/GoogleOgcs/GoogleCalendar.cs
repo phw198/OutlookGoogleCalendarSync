@@ -483,7 +483,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.SyncDirection == Sync.Direction.Bidirectional) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS created event.");
                 CustomProperty.SetOGCSlastModified(ref ev);
             }
@@ -525,7 +525,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            if (profile.SyncDirection == Sync.Direction.Bidirectional || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
@@ -621,7 +621,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Fine("Back processing Event affected by attendee API limit.");
             } else {
                 if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
-                    if (profile.SyncDirection != Sync.Direction.Bidirectional) {
+                    if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
                         if (ev.Updated > ai.LastModificationTime)
                             return null;
                     } else {
@@ -782,7 +782,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) + "<br/>Attendees will not be synced for this meeting as it has " +
                             "more than 200, which Google does not allow.", Console.Markup.warning);
                     }
-                } else if (profile.SyncDirection == Sync.Direction.Bidirectional &&
+                } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
                         ev.Attendees != null && ev.Attendees.Count > profile.MaxAttendees && ai.Recipients.Count <= profile.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
@@ -871,7 +871,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void UpdateCalendarEntry_save(ref Event ev) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.SyncDirection == Sync.Direction.Bidirectional) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated event.");
                 CustomProperty.SetOGCSlastModified(ref ev);
             }
@@ -1020,7 +1020,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.SyncDirection == Sync.Direction.GoogleToOutlook) return;
+            if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
 
             if (!neverDelete) Forms.Main.Instance.Console.Update("Checking for orphaned Google items", verbose: true);
             try {
@@ -1058,7 +1058,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     consoleTitle = "";
                                     Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
                                     gEvents[g] = ev;
-                                    if (profile.SyncDirection == Sync.Direction.Bidirectional || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
+                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
                                         OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, ev);
                                         ai.Save();
@@ -1076,13 +1076,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
                 log.Debug(unclaimedEvents.Count + " unclaimed.");
                 if (!neverDelete && unclaimedEvents.Count > 0 &&
-                    (profile.SyncDirection == Sync.Direction.OutlookToGoogle ||
-                     profile.SyncDirection == Sync.Direction.Bidirectional)) 
+                    (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id ||
+                     profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) 
                 {
                     log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
                     if (profile.MergeItems || profile.DisableDelete || profile.ConfirmOnDelete) {
                         log.Info("These will be kept due to configuration settings.");
-                    } else if (profile.SyncDirection == Sync.Direction.Bidirectional) {
+                    } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                         log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
                     } else {
                         if (OgcsMessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
@@ -1231,7 +1231,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
                 google = new List<Event>();
             }
-            if (profile.SyncDirection == Sync.Direction.Bidirectional) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (OutlookOgcs.CustomProperty.Exists(outlook[o], OutlookOgcs.CustomProperty.MetadataId.gEventID))
@@ -1320,7 +1320,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         }
                     }
 
-                } else if (profile.SyncDirection == Sync.Direction.Bidirectional &&
+                } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
                     oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                     gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
                     gCompareID.Substring(72) != oGlobalID.Substring(72) &&
