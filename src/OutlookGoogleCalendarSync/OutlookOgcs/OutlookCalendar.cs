@@ -362,6 +362,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
+                        if (ex is System.InvalidCastException && OGCSexception.GetErrorCode(ex) == "0x80004002" && ex.Message.Contains("0x800706BA"))  //The RPC server is unavailable
+                            throw;
+
                         Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, true) + "Appointment update failed.", ex);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)

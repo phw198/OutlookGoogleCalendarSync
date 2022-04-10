@@ -147,9 +147,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             hResult == "0x800706BA")) //The RPC server is unavailable
                                         ) {
                                         OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
-                                        String message = "It looks like Outlook was closed during the sync.";
+                                        String message = "It looks like Outlook became unavailable during the sync.";
                                         if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
-                                        mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                        mainFrm.Console.Update(message, Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 
                                     } else if (ex is System.Runtime.InteropServices.COMException && 
