@@ -39,6 +39,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         public Calendar() { }
+        private Boolean openedIssue528 = false;
         public GoogleOgcs.Authenticator Authenticator;
         
         private GoogleOgcs.EventColour colourPalette;
@@ -161,7 +162,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Int16 pageNum = 1;
 
             try {
-                log.Debug("Retrieving all recurring event instances from Google.");
+                log.Debug("Retrieving all recurring event instances from Google for " + recurringEventId);
                 do {
                     EventsResource.InstancesRequest ir = Service.Events.Instances(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, recurringEventId);
                     ir.ShowDeleted = true;
@@ -201,6 +202,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
+                log.Fine(request.Items.Count + " recurring event instances found.");
                 return result;
 
             } catch (System.Exception ex) {
@@ -741,15 +743,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (profile.AddDescription) {
                 String outlookBody = ai.Body;
-                //Check for Google description truncated @ 8Kb
-                if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
-                    && ev.Description.Length == 8 * 1024
-                    && outlookBody.Length > 8 * 1024) 
+                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                    string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {
-                    outlookBody = outlookBody.Substring(0, 8 * 1024);
+                    log.Warn("Avoided loss of Google description, as none exists in Outlook.");
+                } else {
+                    //Check for Google description truncated @ 8Kb
+                    if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
+                        && ev.Description.Length == 8 * 1024
+                        && outlookBody.Length > 8 * 1024) 
+                    {
+                        outlookBody = outlookBody.Substring(0, 8 * 1024);
+                    }
+                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
+                        ev.Description = outlookBody;
                 }
-                if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
-                    ev.Description = outlookBody;
             }
 
             if (profile.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
@@ -896,6 +904,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
+                    if (ex.Error.Code == 412 && !this.openedIssue528) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
+                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
+                        this.openedIssue528 = true;
+                    }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:

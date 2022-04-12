@@ -69,6 +69,7 @@ namespace OutlookGoogleCalendarSync {
         }
         public enum Action {
             debug,      //ogcs
+            donate,     //ogcs
             download,   //squirrel
             install,    //squirrel
             setting,    //ogcs

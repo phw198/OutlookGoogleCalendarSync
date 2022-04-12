@@ -1373,9 +1373,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void btResetGCal_Click(object sender, EventArgs e) {
-            if (OgcsMessageBox.Show("This will reset the Google account you are using to synchronise with.\r\n" +
+            if (OgcsMessageBox.Show("This will disconnect the Google account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
-                "Reset Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+                "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
                 log.Info("User requested reset of Google authentication details.");
                 ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry();
                 this.cbGoogleCalendars.Items.Clear();
@@ -2117,7 +2117,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
-            Program.Donate();
+            Program.Donate("About");
         }
 
         private void btCheckForUpdate_Click(object sender, EventArgs e) {

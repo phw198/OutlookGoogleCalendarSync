@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             itemSummary = cai.Subject;
                         }
                     }
-                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is probem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
+                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
                         Console.Markup.warning, logit: true);
 
                 } finally {
