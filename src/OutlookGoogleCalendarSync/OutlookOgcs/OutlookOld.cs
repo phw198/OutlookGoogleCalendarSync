@@ -217,10 +217,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             delay = maxDelay;
                         } catch (System.Exception ex2) {
                             if (delay == maxDelay) {
+                                log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
                                 if (OGCSexception.GetErrorCode(ex2) == "0x80004004") { //E_ABORT
                                     log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                                } else OGCSexception.Analyse(ex2);
-                                log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
+                                } else OGCSexception.Analyse(OGCSexception.LogAsFail(ex2));
                                 profile.OutlookGalBlocked = true;
                                 return oNS;
                             }

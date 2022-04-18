@@ -19,6 +19,10 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             setDefaults();
         }
 
+        public override String ToString() {
+            return this._ProfileName + ": O[" + this.UseOutlookCalendar.Name + "] " + this.SyncDirection.ToString() + " G[" + this.UseGoogleCalendar.ToString() + "]";
+        }
+
         //Default values before loading from xml and attribute not yet serialized
         [OnDeserializing]
         void OnDeserializing(StreamingContext context) {
@@ -257,7 +261,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
             log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
-            if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection == Sync.Direction.Bidirectional) {
+            if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Info("    TargetCalendar: " + TargetCalendar.Name);
                 log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
             }

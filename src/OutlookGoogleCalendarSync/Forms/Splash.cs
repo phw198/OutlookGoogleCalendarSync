@@ -91,7 +91,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
-            Program.Donate();
+            Program.Donate("Splash");
             this.Close();
         }
 

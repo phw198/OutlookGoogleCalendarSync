@@ -264,10 +264,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     currentUserSMTP = GetRecipientEmail(currentUser);
                     currentUserName = currentUser.Name;
                 } catch (System.Exception ex) {
+                    log.Warn("OGCS is unable to interogate CurrentUser from Outlook.");
                     if (OGCSexception.GetErrorCode(ex) == "0x80004004") { //E_ABORT
                         log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                    } else OGCSexception.Analyse(ex);
-                    log.Warn("OGCS is unable to interogate CurrentUser from Outlook.");
+                    } else OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
                     profile.OutlookGalBlocked = true;
                     return oNS;
                 }
@@ -540,6 +540,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public MAPIFolder GetFolderByID(String entryID) {
             NameSpace ns = null;
             try {
+                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 ns = oApp.GetNamespace("mapi");
                 return ns.GetFolderFromID(entryID);
             } finally {
@@ -550,6 +551,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
+                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
                 ns = oApp.GetNamespace("mapi");
                 ai = ns.GetItemFromID(entryID) as AppointmentItem;
             } finally {
