@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿///#define DEVELOP_AGAINST_2007     //Develop as for Outlook 2007 for greatest compatiblity
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -122,7 +123,15 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 else {
                     try {
                         store = calendar.Store;
-                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
+                        if (OutlookOgcs.Factory.OutlookVersionName == Factory.OutlookVersionNames.Outlook2007) {
+                            log.Debug("Accessing Outlook 2007 categories via reflection.");
+                            this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
+                        } else {
+#if !DEVELOP_AGAINST_2007
+                            log.Debug("Accessing categories through Outlook 2010 store.");
+                            this.categories = store.Categories;
+#endif
+                        }
                     } catch (System.Exception ex) {
                         log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
                         log.Debug("Reverting to default mailbox categories.");
