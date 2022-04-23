@@ -781,6 +781,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (!string.IsNullOrEmpty(ai.Categories) && oColour == null)
                     log.Warn("Not comparing colour as there is a problem with the mapping.");
                 else {
+                    oColour ??= EventColour.Palette.NullPalette;
                     if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
                         ev.ColorId = oColour.Id;
                     }
