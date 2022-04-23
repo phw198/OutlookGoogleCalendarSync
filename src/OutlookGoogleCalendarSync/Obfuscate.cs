@@ -72,22 +72,33 @@ namespace OutlookGoogleCalendarSync {
             data.CurrentCell = data.Rows[0].Cells[0];
         }
 
-        public static String ApplyRegex(String source, Sync.Direction direction) {
+        /// <summary>
+        /// Apply regular expression to a source string, if syncing in the correct direction
+        /// </summary>
+        /// <param name="source">Source calendar string</param>
+        /// <param name="target">Target calendar string, null if creating</param>
+        /// <param name="direction">Direction engine is being synced</param>
+        /// <returns></returns>
+        public static String ApplyRegex(String source, String target, Sync.Direction direction) {
             String retStr = source ?? "";
-            if (Sync.Engine.Calendar.Instance.Profile.Obfuscation.Enabled && direction.Id == Sync.Engine.Calendar.Instance.Profile.Obfuscation.Direction.Id) {
-                foreach (DataGridViewRow row in Forms.Main.Instance.dgObfuscateRegex.Rows) {
-                    DataGridViewCellCollection cells = row.Cells;
-                    if (cells[Obfuscate.findCol].Value != null) {
-                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
-                            cells[Obfuscate.findCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (Sync.Engine.Calendar.Instance.Profile.Obfuscation.Enabled) {
+                if (direction.Id == Sync.Engine.Calendar.Instance.Profile.Obfuscation.Direction.Id) {
+                    foreach (DataGridViewRow row in Forms.Main.Instance.dgObfuscateRegex.Rows) {
+                        DataGridViewCellCollection cells = row.Cells;
+                        if (cells[Obfuscate.findCol].Value != null) {
+                            System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
+                                cells[Obfuscate.findCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-                        System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
-                        if (matches.Count > 0) {
-                            log.Fine("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
-                            if (cells[Obfuscate.replaceCol].Value == null) cells[Obfuscate.replaceCol].Value = "";
-                            retStr = rgx.Replace(retStr, cells[Obfuscate.replaceCol].Value.ToString());
+                            System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
+                            if (matches.Count > 0) {
+                                log.Fine("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
+                                if (cells[Obfuscate.replaceCol].Value == null) cells[Obfuscate.replaceCol].Value = "";
+                                retStr = rgx.Replace(retStr, cells[Obfuscate.replaceCol].Value.ToString());
+                            }
                         }
                     }
+                } else {
+                    retStr = target ?? source;
                 }
             }
             return retStr;

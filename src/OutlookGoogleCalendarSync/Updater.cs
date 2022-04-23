@@ -126,9 +126,9 @@ namespace OutlookGoogleCalendarSync {
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
 
-                        if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion) {
+                        if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion && update == updates.ReleasesToApply.Last()) {
                             log.Info("The user has previously requested to skip this version.");
-                            break;
+                            return false;
                         }
 
                         String localFile = updates.PackageDirectory + "\\" + update.Filename;
