@@ -781,6 +781,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (!string.IsNullOrEmpty(ai.Categories) && oColour == null)
                     log.Warn("Not comparing colour as there is a problem with the mapping.");
                 else {
+                    oColour ??= EventColour.Palette.NullPalette;
                     if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
                         ev.ColorId = oColour.Id;
                     }
@@ -812,7 +813,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            //Reminders
+            #region Reminders
             if (profile.AddReminders) {
                 Boolean OKtoSyncReminder = OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
@@ -871,6 +872,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
                 }
             }
+            #endregion
 
             if (itemModified > 0) {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
@@ -1445,22 +1447,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             //Optional attendee
                             bool oOptional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
                             bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
-                            String attendeeIdentifier = (attendee.DisplayName == null) ? ogcsAttendee.Email : attendee.DisplayName;
+                            String attendeeIdentifier = attendee.DisplayName ?? ogcsAttendee.Email;
                             if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Optional Check",
                                 Sync.Direction.OutlookToGoogle, gOptional, oOptional, sb, ref itemModified)) {
                                 attendee.Optional = oOptional;
                             }
 
                             //Response
-                            if (ai.Organizer == attendee.DisplayName) {
+                            if (attendeeIdentifier == Settings.Instance.GaccountEmail) {
+                                log.Fine("The Outlook attendee is the Google organiser, therefore not touching response status.");
+                                break;
+                            } else if (ai.Organizer == attendeeIdentifier) {
                                 if (Sync.Engine.CompareAttribute("Organiser " + attendeeIdentifier + " - Response Status",
                                     Sync.Direction.OutlookToGoogle,
                                     attendee.ResponseStatus, "accepted", sb, ref itemModified)) {
-                                    log.Fine("Forcing the organiser to have accepted the 'invite' in Google");
+                                    log.Fine("Forcing the Outlook organiser to have accepted the 'invite' in Google");
                                     attendee.ResponseStatus = "accepted";
                                 }
                                 break;
                             }
+
                             switch (recipient.MeetingResponseStatus) {
                                 case OlResponseStatus.olResponseNone:
                                     if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
