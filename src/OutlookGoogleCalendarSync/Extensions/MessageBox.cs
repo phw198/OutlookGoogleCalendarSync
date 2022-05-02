@@ -12,7 +12,7 @@ namespace System.Windows.Forms {
         static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct FLASHWINFO {
+        private struct FLASHWINFO {
             public UInt32 cbSize;
             public IntPtr hwnd;
             public UInt32 dwFlags;
@@ -21,7 +21,7 @@ namespace System.Windows.Forms {
         }
 
         [Flags]
-        public enum FlashMode {
+        private enum flashMode {
             /// <summary>Stop flashing. The system restores the window to its original state.</summary>
             FLASHW_STOP = 0,
             /// <summary>Flash the window caption.</summary>
@@ -45,7 +45,7 @@ namespace System.Windows.Forms {
         /// <param name="hWnd">The handle for the window to flash</param>
         /// <param name="fm">Bitwise flags</param>
         /// <returns></returns>
-        public static bool FlashWindow(IntPtr hWnd, FlashMode fm) {
+        private static bool flashWindow(IntPtr hWnd, flashMode fm) {
             FLASHWINFO fInfo = new FLASHWINFO();
 
             fInfo.cbSize = Convert.ToUInt32(Marshal.SizeOf(fInfo));
@@ -75,12 +75,12 @@ namespace System.Windows.Forms {
             if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
-                    FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
+                    flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
                     dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
                 }));
             } else {
                 mainFrm.MainFormShow();
-                FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
+                flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
                 dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
             }
             log.Debug("Response: " + dr.ToString());
@@ -105,12 +105,12 @@ namespace System.Windows.Forms {
             if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
-                    FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
+                    flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
                     dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
                 }));
             } else {
                 mainFrm.MainFormShow();
-                FlashWindow(mainFrm.Handle, FlashMode.FLASHW_ALL | FlashMode.FLASHW_TIMERNOFG);
+                flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
                 dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
             }
             log.Debug("Response: " + dr.ToString());

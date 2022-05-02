@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.9.3-alpha</version>
+    <version>2.9.4-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,17 +12,25 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.9.3?
+# What's New In v2.9.4?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- The arrival of **Profiles** brings multi-calendar sync! :tada: 
+- Do not delete inaccessible Outlook items from Google
+- Ensure cached Outlook categories are still valid
+- Improved connection to Outlook for Push syncs
+- Setup.exe renamed to OGCS_Setup.exe
+- Direct users to wiki for help with Outlook conflicts
+- Cope with environment variables not being available
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Don't error if Google event has no "popup" notification
-- Rolled back incompatible SharpCompress DLL
-- Remove alt-tab icon when minimised to system tray
+- Ensure correct Outlook calendar is being targeted
+- Don't let obfuscation trample original text
+- Don't crash when manually switching Profiles
+- More reliable comparison of meeting attendees
+- Avoid loss of Google description when none exists in Outlook (2-way)
+- Improved parsing of colour maps and empty maps
     </releaseNotes>
     <copyright>Copyright 2022</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
