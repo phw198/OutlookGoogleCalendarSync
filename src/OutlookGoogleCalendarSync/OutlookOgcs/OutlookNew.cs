@@ -172,6 +172,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public MAPIFolder UseOutlookCalendar() {
             return useOutlookCalendar;
         }
+        public void UseOutlookCalendar(MAPIFolder set) {
+            useOutlookCalendar = set;
+        }
         public String CurrentUserSMTP() {
             return currentUserSMTP;
         }

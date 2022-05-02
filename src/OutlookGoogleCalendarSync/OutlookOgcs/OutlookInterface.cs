@@ -13,6 +13,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         Folders Folders();
         Dictionary<string, MAPIFolder> CalendarFolders();
         MAPIFolder UseOutlookCalendar();
+        void UseOutlookCalendar(MAPIFolder set);
         NameSpace GetCurrentUser(NameSpace oNS);
         String CurrentUserSMTP();
         String CurrentUserName();
