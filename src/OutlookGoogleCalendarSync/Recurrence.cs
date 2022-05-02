@@ -38,7 +38,10 @@ namespace OutlookGoogleCalendarSync {
                     utcEnd = rp.PatternEndDate;
                 else {
                     DateTime localEnd = rp.PatternEndDate + ai.EndInEndTimeZone.TimeOfDay;
-                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(ai.EndTimeZone.ID));
+                    TimeZoneInfo tzi = OutlookOgcs.Calendar.GetSystemTimeZone(ai.EndTimeZone.ID);
+                    if (tzi == null)
+                        throw new ApplicationException("Cannot sync item with unknown end timezone '" + ai.EndTimeZone.ID + "'.");
+                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, tzi);
                 }
                 gPattern.Add("RRULE:" + buildRrule(rp, utcEnd));
             } finally {

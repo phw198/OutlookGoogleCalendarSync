@@ -417,7 +417,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
             }
         }
-        
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
@@ -810,6 +810,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));
             return zonedUTC;
             */
+        }
+
+        public TimeZoneInfo GetWindowsTimezoneFromDescription(String tzDescription) { 
+            return TimeZoneInfo.Utc;
         }
         #endregion
     }

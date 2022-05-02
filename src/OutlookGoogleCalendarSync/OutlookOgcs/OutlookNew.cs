@@ -759,7 +759,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             throw ex;
                         }
                         log.Debug("Retrieving the meeting organiser's timezone ID.");
-                        TimeZoneInfo tzi = getWindowsTimezoneFromDescription(organiserTZname);
+                        TimeZoneInfo tzi = GetWindowsTimezoneFromDescription(organiserTZname);
                         if (tzi == null) log.Error("No timezone ID exists for organiser's timezone " + organiserTZname);
                         else organiserTZid = tzi.Id;
                     }
@@ -877,7 +877,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return tzs[item.WindowsId];
         }
 
-        private TimeZoneInfo getWindowsTimezoneFromDescription(String tzDescription) {
+        public TimeZoneInfo GetWindowsTimezoneFromDescription(String tzDescription) {
             try {
                 System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
 
@@ -904,7 +904,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
                 //Try searching just by timezone offset. This would at least get the right time for the appointment (notwithstanding DST!), eg if the tzDescription doesn't match
-                //because they it is in a different language that the user's system data.
+                //because it is in a different language than the user's system data.
                 Int16? offset = null;
                 offset = TimezoneDB.GetTimezoneOffset(tzDescription);
                 if (offset != null) {
@@ -949,14 +949,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             return TimeZoneInfo.FindSystemTimeZoneById(tz.ID);
                     }
                 }
-
+                log.Debug("Opening custom time zone map form for user to provide new mapping.");
+                tzi = Forms.TimezoneMap.TimezoneMap_StaThread(tzDescription, TimeZoneInfo.Utc, sysTZ);
+                return tzi;
+            
             } catch (System.Exception ex) {
                 log.Warn("Failed to get the organiser's timezone ID for " + tzDescription);
                 OGCSexception.Analyse(ex);
             }
             return null;
         }
-
         #endregion
     }
 }

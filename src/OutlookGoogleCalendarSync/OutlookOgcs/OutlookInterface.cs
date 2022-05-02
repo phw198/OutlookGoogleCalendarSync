@@ -27,6 +27,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         Event IANAtimezone_set(Event ev, AppointmentItem ai);
         void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz);
         AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false);
+        TimeZoneInfo GetWindowsTimezoneFromDescription(String tzDescription);
+
         /// <summary>
         /// Filter Outlook Item according to specified filter.
         /// </summary>

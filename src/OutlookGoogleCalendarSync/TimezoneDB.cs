@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace OutlookGoogleCalendarSync {
     public class TimezoneDB {
         private static TimezoneDB instance;
-        private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
+        private static readonly ILog log = LogManager.GetLogger(typeof(TimezoneDB));
         private TzdbDateTimeZoneSource source;
         private const String tzdbFilename = "tzdb.nzd";
         private String tzdbFile {

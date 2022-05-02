@@ -481,13 +481,20 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             ai.Save(); //Explicit save required to make ai.IsRecurring true again
                         } else {
                             oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
+                            System.TimeZoneInfo tzi = null;
                             if (startChange) {
                                 oPattern.PatternStartDate = evStartParsedDate;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                tzi = GetSystemTimeZone(newStartTZ);
+                                if (tzi == null)
+                                    throw new ApplicationException("Cannot sync item with unknown start timezone '" + newStartTZ + "'.");
+                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, tzi);
                             }
                             if (endChange) {
                                 oPattern.PatternEndDate = evEndParsedDate;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                                tzi = GetSystemTimeZone(newEndTZ);
+                                if (tzi == null)
+                                    throw new ApplicationException("Cannot sync item with unknown end timezone '" + newEndTZ + "'.");
+                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, tzi);
                             }
                         }
                     } else {
@@ -1493,6 +1500,22 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Determine Windows time zone from ID string. If none available, fall back to lookup by description and finally custom mapping.
+        /// </summary>
+        /// <param name="timeZoneId">The time zone ID string</param>
+        /// <returns>The system time zone object</returns>
+        public static System.TimeZoneInfo GetSystemTimeZone(String timeZoneId) {
+            System.TimeZoneInfo tzi = null;
+            try {
+                tzi = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            } catch (System.TimeZoneNotFoundException) {
+                log.Fine("Cannot find system timezone '" + timeZoneId + "'. Checking for available timezone map.");
+                tzi = OutlookOgcs.Calendar.Instance.IOutlook.GetWindowsTimezoneFromDescription(timeZoneId);
+            }
+            return tzi;
         }
         #endregion
     }
