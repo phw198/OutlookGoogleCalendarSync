@@ -737,6 +737,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
             }
 
+            if (itemModified > 0) { //https://www.kanzaki.com/docs/ical/sequence.html
+                log.Debug("Incrementing sequence from: " + ev.Sequence);
+                ev.Sequence = (ev.Sequence ?? 0) + 0;
+            }
+
             String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
