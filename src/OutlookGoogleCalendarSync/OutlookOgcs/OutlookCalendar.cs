@@ -232,10 +232,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     if ((categoryFiltered + responseFiltered) > 0) {
                         if (result.Count == 0)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
+                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
                         else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
                             Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, Outlook items have been filtered out. " +
-                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.warning);
+                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.config);
                     }
                 }
             }
