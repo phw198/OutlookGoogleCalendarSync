@@ -577,6 +577,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             }
 
+            #region Attendees
             if (profile.AddAttendees) {
                 if (ev.Attendees != null && ev.Attendees.Count > profile.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum.");
@@ -645,8 +646,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
             }
+            #endregion
 
-            //Reminders
+            #region Reminders
             Boolean googleReminders = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
             int reminderMins = int.MinValue;
             if (profile.AddReminders) {
@@ -687,6 +689,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     itemModified++;
                 }
             }
+            #endregion
 
             if (itemModified > 0) {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
