@@ -545,6 +545,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         #endregion
 
+        private void logStartEnd(Event ev) {
+            log.Debug("Start.Date: " + ev.Start.Date);
+            log.Debug("Start.DateTime: " + ev.Start.DateTime?.ToString("yyyy-MM-dd"));
+            log.Debug("Start.DateTimeRaw: " + ev.Start.DateTimeRaw);
+            log.Debug("Start.TimeZone: " + ev.Start.TimeZone);
+            log.Debug("End.Date: " + ev.End.Date);
+            log.Debug("End.DateTime: " + ev.End.DateTime?.ToString("yyyy-MM-dd"));
+            log.Debug("End.DateTimeRaw: " + ev.End.DateTimeRaw);
+            log.Debug("End.TimeZone: " + ev.End.TimeZone);
+        }
+
         #region Update
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
             entriesUpdated = 0;
@@ -646,6 +657,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ev;
             }
 
+            logStartEnd(ev);
+
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine(aiSummary);
 
@@ -740,6 +753,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (itemModified > 0) { //https://www.kanzaki.com/docs/ical/sequence.html
                 log.Debug("Incrementing sequence from: " + ev.Sequence);
                 ev.Sequence = (ev.Sequence ?? 0) + 0;
+                //ev.Start.Date = ev.Start.DateTimeRaw.Substring(0, 10);
+                logStartEnd(ev);
             }
 
             String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
@@ -883,6 +898,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Forms.Main.Instance.Console.FormatEventChanges(sb);
                 Forms.Main.Instance.Console.Update(itemModified + " attributes updated.", Console.Markup.appointmentEnd, verbose: true, newLine: false);
                 System.Windows.Forms.Application.DoEvents();
+                logStartEnd(ev);
             }
             return ev;
         }
