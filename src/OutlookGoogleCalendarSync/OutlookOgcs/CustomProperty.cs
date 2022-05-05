@@ -230,6 +230,32 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         /// <summary>
+        /// Are there any properties that start with key name (irrespective of key set value)
+        /// </summary>
+        public static Boolean AnyStartsWith(AppointmentItem ai, MetadataId key) {
+            String keyName = metadataIdKeyName(key);
+
+            UserProperties ups = null;
+            try {
+                ups = ai.UserProperties;
+                for (int p = ups.Count; p > 0; p--) {
+                    UserProperty prop = null;
+                    try {
+                        prop = ups[p];
+                        if (prop.Name.StartsWith(keyName)) {
+                            return true;
+                        }
+                    } finally {
+                        prop = (UserProperty)Calendar.ReleaseObject(prop);
+                    }
+                }
+            } finally {
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Add the Google event IDs into Outlook appointment.
         /// </summary>
         public static void AddGoogleIDs(ref AppointmentItem ai, Event ev) {
@@ -366,7 +392,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 metadataIdKeyName(MetadataId.gCalendarId),
                 metadataIdKeyName(MetadataId.gEventID),
                 metadataIdKeyName(MetadataId.locallyCopied),
-                metadataIdKeyName(MetadataId.ogcsModified)
+                metadataIdKeyName(MetadataId.ogcsModified),
+                metadataIdKeyName(MetadataId.originalStartDate)
             };
             Boolean removedProperty = false;
             UserProperties ups = null;

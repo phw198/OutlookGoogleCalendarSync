@@ -76,7 +76,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
                         String entryID = copiedAi.EntryID;
-                        if (OutlookOgcs.CustomProperty.Exists(copiedAi, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
+                        if (OutlookOgcs.CustomProperty.AnyStartsWith(copiedAi, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
                             Dictionary<String, object> propertyBackup = cleanIDs(ref copiedAi);
                             OutlookOgcs.CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.originalStartDate, copiedAi.Start);
                             copiedAi.Save();
@@ -133,7 +133,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
                     }
                 }
-                OutlookOgcs.CustomProperty.RemoveAll(ref copiedAi);
+                OutlookOgcs.CustomProperty.Extirpate(ref copiedAi);
                 OutlookOgcs.CustomProperty.Add(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.locallyCopied, true.ToString());
                 copiedAi.Save();
 
