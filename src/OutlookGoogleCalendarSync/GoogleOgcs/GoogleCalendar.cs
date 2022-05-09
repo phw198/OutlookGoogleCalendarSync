@@ -547,13 +547,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         private void logStartEnd(Event ev) {
             log.Debug("Start.Date: " + ev.Start.Date);
-            log.Debug("Start.DateTime: " + ev.Start.DateTime?.ToString("yyyy-MM-dd"));
+            log.Debug("Start.DateTime: " + ev.Start.DateTime?.ToString("yyyy-MM-dd HH:mm:ss"));
             log.Debug("Start.DateTimeRaw: " + ev.Start.DateTimeRaw);
             log.Debug("Start.TimeZone: " + ev.Start.TimeZone);
             log.Debug("End.Date: " + ev.End.Date);
-            log.Debug("End.DateTime: " + ev.End.DateTime?.ToString("yyyy-MM-dd"));
+            log.Debug("End.DateTime: " + ev.End.DateTime?.ToString("yyyy-MM-dd HH:mm:ss"));
             log.Debug("End.DateTimeRaw: " + ev.End.DateTimeRaw);
             log.Debug("End.TimeZone: " + ev.End.TimeZone);
+            log.Debug("OriginalStart.Date: " + ev.OriginalStartTime?.Date);
+            log.Debug("OriginalStartTime.DateTime: " + ev.OriginalStartTime?.DateTime?.ToString("yyyy-MM-dd hh:mm:ss"));
+            log.Debug("OriginalStartTime.DateTimeRaw: " + ev.OriginalStartTime?.DateTimeRaw);
+            log.Debug("OriginalStartTime.TimeZone: " + ev.OriginalStartTime?.TimeZone);
+            log.Debug("Recurrence: "); if (ev.Recurrence?.Count > 0) ev.Recurrence?.ToList().ForEach(r => log.Debug(r + " * "));
+            log.Debug("Reminders: "); if (ev.Reminders?.Overrides?.Count > 0) ev.Reminders.Overrides.ToList().ForEach(r => log.Debug(r.Method +":"+ r.Minutes + " * "));
         }
 
         #region Update
@@ -932,6 +938,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
                         this.openedIssue528 = true;
+                    } else if (ex.Error.Code == 400 && ex.Error.Message == "Invalid start time.") {
+                        log.Fail("Update failed dued to inexplicable 'Invalid start time'. Attempting patch update...");
+                        ev = Service.Events.Patch(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        log.Debug("Update by patching successful!");
+                        logStartEnd(ev);
                     }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
@@ -1497,6 +1508,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
                     Setting setting = Service.Settings.Get("timezone").Execute();
                     this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+                    log.Info("Google account time zone '" + setting.Value + "' with offset of " + UTCoffset);
                     stage = "retrieve settings for synced Google calendar";
                     getCalendarSettings();
                     break;
@@ -1531,11 +1543,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private void getCalendarSettings() {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
+            
+            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
+            CalendarListEntry cal = request.Execute();
+            log.Info("Calendar time zone: " + cal.TimeZone);
 
             if (!profile.AddReminders) return;
 
-            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
-            CalendarListEntry cal = request.Execute();
             if (cal.DefaultReminders.Count == 0)
                 this.MinDefaultReminder = int.MinValue;
             else
