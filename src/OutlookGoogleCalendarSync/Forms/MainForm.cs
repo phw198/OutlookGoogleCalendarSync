@@ -371,6 +371,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     #endregion
                     cbOnlyRespondedInvites.Checked = profile.OnlyRespondedInvites;
+                    cbExcludeFocusTime.Checked = profile.ExcludeFocusTime;
+                    cbExcludeLunch.Checked = profile.ExcludeLunch;
                     btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
                     #region DateTime Format / Locale
                     Dictionary<string, string> customDates = new Dictionary<string, string>();
@@ -1238,6 +1240,13 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbOnlyRespondedInvites_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.OnlyRespondedInvites = cbOnlyRespondedInvites.Checked;
+        }
+        private void cbExcludeFocusTime_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFocusTime = cbExcludeFocusTime.Checked;
+        }
+
+        private void cbExcludeLunch_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeLunch = cbExcludeLunch.Checked;
         }
 
         private void btCustomTzMap_Click(object sender, EventArgs e) {

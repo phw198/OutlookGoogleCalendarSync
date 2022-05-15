@@ -413,6 +413,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
+            throw new ApplicationException();
 
             if (ai.AllDayEvent) {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");

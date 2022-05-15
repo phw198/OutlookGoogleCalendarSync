@@ -40,6 +40,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             CategoriesRestrictBy = RestrictBy.Exclude;
             Categories = new List<String>();
             OnlyRespondedInvites = false;
+            ExcludeFocusTime = false;
+            ExcludeLunch = false;
             OutlookDateFormat = "g";
             outlookGalBlocked = false;
 
@@ -102,6 +104,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         /// <summary>Only allow Outlook to have one category assigned</summary>
         [DataMember] public Boolean SingleCategoryOnly { get; set; }
         [DataMember] public Boolean OnlyRespondedInvites { get; set; }
+        [DataMember] public Boolean ExcludeFocusTime { get; set; }
+        [DataMember] public Boolean ExcludeLunch { get; set; }
         [DataMember] public string OutlookDateFormat { get; set; }
         private Boolean outlookGalBlocked;
         [DataMember] public Boolean OutlookGalBlocked {
@@ -243,6 +247,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
+            log.Info("  Exclude Insights Focus Time: " + ExcludeFocusTime);
+            log.Info("  Exclude Insights Lunch: " + ExcludeLunch);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
 

@@ -325,6 +325,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="OutlookOgcs\CustomProperty.cs" />
     <Compile Include="OutlookOgcs\OutlookCategories.cs" />
+    <Compile Include="OutlookOgcs\VivaInsights.cs" />
     <Compile Include="SettingsStore\Calendar.cs" />
     <Compile Include="SettingsStore\Proxy.cs" />
     <Compile Include="SettingsStore\Upgrade.cs" />

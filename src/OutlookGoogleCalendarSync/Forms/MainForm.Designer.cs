@@ -275,6 +275,9 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.gbVivaInsights = new System.Windows.Forms.GroupBox();
+            this.cbExcludeFocusTime = new System.Windows.Forms.CheckBox();
+            this.cbExcludeLunch = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -322,6 +325,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialDonate)).BeginInit();
+            this.gbVivaInsights.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabApp
@@ -645,6 +649,7 @@
             // tabOutlook
             // 
             this.tabOutlook.BackColor = System.Drawing.Color.White;
+            this.tabOutlook.Controls.Add(this.gbVivaInsights);
             this.tabOutlook.Controls.Add(this.btCustomTzMap);
             this.tabOutlook.Controls.Add(this.cbOutlookCalendars);
             this.tabOutlook.Controls.Add(this.lFilterCategories);
@@ -939,7 +944,7 @@
             // cbOnlyRespondedInvites
             // 
             this.cbOnlyRespondedInvites.AutoSize = true;
-            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(14, 184);
+            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(14, 175);
             this.cbOnlyRespondedInvites.Name = "cbOnlyRespondedInvites";
             this.cbOnlyRespondedInvites.Size = new System.Drawing.Size(190, 17);
             this.cbOnlyRespondedInvites.TabIndex = 45;
@@ -3366,6 +3371,41 @@
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
+            // gbVivaInsights
+            // 
+            this.gbVivaInsights.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbVivaInsights.Controls.Add(this.cbExcludeLunch);
+            this.gbVivaInsights.Controls.Add(this.cbExcludeFocusTime);
+            this.gbVivaInsights.Location = new System.Drawing.Point(14, 198);
+            this.gbVivaInsights.Name = "gbVivaInsights";
+            this.gbVivaInsights.Size = new System.Drawing.Size(187, 60);
+            this.gbVivaInsights.TabIndex = 47;
+            this.gbVivaInsights.TabStop = false;
+            this.gbVivaInsights.Text = "Viva Insights";
+            // 
+            // cbExcludeFocusTime
+            // 
+            this.cbExcludeFocusTime.AutoSize = true;
+            this.cbExcludeFocusTime.Location = new System.Drawing.Point(6, 19);
+            this.cbExcludeFocusTime.Name = "cbExcludeFocusTime";
+            this.cbExcludeFocusTime.Size = new System.Drawing.Size(115, 17);
+            this.cbExcludeFocusTime.TabIndex = 46;
+            this.cbExcludeFocusTime.Text = "Exclude focus time";
+            this.cbExcludeFocusTime.UseVisualStyleBackColor = true;
+            this.cbExcludeFocusTime.CheckedChanged += new System.EventHandler(this.cbExcludeFocusTime_CheckedChanged);
+            // 
+            // cbExcludeLunch
+            // 
+            this.cbExcludeLunch.AutoSize = true;
+            this.cbExcludeLunch.Location = new System.Drawing.Point(6, 37);
+            this.cbExcludeLunch.Name = "cbExcludeLunch";
+            this.cbExcludeLunch.Size = new System.Drawing.Size(93, 17);
+            this.cbExcludeLunch.TabIndex = 47;
+            this.cbExcludeLunch.Text = "Exclude lunch";
+            this.cbExcludeLunch.UseVisualStyleBackColor = true;
+            this.cbExcludeLunch.CheckedChanged += new System.EventHandler(this.cbExcludeLunch_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3446,6 +3486,8 @@
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialDonate)).EndInit();
+            this.gbVivaInsights.ResumeLayout(false);
+            this.gbVivaInsights.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -3681,5 +3723,8 @@
         private System.Windows.Forms.Label txtProfileLoading;
         private System.Windows.Forms.Panel panelProfileLoading;
         private System.Windows.Forms.Panel panelObscure;
+        private System.Windows.Forms.GroupBox gbVivaInsights;
+        private System.Windows.Forms.CheckBox cbExcludeLunch;
+        private System.Windows.Forms.CheckBox cbExcludeFocusTime;
     }
 }

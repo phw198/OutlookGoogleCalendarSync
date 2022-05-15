@@ -170,6 +170,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Fine("Filter string: " + filter);
                 Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
+                Int32 focusTimeFiltered = 0;
+                Int32 lunchFiltered = 0;
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
@@ -203,6 +205,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         continue;
                     }
 
+                    #region Filtering
                     if (!filterBySettings) result.Add(ai);
                     else {
                         Boolean unfiltered = true;
@@ -223,8 +226,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 responseFiltered++;
                             }
                         }
+                        if (profile.ExcludeFocusTime && OutlookOgcs.VivaInsights.IsFocusTime(ai)) {
+                            unfiltered = false;
+                            focusTimeFiltered++;
+                        }
+                        if (profile.ExcludeLunch && OutlookOgcs.VivaInsights.IsLunchTime(ai)) {
+                            unfiltered = false;
+                            lunchFiltered++;
+                        }
                         if (unfiltered) result.Add(ai);
                     }
+                    #endregion
                 }
                 if (!suppressAdvisories) {
                     if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
