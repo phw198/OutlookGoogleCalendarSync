@@ -183,6 +183,7 @@
             this.cbAddColours = new System.Windows.Forms.CheckBox();
             this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbStartOnStartupAllUsers = new System.Windows.Forms.CheckBox();
             this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
             this.panelAppBehaviour = new System.Windows.Forms.Panel();
             this.pbExpandProxy = new System.Windows.Forms.PictureBox();
@@ -2151,6 +2152,7 @@
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbStartOnStartupAllUsers);
             this.tabAppBehaviour.Controls.Add(this.cbSuppressSocialPopup);
             this.tabAppBehaviour.Controls.Add(this.panelAppBehaviour);
             this.tabAppBehaviour.Controls.Add(this.tbStartupDelay);
@@ -2166,6 +2168,17 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(473, 488);
             this.tabAppBehaviour.TabIndex = 4;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbStartOnStartupAllUsers
+            // 
+            this.cbStartOnStartupAllUsers.AutoSize = true;
+            this.cbStartOnStartupAllUsers.Location = new System.Drawing.Point(300, 16);
+            this.cbStartOnStartupAllUsers.Name = "cbStartOnStartupAllUsers";
+            this.cbStartOnStartupAllUsers.Size = new System.Drawing.Size(79, 17);
+            this.cbStartOnStartupAllUsers.TabIndex = 47;
+            this.cbStartOnStartupAllUsers.Text = "for all users";
+            this.cbStartOnStartupAllUsers.UseVisualStyleBackColor = true;
+            this.cbStartOnStartupAllUsers.CheckedChanged += new System.EventHandler(this.cbStartOnStartupAllUsers_CheckedChanged);
             // 
             // cbSuppressSocialPopup
             // 
@@ -3681,5 +3694,6 @@
         private System.Windows.Forms.Label txtProfileLoading;
         private System.Windows.Forms.Panel panelProfileLoading;
         private System.Windows.Forms.Panel panelObscure;
+        private System.Windows.Forms.CheckBox cbStartOnStartupAllUsers;
     }
 }

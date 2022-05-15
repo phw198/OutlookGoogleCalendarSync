@@ -122,8 +122,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
 
             //Application behaviour
-            if (Settings.Instance.StartOnStartup)
-                ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartup, "Start OGCS when current Windows user logs in.");
+            ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartupAllUsers, "Also try this if 'current user' isn't effective.");
             if (!Settings.Instance.UserIsBenefactor()) {
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
@@ -166,6 +167,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Enabled = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Checked = Settings.Instance.StartOnStartupAllUsers;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
@@ -1930,21 +1933,41 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
+            cbStartOnStartupAllUsers.Enabled = cbStartOnStartup.Checked;
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
                 if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                OGCSexception.Analyse("Failed accessing registry for startup key(s).", ex);
                 if (this.Visible) {
                     OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 cbStartOnStartup.CheckedChanged -= cbStartOnStartup_CheckedChanged;
                 cbStartOnStartup.Checked = false;
+                Settings.Instance.StartOnStartup = false;
                 tbStartupDelay.Enabled = false;
                 cbStartOnStartup.CheckedChanged += cbStartOnStartup_CheckedChanged;
             }
         }
+        private void cbStartOnStartupAllUsers_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.StartOnStartupAllUsers = cbStartOnStartupAllUsers.Checked;
+            try {
+                Program.ManageStartupRegKey();
+            } catch (System.Exception ex) {
+                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                OGCSexception.Analyse("Failed accessing registry for HKLM startup key.", ex);
+                if (this.Visible) {
+                    OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                        "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                cbStartOnStartupAllUsers.CheckedChanged -= cbStartOnStartupAllUsers_CheckedChanged;
+                cbStartOnStartupAllUsers.Checked = false;
+                Settings.Instance.StartOnStartupAllUsers = false;
+                cbStartOnStartupAllUsers.CheckedChanged += cbStartOnStartupAllUsers_CheckedChanged;
+            }
+        }
+
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (!Settings.Instance.UserIsBenefactor()) {
