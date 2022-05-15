@@ -65,9 +65,9 @@ namespace OutlookGoogleCalendarSync {
             }
             .em-repeat {
                 padding-right: 0px;
-              margin-left: 0px;
+                margin-left: 0px;
             }
-            .info, .error, .warning {
+            .config, .info, .error, .warning {
                 margin-top: 8px;
                 padding-bottom: 4px;
                 margin-bottom: 10px;
@@ -77,6 +77,10 @@ namespace OutlookGoogleCalendarSync {
                 border-bottom-left-radius: 5px;
                 border-top-left-radius: 5px;
                 margin-left: -15px;
+            }
+            .config {
+                background-color: lightgray;
+                border-left-color: yellow;
             }
             .info {
                 background-color: lightblue;
@@ -229,6 +233,7 @@ namespace OutlookGoogleCalendarSync {
         public enum Markup {
             calendar,
             checkered_flag,
+            config,
             error,
             fail,
             h2,
@@ -326,7 +331,8 @@ namespace OutlookGoogleCalendarSync {
                 //div
                 output = Regex.Replace(output, ":info:(<p>)*", "<div class='info'>$1<span class='em em-information_source'></span>");
                 output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
-                output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");                
+                output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");
+                output = Regex.Replace(output, ":config:(<p>)*", "<div class='config'>$1<span class='em em-gear'></span>");
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);

@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
             ToolTips.SetToolTip(btResetGCal,
-                "Reset the Google account being used to synchonize with.");
+                "Disconnect the Google account being used to synchonize with.");
             ToolTips.SetToolTip(cbListHiddenGcals,
                 "Include hidden calendars in the above drop down.");
 
@@ -109,7 +109,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbUseOutlookDefaultReminder,
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
-                "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+                "BE AWARE: Deleting Google event through mobile/web calendar app will notify all attendees.");
             ToolTips.SetToolTip(tbMaxAttendees,
                 "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
