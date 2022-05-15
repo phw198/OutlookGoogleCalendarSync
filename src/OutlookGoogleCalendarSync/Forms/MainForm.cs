@@ -877,18 +877,18 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void MainFormShow(Boolean forceToTop = false) {
-            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
-            this.Show(); //Show minimised back in taskbar
-            this.ShowInTaskbar = true;
-            this.WindowState = FormWindowState.Normal;
-            if (forceToTop) this.TopMost = true;
-            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
-            this.Show(); //Now restore
-            this.TopMost = false;
-            this.Refresh();
-            System.Windows.Forms.Application.DoEvents();
-            log.Info("Application window restored.");
-        }
+                this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
+                this.Show(); //Show minimised back in taskbar
+                this.ShowInTaskbar = true;
+                this.WindowState = FormWindowState.Normal;
+                if (forceToTop) this.TopMost = true;
+                this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
+                this.Show(); //Now restore
+                this.TopMost = false;
+                this.Refresh();
+                System.Windows.Forms.Application.DoEvents();
+                log.Info("Application window restored.");
+            }
 
         private void mainFormResize(object sender, EventArgs e) {
             if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
@@ -1919,7 +1919,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                 OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            new Forms.ColourMap().ShowDialog(this);
+            try {
+                new Forms.ColourMap().ShowDialog(this);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;

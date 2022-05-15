@@ -33,6 +33,7 @@
             this.colourGridView = new System.Windows.Forms.DataGridView();
             this.OutlookColour = new OutlookGoogleCalendarSync.Extensions.DataGridViewOutlookColourComboBoxColumn();
             this.GoogleColour = new OutlookGoogleCalendarSync.Extensions.DataGridViewGoogleColourComboBoxColumn();
+            this.btRemoveRow = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.colourGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -112,6 +113,7 @@
             // 
             // colourGridView
             // 
+            this.colourGridView.AllowUserToResizeRows = false;
             this.colourGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -122,11 +124,12 @@
             this.colourGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.colourGridView.Location = new System.Drawing.Point(12, 151);
             this.colourGridView.Name = "colourGridView";
-            this.colourGridView.RowHeadersWidth = 47;
+            this.colourGridView.RowHeadersWidth = 20;
+            this.colourGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.colourGridView.Size = new System.Drawing.Size(468, 136);
             this.colourGridView.TabIndex = 0;
             this.colourGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellClick);
-            this.colourGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEndEdit);
+            //this.colourGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEndEdit);
             this.colourGridView.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEnter);
             this.colourGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellValueChanged);
             this.colourGridView.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.colourGridView_EditingControlShowing);
@@ -151,6 +154,17 @@
             this.GoogleColour.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.GoogleColour.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
+            // btRemoveRow
+            // 
+            this.btRemoveRow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btRemoveRow.Location = new System.Drawing.Point(15, 293);
+            this.btRemoveRow.Name = "btRemoveRow";
+            this.btRemoveRow.Size = new System.Drawing.Size(83, 23);
+            this.btRemoveRow.TabIndex = 49;
+            this.btRemoveRow.Text = "Remove Row";
+            this.btRemoveRow.UseVisualStyleBackColor = false;
+            this.btRemoveRow.Click += new System.EventHandler(this.btRemoveRow_Click);
+            // 
             // ColourMap
             // 
             this.AcceptButton = this.btSave;
@@ -158,6 +172,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btCancel;
             this.ClientSize = new System.Drawing.Size(492, 324);
+            this.Controls.Add(this.btRemoveRow);
             this.Controls.Add(this.ddOutlookColour);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ddGoogleColour);
@@ -188,5 +203,6 @@
         public Extensions.GoogleColourPicker ddGoogleColour;
         public Extensions.OutlookColourPicker ddOutlookColour;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btRemoveRow;
     }
 }

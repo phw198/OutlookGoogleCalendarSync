@@ -74,17 +74,18 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lastRow = colourGridView.Rows.GetLastRow(DataGridViewElementStates.None);
                 Object currentOValue = colourGridView.Rows[lastRow].Cells["OutlookColour"].Value;
                 Object currentGValue = colourGridView.Rows[lastRow].Cells["GoogleColour"].Value;
-                if (currentOValue != null && currentOValue.ToString() != "" &&
-                    currentGValue != null && currentGValue.ToString() != "") {
+                if (!string.IsNullOrEmpty(currentOValue?.ToString()) &&
+                    !string.IsNullOrEmpty(currentGValue?.ToString())) {
                     lastRow++;
                     DataGridViewCell lastCell = colourGridView.Rows[lastRow - 1].Cells[1];
                     if (lastCell != colourGridView.CurrentCell)
                         colourGridView.CurrentCell = lastCell;
-                    colourGridView.NotifyCurrentCellDirty(true);
-                    colourGridView.NotifyCurrentCellDirty(false);
                 }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow, ex);
+            } finally {
+                colourGridView.NotifyCurrentCellDirty(true);
+                colourGridView.NotifyCurrentCellDirty(false);
             }
         }
 
@@ -135,17 +136,31 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void colourGridView_CellClick(object sender, DataGridViewCellEventArgs e) {
-            if (!this.Visible) return;
-
-            Boolean validClick = (e.RowIndex != -1 && e.ColumnIndex != -1); //Make sure the clicked row/column is valid.
-            //Check to make sure the cell clicked is the cell containing the combobox 
-            if (validClick && colourGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) {
-                colourGridView.BeginEdit(true);
-                ((ComboBox)colourGridView.EditingControl).DroppedDown = true;
+        private void btRemoveRow_Click(object sender, EventArgs e) {
+            try {
+                if (colourGridView.CurrentRow != null) {
+                    colourGridView.Rows.Remove(colourGridView.CurrentRow);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
             }
         }
-        
+
+        private void colourGridView_CellClick(object sender, DataGridViewCellEventArgs e) {
+            try {
+                if (!this.Visible) return;
+
+                Boolean validClick = (e.RowIndex != -1 && e.ColumnIndex != -1); //Make sure the clicked row/column is valid.
+                                                                                //Check to make sure the cell clicked is the cell containing the combobox 
+                if (validClick && colourGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) {
+                    colourGridView.BeginEdit(true);
+                    ((ComboBox)colourGridView.EditingControl).DroppedDown = true;
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+        }
+
         private void colourGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
             try {
                 if (e.Control is ComboBox) {
@@ -166,23 +181,29 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void colourGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-            newRowNeeded();
-        }
-
         private void colourGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
-            if (!this.Visible) return;
-            
-            if (colourGridView.CurrentCell.ColumnIndex == 0)
-                ddGoogleColour_SelectedIndexChanged(null, null);
-            else if (colourGridView.CurrentCell.ColumnIndex == 1)
-                ddOutlookColour_SelectedIndexChanged(null, null);
+            try {
+                if (!this.Visible) return;
+
+                if (colourGridView.CurrentCell.ColumnIndex == 0)
+                    ddGoogleColour_SelectedIndexChanged(null, null);
+                else if (colourGridView.CurrentCell.ColumnIndex == 1)
+                    ddOutlookColour_SelectedIndexChanged(null, null);
+
+                newRowNeeded();
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
 
         private void colourGridView_CellEnter(object sender, DataGridViewCellEventArgs e) {
-            if (colourGridView.CurrentRow.Index + 1 < colourGridView.Rows.Count) return;
+            try {
+                if (colourGridView.CurrentRow.Index + 1 < colourGridView.Rows.Count) return;
 
-            newRowNeeded();
+                newRowNeeded();
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
 
         private void colourGridView_SelectionChanged(object sender, EventArgs e) {
@@ -231,7 +252,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 String oCatName = null;
                 log.Fine("Checking grid for map...");
                 foreach (DataGridViewRow row in colourGridView.Rows) {
-                    if (row.Cells["GoogleColour"].Value != null && row.Cells["GoogleColour"].Value.ToString() == ddGoogleColour.SelectedItem.Name) {
+                    if (row.Cells["GoogleColour"].Value?.ToString() == ddGoogleColour.SelectedItem.Name) {
                         oCatName = row.Cells["OutlookColour"].Value.ToString();
                         break;
                     }
