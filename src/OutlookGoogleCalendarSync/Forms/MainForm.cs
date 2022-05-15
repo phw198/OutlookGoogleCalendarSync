@@ -877,6 +877,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void MainFormShow(Boolean forceToTop = false) {
+            if (this.WindowState == FormWindowState.Minimized || !this.Visible || !this.TopMost || !this.ShowInTaskbar) {
                 this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
                 this.Show(); //Show minimised back in taskbar
                 this.ShowInTaskbar = true;
@@ -889,6 +890,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 System.Windows.Forms.Application.DoEvents();
                 log.Info("Application window restored.");
             }
+        }
 
         private void mainFormResize(object sender, EventArgs e) {
             if (Settings.Instance.MinimiseToTray && this.WindowState == FormWindowState.Minimized) {
@@ -1673,15 +1675,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
 
+                GoogleOgcs.EventColour.Palette palette = GoogleOgcs.EventColour.Palette.NullPalette;
                 if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
                     offlineAddGoogleColour();
                 else {
                     if (ddGoogleColour.Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count)
                         ddGoogleColour.AddPaletteColours();
-                    ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+                    palette = GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory);
+                    ddGoogleColour.SelectedIndex = Convert.ToInt16(palette.Id);
                 }
-                
-                ddGoogleColour_SelectedIndexChanged(null, null);
+
+                if (ddGoogleColour.SelectedIndex == -1)
+                    log.Warn("Could not find the Google colour for: " + palette.ToString());
+                else
+                    ddGoogleColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
@@ -1712,7 +1719,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
                 
-                ddOutlookColour_SelectedIndexChanged(null, null);
+                if (ddOutlookColour.SelectedIndex == -1)
+                    log.Warn("Could not find the Outlook category for '" + oCatName + "'");
+                else
+                    ddOutlookColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
