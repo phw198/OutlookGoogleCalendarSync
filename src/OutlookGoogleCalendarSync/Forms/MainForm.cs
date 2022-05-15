@@ -474,7 +474,16 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     tbCreatedItemsOnly_SelectedItemChanged(null, null);
                     tbTargetCalendar_SelectedItemChanged(null, null);
+
                     cbPrivate.Checked = profile.SetEntriesPrivate;
+                    ddPrivacy.Enabled = profile.SetEntriesPrivate;
+                    ddPrivacy.Items.Clear();
+                    Dictionary<OlSensitivity, String> privacy = new Dictionary<OlSensitivity, String>();
+                    privacy.Add(OlSensitivity.olPrivate, "Private");
+                    privacy.Add(OlSensitivity.olNormal, "Public");
+                    ddPrivacy.DataSource = new BindingSource(privacy, null);
+                    ddPrivacy.SelectedValue = Enum.Parse(typeof(OlSensitivity), profile.PrivacyLevel);
+
                     cbAvailable.Checked = profile.SetEntriesAvailable;
                     buildAvailabilityDropdown();
                     cbColour.Checked = profile.SetEntriesColour;
@@ -1457,7 +1466,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
-                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 193; break;
+                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
                     case "Logging": section.Height = 111; break;
@@ -1648,6 +1657,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SetEntriesPrivate = cbPrivate.Checked;
+            ddPrivacy.Enabled = cbPrivate.Checked;
+        }
+        private void ddPrivacy_SelectedIndexChanged(object sender, EventArgs e) {
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.PrivacyLevel = ddPrivacy.SelectedValue.ToString();
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
