@@ -422,7 +422,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             NameSpace ns = null;
             try {
                 if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
-                oApp.GetNamespace("mapi");
+                ns = oApp.GetNamespace("mapi");
                 ai = ns.GetItemFromID(entryID) as AppointmentItem;
             } finally {
                 ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
