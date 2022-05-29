@@ -763,7 +763,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (profile.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
 
-            String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
+            String gPrivacy = ev.Visibility ?? "default";
             String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
             if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
                 ev.Visibility = oPrivacy;
@@ -1589,7 +1589,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return "private";
+                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
                     if (gVisibility == null)
@@ -1601,7 +1601,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         return gVisibility;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gVisibility == null))
-                        return "private";
+                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
                     else
                         return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
                 }

@@ -93,7 +93,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         private static readonly ILog log = LogManager.GetLogger(typeof(Categories));
-        private Outlook.Categories categories;
+
+        private Outlook.Categories _categories;
+        private Outlook.Categories categories {
+            get { 
+                if (_categories == null) ValidateCategories();
+                return _categories;
+            }
+            set { _categories = value; }
+        }
+
         public String Delimiter { get; }
 
         public Categories() {
@@ -107,7 +116,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         public void Dispose() {
-            categories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(categories);
+            _categories = (Outlook.Categories)OutlookOgcs.Calendar.ReleaseObject(_categories);
         }
 
         /// <summary>
@@ -179,17 +188,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         public void ValidateCategories() {
             try {
-                if (this.categories != null && this.categories.Count > 0) { }
+                if (this._categories != null && this._categories.Count > 0) { }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Categories are not accessible!", OGCSexception.LogAsFail(ex));
-                this.categories = null;
+                this._categories = null;
             }
-            if (this.categories == null || OutlookOgcs.Calendar.Categories == null) {
+            if (this._categories == null || OutlookOgcs.Calendar.Categories == null) {
                 OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
             } else {
                 String catName = "";
                 try {
-                    foreach (Outlook.Category cat in this.categories) {
+                    foreach (Outlook.Category cat in this._categories) {
                         catName = cat.Name;
                         Outlook.OlCategoryColor catColour = cat.Color;
                     }
@@ -212,7 +221,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// </summary>
         private List<String> getNames() {
             List<String> names = new List<String>();
-            if (this.categories != null) {
+            if (this._categories != null) {
                 foreach (Outlook.Category category in this.categories) {
                     names.Add(category.Name);
                 }
@@ -226,11 +235,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <returns>List to be used in dropdown, for example</returns>
         public List<OutlookOgcs.Categories.ColourInfo> DropdownItems() {
             List<OutlookOgcs.Categories.ColourInfo> items = new List<OutlookOgcs.Categories.ColourInfo>();
-            if (this.categories != null) {
                 foreach (Outlook.Category category in this.categories) {
                     items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
                 }
-            }
             return items.OrderBy(i => i.Text).ToList();
         }
 

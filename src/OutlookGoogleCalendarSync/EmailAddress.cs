@@ -65,5 +65,19 @@ namespace OutlookGoogleCalendarSync {
                 return "*****@masked.com";
             }
         }
+
+        public static String MaskAddressWithinText(String sourceContainingEmailAddress) {
+            try {
+                MatchCollection matches = System.Text.RegularExpressions.Regex.Matches(sourceContainingEmailAddress, @"([\w\.]+)@");
+                if (matches.Count >= 1 && matches[0].Groups.Count >= 2) {
+                    String emailAddress = matches[0].Groups[1].Value;
+                    String masked = emailAddress.Substring(0, 2) + "".PadRight(emailAddress.Length - 3, '*') + emailAddress.Substring(emailAddress.Length - 1);
+                    return sourceContainingEmailAddress.Replace(emailAddress, masked);
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
+            return sourceContainingEmailAddress;
+        }
     }
 }

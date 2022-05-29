@@ -810,7 +810,7 @@ namespace OutlookGoogleCalendarSync {
                                     if (isDeleted == DeletionState.Inaccessible) {
                                         log.Warn("This exception is inaccessible.");
                                         return;
-                                    } else if (isDeleted == DeletionState.NotDeleted) {
+                                    } else if (isDeleted == DeletionState.Deleted) {
                                         log.Debug("This exception is deleted.");
                                         return;
                                     } else {

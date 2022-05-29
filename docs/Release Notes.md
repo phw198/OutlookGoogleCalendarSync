@@ -1,6 +1,20 @@
 | Release Notes |
 |:---|
 
+# v2.9.5.0 - Alpha
+
+**Enhancements**
+- New option to set synced items as 'public'
+- Categories now properly populating for Alternate Mailbox
+- New option to set OGCS to startup for all Windows users, not just current
+- Show warning that filtered out items may sync as "duplicates"
+
+**Bugfix**
+- Don't touch Outlook attendee response status, if they are Google organiser
+- Fixed error accessing Outlook item that has been modified
+- Fixed error when syncing colours, but none set on Outlook appointment
+- Handle being disconnected from Outlook when retrieving categories
+
 # v2.9.4.0 - Alpha
 
 **Enhancements**
