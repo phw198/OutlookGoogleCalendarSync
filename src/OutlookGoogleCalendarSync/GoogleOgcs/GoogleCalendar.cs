@@ -935,12 +935,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", ex2);
                                 log.Debug("Current eTag: " + ev.ETag);
                                 log.Debug("Current Updated: " + ev.UpdatedRaw);
+                                log.Debug("Current Sequence: " + ev.Sequence);
                                 log.Debug("Refetching event from Google.");
                                 Event remoteEv = GetCalendarEntry(ev.Id);
                                 log.Debug("Remote eTag: " + remoteEv.ETag);
                                 log.Debug("Remote Updated: " + remoteEv.UpdatedRaw);
+                                log.Debug("Remote Sequence: " + remoteEv.Sequence);
                                 log.Warn("Attempting trample of remote version.");
                                 ev.ETag = remoteEv.ETag;
+                                ev.Sequence = remoteEv.Sequence;
                                 log.Debug("Saving...");
                                 ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
                                 log.Debug("Successful!");
