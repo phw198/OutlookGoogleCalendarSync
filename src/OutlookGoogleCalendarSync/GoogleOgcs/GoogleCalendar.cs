@@ -899,64 +899,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int backoff = 0;
             while (backoff < BackoffLimit) {
                 try {
-                    //ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
-                    EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
-                    try {
-                        ev = request.Execute();
-                    } catch (Google.GoogleApiException ex) {
-                        if (ex.Error.Code == 412) { //Precondition failed
-                            //Check how many OGCS processes we have running
-                            try {
-                                String currentProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                                System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(currentProcessName);
-                                if (processes.Count() >= 1) {
-                                    log.Warn("There are " + processes.Count() + " " + currentProcessName + " currently running.");
-                                    foreach (System.Diagnostics.Process process in processes) {
-                                        System.Management.ManagementObjectSearcher commandLineSearcher = new System.Management.ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id);
-                                        String commandLine = "";
-                                        foreach (System.Management.ManagementObject commandLineObject in commandLineSearcher.Get()) {
-                                            commandLine += (String)commandLineObject["CommandLine"];
-                                        }
-                                        log.Debug("  " + commandLine);
-                                    }
-                                }
-                            } catch (System.Exception ex2) {
-                                OGCSexception.Analyse("Unable to check for concurrent OGCS processes.", ex2);
-                            }
-
-                            log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
-                            request.ETagAction = Google.Apis.ETagAction.Ignore;
-                            try {
-                                //ev.Location += " - FOO";
-                                //request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
-                                ev = request.Execute();
-                                log.Debug("Forced save successful.");
-                            } catch (System.Exception ex2) {
-                                OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", ex2);
-                                log.Debug("Current eTag: " + ev.ETag);
-                                log.Debug("Current Updated: " + ev.UpdatedRaw);
-                                log.Debug("Current Sequence: " + ev.Sequence);
-                                log.Debug("Refetching event from Google.");
-                                Event remoteEv = GetCalendarEntry(ev.Id);
-                                log.Debug("Remote eTag: " + remoteEv.ETag);
-                                log.Debug("Remote Updated: " + remoteEv.UpdatedRaw);
-                                log.Debug("Remote Sequence: " + remoteEv.Sequence);
-                                log.Warn("Attempting trample of remote version.");
-                                ev.ETag = remoteEv.ETag;
-                                ev.Sequence = remoteEv.Sequence;
-                                log.Debug("Saving...");
-                                ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
-                                log.Debug("Successful!");
-                                throw ex;
-                            } finally {
-                                request.ETagAction = Google.Apis.ETagAction.Default;
-                                OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease upload your logfile to GitHub.",
-                                    "Upload log for #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                                Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                            }
-                        } else
-                            throw;
-                    }
                     ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
@@ -964,12 +906,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    if (ex.Error.Code == 412 && !this.openedIssue528) { //Precondition failed
-                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
-                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                        this.openedIssue528 = true;
-                    }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
@@ -988,6 +924,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 System.Threading.Thread.Sleep(backoff * 1000);
                             }
                             break;
+                    }
+                    if (ex.Error.Code == 412 && !this.openedIssue528) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
+                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
+                        this.openedIssue528 = true;
                     }
                 }
             }
@@ -1953,7 +1895,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                 log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                 Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null);
-                
+
                 //Delay next scheduled sync until after the new quota
                 if (profile.SyncInterval != 0) {
                     DateTime utcNow = DateTime.UtcNow;
@@ -1975,6 +1917,32 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else if (ex.Error != null && ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;
+
+            } else if (ex.Error != null && ex.Error.Code == 412 && ex.Error.Message.Contains("Precondition failed")) {
+                log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
+                try {
+                    EventsResource.UpdateRequest request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                    request.ETagAction = Google.Apis.ETagAction.Ignore;
+                    ev = request.Execute();
+                    log.Debug("Successfully forced save by ignoring eTag values.");
+                } catch (System.Exception ex2) {
+                    OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", OGCSexception.LogAsFail(ex2));
+                    log.Fine("Current eTag: " + ev.ETag);
+                    log.Fine("Current Updated: " + ev.UpdatedRaw);
+                    log.Fine("Current Sequence: " + ev.Sequence);
+                    log.Debug("Refetching event from Google.");
+                    Event remoteEv = GoogleOgcs.Calendar.Instance.GetCalendarEntry(ev.Id);
+                    log.Fine("Remote eTag: " + remoteEv.ETag);
+                    log.Fine("Remote Updated: " + remoteEv.UpdatedRaw);
+                    log.Fine("Remote Sequence: " + remoteEv.Sequence);
+                    log.Warn("Attempting trample of remote version...");
+                    ev.ETag = remoteEv.ETag;
+                    ev.Sequence = remoteEv.Sequence;
+                    ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                    log.Debug("Successful!");
+                    return ApiException.justContinue;
+                }
+                return ApiException.throwException;
 
             } else if (ex.Error != null && ex.Error.Code == 500) {
                 log.Fail(OGCSexception.FriendlyMessage(ex));
