@@ -477,6 +477,9 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                     cbPrivate.Checked = profile.SetEntriesPrivate;
                     ddPrivacy.Enabled = profile.SetEntriesPrivate;
+                    ddPrivacy.DataSource = null;
+                    ddPrivacy.DisplayMember = "Value";
+                    ddPrivacy.ValueMember = "Key";
                     ddPrivacy.Items.Clear();
                     Dictionary<OlSensitivity, String> privacy = new Dictionary<OlSensitivity, String>();
                     privacy.Add(OlSensitivity.olPrivate, "Private");
@@ -560,6 +563,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Unable to set GUI profile.", ex);
+                    throw;
                 } finally {
                     this.LoadingProfileConfig = false;
                 }
@@ -1656,6 +1662,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
+            ddPrivacy.Enabled = cbPrivate.Checked;
+            if (this.LoadingProfileConfig) return; 
+            
             ActiveCalendarProfile.SetEntriesPrivate = cbPrivate.Checked;
             ddPrivacy.Enabled = cbPrivate.Checked;
         }
@@ -1666,8 +1675,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.SetEntriesAvailable = cbAvailable.Checked;
             ddAvailabilty.Enabled = cbAvailable.Checked;
+            if (this.LoadingProfileConfig) return; 
+            
+            ActiveCalendarProfile.SetEntriesAvailable = cbAvailable.Checked;
         }
         private void ddAvailabilty_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
@@ -1676,9 +1687,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbColour_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.SetEntriesColour = cbColour.Checked;
             ddOutlookColour.Enabled = cbColour.Checked;
             ddGoogleColour.Enabled = cbColour.Checked;
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.SetEntriesColour = cbColour.Checked;
         }
 
         private void ddOutlookColour_SelectedIndexChanged(object sender, EventArgs e) {
