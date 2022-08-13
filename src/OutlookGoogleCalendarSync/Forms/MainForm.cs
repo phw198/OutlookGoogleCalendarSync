@@ -1666,6 +1666,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (this.LoadingProfileConfig) return; 
             
             ActiveCalendarProfile.SetEntriesPrivate = cbPrivate.Checked;
+            ddPrivacy.Enabled = cbPrivate.Checked;
         }
         private void ddPrivacy_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
