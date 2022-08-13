@@ -5,17 +5,6 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -170,6 +159,7 @@
             this.Name = "ColourMap";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Custom Colour Mapping";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ColourMap_FormClosed);
             this.Shown += new System.EventHandler(this.ColourMap_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.colourGridView)).EndInit();
             this.ResumeLayout(false);

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.9.3-alpha</version>
+    <version>2.9.5-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,17 +12,21 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.9.3?
+# What's New In v2.9.5?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- The arrival of **Profiles** brings multi-calendar sync! :tada: 
+- New option to set synced items as 'public'
+- Categories now properly populating for Alternate Mailbox
+- New option to set OGCS to startup for all Windows users, not just current
+- Show warning that filtered out items may sync as "duplicates"
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Don't error if Google event has no "popup" notification
-- Rolled back incompatible SharpCompress DLL
-- Remove alt-tab icon when minimised to system tray
+- Don't touch Outlook attendee response status, if they are Google organiser
+- Fixed error accessing Outlook item that has been modified
+- Fixed error when syncing colours, but none set on Outlook appointment
+- Handle being disconnected from Outlook when retrieving categories
     </releaseNotes>
     <copyright>Copyright 2022</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

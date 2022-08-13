@@ -32,7 +32,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lTitle.Text = "A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available";
                 lSummary.Text = "Would you like to upgrade to v" + releaseVersion + " now?";
 
-                if (html == null) {
+                if (string.IsNullOrEmpty(html)) {
                     String githubReleaseNotes = Program.OgcsWebsite + "/release-notes";
                     anchorRequested = "v" + releaseVersion.Replace(".", "") + "---" + releaseType;
                     log.Debug("Browser anchor: " + anchorRequested);

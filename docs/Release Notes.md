@@ -1,6 +1,38 @@
 | Release Notes |
 |:---|
 
+# v2.9.5.0 - Alpha
+
+**Enhancements**
+- New option to set synced items as 'public'
+- Categories now properly populating for Alternate Mailbox
+- New option to set OGCS to startup for all Windows users, not just current
+- Show warning that filtered out items may sync as "duplicates"
+
+**Bugfix**
+- Don't touch Outlook attendee response status, if they are Google organiser
+- Fixed error accessing Outlook item that has been modified
+- Fixed error when syncing colours, but none set on Outlook appointment
+- Handle being disconnected from Outlook when retrieving categories
+
+# v2.9.4.0 - Alpha
+
+**Enhancements**
+- Do not delete inaccessible Outlook items from Google
+- Ensure cached Outlook categories are still valid
+- Improved connection to Outlook for Push syncs
+- Setup.exe renamed to OGCS_Setup.exe
+- Direct users to wiki for help with Outlook conflicts
+- Cope with environment variables not being available
+
+**Bugfix**
+- Ensure correct Outlook calendar is being targeted
+- Don't let obfuscation trample original text
+- Don't crash when manually switching Profiles
+- More reliable comparison of meeting attendees
+- Avoid loss of Google description when none exists in Outlook (2-way)
+- Improved parsing of colour maps and empty maps
+
 # v2.9.3.0 - Alpha
 
 **Enhancements**

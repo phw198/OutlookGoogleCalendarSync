@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             itemSummary = cai.Subject;
                         }
                     }
-                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is probem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
+                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
                         Console.Markup.warning, logit: true);
 
                 } finally {
@@ -297,7 +297,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 try {
                     #region Read Outlook items
                     console.Update("Scanning Outlook calendar...");
-                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(null, false);
+                    OutlookOgcs.Calendar.Instance.IOutlook.UseOutlookCalendar(OutlookOgcs.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id));
+                    outlookEntries = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                     console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
@@ -465,6 +466,17 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
+
+                    if (this.Profile.AddColours || this.Profile.SetEntriesColour) OutlookOgcs.Calendar.Categories.ValidateCategories();
+                    if (this.Profile.ColourMaps.Count > 0) {
+                        this.Profile.ColourMaps.ToList().ForEach(c => {
+                            if (OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) == null) {
+                                if (OgcsMessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
+                                    "Invalid colour map", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == DialogResult.Yes)
+                                    new Forms.ColourMap().ShowDialog();
+                            }
+                        });
+                    }
 
                     //Sync
                     if (this.Profile.SyncDirection.Id != Direction.GoogleToOutlook.Id) {

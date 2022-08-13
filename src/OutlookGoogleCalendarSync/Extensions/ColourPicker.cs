@@ -35,8 +35,14 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Add just the colours associated with categories
         /// </summary>
         public void AddCategoryColours() {
-            if (OutlookOgcs.Factory.OutlookVersionName != OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) 
+            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) return;
+
+            try {
                 Items.AddRange(OutlookOgcs.Calendar.Categories.DropdownItems().ToArray());
+            } catch {
+                OutlookOgcs.Calendar.Categories.ValidateCategories();
+                Items.AddRange(OutlookOgcs.Calendar.Categories.DropdownItems().ToArray());
+            }
         }
 
         public void ColourPicker_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e) {
@@ -248,7 +254,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     ctl.SelectedIndex = 0;
                 else {
                     String currentText = this.Value.ToString();
-                    if (ctl.Items.Count == 0) 
+                    if (ctl.Items.Count == 0)
                         ctl.PopulateDropdownItems();
                     if (!string.IsNullOrEmpty(currentText)) this.Value = currentText;
 
@@ -289,7 +295,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     return;
 
                 foreach (GoogleOgcs.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
-                    if (ci.Name == this.Value.ToString()) {
+                    if (ci.Name == this.Value?.ToString()) {
                         Brush boxBrush = new SolidBrush(ci.RgbValue);
                         Brush textBrush = SystemBrushes.WindowText;
                         Extensions.ColourCombobox.DrawComboboxItemColour(true, boxBrush, textBrush, this.Value.ToString(), graphics, cellBounds);

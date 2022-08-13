@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private void watchForPasteEvents(Explorer newExplorer) {
             if (!watchExplorers.Contains(newExplorer)) {
-                log.Debug("Adding listener for Explorer '" + System.Text.RegularExpressions.Regex.Replace(newExplorer.Caption, @"\s.+@.+\s", " <email address> ") + "'");
+                log.Debug("Adding listener for Explorer '" + EmailAddress.MaskAddressWithinText(newExplorer.Caption) + "'");
                 newExplorer.BeforeItemPaste += new ExplorerEvents_10_BeforeItemPasteEventHandler(beforeItemPaste);
                 watchExplorers.Add(newExplorer);
             }
@@ -171,8 +171,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 copiedAi.Save();
 
             } catch (System.Exception ex) {
-                log.Warn("Failed to repopulate OGCS properties back to copied item.");
-                OGCSexception.Analyse(ex);
+                if (ex is System.Runtime.InteropServices.COMException && (
+                    OGCSexception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
+                    OGCSexception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                {
+                    log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
+                    OGCSexception.LogAsFail(ref ex);
+                }
+                OGCSexception.Analyse("Failed to repopulate OGCS properties back to copied item.", ex);
             } finally {
                 copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
             }
@@ -241,8 +247,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
 
             } catch (System.Exception ex) {
-                log.Warn("Failed to remove OGCS 'copied' property on copied item.");
-                OGCSexception.Analyse(ex);
+                if (ex is System.Runtime.InteropServices.COMException && (
+                    OGCSexception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
+                    OGCSexception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                {
+                    log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
+                    OGCSexception.LogAsFail(ref ex);
+                }
+                OGCSexception.Analyse("Failed to remove OGCS 'copied' property on copied item.", ex);
             } finally {
                 copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
             }

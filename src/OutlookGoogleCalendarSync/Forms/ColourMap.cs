@@ -21,9 +21,21 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             InitializeComponent();
             loadConfig();
+        }
+
+        private void ColourMap_FormClosed(object sender, EventArgs e) {
             OutlookOgcs.Calendar.Disconnect(true);
         }
-        
+
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                if (components != null)
+                    components.Dispose();
+                OutlookOgcs.Calendar.Disconnect(true);
+            }
+            base.Dispose(disposing);
+        }
+
         private void ColourMap_Shown(object sender, EventArgs e) {
             ddOutlookColour_SelectedIndexChanged(null, null);
         }
@@ -119,7 +131,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Fine("Storing colour mappings in Settings.");
                 profile.ColourMaps.Clear();
                 foreach (DataGridViewRow row in colourGridView.Rows) {
-                    if (row.Cells["OutlookColour"].Value == null || row.Cells["OutlookColour"].Value.ToString().Trim() == "") continue;
+                    if (string.IsNullOrEmpty(row.Cells["OutlookColour"].Value?.ToString()?.Trim()) || string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString()?.Trim())) continue;
                     try {
                         profile.ColourMaps.Add(row.Cells["OutlookColour"].Value.ToString(), GoogleOgcs.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString()));
                     } catch (System.ArgumentException ex) {
@@ -207,7 +219,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
                 
                 foreach (DataGridViewRow row in colourGridView.Rows) {
-                    if (row.Cells["OutlookColour"].Value.ToString() == ddOutlookColour.SelectedItem.Text && !string.IsNullOrEmpty(row.Cells["GoogleColour"].Value.ToString())) {
+                    if (row.Cells["OutlookColour"].Value.ToString() == ddOutlookColour.SelectedItem.Text && !string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString())) {
                         String colourId = GoogleOgcs.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString());
                         ddGoogleColour.SelectedIndex = Convert.ToInt16(colourId);
                         return;

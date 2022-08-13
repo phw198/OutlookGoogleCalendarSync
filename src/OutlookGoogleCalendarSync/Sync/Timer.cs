@@ -148,6 +148,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             ResetLastRun();
             this.Tag = "PushTimer";
             this.Interval = 2 * 60000;
+            if (Program.InDeveloperMode) this.Interval = 30000;
             this.Tick += new EventHandler(ogcsPushTimer_Tick);
         }
 
@@ -169,9 +170,14 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.UltraFine("Push sync triggered.");
             
             try {
-                if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
-
                 SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
+
+                //In case the IOutlook.Connect() has to be called which needs an active profile
+                if (Sync.Engine.Calendar.Instance.Profile == null)
+                    //Force in the push sync profile
+                    Sync.Engine.Calendar.Instance.Profile = profile;
+
+                if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
                 log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
                 System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 

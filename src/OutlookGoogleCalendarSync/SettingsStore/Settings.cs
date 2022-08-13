@@ -96,6 +96,7 @@ namespace OutlookGoogleCalendarSync {
             MuteClickSounds = false;
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = false;
+            StartOnStartupAllUsers = false;
             StartupDelay = 0;
             StartInTray = false;
             MinimiseToTray = false;
@@ -199,11 +200,11 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool? HideSplashScreen {
             get { return hideSplashScreen; }
             set {
+                hideSplashScreen = value;
                 if (!Loading() && hideSplashScreen != value) {
                     XMLManager.ExportElement(this, "HideSplashScreen", value, ConfigFile);
                     if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value ?? false;
                 }
-                hideSplashScreen = value;
             }
         }
 
@@ -219,6 +220,7 @@ namespace OutlookGoogleCalendarSync {
         }
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
+        [DataMember] public bool StartOnStartupAllUsers { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimiseToTray { get; set; }
@@ -373,7 +375,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
-            log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());
+            log.Info("  StartOnStartup: " + StartOnStartup + "; AllUsers: " + StartOnStartupAllUsers + "; DelayedStartup: " + StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
@@ -454,7 +456,7 @@ namespace OutlookGoogleCalendarSync {
                 SettingsStore.Calendar aProfile;
 
                 if (Program.CalledByProcess("manualSynchronize,Sync_Click,updateGUIsettings,UpdateGUIsettings_Profile,miCatRefresh_Click," +
-                    "GetMyGoogleCalendars_Click,btColourMap_Click,ColourPicker_Enter,OnSelectedIndexChanged,OnCheckedChanged")) {
+                    "GetMyGoogleCalendars_Click,btColourMap_Click,btTestOutlookFilter_Click,ColourPicker_Enter,OnSelectedIndexChanged,OnCheckedChanged")) {
                     aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                     log.Fine("Using profile Forms.Main.Instance.ActiveCalendarProfile");
                 
@@ -467,6 +469,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Error("Unknown profile being referenced.");
                     aProfile = Forms.Main.Instance.ActiveCalendarProfile;
                 }
+                if (aProfile == null) log.Warn("The profile in play is NULL!");
                 return aProfile;
             }
         }
