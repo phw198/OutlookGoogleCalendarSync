@@ -57,6 +57,7 @@ namespace OutlookGoogleCalendarSync {
                 parseArgumentsAndInitialise(args);
 
                 Updater.MakeSquirrelAware();
+                Program.instancesRunning();
                 Forms.Splash.ShowMe();
 
                 SettingsStore.Upgrade.Check();
@@ -613,24 +614,45 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>Check how many OGCS processes we have running</summary>
-        public static void InstancesRunning() {
+        private static void instancesRunning() {
             try {
-                String currentProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(currentProcessName);
-                if (processes.Count() >= 1) {
-                    log.Warn("There are " + processes.Count() + " " + currentProcessName + " currently running.");
-                    foreach (System.Diagnostics.Process process in processes) {
-                        System.Management.ManagementObjectSearcher commandLineSearcher = new System.Management.ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id);
-                        String commandLine = "";
-                        foreach (System.Management.ManagementObject commandLineObject in commandLineSearcher.Get()) {
-                            commandLine += (String)commandLineObject["CommandLine"];
+                System.Diagnostics.Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+                String currentCmdLine = getProcessCommandLine(currentProcess.Id);
+
+                System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(currentProcess.ProcessName);
+                
+                if (processes.Count() > 1) {
+                    log.Warn("There are " + processes.Count() + " " + currentProcess.ProcessName + " processes currently running.");
+                    List<System.Linq.IGrouping<string, System.Diagnostics.Process>> sameExe = processes.GroupBy(p => p.MainModule.FileName).Where(e => e.Count() > 1).ToList();
+                    log.Debug(sameExe.Count() + " executables have more than one process attached; checking runtime arguments");
+                    foreach (System.Linq.IGrouping<string, System.Diagnostics.Process> exe in sameExe) {
+                        log.Debug(exe.Key);
+                        foreach (System.Diagnostics.Process process in exe) {
+                            String cmdLine = getProcessCommandLine(process.Id);
+                            if (cmdLine == currentCmdLine) {
+                                OgcsMessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n"+
+                                    "This is not recommended and may cause problems if they sync at the same time.", 
+                                    "Multiple OGCS instances running", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
                         }
-                        log.Debug("  " + commandLine);
                     }
                 }
+
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Unable to check for concurrent OGCS processes.", ex);
             }
+        }
+
+        private static String getProcessCommandLine(int processId) {
+            System.Management.ManagementObjectSearcher commandLineSearcher = new System.Management.ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + processId);
+            String commandLine = "";
+            foreach (System.Management.ManagementObject commandLineObject in commandLineSearcher.Get()) {
+                commandLine += (String)commandLineObject["CommandLine"];
+            }
+            log.Debug(" " + commandLine);
+
+            return commandLine;
         }
     }
 }
