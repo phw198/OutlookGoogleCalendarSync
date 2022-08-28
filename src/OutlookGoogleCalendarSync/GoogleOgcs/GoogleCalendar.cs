@@ -1923,6 +1923,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 OGCSexception.LogAsFail(ref ex);
                 return ApiException.backoffThenRetry;
 
+            } else if (ex.Error != null && ex.Error.Code == 400 && ex.Error.Message.Contains("Invalid time zone definition") && 
+                (ev.Start.TimeZone == "Europe/Kyiv" || ev.End.TimeZone == "Europe/Kyiv")) 
+            {
+                log.Warn("Reverting to old IANA timezone definition: Europe/Kiev");
+                TimezoneDB.Instance.RevertKyiv = true;
+                ev.Start.TimeZone = ev.Start.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
+                ev.End.TimeZone = ev.End.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
+                return ApiException.backoffThenRetry;
+
             } else {
                 log.Warn("Unhandled API exception.");
                 return ApiException.throwException;

@@ -806,7 +806,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
                 log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
             else {
-                retVal = tzDBsource.CanonicalIdMap[retVal];
+                if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
+                    log.Debug("Continuing to use Kiev instead of Kyiv.");
+                else
+                    retVal = tzDBsource.CanonicalIdMap[retVal];
                 log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
             }
             return retVal;
