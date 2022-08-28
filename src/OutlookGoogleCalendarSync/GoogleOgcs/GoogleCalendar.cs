@@ -1926,23 +1926,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev = request.Execute();
                     log.Debug("Successfully forced save by ignoring eTag values.");
                 } catch (System.Exception ex2) {
-                    OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", OGCSexception.LogAsFail(ex2));
-                    log.Fine("Current eTag: " + ev.ETag);
-                    log.Fine("Current Updated: " + ev.UpdatedRaw);
-                    log.Fine("Current Sequence: " + ev.Sequence);
-                    log.Debug("Refetching event from Google.");
-                    Event remoteEv = GoogleOgcs.Calendar.Instance.GetCalendarEntry(ev.Id);
-                    log.Fine("Remote eTag: " + remoteEv.ETag);
-                    log.Fine("Remote Updated: " + remoteEv.UpdatedRaw);
-                    log.Fine("Remote Sequence: " + remoteEv.Sequence);
-                    log.Warn("Attempting trample of remote version...");
-                    ev.ETag = remoteEv.ETag;
-                    ev.Sequence = remoteEv.Sequence;
-                    ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
-                    log.Debug("Successful!");
-                    return ApiException.justContinue;
+                    try {
+                        OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", OGCSexception.LogAsFail(ex2));
+                        log.Fine("Current eTag: " + ev.ETag);
+                        log.Fine("Current Updated: " + ev.UpdatedRaw);
+                        log.Fine("Current Sequence: " + ev.Sequence);
+                        log.Debug("Refetching event from Google.");
+                        Event remoteEv = GoogleOgcs.Calendar.Instance.GetCalendarEntry(ev.Id);
+                        log.Fine("Remote eTag: " + remoteEv.ETag);
+                        log.Fine("Remote Updated: " + remoteEv.UpdatedRaw);
+                        log.Fine("Remote Sequence: " + remoteEv.Sequence);
+                        log.Warn("Attempting trample of remote version...");
+                        ev.ETag = remoteEv.ETag;
+                        ev.Sequence = remoteEv.Sequence;
+                        ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        log.Debug("Successful!");
+                    } catch {
+                        return ApiException.throwException;
+                    }                        
                 }
-                return ApiException.throwException;
+                return ApiException.justContinue;
 
             } else if (ex.Error != null && ex.Error.Code == 500) {
                 log.Fail(OGCSexception.FriendlyMessage(ex));
