@@ -76,6 +76,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         //throw new System.Runtime.InteropServices.COMException("RPC_E_CALL_REJECTED", unchecked((int)0x80010001));
                         log.Fine("About to access Outlook oApp.version property...");
                         outlookVersionFull = oApp.Version;
+                        attempts = maxAttempts + 1;
                     } catch (System.Runtime.InteropServices.COMException ex) {
                         String hResult = OGCSexception.GetErrorCode(ex);
 
