@@ -886,7 +886,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return OlSensitivity.olPrivate;
+                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
                     if (oSensitivity == null)
@@ -898,7 +898,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         return (OlSensitivity)oSensitivity;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
-                        return OlSensitivity.olPrivate;
+                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                     else
                         return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                 }

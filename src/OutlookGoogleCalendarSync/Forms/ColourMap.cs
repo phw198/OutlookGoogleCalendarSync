@@ -21,9 +21,21 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             InitializeComponent();
             loadConfig();
+        }
+
+        private void ColourMap_FormClosed(object sender, EventArgs e) {
             OutlookOgcs.Calendar.Disconnect(true);
         }
-        
+
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                if (components != null)
+                    components.Dispose();
+                OutlookOgcs.Calendar.Disconnect(true);
+            }
+            base.Dispose(disposing);
+        }
+
         private void ColourMap_Shown(object sender, EventArgs e) {
             ddOutlookColour_SelectedIndexChanged(null, null);
         }

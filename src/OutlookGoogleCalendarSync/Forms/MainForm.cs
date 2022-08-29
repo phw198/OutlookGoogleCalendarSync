@@ -122,8 +122,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
 
             //Application behaviour
-            if (Settings.Instance.StartOnStartup)
-                ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartup, "Start OGCS when current Windows user logs in.");
+            ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartupAllUsers, "Also try this if 'current user' isn't effective.");
             if (!Settings.Instance.UserIsBenefactor()) {
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
@@ -166,6 +167,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Enabled = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Checked = Settings.Instance.StartOnStartupAllUsers;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
@@ -471,7 +474,16 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     tbCreatedItemsOnly_SelectedItemChanged(null, null);
                     tbTargetCalendar_SelectedItemChanged(null, null);
+
                     cbPrivate.Checked = profile.SetEntriesPrivate;
+                    ddPrivacy.Enabled = profile.SetEntriesPrivate;
+                    ddPrivacy.Items.Clear();
+                    Dictionary<OlSensitivity, String> privacy = new Dictionary<OlSensitivity, String>();
+                    privacy.Add(OlSensitivity.olPrivate, "Private");
+                    privacy.Add(OlSensitivity.olNormal, "Public");
+                    ddPrivacy.DataSource = new BindingSource(privacy, null);
+                    ddPrivacy.SelectedValue = Enum.Parse(typeof(OlSensitivity), profile.PrivacyLevel);
+
                     cbAvailable.Checked = profile.SetEntriesAvailable;
                     buildAvailabilityDropdown();
                     cbColour.Checked = profile.SetEntriesColour;
@@ -1456,7 +1468,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
-                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 193; break;
+                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
                     case "Logging": section.Height = 111; break;
@@ -1647,6 +1659,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SetEntriesPrivate = cbPrivate.Checked;
+            ddPrivacy.Enabled = cbPrivate.Checked;
+        }
+        private void ddPrivacy_SelectedIndexChanged(object sender, EventArgs e) {
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.PrivacyLevel = ddPrivacy.SelectedValue.ToString();
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
@@ -1944,21 +1962,41 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
+            cbStartOnStartupAllUsers.Enabled = cbStartOnStartup.Checked;
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
                 if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                OGCSexception.Analyse("Failed accessing registry for startup key(s).", ex);
                 if (this.Visible) {
                     OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 cbStartOnStartup.CheckedChanged -= cbStartOnStartup_CheckedChanged;
                 cbStartOnStartup.Checked = false;
+                Settings.Instance.StartOnStartup = false;
                 tbStartupDelay.Enabled = false;
                 cbStartOnStartup.CheckedChanged += cbStartOnStartup_CheckedChanged;
             }
         }
+        private void cbStartOnStartupAllUsers_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.StartOnStartupAllUsers = cbStartOnStartupAllUsers.Checked;
+            try {
+                Program.ManageStartupRegKey();
+            } catch (System.Exception ex) {
+                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                OGCSexception.Analyse("Failed accessing registry for HKLM startup key.", ex);
+                if (this.Visible) {
+                    OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                        "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                cbStartOnStartupAllUsers.CheckedChanged -= cbStartOnStartupAllUsers_CheckedChanged;
+                cbStartOnStartupAllUsers.Checked = false;
+                Settings.Instance.StartOnStartupAllUsers = false;
+                cbStartOnStartupAllUsers.CheckedChanged += cbStartOnStartupAllUsers_CheckedChanged;
+            }
+        }
+
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (!Settings.Instance.UserIsBenefactor()) {
