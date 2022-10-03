@@ -81,20 +81,17 @@ namespace OutlookGoogleCalendarSync {
         /// <returns></returns>
         public static String ApplyRegex(String source, String target, Sync.Direction direction) {
             String retStr = source ?? "";
-            if (Sync.Engine.Calendar.Instance.Profile.Obfuscation.Enabled) {
-                if (direction.Id == Sync.Engine.Calendar.Instance.Profile.Obfuscation.Direction.Id) {
-                    foreach (DataGridViewRow row in Forms.Main.Instance.dgObfuscateRegex.Rows) {
-                        DataGridViewCellCollection cells = row.Cells;
-                        if (cells[Obfuscate.findCol].Value != null) {
-                            System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
-                                cells[Obfuscate.findCol].Value.ToString(), System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            if (profile.Obfuscation.Enabled) {
+                if (direction.Id == profile.Obfuscation.Direction.Id) {
+                    foreach (FindReplace regex in profile.Obfuscation.FindReplace) {
+                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
+                            regex.find, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-                            System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
-                            if (matches.Count > 0) {
-                                log.Fine("Regex has matched and altered string: " + cells[Obfuscate.findCol].Value.ToString());
-                                if (cells[Obfuscate.replaceCol].Value == null) cells[Obfuscate.replaceCol].Value = "";
-                                retStr = rgx.Replace(retStr, cells[Obfuscate.replaceCol].Value.ToString());
-                            }
+                        System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
+                        if (matches.Count > 0) {
+                            log.Fine("Regex has matched and altered string: " + regex.find);
+                            retStr = rgx.Replace(retStr, regex.replace ?? "");
                         }
                     }
                 } else {
