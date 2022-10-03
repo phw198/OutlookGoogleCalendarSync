@@ -1918,7 +1918,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;
 
-            } else if (ex.Error != null && ex.Error.Code == 412 && ex.Error.Message.Contains("Precondition failed")) {
+            } else if (ex.Error != null && ex.Error.Code == 412 && ex.Error.Message.Contains("Precondition Failed")) {
                 log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
                 try {
                     EventsResource.UpdateRequest request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
