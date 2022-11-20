@@ -906,7 +906,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    if (ex.Error.Code == 412 && !this.openedIssue528) { //Precondition failed
+                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
                         OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
                         "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
