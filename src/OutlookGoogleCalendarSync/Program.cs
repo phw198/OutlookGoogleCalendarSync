@@ -273,7 +273,15 @@ namespace OutlookGoogleCalendarSync {
             else if (hive == Microsoft.Win32.Registry.LocalMachine) path = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
             else throw new ApplicationException("Unexpected registry hive: " + hive.ToString());
 
-            return hive.OpenSubKey(path, forWriting);
+            Microsoft.Win32.RegistryKey openedKey = hive.OpenSubKey(path, forWriting);
+            if (openedKey == null) {
+                log.Warn("The startup registry path does not exist in " + hive.ToString() + @"\" + path);
+                if (forWriting) {
+                    log.Info("Creating startup registry path " + hive.ToString() + @"\" + path);
+                    openedKey = hive.CreateSubKey(path, Microsoft.Win32.RegistryKeyPermissionCheck.ReadWriteSubTree);
+                }
+            }
+            return openedKey;
         }
         public static void ManageStartupRegKey() {
             //Check for legacy Startup menu shortcut <=v2.1.4
@@ -306,8 +314,8 @@ namespace OutlookGoogleCalendarSync {
             Microsoft.Win32.RegistryKey startupKey = null;
             try {
                 startupKey = openStartupRegKey(hive);
-                String[] regKeys = startupKey.GetValueNames();
-                return regKeys.Contains(Application.ProductName);
+                String[] regKeys = startupKey?.GetValueNames();
+                return regKeys?.Contains(Application.ProductName) ?? false;
             } finally {
                 startupKey?.Close();
             }
