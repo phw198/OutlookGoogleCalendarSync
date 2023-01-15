@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync {
 
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
-            
+
             log.Info("Storing user files in directory: " + MaskFilePath(UserFilePath));
 
             //Before settings have been loaded, early config of cloud logging
@@ -244,14 +244,14 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("Program started: v" + Application.ProductVersion);
                 log.Info("Started " + (isCLIstartup() ? "automatically" : "interactively") + ".");
                 if (Environment.GetCommandLineArgs().Count() > 1)
-                    log.Info("Invoked with arguments: "+ string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
+                    log.Info("Invoked with arguments: " + string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
             }
             log.Info("Logging to: " + MaskFilePath(UserFilePath) + "\\" + logFilename);
             purgeLogFiles(30);
         }
 
         private static void purgeLogFiles(Int16 retention) {
-            log.Info("Purging log files older than "+ retention +" days...");
+            log.Info("Purging log files older than " + retention + " days...");
             foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
                     try {
@@ -286,7 +286,7 @@ namespace OutlookGoogleCalendarSync {
         public static void ManageStartupRegKey() {
             //Check for legacy Startup menu shortcut <=v2.1.4
             Boolean startupConfigExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
-            if (startupConfigExists) 
+            if (startupConfigExists)
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
             Boolean startupConfigExistsHKCU = checkRegKey(Microsoft.Win32.Registry.CurrentUser);
@@ -350,7 +350,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void removeRegKey(Microsoft.Win32.RegistryKey hive) {
-            log.Debug("Startup registry key being removed from "+ hive.ToString());
+            log.Debug("Startup registry key being removed from " + hive.ToString());
             Microsoft.Win32.RegistryKey startupKey = null;
             try {
                 startupKey = openStartupRegKey(hive, true);
@@ -507,7 +507,7 @@ namespace OutlookGoogleCalendarSync {
                     expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
                     if (settingsVersion != "Unknown") {
                         upgradedFrom = Program.VersionToInt(settingsVersion);
-                        }
+                    }
                     if (!Program.InDeveloperMode && (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
                         !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir))
                     {
@@ -617,6 +617,27 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("StackTrace path: " + stackString);
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
+            }
+        }
+
+        /// <summary>Check how many OGCS processes we have running</summary>
+        public static void InstancesRunning() {
+            try {
+                String currentProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(currentProcessName);
+                if (processes.Count() >= 1) {
+                    log.Warn("There are " + processes.Count() + " " + currentProcessName + " currently running.");
+                    foreach (System.Diagnostics.Process process in processes) {
+                        System.Management.ManagementObjectSearcher commandLineSearcher = new System.Management.ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id);
+                        String commandLine = "";
+                        foreach (System.Management.ManagementObject commandLineObject in commandLineSearcher.Get()) {
+                            commandLine += (String)commandLineObject["CommandLine"];
+                        }
+                        log.Debug("  " + commandLine);
+                    }
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Unable to check for concurrent OGCS processes.", ex);
             }
         }
     }

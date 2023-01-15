@@ -906,12 +906,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
-                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
-                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                        this.openedIssue528 = true;
-                    }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
@@ -931,8 +925,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                             break;
                     }
+                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
+                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
+                        this.openedIssue528 = true;
                 }
             }
+        }
         }
         #endregion
 
@@ -1917,6 +1917,35 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else if (ex.Error != null && ex.Error.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;
+
+            } else if (ex.Error != null && ex.Error.Code == 412 && ex.Error.Message.Contains("Precondition Failed")) {
+                log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
+                try {
+                    EventsResource.UpdateRequest request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                    request.ETagAction = Google.Apis.ETagAction.Ignore;
+                    ev = request.Execute();
+                    log.Debug("Successfully forced save by ignoring eTag values.");
+                } catch (System.Exception ex2) {
+                    try {
+                        OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", OGCSexception.LogAsFail(ex2));
+                        log.Fine("Current eTag: " + ev.ETag);
+                        log.Fine("Current Updated: " + ev.UpdatedRaw);
+                        log.Fine("Current Sequence: " + ev.Sequence);
+                        log.Debug("Refetching event from Google.");
+                        Event remoteEv = GoogleOgcs.Calendar.Instance.GetCalendarEntry(ev.Id);
+                        log.Fine("Remote eTag: " + remoteEv.ETag);
+                        log.Fine("Remote Updated: " + remoteEv.UpdatedRaw);
+                        log.Fine("Remote Sequence: " + remoteEv.Sequence);
+                        log.Warn("Attempting trample of remote version...");
+                        ev.ETag = remoteEv.ETag;
+                        ev.Sequence = remoteEv.Sequence;
+                        ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        log.Debug("Successful!");
+                    } catch {
+                        return ApiException.throwException;
+                    }                        
+                }
+                return ApiException.justContinue;
 
             } else if (ex.Error != null && ex.Error.Code == 500) {
                 log.Fail(OGCSexception.FriendlyMessage(ex));
