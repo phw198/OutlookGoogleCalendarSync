@@ -1141,7 +1141,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Warn(ex.Message);
                 log.Debug("Extracting specific COM error code from Exception error message.");
                 try {
-                    rgx = new Regex(@"HRESULT: (0x[\dA-F]{8})", RegexOptions.IgnoreCase);
+                    rgx = new Regex(@"HRESULT\s*: (0x[\dA-F]{8})", RegexOptions.IgnoreCase);
                     MatchCollection matches = rgx.Matches(ex.Message);
                     if (matches.Count == 0) {
                         log.Error("Could not regex HRESULT out of the error message");
