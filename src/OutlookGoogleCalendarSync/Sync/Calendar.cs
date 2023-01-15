@@ -390,11 +390,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                             DateTime checkDates = ai.Start;
                             checkDates = ai.End;
                         } catch (System.Runtime.InteropServices.COMException ex) {
-                            if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
+                            if (OGCSexception.GetErrorCode(ex) == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
+                                OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
+                            {
+                                Forms.Main.Instance.Console.UpdateWithError("Cannot continue synchronising.", ex);
+                                return SyncResult.AutoRetry;
+                            } else if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             } else {
-                                //"Your server administrator has limited the number of items you can open simultaneously."
-                                //Once we have the error code for above message, need to abort sync - and suggest using cached Exchange mode
                                 OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
                                     OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
