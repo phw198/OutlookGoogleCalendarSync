@@ -236,8 +236,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public List<OutlookOgcs.Categories.ColourInfo> DropdownItems() {
             List<OutlookOgcs.Categories.ColourInfo> items = new List<OutlookOgcs.Categories.ColourInfo>();
             foreach (Outlook.Category category in this.categories) {
-                    items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
-                }
+                items.Add(new OutlookOgcs.Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
+            }
             return items.OrderBy(i => i.Text).ToList();
         }
 
