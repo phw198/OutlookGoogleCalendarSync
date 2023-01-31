@@ -118,7 +118,6 @@
             this.colourGridView.Size = new System.Drawing.Size(468, 136);
             this.colourGridView.TabIndex = 0;
             this.colourGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellClick);
-            //this.colourGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEndEdit);
             this.colourGridView.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellEnter);
             this.colourGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.colourGridView_CellValueChanged);
             this.colourGridView.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.colourGridView_EditingControlShowing);

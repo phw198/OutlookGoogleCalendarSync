@@ -638,12 +638,11 @@ namespace OutlookGoogleCalendarSync {
                         foreach (System.Diagnostics.Process process in exe) {
                             String cmdLine = getProcessCommandLine(process.Id);
                             if (cmdLine == currentCmdLine) {
-                                OgcsMessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n"+
-                                    "This is not recommended and may cause problems if they sync at the same time.", 
+                                OgcsMessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n" +
+                                    "This is not recommended and may cause problems if they sync at the same time.",
                                     "Multiple OGCS instances running", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                 return;
                             }
-                        log.Debug("  " + commandLine);
                         }
                     }
                 }
