@@ -11,6 +11,24 @@ p {
 
 # Release Notes
 
+## v2.9.6.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Warn if multiple instances of OGCS are running with the same configuration
+- Cater for Kyiv time zone rename (from Kiev)
+- Browser agent version updated
+- Display error detail if OGCS unable to communicate with Google
+- Abort sync if Exchange connection becomes unavailable
+- Better UI for colour map configuration
+
+:lady_beetle: **Bugfix**
+- Error when switching Profiles
+- Use correct Find/Replace regular expression from Profile
+- Resolve "Precondition Failed", error [412] on sync to Google
+- Fix null reference errors on sync to Google
+- Don't validate colour mappings if no longer syncing colours
+- Improved handling of startup registry keys
+
 ## v2.9.5.0 - Alpha
 
 :high_brightness: **Enhancements**
