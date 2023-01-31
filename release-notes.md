@@ -21,7 +21,7 @@ p {
 - Abort sync if Exchange connection becomes unavailable
 - Better UI for colour map configuration
 
-:lady_beetle: **Bugfix**
+:beetle: **Bugfix**
 - Error when switching Profiles
 - Use correct Find/Replace regular expression from Profile
 - Resolve "Precondition Failed", error [412] on sync to Google
