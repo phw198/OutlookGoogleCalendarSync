@@ -29,6 +29,20 @@ p {
 - Don't validate colour mappings if no longer syncing colours
 - Improved handling of startup registry keys
 
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.9.5.0 - Alpha
 
 :high_brightness: **Enhancements**
