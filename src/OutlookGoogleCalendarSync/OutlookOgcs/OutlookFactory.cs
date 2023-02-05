@@ -69,7 +69,33 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Microsoft.Office.Interop.Outlook.Application oApp = null;
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
             try {
-                outlookVersionFull = oApp.Version;
+                int attempts = 1;
+                int maxAttempts = 3;
+                while (attempts <= maxAttempts) {
+                    try {
+                        log.Fine("About to access Outlook oApp.version property...");
+                        outlookVersionFull = oApp.Version;
+                        attempts = maxAttempts + 1;
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        String hResult = OGCSexception.GetErrorCode(ex);
+
+                        if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
+                            (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
+                            (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
+                        {
+                            log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
+                            if (attempts == maxAttempts) {
+                                String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
+                                    "Please try running OGCS again later" +
+                                    (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
+
+                                throw new ApplicationException(message);
+                            }
+                            System.Threading.Thread.Sleep(10000);
+                            attempts++;
+                        } else throw;
+                    }
+                }
 
                 log.Info("Outlook Version: " + outlookVersionFull);
 #pragma warning disable 162 //Unreachable code

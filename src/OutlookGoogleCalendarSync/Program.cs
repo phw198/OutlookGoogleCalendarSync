@@ -57,6 +57,7 @@ namespace OutlookGoogleCalendarSync {
                 parseArgumentsAndInitialise(args);
 
                 Updater.MakeSquirrelAware();
+                Program.instancesRunning();
                 Forms.Splash.ShowMe();
 
                 SettingsStore.Upgrade.Check();
@@ -141,7 +142,7 @@ namespace OutlookGoogleCalendarSync {
 
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
-            
+
             log.Info("Storing user files in directory: " + MaskFilePath(UserFilePath));
 
             //Before settings have been loaded, early config of cloud logging
@@ -175,7 +176,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     String delay = args[Array.IndexOf(args, "--delay") + 1];
                     log.Debug("Delay of " + delay + "s being migrated.");
-                    addRegKey(delay);
+                    addRegKey(Microsoft.Win32.Registry.CurrentUser, delay);
                     delayStartup(delay);
                 } catch (System.Exception ex) {
                     log.Error(ex.Message);
@@ -244,14 +245,14 @@ namespace OutlookGoogleCalendarSync {
                 log.Info("Program started: v" + Application.ProductVersion);
                 log.Info("Started " + (isCLIstartup() ? "automatically" : "interactively") + ".");
                 if (Environment.GetCommandLineArgs().Count() > 1)
-                    log.Info("Invoked with arguments: "+ string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
+                    log.Info("Invoked with arguments: " + string.Join(" ", Environment.GetCommandLineArgs().Skip(1).ToArray()));
             }
             log.Info("Logging to: " + MaskFilePath(UserFilePath) + "\\" + logFilename);
             purgeLogFiles(30);
         }
 
         private static void purgeLogFiles(Int16 retention) {
-            log.Info("Purging log files older than "+ retention +" days...");
+            log.Info("Purging log files older than " + retention + " days...");
             foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
                     try {
@@ -267,32 +268,62 @@ namespace OutlookGoogleCalendarSync {
 
         #region Application Behaviour
         #region Startup Registry Key
-        private static String startupKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+        private static Microsoft.Win32.RegistryKey openStartupRegKey(Microsoft.Win32.RegistryKey hive, Boolean forWriting = false) {
+            String path = null;
+            if (hive == Microsoft.Win32.Registry.CurrentUser) path = @"Software\Microsoft\Windows\CurrentVersion\Run";
+            else if (hive == Microsoft.Win32.Registry.LocalMachine) path = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
+            else throw new ApplicationException("Unexpected registry hive: " + hive.ToString());
 
+            Microsoft.Win32.RegistryKey openedKey = hive.OpenSubKey(path, forWriting);
+            if (openedKey == null) {
+                log.Warn("The startup registry path does not exist in " + hive.ToString() + @"\" + path);
+                if (forWriting) {
+                    log.Info("Creating startup registry path " + hive.ToString() + @"\" + path);
+                    openedKey = hive.CreateSubKey(path, Microsoft.Win32.RegistryKeyPermissionCheck.ReadWriteSubTree);
+                }
+            }
+            return openedKey;
+        }
         public static void ManageStartupRegKey() {
             //Check for legacy Startup menu shortcut <=v2.1.4
             Boolean startupConfigExists = Program.CheckShortcut(Environment.SpecialFolder.Startup);
-            if (startupConfigExists) 
+            if (startupConfigExists)
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
-            startupConfigExists = checkRegKey();
-            
+            Boolean startupConfigExistsHKCU = checkRegKey(Microsoft.Win32.Registry.CurrentUser);
+            Boolean startupConfigExistsHKLM = checkRegKey(Microsoft.Win32.Registry.LocalMachine);
+
             if (Settings.Instance.StartOnStartup) {
-                if (startupConfigExists) log.Debug("Forcing update of startup registry key.");
-                addRegKey();
+                if (startupConfigExistsHKCU) log.Debug("Forcing update of HKCU startup registry key.");
+                addRegKey(Microsoft.Win32.Registry.CurrentUser);
+                if (Settings.Instance.StartOnStartupAllUsers) {
+                    if (startupConfigExistsHKLM) log.Debug("Forcing update of HKLM startup registry key.");
+                    addRegKey(Microsoft.Win32.Registry.LocalMachine);
+                } else {
+                    if (startupConfigExistsHKLM) removeRegKey(Microsoft.Win32.Registry.LocalMachine);
+                    else log.Debug("No HKLM startup registry key to remove.");
+                }
             } else {
-                if (startupConfigExists) removeRegKey();
-                else log.Debug("No startup registry key to remove.");
+                if (startupConfigExistsHKCU) removeRegKey(Microsoft.Win32.Registry.CurrentUser);
+                else log.Debug("No HKCU startup registry key to remove.");
+                if (startupConfigExistsHKLM) removeRegKey(Microsoft.Win32.Registry.LocalMachine);
+                else log.Debug("No HKLM startup registry key to remove.");
             }
         }
 
-        private static Boolean checkRegKey() {
-            String[] regKeys = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(startupKeyPath).GetValueNames();
-            return regKeys.Contains(Application.ProductName);
+        private static Boolean checkRegKey(Microsoft.Win32.RegistryKey hive) {
+            Microsoft.Win32.RegistryKey startupKey = null;
+            try {
+                startupKey = openStartupRegKey(hive);
+                String[] regKeys = startupKey?.GetValueNames();
+                return regKeys?.Contains(Application.ProductName) ?? false;
+            } finally {
+                startupKey?.Close();
+            }
         }
 
-        private static void addRegKey(String startupDelay = null) {
-            Microsoft.Win32.RegistryKey startupKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(startupKeyPath, true);
+        private static void addRegKey(Microsoft.Win32.RegistryKey hive, String startupDelay = null) {
+            Microsoft.Win32.RegistryKey startupKey = openStartupRegKey(hive, true);
             String keyValue = startupKey.GetValue(Application.ProductName, "").ToString();
             String delayedStartup = "";
             if (Convert.ToInt16(startupDelay ?? Settings.Instance.StartupDelay.ToString()) > 0)
@@ -302,11 +333,11 @@ namespace OutlookGoogleCalendarSync {
             cliArgs = (" " + cliArgs).TrimEnd();
 
             if (keyValue == "" || keyValue != (Application.ExecutablePath + delayedStartup + cliArgs)) {
-                log.Debug("Startup registry key "+ (keyValue == "" ? "created" : "updated") +".");
+                log.Debug("Startup " + hive.ToString() + " registry key " + (keyValue == "" ? "created" : "updated") + ".");
                 try {
                     startupKey.SetValue(Application.ProductName, Application.ExecutablePath + delayedStartup + cliArgs);
                 } catch (System.UnauthorizedAccessException ex) {
-                    log.Warn("Could not create/update registry key. " + ex.Message);
+                    log.Warn("Could not create/update " + hive.ToString() + " registry key. " + ex.Message);
                     Settings.Instance.StartOnStartup = false;
                     if (OgcsMessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
                         "Try manually adding a shortcut to the 'Startup' folder in Windows instead?", "Permission denied", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)
@@ -319,10 +350,15 @@ namespace OutlookGoogleCalendarSync {
             startupKey.Close();
         }
 
-        private static void removeRegKey() {
-            log.Debug("Startup registry key being removed.");
-            Microsoft.Win32.RegistryKey startupKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(startupKeyPath, true);
-            startupKey.DeleteValue(Application.ProductName, false);
+        private static void removeRegKey(Microsoft.Win32.RegistryKey hive) {
+            log.Debug("Startup registry key being removed from " + hive.ToString());
+            Microsoft.Win32.RegistryKey startupKey = null;
+            try {
+                startupKey = openStartupRegKey(hive, true);
+                startupKey.DeleteValue(Application.ProductName, false);
+            } finally {
+                startupKey?.Close();
+            }
         }
         #endregion
         private static void delayStartup(String seconds) {
@@ -472,7 +508,7 @@ namespace OutlookGoogleCalendarSync {
                     expectedInstallDir = Path.Combine(expectedInstallDir, "OutlookGoogleCalendarSync");
                     if (settingsVersion != "Unknown") {
                         upgradedFrom = Program.VersionToInt(settingsVersion);
-                        }
+                    }
                     if (!Program.InDeveloperMode && (settingsVersion == "Unknown" || upgradedFrom < 2050000) &&
                         !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir))
                     {
@@ -583,6 +619,48 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
+        }
+
+        /// <summary>Check how many OGCS processes we have running</summary>
+        private static void instancesRunning() {
+            try {
+                System.Diagnostics.Process currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+                String currentCmdLine = getProcessCommandLine(currentProcess.Id);
+
+                System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(currentProcess.ProcessName);
+                
+                if (processes.Count() > 1) {
+                    log.Warn("There are " + processes.Count() + " " + currentProcess.ProcessName + " processes currently running.");
+                    List<System.Linq.IGrouping<string, System.Diagnostics.Process>> sameExe = processes.GroupBy(p => p.MainModule.FileName).Where(e => e.Count() > 1).ToList();
+                    log.Debug(sameExe.Count() + " executables have more than one process attached; checking runtime arguments");
+                    foreach (System.Linq.IGrouping<string, System.Diagnostics.Process> exe in sameExe) {
+                        log.Debug(exe.Key);
+                        foreach (System.Diagnostics.Process process in exe) {
+                            String cmdLine = getProcessCommandLine(process.Id);
+                            if (cmdLine == currentCmdLine) {
+                                OgcsMessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n" +
+                                    "This is not recommended and may cause problems if they sync at the same time.",
+                                    "Multiple OGCS instances running", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Unable to check for concurrent OGCS processes.", ex);
+            }
+        }
+
+        private static String getProcessCommandLine(int processId) {
+            System.Management.ManagementObjectSearcher commandLineSearcher = new System.Management.ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + processId);
+            String commandLine = "";
+            foreach (System.Management.ManagementObject commandLineObject in commandLineSearcher.Get()) {
+                commandLine += (String)commandLineObject["CommandLine"];
+            }
+            log.Debug(" " + commandLine);
+
+            return commandLine;
         }
     }
 }

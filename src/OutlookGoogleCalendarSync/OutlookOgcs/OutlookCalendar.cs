@@ -230,8 +230,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
                     if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items excluded due to only syncing invites you responded to.");
 
-                    if (result.Count == 0 && (categoryFiltered + responseFiltered > 0))
-                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.warning, notifyBubble: true);
+                    if ((categoryFiltered + responseFiltered) > 0) {
+                        if (result.Count == 0)
+                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
+                        else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
+                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, Outlook items have been filtered out. " +
+                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.config);
+                    }
                 }
             }
             log.Fine("Filtered down to " + result.Count);
@@ -888,7 +893,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return OlSensitivity.olPrivate;
+                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
                     if (oSensitivity == null)
@@ -900,7 +905,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         return (OlSensitivity)oSensitivity;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
-                        return OlSensitivity.olPrivate;
+                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                     else
                         return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                 }
@@ -1143,7 +1148,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Warn(ex.Message);
                 log.Debug("Extracting specific COM error code from Exception error message.");
                 try {
-                    rgx = new Regex(@"HRESULT: (0x[\dA-F]{8})", RegexOptions.IgnoreCase);
+                    rgx = new Regex(@"HRESULT\s*: (0x[\dA-F]{8})", RegexOptions.IgnoreCase);
                     MatchCollection matches = rgx.Matches(ex.Message);
                     if (matches.Count == 0) {
                         log.Error("Could not regex HRESULT out of the error message");

@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbGoogleCalendars,
                 "The Google calendar to synchonize with.");
             ToolTips.SetToolTip(btResetGCal,
-                "Reset the Google account being used to synchonize with.");
+                "Disconnect the Google account being used to synchonize with.");
             ToolTips.SetToolTip(cbListHiddenGcals,
                 "Include hidden calendars in the above drop down.");
 
@@ -109,7 +109,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbUseOutlookDefaultReminder,
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
             ToolTips.SetToolTip(cbAddAttendees,
-                "BE AWARE: Deleting Google event through mobile calendar app will notify all attendees.");
+                "BE AWARE: Deleting Google event through mobile/web calendar app will notify all attendees.");
             ToolTips.SetToolTip(tbMaxAttendees,
                 "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
@@ -122,8 +122,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
 
             //Application behaviour
-            if (Settings.Instance.StartOnStartup)
-                ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartup, "Start OGCS when current Windows user logs in.");
+            ToolTips.SetToolTip(tbStartupDelay, "Try setting a delay if COM errors occur on startup.");
+            ToolTips.SetToolTip(cbStartOnStartupAllUsers, "Also try this if 'current user' isn't effective.");
             if (!Settings.Instance.UserIsBenefactor()) {
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
@@ -166,6 +167,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Enabled = Settings.Instance.StartOnStartup;
+            cbStartOnStartupAllUsers.Checked = Settings.Instance.StartOnStartupAllUsers;
             tbStartupDelay.Value = Settings.Instance.StartupDelay;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
@@ -305,8 +308,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                                 }
                             }
                         } catch (System.Exception ex) {
-                            log.Debug("Failed to get EntryID for folder: " + theFolder.Name);
-                            log.Debug(ex.Message);
+                            OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
                         } finally {
                             theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
                         }
@@ -471,7 +473,19 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     tbCreatedItemsOnly_SelectedItemChanged(null, null);
                     tbTargetCalendar_SelectedItemChanged(null, null);
+
                     cbPrivate.Checked = profile.SetEntriesPrivate;
+                    ddPrivacy.Enabled = profile.SetEntriesPrivate;
+                    ddPrivacy.DataSource = null;
+                    ddPrivacy.DisplayMember = "Value";
+                    ddPrivacy.ValueMember = "Key";
+                    ddPrivacy.Items.Clear();
+                    Dictionary<OlSensitivity, String> privacy = new Dictionary<OlSensitivity, String>();
+                    privacy.Add(OlSensitivity.olPrivate, "Private");
+                    privacy.Add(OlSensitivity.olNormal, "Public");
+                    ddPrivacy.DataSource = new BindingSource(privacy, null);
+                    ddPrivacy.SelectedValue = Enum.Parse(typeof(OlSensitivity), profile.PrivacyLevel);
+
                     cbAvailable.Checked = profile.SetEntriesAvailable;
                     buildAvailabilityDropdown();
                     cbColour.Checked = profile.SetEntriesColour;
@@ -548,6 +562,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
+                } catch (System.Exception ex) {
+                    OGCSexception.Analyse("Unable to set GUI profile.", ex);
+                    throw;
                 } finally {
                     this.LoadingProfileConfig = false;
                 }
@@ -877,17 +894,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void MainFormShow(Boolean forceToTop = false) {
-            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
-            this.Show(); //Show minimised back in taskbar
-            this.ShowInTaskbar = true;
-            this.WindowState = FormWindowState.Normal;
-            if (forceToTop) this.TopMost = true;
-            this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
-            this.Show(); //Now restore
-            this.TopMost = false;
-            this.Refresh();
-            System.Windows.Forms.Application.DoEvents();
-            log.Info("Application window restored.");
+            if (this.WindowState == FormWindowState.Minimized || !this.Visible || !this.TopMost || !this.ShowInTaskbar) {
+                this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
+                this.Show(); //Show minimised back in taskbar
+                this.ShowInTaskbar = true;
+                this.WindowState = FormWindowState.Normal;
+                if (forceToTop) this.TopMost = true;
+                this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
+                this.Show(); //Now restore
+                this.TopMost = false;
+                this.Refresh();
+                System.Windows.Forms.Application.DoEvents();
+                log.Info("Application window restored.");
+            }
         }
 
         private void mainFormResize(object sender, EventArgs e) {
@@ -1454,7 +1473,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
-                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 193; break;
+                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 155; break;
                     case "Logging": section.Height = 111; break;
@@ -1644,12 +1663,22 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e) {
+            ddPrivacy.Enabled = cbPrivate.Checked;
+            if (this.LoadingProfileConfig) return; 
+            
             ActiveCalendarProfile.SetEntriesPrivate = cbPrivate.Checked;
+        }
+        private void ddPrivacy_SelectedIndexChanged(object sender, EventArgs e) {
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.PrivacyLevel = ddPrivacy.SelectedValue.ToString();
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.SetEntriesAvailable = cbAvailable.Checked;
             ddAvailabilty.Enabled = cbAvailable.Checked;
+            if (this.LoadingProfileConfig) return; 
+            
+            ActiveCalendarProfile.SetEntriesAvailable = cbAvailable.Checked;
         }
         private void ddAvailabilty_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
@@ -1658,9 +1687,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbColour_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.SetEntriesColour = cbColour.Checked;
             ddOutlookColour.Enabled = cbColour.Checked;
             ddGoogleColour.Enabled = cbColour.Checked;
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.SetEntriesColour = cbColour.Checked;
         }
 
         private void ddOutlookColour_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1673,15 +1704,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
 
+                GoogleOgcs.EventColour.Palette palette = GoogleOgcs.EventColour.Palette.NullPalette;
                 if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
                     offlineAddGoogleColour();
                 else {
                     if (ddGoogleColour.Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count)
                         ddGoogleColour.AddPaletteColours();
-                    ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+                    palette = GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory);
+                    ddGoogleColour.SelectedIndex = Convert.ToInt16(palette.Id);
                 }
-                
-                ddGoogleColour_SelectedIndexChanged(null, null);
+
+                if (ddGoogleColour.SelectedIndex == -1)
+                    log.Warn("Could not find the Google colour for: " + palette.ToString());
+                else
+                    ddGoogleColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
@@ -1712,7 +1748,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
                 
-                ddOutlookColour_SelectedIndexChanged(null, null);
+                if (ddOutlookColour.SelectedIndex == -1)
+                    log.Warn("Could not find the Outlook category for '" + oCatName + "'");
+                else
+                    ddOutlookColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
@@ -1919,7 +1958,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                 OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            new Forms.ColourMap().ShowDialog(this);
+            try {
+                new Forms.ColourMap().ShowDialog(this);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+            }
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
@@ -1930,21 +1973,41 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbStartOnStartup_CheckedChanged(object sender, EventArgs e) {
             Settings.Instance.StartOnStartup = cbStartOnStartup.Checked;
             tbStartupDelay.Enabled = cbStartOnStartup.Checked;
+            cbStartOnStartupAllUsers.Enabled = cbStartOnStartup.Checked;
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
                 if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                OGCSexception.Analyse("Failed accessing registry for startup key(s).", ex);
                 if (this.Visible) {
                     OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 cbStartOnStartup.CheckedChanged -= cbStartOnStartup_CheckedChanged;
                 cbStartOnStartup.Checked = false;
+                Settings.Instance.StartOnStartup = false;
                 tbStartupDelay.Enabled = false;
                 cbStartOnStartup.CheckedChanged += cbStartOnStartup_CheckedChanged;
             }
         }
+        private void cbStartOnStartupAllUsers_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.StartOnStartupAllUsers = cbStartOnStartupAllUsers.Checked;
+            try {
+                Program.ManageStartupRegKey();
+            } catch (System.Exception ex) {
+                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                OGCSexception.Analyse("Failed accessing registry for HKLM startup key.", ex);
+                if (this.Visible) {
+                    OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                        "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                cbStartOnStartupAllUsers.CheckedChanged -= cbStartOnStartupAllUsers_CheckedChanged;
+                cbStartOnStartupAllUsers.Checked = false;
+                Settings.Instance.StartOnStartupAllUsers = false;
+                cbStartOnStartupAllUsers.CheckedChanged += cbStartOnStartupAllUsers_CheckedChanged;
+            }
+        }
+
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (!Settings.Instance.UserIsBenefactor()) {

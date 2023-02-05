@@ -764,7 +764,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (profile.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
                 ev.Location = ai.Location;
 
-            String gPrivacy = (ev.Visibility == null || ev.Visibility == "public") ? "default" : ev.Visibility;
+            String gPrivacy = ev.Visibility ?? "default";
             String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
             if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
                 ev.Visibility = oPrivacy;
@@ -907,12 +907,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    if (ex.Error.Code == 412 && !this.openedIssue528) { //Precondition failed
-                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
-                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                        this.openedIssue528 = true;
-                    }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
@@ -932,8 +926,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             }
                             break;
                     }
+                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
+                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
+                        this.openedIssue528 = true;
                 }
             }
+        }
         }
         #endregion
 
@@ -1535,7 +1535,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return "private";
+                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
                     if (gVisibility == null)
@@ -1547,7 +1547,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         return gVisibility;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gVisibility == null))
-                        return "private";
+                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
                     else
                         return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
                 }
@@ -1919,9 +1919,47 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
                 return ApiException.backoffThenRetry;
 
+            } else if (ex.Error != null && ex.Error.Code == 412 && ex.Error.Message.Contains("Precondition Failed")) {
+                log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
+                try {
+                    EventsResource.UpdateRequest request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                    request.ETagAction = Google.Apis.ETagAction.Ignore;
+                    ev = request.Execute();
+                    log.Debug("Successfully forced save by ignoring eTag values.");
+                } catch (System.Exception ex2) {
+                    try {
+                        OGCSexception.Analyse("Failed forcing save with ETagAction.Ignore", OGCSexception.LogAsFail(ex2));
+                        log.Fine("Current eTag: " + ev.ETag);
+                        log.Fine("Current Updated: " + ev.UpdatedRaw);
+                        log.Fine("Current Sequence: " + ev.Sequence);
+                        log.Debug("Refetching event from Google.");
+                        Event remoteEv = GoogleOgcs.Calendar.Instance.GetCalendarEntry(ev.Id);
+                        log.Fine("Remote eTag: " + remoteEv.ETag);
+                        log.Fine("Remote Updated: " + remoteEv.UpdatedRaw);
+                        log.Fine("Remote Sequence: " + remoteEv.Sequence);
+                        log.Warn("Attempting trample of remote version...");
+                        ev.ETag = remoteEv.ETag;
+                        ev.Sequence = remoteEv.Sequence;
+                        ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        log.Debug("Successful!");
+                    } catch {
+                        return ApiException.throwException;
+                    }                        
+                }
+                return ApiException.justContinue;
+
             } else if (ex.Error != null && ex.Error.Code == 500) {
                 log.Fail(OGCSexception.FriendlyMessage(ex));
                 OGCSexception.LogAsFail(ref ex);
+                return ApiException.backoffThenRetry;
+
+            } else if (ex.Error != null && ex.Error.Code == 400 && ex.Error.Message.Contains("Invalid time zone definition") && 
+                (ev.Start.TimeZone == "Europe/Kyiv" || ev.End.TimeZone == "Europe/Kyiv")) 
+            {
+                log.Warn("Reverting to old IANA timezone definition: Europe/Kiev");
+                TimezoneDB.Instance.RevertKyiv = true;
+                ev.Start.TimeZone = ev.Start.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
+                ev.End.TimeZone = ev.End.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
                 return ApiException.backoffThenRetry;
 
             } else {

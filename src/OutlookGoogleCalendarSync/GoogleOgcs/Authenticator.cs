@@ -250,8 +250,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("Failed to retrieve Google account username.");
                                 log.Debug("Using previously retrieved username: " + Settings.Instance.GaccountEmail_masked());
                             } else {
-                                ApiKeyring.ChangeKeys();
-                                return;
+                                if ((new ApiKey.DefaultKey(ApiKeyring.KeyType.Standard)).ClientId == Settings.Instance.AssignedClientIdentifier) {
+                                    System.Windows.Forms.OgcsMessageBox.Show(ex.Message + "\r\n\r\nPlease check your internet connection and any relevant proxy configuration.",
+                                        "Unable to communicate with Google", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                                    throw;
+                                } else {
+                                    ApiKeyring.ChangeKeys();
+                                    return;
+                                }
                             }
                         }
                     } else {

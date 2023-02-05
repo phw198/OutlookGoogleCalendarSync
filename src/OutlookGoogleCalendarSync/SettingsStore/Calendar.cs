@@ -74,6 +74,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             TargetCalendar = Sync.Direction.OutlookToGoogle;
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
+            PrivacyLevel = Microsoft.Office.Interop.Outlook.OlSensitivity.olPrivate.ToString();
             SetEntriesAvailable = false;
             AvailabilityStatus = Microsoft.Office.Interop.Outlook.OlBusyStatus.olFree.ToString();
             SetEntriesColour = false;
@@ -146,6 +147,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public Sync.Direction TargetCalendar { get; set; }
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
         [DataMember] public bool SetEntriesPrivate { get; set; }
+        [DataMember] public String PrivacyLevel { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
         [DataMember] public String AvailabilityStatus { get; set; }
         [DataMember] public bool SetEntriesColour { get; set; }
@@ -258,7 +260,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  MergeItems: " + MergeItems);
             log.Info("  DisableDelete: " + DisableDelete);
             log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
-            log.Info("  SetEntriesPrivate: " + SetEntriesPrivate);
+            log.Info("  SetEntriesPrivate: " + SetEntriesPrivate + (SetEntriesPrivate ? "; " + PrivacyLevel : ""));
             log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
             log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
             if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
