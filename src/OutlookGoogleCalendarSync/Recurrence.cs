@@ -814,17 +814,35 @@ namespace OutlookGoogleCalendarSync {
         private void processOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
             if (!HasExceptions(ev, checkLocalCacheOnly: true)) return;
 
+            List<Event> gExcps = Recurrence.Instance.googleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
+            
+            //Process deleted exceptions first
+            List<Event> gCancelledExcps = gExcps.Where(exp => exp.Status == "cancelled").ToList();
+            processOutlookExceptions(ref ai, gCancelledExcps, forceCompare, true);
+
+            //Then process everything else
+            gExcps = gExcps.Except(gCancelledExcps).ToList();
+            processOutlookExceptions(ref ai, gExcps, forceCompare, false);
+        }
+
+        private void processOutlookExceptions(ref AppointmentItem ai, List<Event> evExceptions, Boolean forceCompare, Boolean processingDeletions) {
+            if (evExceptions.Count == 0) return;
+
             RecurrencePattern oPattern = null;
             try {
                 oPattern = ai.GetRecurrencePattern();
-                foreach (Event gExcp in Recurrence.Instance.googleExceptions.Where(exp => exp.RecurringEventId == ev.Id)) {
-                    DateTime oExcpDate = gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date);
-                    log.Fine("Found Google exception for " + oExcpDate.ToString());
+
+                foreach (Event gExcp in evExceptions) {
+                    DateTime gExcpDate = gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date);
+                    log.Fine("Found Google exception for " + gExcpDate.ToString());
 
                     AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, oExcpDate, ref newAiExcp);
-                        if (newAiExcp == null) continue;
+                        getOutlookInstance(oPattern, gExcpDate, ref newAiExcp, processingDeletions);
+                        if (newAiExcp == null) {
+                            if (gExcp.Status != "cancelled") log.Warn("Unable to find Outlook exception for " + gExcpDate);
+                            continue;
+                        }
 
                         if (gExcp.Status == "cancelled") {
                             Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
@@ -836,7 +854,8 @@ namespace OutlookGoogleCalendarSync {
 
                         } else {
                             int itemModified = 0;
-                            OutlookOgcs.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, forceCompare);
+                            OutlookOgcs.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified,
+                                forceCompare || (gExcp.Start.DateTime ?? DateTime.Parse(gExcp.Start.Date)).Date != newAiExcp.Start.Date);
                             if (itemModified > 0) {
                                 try {
                                     newAiExcp.Save();
@@ -858,51 +877,57 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, DateTime instanceDate, ref AppointmentItem ai) {
-            //First check if this is not yet an exception
-            try {
-                ai = oPattern.GetOccurrence(instanceDate);
-            } catch { }
-            if (ai == null) {
-                //The Outlook API is rubbish as the date argument is how it exists NOW (not OriginalDate). 
-                //If this has changed >1 in Google then there's no way of knowing what it might be!
+        private static void getOutlookInstance(RecurrencePattern oPattern, DateTime instanceDate, ref AppointmentItem ai, Boolean processingDeletions) {
+            //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
+            //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 
-                Exceptions oExcps = null;
-                try {
-                    oExcps = oPattern.Exceptions;
-                    for (int e = 1; e <= oExcps.Count; e++) {
-                        Microsoft.Office.Interop.Outlook.Exception oExcp = null;
-                        try {
-                            oExcp = oExcps[e];
-                            if (oExcp.OriginalDate.Date == instanceDate.Date) {
-                                try {
-                                    log.Debug("Found Outlook exception for " + instanceDate);
-                                    DeletionState isDeleted = exceptionIsDeleted(oExcp);
-                                    if (isDeleted == DeletionState.Inaccessible) {
-                                        log.Warn("This exception is inaccessible.");
-                                        return;
-                                    } else if (isDeleted == DeletionState.Deleted) {
-                                        log.Debug("This exception is deleted.");
-                                        return;
-                                    } else {
-                                        ai = oExcp.AppointmentItem;
-                                        break;
-                                    }
-                                } catch (System.Exception ex) {
-                                    Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
+            //So first we'll check all exceptions by OriginalStartDate, then if not found use oPattern.GetOccurrence(instanceDate)
+            Exceptions oExcps = null;
+            try {
+                oExcps = oPattern.Exceptions;
+                for (int e = 1; e <= oExcps.Count; e++) {
+                    Microsoft.Office.Interop.Outlook.Exception oExcp = null;
+                    try {
+                        oExcp = oExcps[e];
+                        if (oExcp.OriginalDate.Date == instanceDate.Date) {
+                            try {
+                                log.Debug("Found Outlook exception for " + instanceDate);
+                                DeletionState isDeleted = exceptionIsDeleted(oExcp);
+                                if (isDeleted == DeletionState.Inaccessible) {
+                                    log.Warn("This exception is inaccessible.");
+                                    return;
+                                } else if (isDeleted == DeletionState.Deleted) {
+                                    log.Debug("This exception is deleted.");
+                                    return;
+                                } else {
+                                    ai = oExcp.AppointmentItem;
                                     break;
-                                } finally {
-                                    OutlookOgcs.Calendar.ReleaseObject(oExcp);
                                 }
+                            } catch (System.Exception ex) {
+                                Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
+                                break;
+                            } finally {
+                                OutlookOgcs.Calendar.ReleaseObject(oExcp);
                             }
-                        } finally {
-                            oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
+                        } else if (processingDeletions && !oExcp.Deleted && oExcp.AppointmentItem.Start.Date == instanceDate.Date) {
+                            log.Warn("An exception was moved to this date from " + oExcp.OriginalDate.Date.ToString("dd-MMM-yyyy"));
+                            return;
                         }
+                    } finally {
+                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
                     }
-                } finally {
-                    oExcps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(oExcps);
                 }
-                if (ai == null) log.Warn("Unable to find Outlook exception for " + instanceDate);
+            } finally {
+                oExcps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(oExcps);
+            }
+
+            //Finally check if the occurrence is not an exception, or an exception has moved to the same date as a deleted exception
+            //The two things are stored the same way in Outlook's crazy world
+            if (ai == null) {
+                try {
+                    ai = oPattern.GetOccurrence(instanceDate);
+                    return;
+                } catch { }
             }
         }
         #endregion
