@@ -456,8 +456,8 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 foreach (Event gExcp in googleExceptions) {
                     if (gExcp.RecurringEventId == gRecurringEventID) {
-                        if ((oIsDeleted == DeletionState.NotDeleted &&
-                            oExcp.OriginalDate == (gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date))
+                        if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
+                            && oExcp.OriginalDate == (gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date))
                             ) ||
                             (oIsDeleted == DeletionState.Deleted &&
                             oExcp.OriginalDate == (gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date)).Date
@@ -642,6 +642,7 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
                     } finally {
+                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
                     }
                 }
             } finally {
@@ -734,8 +735,7 @@ namespace OutlookGoogleCalendarSync {
                                                 continue;
                                             }
                                         } catch (System.Exception ex) {
-                                            log.Error(ex.Message);
-                                            log.Error(ex.StackTrace);
+                                            OGCSexception.Analyse(ex, true);
                                             throw;
                                         }
                                     }
@@ -833,14 +833,23 @@ namespace OutlookGoogleCalendarSync {
                 oPattern = ai.GetRecurrencePattern();
 
                 foreach (Event gExcp in evExceptions) {
-                    DateTime gExcpDate = gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date);
-                    log.Fine("Found Google exception for " + gExcpDate.ToString());
+                    DateTime gExcpOrigDate = gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date);
+                    DateTime? gExcpCurrDate = gExcp.Start == null ? null : gExcp.Start.DateTime ?? DateTime.Parse(gExcp.Start.Date);
+                    log.Fine("Found Google exception for original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.ToString() : ""));
 
                     AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, gExcpDate, ref newAiExcp, processingDeletions);
+                        getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
-                            if (gExcp.Status != "cancelled") log.Warn("Unable to find Outlook exception for " + gExcpDate);
+                            if (gExcp.Status != "cancelled") {
+                                log.Warn("Unable to find Outlook exception for " + gExcpOrigDate.ToString() + " now on " + gExcpCurrDate?.Date.ToString());
+                                log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
+                                String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync G->O.</i>" : "";
+                                Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(gExcp) + "<br/>" +
+                                    "This occurrence cannot be found in Outlook.<br/>" +
+                                    "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
+                                    "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, Console.Markup.warning);
+                            }
                             continue;
                         }
 
@@ -877,7 +886,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, DateTime instanceDate, ref AppointmentItem ai, Boolean processingDeletions) {
+        private static void getOutlookInstance(RecurrencePattern oPattern, DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 
@@ -889,28 +898,28 @@ namespace OutlookGoogleCalendarSync {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = oExcps[e];
-                        if (oExcp.OriginalDate.Date == instanceDate.Date) {
+                        if (oExcp.OriginalDate.Date == instanceOrigDate.Date) {
                             try {
-                                log.Debug("Found Outlook exception for " + instanceDate);
+                                log.Debug("Found Outlook exception for original date " + instanceOrigDate);
                                 DeletionState isDeleted = exceptionIsDeleted(oExcp);
                                 if (isDeleted == DeletionState.Inaccessible) {
                                     log.Warn("This exception is inaccessible.");
                                     return;
                                 } else if (isDeleted == DeletionState.Deleted) {
-                                    log.Debug("This exception is deleted.");
-                                    return;
+                                    if (processingDeletions) {
+                                        log.Debug("This exception is deleted.");
+                                        return;
+                                    }
                                 } else {
                                     ai = oExcp.AppointmentItem;
-                                    break;
+                                    return;
                                 }
                             } catch (System.Exception ex) {
                                 Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
                                 break;
-                            } finally {
-                                OutlookOgcs.Calendar.ReleaseObject(oExcp);
                             }
-                        } else if (processingDeletions && !oExcp.Deleted && oExcp.AppointmentItem.Start.Date == instanceDate.Date) {
-                            log.Warn("An exception was moved to this date from " + oExcp.OriginalDate.Date.ToString("dd-MMM-yyyy"));
+                        } else if (processingDeletions && !oExcp.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
+                            log.Debug("An exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
                             return;
                         }
                     } finally {
@@ -925,7 +934,7 @@ namespace OutlookGoogleCalendarSync {
             //The two things are stored the same way in Outlook's crazy world
             if (ai == null) {
                 try {
-                    ai = oPattern.GetOccurrence(instanceDate);
+                    ai = oPattern.GetOccurrence(instanceOrigDate);
                     return;
                 } catch { }
             }
