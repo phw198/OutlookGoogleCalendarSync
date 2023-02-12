@@ -23,6 +23,8 @@ This is where you configure the Outlook calendar you wish to sync.
 ### Filtering
 **Filter categories:** Restrict the items to be synced by either excluding or including various categories that have been assigned to calendar appointments. Your selection will automatically invert which switching between include or exclude. The default is to not exclude anything.
 
+**Only sync invites I've responded to:** Exclude invitations without a response.
+
 ### Date Format
 **Regional Date Format:** If OGCS is not finding any Outlook items to sync, even though you know they definitely exist, you will likely need to change this setting. As explained within the application, Microsoft does not appear to support a uniform method by which to translate date text into a date range and then use this to retrieve Outlook calendar items. Unfortunately, this gets worse for non-English locales.  
 <br/>
