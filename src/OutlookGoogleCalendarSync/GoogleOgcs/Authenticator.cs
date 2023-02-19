@@ -317,7 +317,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     DialogResult dr = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                    Settings.Instance.HideSplashScreen = (dr == DialogResult.Yes);
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", dr == DialogResult.Yes);
                 }
             }
         }

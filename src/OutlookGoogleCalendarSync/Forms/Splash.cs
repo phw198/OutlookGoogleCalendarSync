@@ -128,7 +128,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Debug("Waiting for settings and form to initialise in order to save HideSplashScreen preference.");
                     System.Threading.Thread.Sleep(2000);
                 }
-                Settings.Instance.HideSplashScreen = true;
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", true);
                 CloseMe();
             }
         }
