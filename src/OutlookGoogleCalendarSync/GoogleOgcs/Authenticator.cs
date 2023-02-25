@@ -29,8 +29,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static String HashedGmailAccount {
             get {
                 if (string.IsNullOrEmpty(hashedGmailAccount)) {
-                    if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
+                    if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
                         hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail, true);
+                        Telemetry.Instance.UpdateAnonymousUniqueUserId();
+                    }
                 }
                 return hashedGmailAccount;
             }

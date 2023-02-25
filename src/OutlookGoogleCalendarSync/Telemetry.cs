@@ -1,12 +1,76 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Management;
 using System.Net;
 //using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync {
     class Telemetry {
         private static readonly ILog log = LogManager.GetLogger(typeof(Telemetry));
+        
+        private static Telemetry instance;
+        public static Telemetry Instance {
+            get {
+                return instance ??= new Telemetry();
+            }
+        }
+
+        /// <summary>MD5 hash to identify distinct, anonymous user</summary>
+        private String uuId;
+        public String AnonymousUniqueUserId {
+            get { return uuId; }
+        }
+        
+        /// <summary>
+        /// MD5 hash of either Gmail account, or custom thumbprint: ComputerName;Processor;C-driveSerial
+        /// </summary>
+        /// <returns>An MD5 hash</returns>
+        public String UpdateAnonymousUniqueUserId() {
+            try {
+                if (Settings.AreLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                    log.Debug("Settings have been loaded, which contains Gmail account.");
+                    uuId = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
+
+                } else {
+                    log.Debug("Settings not loaded; checking if the raw settings file has Gmail account set.");
+                    String gmailAccount = null;
+                    try {
+                        gmailAccount = XMLManager.ImportElement("GaccountEmail", Settings.ConfigFile, false);
+                    } catch { }
+
+                    if (!string.IsNullOrEmpty(gmailAccount)) {
+                        log.Fine("Gmail account found in settings files.");
+                        uuId = GoogleOgcs.Authenticator.GetMd5(gmailAccount, true);
+                    } else {
+                        log.Warn("No Gmail account found, building custom thumbprint instead.");
+                        String customThumbprint = "";
+                        //Make a "unique" string based on:
+                        //ComputerName;Processor;C-driveSerial
+                        ManagementClass mc = new ManagementClass("win32_processor");
+                        ManagementObjectCollection moc = mc.GetInstances();
+                        foreach (ManagementObject mo in moc) {
+                            customThumbprint = mo.Properties["SystemName"].Value.ToString();
+                            customThumbprint += ";" + mo.Properties["Name"].Value.ToString();
+                            break;
+                        }
+                        String drive = "C";
+                        ManagementObject dsk = new ManagementObject(@"win32_logicaldisk.deviceid=""" + drive + @":""");
+                        dsk.Get();
+                        String volumeSerial = dsk["VolumeSerialNumber"].ToString();
+                        customThumbprint += ";" + volumeSerial;
+
+                        uuId = GoogleOgcs.Authenticator.GetMd5(customThumbprint);
+                    }
+                }
+
+            } catch {
+                log.Error("Unable to build accurate anonymous unique ID. Resorting to a random number.");
+                Random random = new Random();
+                uuId = random.Next().ToString();
+            }
+            return uuId;
+        }
 
         public static void TrackVersions() {
             if (Program.InDeveloperMode) return;
@@ -28,7 +92,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void Send(Analytics.Category category, Analytics.Action action, String label) {
             try {
-                String cid = GoogleOgcs.Authenticator.HashedGmailAccount ?? "1";
+                String cid = Telemetry.Instance.AnonymousUniqueUserId;
                 String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&aip=1&cid=" + cid;
 
                 if (action == Analytics.Action.debug) {
@@ -62,8 +126,8 @@ namespace OutlookGoogleCalendarSync {
             }
             
             public GA4Event(Name eventName) {
-                client_id = System.Windows.Forms.Application.ProductVersion;
-                user_id = GoogleOgcs.Authenticator.HashedGmailAccount ?? null;
+                client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
+                user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
                 events = new List<Event>();
                 events.Add(new Event(eventName));
