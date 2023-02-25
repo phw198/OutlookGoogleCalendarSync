@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Management;
 using System.Net;
-//using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace OutlookGoogleCalendarSync {
     class Telemetry {
@@ -119,6 +119,7 @@ namespace OutlookGoogleCalendarSync {
             public String client_id { get; }
             public String user_id { get; }
             public Boolean non_personalized_ads { get; }
+            public Dictionary<String, String> user_properties { get; }
             public List<Event> events { get; }
 
             public enum Name {
@@ -129,6 +130,9 @@ namespace OutlookGoogleCalendarSync {
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
+                user_properties = new Dictionary<String, String>();
+                user_properties.Add("ogcsVersion", System.Windows.Forms.Application.ProductVersion);
+                user_properties.Add("isBenefactor", Settings.Instance.UserIsBenefactor().ToString());
                 events = new List<Event>();
                 events.Add(new Event(eventName));
             }
@@ -148,6 +152,22 @@ namespace OutlookGoogleCalendarSync {
 
                     GA4Event payload = this;
                     String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+
+                    //From: "user_properties":{"ogcsVersion":"2.9.6.0","isBenefactor":"False"},
+                    //To:   "user_properties":{"ogcsVersion":{"value":"2.9.6.0"},"isBenefactor":{"value":"False"}},
+                    MatchCollection matches = null;
+                    do {
+                        Regex rgx = new Regex("\"user_properties\":{.+?:(\".+?\")[,}]?,", RegexOptions.IgnoreCase);
+                        matches = rgx.Matches(jsonPayload);
+                        if (matches.Count > 0) {
+                            if (matches[0].Groups.Count != 2) {
+                                log.Debug(jsonPayload);
+                                log.Error("Unexpected payload could not be parsed.");
+                                break;
+                            }
+                            jsonPayload = jsonPayload.Replace(matches[0].Groups[1].Value, "{ \"value\": " + matches[0].Groups[1].Value + "}");
+                        }
+                    } while (matches.Count > 0);
 
                     log.Debug("GA4: " + jsonPayload);
                     wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
