@@ -122,19 +122,18 @@ namespace OutlookGoogleCalendarSync {
             public Dictionary<String, Dictionary<String,String>> user_properties { get; }
             public List<Event> events { get; }
 
-            public enum Name {
-                application_started
+            public GA4Event(Event.Name eventName, Event throwAway = null) : this(eventName, out throwAway) {
             }
-            
-            public GA4Event(Name eventName) {
+
+            public GA4Event(Event.Name eventName, out Event theEvent) {
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
                 user_properties = new Dictionary<String, Dictionary<String, String>>();
                 user_properties.Add("ogcsVersion", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
                 user_properties.Add("isBenefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
-                events = new List<Event>();
-                events.Add(new Event(eventName));
+                theEvent = new Event(eventName);
+                events = new List<Event> { theEvent };
             }
 
             public void Send() {
@@ -152,6 +151,7 @@ namespace OutlookGoogleCalendarSync {
 
                     GA4Event payload = this;
                     String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+                    jsonPayload = jsonPayload.Replace("\"parameters\":", "\"params\":");
 
                     log.Debug("GA4: " + jsonPayload);
                     wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
@@ -162,17 +162,32 @@ namespace OutlookGoogleCalendarSync {
             }
 
             public class Event {
-                public String name;
+                public String name { get; private set; }
+                public Dictionary<String, Object> parameters { get; private set; }
+
+                public enum Name {
+                    application_started,
+                    donate
+                }
 
                 public Event(Name eventName) {
                     name = eventName.ToString();
+                }
+
+                public void AddParameter(String parameterName, object parameterValue) {
+                    if (parameters == null) 
+                        parameters = new Dictionary<String, Object>();
+                    if (parameterValue is int)
+                        parameters.Add(parameterName, (int)parameterValue);
+                    else
+                        parameters.Add(parameterName, parameterValue.ToString());
                 }
             }
         }
 
         private static void sendTelemetry_completed(object sender, UploadStringCompletedEventArgs e) {
             if (e.Error != null) {
-                log.Warn("Failed to access URL " + e.UserState.ToString());
+                log.Warn("Failed to access URL " + e.UserState?.ToString());
                 log.Fail(e.Error.Message);
                 if (e.Error.InnerException != null) log.Fail(e.Error.InnerException.Message);
                 if (e.Error is WebException) {
