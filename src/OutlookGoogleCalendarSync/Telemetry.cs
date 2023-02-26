@@ -116,24 +116,42 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public class GA4Event {
-            public String client_id { get; }
-            public String user_id { get; }
-            public Boolean non_personalized_ads { get; }
-            public Dictionary<String, Dictionary<String,String>> user_properties { get; }
-            public List<Event> events { get; }
+            public String client_id { get; private set; }
+            public String user_id { get; private set; }
+            public Boolean non_personalized_ads { get; private set; }
+            public Dictionary<String, Dictionary<String,String>> user_properties { get; private set; }
+            public List<Event> events { get; private set; }
 
-            public GA4Event(Event.Name eventName, Event throwAway = null) : this(eventName, out throwAway) {
+            /// <summary>
+            /// A GA4 measurement protocol containing just the header/envelope propeties
+            /// </summary>
+            public GA4Event() {
+                prepareEnvelope();
+            }
+            /// <summary>
+            /// A GA4 event with no parameters
+            /// </summary>
+            /// <param name="eventName">The name of the event</param>
+            /// <param name="throwAway">Don't pass anything here</param>
+            public GA4Event(Event.Name eventName, Event throwAway = null) : this(eventName, out throwAway) { }
+            /// <summary>
+            /// A GA4 event that will contain event parameters. To support this, returns the nested event named with eventName
+            /// </summary>
+            /// <param name="eventName">The name of the event</param>
+            /// <param name="theEvent">The new event to which parameters will be added</param>
+            public GA4Event(Event.Name eventName, out Event _event) {
+                prepareEnvelope();
+                _event = new Event(eventName);
+                events = new List<Event> { _event };
             }
 
-            public GA4Event(Event.Name eventName, out Event theEvent) {
+            private void prepareEnvelope() {
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
                 user_properties = new Dictionary<String, Dictionary<String, String>>();
                 user_properties.Add("ogcsVersion", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
                 user_properties.Add("isBenefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
-                theEvent = new Event(eventName);
-                events = new List<Event> { theEvent };
             }
 
             public void Send() {
@@ -167,6 +185,7 @@ namespace OutlookGoogleCalendarSync {
 
                 public enum Name {
                     application_started,
+                    debug,
                     donate
                 }
 
@@ -181,6 +200,15 @@ namespace OutlookGoogleCalendarSync {
                         parameters.Add(parameterName, (int)parameterValue);
                     else
                         parameters.Add(parameterName, parameterValue.ToString());
+                }
+
+                /// <summary>
+                /// When sending an event, the "envelope" is created around it before posting
+                /// </summary>
+                public void Send() {
+                    GA4Event ga4Ev = new GA4Event();
+                    ga4Ev.events = new List<Event> { this };
+                    ga4Ev.Send();
                 }
             }
         }

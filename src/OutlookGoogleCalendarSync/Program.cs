@@ -545,11 +545,12 @@ namespace OutlookGoogleCalendarSync {
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
                 
-                Telemetry.GA4Event.Event donateEv;
-                Telemetry.GA4Event gaEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate, out donateEv);
-                donateEv.AddParameter("source", source);
-                donateEv.AddParameter("syncs", Settings.Instance.CompletedSyncs);
-                gaEvent.Send();
+                Telemetry.GA4Event.Event donateGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate);
+                donateGaEv.AddParameter("source", source);
+                donateGaEv.AddParameter("syncs", Settings.Instance.CompletedSyncs);
+                donateGaEv.AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail));
+                donateGaEv.Send();
+
             } finally {
                 Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
             }
