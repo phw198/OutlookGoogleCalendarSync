@@ -1576,6 +1576,11 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.MergeItems = cbMergeItems.Checked;
         }
 
+        private void cbIgnoreBusyEntries_CheckedChanged(object sender, EventArgs e)
+        {
+            ActiveCalendarProfile.IgnoreBusy = cbIgnoreBusyEntries.Checked;
+        }
+
         private void cbConfirmOnDelete_CheckedChanged(object sender, System.EventArgs e) {
             ActiveCalendarProfile.ConfirmOnDelete = cbConfirmOnDelete.Checked;
         }
