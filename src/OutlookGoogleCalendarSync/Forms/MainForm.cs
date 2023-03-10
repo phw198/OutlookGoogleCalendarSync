@@ -96,6 +96,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Only choose this if you need to use an Outlook Calendar that is not in the default mailbox");
             ToolTips.SetToolTip(cbMergeItems,
                 "If the destination calendar has pre-existing items, don't delete them");
+            ToolTips.SetToolTip(cbIgnoreBusyEntries,
+                "Ignore Calendar Entries Named \"Busy\"");
             ToolTips.SetToolTip(cbOutlookPush,
                 "Synchronise changes in Outlook to Google within a few minutes.");
             ToolTips.SetToolTip(btCloseRegexRules,
@@ -458,6 +460,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
                     this.gbSyncOptions_How.SuspendLayout();
                     cbMergeItems.Checked = profile.MergeItems;
+                    cbIgnoreBusyEntries.Checked = profile.IgnoreBusy;
                     cbDisableDeletion.Checked = profile.DisableDelete;
                     cbConfirmOnDelete.Enabled = !profile.DisableDelete;
                     cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
