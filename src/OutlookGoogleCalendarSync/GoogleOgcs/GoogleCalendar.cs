@@ -325,8 +325,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
                 ev.Start == null && ev.End == null && string.IsNullOrEmpty(ev.Summary)).ToList();
 
-
-            result.RemoveAll(Event => Event.Summary == "Busy");
+            if (profile.IgnoreBusy) {
+                log.Debug("Dropping events named Busy");
+                result.RemoveAll(Event => Event.Summary == "Busy");
+            }
 
 
             if (cancelled.Count > 0) {
