@@ -69,6 +69,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             MaxAttendees = 200;
             AddColours = false;
             MergeItems = true;
+            IgnoreBusy = false;
             DisableDelete = true;
             ConfirmOnDelete = true;
             TargetCalendar = Sync.Direction.OutlookToGoogle;
@@ -142,6 +143,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public int MaxAttendees { get; set; }
         [DataMember] public bool AddColours { get; set; }
         [DataMember] public bool MergeItems { get; set; }
+        [DataMember] public bool IgnoreBusy { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
         [DataMember] public Sync.Direction TargetCalendar { get; set; }

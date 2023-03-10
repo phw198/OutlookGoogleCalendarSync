@@ -141,6 +141,7 @@
             this.cbOfuscate = new System.Windows.Forms.CheckBox();
             this.syncDirection = new System.Windows.Forms.ComboBox();
             this.cbMergeItems = new System.Windows.Forms.CheckBox();
+            this.cbIgnoreBusyEntries = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
             this.howObfuscatePanel = new System.Windows.Forms.Panel();
@@ -1354,6 +1355,7 @@
             this.gbSyncOptions_How.Controls.Add(this.cbOfuscate);
             this.gbSyncOptions_How.Controls.Add(this.syncDirection);
             this.gbSyncOptions_How.Controls.Add(this.cbMergeItems);
+            this.gbSyncOptions_How.Controls.Add(this.cbIgnoreBusyEntries);
             this.gbSyncOptions_How.Controls.Add(this.cbDisableDeletion);
             this.gbSyncOptions_How.Controls.Add(this.cbConfirmOnDelete);
             this.gbSyncOptions_How.Controls.Add(this.howObfuscatePanel);
@@ -1569,6 +1571,19 @@
             this.cbMergeItems.Text = "Merge with existing entries";
             this.cbMergeItems.UseVisualStyleBackColor = true;
             this.cbMergeItems.CheckedChanged += new System.EventHandler(this.cbMergeItems_CheckedChanged);
+            //
+            // cbIgnoreBusyEntries
+            //
+            this.cbIgnoreBusyEntries.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbIgnoreBusyEntries.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbIgnoreBusyEntries.Location = new System.Drawing.Point(193, 67);
+            this.cbIgnoreBusyEntries.Name = "cbIgnoreBusyEntries";
+            this.cbIgnoreBusyEntries.Size = new System.Drawing.Size(152, 17);
+            this.cbIgnoreBusyEntries.TabIndex = 36;
+            this.cbIgnoreBusyEntries.Text = "Ignore \"Busy\" events";
+            this.cbIgnoreBusyEntries.UseVisualStyleBackColor = true;
+            this.cbIgnoreBusyEntries.CheckedChanged += new System.EventHandler(this.cbIgnoreBusyEntries_CheckedChanged);
+
             // 
             // cbDisableDeletion
             // 
@@ -3557,6 +3572,7 @@
         private System.Windows.Forms.ComboBox syncDirection;
         private System.Windows.Forms.Label lDirection;
         private System.Windows.Forms.CheckBox cbMergeItems;
+        private System.Windows.Forms.CheckBox cbIgnoreBusyEntries;
         private System.Windows.Forms.CheckBox cbDisableDeletion;
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
         private System.Windows.Forms.Button btObfuscateRules;
