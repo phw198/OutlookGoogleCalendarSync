@@ -536,6 +536,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     debugGa4Ev.AddParameter("github_issue", 599);
                     debugGa4Ev.AddParameter("section", "GoogleOgcs.Calendar.Instance.IdentifyEventDifferences()");
                     debugGa4Ev.AddParameter("duration", sectionDuration.TotalSeconds);
+                    debugGa4Ev.AddParameter("items", entriesToBeCompared.Count);
                     debugGa4Ev.Send();
                 }
 

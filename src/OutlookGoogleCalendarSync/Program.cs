@@ -65,9 +65,8 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Load();
                 Settings.Instance.Proxy.Configure();
 
-                Telemetry.GA4Event gaEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started);
-                gaEvent.Send();
-
+                new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
+                
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
                 Updater.CheckForUpdate();
@@ -545,11 +544,11 @@ namespace OutlookGoogleCalendarSync {
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
                 
-                Telemetry.GA4Event.Event donateGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate);
-                donateGaEv.AddParameter("source", source);
-                donateGaEv.AddParameter("syncs", Settings.Instance.CompletedSyncs);
-                donateGaEv.AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail));
-                donateGaEv.Send();
+                Telemetry.GA4Event.Event donateGa4Ev = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate);
+                donateGa4Ev.AddParameter("source", source);
+                donateGa4Ev.AddParameter("syncs", Settings.Instance.CompletedSyncs);
+                donateGa4Ev.AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail));
+                donateGa4Ev.Send();
 
             } finally {
                 Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);

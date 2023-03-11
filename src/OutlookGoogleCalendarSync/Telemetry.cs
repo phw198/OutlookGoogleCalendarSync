@@ -146,6 +146,8 @@ namespace OutlookGoogleCalendarSync {
             }
 
             private void prepareEnvelope() {
+                //https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
+                //Maximum name length: 24; value length: 36
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
@@ -193,13 +195,21 @@ namespace OutlookGoogleCalendarSync {
                     name = eventName.ToString();
                 }
 
-                public void AddParameter(String parameterName, object parameterValue) {
+                public void AddParameter(Object parameterName, Object parameterValue) {
                     if (parameters == null) 
                         parameters = new Dictionary<String, Object>();
+
+                    String strParamName = parameterName.ToString();
+                    if (strParamName.Length > 40)
+                        throw new ApplicationException($"The parameter name {strParamName} exceeds maximum length.");
+                    
+                    if (!parameters.ContainsKey(strParamName))
+                        parameters.Add(strParamName, null);
+                    
                     if (parameterValue is int)
-                        parameters.Add(parameterName, (int)parameterValue);
+                        parameters[strParamName] = (int)parameterValue;
                     else
-                        parameters.Add(parameterName, parameterValue.ToString());
+                        parameters[strParamName] = parameterValue.ToString().Substring(0,100);
                 }
 
                 /// <summary>
@@ -249,6 +259,6 @@ namespace OutlookGoogleCalendarSync {
             uninstall,  //squirrel
             upgrade,    //squirrel
             version     //outlook,ogcs
-        }        
+        }
     }
 }
