@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace OutlookGoogleCalendarSync {
     class Telemetry {
         private static readonly ILog log = LogManager.GetLogger(typeof(Telemetry));
-        
+
         private static Telemetry instance;
         public static Telemetry Instance {
             get {
@@ -21,7 +21,7 @@ namespace OutlookGoogleCalendarSync {
         public String AnonymousUniqueUserId {
             get { return uuId; }
         }
-        
+
         /// <summary>
         /// MD5 hash of either Gmail account, or custom thumbprint: ComputerName;Processor;C-driveSerial
         /// </summary>
@@ -72,6 +72,39 @@ namespace OutlookGoogleCalendarSync {
             return uuId;
         }
 
+        public String OutlookVersion { get; internal set; }
+        public String OutlookVersionName { get; internal set; }
+
+        public String Continent { get; private set; }
+        public String Country { get; private set; }
+        public String CountryCode { get; private set; }
+        public String Region { get; private set; }
+        public String City { get; private set; }
+
+        public Telemetry() {
+            try {
+                Extensions.OgcsWebClient wc = new();
+                //https://api.country.is/
+                String response = wc.DownloadString(new Uri("https://api.techniknews.net/ipgeo"));
+                Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
+                if (ipGeoInfo.HasValues && ipGeoInfo["status"].ToString() == "success") {
+                    Continent = ipGeoInfo["continent"]?.ToString();
+                    Country = ipGeoInfo["country"]?.ToString();
+                    CountryCode = ipGeoInfo["countryCode"]?.ToString();
+                    Region = ipGeoInfo["regionName"]?.ToString();
+                    City = ipGeoInfo["city"]?.ToString();
+                } else {
+                    log.Warn("Could not determine IP geolocation; status=" + ipGeoInfo["status"]);
+                }
+
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not get IP geolocation.", OGCSexception.LogAsFail(ex));
+            }
+        }
+
+        /// <summary>
+        /// This can just be removed once Universal Analytics dies
+        /// </summary>
         public static void TrackVersions() {
             if (Program.InDeveloperMode) return;
 
@@ -85,6 +118,10 @@ namespace OutlookGoogleCalendarSync {
         public static void TrackSync() {
             if (Program.InDeveloperMode) return;
             Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
+            Telemetry.GA4Event.Event syncGa4Ev = new(Telemetry.GA4Event.Event.Name.sync);
+            syncGa4Ev.AddParameter(GA4.General.type, "calendar");
+            syncGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
+            syncGa4Ev.Send();
         }
 
         /// <summary>
@@ -119,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
             public String client_id { get; private set; }
             public String user_id { get; private set; }
             public Boolean non_personalized_ads { get; private set; }
-            public Dictionary<String, Dictionary<String,String>> user_properties { get; private set; }
+            public Dictionary<String, Dictionary<String, String>> user_properties { get; private set; }
             public List<Event> events { get; private set; }
 
             /// <summary>
@@ -152,8 +189,16 @@ namespace OutlookGoogleCalendarSync {
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
                 non_personalized_ads = true;
                 user_properties = new Dictionary<String, Dictionary<String, String>>();
-                user_properties.Add("ogcsVersion", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
-                user_properties.Add("isBenefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
+                user_properties.Add("ogcs_version", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
+                user_properties.Add("benefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
+                user_properties.Add("profiles", new Dictionary<String, String> { { "value", Settings.Instance.Calendars.Count.ToString() } });
+                user_properties.Add("outlook_version", new Dictionary<String, String> { { "value", Telemetry.Instance.OutlookVersion } });
+                user_properties.Add("outlook_name", new Dictionary<String, String> { { "value", Telemetry.Instance.OutlookVersionName } });
+                user_properties.Add("continent", new Dictionary<String, String> { { "value", Telemetry.Instance.Continent } });
+                user_properties.Add("country", new Dictionary<String, String> { { "value", Telemetry.Instance.Country } });
+                user_properties.Add("country_code", new Dictionary<String, String> { { "value", Telemetry.Instance.CountryCode } });
+                user_properties.Add("region", new Dictionary<String, String> { { "value", Telemetry.Instance.Region } });
+                user_properties.Add("city", new Dictionary<String, String> { { "value", Telemetry.Instance.City } });
             }
 
             public void Send() {
@@ -189,7 +234,10 @@ namespace OutlookGoogleCalendarSync {
                     application_started,
                     debug,
                     donate,
-                    squirrel
+                    error,
+                    setting,
+                    squirrel,
+                    sync
                 }
 
                 public Event(Name eventName) {
@@ -197,20 +245,22 @@ namespace OutlookGoogleCalendarSync {
                 }
 
                 public void AddParameter(Object parameterName, Object parameterValue) {
-                    if (parameters == null) 
+                    if (parameters == null)
                         parameters = new Dictionary<String, Object>();
 
                     String strParamName = parameterName.ToString();
                     if (strParamName.Length > 40)
                         throw new ApplicationException($"The parameter name {strParamName} exceeds maximum length.");
-                    
+
                     if (!parameters.ContainsKey(strParamName))
                         parameters.Add(strParamName, null);
-                    
+
                     if (parameterValue is int)
                         parameters[strParamName] = (int)parameterValue;
-                    else
-                        parameters[strParamName] = parameterValue.ToString().Substring(0,100);
+                    else {
+                        parameterValue ??= "";
+                        parameters[strParamName] = parameterValue.ToString().Substring(0, Math.Min(parameterValue.ToString().Length, 100));
+                    }
                 }
 
                 /// <summary>
@@ -276,6 +326,11 @@ namespace OutlookGoogleCalendarSync {
             target_type,
             upgraded_from,
             uninstall
+        }
+        public enum General {
+            github_issue,
+            sync_count,
+            type
         }
     }
 }

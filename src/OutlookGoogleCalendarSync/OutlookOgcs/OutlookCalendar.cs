@@ -1136,6 +1136,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String hResult = OGCSexception.GetErrorCode(ex);
             String wikiUrl = "";
             Regex rgx;
+
+            Telemetry.GA4Event.Event comGa4Ev = new(Telemetry.GA4Event.Event.Name.error);
+            comGa4Ev.AddParameter("com_object", hResult);
+            comGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
+            comGa4Ev.Send();
             
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);

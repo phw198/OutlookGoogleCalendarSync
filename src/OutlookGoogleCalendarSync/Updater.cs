@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
                     String releaseNotes = "";
                     String releaseVersion = "";
                     String releaseType = "";
-                    Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
 
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
@@ -178,7 +178,7 @@ namespace OutlookGoogleCalendarSync {
                     t.Start();
                     t.Join();
 
-                    squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                    squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                     squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade pending");
                     squirrelGaEv.AddParameter(GA4.Squirrel.target_version, releaseVersion);
                     squirrelGaEv.AddParameter(GA4.Squirrel.target_type, releaseType);
@@ -264,7 +264,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Fail("Failed checking for update.");
                 foreach (System.Exception ex in ae.InnerExceptions) {
                     OGCSexception.Analyse(OGCSexception.LogAsFail(ex), true);
-                    Telemetry.GA4Event.Event githubGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                    Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                     githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
                     githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                     githubGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
@@ -273,7 +273,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed checking for update.", OGCSexception.LogAsFail(ex), true);
-                Telemetry.GA4Event.Event githubGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
                 githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                 githubGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
@@ -309,7 +309,7 @@ namespace OutlookGoogleCalendarSync {
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
                 Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, "clickonce");
-                Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, "clickonce");
                 squirrelGaEv.Send();
             } catch (System.AggregateException ae) {
@@ -334,7 +334,7 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex, true);
             }
             Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
-            Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+            Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
             squirrelGaEv.AddParameter(GA4.Squirrel.install, version.ToString());
             squirrelGaEv.Send();
             onFirstRun();
@@ -363,7 +363,7 @@ namespace OutlookGoogleCalendarSync {
                     mgr.RemoveUninstallerRegistryEntry();
                 }
                 Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, version.ToString());
-                Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString());
                 if (OgcsMessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {

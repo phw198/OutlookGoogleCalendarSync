@@ -518,7 +518,7 @@ namespace OutlookGoogleCalendarSync {
                     Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
                     if (isSquirrelInstall) {
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
-                        Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                        Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                         squirrelGaEv.AddParameter(GA4.Squirrel.upgraded_from, settingsVersion);
                     }
                 }
@@ -566,9 +566,9 @@ namespace OutlookGoogleCalendarSync {
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
                 
-                Telemetry.GA4Event.Event donateGa4Ev = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate);
+                Telemetry.GA4Event.Event donateGa4Ev = new(Telemetry.GA4Event.Event.Name.donate);
                 donateGa4Ev.AddParameter("source", source);
-                donateGa4Ev.AddParameter("syncs", Settings.Instance.CompletedSyncs);
+                donateGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
                 donateGa4Ev.AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail));
                 donateGa4Ev.Send();
 
