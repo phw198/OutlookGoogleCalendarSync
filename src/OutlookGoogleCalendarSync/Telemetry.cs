@@ -188,7 +188,8 @@ namespace OutlookGoogleCalendarSync {
                 public enum Name {
                     application_started,
                     debug,
-                    donate
+                    donate,
+                    squirrel
                 }
 
                 public Event(Name eventName) {
@@ -259,6 +260,22 @@ namespace OutlookGoogleCalendarSync {
             uninstall,  //squirrel
             upgrade,    //squirrel
             version     //outlook,ogcs
+        }
+    }
+
+    public static class GA4 {
+        public enum Squirrel {
+            action_taken,
+            error,
+            feedback,
+            file,
+            install,
+            result,
+            state,
+            target_version,
+            target_type,
+            upgraded_from,
+            uninstall
         }
     }
 }

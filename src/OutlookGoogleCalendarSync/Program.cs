@@ -42,6 +42,11 @@ namespace OutlookGoogleCalendarSync {
                 return (Boolean)isInstalled;
             }
         }
+        private static Boolean isHotFix {
+            get {
+                return !Application.ProductVersion.EndsWith(".0");
+            }
+        }
         public static Updater Updater;
 
         [STAThread]
@@ -496,9 +501,26 @@ namespace OutlookGoogleCalendarSync {
                     OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
                 }
                 Settings.Instance.Version = Application.ProductVersion;
-                if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
+                if (isHotFix) {
+                    if (!(Settings.Instance.CloudLogging ?? false) | Settings.Instance.TelemetryDisabled) {
+                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "cloud logging" : "");
+                        if (Settings.Instance.TelemetryDisabled) {
+                            if (!String.IsNullOrEmpty(disabledSetting)) disabledSetting += " and ";
+                            disabledSetting += "telemetry";
+                        }
+                        if (OgcsMessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
+                            "Hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            Settings.Instance.TelemetryDisabled = false;
+                            Settings.Instance.CloudLogging = true;
+                        }
+                    }
+                } else { //Release notes not updated for hotfixes.
                     Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
-                    if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                    if (isSquirrelInstall) {
+                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                        Telemetry.GA4Event.Event squirrelGaEv = new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel);
+                        squirrelGaEv.AddParameter(GA4.Squirrel.upgraded_from, settingsVersion);
+                    }
                 }
             }
 
