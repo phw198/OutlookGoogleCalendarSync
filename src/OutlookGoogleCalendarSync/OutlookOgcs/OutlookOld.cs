@@ -799,7 +799,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = time.DateTime ?? DateTime.Parse(time.Date);
+            DateTime theDate = time.SafeDateTime();
             /*if (time.TimeZone == null)*/
             return theDate;
 

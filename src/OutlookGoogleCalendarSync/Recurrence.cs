@@ -90,7 +90,7 @@ namespace OutlookGoogleCalendarSync {
                             oPattern.Instance = (gInstance == -1) ? 5 : gInstance;
                             oPattern.DayOfWeekMask = getDOWmask(ruleBook);
                             if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 &&
-                                (ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date)).Day > 28) {
+                                ev.Start.SafeDateTime().Day > 28) {
                                 //In Outlook this is simply a monthly recurring
                                 oPattern.RecurrenceType = OlRecurrenceType.olRecursMonthly;
                             }
@@ -131,7 +131,7 @@ namespace OutlookGoogleCalendarSync {
 
             #region RANGE
             ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
-            oPattern.PatternStartDate = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+            oPattern.PatternStartDate = ev.Start.SafeDateTime();
             if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1 && ruleBook["FREQ"] != "YEARLY")
                 oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
             if (ruleBook.ContainsKey("COUNT"))
@@ -170,7 +170,7 @@ namespace OutlookGoogleCalendarSync {
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
             AppointmentItem evAI = OutlookOgcs.Calendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
-            evAI.Start = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date); 
+            evAI.Start = ev.Start.SafeDateTime(); 
 
             RecurrencePattern evOpattern = null;
             try {
@@ -441,10 +441,10 @@ namespace OutlookGoogleCalendarSync {
                 foreach (Event gExcp in googleExceptions) {
                     if (gExcp.RecurringEventId == gRecurringEventID) {
                         if ((oIsDeleted == DeletionState.NotDeleted &&
-                            oExcp.OriginalDate == (gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date))
+                            oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
                             ) ||
                             (oIsDeleted == DeletionState.Deleted &&
-                            oExcp.OriginalDate == (gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date)).Date
+                            oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime().Date
                             )) {
                             return gExcp;
                         }
@@ -460,10 +460,10 @@ namespace OutlookGoogleCalendarSync {
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
                     if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
-                        && oExcp.OriginalDate == (gInst.OriginalStartTime.DateTime ?? DateTime.Parse(gInst.OriginalStartTime.Date))
+                        && oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime()
                         ) ||
                         (oIsDeleted == DeletionState.Deleted &&
-                        oExcp.OriginalDate == (gInst.OriginalStartTime.DateTime ?? DateTime.Parse(gInst.OriginalStartTime.Date)).Date
+                        oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime().Date
                         )) {
                         return gInst;
                     }
@@ -554,7 +554,7 @@ namespace OutlookGoogleCalendarSync {
                         oExcp = excps[e];
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
-                            DateTime gDate = ev.OriginalStartTime.DateTime ?? DateTime.Parse(ev.OriginalStartTime.Date);
+                            DateTime gDate = ev.OriginalStartTime.SafeDateTime();
                             DeletionState isDeleted = exceptionIsDeleted(oExcp);
                             if (isDeleted == DeletionState.Inaccessible) {
                                 log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
@@ -747,7 +747,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 oPattern = ai.GetRecurrencePattern();
                 foreach (Event gExcp in Recurrence.Instance.googleExceptions.Where(exp => exp.RecurringEventId == ev.Id)) {
-                    DateTime oExcpDate = gExcp.OriginalStartTime.DateTime ?? DateTime.Parse(gExcp.OriginalStartTime.Date);
+                    DateTime oExcpDate = gExcp.OriginalStartTime.SafeDateTime();
                     log.Fine("Found Google exception for " + oExcpDate.ToString());
 
                     AppointmentItem newAiExcp = null;

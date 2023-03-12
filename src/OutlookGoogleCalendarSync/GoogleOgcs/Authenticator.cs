@@ -380,7 +380,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 Boolean subscribed;
                 Event subscription = subscriptions.Last();
-                DateTime subscriptionStart = (subscription.Start.DateTime ?? DateTime.Parse(subscription.Start.Date)).Date;
+                DateTime subscriptionStart = subscription.Start.SafeDateTime().Date;
                 log.Debug("Last subscription date: " + subscriptionStart.ToString());
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {

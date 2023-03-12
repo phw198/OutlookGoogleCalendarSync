@@ -467,10 +467,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             #endregion
 
             #region Start/End & Recurrence
-            DateTime evStartParsedDate = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+            DateTime evStartParsedDate = ev.Start.SafeDateTime();
             Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, evStartParsedDate, ai.Start, sb, ref itemModified);
 
-            DateTime evEndParsedDate = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+            DateTime evEndParsedDate = ev.End.SafeDateTime();
             Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, evEndParsedDate, ai.End, sb, ref itemModified);
 
             RecurrencePattern oPattern = null;

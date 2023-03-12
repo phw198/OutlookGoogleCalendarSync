@@ -13,6 +13,14 @@ namespace OutlookGoogleCalendarSync {
             return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
         }
 
+        /// <summary>
+        /// Returns the non-null Date or DateTime properties as a DateTime
+        /// </summary>
+        /// <returns>DateTime</returns>
+        public static DateTime SafeDateTime(this EventDateTime evDt) {
+            return evDt.DateTime ?? DateTime.Parse(evDt.Date);
+        }
+
         public static Boolean AllDayEvent(this Event ev) {
             return ev.Start.Date != null;
         }

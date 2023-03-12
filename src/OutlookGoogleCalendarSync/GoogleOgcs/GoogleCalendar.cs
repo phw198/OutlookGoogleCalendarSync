@@ -329,7 +329,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)) == from)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -650,8 +650,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             sb.AppendLine(aiSummary);
 
             //Handle an event's all-day attribute being toggled
-            DateTime evStart = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
-            DateTime evEnd = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+            DateTime evStart = ev.Start.SafeDateTime();
+            DateTime evEnd = ev.End.SafeDateTime();
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0,0,0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
@@ -1671,12 +1671,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
                     signature += (ev.Summary ?? "[cancelled]");
-                    signature += ";" + (ev.OriginalStartTime.DateTime ?? DateTime.Parse(ev.OriginalStartTime.Date)).ToPreciseString();
+                    signature += ";" + ev.OriginalStartTime.SafeDateTime().ToPreciseString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + (ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date)).ToPreciseString() + ";";
+                    signature += ";" + ev.Start.SafeDateTime().ToPreciseString() + ";";
                     if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)).ToPreciseString();
+                        signature += ev.End.SafeDateTime().ToPreciseString();
                     }
                 }
             } catch {
