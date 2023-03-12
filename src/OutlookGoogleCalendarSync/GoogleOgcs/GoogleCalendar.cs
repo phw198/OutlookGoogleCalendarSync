@@ -667,7 +667,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } else {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.Start.DateTime == null && evStart == ai.Start && evEnd == ai.End) {
+                if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
                     sb.AppendLine("All-Day: true => false");
                     ev.Start.DateTime = ai.Start;
                     ev.End.DateTime = ai.End;
@@ -856,7 +856,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                         //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
                         //Which means it keeps adding the default back in!! Let's stop that:
-                        if (newVal && ev.Start.Date != null) {
+                        if (newVal && ev.AllDayEvent()) {
                             log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
                             newVal = false;
                         }

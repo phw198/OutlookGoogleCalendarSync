@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Start = new DateTime();
             ai.End = new DateTime();
-            ai.AllDayEvent = (ev.Start.Date != null);
+            ai.AllDayEvent = ev.AllDayEvent();
             ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             Recurrence.Instance.BuildOutlookPattern(ev, ai);
 
@@ -447,9 +447,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             sb.AppendLine(evSummary);
 
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) {
-                if (ai.AllDayEvent != (ev.Start.DateTime == null)) {
-                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + (ev.Start.DateTime == null));
-                    ai.AllDayEvent = (ev.Start.DateTime == null);
+                if (ai.AllDayEvent != ev.AllDayEvent()) {
+                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + ev.AllDayEvent());
+                    ai.AllDayEvent = ev.AllDayEvent();
                     itemModified++;
                 }
             }
