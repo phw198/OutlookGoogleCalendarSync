@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 if (string.IsNullOrEmpty(hashedGmailAccount)) {
                     if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
-                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail, true);
+                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail.ToLower(), true);
                 }
                 return hashedGmailAccount;
             }
