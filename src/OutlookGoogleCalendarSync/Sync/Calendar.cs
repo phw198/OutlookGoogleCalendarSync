@@ -384,11 +384,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
-                        String entryID;
+                        String entryID = null;
+                        DateTime? checkStartDate = null;
+                        DateTime? checkEndDate = null;
                         try {
                             entryID = outlookEntries[o].EntryID;
-                            DateTime checkDates = ai.Start;
-                            checkDates = ai.End;
+                            checkStartDate = ai.Start;
+                            checkEndDate = ai.End;
                         } catch (System.Runtime.InteropServices.COMException ex) {
                             if (OGCSexception.GetErrorCode(ex) == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
                                 OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
@@ -398,6 +400,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             } else if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             } else {
+                                log.Debug($"EntryID: {entryID}; Start: {checkStartDate}; End: {checkEndDate}");
                                 OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
                                     OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);

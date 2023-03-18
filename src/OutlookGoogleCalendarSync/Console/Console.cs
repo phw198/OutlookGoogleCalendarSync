@@ -249,6 +249,15 @@ namespace OutlookGoogleCalendarSync {
             Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, notifyBubble: notifyBubble, logit: logit);
         }
 
+        /// <summary>
+        /// Update the console with further text
+        /// </summary>
+        /// <param name="moreOutput">The text to update the console with</param>
+        /// <param name="markupPrefix">The type of update, may cause emoji prefix</param>
+        /// <param name="newLine">Append a new line at the end</param>
+        /// <param name="verbose">Only output if verbose is set 'On'</param>
+        /// <param name="notifyBubble">Trigger a system bubble for notification</param>
+        /// <param name="logit">Send the text to logfile</param>
         public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true) {
             ///Accessing the DOM is terribly slow, so not using this method.
             ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;

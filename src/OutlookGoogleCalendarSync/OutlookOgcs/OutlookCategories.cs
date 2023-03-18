@@ -96,7 +96,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private Outlook.Categories _categories;
         private Outlook.Categories categories {
-            get { 
+            get {
+                try {
+                    int? testAccess = this._categories?.Count;
+                } catch {
+                    this._categories = null;
+                }
                 if (_categories == null) ValidateCategories();
                 return _categories;
             }
