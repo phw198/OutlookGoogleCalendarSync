@@ -898,27 +898,29 @@ namespace OutlookGoogleCalendarSync {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = oExcps[e];
+                        if (oExcp.OriginalDate.Date == instanceOrigDate.Date)
+                            log.Debug("Found Outlook exception for original date " + instanceOrigDate);
+                        
+                        DeletionState isDeleted = exceptionIsDeleted(oExcp);
+                        if (isDeleted == DeletionState.Inaccessible) {
+                            log.Warn("This exception is inaccessible.");
+                            return;
+                        } else if (isDeleted == DeletionState.Deleted) {
+                            if (processingDeletions) {
+                                log.Debug("This exception is deleted.");
+                                return;
+                            }
+                        }
+
                         if (oExcp.OriginalDate.Date == instanceOrigDate.Date) {
                             try {
-                                log.Debug("Found Outlook exception for original date " + instanceOrigDate);
-                                DeletionState isDeleted = exceptionIsDeleted(oExcp);
-                                if (isDeleted == DeletionState.Inaccessible) {
-                                    log.Warn("This exception is inaccessible.");
-                                    return;
-                                } else if (isDeleted == DeletionState.Deleted) {
-                                    if (processingDeletions) {
-                                        log.Debug("This exception is deleted.");
-                                        return;
-                                    }
-                                } else {
-                                    ai = oExcp.AppointmentItem;
-                                    return;
-                                }
+                                ai = oExcp.AppointmentItem;
+                                return;
                             } catch (System.Exception ex) {
                                 Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
                                 break;
                             }
-                        } else if (processingDeletions && !oExcp.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
+                        } else if (processingDeletions && isDeleted != DeletionState.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
                             log.Debug("An exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
                             return;
                         }
