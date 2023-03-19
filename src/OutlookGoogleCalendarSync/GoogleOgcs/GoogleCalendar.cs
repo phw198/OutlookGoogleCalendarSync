@@ -1247,8 +1247,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
 
             if (profile.DisableDelete) {
-                if (google.Count > 0)
+                if (google.Count > 0) {
                     Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int g = 0; g < google.Count; g++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(google[g]), verbose: true);
+                }
                 google = new List<Event>();
             }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {

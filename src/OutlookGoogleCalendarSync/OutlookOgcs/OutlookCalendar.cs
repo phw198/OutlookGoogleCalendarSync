@@ -1393,8 +1393,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
 
             if (profile.DisableDelete) {
-                if (outlook.Count > 0)
+                if (outlook.Count > 0) {
                     Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int o = 0; o < outlook.Count; o++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o]), verbose: true);
+                }
                 outlook = new List<AppointmentItem>();
             }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
