@@ -216,8 +216,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 unfiltered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
                                     (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
                             }
-                        } catch (System.Exception ex) {
-                            Forms.Main.Instance.Console.UpdateWithError("Failed to filter item by category:<br/>" + GetEventSummary(ai), ex);
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            if (ex.TargetSite.Name == "get_Categories") {
+                                log.Warn("Could not access Categories property for " + GetEventSummary(ai));
+                                unfiltered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && profile.Categories.Contains("<No category assigned>")) ||
+                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && !profile.Categories.Contains("<No category assigned>")));
+                            } else throw;
                         }
                         if (!unfiltered) categoryFiltered++;
 
