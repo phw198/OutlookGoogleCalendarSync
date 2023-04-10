@@ -1476,6 +1476,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
                     Setting setting = Service.Settings.Get("timezone").Execute();
                     this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+                    log.Info("Google account timezone: " + setting.Value);
                     stage = "retrieve settings for synced Google calendar";
                     getCalendarSettings();
                     break;
@@ -1510,11 +1511,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private void getCalendarSettings() {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
+            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
+            CalendarListEntry cal = request.Execute();
+            log.Info("Google calendar timezone: " + cal.TimeZone);
 
             if (!profile.AddReminders) return;
 
-            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
-            CalendarListEntry cal = request.Execute();
             if (cal.DefaultReminders.Count == 0)
                 this.MinDefaultReminder = int.MinValue;
             else
