@@ -218,17 +218,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (!unfiltered) categoryFiltered++;
 
                         if (profile.OnlyRespondedInvites) {
-                            if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded) {
-                                unfiltered = false;
+                            //These are actually filtered out later on when identifying differences
+                            if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
                                 responseFiltered++;
-                            }
                         }
                         if (unfiltered) result.Add(ai);
                     }
                 }
                 if (!suppressAdvisories) {
                     if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
-                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items excluded due to only syncing invites you responded to.");
+                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
                     if ((categoryFiltered + responseFiltered) > 0) {
                         if (result.Count == 0)
@@ -1391,6 +1390,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             }
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
+
+            if (profile.OnlyRespondedInvites) {
+                //Check if items to be deleted have invitations not responded to
+                int responseFiltered = 0;
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (outlook[o].ResponseStatus == OlResponseStatus.olResponseNotResponded) {
+                        outlook.Remove(outlook[o]);
+                        responseFiltered++;
+                    }
+                }
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
+            }
 
             if (profile.DisableDelete) {
                 if (outlook.Count > 0)
