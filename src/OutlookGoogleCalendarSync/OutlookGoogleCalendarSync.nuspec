@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.9.6-alpha</version>
+    <version>2.9.7-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,25 +12,26 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.9.6?
+# What's New In v2.9.7?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Warn if multiple instances of OGCS are running with the same configuration
-- Cater for Kyiv time zone rename (from Kiev)
-- Browser agent version updated
-- Display error detail if OGCS unable to communicate with Google
-- Abort sync if Exchange connection becomes unavailable
-- Better UI for colour map configuration
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- Don't delete from Google items that were filtered out from Outlook
+- Better splash screen hiding; donor details case insensitive
+- Migrated to Google Analytics 4 from deprecated Universal Analytics
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Error when switching Profiles
-- Use correct Find/Replace regular expression from Profile
-- Resolve "Precondition Failed", error [412] on sync to Google
-- Fix null reference errors on sync to Google
-- Don't validate colour mappings if no longer syncing colours
-- Improved handling of startup registry keys
+- Robust access of Outlook categories
+- If item categories are not accessible, treat as though none exist
+- Handle new type of quota errors properly
+- Check a schedule is configured when enable/disable sync
     </releaseNotes>
     <copyright>Copyright 2023</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

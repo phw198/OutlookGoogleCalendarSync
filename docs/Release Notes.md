@@ -1,6 +1,25 @@
 | Release Notes |
 |:---|
 
+# v2.9.7.0 - Alpha
+
+**Enhancements**
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- Don't delete from Google items that were filtered out from Outlook
+- Better splash screen hiding; donor details case insensitive
+- Migrated to Google Analytics 4 from deprecated Universal Analytics
+
+**Bugfix**
+- Robust access of Outlook categories
+- If item categories are not accessible, treat as though none exist
+- Handle new type of quota errors properly
+- Check a schedule is configured when enable/disable sync
+
 # v2.9.6.0 - Alpha
 
 **Enhancements**
