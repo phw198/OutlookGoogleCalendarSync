@@ -32,6 +32,10 @@ namespace OutlookGoogleCalendarSync {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);
+                Telemetry.GA4Event.Event settingGa4Ev = new(Telemetry.GA4Event.Event.Name.setting);
+                settingGa4Ev.AddParameter("oom_security", true);
+                settingGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
+                settingGa4Ev.Send();
             }
         }
 

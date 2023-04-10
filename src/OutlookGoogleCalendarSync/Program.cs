@@ -42,6 +42,11 @@ namespace OutlookGoogleCalendarSync {
                 return (Boolean)isInstalled;
             }
         }
+        private static Boolean isHotFix {
+            get {
+                return !Application.ProductVersion.EndsWith(".0");
+            }
+        }
         public static Updater Updater;
 
         [STAThread]
@@ -65,6 +70,8 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Load();
                 Settings.Instance.Proxy.Configure();
 
+                new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
+                
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
                 Updater.CheckForUpdate();
@@ -494,9 +501,26 @@ namespace OutlookGoogleCalendarSync {
                     OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
                 }
                 Settings.Instance.Version = Application.ProductVersion;
-                if (Application.ProductVersion.EndsWith(".0")) { //Release notes not updated for hotfixes.
+                if (isHotFix) {
+                    if (!(Settings.Instance.CloudLogging ?? false) | Settings.Instance.TelemetryDisabled) {
+                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "cloud logging" : "");
+                        if (Settings.Instance.TelemetryDisabled) {
+                            if (!String.IsNullOrEmpty(disabledSetting)) disabledSetting += " and ";
+                            disabledSetting += "telemetry";
+                        }
+                        if (OgcsMessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
+                            "Hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            Settings.Instance.TelemetryDisabled = false;
+                            Settings.Instance.CloudLogging = true;
+                        }
+                    }
+                } else { //Release notes not updated for hotfixes.
                     Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
-                    if (isSquirrelInstall) Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                    if (isSquirrelInstall) {
+                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
+                        Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                        squirrelGaEv.AddParameter(GA4.Squirrel.upgraded_from, settingsVersion);
+                    }
                 }
             }
 
@@ -538,9 +562,19 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void Donate(String source) {
-            Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
-            Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
-            Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+            try {
+                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
+                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
+                
+                Telemetry.GA4Event.Event donateGa4Ev = new(Telemetry.GA4Event.Event.Name.donate);
+                donateGa4Ev.AddParameter("source", source);
+                donateGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
+                donateGa4Ev.AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail));
+                donateGa4Ev.Send();
+
+            } finally {
+                Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
+            }
         }
 
         /// <summary>

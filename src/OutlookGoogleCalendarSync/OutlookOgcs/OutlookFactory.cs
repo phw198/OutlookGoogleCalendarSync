@@ -12,7 +12,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
-                if (string.IsNullOrEmpty(outlookVersionNameFull)) getOutlookVersion();
+                if (string.IsNullOrEmpty(outlookVersionNameFull)) {
+                    getOutlookVersion();
+                    Telemetry.Instance.OutlookVersion = outlookVersionFull;
+                    Telemetry.Instance.OutlookVersionName = outlookVersionNameFull.Replace("Outlook", "");
+                }
                 return outlookVersionNameFull;
             }
         }

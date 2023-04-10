@@ -536,6 +536,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (sectionDuration.TotalSeconds > 30) {
                     log.Warn("That step took a long time! Issue #599");
                     Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Google.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
+                    Telemetry.GA4Event.Event debugGa4Ev = new(Telemetry.GA4Event.Event.Name.debug);
+                    debugGa4Ev.AddParameter(GA4.General.github_issue, 599);
+                    debugGa4Ev.AddParameter("section", "GoogleOgcs.Calendar.Instance.IdentifyEventDifferences()");
+                    debugGa4Ev.AddParameter("duration", sectionDuration.TotalSeconds);
+                    debugGa4Ev.AddParameter("items", entriesToBeCompared.Count);
+                    debugGa4Ev.Send();
                 }
 
                 StringBuilder sb = new StringBuilder();

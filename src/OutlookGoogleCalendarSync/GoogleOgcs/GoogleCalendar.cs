@@ -1899,6 +1899,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
             log.Fail(ex.Message);
+
+            try {
+                Telemetry.GA4Event.Event apiGa4Ev = new(Telemetry.GA4Event.Event.Name.error);
+                apiGa4Ev.AddParameter("api_google_error", ex.Message);
+                apiGa4Ev.AddParameter("code", ex.Error?.Code);
+                apiGa4Ev.AddParameter("domain", ex.Error?.Errors?.First().Domain);
+                apiGa4Ev.AddParameter("reason", ex.Error?.Errors?.First().Reason);
+                apiGa4Ev.AddParameter("message", ex.Error?.Errors?.First().Message);
+                apiGa4Ev.Send();
+            } catch (System.Exception gaEx) {
+                OGCSexception.Analyse(gaEx);
+            }
+
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (profile.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
                 //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
