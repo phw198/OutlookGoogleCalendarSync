@@ -59,6 +59,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             SharedCalendar
         }
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
+        
+        /// <summary>Outlook Event IDs excluded through user config</summary>
+        public List<String> ExcludedByCategory;
 
         public Calendar() {
             InstanceConnect = true;
@@ -140,6 +143,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             List<AppointmentItem> result = new List<AppointmentItem>();
             Items OutlookItems = null;
+            ExcludedByCategory = new();
 
             if (profile is null)
                 profile = Settings.Profile.InPlay();
@@ -168,7 +172,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 string filter = "[End] >= '" + min.ToString(profile.OutlookDateFormat) +
                     "' AND [Start] < '" + max.ToString(profile.OutlookDateFormat) + "'" + extraFilter;
                 log.Fine("Filter string: " + filter);
-                Int32 categoryFiltered = 0;
                 Int32 responseFiltered = 0;
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
@@ -215,7 +218,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             unfiltered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
                                 (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
                         }
-                        if (!unfiltered) categoryFiltered++;
+                        if (!unfiltered) ExcludedByCategory.Add(ai.EntryID);
 
                         if (profile.OnlyRespondedInvites) {
                             //These are actually filtered out later on when identifying differences
@@ -226,10 +229,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
                 if (!suppressAdvisories) {
-                    if (categoryFiltered > 0) log.Info(categoryFiltered + " Outlook items excluded due to active category filter.");
+                    if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
                     if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                    if ((categoryFiltered + responseFiltered) > 0) {
+                    if ((ExcludedByCategory.Count + responseFiltered) > 0) {
                         if (result.Count == 0)
                             Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
                         else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
