@@ -196,7 +196,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Settings.Instance.CompletedSyncs++;
                         this.consecutiveSyncFails = 0;
                         mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
-                        mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
+                        mainFrm.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null, false);
+                        mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null, false);
                     } else if (syncResult == SyncResult.AutoRetry) {
                         this.consecutiveSyncFails++;
                         mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + this.consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
