@@ -138,7 +138,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
                         RegistryKey regKey = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Office\ClickToRun");
                         if (regKey == null || regKey.SubKeyCount == 0) {
-                            //Try as 64-bit registry
+                            log.Debug("Try accessing 64-bit registry key");
                             baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
                             regKey = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Office\ClickToRun");
                         }
@@ -163,11 +163,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                             log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
                                         }
                                     } else {
-                                        log.Warn("ProductReleaseIds value does not exist.");
+                                        log.Warn("'ProductReleaseIds' value does not exist.");
                                         log.Debug(String.Join(",", regKey.GetValueNames()));
                                     }
                                 } else {
-                                    log.Warn("Configuration subdirectory does not exist.");
+                                    log.Warn("'Configuration' subdirectory does not exist.");
                                     log.Debug(String.Join(",", regKey.GetSubKeyNames()));
                                 }
 

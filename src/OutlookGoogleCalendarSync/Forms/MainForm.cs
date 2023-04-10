@@ -2063,14 +2063,16 @@ namespace OutlookGoogleCalendarSync.Forms {
 
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
-            if (!Settings.Instance.UserIsBenefactor()) {
+            if (Settings.Instance.UserIsBenefactor()) {
+                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
+            } else {
                 cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
                 cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.Show(ToolTips.GetToolTip(cbHideSplash), cbHideSplash, 5000);
+                Settings.Instance.HideSplashScreen = null;
             }
-            Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
         }
 
         private void cbSuppressSocialPopup_CheckedChanged(object sender, EventArgs e) {

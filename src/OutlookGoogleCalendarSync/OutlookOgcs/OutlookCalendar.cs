@@ -309,7 +309,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Start = new DateTime();
             ai.End = new DateTime();
-            ai.AllDayEvent = (ev.Start.Date != null);
+            ai.AllDayEvent = ev.AllDayEvent();
             ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             Recurrence.Instance.BuildOutlookPattern(ev, ai);
 
@@ -457,9 +457,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             sb.AppendLine(evSummary);
 
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) {
-                if (ai.AllDayEvent != (ev.Start.DateTime == null)) {
-                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + (ev.Start.DateTime == null));
-                    ai.AllDayEvent = (ev.Start.DateTime == null);
+                if (ai.AllDayEvent != ev.AllDayEvent()) {
+                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + ev.AllDayEvent());
+                    ai.AllDayEvent = ev.AllDayEvent();
                     itemModified++;
                 }
             }
@@ -477,10 +477,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             #endregion
 
             #region Start/End & Recurrence
-            DateTime evStartParsedDate = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+            DateTime evStartParsedDate = ev.Start.SafeDateTime();
             Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, evStartParsedDate, ai.Start, sb, ref itemModified);
 
-            DateTime evEndParsedDate = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+            DateTime evEndParsedDate = ev.End.SafeDateTime();
             Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, evEndParsedDate, ai.End, sb, ref itemModified);
 
             RecurrencePattern oPattern = null;

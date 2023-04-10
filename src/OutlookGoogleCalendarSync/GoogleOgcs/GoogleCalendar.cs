@@ -329,7 +329,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(cancelled).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)) == from)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -650,8 +650,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             sb.AppendLine(aiSummary);
 
             //Handle an event's all-day attribute being toggled
-            DateTime evStart = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
-            DateTime evEnd = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+            DateTime evStart = ev.Start.SafeDateTime();
+            DateTime evEnd = ev.End.SafeDateTime();
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
@@ -667,7 +667,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } else {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.Start.DateTime == null && evStart == ai.Start && evEnd == ai.End) {
+                if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
                     sb.AppendLine("All-Day: true => false");
                     ev.Start.DateTime = ai.Start;
                     ev.End.DateTime = ai.End;
@@ -856,7 +856,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                         //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
                         //Which means it keeps adding the default back in!! Let's stop that:
-                        if (newVal && ev.Start.Date != null) {
+                        if (newVal && ev.AllDayEvent()) {
                             log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
                             newVal = false;
                         }
@@ -1504,6 +1504,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
                     Setting setting = Service.Settings.Get("timezone").Execute();
                     this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
+                    log.Info("Google account timezone: " + setting.Value);
                     stage = "retrieve settings for synced Google calendar";
                     getCalendarSettings();
                     break;
@@ -1538,11 +1539,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         private void getCalendarSettings() {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
+            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
+            CalendarListEntry cal = request.Execute();
+            log.Info("Google calendar timezone: " + cal.TimeZone);
 
             if (!profile.AddReminders) return;
 
-            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
-            CalendarListEntry cal = request.Execute();
             if (cal.DefaultReminders.Count == 0)
                 this.MinDefaultReminder = int.MinValue;
             else
@@ -1699,12 +1701,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
                     signature += (ev.Summary ?? "[cancelled]");
-                    signature += ";" + (ev.OriginalStartTime.DateTime ?? DateTime.Parse(ev.OriginalStartTime.Date)).ToPreciseString();
+                    signature += ";" + ev.OriginalStartTime.SafeDateTime().ToPreciseString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + (ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date)).ToPreciseString() + ";";
+                    signature += ";" + ev.Start.SafeDateTime().ToPreciseString() + ";";
                     if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += (ev.End.DateTime ?? DateTime.Parse(ev.End.Date)).ToPreciseString();
+                        signature += ev.End.SafeDateTime().ToPreciseString();
                     }
                 }
             } catch {
