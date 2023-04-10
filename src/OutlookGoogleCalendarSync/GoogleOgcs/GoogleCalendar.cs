@@ -1246,6 +1246,28 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
 
+            if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
+                //Check if Outlook items to be created in Google have invitations not yet responded to
+                int responseFiltered = 0;
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (outlook[o].ResponseStatus == OlResponseStatus.olResponseNotResponded) {
+                        outlook.Remove(outlook[o]);
+                        responseFiltered++;
+                    }
+                }
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
+            }
+
+            if (google.Count > 0) {
+                //Check if Google items to be deleted were filtered out from Outlook
+                for (int g = google.Count - 1; g >= 0; g--) {
+                    if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) &&
+                        OutlookOgcs.Calendar.Instance.ExcludedByCategory.Contains(CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId))) {
+                        google.Remove(google[g]);
+                    }
+                }
+            }
+
             if (profile.DisableDelete) {
                 if (google.Count > 0) {
                     Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
