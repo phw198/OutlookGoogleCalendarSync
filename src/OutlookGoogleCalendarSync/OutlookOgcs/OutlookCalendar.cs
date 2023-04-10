@@ -194,12 +194,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             log.Fail("Appointment item seems unusable - no Start or End date! Discarding.");
                             continue;
                         }
-                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+                        log.Debug("Unable to get End date for: " + GetEventSummary(ai));
                         continue;
 
                     } catch (System.Exception ex) {
                         OGCSexception.Analyse(ex, true);
-                        log.Debug("Unable to get End date for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+                        log.Debug("Unable to get End date for: " + GetEventSummary(ai));
                         continue;
                     }
 
@@ -207,13 +207,21 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean unfiltered = true;
 
-                        if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                            unfiltered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
+                        try {
+                            if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
+                                unfiltered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
 
-                        } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                            unfiltered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
+                            } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
+                                unfiltered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
+                            }
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            if (ex.TargetSite.Name == "get_Categories") {
+                                log.Warn("Could not access Categories property for " + GetEventSummary(ai));
+                                unfiltered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && profile.Categories.Contains("<No category assigned>")) ||
+                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && !profile.Categories.Contains("<No category assigned>")));
+                            } else throw;
                         }
                         if (!unfiltered) categoryFiltered++;
 
@@ -720,7 +728,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Appointment deletion failed.", ex);
+                        Forms.Main.Instance.Console.UpdateWithError(GetEventSummary(ai, true) + "Appointment deletion failed.", ex);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -732,7 +740,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (doDelete) deleteCalendarEntry_save(ai);
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, true) + "Deleted appointment failed to remove.", ex);
+                        Forms.Main.Instance.Console.UpdateWithError(GetEventSummary(ai, true) + "Deleted appointment failed to remove.", ex);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -822,7 +830,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     } catch (System.Exception) {
-                        Forms.Main.Instance.Console.Update("Failure processing Outlook item:-<br/>" + OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.warning);
+                        Forms.Main.Instance.Console.Update("Failure processing Outlook item:-<br/>" + GetEventSummary(ai), Console.Markup.warning);
                         throw;
                     }
                     if (Sync.Engine.Instance.CancellationPending) return;
