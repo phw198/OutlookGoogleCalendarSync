@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         public Calendar() { }
-        private Boolean openedIssue528 = false;
+        private Boolean openedIssue1593 = false;
         public GoogleOgcs.Authenticator Authenticator;
 
         private GoogleOgcs.EventColour colourPalette;
@@ -906,7 +906,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ref ex, ev)) {
+                    ApiException handled = HandleAPIlimits(ref ex, ev);
+                    switch (handled) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
@@ -928,11 +929,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             backoff = BackoffLimit;
                             break;
                     }
-                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
-                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
-                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                        this.openedIssue528 = true;
+                    if (handled != ApiException.justContinue && ex.Error?.Code == 412 && !this.openedIssue1593) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #1593 on GitHub for further information.",
+                        "PreCondition Failed: Issue #1593", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/1593");
+                        this.openedIssue1593 = true;
                     }
                 }
             }
