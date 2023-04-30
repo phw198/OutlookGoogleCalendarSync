@@ -12,7 +12,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
-                if (string.IsNullOrEmpty(outlookVersionNameFull)) getOutlookVersion();
+                if (string.IsNullOrEmpty(outlookVersionNameFull)) {
+                    getOutlookVersion();
+                    Telemetry.Instance.OutlookVersion = outlookVersionFull;
+                    Telemetry.Instance.OutlookVersionName = outlookVersionNameFull.Replace("Outlook", "");
+                }
                 return outlookVersionNameFull;
             }
         }
@@ -69,7 +73,33 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Microsoft.Office.Interop.Outlook.Application oApp = null;
             OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
             try {
-                outlookVersionFull = oApp.Version;
+                int attempts = 1;
+                int maxAttempts = 3;
+                while (attempts <= maxAttempts) {
+                    try {
+                        log.Fine("About to access Outlook oApp.version property...");
+                        outlookVersionFull = oApp.Version;
+                        attempts = maxAttempts + 1;
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        String hResult = OGCSexception.GetErrorCode(ex);
+
+                        if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
+                            (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
+                            (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
+                        {
+                            log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
+                            if (attempts == maxAttempts) {
+                                String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
+                                    "Please try running OGCS again later" +
+                                    (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
+
+                                throw new ApplicationException(message);
+                            }
+                            System.Threading.Thread.Sleep(10000);
+                            attempts++;
+                        } else throw;
+                    }
+                }
 
                 log.Info("Outlook Version: " + outlookVersionFull);
 #pragma warning disable 162 //Unreachable code
@@ -112,7 +142,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
                         RegistryKey regKey = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Office\ClickToRun");
                         if (regKey == null || regKey.SubKeyCount == 0) {
-                            //Try as 64-bit registry
+                            log.Debug("Try accessing 64-bit registry key");
                             baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
                             regKey = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Office\ClickToRun");
                         }
@@ -137,11 +167,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                             log.Error("Could not determine exact Outlook version with codebase v16. " + regReleaseValue);
                                         }
                                     } else {
-                                        log.Warn("ProductReleaseIds value does not exist.");
+                                        log.Warn("'ProductReleaseIds' value does not exist.");
                                         log.Debug(String.Join(",", regKey.GetValueNames()));
                                     }
                                 } else {
-                                    log.Warn("Configuration subdirectory does not exist.");
+                                    log.Warn("'Configuration' subdirectory does not exist.");
                                     log.Debug(String.Join(",", regKey.GetSubKeyNames()));
                                 }
 

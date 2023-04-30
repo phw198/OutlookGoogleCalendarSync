@@ -65,9 +65,9 @@ namespace OutlookGoogleCalendarSync {
             }
             .em-repeat {
                 padding-right: 0px;
-              margin-left: 0px;
+                margin-left: 0px;
             }
-            .info, .error, .warning {
+            .config, .info, .error, .warning {
                 margin-top: 8px;
                 padding-bottom: 4px;
                 margin-bottom: 10px;
@@ -77,6 +77,10 @@ namespace OutlookGoogleCalendarSync {
                 border-bottom-left-radius: 5px;
                 border-top-left-radius: 5px;
                 margin-left: -15px;
+            }
+            .config {
+                background-color: lightgray;
+                border-left-color: yellow;
             }
             .info {
                 background-color: lightblue;
@@ -229,6 +233,7 @@ namespace OutlookGoogleCalendarSync {
         public enum Markup {
             calendar,
             checkered_flag,
+            config,
             error,
             fail,
             h2,
@@ -244,6 +249,15 @@ namespace OutlookGoogleCalendarSync {
             Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, notifyBubble: notifyBubble, logit: logit);
         }
 
+        /// <summary>
+        /// Update the console with further text
+        /// </summary>
+        /// <param name="moreOutput">The text to update the console with</param>
+        /// <param name="markupPrefix">The type of update, may cause emoji prefix</param>
+        /// <param name="newLine">Append a new line at the end</param>
+        /// <param name="verbose">Only output if verbose is set 'On'</param>
+        /// <param name="notifyBubble">Trigger a system bubble for notification</param>
+        /// <param name="logit">Send the text to logfile</param>
         public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true) {
             ///Accessing the DOM is terribly slow, so not using this method.
             ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
@@ -326,7 +340,8 @@ namespace OutlookGoogleCalendarSync {
                 //div
                 output = Regex.Replace(output, ":info:(<p>)*", "<div class='info'>$1<span class='em em-information_source'></span>");
                 output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
-                output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");                
+                output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");
+                output = Regex.Replace(output, ":config:(<p>)*", "<div class='config'>$1<span class='em em-gear'></span>");
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);

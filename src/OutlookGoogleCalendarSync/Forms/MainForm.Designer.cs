@@ -183,6 +183,7 @@
             this.cbAddColours = new System.Windows.Forms.CheckBox();
             this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbStartOnStartupAllUsers = new System.Windows.Forms.CheckBox();
             this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
             this.panelAppBehaviour = new System.Windows.Forms.Panel();
             this.pbExpandProxy = new System.Windows.Forms.PictureBox();
@@ -275,6 +276,7 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ddPrivacy = new System.Windows.Forms.ComboBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1361,7 +1363,7 @@
             this.gbSyncOptions_How.Location = new System.Drawing.Point(10, 2);
             this.gbSyncOptions_How.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_How.Name = "gbSyncOptions_How";
-            this.gbSyncOptions_How.Size = new System.Drawing.Size(368, 193);
+            this.gbSyncOptions_How.Size = new System.Drawing.Size(368, 198);
             this.gbSyncOptions_How.TabIndex = 40;
             this.gbSyncOptions_How.TabStop = false;
             this.gbSyncOptions_How.Text = "  How";
@@ -1370,6 +1372,7 @@
             // 
             this.howMorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.howMorePanel.Controls.Add(this.ddPrivacy);
             this.howMorePanel.Controls.Add(this.ddAvailabilty);
             this.howMorePanel.Controls.Add(this.ddGoogleColour);
             this.howMorePanel.Controls.Add(this.ddOutlookColour);
@@ -1383,7 +1386,7 @@
             this.howMorePanel.Location = new System.Drawing.Point(5, 101);
             this.howMorePanel.MinimumSize = new System.Drawing.Size(333, 0);
             this.howMorePanel.Name = "howMorePanel";
-            this.howMorePanel.Size = new System.Drawing.Size(353, 90);
+            this.howMorePanel.Size = new System.Drawing.Size(353, 94);
             this.howMorePanel.TabIndex = 48;
             // 
             // ddAvailabilty
@@ -1393,7 +1396,7 @@
             this.ddAvailabilty.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ddAvailabilty.ForeColor = System.Drawing.SystemColors.ControlText;
             this.ddAvailabilty.FormattingEnabled = true;
-            this.ddAvailabilty.Location = new System.Drawing.Point(133, 40);
+            this.ddAvailabilty.Location = new System.Drawing.Point(149, 47);
             this.ddAvailabilty.Name = "ddAvailabilty";
             this.ddAvailabilty.Size = new System.Drawing.Size(84, 21);
             this.ddAvailabilty.TabIndex = 46;
@@ -1408,7 +1411,7 @@
             this.ddGoogleColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddGoogleColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ddGoogleColour.FormattingEnabled = true;
-            this.ddGoogleColour.Location = new System.Drawing.Point(178, 62);
+            this.ddGoogleColour.Location = new System.Drawing.Point(178, 70);
             this.ddGoogleColour.MinimumSize = new System.Drawing.Size(158, 0);
             this.ddGoogleColour.Name = "ddGoogleColour";
             this.ddGoogleColour.SelectedItem = null;
@@ -1424,7 +1427,7 @@
             this.ddOutlookColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddOutlookColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ddOutlookColour.FormattingEnabled = true;
-            this.ddOutlookColour.Location = new System.Drawing.Point(178, 62);
+            this.ddOutlookColour.Location = new System.Drawing.Point(178, 70);
             this.ddOutlookColour.MinimumSize = new System.Drawing.Size(158, 0);
             this.ddOutlookColour.Name = "ddOutlookColour";
             this.ddOutlookColour.SelectedItem = null;
@@ -1436,7 +1439,7 @@
             // 
             this.cbColour.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbColour.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbColour.Location = new System.Drawing.Point(48, 64);
+            this.cbColour.Location = new System.Drawing.Point(48, 72);
             this.cbColour.Name = "cbColour";
             this.cbColour.Size = new System.Drawing.Size(132, 17);
             this.cbColour.TabIndex = 44;
@@ -1479,11 +1482,11 @@
             // 
             this.cbAvailable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAvailable.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAvailable.Location = new System.Drawing.Point(48, 44);
+            this.cbAvailable.Location = new System.Drawing.Point(48, 50);
             this.cbAvailable.Name = "cbAvailable";
-            this.cbAvailable.Size = new System.Drawing.Size(163, 17);
+            this.cbAvailable.Size = new System.Drawing.Size(107, 17);
             this.cbAvailable.TabIndex = 40;
-            this.cbAvailable.Text = "Set entries as free/available";
+            this.cbAvailable.Text = "Set availability to";
             this.cbAvailable.UseVisualStyleBackColor = true;
             this.cbAvailable.CheckedChanged += new System.EventHandler(this.cbAvailable_CheckedChanged);
             // 
@@ -1501,11 +1504,11 @@
             // 
             this.cbPrivate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbPrivate.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbPrivate.Location = new System.Drawing.Point(48, 24);
+            this.cbPrivate.Location = new System.Drawing.Point(48, 27);
             this.cbPrivate.Name = "cbPrivate";
-            this.cbPrivate.Size = new System.Drawing.Size(139, 17);
+            this.cbPrivate.Size = new System.Drawing.Size(95, 17);
             this.cbPrivate.TabIndex = 35;
-            this.cbPrivate.Text = "Set entries as private";
+            this.cbPrivate.Text = "Set privacy to";
             this.cbPrivate.UseVisualStyleBackColor = true;
             this.cbPrivate.CheckedChanged += new System.EventHandler(this.cbPrivate_CheckedChanged);
             // 
@@ -2151,6 +2154,7 @@
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbStartOnStartupAllUsers);
             this.tabAppBehaviour.Controls.Add(this.cbSuppressSocialPopup);
             this.tabAppBehaviour.Controls.Add(this.panelAppBehaviour);
             this.tabAppBehaviour.Controls.Add(this.tbStartupDelay);
@@ -2166,6 +2170,17 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(473, 488);
             this.tabAppBehaviour.TabIndex = 4;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbStartOnStartupAllUsers
+            // 
+            this.cbStartOnStartupAllUsers.AutoSize = true;
+            this.cbStartOnStartupAllUsers.Location = new System.Drawing.Point(300, 16);
+            this.cbStartOnStartupAllUsers.Name = "cbStartOnStartupAllUsers";
+            this.cbStartOnStartupAllUsers.Size = new System.Drawing.Size(79, 17);
+            this.cbStartOnStartupAllUsers.TabIndex = 47;
+            this.cbStartOnStartupAllUsers.Text = "for all users";
+            this.cbStartOnStartupAllUsers.UseVisualStyleBackColor = true;
+            this.cbStartOnStartupAllUsers.CheckedChanged += new System.EventHandler(this.cbStartOnStartupAllUsers_CheckedChanged);
             // 
             // cbSuppressSocialPopup
             // 
@@ -3366,6 +3381,21 @@
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
+            // ddPrivacy
+            // 
+            this.ddPrivacy.DisplayMember = "Value";
+            this.ddPrivacy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddPrivacy.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ddPrivacy.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ddPrivacy.FormattingEnabled = true;
+            this.ddPrivacy.ItemHeight = 13;
+            this.ddPrivacy.Location = new System.Drawing.Point(149, 24);
+            this.ddPrivacy.Name = "ddPrivacy";
+            this.ddPrivacy.Size = new System.Drawing.Size(84, 21);
+            this.ddPrivacy.TabIndex = 47;
+            this.ddPrivacy.ValueMember = "Key";
+            this.ddPrivacy.SelectedIndexChanged += new System.EventHandler(this.ddPrivacy_SelectedIndexChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3681,5 +3711,7 @@
         private System.Windows.Forms.Label txtProfileLoading;
         private System.Windows.Forms.Panel panelProfileLoading;
         private System.Windows.Forms.Panel panelObscure;
+        private System.Windows.Forms.CheckBox cbStartOnStartupAllUsers;
+        private System.Windows.Forms.ComboBox ddPrivacy;
     }
 }

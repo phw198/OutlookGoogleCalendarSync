@@ -196,7 +196,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Settings.Instance.CompletedSyncs++;
                         this.consecutiveSyncFails = 0;
                         mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
-                        mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExhaustedInfo, null, false);
+                        mainFrm.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null, false);
+                        mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null, false);
                     } else if (syncResult == SyncResult.AutoRetry) {
                         this.consecutiveSyncFails++;
                         mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + this.consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
@@ -384,17 +385,23 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         //Now let's check there's a start/end date - sometimes it can be missing, even though this shouldn't be possible!!
-                        String entryID;
+                        String entryID = null;
+                        DateTime? checkStartDate = null;
+                        DateTime? checkEndDate = null;
                         try {
                             entryID = outlookEntries[o].EntryID;
-                            DateTime checkDates = ai.Start;
-                            checkDates = ai.End;
+                            checkStartDate = ai.Start;
+                            checkEndDate = ai.End;
                         } catch (System.Runtime.InteropServices.COMException ex) {
-                            if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
+                            if (OGCSexception.GetErrorCode(ex) == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
+                                OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
+                            {
+                                Forms.Main.Instance.Console.UpdateWithError("Cannot continue synchronising.", ex);
+                                return SyncResult.AutoRetry;
+                            } else if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             } else {
-                                //"Your server administrator has limited the number of items you can open simultaneously."
-                                //Once we have the error code for above message, need to abort sync - and suggest using cached Exchange mode
+                                log.Debug($"EntryID: {entryID}; Start: {checkStartDate}; End: {checkEndDate}");
                                 OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
                                     OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
@@ -467,15 +474,18 @@ namespace OutlookGoogleCalendarSync.Sync {
                     OutlookOgcs.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 
-                    if (this.Profile.AddColours || this.Profile.SetEntriesColour) OutlookOgcs.Calendar.Categories.ValidateCategories();
-                    if (this.Profile.ColourMaps.Count > 0) {
-                        this.Profile.ColourMaps.ToList().ForEach(c => {
-                            if (OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) == null) {
-                                if (OgcsMessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
-                                    "Invalid colour map", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == DialogResult.Yes)
-                                    new Forms.ColourMap().ShowDialog();
-                            }
-                        });
+                    if (this.Profile.AddColours || this.Profile.SetEntriesColour) {
+                        OutlookOgcs.Calendar.Categories.ValidateCategories();
+                     
+                        if (this.Profile.ColourMaps.Count > 0) {
+                            this.Profile.ColourMaps.ToList().ForEach(c => {
+                                if (OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) == null) {
+                                    if (OgcsMessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
+                                        "Invalid colour map", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == DialogResult.Yes)
+                                        new Forms.ColourMap().ShowDialog();
+                                }
+                            });
+                        }
                     }
 
                     //Sync
@@ -526,6 +536,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (sectionDuration.TotalSeconds > 30) {
                     log.Warn("That step took a long time! Issue #599");
                     Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Google.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
+                    Telemetry.GA4Event.Event debugGa4Ev = new(Telemetry.GA4Event.Event.Name.debug);
+                    debugGa4Ev.AddParameter(GA4.General.github_issue, 599);
+                    debugGa4Ev.AddParameter("section", "GoogleOgcs.Calendar.Instance.IdentifyEventDifferences()");
+                    debugGa4Ev.AddParameter("duration", sectionDuration.TotalSeconds);
+                    debugGa4Ev.AddParameter("items", entriesToBeCompared.Count);
+                    debugGa4Ev.Send();
                 }
 
                 StringBuilder sb = new StringBuilder();

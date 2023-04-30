@@ -96,6 +96,7 @@ namespace OutlookGoogleCalendarSync {
             MuteClickSounds = false;
             ShowBubbleTooltipWhenSyncing = true;
             StartOnStartup = false;
+            StartOnStartupAllUsers = false;
             StartupDelay = 0;
             StartInTray = false;
             MinimiseToTray = false;
@@ -199,11 +200,10 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool? HideSplashScreen {
             get { return hideSplashScreen; }
             set {
-                hideSplashScreen = value;
                 if (!Loading() && hideSplashScreen != value) {
                     XMLManager.ExportElement(this, "HideSplashScreen", value, ConfigFile);
-                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbHideSplash.Checked = value ?? false;
                 }
+                hideSplashScreen = value;
             }
         }
 
@@ -212,13 +212,13 @@ namespace OutlookGoogleCalendarSync {
             set {
                 if (!Loading() && suppressSocialPopup != value) {
                     XMLManager.ExportElement(this, "SuppressSocialPopup", value, ConfigFile);
-                    if (Forms.Main.Instance != null) Forms.Main.Instance.cbSuppressSocialPopup.Checked = value;
                 }
                 suppressSocialPopup = value;
             }
         }
         [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
+        [DataMember] public bool StartOnStartupAllUsers { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimiseToTray { get; set; }
@@ -373,7 +373,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("APPLICATION BEHAVIOUR:-");
             log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
-            log.Info("  StartOnStartup: " + StartOnStartup + "; DelayedStartup: "+ StartupDelay.ToString());
+            log.Info("  StartOnStartup: " + StartOnStartup + "; AllUsers: " + StartOnStartupAllUsers + "; DelayedStartup: " + StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);

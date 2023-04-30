@@ -38,6 +38,7 @@ namespace OutlookGoogleCalendarSync {
                 source = TzdbDateTimeZoneSource.Default;
             }
             log.Info("Using NodaTime " + source.VersionId);
+            this.RevertKyiv = false;
 
             Microsoft.Win32.SystemEvents.TimeChanged += SystemEvents_TimeChanged;
         }
@@ -170,5 +171,11 @@ namespace OutlookGoogleCalendarSync {
             }
             return utcOffset;
         }
+
+        /// <summary>
+        /// IANA updated in Aug-2022 to Europe/Kyiv, but Google is still on Europe/Kiev.
+        /// Once Google catches up, this can be removed.
+        /// </summary>
+        public Boolean RevertKyiv { get; set; }
     }
 }

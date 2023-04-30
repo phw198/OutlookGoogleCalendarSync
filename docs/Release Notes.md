@@ -1,6 +1,57 @@
 | Release Notes |
 |:---|
 
+# v2.9.7.0 - Alpha
+
+**Enhancements**
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- Don't delete from Google items that were filtered out from Outlook
+- Better splash screen hiding; donor details case insensitive
+- Migrated to Google Analytics 4 from deprecated Universal Analytics
+
+**Bugfix**
+- Robust access of Outlook categories
+- If item categories are not accessible, treat as though none exist
+- Handle new type of quota errors properly
+- Check a schedule is configured when enable/disable sync
+
+# v2.9.6.0 - Alpha
+
+**Enhancements**
+- Warn if multiple instances of OGCS are running with the same configuration
+- Cater for Kyiv time zone rename (from Kiev)
+- Browser agent version updated
+- Display error detail if OGCS unable to communicate with Google
+- Abort sync if Exchange connection becomes unavailable
+- Better UI for colour map configuration
+
+**Bugfix**
+- Error when switching Profiles
+- Use correct Find/Replace regular expression from Profile
+- Resolve "Precondition Failed", error [412] on sync to Google
+- Fix null reference errors on sync to Google
+- Don't validate colour mappings if no longer syncing colours
+- Improved handling of startup registry keys
+
+# v2.9.5.0 - Alpha
+
+**Enhancements**
+- New option to set synced items as 'public'
+- Categories now properly populating for Alternate Mailbox
+- New option to set OGCS to startup for all Windows users, not just current
+- Show warning that filtered out items may sync as "duplicates"
+
+**Bugfix**
+- Don't touch Outlook attendee response status, if they are Google organiser
+- Fixed error accessing Outlook item that has been modified
+- Fixed error when syncing colours, but none set on Outlook appointment
+- Handle being disconnected from Outlook when retrieving categories
+
 # v2.9.4.0 - Alpha
 
 **Enhancements**

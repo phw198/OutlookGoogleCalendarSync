@@ -421,7 +421,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
-                oApp.GetNamespace("mapi");
+                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+                ns = oApp.GetNamespace("mapi");
                 ai = ns.GetItemFromID(entryID) as AppointmentItem;
             } finally {
                 ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
@@ -798,7 +799,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = time.DateTime ?? DateTime.Parse(time.Date);
+            DateTime theDate = time.SafeDateTime();
             /*if (time.TimeZone == null)*/
             return theDate;
 

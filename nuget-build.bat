@@ -1,4 +1,4 @@
-set RELEASE=2.9.4-alpha
+set RELEASE=2.9.7-alpha
 
 REM Check for new NodaTime DB @ http://nodatime.org/tzdb/latest.txt
 
@@ -13,7 +13,7 @@ REM src\packages\squirrel.windows.1.9.0\tools\signtool.exe sign /n "Open Source 
 
 REM In VS Package Manager
 REM PM> Install-Package squirrel.windows -Version 1.9.0
-REM PM> packages\squirrel.windows.1.9.0\tools\Squirrel --releasify OutlookGoogleCalendarSync.2.9.4-alpha.nupkg --no-msi --loadingGif=..\docs\images\ogcs128x128-animated.gif
+REM PM> packages\squirrel.windows.1.9.0\tools\Squirrel --releasify OutlookGoogleCalendarSync.2.9.7-alpha.nupkg --no-msi --loadingGif=..\docs\images\ogcs128x128-animated.gif
 
 REM Sign the Squirrel install executable
 REM src\packages\squirrel.windows.1.9.0\tools\signtool.exe sign /n "Open Source Developer, Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v src\Releases\Setup.exe
@@ -24,15 +24,15 @@ del src\Releases\OGCS_Setup.exe
 rename src\Releases\Setup.exe OGCS_Setup.exe
 
 cd src\OutlookGoogleCalendarSync\bin\Release
-del Portable_OGCS_v2.9.4.zip
-"c:\Program Files\7-Zip\7z.exe" u Portable_OGCS_v2.9.3.zip -u- -up0q0r2x2y2z1w2!Portable_OGCS_v2.9.4.zip *.dll *.ps1 ErrorReportingTemplate.json logger.xml tzdb.nzd OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.exe.config OutlookGoogleCalendarSync.pdb Console\* 
+del Portable_OGCS_v2.9.7.zip
+"c:\Program Files\7-Zip\7z.exe" u Portable_OGCS_v2.9.6.zip -u- -up0q0r2x2y2z1w2!Portable_OGCS_v2.9.7.zip *.dll *.ps1 ErrorReportingTemplate.json logger.xml tzdb.nzd OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.exe.config OutlookGoogleCalendarSync.pdb Console\* 
 
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.3.zip Microsoft.Office.Interop.Outlook.DLL
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.3.zip stdole.dll
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.3.zip "Windows Defender SmartScreen Unblock.ps1"
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.6.zip Microsoft.Office.Interop.Outlook.DLL
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.6.zip stdole.dll
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v2.9.6.zip "Windows Defender SmartScreen Unblock.ps1"
 
-"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.4.zip Microsoft.Office.Interop.Outlook.DLL
-"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.4.zip stdole.dll
-"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.4.zip "Windows Defender SmartScreen Unblock.ps1"
+"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.7.zip Microsoft.Office.Interop.Outlook.DLL
+"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.7.zip stdole.dll
+"c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v2.9.7.zip "Windows Defender SmartScreen Unblock.ps1"
 
 cd ..\..\..\..

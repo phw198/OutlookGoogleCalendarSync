@@ -806,7 +806,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
                 log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
             else {
-                retVal = tzDBsource.CanonicalIdMap[retVal];
+                if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
+                    log.Debug("Continuing to use Kiev instead of Kyiv.");
+                else
+                    retVal = tzDBsource.CanonicalIdMap[retVal];
                 log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
             }
             return retVal;
@@ -832,14 +835,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                     ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
                 }
-                if (!onlyTZattribute) ai.Start = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+                if (!onlyTZattribute) ai.Start = ev.Start.SafeDateTime();
             }
             if ("Both,End".Contains(attr)) {
                 if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
                     log.Fine("Has ending timezone: " + ev.End.TimeZone);
                     ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
                 }
-                if (!onlyTZattribute) ai.End = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+                if (!onlyTZattribute) ai.End = ev.End.SafeDateTime();
             }
             return ai;
         }

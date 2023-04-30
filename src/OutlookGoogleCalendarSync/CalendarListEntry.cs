@@ -68,7 +68,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public string ToString(bool withId) {
-            return this.ToString() + (Id != null ? " (ID: " + Id + ")" : "");
+            return EmailAddress.MaskAddressWithinText(this.ToString()) + (Id != null ? " (ID: " + EmailAddress.MaskAddressWithinText(Id) + ")" : "");
         }
 
         public string Sorted() {
@@ -98,7 +98,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public override String ToString() {
-            return Name + " (ID: " + Id + ")";
+            return EmailAddress.MaskAddressWithinText(Name) + " (ID: " + Id + ")";
         }
     }
 }
