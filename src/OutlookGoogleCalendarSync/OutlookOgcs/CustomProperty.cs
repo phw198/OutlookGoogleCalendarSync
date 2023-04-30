@@ -436,7 +436,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             UserProperties ups = null;
             UserProperty up = null;
             try {
-                log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai) + $" [EntryID: {ai.EntryID}]");
                 ups = ai.UserProperties;
                 for (int p = 1; p <= ups.Count; p++) {
                     try {

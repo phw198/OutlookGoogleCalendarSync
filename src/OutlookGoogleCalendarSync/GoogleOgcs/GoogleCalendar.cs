@@ -1175,7 +1175,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             ref List<Event> google,             //need deleting
             Dictionary<AppointmentItem, Event> compare) {
             log.Debug("Comparing Outlook items to Google events...");
-            Forms.Main.Instance.Console.Update("Matching calendar items...");
+            Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 

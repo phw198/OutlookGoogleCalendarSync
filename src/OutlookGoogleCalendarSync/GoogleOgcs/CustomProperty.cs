@@ -333,7 +333,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             try {
                 if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private__ != null) {
-                    log.Debug(GoogleOgcs.Calendar.GetEventSummary(ev));
+                    log.Debug(GoogleOgcs.Calendar.GetEventSummary(ev) + $" [Id: {ev.Id}]");
                     foreach (KeyValuePair<String, String> prop in ev.ExtendedProperties.Private__.OrderBy(k => k.Key)) {
                         log.Debug(prop.Key + "=" + prop.Value);
                     }
