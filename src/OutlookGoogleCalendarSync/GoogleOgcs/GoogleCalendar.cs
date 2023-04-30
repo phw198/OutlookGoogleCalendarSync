@@ -40,6 +40,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         }
         public Calendar() { }
         private Boolean openedIssue528 = false;
+        private String originalSerialisedObj;
         public GoogleOgcs.Authenticator Authenticator;
         
         private GoogleOgcs.EventColour colourPalette;
@@ -663,6 +664,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ev;
             }
 
+            this.originalSerialisedObj = Newtonsoft.Json.JsonConvert.SerializeObject(ev);
             logStartEnd(ev);
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -755,6 +757,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, currentStartTZ, ev.Start.TimeZone, sb, ref itemModified);
                 Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
             }
+            
+            /*
+            //From
+            ev.Recurrence = new List<String>() { "RRULE:FREQ=WEEKLY;UNTIL=20230101T044500Z;INTERVAL=2" };
+            ev.Start.TimeZone = "America/Denver";
+            ev.Start.DateTime = DateTime.Parse("2022-04-07T19:35:00-07:00")
+            ev.End.TimeZone = "America/Denver";
+            ev.End.DateTime = DateTime.Parse("2022-04-07T20:45:00-07:00");
+            //To
+            //ev.Recurrence = new List<String>() { "RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=20230101T051500Z" };
+            //ev.Start.TimeZone = "America/Denver";
+            //ev.Start.DateTime = DateTime.Parse("2022-04-07T21:05:00-07:00");
+            //ev.End.TimeZone = "America/Denver";
+            //ev.End.DateTime = DateTime.Parse("2022-04-07T22:15:00-07:00");
+            */
 
             if (itemModified > 0) { //https://www.kanzaki.com/docs/ical/sequence.html
                 log.Debug("Incrementing sequence from: " + ev.Sequence);
@@ -933,6 +950,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
+                    if (ex.Error?.Code == 400 && ex.Error.Message == "Invalid start time.") {
+                        log.Debug("Original Event: " + this.originalSerialisedObj);
+                        log.Debug("Updated  Event: " + Newtonsoft.Json.JsonConvert.SerializeObject(ev));
+                    }
                     switch (HandleAPIlimits(ref ex, ev)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
