@@ -671,7 +671,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //Handle an event's all-day attribute being toggled
             DateTime evStart = ev.Start.SafeDateTime();
             DateTime evEnd = ev.End.SafeDateTime();
-            if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0,0,0)) {
+            if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
                 if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
@@ -960,15 +960,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
                         this.openedIssue528 = true;
-                    } else if (ex.Error.Code == 400 && ex.Error.Message == "Invalid start time.") {
-                        log.Fail("Update failed dued to inexplicable 'Invalid start time'. Attempting patch update...");
-                        ev = Service.Events.Patch(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
-                        log.Debug("Update by patching successful!");
-                        logStartEnd(ev);
                     }
                 }
             }
-        }
         }
         #endregion
 
@@ -1368,7 +1362,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (gCompareID == ai.EntryID) {
                             return true;
                         } else if (!string.IsNullOrEmpty(gCompareID) &&
-                            gCompareID.Remove(gCompareID.Length-16) == ai.EntryID.Remove(ai.EntryID.Length-16)) 
+                            gCompareID.Remove(gCompareID.Length - 16) == ai.EntryID.Remove(ai.EntryID.Length - 16))
                         {
                             //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
@@ -1576,10 +1570,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             CalendarListEntry cal = request.Execute();
             log.Info("Google calendar timezone: " + cal.TimeZone);
             
-            CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
-            CalendarListEntry cal = request.Execute();
-            log.Info("Calendar time zone: " + cal.TimeZone);
-
             if (!profile.AddReminders) return;
 
             if (cal.DefaultReminders.Count == 0)
@@ -1967,15 +1957,27 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             }
 
-            if (ex.Error?.Code == 400 && ex.Error.Message.Contains("Invalid time zone definition") &&
+            if (ex.Error?.Code == 400) {
+                if (ex.Error.Message.Contains("Invalid time zone definition") &&
                 (ev.Start.TimeZone == "Europe/Kyiv" || ev.End.TimeZone == "Europe/Kyiv")) {
 
-                //Mar-2023: Google has updated its definition to Kyiv, so this is not longer required...but helpful to leave here in case another time zone changes in the future
-                log.Warn("Reverting to old IANA timezone definition: Europe/Kiev");
-                TimezoneDB.Instance.RevertKyiv = true;
-                ev.Start.TimeZone = ev.Start.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
-                ev.End.TimeZone = ev.End.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
-                return ApiException.backoffThenRetry;
+                    //Mar-2023: Google has updated its definition to Kyiv, so this is not longer required...but helpful to leave here in case another time zone changes in the future
+                    log.Warn("Reverting to old IANA timezone definition: Europe/Kiev");
+                    TimezoneDB.Instance.RevertKyiv = true;
+                    ev.Start.TimeZone = ev.Start.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
+                    ev.End.TimeZone = ev.End.TimeZone.Replace("Europe/Kyiv", "Europe/Kiev");
+                    return ApiException.backoffThenRetry;
+
+                } else if (ex.Error.Message == "Invalid start time.") {
+                    log.Fail("Update failed due to inexplicable 'Invalid start time'. Attempting patch update...");
+                    try {
+                        ev = Calendar.Instance.Service.Events.Patch(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        log.Debug("Update by patching successful!");
+                        Calendar.Instance.logStartEnd(ev);
+                    } catch (System.Exception) {
+                        return ApiException.throwException;
+                    }
+                }
 
             } else if (ex.Error?.Code == 401 && ex.Error.Message.Contains("Unauthorized")) {
                 log.Debug("This error seems to be a new transient issue, so treating it with exponential backoff...");
@@ -1984,23 +1986,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else if (ex.Error?.Code == 403 && ex.Error.Errors?.First().Domain == "usageLimits") {
                 if (ex.Error.Errors.First().Reason == "rateLimitExceeded") {
                     if (ex.Message.Contains("limit 'Queries per minute'")) {
-                log.Fail(OGCSexception.FriendlyMessage(ex));
-                OGCSexception.LogAsFail(ref ex);
-                return ApiException.backoffThenRetry;
+                        log.Fail(OGCSexception.FriendlyMessage(ex));
+                        OGCSexception.LogAsFail(ref ex);
+                        return ApiException.backoffThenRetry;
 
                     } else if (ex.Message.Contains("limit 'Queries per day'") || ex.Message.Contains("Daily Limit Exceeded")) {
-                log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
+                        log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                         Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null);
 
-                //Delay next scheduled sync until after the new quota
-                if (profile.SyncInterval != 0) {
-                    DateTime utcNow = DateTime.UtcNow;
-                    DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
-                    if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
-                    int delayMins = (int)(quotaReset - utcNow).TotalMinutes;
-                    profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
-                    Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
-                }
+                        //Delay next scheduled sync until after the new quota
+                        if (profile.SyncInterval != 0) {
+                            DateTime utcNow = DateTime.UtcNow;
+                            DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                            if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
+                            int delayMins = (int)(quotaReset - utcNow).TotalMinutes;
+                            profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
+                            Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes, when new quota is available.", Console.Markup.warning);
+                        }
                         return ApiException.freeAPIexhausted;
 
                     } else if (ex.Message.Contains("Rate Limit Exceeded")) {
@@ -2010,20 +2012,20 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         //Delay next scheduled sync for an hour
                         if (profile.SyncInterval != 0) {
                             DateTime utcNow = DateTime.UtcNow;
-                            DateTime nextSync = utcNow.AddMinutes(60 + new Random().Next(1,10));
+                            DateTime nextSync = utcNow.AddMinutes(60 + new Random().Next(1, 10));
                             int delayMins = (int)(nextSync - utcNow).TotalMinutes;
                             profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                             Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes to let free quota rebuild.", Console.Markup.warning);
                         }
-                return ApiException.freeAPIexhausted;
+                        return ApiException.freeAPIexhausted;
                     }
 
                 } else if (ex.Error.Errors.First().Reason == "dailyLimitExceededUnreg") {
                     if (ex.Message.Contains("Daily Limit for Unauthenticated Use Exceeded. Continued use requires signup.")) {
-                Forms.Main.Instance.Console.Update("You are not properly authenticated to Google.<br/>" +
-                    "On the Settings > Google tab, please disconnect and re-authenticate your account.", Console.Markup.error);
-                ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
-                return ApiException.throwException;
+                        Forms.Main.Instance.Console.Update("You are not properly authenticated to Google.<br/>" +
+                            "On the Settings > Google tab, please disconnect and re-authenticate your account.", Console.Markup.error);
+                        ex.Data.Add("OGCS", "Unauthenticated access to Google account attempted. Authentication required.");
+                        return ApiException.throwException;
                     }
                 }
 
@@ -2062,9 +2064,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ApiException.backoffThenRetry;
             }
 
-                log.Warn("Unhandled API exception.");
-                return ApiException.throwException;
-            }
+            log.Warn("Unhandled API exception.");
+            return ApiException.throwException;
+        }
 
         public static Boolean? IsDefaultCalendar() {
             try {
