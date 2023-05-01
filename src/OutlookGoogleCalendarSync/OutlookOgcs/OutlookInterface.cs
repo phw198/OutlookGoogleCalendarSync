@@ -36,5 +36,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         List<Object> FilterItems(Items outlookItems, String filter);
         MAPIFolder GetFolderByID(String entryID);
         void GetAppointmentByID(String entryID, out AppointmentItem ai);
+        DateTime GetEndInEndTimeZone(AppointmentItem ai);
+        String GetEndTimeZoneID(AppointmentItem ai);
     }
 }
