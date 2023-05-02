@@ -316,10 +316,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 checkedOgcsUserStatus = true;
 
                 if (Settings.Instance.UserIsBenefactor() && Settings.Instance.HideSplashScreen == null) {
-                    DialogResult dr = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", dr == DialogResult.Yes);
+                    Boolean hideSplash = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", hideSplash);
+                    Settings.Instance.HideSplashScreen = hideSplash;
                 }
             }
         }
