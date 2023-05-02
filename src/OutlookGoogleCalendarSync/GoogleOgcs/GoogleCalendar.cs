@@ -1198,7 +1198,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
 
                             String compare_oID;
-                            if (outlookIDmissing && compare_gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) {
+                            if (outlookIDmissing && compare_gEntryID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern)) {
                                 //compare_gEntryID actually holds GlobalID up to v2.3.2.3 - yes, confusing I know, but we're sorting this now
                                 compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
                             } else {
