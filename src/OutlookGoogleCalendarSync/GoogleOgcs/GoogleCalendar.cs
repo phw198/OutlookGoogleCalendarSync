@@ -1316,13 +1316,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                if ((OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 && oGlobalID == gCompareID) //Actually simple compare of EntryId for O2003
                     ||
-                    (!oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    !gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16))) //Or it's really a Entry ID (failsafe match)
+                    (OutlookOgcs.Factory.OutlookVersionName != OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 &&
+                        (
+                            (oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                            ||
+                            (!oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            !gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16)) //Or it's really a Entry ID (failsafe match)
+                        )
+                    ))
                 {
                     log.Fine("Comparing Outlook CalendarID");
                     gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId);

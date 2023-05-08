@@ -960,6 +960,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return null;
         }
 
+        public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
+            return ai.EndInEndTimeZone;
+        }
+
+        public String GetEndTimeZoneID(AppointmentItem ai) {
+            return ai.EndTimeZone.ID;
+        }
         #endregion
     }
 }

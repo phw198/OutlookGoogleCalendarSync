@@ -37,8 +37,8 @@ namespace OutlookGoogleCalendarSync {
                 if (ai.AllDayEvent)
                     utcEnd = rp.PatternEndDate;
                 else {
-                    DateTime localEnd = rp.PatternEndDate + ai.EndInEndTimeZone.TimeOfDay;
-                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(ai.EndTimeZone.ID));
+                    DateTime localEnd = rp.PatternEndDate + OutlookOgcs.Calendar.Instance.IOutlook.GetEndInEndTimeZone(ai).TimeOfDay;
+                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(OutlookOgcs.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
                 }
                 gPattern.Add("RRULE:" + buildRrule(rp, utcEnd));
             } finally {
