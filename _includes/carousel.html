@@ -3,10 +3,10 @@
 {% assign number = include.number | minus: 1 %}
 <div class="carousel__holder">
     <div id="carousel{{ number }}" class="carousel">
-        {% for item in page.carousels[number].images %}
+        {% for item in page.carousels[number].quotes %}
           <input class="carousel__activator" type="radio" name="carousel{{ number }}" id="{{ number }}{{ letters[forloop.index0] }}" {% if forloop.first %}checked="checked"{% endif %} />
         {% endfor %}
-        {% for item in page.carousels[number].images %}
+        {% for item in page.carousels[number].quotes %}
           {% if forloop.index == forloop.length %}
             {% assign nextindex = 0 %}
           {% else %}
@@ -26,13 +26,19 @@
         {% endfor %}
         <div class="carousel__track">
           <ul>
-            {% for item in page.carousels[number].images %}
-            <li class="carousel__slide" style="background-image: url('{{ item.image }}');"></li>
+            {% for item in page.carousels[number].quotes %}
+            <div class="carousel__slide">
+              <span style="position: absolute; display: block; margin-left: 6px;"><img src="images/quotemark-open.png" style="width:25px; opacity: 0.8;"/></span>
+              <div class="carousel__track_quote">{{ item.quote }}</div>
+              <div class="carousel__track_name">{{ item.name }}</div>
+              <div class="carousel__track_date">{{ item.date }}</div>
+              <span style="position: absolute; bottom: 17px; right: 140px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
+            </div>
             {% endfor %}
           </ul>
         </div>
         <div class="carousel__indicators">
-            {% for item in page.carousels[number].images %}
+            {% for item in page.carousels[number].quotes %}
               <label class="carousel__indicator" for="{{ number }}{{ letters[forloop.index0] }}"></label>
             {% endfor %}
         </div>
@@ -40,7 +46,17 @@
 </div>
 
 <style>
-.carousel__holder {width: 100%; position: relative; padding-bottom: {{ include.height }}{{ include.unit }}; margin: 1rem 0 1rem;}
+.carousel__holder {
+  width: 100%; 
+  position: relative; 
+  margin: 1rem 0 1rem;
+  border-width: 10px;
+  border-left-style: double;
+  border-color: #548EF9;
+  background-color: #edf3ff;
+  border-right-style: double;
+  padding-bottom: {{ include.height }}{{ include.unit }}; 
+}
 .carousel {
   height: 100%;
   width: 100%;
@@ -53,7 +69,7 @@
 .carousel__activator {
   display: none;
 }
-{% for item in page.carousels[number].images %}
+{% for item in page.carousels[number].quotes %}
 .carousel__activator:nth-of-type({{ forloop.index }}):checked ~ .carousel__track {
   -webkit-transform: translateX(-{{ forloop.index0 }}00%);
           transform: translateX(-{{ forloop.index0 }}00%);
@@ -84,11 +100,11 @@
   margin-top: -15px;
   top: 50%;
   position: absolute;
-  display: block;
+  display: contents;  /* hide the arrows */
   cursor: pointer;
   border-width: 5px 5px 0 0;
   border-style: solid;
-  border-color: #fafafa;
+  border-color: #0ead3e;
   opacity: 0.35;
   opacity: 1;
   outline: 0;
@@ -109,7 +125,7 @@
 }
 .carousel__indicators {
   position: absolute;
-  bottom: 20px;
+  bottom: -4px;
   width: 100%;
   text-align: center;
 }
@@ -138,6 +154,28 @@
   transition: transform 0.5s ease 0s;
   transition: transform 0.5s ease 0s, -webkit-transform 0.5s ease 0s;
 }
+.carousel__track_quote {
+  font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+  text-align: left;
+  padding-left: 37px;
+  padding-top: 9px;
+  font-size: 17px;
+  padding-right: 164px;
+}
+.carousel__track_name {
+font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+    padding-right: 13px;
+    position: absolute;
+    top: 11px;
+    right: 1px;
+}
+.carousel__track_date {  
+    padding-right: 13px;
+    position: absolute;
+    top: 28px;
+    right: 1px;
+    font-size: 9px;
+}
 .carousel__track .carousel__slide {
   display: block;
   top: 0;
@@ -145,7 +183,7 @@
   right: 0;
   opacity: 1;
 }
-{% for item in page.carousels[number].images %}
+{% for item in page.carousels[number].quotes %}
 .carousel__track .carousel__slide:nth-of-type({{ forloop.index }}) {
   -webkit-transform: translateX({{ forloop.index0 }}00%);
           transform: translateX({{ forloop.index0 }}00%);
@@ -168,9 +206,9 @@
   width: 30px;
 }
 .carousel__indicator {
-  background-color: #fafafa;
+  background-color: #548ef9;
 }
-{% for item in page.carousels[number].images %}
+{% for item in page.carousels[number].quotes %}
 .carousel__slide:nth-of-type({{ forloop.index }}),
 .carousel--thumb .carousel__indicators .carousel__indicator:nth-of-type({{ forloop.index }}) {
   background-size: cover;
