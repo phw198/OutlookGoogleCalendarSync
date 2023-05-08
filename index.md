@@ -1,13 +1,5 @@
 ---
 layout: page
-carousels:
-  - quotes: 
-    - quote: The first quote
-      name: A Nonymous
-      date: 7 May 2023
-    - quote: The second quote
-      name: A N other
-      date: 7 May 2023
 ---
 <div align="center" style="font-size:18px; line-height:18px; font-family:'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">
   <p>:small_blue_diamond: Sync your Outlook and Google calendars securely, including meeting attendees, reminders, full description and more.</p>

@@ -1,12 +1,13 @@
 {% assign letterstring = "a,b,c,d,e,f,g,h,i,j,k,l,m,n" %}
 {% assign letters = letterstring | split: ',' %}
 {% assign number = include.number | minus: 1 %}
+
 <div class="carousel__holder">
     <div id="carousel{{ number }}" class="carousel">
-        {% for item in page.carousels[number].quotes %}
+        {% for item in site.data.quotes %}
           <input class="carousel__activator" type="radio" name="carousel{{ number }}" id="{{ number }}{{ letters[forloop.index0] }}" {% if forloop.first %}checked="checked"{% endif %} />
         {% endfor %}
-        {% for item in page.carousels[number].quotes %}
+        {% for item in site.data.quotes %}
           {% if forloop.index == forloop.length %}
             {% assign nextindex = 0 %}
           {% else %}
@@ -26,19 +27,19 @@
         {% endfor %}
         <div class="carousel__track">
           <ul>
-            {% for item in page.carousels[number].quotes %}
+            {% for item in site.data.quotes %}
             <div class="carousel__slide">
               <span style="position: absolute; display: block; margin-left: 6px;"><img src="images/quotemark-open.png" style="width:25px; opacity: 0.8;"/></span>
               <div class="carousel__track_quote">{{ item.quote }}</div>
               <div class="carousel__track_name">{{ item.name }}</div>
               <div class="carousel__track_date">{{ item.date }}</div>
-              <span style="position: absolute; bottom: 17px; right: 140px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
+              <span style="position: absolute; bottom: 5px; right: 140px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
             </div>
             {% endfor %}
           </ul>
         </div>
         <div class="carousel__indicators">
-            {% for item in page.carousels[number].quotes %}
+            {% for item in site.data.quotes %}
               <label class="carousel__indicator" for="{{ number }}{{ letters[forloop.index0] }}"></label>
             {% endfor %}
         </div>
@@ -69,7 +70,7 @@
 .carousel__activator {
   display: none;
 }
-{% for item in page.carousels[number].quotes %}
+{% for item in site.data.quotes %}
 .carousel__activator:nth-of-type({{ forloop.index }}):checked ~ .carousel__track {
   -webkit-transform: translateX(-{{ forloop.index0 }}00%);
           transform: translateX(-{{ forloop.index0 }}00%);
@@ -125,9 +126,10 @@
 }
 .carousel__indicators {
   position: absolute;
-  bottom: -4px;
+  bottom: 0px;
+  right: 11px;
   width: 100%;
-  text-align: center;
+  text-align: right;
 }
 .carousel__indicator {
   height: 15px;
@@ -137,7 +139,7 @@
   z-index: 2;
   cursor: pointer;
   opacity: 0.35;
-  margin: 0 2.5px 0 2.5px;
+  margin: 0 1px 0 1px;
 }
 .carousel__indicator:hover {
   opacity: 0.75;
@@ -160,7 +162,7 @@
   padding-left: 37px;
   padding-top: 9px;
   font-size: 17px;
-  padding-right: 164px;
+  padding-right: 135px;
 }
 .carousel__track_name {
 font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
@@ -183,7 +185,7 @@ font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
   right: 0;
   opacity: 1;
 }
-{% for item in page.carousels[number].quotes %}
+{% for item in site.data.quotes %}
 .carousel__track .carousel__slide:nth-of-type({{ forloop.index }}) {
   -webkit-transform: translateX({{ forloop.index0 }}00%);
           transform: translateX({{ forloop.index0 }}00%);
@@ -208,7 +210,7 @@ font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
 .carousel__indicator {
   background-color: #548ef9;
 }
-{% for item in page.carousels[number].quotes %}
+{% for item in site.data.quotes %}
 .carousel__slide:nth-of-type({{ forloop.index }}),
 .carousel--thumb .carousel__indicators .carousel__indicator:nth-of-type({{ forloop.index }}) {
   background-size: cover;
