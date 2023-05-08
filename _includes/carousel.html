@@ -31,7 +31,7 @@
             <div class="carousel__slide">
               <span style="position: absolute; display: block; margin-left: 6px;"><img src="images/quotemark-open.png" style="width:25px; opacity: 0.8;"/></span>
               <div class="carousel__track_quote">{{ item.quote }}</div>
-              <div class="carousel__track_name">{{ item.name }}</div>
+              <div class="carousel__track_name">{% if item.url %}<a href="{{item.url}}" target="_blank">{{ item.name }}</a>{% else %}{{item.name }}{% endif %}</div>
               <div class="carousel__track_date">{{ item.date }}</div>
               <span style="position: absolute; bottom: 5px; right: 140px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
             </div>
