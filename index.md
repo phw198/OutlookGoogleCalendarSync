@@ -7,9 +7,12 @@ layout: page
   <p>:small_blue_diamond: No install necessary, works behind web proxies and actively developed.<br/>Get <a href="guide">syncing in minutes</a>.</p>
 </div>
 
+{% include carousel.html height="90" unit="px" duration="10" number="1" %}
+
 ## Functionality
 
-- Supports all versions of Outlook from 2003 to 2019/Microsoft365 64-bit!
+- Supports all versions of Outlook from 2003 to 2019 64-bit! 
+   - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
