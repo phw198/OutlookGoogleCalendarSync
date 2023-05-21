@@ -675,6 +675,29 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (outlookEntriesToBeDeleted.Count > 0) {
                         console.Update("Deleting " + outlookEntriesToBeDeleted.Count + " Outlook calendar entries", Console.Markup.h2, newLine: false);
                         try {
+                            log.Debug("Checking for unwanted deletions due to duplicate Google Event IDs held against different Outlook appointments.");
+                            List<String> gEventIDs = new List<String>();
+                            foreach (AppointmentItem ai in entriesToBeCompared.Keys) {
+                                gEventIDs.Add(OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID));
+                            }
+                            foreach (AppointmentItem ai in outlookEntriesToBeDeleted) {
+                                if (gEventIDs.Contains(OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID))) {
+                                    Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Hints-&-Tips#fixing-a-stubborn-unwanted-deletion-with-full-sync");
+
+                                    DialogResult dr = OgcsMessageBox.Show("You may encounter Outlook items being incorrectly deleted. " +
+                                        "A wiki page has opened with details on how to resolve this." +
+                                        (!this.Profile.ConfirmOnDelete ? "\r\nIf you proceed, confirmation for deletions will be turned on as a precaution." : "") +
+                                        "\r\nClick 'Yes' to proceed, 'No' to stop the sync.",
+                                        "Rogue deletions possible",
+                                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                                    if (dr == DialogResult.Yes) {
+                                        if (!this.Profile.ConfirmOnDelete) this.Profile.ConfirmOnDelete = true;
+                                    } else {
+                                        Sync.Engine.Instance.bwSync.CancelAsync();
+                                    }
+                                    break;
+                                }
+                            }
                             OutlookOgcs.Calendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);

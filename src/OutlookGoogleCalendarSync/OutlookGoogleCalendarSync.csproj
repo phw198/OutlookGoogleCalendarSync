@@ -258,7 +258,7 @@
       <ItemGroup>
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
+          <EmbedInteropTypes>True</EmbedInteropTypes>
           <HintPath>lib\Microsoft.Office.Interop.Outlook_v12_2007.DLL</HintPath>
         </Reference>
       </ItemGroup>
