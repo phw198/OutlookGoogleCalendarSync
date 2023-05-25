@@ -557,6 +557,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                         "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                         googleEntriesToBeDeleted = new List<Event>();
+
+                    } else if (this.Profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id &&
+                        OgcsMessageBox.Show("If you are syncing an Apple iCalendar from Outlook and get the 'mass deletion' warning for every sync, "+
+                        "would you like to read up on a potential solution?", "iCal Syncing?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Syncing-Apple-iCalendar-in-Outlook-causes-'mass-deletion'-warnings");
                     }
                 }
 
