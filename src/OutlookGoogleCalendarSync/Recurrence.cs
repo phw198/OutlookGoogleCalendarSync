@@ -630,7 +630,7 @@ namespace OutlookGoogleCalendarSync {
                                         if (oExcp.OriginalDate.Date != oExcp.AppointmentItem.Start.Date) {
                                             log.Fine("Double checking there is no other Google item on " + oExcp.AppointmentItem.Start.Date.ToString("dd-MMM-yyyy") + " that " + oExcp.OriginalDate.Date.ToString("dd-MMM-yyyy") + " was moved to - we don't want a duplicate.");
                                             Event duplicate = gRecurrences.FirstOrDefault(g => oExcp.AppointmentItem.Start.Date == g.OriginalStartTime.SafeDateTime().Date);
-                                            if (duplicate?.Status != "cancelled") {
+                                            if (duplicate != null && duplicate.Status != "cancelled") {
                                                 log.Warn("Determined a 'duplicate' exists on that date - this will be deleted.");
                                                 duplicate.Status = "cancelled";
                                                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref duplicate);
