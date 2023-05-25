@@ -526,7 +526,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 DateTime timeSection = DateTime.Now;
                 try {
-                    GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, entriesToBeCompared);
+                    GoogleOgcs.Calendar.Instance.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, ref entriesToBeCompared);
                     if (Sync.Engine.Instance.CancellationPending) return false;
                 } catch (System.Exception) {
                     console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
@@ -642,7 +642,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Console console = Forms.Main.Instance.Console;
 
                 try {
-                    OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, entriesToBeCompared);
+                    OutlookOgcs.Calendar.IdentifyEventDifferences(ref outlookEntriesToBeCreated, ref outlookEntriesToBeDeleted, ref entriesToBeCompared);
                     if (Sync.Engine.Instance.CancellationPending) return false;
                 } catch (System.Exception) {
                     console.Update("Unable to identify differences in Outlook calendar.", Console.Markup.error);
