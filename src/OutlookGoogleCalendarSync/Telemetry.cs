@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Management;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace OutlookGoogleCalendarSync {
     class Telemetry {
@@ -82,21 +83,25 @@ namespace OutlookGoogleCalendarSync {
         public String City { get; private set; }
 
         public Telemetry() {
-            try {
-                Extensions.OgcsWebClient wc = new();
-                //https://api.country.is/
-                String response = wc.DownloadString(new Uri("https://api.techniknews.net/ipgeo"));
-                Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
-                if (ipGeoInfo.HasValues && ipGeoInfo["status"].ToString() == "success") {
-                    Continent = ipGeoInfo["continent"]?.ToString();
-                    Country = ipGeoInfo["country"]?.ToString();
-                    CountryCode = ipGeoInfo["countryCode"]?.ToString();
-                    Region = ipGeoInfo["regionName"]?.ToString();
-                    City = ipGeoInfo["city"]?.ToString();
-                } else {
-                    log.Warn("Could not determine IP geolocation; status=" + ipGeoInfo["status"]);
-                }
+            getIpGeoData().ConfigureAwait(false);
+        }
 
+        private async Task getIpGeoData() {
+            try {
+                using (Extensions.OgcsWebClient wc = new()) {
+                    //https://api.country.is/
+                    String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
+                    Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
+                    if (ipGeoInfo.HasValues && ipGeoInfo["status"].ToString() == "success") {
+                        Continent = ipGeoInfo["continent"]?.ToString();
+                        Country = ipGeoInfo["country"]?.ToString();
+                        CountryCode = ipGeoInfo["countryCode"]?.ToString();
+                        Region = ipGeoInfo["regionName"]?.ToString();
+                        City = ipGeoInfo["city"]?.ToString();
+                    } else {
+                        log.Warn("Could not determine IP geolocation; status=" + ipGeoInfo["status"]);
+                    }
+                }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Could not get IP geolocation.", OGCSexception.LogAsFail(ex));
             }

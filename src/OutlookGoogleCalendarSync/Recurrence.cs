@@ -521,7 +521,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                     if (GoogleOgcs.CustomProperty.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith("040000008200E00074C5B7101A82E008")) { //We got a Global ID, not Entry ID
+                        if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern)) { //We got a Global ID, not Entry ID
                             compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
                             compare_oID = ai.EntryID;
