@@ -1173,13 +1173,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Settings.Instance.Calendars.Remove(ActiveCalendarProfile);
                 log.Info("Deleted calendar settings '" + profileName + "'.");
+
+                ActiveCalendarProfile.DeregisterForPushSync();
+                ActiveCalendarProfile.OgcsTimer.Enabled = false;
+                ActiveCalendarProfile.OgcsTimer.Dispose();
+
+                NotificationTray.RemoveProfileItem(profileName);
                 ddProfile.Items.Remove(ddProfile.SelectedItem);
                 ddProfile.SelectedIndex = 0;
+
+                Settings.Instance.Save();
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
                 throw;
             }
-            NotificationTray.RemoveProfileItem(profileName);
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miRenameProfile.Text;
