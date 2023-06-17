@@ -11,6 +11,42 @@ p {
 
 # Release Notes
 
+## v2.10.0.0 - Beta
+
+:high_brightness: **Enhancements** rolled in from Alpha releases
+- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
+- Option to show and sync with hidden Google calendars
+- Option to set synced items as 'public'
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Better UI for colour map configuration
+- Improved UX for category/colour map tests
+- Categories now properly populating for Alternate Mailbox
+- Option to set OGCS to startup for all Windows users, not just current
+- Don't steal focus for messageboxes, flash icon instead
+- Do not delete inaccessible Outlook items from Google
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- 2-way: Don't delete from Google items that were filtered out from Outlook
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
+----
+
 ## v2.9.7.0 - Alpha
 
 :high_brightness: **Enhancements**
