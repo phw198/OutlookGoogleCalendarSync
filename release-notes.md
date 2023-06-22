@@ -14,7 +14,7 @@ p {
 ## v2.10.0.0 - Beta
 
 :high_brightness: **Enhancements** rolled in from Alpha releases
-- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
+- The arrival of [_Profiles_](https://www.outlookgooglecalendarsync.com/guide/settings) brings multi-calendar sync! :tada: 
 - Option to show and sync with hidden Google calendars
 - Option to set synced items as 'public'
 - Recurring series improvements
