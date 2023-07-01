@@ -709,9 +709,14 @@ namespace OutlookGoogleCalendarSync {
                                         DateTime movedToStartDate = gExcp.Start.SafeDateTime().Date;
                                         log.Fine("Checking if we have another Google instance that /is/ cancelled on " + movedToStartDate.ToString("dd-MMM-yyyy") + " that this one has been moved to.");
                                         Event duplicate = Recurrence.Instance.getGoogleInstance(movedToStartDate);
+                                        DialogResult dr = DialogResult.Yes;
+                                        String summary = OutlookOgcs.Calendar.GetEventSummary(ai);
                                         if (duplicate?.Status == "cancelled") {
-                                            log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date will not be deleted.");
-                                        } else {
+                                            log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date cannot be safely deleted automatically.");
+                                            dr = OgcsMessageBox.Show(summary +"\r\n\r\nAn occurrence on "+ movedToStartDate.ToString("dd-MMM-yyyy")+" was previously deleted, before another occurrence was rescheduled to the same date and then deleted again. " +
+                                                "Please confirm the Google occurrence, currently on the same date, should also be deleted?", "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                        }
+                                        if (dr == DialogResult.Yes) {
                                             gExcp.Status = "cancelled";
                                             log.Debug("Exception deleted.");
                                             excp_itemModified++;
