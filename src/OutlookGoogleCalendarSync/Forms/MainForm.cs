@@ -584,13 +584,19 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             if (isTrue) {
-                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
                 SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
+                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
                 SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
                 cbAddAttendees.ForeColor = SystemColors.GrayText;
                 cbAddDescription.ForeColor = SystemColors.GrayText;
                 rbOutlookSharedCal.ForeColor = SystemColors.GrayText;
+                //If a sync is running, disable relevant config in that profile
+                SettingsStore.Calendar activeProfile = Settings.Profile.InPlay();
+                if (activeProfile != null) {
+                    activeProfile.AddAttendees = false;
+                    activeProfile.AddDescription = false;
+                }
             } else {
                 cbAddAttendees.ForeColor = SystemColors.ControlText;
                 cbAddDescription.ForeColor = SystemColors.ControlText;
@@ -1167,13 +1173,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Settings.Instance.Calendars.Remove(ActiveCalendarProfile);
                 log.Info("Deleted calendar settings '" + profileName + "'.");
+
+                ActiveCalendarProfile.DeregisterForPushSync();
+                ActiveCalendarProfile.OgcsTimer.Enabled = false;
+                ActiveCalendarProfile.OgcsTimer.Dispose();
+
+                NotificationTray.RemoveProfileItem(profileName);
                 ddProfile.Items.Remove(ddProfile.SelectedItem);
                 ddProfile.SelectedIndex = 0;
+
+                Settings.Instance.Save();
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
                 throw;
             }
-            NotificationTray.RemoveProfileItem(profileName);
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miRenameProfile.Text;

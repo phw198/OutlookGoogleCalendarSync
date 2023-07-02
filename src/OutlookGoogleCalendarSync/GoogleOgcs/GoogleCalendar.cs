@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
         public Calendar() { }
-        private Boolean openedIssue528 = false;
+        private Boolean openedIssue1593 = false;
         public GoogleOgcs.Authenticator Authenticator;
 
         private GoogleOgcs.EventColour colourPalette;
@@ -906,7 +906,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                     break;
                 } catch (Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ref ex, ev)) {
+                    ApiException handled = HandleAPIlimits(ref ex, ev);
+                    switch (handled) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             OGCSexception.LogAsFail(ref ex);
@@ -928,11 +929,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             backoff = BackoffLimit;
                             break;
                     }
-                    if (ex.Error?.Code == 412 && !this.openedIssue528) { //Precondition failed
-                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #528 on GitHub for further information.",
-                        "PreCondition Failed: Issue #528", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/528");
-                        this.openedIssue528 = true;
+                    if (handled != ApiException.justContinue && ex.Error?.Code == 412 && !this.openedIssue1593) { //Precondition failed
+                        OgcsMessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #1593 on GitHub for further information.",
+                        "PreCondition Failed: Issue #1593", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/1593");
+                        this.openedIssue1593 = true;
                     }
                 }
             }
@@ -1261,7 +1262,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
             }
 
-            if (google.Count > 0) {
+            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Check if Google items to be deleted were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) &&
@@ -1316,13 +1317,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                if ((OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 && oGlobalID == gCompareID) //Actually simple compare of EntryId for O2003
                     ||
-                    (!oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    !gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16))) //Or it's really a Entry ID (failsafe match)
+                    (OutlookOgcs.Factory.OutlookVersionName != OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 &&
+                        (
+                            (oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                            ||
+                            (!oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            !gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16)) //Or it's really a Entry ID (failsafe match)
+                        )
+                    ))
                 {
                     log.Fine("Comparing Outlook CalendarID");
                     gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId);

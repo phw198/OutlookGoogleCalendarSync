@@ -80,6 +80,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 Forms.Main.Instance.NotificationTray.RenameProfileItem(currentProfileName, newProfileName);
             }
+
+            Settings.Instance.Save();
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {

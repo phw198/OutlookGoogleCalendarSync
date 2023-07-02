@@ -812,6 +812,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return zonedUTC;
             */
         }
+
+        public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
+            return ai.End;
+        }
+        
+        public String GetEndTimeZoneID(AppointmentItem ai) {
+            return "UTC";
+        }
         #endregion
     }
 }
