@@ -109,6 +109,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 List<String> oColValues = new List<String>();
                 List<String> gColValues = new List<String>();
                 foreach (DataGridViewRow row in colourGridView.Rows) {
+                    if (string.IsNullOrEmpty(row.Cells["OutlookColour"].Value?.ToString()?.Trim()) || string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString()?.Trim())) continue;
                     oColValues.Add(row.Cells["OutlookColour"].Value.ToString());
                     gColValues.Add(row.Cells["GoogleColour"].Value.ToString());
                 }

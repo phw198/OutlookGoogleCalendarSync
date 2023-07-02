@@ -105,46 +105,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <summary>
         /// Set cloud logger to include unique ID in each log line
         /// </summary>
-        /// <returns>MD5 hash to correlate log entries to distinct, anonymous user</returns>
         public static void UpdateLogUuId() {
-            String uuid = null;
-            try {
-                //Check if Settings have been loaded yet and has Gmail account set
-                if (Settings.AreLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
-                    logUuid = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
-
-                } else { //Check if the raw settings file has Gmail account set
-                    String gmailAccount = null;
-                    try {
-                        gmailAccount = XMLManager.ImportElement("GaccountEmail", Settings.ConfigFile, false);
-                    } catch { }
-
-                    if (!string.IsNullOrEmpty(gmailAccount)) {
-                        logUuid =  GoogleOgcs.Authenticator.GetMd5(gmailAccount, true);
-                    } else {
-                        //Make a "unique" string based on:
-                        //ComputerName;Processor;C-driveSerial
-                        ManagementClass mc = new ManagementClass("win32_processor");
-                        ManagementObjectCollection moc = mc.GetInstances();
-                        foreach (ManagementObject mo in moc) {
-                            uuid = mo.Properties["SystemName"].Value.ToString();
-                            uuid += ";" + mo.Properties["Name"].Value.ToString();
-                            break;
-                        }
-                        String drive = "C";
-                        ManagementObject dsk = new ManagementObject(@"win32_logicaldisk.deviceid=""" + drive + @":""");
-                        dsk.Get();
-                        String volumeSerial = dsk["VolumeSerialNumber"].ToString();
-                        uuid += ";" + volumeSerial;
-
-                        logUuid = GoogleOgcs.Authenticator.GetMd5(uuid);
-                    }
-                }
-
-            } catch {
-                Random random = new Random();
-                logUuid = random.Next().ToString();
-            }
+            logUuid = Telemetry.Instance.UpdateAnonymousUniqueUserId();
         }
 
         private static log4net.Appender.BufferingForwardingAppender getAppender() {

@@ -1,6 +1,47 @@
 | Release Notes |
 |:---|
 
+# v2.10.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
+- Option to show and sync with hidden Google calendars
+- Option to set synced items as 'public'
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Better UI for colour map configuration
+- Improved UX for category/colour map tests
+- Categories now properly populating for Alternate Mailbox
+- Option to set OGCS to startup for all Windows users, not just current
+- Don't steal focus for messageboxes, flash icon instead
+- Do not delete inaccessible Outlook items from Google
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- 2-way: Don't delete from Google items that were filtered out from Outlook
+
+----
+
+# v2.9.7.0 - Alpha
+
+**Enhancements**
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- Don't delete from Google items that were filtered out from Outlook
+- Better splash screen hiding; donor details case insensitive
+- Migrated to Google Analytics 4 from deprecated Universal Analytics
+
+**Bugfix**
+- Robust access of Outlook categories
+- If item categories are not accessible, treat as though none exist
+- Handle new type of quota errors properly
+- Check a schedule is configured when enable/disable sync
+
 # v2.9.6.0 - Alpha
 
 **Enhancements**
@@ -54,7 +95,7 @@
 # v2.9.3.0 - Alpha
 
 **Enhancements**
-- The arrival of Profiles brings multi-calendar sync! :tada: 
+- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
 
 **Bugfix**
 - Don't error if Google event has no "popup" notification

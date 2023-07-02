@@ -584,13 +584,19 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             if (isTrue) {
-                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
                 SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
+                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
                 SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
                 cbAddAttendees.ForeColor = SystemColors.GrayText;
                 cbAddDescription.ForeColor = SystemColors.GrayText;
                 rbOutlookSharedCal.ForeColor = SystemColors.GrayText;
+                //If a sync is running, disable relevant config in that profile
+                SettingsStore.Calendar activeProfile = Settings.Profile.InPlay();
+                if (activeProfile != null) {
+                    activeProfile.AddAttendees = false;
+                    activeProfile.AddDescription = false;
+                }
             } else {
                 cbAddAttendees.ForeColor = SystemColors.ControlText;
                 cbAddDescription.ForeColor = SystemColors.ControlText;
@@ -689,8 +695,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public enum SyncNotes {
-            QuotaExhaustedInfo,
-            QuotaExhaustedPreviously,
+            DailyQuotaExhaustedInfo,
+            DailyQuotaExhaustedPreviously,
+            QuotaExceededInfo,
+            QuotaExceededPreviously,
             RecentSubscription,
             SubscriptionPendingExpire,
             SubscriptionExpired,
@@ -704,20 +712,24 @@ namespace OutlookGoogleCalendarSync.Forms {
             String urlStub = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=";
             String cr = "\r\n";
 
-            if (syncNote == SyncNotes.QuotaExhaustedInfo && !show && this.tbSyncNote.Text.Contains("quota is exhausted")) {
-                syncNote = SyncNotes.QuotaExhaustedPreviously;
+            if (syncNote == SyncNotes.DailyQuotaExhaustedInfo && !show && this.tbSyncNote.Text.Contains("quota is exhausted")) {
+                syncNote = SyncNotes.DailyQuotaExhaustedPreviously;
+                show = true;
+            } else if (syncNote == SyncNotes.QuotaExceededInfo && !show && this.tbSyncNote.Text.Contains("quota is being exceeded")) {
+                syncNote = SyncNotes.QuotaExceededPreviously;
                 show = true;
             }
             String existingNote = GetControlPropertyThreadSafe(tbSyncNote, "Text") as String;
 
             switch (syncNote) {
-                case SyncNotes.QuotaExhaustedInfo:
+                case SyncNotes.DailyQuotaExhaustedInfo:
                     note = "  Google's daily free calendar quota is exhausted!" + cr +
                             "     Either wait for new quota at 08:00GMT or     " + cr +
                             "  get yourself guaranteed quota for just £1/month.";
                     url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
                     break;
-                case SyncNotes.QuotaExhaustedPreviously:
+
+                case SyncNotes.DailyQuotaExhaustedPreviously:
                     DateTime utcNow = DateTime.UtcNow;
                     DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
                     if ((utcNow - quotaReset).Ticks < -TimeSpan.TicksPerMinute) {
@@ -756,18 +768,63 @@ namespace OutlookGoogleCalendarSync.Forms {
                                         System.Threading.Thread.Sleep(60 * 1000);
                                     }
                                     log.Debug("Quota exhausted advisory notice period ending.");
-                                    SyncNote(SyncNotes.QuotaExhaustedPreviously, null, false);
+                                    SyncNote(SyncNotes.DailyQuotaExhaustedPreviously, null, false);
                                 } catch { }
                             });
                         bwHideNote.RunWorkerAsync();
                     }
-
                     break;
+
+                case SyncNotes.QuotaExceededInfo:
+                    note = "  Google's free calendar quota is being exceeded! " + cr +
+                            "     Either wait for new quota or get yourself    " + cr +
+                            "         guaranteed quota for just £1/month.      ";
+                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    break;
+
+                case SyncNotes.QuotaExceededPreviously:
+                    delayHours = (int)(DateTime.Now - ActiveCalendarProfile.LastSyncDate).TotalHours;
+                    delay = delayHours + " hours";
+                    if (delayHours == 0) {
+                        delay = (int)(DateTime.Now - ActiveCalendarProfile.LastSyncDate).TotalMinutes + " mins";
+                    }
+                    note = "    Google's free calendar quota was exceeded!    " + cr +
+                            "      Previous successful sync was " + delay + " ago." + cr +
+                            " Get yourself guaranteed quota for just £1/month.";
+                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+
+                    if (!show && existingNote.Contains("free calendar quota was exceeded")) {
+                        log.Debug("Removing quota exceeded advisory notice.");
+                        SetControlPropertyThreadSafe(tbSyncNote, "Visible", show);
+                        SetControlPropertyThreadSafe(panelSyncNote, "Visible", show);
+                    } else {
+                        //Display the note for 3 hours after the quota has been renewed
+                        System.ComponentModel.BackgroundWorker bwHideNote = new System.ComponentModel.BackgroundWorker {
+                            WorkerReportsProgress = false,
+                            WorkerSupportsCancellation = true
+                        };
+                        bwHideNote.DoWork += new System.ComponentModel.DoWorkEventHandler(
+                            delegate (object o, System.ComponentModel.DoWorkEventArgs args) {
+                                try {
+                                    DateTime showUntil = DateTime.Now.AddHours(3);
+                                    log.Debug("Showing quota exceeded advisory until " + showUntil.ToString());
+                                    while (DateTime.Now < showUntil) {
+                                        System.Threading.Thread.Sleep(60 * 1000);
+                                    }
+                                    log.Debug("Quota exceeded advisory notice period ending.");
+                                    SyncNote(SyncNotes.QuotaExceededPreviously, null, false);
+                                } catch { }
+                            });
+                        bwHideNote.RunWorkerAsync();
+                    }
+                    break;
+
                 case SyncNotes.RecentSubscription:
                     note = "                                                  " + cr +
                             "   Thank you for your subscription and support!   " + cr +
                             "                                                  ";
                     break;
+                
                 case SyncNotes.SubscriptionPendingExpire:
                     DateTime expiration = (DateTime)extraData;
                     note = "  Your annual subscription for guaranteed quota   " + cr +
@@ -776,6 +833,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy", new System.Globalization.CultureInfo("en-US")) +
                         " for " + Settings.Instance.GaccountEmail;
                     break;
+                
                 case SyncNotes.SubscriptionExpired:
                     expiration = (DateTime)extraData;
                     note = "  Your annual subscription for guaranteed quota   " + cr +
@@ -783,6 +841,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             "         Click to renew for just £1/month.        ";
                     url = urlStub + "OGCS Premium renewal for " + Settings.Instance.GaccountEmail;
                     break;
+                
                 case SyncNotes.NotLogFile:
                     note = "                       This is not the log file. " + cr +
                             "                                     --------- " + cr +
@@ -1114,13 +1173,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Settings.Instance.Calendars.Remove(ActiveCalendarProfile);
                 log.Info("Deleted calendar settings '" + profileName + "'.");
+
+                ActiveCalendarProfile.DeregisterForPushSync();
+                ActiveCalendarProfile.OgcsTimer.Enabled = false;
+                ActiveCalendarProfile.OgcsTimer.Dispose();
+
+                NotificationTray.RemoveProfileItem(profileName);
                 ddProfile.Items.Remove(ddProfile.SelectedItem);
                 ddProfile.SelectedIndex = 0;
+
+                Settings.Instance.Save();
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
                 throw;
             }
-            NotificationTray.RemoveProfileItem(profileName);
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miRenameProfile.Text;
@@ -2010,14 +2076,16 @@ namespace OutlookGoogleCalendarSync.Forms {
 
 
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
-            if (!Settings.Instance.UserIsBenefactor()) {
+            if (Settings.Instance.UserIsBenefactor()) {
+                Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
+            } else {
                 cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
                 cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;
                 ToolTips.SetToolTip(cbHideSplash, "Donate £10 or more to enable this feature.");
                 ToolTips.Show(ToolTips.GetToolTip(cbHideSplash), cbHideSplash, 5000);
+                Settings.Instance.HideSplashScreen = null;
             }
-            Settings.Instance.HideSplashScreen = cbHideSplash.Checked;
         }
 
         private void cbSuppressSocialPopup_CheckedChanged(object sender, EventArgs e) {

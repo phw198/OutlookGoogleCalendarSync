@@ -835,14 +835,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                     ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
                 }
-                if (!onlyTZattribute) ai.Start = ev.Start.DateTime ?? DateTime.Parse(ev.Start.Date);
+                if (!onlyTZattribute) ai.Start = ev.Start.SafeDateTime();
             }
             if ("Both,End".Contains(attr)) {
                 if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
                     log.Fine("Has ending timezone: " + ev.End.TimeZone);
                     ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
                 }
-                if (!onlyTZattribute) ai.End = ev.End.DateTime ?? DateTime.Parse(ev.End.Date);
+                if (!onlyTZattribute) ai.End = ev.End.SafeDateTime();
             }
             return ai;
         }
@@ -961,6 +961,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 OGCSexception.Analyse(ex);
             }
             return null;
+        }
+        public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
+            return ai.EndInEndTimeZone;
+        }
+
+        public String GetEndTimeZoneID(AppointmentItem ai) {
+            return ai.EndTimeZone.ID;
         }
         #endregion
     }

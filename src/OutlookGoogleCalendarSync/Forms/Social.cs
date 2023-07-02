@@ -18,7 +18,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDonateTip.Visible = false;
             } else {
                 toolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
-                if (Settings.Instance.SuppressSocialPopup) Settings.Instance.SuppressSocialPopup = false;
+                if (Settings.Instance.SuppressSocialPopup) 
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbSuppressSocialPopup, "Checked", false);
             }
 
             Int32 syncs = Settings.Instance.CompletedSyncs;
@@ -102,7 +103,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbSuppressSocialPopup.CheckedChanged += cbSuppressSocialPopup_CheckedChanged;
                 toolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
             }
-            Settings.Instance.SuppressSocialPopup = cbSuppressSocialPopup.Checked;
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbSuppressSocialPopup, "Checked", cbSuppressSocialPopup.Checked);
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {

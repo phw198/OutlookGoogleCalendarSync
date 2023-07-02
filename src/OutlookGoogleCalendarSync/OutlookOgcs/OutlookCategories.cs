@@ -96,7 +96,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private Outlook.Categories _categories;
         private Outlook.Categories categories {
-            get { 
+            get {
+                try {
+                    int? testAccess = this._categories?.Count;
+                } catch {
+                    this._categories = null;
+                }
                 if (_categories == null) ValidateCategories();
                 return _categories;
             }
@@ -139,6 +144,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 #if !DEVELOP_AGAINST_2007
                             log.Debug("Accessing categories through Outlook 2010 store.");
                             this.categories = store.Categories;
+#else
+                            log.Debug("Accessing Outlook 2007 categories via reflection.");
+                            this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as Outlook.Categories;
 #endif
                         }
                     } catch (System.Exception ex) {

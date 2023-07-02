@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Apis.Calendar.v3.Data;
+using System;
 
 namespace OutlookGoogleCalendarSync {
     public static class DateTimeExtensions {
@@ -10,6 +11,18 @@ namespace OutlookGoogleCalendarSync {
         /// <returns>Formatted string</returns>
         public static String ToPreciseString(this DateTime dt) {
             return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
+        }
+
+        /// <summary>
+        /// Returns the non-null Date or DateTime properties as a DateTime
+        /// </summary>
+        /// <returns>DateTime</returns>
+        public static DateTime SafeDateTime(this EventDateTime evDt) {
+            return evDt.DateTime ?? DateTime.Parse(evDt.Date);
+        }
+
+        public static Boolean AllDayEvent(this Event ev) {
+            return ev.Start.Date != null;
         }
     }
 }

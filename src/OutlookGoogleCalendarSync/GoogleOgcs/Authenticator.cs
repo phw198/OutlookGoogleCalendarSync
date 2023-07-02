@@ -29,8 +29,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static String HashedGmailAccount {
             get {
                 if (string.IsNullOrEmpty(hashedGmailAccount)) {
-                    if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
-                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail, true);
+                    if (!string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                        hashedGmailAccount = GetMd5(Settings.Instance.GaccountEmail.ToLower(), true);
+                        Telemetry.Instance.UpdateAnonymousUniqueUserId();
+                    }
                 }
                 return hashedGmailAccount;
             }
@@ -314,10 +316,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 checkedOgcsUserStatus = true;
 
                 if (Settings.Instance.UserIsBenefactor() && Settings.Instance.HideSplashScreen == null) {
-                    DialogResult dr = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    Settings.Instance.HideSplashScreen = (dr == DialogResult.Yes);
+                    Boolean hideSplash = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", hideSplash);
+                    Settings.Instance.HideSplashScreen = hideSplash;
                 }
             }
         }
@@ -380,7 +382,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 Boolean subscribed;
                 Event subscription = subscriptions.Last();
-                DateTime subscriptionStart = (subscription.Start.DateTime ?? DateTime.Parse(subscription.Start.Date)).Date;
+                DateTime subscriptionStart = subscription.Start.SafeDateTime().Date;
                 log.Debug("Last subscription date: " + subscriptionStart.ToString());
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {

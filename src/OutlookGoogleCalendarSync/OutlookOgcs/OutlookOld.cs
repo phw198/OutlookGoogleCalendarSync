@@ -799,7 +799,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         }
 
         private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = time.DateTime ?? DateTime.Parse(time.Date);
+            DateTime theDate = time.SafeDateTime();
             /*if (time.TimeZone == null)*/
             return theDate;
 
@@ -811,6 +811,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             log.Fine("IANA Timezone \"" + time.TimeZone + "\" mapped to \""+ zone.Id.ToString() +"\" with a UTC of "+ zonedUTC.ToString("dd/MM/yyyy HH:mm:ss"));
             return zonedUTC;
             */
+        }
+
+        public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
+            return ai.End;
+        }
+        
+        public String GetEndTimeZoneID(AppointmentItem ai) {
+            return "UTC";
         }
 
         public TimeZoneInfo GetWindowsTimezoneFromDescription(String tzDescription) { 

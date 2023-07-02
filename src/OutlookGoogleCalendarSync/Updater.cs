@@ -122,6 +122,7 @@ namespace OutlookGoogleCalendarSync {
                     String releaseNotes = "";
                     String releaseVersion = "";
                     String releaseType = "";
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
 
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
@@ -135,22 +136,31 @@ namespace OutlookGoogleCalendarSync {
                         if (updateManager.CheckIfAlreadyDownloaded(update, localFile)) {
                             log.Debug("This has already been downloaded.");
                         } else {
+                            squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade downloading");
+                            squirrelGaEv.AddParameter(GA4.Squirrel.file, update.Filename);
                             try {
                                 //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
                                 if (string.IsNullOrEmpty(nonGitHubReleaseUri)) {
                                     String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
                                     log.Debug("Downloading " + nupkgUrl);
-                                    new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile); 
+                                    new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
                                 } else {
                                     String nupkgUrl = nonGitHubReleaseUri + "\\" + update.Filename;
                                     log.Debug("Downloading " + nupkgUrl);
                                     new System.Net.WebClient().DownloadFile(nupkgUrl, localFile);
                                 }
                                 log.Debug("Download complete.");
+                                squirrelGaEv.AddParameter(GA4.Squirrel.result, "Successful");
+                                squirrelGaEv.AddParameter(GA4.Squirrel.error, null);
+
                             } catch (System.Exception ex) {
+                                squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
+                                squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
                                 OGCSexception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
                                 ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
+                            } finally {
+                                squirrelGaEv.Send();
                             }
                         }
 
@@ -159,25 +169,34 @@ namespace OutlookGoogleCalendarSync {
                             releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
                             releaseVersion = update.Version.Version.ToString();
                             releaseType = update.Version.SpecialVersion;
-                            squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + update.Version.Version.ToString();
+                            squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + releaseVersion;
                         }
                     }
-                    
+
                     var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
                     t.Start();
                     t.Join();
 
+                    squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade pending");
+                    squirrelGaEv.AddParameter(GA4.Squirrel.target_version, releaseVersion);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.target_type, releaseType);
+
                     if (dr == DialogResult.No) {
                         log.Info("User chose not to upgrade right now.");
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
+                        squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Deferred");
 
                     } else if (dr == DialogResult.Ignore) {
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
+                        squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Skipped");
 
                     } else if (dr == DialogResult.Yes) {
                         try {
                             Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
+                            squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Upgrade");
+
                             log.Info("Applying the updated release(s)...");
                             //updateManager.UpdateApp().Wait();
 
@@ -195,7 +214,7 @@ namespace OutlookGoogleCalendarSync {
                                         System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(ex.InnerException.Message, regexMatch);
 
                                         if (match?.Groups?.Count == 3) {
-                                            log.Warn("Could not update as missing file " + match.Groups[1]);
+                                            log.Warn("Could not update due to missing file " + match.Groups[1]);
                                             String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + match.Groups[2] + "/" + match.Groups[1];
                                             log.Debug("Downloading " + nupkgUrl);
                                             new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, updates.PackageDirectory + "\\" + match.Groups[1]);
@@ -206,21 +225,28 @@ namespace OutlookGoogleCalendarSync {
                             }
 
                             log.Info("The application has been successfully updated.");
+                            squirrelGaEv.AddParameter(GA4.Squirrel.result, "Successful");
                             OgcsMessageBox.Show("The application has been updated and will now restart.",
                                 "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             restartUpdateExe = updateManager.RootAppDirectory + "\\Update.exe";
                             return true;
 
                         } catch (System.AggregateException ae) {
+                            squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                             foreach (System.Exception ex in ae.InnerExceptions) {
                                 OGCSexception.Analyse(ex, true);
+                                squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
                                 ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             }
                         } catch (System.Exception ex) {
                             OGCSexception.Analyse(ex, true);
+                            squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
+                            squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
                             ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
                             throw new ApplicationException("Failed upgrading OGCS.", ex);
+                        } finally {
+                            squirrelGaEv.Send();
                         }
                     }
 
@@ -238,10 +264,20 @@ namespace OutlookGoogleCalendarSync {
                 log.Fail("Failed checking for update.");
                 foreach (System.Exception ex in ae.InnerExceptions) {
                     OGCSexception.Analyse(OGCSexception.LogAsFail(ex), true);
+                    Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                    githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
+                    githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
+                    githubGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
+                    githubGaEv.Send();
                     throw;
                 }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed checking for update.", OGCSexception.LogAsFail(ex), true);
+                Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
+                githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
+                githubGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
+                githubGaEv.Send();
                 throw;
             } finally {
                 isBusy = false;
@@ -273,6 +309,9 @@ namespace OutlookGoogleCalendarSync {
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
                 Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, "clickonce");
+                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, "clickonce");
+                squirrelGaEv.Send();
             } catch (System.AggregateException ae) {
                 foreach (System.Exception ex in ae.InnerExceptions) {
                     clickOnceUninstallError(ex);
@@ -295,6 +334,9 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex, true);
             }
             Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
+            Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+            squirrelGaEv.AddParameter(GA4.Squirrel.install, version.ToString());
+            squirrelGaEv.Send();
             onFirstRun();
         }
         private static void onAppUpdate(Version version) {
@@ -321,14 +363,19 @@ namespace OutlookGoogleCalendarSync {
                     mgr.RemoveUninstallerRegistryEntry();
                 }
                 Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, version.ToString());
+                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString());
                 if (OgcsMessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     log.Debug("User opted to give feedback.");
                     Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, Application.ProductVersion + "-feedback");
+                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, true);
                     Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
                 } else {
                     log.Debug("User opted not to give feedback.");
+                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, false);
                 }
+                squirrelGaEv.Send();
                 log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
                 try {
                     log.Logger.Repository.Shutdown();
