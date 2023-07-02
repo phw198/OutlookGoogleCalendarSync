@@ -419,10 +419,11 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Get occurrence that originally started on a particular date
         /// </summary>
+        /// <param name="recurringEventId">The recurring series to search within</param>
         /// <param name="originalInstanceDate">The date to search for</param>
         /// <returns></returns>
-        private Event getGoogleInstance(DateTime originalInstanceDate) {
-            return googleExceptions.FirstOrDefault(g => g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate);
+        private Event getGoogleInstance(String recurringEventId, DateTime originalInstanceDate) {
+            return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate);
         }
         
         /// <summary>
@@ -708,13 +709,14 @@ namespace OutlookGoogleCalendarSync {
                                     } else if (oIsDeleted == DeletionState.Deleted && gExcp.Status != "cancelled") {
                                         DateTime movedToStartDate = gExcp.Start.SafeDateTime().Date;
                                         log.Fine("Checking if we have another Google instance that /is/ cancelled on " + movedToStartDate.ToString("dd-MMM-yyyy") + " that this one has been moved to.");
-                                        Event duplicate = Recurrence.Instance.getGoogleInstance(movedToStartDate);
+                                        Event duplicate = Recurrence.Instance.getGoogleInstance(gExcp.RecurringEventId, movedToStartDate);
                                         DialogResult dr = DialogResult.Yes;
                                         String summary = OutlookOgcs.Calendar.GetEventSummary(ai);
                                         if (duplicate?.Status == "cancelled") {
                                             log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date cannot be safely deleted automatically.");
-                                            dr = OgcsMessageBox.Show(summary +"\r\n\r\nAn occurrence on "+ movedToStartDate.ToString("dd-MMM-yyyy")+" was previously deleted, before another occurrence was rescheduled to the same date and then deleted again. " +
-                                                "Please confirm the Google occurrence, currently on the same date, should also be deleted?", "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                            dr = OgcsMessageBox.Show(summary +"\r\n\r\nAn occurrence on "+ movedToStartDate.ToString("dd-MMM-yyyy")+" was previously deleted, before another occurrence on "+ oExcp.OriginalDate.ToString("dd-MMM-yyyy") +
+                                                " was rescheduled to the same date and then deleted again. " +
+                                                "Please confirm the Google occurrence, currently on "+ movedToStartDate.ToString("dd-MMM-yyyy") +", should be deleted?", "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                         }
                                         if (dr == DialogResult.Yes) {
                                             gExcp.Status = "cancelled";
