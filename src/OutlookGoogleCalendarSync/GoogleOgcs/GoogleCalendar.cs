@@ -605,7 +605,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         UpdateCalendarEntry_save(ref ev);
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError("Updated event failed to save.", ex);
+                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, true) + "Updated event failed to save.", ex);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;

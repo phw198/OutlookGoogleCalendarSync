@@ -617,8 +617,7 @@ namespace OutlookGoogleCalendarSync {
                                     }
                                     if (!skipDelete) {
                                         log.Fine("None found.");
-                                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
-                                        Forms.Main.Instance.Console.Update("Recurrence deleted.");
+                                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev) + "<br/>Occurrence deleted.", Console.Markup.calendar, verbose: true);
                                         ev.Status = "cancelled";
                                         GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                                     }
@@ -712,6 +711,7 @@ namespace OutlookGoogleCalendarSync {
                                         if (duplicate?.Status == "cancelled") {
                                             log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date will not be deleted.");
                                         } else {
+                                            Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(gExcp) + "<br/>Occurrence deleted.", Console.Markup.calendar, verbose: true);
                                             gExcp.Status = "cancelled";
                                             log.Debug("Exception deleted.");
                                             excp_itemModified++;
@@ -743,7 +743,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            Forms.Main.Instance.Console.UpdateWithError("Updated event exception failed to save.", ex);
+                                            Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(gExcp, true) + "Updated event exception failed to save.", ex);
                                             OGCSexception.Analyse(ex, true);
                                             if (OgcsMessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
@@ -854,11 +854,11 @@ namespace OutlookGoogleCalendarSync {
                         }
 
                         if (gExcp.Status == "cancelled") {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Deleted.", Console.Markup.calendar);
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Occurrence deleted.", Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Declined.", Console.Markup.calendar);
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp) + "<br/>Occurrence declined.", Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else {
@@ -871,7 +871,7 @@ namespace OutlookGoogleCalendarSync {
                                 } catch (System.Exception ex) {
                                     OGCSexception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
-                                        Forms.Main.Instance.Console.Update("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                        Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp, true) + "Uh oh! Outlook wasn't able to save this recurrence exception! " +
                                             "You may have two occurences on the same day, which it doesn't allow.", Console.Markup.warning);
                                     }
                                 }
