@@ -50,6 +50,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             ExcludeGoals = true;
 
             //Sync Options
+            SimpleMatch = false;
             SyncDirection = Sync.Direction.OutlookToGoogle;
             DaysInThePast = 1;
             DaysInTheFuture = 60;
@@ -120,6 +121,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public Boolean ExcludeGoals { get; set; }
         #endregion
         #region Sync Options
+        /// <summary>For O->G match on signatures. Useful for Appled iCals where immutable Outlook IDs change every sync.</summary>
+        [DataMember] public Boolean SimpleMatch { get; set; }
         //Main
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
@@ -255,6 +258,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  Cloak Email: " + CloakEmail);
 
             log.Info("SYNC OPTIONS:-");
+            if (SimpleMatch) log.Warn("  Simple Matching: " + SimpleMatch);
             log.Info(" How");
             log.Info("  SyncDirection: " + SyncDirection.Name);
             log.Info("  MergeItems: " + MergeItems);

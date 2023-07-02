@@ -1354,7 +1354,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void IdentifyEventDifferences(
             ref List<Event> google,             //need creating
             ref List<AppointmentItem> outlook,  //need deleting
-            Dictionary<AppointmentItem, Event> compare) {
+            ref Dictionary<AppointmentItem, Event> compare)
+        {
             log.Debug("Comparing Google events to Outlook items...");
             Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
 
