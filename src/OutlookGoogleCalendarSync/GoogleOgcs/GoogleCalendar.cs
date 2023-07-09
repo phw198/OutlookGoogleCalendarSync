@@ -1982,6 +1982,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         return ApiException.freeAPIexhausted;
 
                     } else if (ex.Message.Contains("Rate Limit Exceeded")) {
+                        if (Settings.Instance.Subscribed > DateTime.Now.AddYears(-1))
+                            return ApiException.backoffThenRetry;
+                        
                         log.Warn("Google's free Calendar quota is being exceeded!");
                         Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null);
 
