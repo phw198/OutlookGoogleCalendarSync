@@ -134,8 +134,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -188,8 +189,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                         log.Error("API limit backoff was not successful. Paginated retrieve failed.");
                                         throw;
                                     } else {
-                                        log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                        System.Threading.Thread.Sleep(backoff * 1000);
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
                                     }
                                     break;
                             }
@@ -242,8 +244,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -305,8 +308,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -519,8 +523,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
@@ -921,8 +926,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                         case ApiException.justContinue:
@@ -1031,8 +1037,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
@@ -1530,8 +1537,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
