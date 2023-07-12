@@ -299,13 +299,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     for (int fld = 1; fld <= theFolders.Count; fld++) {
                         MAPIFolder theFolder = theFolders[fld];
                         try {
-                            if (theFolder.Name != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserSMTP()) { //Not the default Exchange folder (assuming the default mailbox folder name hasn't been changed
-                                                                                                              //Create a dictionary of folder names and a list of their ID(s)
-                                if (!folderIDs.ContainsKey(theFolder.Name)) {
-                                    folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
-                                } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
-                                    folderIDs[theFolder.Name].Add(theFolder.EntryID);
-                                }
+                            //Create a dictionary of folder names and a list of their ID(s)
+                            if (!folderIDs.ContainsKey(theFolder.Name)) {
+                                folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
+                            } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
+                                folderIDs[theFolder.Name].Add(theFolder.EntryID);
                             }
                         } catch (System.Exception ex) {
                             OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
