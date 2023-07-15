@@ -1225,7 +1225,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void enableOutlookSettingsUI(Boolean enable) {
             this.clbCategories.Enabled = enable;
             this.cbOutlookCalendars.Enabled = enable;
-            this.ddMailboxName.Enabled = enable;
+            this.ddMailboxName.Enabled = rbOutlookAltMB.Checked ? enable : false;
         }
 
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
