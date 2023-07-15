@@ -220,7 +220,10 @@
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.lSettingInfo = new System.Windows.Forms.Label();
-            this.bSave = new System.Windows.Forms.Button();
+            this.bSave = new OutlookGoogleCalendarSync.Extensions.MenuButton();
+            this.msSettingsActions = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.miExportSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.miImportSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage_Help = new System.Windows.Forms.TabPage();
             this.tbTS2 = new System.Windows.Forms.TextBox();
             this.linkTShoot_logfile = new System.Windows.Forms.LinkLabel();
@@ -315,6 +318,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbExpandLogging)).BeginInit();
             this.gbAppBehaviour_Logging.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbStartupDelay)).BeginInit();
+            this.msSettingsActions.SuspendLayout();
             this.tabPage_Help.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tabPage_About.SuspendLayout();
@@ -2658,14 +2662,40 @@
             // bSave
             // 
             this.bSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSave.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.bSave.Location = new System.Drawing.Point(392, 531);
+            this.bSave.Menu = this.msSettingsActions;
             this.bSave.Name = "bSave";
+            this.bSave.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.bSave.Size = new System.Drawing.Size(75, 31);
             this.bSave.TabIndex = 8;
             this.bSave.Text = "Save";
+            this.bSave.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.bSave.UseVisualStyleBackColor = true;
             this.bSave.Click += new System.EventHandler(this.Save_Click);
+            // 
+            // msSettingsActions
+            // 
+            this.msSettingsActions.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miExportSettings,
+            this.miImportSettings});
+            this.msSettingsActions.Name = "msSettingsActions";
+            this.msSettingsActions.ShowImageMargin = false;
+            this.msSettingsActions.ShowItemToolTips = false;
+            this.msSettingsActions.Size = new System.Drawing.Size(128, 26);
+            // 
+            // miExportSettings
+            // 
+            this.miExportSettings.Name = "miExportSettings";
+            this.miExportSettings.Size = new System.Drawing.Size(127, 22);
+            this.miExportSettings.Text = "Export Settings";
+            this.miExportSettings.Click += new System.EventHandler(this.miExportSettings_Click);
+            // 
+            // miImportSettings
+            // 
+            this.miImportSettings.Name = "miImportSettings";
+            this.miImportSettings.Size = new System.Drawing.Size(127, 22);
+            this.miImportSettings.Text = "Import Settings";
+            this.miImportSettings.Click += new System.EventHandler(this.miImportSettings_Click);
             // 
             // tabPage_Help
             // 
@@ -3462,6 +3492,7 @@
             this.gbAppBehaviour_Logging.ResumeLayout(false);
             this.gbAppBehaviour_Logging.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbStartupDelay)).EndInit();
+            this.msSettingsActions.ResumeLayout(false);
             this.tabPage_Help.ResumeLayout(false);
             this.tabPage_Help.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -3483,7 +3514,6 @@
         private System.Windows.Forms.TabPage tabPage_About;
         private System.Windows.Forms.NotifyIcon trayIcon;
         private System.Windows.Forms.Label lAboutMain;
-        private System.Windows.Forms.Button bSave;
         private System.Windows.Forms.Label lLastSync;
         private System.Windows.Forms.Label lNextSync;
         private System.Windows.Forms.CheckBox cbVerboseOutput;
@@ -3599,6 +3629,9 @@
         private System.Windows.Forms.ToolStripMenuItem miAddProfile;
         private System.Windows.Forms.ToolStripMenuItem miDeleteProfile;
         private System.Windows.Forms.ToolStripMenuItem miRenameProfile;
+        private System.Windows.Forms.ContextMenuStrip msSettingsActions;
+        private System.Windows.Forms.ToolStripMenuItem miExportSettings;
+        private System.Windows.Forms.ToolStripMenuItem miImportSettings;
         private System.Windows.Forms.GroupBox gbDeveloperOptions;
         private System.Windows.Forms.LinkLabel llAPIConsole;
         private System.Windows.Forms.CheckBox cbShowClientSecret;
@@ -3713,5 +3746,6 @@
         private System.Windows.Forms.Panel panelObscure;
         private System.Windows.Forms.CheckBox cbStartOnStartupAllUsers;
         private System.Windows.Forms.ComboBox ddPrivacy;
+        private Extensions.MenuButton bSave;
     }
 }

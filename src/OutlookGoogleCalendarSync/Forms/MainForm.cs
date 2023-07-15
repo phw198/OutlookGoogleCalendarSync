@@ -822,7 +822,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             "   Thank you for your subscription and support!   " + cr +
                             "                                                  ";
                     break;
-                
+
                 case SyncNotes.SubscriptionPendingExpire:
                     DateTime expiration = (DateTime)extraData;
                     note = "  Your annual subscription for guaranteed quota   " + cr +
@@ -831,7 +831,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy", new System.Globalization.CultureInfo("en-US")) +
                         " for " + Settings.Instance.GaccountEmail;
                     break;
-                
+
                 case SyncNotes.SubscriptionExpired:
                     expiration = (DateTime)extraData;
                     note = "  Your annual subscription for guaranteed quota   " + cr +
@@ -839,7 +839,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             "         Click to renew for just £1/month.        ";
                     url = urlStub + "OGCS Premium renewal for " + Settings.Instance.GaccountEmail;
                     break;
-                
+
                 case SyncNotes.NotLogFile:
                     note = "                       This is not the log file. " + cr +
                             "                                     --------- " + cr +
@@ -1042,6 +1042,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         #endregion
 
+        #region Save settings
         private void tabAppSettings_DrawItem(object sender, DrawItemEventArgs e) {
             //Want to have horizontal sub-tabs on the left of the Settings tab.
             //Need to handle this manually
@@ -1114,6 +1115,35 @@ namespace OutlookGoogleCalendarSync.Forms {
                 bSave.Text = "Save";
             }
         }
+        private void miExportSettings_Click(object sender, EventArgs e) {
+            SaveFileDialog exportFile = new SaveFileDialog {
+                Title = "Backup OGCS Settings to File",
+                FileName = "OGCS_v" + Settings.Instance.Version + ".xml",
+                Filter = "XML File|*.xml|All Files|*",
+                DefaultExt = "xml",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+            if (exportFile.ShowDialog() == DialogResult.OK) {
+                log.Info("Exporting settings to " + exportFile.FileName);
+                Settings.Instance.Save(exportFile.FileName);
+            }
+        }
+        private void miImportSettings_Click(object sender, EventArgs e) {
+            OpenFileDialog importFile = new OpenFileDialog {
+                Title = "Import OGCS Settings from File",
+                Filter = "XML File|*.xml|All Files|*",
+                DefaultExt = "xml",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+            if (importFile.ShowDialog() == DialogResult.OK) {
+                log.Info("Importing settings from " + importFile.FileName);
+                Settings.Load(importFile.FileName);
+                updateGUIsettings();
+            }
+        }
+        #endregion
         #region Profile
         /// <summary>
         /// The calendar settings profile currently displayed in the GUI.
