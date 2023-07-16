@@ -87,7 +87,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             AddColours = false;
             ColourMaps = new ColourMappingDictionary();
             ExcludeAllDays = false;
-            
+            ExcludeFreeAllDays = false;
+
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
         }
@@ -176,6 +177,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
         [DataMember] public bool ExcludeAllDays { get; set; }
+        [DataMember] public bool ExcludeFreeAllDays { get; set; }
         #endregion
         #endregion
 
@@ -307,6 +309,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
             log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
             log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
+            log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
         }
 
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {

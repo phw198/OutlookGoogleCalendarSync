@@ -281,6 +281,7 @@
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ddPrivacy = new System.Windows.Forms.ComboBox();
             this.cbExcludeAllDays = new System.Windows.Forms.CheckBox();
+            this.cbExcludeFreeAllDays = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1889,6 +1890,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeFreeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.tbMaxAttendees);
             this.gbSyncOptions_What.Controls.Add(this.cbSingleCategoryOnly);
@@ -3440,6 +3442,18 @@
             this.cbExcludeAllDays.UseVisualStyleBackColor = true;
             this.cbExcludeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeAllDays_CheckedChanged);
             // 
+            // cbExcludeFreeAllDays
+            // 
+            this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(143, 150);
+            this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
+            this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
+            this.cbExcludeFreeAllDays.TabIndex = 50;
+            this.cbExcludeFreeAllDays.Text = "that are Free";
+            this.cbExcludeFreeAllDays.UseVisualStyleBackColor = true;
+            this.cbExcludeFreeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeFreeAllDays_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3762,5 +3776,6 @@
         private System.Windows.Forms.ComboBox ddPrivacy;
         private Extensions.MenuButton bSave;
         private System.Windows.Forms.CheckBox cbExcludeAllDays;
+        private System.Windows.Forms.CheckBox cbExcludeFreeAllDays;
     }
 }

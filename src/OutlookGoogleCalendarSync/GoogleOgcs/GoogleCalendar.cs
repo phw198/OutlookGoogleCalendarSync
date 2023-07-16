@@ -335,8 +335,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
-            if (profile.ExcludeAllDays) {
-                List<Event> allDays = result.Where(ev => ev.AllDayEvent(true)).ToList();
+            if (profile.ExcludeAllDays && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means O->G will delete previously synced all-days
+                List<Event> allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
                 if (allDays.Count > 0) {
                     log.Debug(allDays.Count + " Google all-day items excluded.");
                     result = result.Except(allDays).ToList();

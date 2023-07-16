@@ -558,6 +558,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
                     cbSingleCategoryOnly.Enabled = profile.AddColours && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
                     cbExcludeAllDays.Checked = profile.ExcludeAllDays;
+                    cbExcludeFreeAllDays.Checked = profile.ExcludeFreeAllDays;
+                    cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -2064,6 +2066,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbExcludeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeAllDays = cbExcludeAllDays.Checked;
+            cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
+            cbExcludeFreeAllDays.Checked = false;
+        }
+        private void cbExcludeFreeAllDays_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFreeAllDays = cbExcludeFreeAllDays.Checked;
         }
         #endregion
         #endregion

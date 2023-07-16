@@ -211,8 +211,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean unfiltered = true;
 
-                        if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
-                            unfiltered = false;
+                        if (profile.ExcludeAllDays && profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ai.AllDayEvent(true)) { //Sync direction means G->O will delete previously synced all-days
+                            if (profile.ExcludeFreeAllDays)
+                                unfiltered = (ai.BusyStatus != OlBusyStatus.olFree);
+                            else
+                                unfiltered = false;
                             allDayFiltered++;
                         }
                             
