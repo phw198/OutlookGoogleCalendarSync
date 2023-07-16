@@ -557,6 +557,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     btColourMap.Enabled = profile.AddColours;
                     cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
                     cbSingleCategoryOnly.Enabled = profile.AddColours && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
+                    cbExcludeAllDays.Checked = profile.ExcludeAllDays;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -1569,7 +1570,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 155; break;
+                    case "What": section.Height = 172; break;
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -2060,6 +2061,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
+        }
+        private void cbExcludeAllDays_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeAllDays = cbExcludeAllDays.Checked;
         }
         #endregion
         #endregion

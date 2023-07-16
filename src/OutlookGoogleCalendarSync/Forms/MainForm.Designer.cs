@@ -280,6 +280,7 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ddPrivacy = new System.Windows.Forms.ComboBox();
+            this.cbExcludeAllDays = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1888,6 +1889,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.tbMaxAttendees);
             this.gbSyncOptions_What.Controls.Add(this.cbSingleCategoryOnly);
             this.gbSyncOptions_What.Controls.Add(this.btColourMap);
@@ -1911,7 +1913,7 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 155);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 172);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
@@ -2681,19 +2683,19 @@
             this.msSettingsActions.Name = "msSettingsActions";
             this.msSettingsActions.ShowImageMargin = false;
             this.msSettingsActions.ShowItemToolTips = false;
-            this.msSettingsActions.Size = new System.Drawing.Size(128, 26);
+            this.msSettingsActions.Size = new System.Drawing.Size(131, 48);
             // 
             // miExportSettings
             // 
             this.miExportSettings.Name = "miExportSettings";
-            this.miExportSettings.Size = new System.Drawing.Size(127, 22);
+            this.miExportSettings.Size = new System.Drawing.Size(130, 22);
             this.miExportSettings.Text = "Export Settings";
             this.miExportSettings.Click += new System.EventHandler(this.miExportSettings_Click);
             // 
             // miImportSettings
             // 
             this.miImportSettings.Name = "miImportSettings";
-            this.miImportSettings.Size = new System.Drawing.Size(127, 22);
+            this.miImportSettings.Size = new System.Drawing.Size(130, 22);
             this.miImportSettings.Text = "Import Settings";
             this.miImportSettings.Click += new System.EventHandler(this.miImportSettings_Click);
             // 
@@ -3426,6 +3428,18 @@
             this.ddPrivacy.ValueMember = "Key";
             this.ddPrivacy.SelectedIndexChanged += new System.EventHandler(this.ddPrivacy_SelectedIndexChanged);
             // 
+            // cbExcludeAllDays
+            // 
+            this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 150);
+            this.cbExcludeAllDays.Name = "cbExcludeAllDays";
+            this.cbExcludeAllDays.Size = new System.Drawing.Size(126, 17);
+            this.cbExcludeAllDays.TabIndex = 49;
+            this.cbExcludeAllDays.Text = "Exclude all day items";
+            this.cbExcludeAllDays.UseVisualStyleBackColor = true;
+            this.cbExcludeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeAllDays_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3747,5 +3761,6 @@
         private System.Windows.Forms.CheckBox cbStartOnStartupAllUsers;
         private System.Windows.Forms.ComboBox ddPrivacy;
         private Extensions.MenuButton bSave;
+        private System.Windows.Forms.CheckBox cbExcludeAllDays;
     }
 }

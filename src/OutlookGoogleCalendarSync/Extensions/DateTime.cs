@@ -21,8 +21,34 @@ namespace OutlookGoogleCalendarSync {
             return evDt.DateTime ?? DateTime.Parse(evDt.Date);
         }
 
-        public static Boolean AllDayEvent(this Event ev) {
-            return ev.Start.Date != null;
+        /// <summary>
+        /// Whether an Event is all day
+        /// </summary>
+        /// <param name="ev">The Event to check</param>
+        /// <param name="logicallyEquivalent">Midnight to midnight Events treated as all day</param>
+        /// <returns></returns>
+        public static Boolean AllDayEvent(this Event ev, Boolean logicallyEquivalent = false) {
+            if (ev.Start?.Date != null)
+                return true;
+            if (logicallyEquivalent)
+                return (ev.Start?.DateTime?.TimeOfDay == new TimeSpan(0, 0, 0) && ev.Start?.DateTime?.TimeOfDay == ev.End?.DateTime?.TimeOfDay);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Whether an Appointment is all day
+        /// </summary>
+        /// <param name="ai">The Appointment to check</param>
+        /// <param name="logicallyEquivalent">Midnight to midnight Appointments treated as all day</param>
+        /// <returns></returns>
+        public static Boolean AllDayEvent(this Microsoft.Office.Interop.Outlook.AppointmentItem ai, Boolean logicallyEquivalent = false) {
+            if (ai.AllDayEvent)
+                return true;
+            if (logicallyEquivalent)
+                return (ai.Start.TimeOfDay == new TimeSpan(0, 0, 0) && ai.Start.TimeOfDay == ai.End.TimeOfDay);
+            else
+                return false;
         }
     }
 }

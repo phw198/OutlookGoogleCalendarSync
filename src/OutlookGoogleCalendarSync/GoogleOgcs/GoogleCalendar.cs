@@ -335,6 +335,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            if (profile.ExcludeAllDays) {
+                List<Event> allDays = result.Where(ev => ev.AllDayEvent(true)).ToList();
+                if (allDays.Count > 0) {
+                    log.Debug(allDays.Count + " Google all-day items excluded.");
+                    result = result.Except(allDays).ToList();
+                }
+            }
+
             if (profile.ExcludeDeclinedInvites) {
                 List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
                 if (declined.Count > 0) {

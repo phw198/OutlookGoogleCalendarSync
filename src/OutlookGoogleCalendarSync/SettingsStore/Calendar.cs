@@ -86,6 +86,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             MaxAttendees = 200;
             AddColours = false;
             ColourMaps = new ColourMappingDictionary();
+            ExcludeAllDays = false;
             
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
@@ -174,6 +175,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
+        [DataMember] public bool ExcludeAllDays { get; set; }
         #endregion
         #endregion
 
