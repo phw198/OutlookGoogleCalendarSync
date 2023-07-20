@@ -164,6 +164,11 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.cbExcludeFree = new System.Windows.Forms.CheckBox();
+            this.cbExcludeTentative = new System.Windows.Forms.CheckBox();
+            this.lExcludeItems = new System.Windows.Forms.Label();
+            this.cbExcludeFreeAllDays = new System.Windows.Forms.CheckBox();
+            this.cbExcludeAllDays = new System.Windows.Forms.CheckBox();
             this.tbMaxAttendees = new System.Windows.Forms.NumericUpDown();
             this.cbSingleCategoryOnly = new System.Windows.Forms.CheckBox();
             this.btColourMap = new System.Windows.Forms.Button();
@@ -280,8 +285,6 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ddPrivacy = new System.Windows.Forms.ComboBox();
-            this.cbExcludeAllDays = new System.Windows.Forms.CheckBox();
-            this.cbExcludeFreeAllDays = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1890,6 +1893,9 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeFree);
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeTentative);
+            this.gbSyncOptions_What.Controls.Add(this.lExcludeItems);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFreeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.tbMaxAttendees);
@@ -1915,10 +1921,68 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 172);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 210);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // cbExcludeFree
+            // 
+            this.cbExcludeFree.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeFree.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeFree.Location = new System.Drawing.Point(22, 170);
+            this.cbExcludeFree.Name = "cbExcludeFree";
+            this.cbExcludeFree.Size = new System.Drawing.Size(52, 17);
+            this.cbExcludeFree.TabIndex = 54;
+            this.cbExcludeFree.Text = "Free";
+            this.cbExcludeFree.UseVisualStyleBackColor = true;
+            this.cbExcludeFree.CheckedChanged += new System.EventHandler(this.cbExcludeFree_CheckedChanged);
+            // 
+            // cbExcludeTentative
+            // 
+            this.cbExcludeTentative.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeTentative.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeTentative.Location = new System.Drawing.Point(103, 170);
+            this.cbExcludeTentative.Name = "cbExcludeTentative";
+            this.cbExcludeTentative.Size = new System.Drawing.Size(106, 17);
+            this.cbExcludeTentative.TabIndex = 53;
+            this.cbExcludeTentative.Text = "Tentative";
+            this.cbExcludeTentative.UseVisualStyleBackColor = true;
+            this.cbExcludeTentative.CheckedChanged += new System.EventHandler(this.cbExcludeTentative_CheckedChanged);
+            // 
+            // lExcludeItems
+            // 
+            this.lExcludeItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lExcludeItems.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lExcludeItems.Location = new System.Drawing.Point(6, 153);
+            this.lExcludeItems.Name = "lExcludeItems";
+            this.lExcludeItems.Size = new System.Drawing.Size(237, 14);
+            this.lExcludeItems.TabIndex = 52;
+            this.lExcludeItems.Text = "Exclude items. Affects those previously synced";
+            // 
+            // cbExcludeFreeAllDays
+            // 
+            this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 188);
+            this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
+            this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
+            this.cbExcludeFreeAllDays.TabIndex = 50;
+            this.cbExcludeFreeAllDays.Text = "that are Free";
+            this.cbExcludeFreeAllDays.UseVisualStyleBackColor = true;
+            this.cbExcludeFreeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeFreeAllDays_CheckedChanged);
+            // 
+            // cbExcludeAllDays
+            // 
+            this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludeAllDays.Name = "cbExcludeAllDays";
+            this.cbExcludeAllDays.Size = new System.Drawing.Size(87, 17);
+            this.cbExcludeAllDays.TabIndex = 49;
+            this.cbExcludeAllDays.Text = "All-days";
+            this.cbExcludeAllDays.UseVisualStyleBackColor = true;
+            this.cbExcludeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeAllDays_CheckedChanged);
             // 
             // tbMaxAttendees
             // 
@@ -3430,30 +3494,6 @@
             this.ddPrivacy.ValueMember = "Key";
             this.ddPrivacy.SelectedIndexChanged += new System.EventHandler(this.ddPrivacy_SelectedIndexChanged);
             // 
-            // cbExcludeAllDays
-            // 
-            this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 150);
-            this.cbExcludeAllDays.Name = "cbExcludeAllDays";
-            this.cbExcludeAllDays.Size = new System.Drawing.Size(126, 17);
-            this.cbExcludeAllDays.TabIndex = 49;
-            this.cbExcludeAllDays.Text = "Exclude all day items";
-            this.cbExcludeAllDays.UseVisualStyleBackColor = true;
-            this.cbExcludeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeAllDays_CheckedChanged);
-            // 
-            // cbExcludeFreeAllDays
-            // 
-            this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(143, 150);
-            this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
-            this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
-            this.cbExcludeFreeAllDays.TabIndex = 50;
-            this.cbExcludeFreeAllDays.Text = "that are Free";
-            this.cbExcludeFreeAllDays.UseVisualStyleBackColor = true;
-            this.cbExcludeFreeAllDays.CheckedChanged += new System.EventHandler(this.cbExcludeFreeAllDays_CheckedChanged);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3777,5 +3817,8 @@
         private Extensions.MenuButton bSave;
         private System.Windows.Forms.CheckBox cbExcludeAllDays;
         private System.Windows.Forms.CheckBox cbExcludeFreeAllDays;
+        private System.Windows.Forms.CheckBox cbExcludeFree;
+        private System.Windows.Forms.CheckBox cbExcludeTentative;
+        private System.Windows.Forms.Label lExcludeItems;
     }
 }
