@@ -127,6 +127,7 @@
             this.pbExpandHow = new System.Windows.Forms.PictureBox();
             this.gbSyncOptions_How = new System.Windows.Forms.GroupBox();
             this.howMorePanel = new System.Windows.Forms.Panel();
+            this.ddPrivacy = new System.Windows.Forms.ComboBox();
             this.ddAvailabilty = new System.Windows.Forms.ComboBox();
             this.ddGoogleColour = new OutlookGoogleCalendarSync.Extensions.GoogleColourPicker();
             this.ddOutlookColour = new OutlookGoogleCalendarSync.Extensions.OutlookColourPicker();
@@ -284,7 +285,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ddPrivacy = new System.Windows.Forms.ComboBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1397,6 +1397,21 @@
             this.howMorePanel.Name = "howMorePanel";
             this.howMorePanel.Size = new System.Drawing.Size(353, 94);
             this.howMorePanel.TabIndex = 48;
+            // 
+            // ddPrivacy
+            // 
+            this.ddPrivacy.DisplayMember = "Value";
+            this.ddPrivacy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddPrivacy.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ddPrivacy.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ddPrivacy.FormattingEnabled = true;
+            this.ddPrivacy.ItemHeight = 13;
+            this.ddPrivacy.Location = new System.Drawing.Point(149, 24);
+            this.ddPrivacy.Name = "ddPrivacy";
+            this.ddPrivacy.Size = new System.Drawing.Size(84, 21);
+            this.ddPrivacy.TabIndex = 47;
+            this.ddPrivacy.ValueMember = "Key";
+            this.ddPrivacy.SelectedIndexChanged += new System.EventHandler(this.ddPrivacy_SelectedIndexChanged);
             // 
             // ddAvailabilty
             // 
@@ -3478,21 +3493,6 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // ddPrivacy
-            // 
-            this.ddPrivacy.DisplayMember = "Value";
-            this.ddPrivacy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddPrivacy.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ddPrivacy.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.ddPrivacy.FormattingEnabled = true;
-            this.ddPrivacy.ItemHeight = 13;
-            this.ddPrivacy.Location = new System.Drawing.Point(149, 24);
-            this.ddPrivacy.Name = "ddPrivacy";
-            this.ddPrivacy.Size = new System.Drawing.Size(84, 21);
-            this.ddPrivacy.TabIndex = 47;
-            this.ddPrivacy.ValueMember = "Key";
-            this.ddPrivacy.SelectedIndexChanged += new System.EventHandler(this.ddPrivacy_SelectedIndexChanged);
             // 
             // Main
             // 
