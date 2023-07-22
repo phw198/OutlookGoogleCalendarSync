@@ -1311,10 +1311,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.CategoriesRestrictBy = (cbCategoryFilter.SelectedItem.ToString() == "Include") ?
                 SettingsStore.Calendar.RestrictBy.Include : SettingsStore.Calendar.RestrictBy.Exclude;
             //Invert selection
-            for (int i = 0; i < clbCategories.Items.Count; i++) {
-                clbCategories.SetItemChecked(i, !clbCategories.CheckedIndices.Contains(i));
-            }
-            clbCategories_SelectedIndexChanged(null, null);
+            miCatSelectInvert_Click(null, null);
         }
 
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1344,6 +1341,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void miCatSelectAll_Click(object sender, EventArgs e) {
             for (int i = 0; i < clbCategories.Items.Count; i++) {
                 clbCategories.SetItemCheckState(i, CheckState.Checked);
+            }
+            clbCategories_SelectedIndexChanged(null, null);
+        }
+        private void miCatSelectInvert_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbCategories.Items.Count; i++) {
+                clbCategories.SetItemChecked(i, !clbCategories.CheckedIndices.Contains(i));
             }
             clbCategories_SelectedIndexChanged(null, null);
         }

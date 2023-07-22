@@ -78,6 +78,7 @@
             this.msCategories = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.miCatSelectAll = new System.Windows.Forms.ToolStripMenuItem();
             this.miCatSelectNone = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCatSelectInvert = new System.Windows.Forms.ToolStripMenuItem();
             this.miCatRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label32 = new System.Windows.Forms.Label();
@@ -741,6 +742,7 @@
             this.msCategories.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miCatSelectAll,
             this.miCatSelectNone,
+            this.miCatSelectInvert,
             this.miCatRefresh});
             this.msCategories.Name = "msCategories";
             this.msCategories.ShowImageMargin = false;
@@ -760,6 +762,13 @@
             this.miCatSelectNone.Size = new System.Drawing.Size(147, 22);
             this.miCatSelectNone.Text = "Select None";
             this.miCatSelectNone.Click += new System.EventHandler(this.miCatSelectNone_Click);
+            // 
+            // miCatSelectInvert
+            // 
+            this.miCatSelectInvert.Name = "miCatSelectInvert";
+            this.miCatSelectInvert.Size = new System.Drawing.Size(147, 22);
+            this.miCatSelectInvert.Text = "Invert Selection";
+            this.miCatSelectInvert.Click += new System.EventHandler(this.miCatSelectInvert_Click);
             // 
             // miCatRefresh
             // 
@@ -3624,6 +3633,7 @@
         private System.Windows.Forms.ContextMenuStrip msCategories;
         private System.Windows.Forms.ToolStripMenuItem miCatSelectAll;
         private System.Windows.Forms.ToolStripMenuItem miCatSelectNone;
+        private System.Windows.Forms.ToolStripMenuItem miCatSelectInvert;
         private System.Windows.Forms.ToolStripMenuItem miCatRefresh;
         private System.Windows.Forms.ContextMenuStrip msProfileActions;
         private System.Windows.Forms.ToolStripMenuItem miAddProfile;

@@ -55,6 +55,18 @@
             this.panel1.Size = new System.Drawing.Size(463, 303);
             this.panel1.TabIndex = 9;
             // 
+            // cbHideSplash
+            // 
+            this.cbHideSplash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbHideSplash.AutoSize = true;
+            this.cbHideSplash.Location = new System.Drawing.Point(8, 283);
+            this.cbHideSplash.Name = "cbHideSplash";
+            this.cbHideSplash.Size = new System.Drawing.Size(120, 17);
+            this.cbHideSplash.TabIndex = 56;
+            this.cbHideSplash.Text = "Hide Splash Screen";
+            this.cbHideSplash.UseVisualStyleBackColor = true;
+            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
+            // 
             // lSyncCount
             // 
             this.lSyncCount.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -85,7 +97,7 @@
             // 
             this.lVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lVersion.AutoSize = true;
-            this.lVersion.Location = new System.Drawing.Point(413, 285);
+            this.lVersion.Location = new System.Drawing.Point(408, 285);
             this.lVersion.Name = "lVersion";
             this.lVersion.Size = new System.Drawing.Size(42, 13);
             this.lVersion.TabIndex = 12;
@@ -136,18 +148,6 @@
             this.pictureBox1.Size = new System.Drawing.Size(130, 130);
             this.pictureBox1.TabIndex = 9;
             this.pictureBox1.TabStop = false;
-            // 
-            // cbHideSplash
-            // 
-            this.cbHideSplash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cbHideSplash.AutoSize = true;
-            this.cbHideSplash.Location = new System.Drawing.Point(8, 283);
-            this.cbHideSplash.Name = "cbHideSplash";
-            this.cbHideSplash.Size = new System.Drawing.Size(120, 17);
-            this.cbHideSplash.TabIndex = 56;
-            this.cbHideSplash.Text = "Hide Splash Screen";
-            this.cbHideSplash.UseVisualStyleBackColor = true;
-            this.cbHideSplash.CheckedChanged += new System.EventHandler(this.cbHideSplash_CheckedChanged);
             // 
             // Splash
             // 
