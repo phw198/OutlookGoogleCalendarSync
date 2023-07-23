@@ -209,9 +209,11 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void Start(Boolean manualIgnition, Boolean updateSyncSchedule) {
             if (Settings.Profile.GetType(this.ActiveProfile) == Settings.Profile.Type.Calendar) {
+                Forms.Main.Instance.NotificationTray.IconAnimator.Start();
                 Forms.Main.Instance.NotificationTray.ShowBubbleInfo((manualIgnition ? "S" : "Autos") + "yncing calendars: " + (this.ActiveProfile as SettingsStore.Calendar).SyncDirection.Name + "...");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
                 Sync.Engine.Calendar.Instance.StartSync(manualIgnition, updateSyncSchedule);
+                Forms.Main.Instance.NotificationTray.IconAnimatorStop();
             }
         }
 
