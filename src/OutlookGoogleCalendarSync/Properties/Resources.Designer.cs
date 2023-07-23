@@ -153,9 +153,19 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ogcs {
+        internal static System.Drawing.Bitmap ogcs128x128 {
             get {
-                object obj = ResourceManager.GetObject("ogcs", resourceCulture);
+                object obj = ResourceManager.GetObject("ogcs128x128", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ogcs128x128_animated {
+            get {
+                object obj = ResourceManager.GetObject("ogcs128x128_animated", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
