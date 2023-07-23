@@ -123,7 +123,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btCancel;
             this.ClientSize = new System.Drawing.Size(506, 217);
-            this.ControlBox = false;
             this.Controls.Add(this.panelDonationNote);
             this.Controls.Add(this.btCancel);
             this.Controls.Add(this.btOK);
@@ -131,6 +130,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.Controls.Add(this.txtProfileName);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ProfileManage";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Profile Management";
