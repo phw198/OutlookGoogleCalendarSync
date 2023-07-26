@@ -339,6 +339,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
+                if (profile.ExcludeFree) {
+                    List<Event> availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
+                    if (availability.Count > 0) {
+                        log.Debug(availability.Count + " Google Free items excluded.");
+                        result = result.Except(availability).ToList();
+                    }
+                }
+                if (profile.ExcludeAllDays) {
+                    List<Event> allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
+                    if (allDays.Count > 0) {
+                        log.Debug(allDays.Count + " Google all-day items excluded.");
+                        result = result.Except(allDays).ToList();
+                    }
+                }
+            }
+
             if (profile.ExcludeDeclinedInvites) {
                 List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
                 if (declined.Count > 0) {
