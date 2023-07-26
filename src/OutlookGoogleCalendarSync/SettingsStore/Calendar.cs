@@ -50,25 +50,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             ExcludeGoals = true;
 
             //Sync Options
+            //How
             SimpleMatch = false;
             SyncDirection = Sync.Direction.OutlookToGoogle;
-            DaysInThePast = 1;
-            DaysInTheFuture = 60;
-            SyncInterval = 0;
-            SyncIntervalUnit = "Hours";
-            OutlookPush = false;
-            AddLocation = true;
-            AddDescription = true;
-            AddDescription_OnlyToGoogle = true;
-            AddReminders = false;
-            UseGoogleDefaultReminder = false;
-            UseOutlookDefaultReminder = false;
-            ReminderDND = false;
-            ReminderDNDstart = DateTime.Now.Date.AddHours(22);
-            ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
-            AddAttendees = false;
-            MaxAttendees = 200;
-            AddColours = false;
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
@@ -82,8 +66,27 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
             SetEntriesColourName = "None";
             SetEntriesColourGoogleId = "0";
-            ColourMaps = new ColourMappingDictionary();
             Obfuscation = new Obfuscate();
+            //When
+            DaysInThePast = 1;
+            DaysInTheFuture = 60;
+            SyncInterval = 0;
+            SyncIntervalUnit = "Hours";
+            OutlookPush = false;
+            //What
+            AddLocation = true;
+            AddDescription = true;
+            AddDescription_OnlyToGoogle = true;
+            AddReminders = false;
+            UseGoogleDefaultReminder = false;
+            UseOutlookDefaultReminder = false;
+            ReminderDND = false;
+            ReminderDNDstart = DateTime.Now.Date.AddHours(22);
+            ReminderDNDend = DateTime.Now.Date.AddDays(1).AddHours(6);
+            AddAttendees = false;
+            MaxAttendees = 200;
+            AddColours = false;
+            ColourMaps = new ColourMappingDictionary();
             
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
@@ -124,6 +127,26 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         /// <summary>For O->G match on signatures. Useful for Appled iCals where immutable Outlook IDs change every sync.</summary>
         [DataMember] public Boolean SimpleMatch { get; set; }
         //Main
+        #region How
+        [DataMember] public bool MergeItems { get; set; }
+        [DataMember] public bool DisableDelete { get; set; }
+        [DataMember] public bool ConfirmOnDelete { get; set; }
+        [DataMember] public Obfuscate Obfuscation { get; set; }
+        [DataMember] public Sync.Direction TargetCalendar { get; set; }
+        [DataMember] public Boolean CreatedItemsOnly { get; set; }
+        [DataMember] public bool SetEntriesPrivate { get; set; }
+        [DataMember] public String PrivacyLevel { get; set; }
+        [DataMember] public bool SetEntriesAvailable { get; set; }
+        [DataMember] public String AvailabilityStatus { get; set; }
+        [DataMember] public bool SetEntriesColour { get; set; }
+        /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
+        [DataMember] public String SetEntriesColourValue { get; set; }
+        /// <summary>Set all Outlook appointments to this custom category name</summary>
+        [DataMember] public String SetEntriesColourName { get; set; }
+        /// <summary>Set all Google events to this colour ID</summary>
+        [DataMember] public String SetEntriesColourGoogleId { get; set; }
+        #endregion
+        #region When
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
         [DataMember] public Sync.Direction SyncDirection { get; set; }
@@ -132,6 +155,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public int SyncInterval { get; set; }
         [DataMember] public String SyncIntervalUnit { get; set; }
         [DataMember] public bool OutlookPush { get; set; }
+        #endregion
+        #region What
         [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
@@ -144,23 +169,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool AddAttendees { get; set; }
         [DataMember] public int MaxAttendees { get; set; }
         [DataMember] public bool AddColours { get; set; }
-        [DataMember] public bool MergeItems { get; set; }
-        [DataMember] public bool DisableDelete { get; set; }
-        [DataMember] public bool ConfirmOnDelete { get; set; }
-        [DataMember] public Sync.Direction TargetCalendar { get; set; }
-        [DataMember] public Boolean CreatedItemsOnly { get; set; }
-        [DataMember] public bool SetEntriesPrivate { get; set; }
-        [DataMember] public String PrivacyLevel { get; set; }
-        [DataMember] public bool SetEntriesAvailable { get; set; }
-        [DataMember] public String AvailabilityStatus { get; set; }
-        [DataMember] public bool SetEntriesColour { get; set; }
-
-        /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
-        [DataMember] public String SetEntriesColourValue { get; set; }
-        /// <summary>Set all Outlook appointments to this custom category name</summary>
-        [DataMember] public String SetEntriesColourName { get; set; }
-        /// <summary>Set all Google events to this colour ID</summary>
-        [DataMember] public String SetEntriesColourGoogleId { get; set; }
         [DataMember]
         public ColourMappingDictionary ColourMaps { get; private set; }
         [CollectionDataContract(
@@ -170,9 +178,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
-
-        //Obfuscation
-        [DataMember] public Obfuscate Obfuscation { get; set; }
+        #endregion
         #endregion
 
         #region Advanced - Non GUI
