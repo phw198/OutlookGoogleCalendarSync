@@ -562,6 +562,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
                     cbExcludeFree.Checked = profile.ExcludeFree;
                     cbExcludeTentative.Checked = profile.ExcludeTentative;
+                    cbExcludePrivate.Checked = profile.ExcludePrivate;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -1574,7 +1575,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 210; break;
+                    case "What": section.Height = 228; break;
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -2072,6 +2073,15 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
         }
 
+        private void cbExcludeFree_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFree = cbExcludeFree.Checked;
+        }
+        private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
+        }
+        private void cbExcludePrivate_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludePrivate = cbExcludePrivate.Checked;
+        }
         private void cbExcludeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeAllDays = cbExcludeAllDays.Checked;
             cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
@@ -2079,13 +2089,6 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbExcludeFreeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeFreeAllDays = cbExcludeFreeAllDays.Checked;
-        }
-
-        private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
-        }
-        private void cbExcludeFree_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.ExcludeFree = cbExcludeFree.Checked;
         }
         #endregion
         #endregion

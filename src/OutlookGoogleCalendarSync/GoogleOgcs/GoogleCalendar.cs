@@ -350,6 +350,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         result = result.Except(allDays).ToList();
                     }
                 }
+                if (profile.ExcludePrivate) {
+                    List<Event> privacy = result.Where(ev => profile.ExcludePrivate && ev.Visibility == "private").ToList();
+                    if (privacy.Count > 0) {
+                        log.Debug(privacy.Count + " Google Private items excluded.");
+                        result = result.Except(privacy).ToList();
+                    }
+                }
             }
 
             if (profile.ExcludeDeclinedInvites) {

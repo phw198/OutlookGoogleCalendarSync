@@ -165,6 +165,7 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.cbExcludePrivate = new System.Windows.Forms.CheckBox();
             this.cbExcludeFree = new System.Windows.Forms.CheckBox();
             this.cbExcludeTentative = new System.Windows.Forms.CheckBox();
             this.lExcludeItems = new System.Windows.Forms.Label();
@@ -1908,6 +1909,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFree);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeTentative);
             this.gbSyncOptions_What.Controls.Add(this.lExcludeItems);
@@ -1936,10 +1938,22 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 210);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 228);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // cbExcludePrivate
+            // 
+            this.cbExcludePrivate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludePrivate.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludePrivate.Name = "cbExcludePrivate";
+            this.cbExcludePrivate.Size = new System.Drawing.Size(68, 17);
+            this.cbExcludePrivate.TabIndex = 55;
+            this.cbExcludePrivate.Text = "Private";
+            this.cbExcludePrivate.UseVisualStyleBackColor = true;
+            this.cbExcludePrivate.CheckedChanged += new System.EventHandler(this.cbExcludePrivate_CheckedChanged);
             // 
             // cbExcludeFree
             // 
@@ -1979,7 +1993,7 @@
             // 
             this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 188);
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 206);
             this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
             this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
             this.cbExcludeFreeAllDays.TabIndex = 50;
@@ -1991,7 +2005,7 @@
             // 
             this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 206);
             this.cbExcludeAllDays.Name = "cbExcludeAllDays";
             this.cbExcludeAllDays.Size = new System.Drawing.Size(87, 17);
             this.cbExcludeAllDays.TabIndex = 49;
@@ -3820,5 +3834,6 @@
         private System.Windows.Forms.CheckBox cbExcludeFree;
         private System.Windows.Forms.CheckBox cbExcludeTentative;
         private System.Windows.Forms.Label lExcludeItems;
+        private System.Windows.Forms.CheckBox cbExcludePrivate;
     }
 }
