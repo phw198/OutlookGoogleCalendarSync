@@ -371,6 +371,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
                         enableOutlookSettingsUI(true);
                     }
+                    cbDeleteWhenCatExcl.Checked = profile.DeleteWhenCategoryExcluded;
                     #endregion
                     cbOnlyRespondedInvites.Checked = profile.OnlyRespondedInvites;
                     btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
@@ -1640,6 +1641,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDNDand.Visible = true;
                 cbSingleCategoryOnly.Visible = true;
                 lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
+                lWhatExcludeInfo.Left = 207;
                 cbExcludeTentative.Visible = true;
             } else {
                 cbDeleteWhenCatExcl.Visible = false;
@@ -1655,6 +1657,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbTargetCalendar.SelectedIndex = 2;
                 tbTargetCalendar.Enabled = false;
                 lExcludeItems.Text = "Exclude items. Affects those previously synced:-";
+                lWhatExcludeInfo.Left = 228;
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) {
                 ActiveCalendarProfile.DeregisterForPushSync();
@@ -2001,8 +2004,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                         break;
                     }
                 case "AffectedExcludeItems": {
-                        tbWhatHelp.Text = "Excluding items will delete those previously synced.\r" +
-                            "For more fine-grained control, consider filtering on categories.";
+                        if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                            tbWhatHelp.Text = "Excluding items will only affect items synced hereon in.";
+                        } else {
+                            tbWhatHelp.Text = "Excluding items will delete those previously synced.";
+                        }
+                        tbWhatHelp.Text += "\rFor more fine-grained control, consider filtering on categories.";
                         WhatPostit.Visible = true;
                         break;
                     }
