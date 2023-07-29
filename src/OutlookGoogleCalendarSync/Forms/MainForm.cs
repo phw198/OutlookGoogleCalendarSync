@@ -1968,6 +1968,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void lWhatInfo_MouseLeave(object sender, EventArgs e) {
             showWhatPostit("Description");
         }
+        private void lWhatExcludeInfo_MouseHover(object sender, EventArgs e) {
+            showWhatPostit("AffectedExcludeItems");
+        }
+        private void lWhatExcludeInfo_MouseLeave(object sender, EventArgs e) {
+            showWhatPostit("Description");
+        }
         private void showWhatPostit(String info) {
             switch (info) {
                 case "Description": {
@@ -1980,6 +1986,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 case "AffectedItems": {
                         tbWhatHelp.Text = "Changes will only affect items synced hereon in.\r" +
                             "To update ALL items, click the Sync button whilst pressing the shift key.";
+                        WhatPostit.Visible = true;
+                        break;
+                    }
+                case "AffectedExcludeItems": {
+                        tbWhatHelp.Text = "Excluding items will delete those previously synced.\r" +
+                            "For more fine-grained control, consider filtering on categories.";
                         WhatPostit.Visible = true;
                         break;
                     }
