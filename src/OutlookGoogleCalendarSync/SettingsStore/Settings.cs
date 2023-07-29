@@ -403,6 +403,10 @@ namespace OutlookGoogleCalendarSync {
             TimeZone curTimeZone = TimeZone.CurrentTimeZone;
             log.Info("  System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now));
             log.Info("  Completed Syncs: "+ CompletedSyncs);
+
+            foreach (SettingsStore.Calendar profile in this.Calendars) {
+                profile.LogSettings();
+            }
         }
 
         public static void configureLoggingLevel(string logLevel) {
