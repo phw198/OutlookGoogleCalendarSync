@@ -78,6 +78,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
                 "The Outlook calendar to synchonize with.");
+            ToolTips.SetToolTip(cbDeleteWhenCatExcl,
+                "If items are already synced in Google and subsequently excluded by a category filter.");
             ToolTips.SetToolTip(btTestOutlookFilter,
                 "Check how many appointments are returned for the date range being synced.");
 
@@ -1320,6 +1322,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             miCatSelectInvert_Click(null, null);
         }
 
+        private void cbDeleteWhenCatExcl_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.DeleteWhenCategoryExcluded = cbDeleteWhenCatExcl.Checked;
+        }
+
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
 
@@ -1617,6 +1623,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SyncDirection = (Sync.Direction)syncDirection.SelectedItem;
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
+                cbDeleteWhenCatExcl.Visible = true;
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = Sync.Direction.OutlookToGoogle.Id - 1;
 
@@ -1635,6 +1642,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
                 cbExcludeTentative.Visible = true;
             } else {
+                cbDeleteWhenCatExcl.Visible = false;
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
 

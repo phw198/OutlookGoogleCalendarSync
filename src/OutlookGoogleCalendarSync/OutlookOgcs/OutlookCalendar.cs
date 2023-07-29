@@ -215,6 +215,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean filtered = false;
 
+                        //Categories
+                        try {
+                            if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
+                                filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
+
+                            } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
+                                filtered = (profile.Categories.Count() > 0 && (ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0));
+                            }
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            if (ex.TargetSite.Name == "get_Categories") {
+                                log.Warn("Could not access Categories property for " + GetEventSummary(ai));
+                                filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
+                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
+                            } else throw;
+                        }
+                        if (filtered) { ExcludedByCategory.Add(ai.EntryID); continue; }
+
                         //Availability, Privacy
                         if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
                             if ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
@@ -235,25 +254,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
 
-                        //Categories
-                        try {
-                            if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                                filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
-
-                            } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                                filtered = (profile.Categories.Count() > 0 && (ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0));
-                            }
-                        } catch (System.Runtime.InteropServices.COMException ex) {
-                            if (ex.TargetSite.Name == "get_Categories") {
-                                log.Warn("Could not access Categories property for " + GetEventSummary(ai));
-                                filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
-                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
-                            } else throw;
-                        }
-                        if (filtered) { ExcludedByCategory.Add(ai.EntryID); continue; }
-                        
                         //Invitation
                         if (profile.OnlyRespondedInvites) {
                             //These are actually filtered out later on when identifying differences
