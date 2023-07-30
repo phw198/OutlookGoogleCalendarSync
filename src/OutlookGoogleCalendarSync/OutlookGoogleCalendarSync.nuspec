@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.10.0-beta</version>
+    <version>2.10.1-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,30 +12,28 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.10.0?
+# What's New In v2.10.1?
 
-&lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements** rolled in from Alpha releases  
+&lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
-- Option to show and sync with hidden Google calendars
-- Option to set synced items as 'public'
-- Recurring series improvements
-    - When moving occurrence to date of another previously existing occurrence
-    - When moving occurrence multiple times
-- When deletions are disabled, list items intended for deletion
-- Better UI for colour map configuration
-- Improved UX for category/colour map tests
-- Categories now properly populating for Alternate Mailbox
-- Option to set OGCS to startup for all Windows users, not just current
-- Don't steal focus for messageboxes, flash icon instead
-- Do not delete inaccessible Outlook items from Google
-- Only exclude unresponded invites during creation
-    - Don't delete if rescheduled and not responded to
-- 2-way: Don't delete from Google items that were filtered out from Outlook
+- New options to exclude:
+    - All-day items [[#104](https://github.com/phw198/OutlookGoogleCalendarSync/issues/104)]
+    - Items by availability: free, tentative [[#825](https://github.com/phw198/OutlookGoogleCalendarSync/issues/825)]
+    - Items by privacy: private [[#415](https://github.com/phw198/OutlookGoogleCalendarSync/issues/415)]
+- New option to choose deletion of previously synced Google items, which are now excluded by category [[#1682](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1682)]
+    - NB: The default behaviour is to delete
+- Ability to export/import settings [[#1561](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1561)]
+- Log occurrence deletions to console
+- OGCS logo updated with modernised "G"
+    - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+- Update of third-party DLL files
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Numerous bug fixes included from v2.9.1 through v2.9.7
+- Incorrect detection of deleted occurrences within a series [[#1653](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1653)]
+- Handle Outlook recurring series having different start/end time zones, which Google does not allow
+- Better API quota management
+
     </releaseNotes>
     <copyright>Copyright 2023</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>

@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync {
                     squirrelGaEv.AddParameter(GA4.Squirrel.target_version, releaseVersion);
                     squirrelGaEv.AddParameter(GA4.Squirrel.target_type, releaseType);
 
-                    if (dr == DialogResult.No) {
+                    if (dr == DialogResult.No || dr == DialogResult.Cancel) {
                         log.Info("User chose not to upgrade right now.");
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
                         squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Deferred");
