@@ -11,6 +11,40 @@ p {
 
 # Release Notes
 
+## v2.10.1.0 - Alpha
+
+**Enhancements**
+- New [options to exclude](guide/syncoptions#exclusions):
+    - All-day items [[#104](https://github.com/phw198/OutlookGoogleCalendarSync/issues/104)]
+    - Items by availability: free, tentative [[#825](https://github.com/phw198/OutlookGoogleCalendarSync/issues/825)]
+    - Items by privacy: private [[#415](https://github.com/phw198/OutlookGoogleCalendarSync/issues/415)]
+- New option to choose deletion of previously synced Google items, which are now excluded by category [[#1682](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1682)]
+    - NB: The default behaviour is to delete
+- Ability to export/import settings [[#1561](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1561)]
+- Log occurrence deletions to console
+- OGCS logo updated with modernised "G"
+    - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+- Update of third-party DLL files
+
+**Bugfix**
+- Incorrect detection of deleted occurrences within a series [[#1653](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1653)]
+- Handle Outlook recurring series having different start/end time zones, which Google does not allow
+- Better API quota management
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.10.0.0 - Beta
 
 :high_brightness: **Enhancements** rolled in from Alpha releases

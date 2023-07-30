@@ -26,8 +26,7 @@ This is where you configure the Google calendar you wish to sync.
 <br/>
 To revoke authorisation from OGCS continuing to access a Google account, navigate to [https://myaccount.google.com/permissions](https://myaccount.google.com/permissions), click on `Outlook Google Calendar Sync` and then `Remove Access`.
 
-**Select calendar:** Once successfully authenticated, chose the calendar to sync with.
-
+**Select calendar:** Once successfully authenticated, chose the calendar to sync with.  
 **Exclude invitations I have declined:** Do not sync Google events that have been declined.  
 **Exclude "Goal" events from sync:** Do not sync Google _Goals_ (a now [deprecated Google feature](https://support.google.com/calendar/answer/12207659), replaced by _focus time_ for those with work or school accounts)
 

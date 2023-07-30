@@ -95,11 +95,10 @@ aside#sidebar table.download a.button {
 .tip {
   background-color: lightyellow;
   font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
-  border: bsolid 1px;
   border: solid 1px cadetblue;
   padding-left: 5px;
   padding-bottom: 5px;
-  margin-top: -20px;
+  margin-top: -10px;
 }
 .tip.a {
   cursor: hand;
@@ -118,4 +117,12 @@ aside#sidebar table.download a.button {
   aside#sidebar a.button {
     display: inherit; /* Still want buttons to display */
   }
+}
+
+/* Hacky way to have slightly taller line breaks */
+br {
+  content: "";
+  margin: 2em;
+  display: block;
+  font-size: 24%;
 }
