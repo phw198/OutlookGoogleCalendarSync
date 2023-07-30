@@ -172,7 +172,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 string filter = "[End] >= '" + min.ToString(profile.OutlookDateFormat) +
                     "' AND [Start] < '" + max.ToString(profile.OutlookDateFormat) + "'" + extraFilter;
                 log.Fine("Filter string: " + filter);
+
+                Int32 allDayFiltered = 0;
+                Int32 availabilityFiltered = 0;
                 Int32 responseFiltered = 0;
+
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
@@ -208,39 +212,60 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                     if (!filterBySettings) result.Add(ai);
                     else {
-                        Boolean unfiltered = true;
+                        Boolean filtered = false;
 
+                        //Availability
+                        if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
+                            if ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
+                                (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree)) {
+                                availabilityFiltered++; continue;
+                            }
+
+                            if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
+                                if (profile.ExcludeFreeAllDays)
+                                    filtered = (ai.BusyStatus == OlBusyStatus.olFree);
+                                else
+                                    filtered = true;
+                                if (filtered) { allDayFiltered++; continue; }
+                            }
+                        }
+
+                        //Categories
                         try {
                             if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                                unfiltered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
+                                filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
 
                             } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                                unfiltered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
+                                filtered = (profile.Categories.Count() > 0 && (ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
+                                    (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0));
                             }
                         } catch (System.Runtime.InteropServices.COMException ex) {
                             if (ex.TargetSite.Name == "get_Categories") {
                                 log.Warn("Could not access Categories property for " + GetEventSummary(ai));
-                                unfiltered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && profile.Categories.Contains("<No category assigned>")) ||
-                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && !profile.Categories.Contains("<No category assigned>")));
+                                filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
+                                    (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
                             } else throw;
                         }
-                        if (!unfiltered) ExcludedByCategory.Add(ai.EntryID);
-
+                        if (filtered) { ExcludedByCategory.Add(ai.EntryID); continue; }
+                        
+                        //Invitation
                         if (profile.OnlyRespondedInvites) {
                             //These are actually filtered out later on when identifying differences
                             if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
                                 responseFiltered++;
                         }
-                        if (unfiltered) result.Add(ai);
+                        
+                        result.Add(ai);
                     }
                 }
                 if (!suppressAdvisories) {
+                    if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
+                    if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
                     if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
                     if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                    if ((ExcludedByCategory.Count + responseFiltered) > 0) {
+                    if ((allDayFiltered + ExcludedByCategory.Count + responseFiltered) > 0) {
                         if (result.Count == 0)
                             Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
                         else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
@@ -1354,7 +1379,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void IdentifyEventDifferences(
             ref List<Event> google,             //need creating
             ref List<AppointmentItem> outlook,  //need deleting
-            Dictionary<AppointmentItem, Event> compare) {
+            ref Dictionary<AppointmentItem, Event> compare)
+        {
             log.Debug("Comparing Google events to Outlook items...");
             Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
 

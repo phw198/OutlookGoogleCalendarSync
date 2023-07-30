@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -7,10 +8,11 @@ namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
         private NotifyIcon icon;
-        public Object Tag {
-            get { return icon.Tag; }
-            set { icon.Tag = value; }
-        }
+        
+        public Timer IconAnimator;
+        private Icon[] animatedIconFrames;
+        private int animatedIconFrame;
+
         private Boolean exitEventFired = false;
         public Boolean Exited {
             get { return this.exitEventFired; }
@@ -37,6 +39,41 @@ namespace OutlookGoogleCalendarSync {
                 settingGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
                 settingGa4Ev.Send();
             }
+
+            try {
+                IconAnimator = new Timer();
+                IconAnimator.Tick += Animator_Tick;
+                IconAnimator.Interval = 750;
+
+                Bitmap bmpStrip = new Bitmap(Properties.Resources.animated_tray_icon_strip_64x);
+                int iconSize = 64;
+                // the color from the left bottom pixel will be made transparent
+                bmpStrip.MakeTransparent();
+
+                animatedIconFrames = new Icon[bmpStrip.Width / iconSize];
+                for (int i = 0; i < animatedIconFrames.Length; i++) {
+                    Rectangle rect = new Rectangle(i * iconSize, 0, iconSize, iconSize);
+                    Bitmap bmp = bmpStrip.Clone(rect, bmpStrip.PixelFormat);
+                    animatedIconFrames[i] = Icon.FromHandle(bmp.GetHicon());
+                }
+                animatedIconFrame = 0;
+            } catch (Exception ex) {
+                OGCSexception.Analyse("Could not set up animated system tray icon.", ex);
+            }
+        }
+
+        private void Animator_Tick(object sender, EventArgs e) {
+            if (animatedIconFrames == null) {
+                IconAnimator.Stop();
+                return;
+            }
+            this.icon.Icon = animatedIconFrames[animatedIconFrame];
+            animatedIconFrame = (animatedIconFrame + 1) % animatedIconFrames.Length;
+        }
+
+        public void IconAnimatorStop() {
+            IconAnimator.Stop();
+            this.icon.Icon = Properties.Resources.icon;
         }
 
         private void buildMenu() {

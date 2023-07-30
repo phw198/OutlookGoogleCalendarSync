@@ -134,8 +134,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve calendar list failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -188,8 +189,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                         log.Error("API limit backoff was not successful. Paginated retrieve failed.");
                                         throw;
                                     } else {
-                                        log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                        System.Threading.Thread.Sleep(backoff * 1000);
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
                                     }
                                     break;
                             }
@@ -242,8 +244,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -305,8 +308,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
                                     throw;
                                 } else {
-                                    log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                    System.Threading.Thread.Sleep(backoff * 1000);
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
                                 }
                                 break;
                         }
@@ -333,6 +337,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
+            }
+
+            if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
+                if (profile.ExcludeFree) {
+                    List<Event> availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
+                    if (availability.Count > 0) {
+                        log.Debug(availability.Count + " Google Free items excluded.");
+                        result = result.Except(availability).ToList();
+                    }
+                }
+                if (profile.ExcludeAllDays) {
+                    List<Event> allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
+                    if (allDays.Count > 0) {
+                        log.Debug(allDays.Count + " Google all-day items excluded.");
+                        result = result.Except(allDays).ToList();
+                    }
+                }
             }
 
             if (profile.ExcludeDeclinedInvites) {
@@ -519,8 +540,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
@@ -925,8 +947,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                         case ApiException.justContinue:
@@ -1035,8 +1058,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
@@ -1169,20 +1193,67 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
-        //<summary>New logic for comparing Outlook and Google events works as follows:
-        //      1.  Scan through both lists looking for duplicates
-        //      2.  Remove found duplicates from both lists
-        //      3.  Items remaining in Outlook list are new and need to be created
-        //      4.  Items remaining in Google list need to be deleted
-        //</summary>
-        public void IdentifyEventDifferences(
+        public void IdentifyEventDifferences_Simple(
+            SettingsStore.Calendar profile,
             ref List<AppointmentItem> outlook,  //need creating
             ref List<Event> google,             //need deleting
-            Dictionary<AppointmentItem, Event> compare) {
-            log.Debug("Comparing Outlook items to Google events...");
-            Forms.Main.Instance.Console.Update("Matching calendar items...");
+            ref Dictionary<AppointmentItem, Event> compare)
+        {
+            Forms.Main.Instance.Console.Update("Matching calendar items using simple method...");
 
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            //Order by start date (same as Outlook) for quickest matching
+            google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
+
+            // Count backwards so that we can remove found items without affecting the order of remaining items
+            for (int g = google.Count - 1; g >= 0; g--) {
+                if (Sync.Engine.Instance.CancellationPending) return;
+                log.Fine("Checking " + GoogleOgcs.Calendar.GetEventSummary(google[g]));
+
+                //Use simple matching on start,end,subject,location to pair events
+                String sigEv = signature(google[g]);
+                if (String.IsNullOrEmpty(sigEv)) {
+                    google.Remove(google[g]);
+                    continue;
+                }
+
+                Boolean foundMatch = false;
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    try {
+                        if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+
+                        if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(outlook[o]))) {
+                            foundMatch = true;
+                            compare.Add(outlook[o], google[g]);
+                            outlook.Remove(outlook[o]);
+                            google.Remove(google[g]);
+                            break;
+                        }
+                    } catch (System.Exception ex) {
+                        if (!log.IsUltraFineEnabled()) {
+                            try {
+                                log.Info(OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                            } catch { }
+                        }
+                        if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
+                            log.Warn("Item corrupted / inaccessible due to security certificate.");
+                            outlook.Remove(outlook[o]);
+                        } else {
+                            log.Error(ex.Message);
+                        }
+                    }
+                }
+                if (!foundMatch && profile.MergeItems)
+                    google.Remove(google[g]);
+            }
+        }
+
+        public void IdentifyEventDifferences_IDs(
+            SettingsStore.Calendar profile,
+            ref List<AppointmentItem> outlook,  //need creating
+            ref List<Event> google,             //need deleting
+            ref Dictionary<AppointmentItem, Event> compare) 
+        {
+            Forms.Main.Instance.Console.Update("Matching calendar items...");
 
             //Order by start date (same as Outlook) for quickest matching
             google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
@@ -1253,6 +1324,28 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
+        }
+
+        //<summary>Logic for comparing Outlook and Google events works as follows:
+        //      1.  Scan through both lists looking for matches
+        //      2.  Remove matches from both lists and add to the compare dictionary
+        //      3.  Items remaining in Outlook list are new and need to be created
+        //      4.  Items remaining in Google list need to be deleted
+        //</summary>
+        public void IdentifyEventDifferences(
+            ref List<AppointmentItem> outlook,  //need creating
+            ref List<Event> google,             //need deleting
+            ref Dictionary<AppointmentItem, Event> compare)
+        {
+            log.Debug("Comparing Outlook items to Google events...");
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+
+            if (profile.SimpleMatch)
+                IdentifyEventDifferences_Simple(profile, ref outlook, ref google, ref compare);
+            else
+                IdentifyEventDifferences_IDs(profile, ref outlook, ref google, ref compare);
+
+            if (Sync.Engine.Instance.CancellationPending) return;
 
             if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
                 //Check if Outlook items to be created in Google have invitations not yet responded to
@@ -1534,8 +1627,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 log.Error("API limit backoff was not successful. Save failed.");
                                 throw;
                             } else {
-                                log.Warn("API rate limit reached. Backing off " + backoff + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoff * 1000);
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
                     }
@@ -1978,6 +2072,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         return ApiException.freeAPIexhausted;
 
                     } else if (ex.Message.Contains("Rate Limit Exceeded")) {
+                        if (Settings.Instance.Subscribed > DateTime.Now.AddYears(-1))
+                            return ApiException.backoffThenRetry;
+                        
                         log.Warn("Google's free Calendar quota is being exceeded!");
                         Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null);
 

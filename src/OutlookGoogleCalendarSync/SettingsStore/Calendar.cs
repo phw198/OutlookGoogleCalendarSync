@@ -51,6 +51,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             //Sync Options
             //How
+            SimpleMatch = false;
             SyncDirection = Sync.Direction.OutlookToGoogle;
             MergeItems = true;
             DisableDelete = true;
@@ -86,7 +87,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             MaxAttendees = 200;
             AddColours = false;
             ColourMaps = new ColourMappingDictionary();
-            
+            ExcludeFree = false;
+            ExcludeTentative = false;
+            ExcludeAllDays = false;
+            ExcludeFreeAllDays = false;
+
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
         }
@@ -123,6 +128,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public Boolean ExcludeGoals { get; set; }
         #endregion
         #region Sync Options
+        /// <summary>For O->G match on signatures. Useful for Appled iCals where immutable Outlook IDs change every sync.</summary>
+        [DataMember] public Boolean SimpleMatch { get; set; }
+        //Main
         #region How
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
@@ -174,6 +182,10 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
+        [DataMember] public bool ExcludeFree { get; set; }
+        [DataMember] public bool ExcludeTentative { get; set; }
+        [DataMember] public bool ExcludeAllDays { get; set; }
+        [DataMember] public bool ExcludeFreeAllDays { get; set; }
         #endregion
         #endregion
 
@@ -207,7 +219,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Debug("Changing active settings profile: " + this._ProfileName);
             Forms.Main.Instance.ActiveCalendarProfile = this;
 
-            if (Forms.Main.Instance.Visible) 
+            if (Forms.Main.Instance.Visible)
                 Forms.Main.Instance?.UpdateGUIsettings_Profile();
         }
 
@@ -260,6 +272,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  Cloak Email: " + CloakEmail);
 
             log.Info("SYNC OPTIONS:-");
+            if (SimpleMatch) log.Warn("  Simple Matching: " + SimpleMatch);
             log.Info(" How");
             log.Info("  SyncDirection: " + SyncDirection.Name);
             log.Info("  MergeItems: " + MergeItems);
@@ -305,6 +318,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
             log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
             log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
+            log.Info("  ExcludeFree: " + ExcludeFree);
+            log.Info("  ExcludeTentative: " + ExcludeTentative);
+            log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
         }
 
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {

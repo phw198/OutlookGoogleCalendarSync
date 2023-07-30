@@ -557,6 +557,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     btColourMap.Enabled = profile.AddColours;
                     cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
                     cbSingleCategoryOnly.Enabled = profile.AddColours && profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
+                    cbExcludeAllDays.Checked = profile.ExcludeAllDays;
+                    cbExcludeFreeAllDays.Checked = profile.ExcludeFreeAllDays;
+                    cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
+                    cbExcludeFree.Checked = profile.ExcludeFree;
+                    cbExcludeTentative.Checked = profile.ExcludeTentative;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -1572,7 +1577,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 155; break;
+                    case "What": section.Height = 210; break;
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -1626,6 +1631,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 dtDNDend.Visible = true;
                 lDNDand.Visible = true;
                 cbSingleCategoryOnly.Visible = true;
+                lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
+                cbExcludeTentative.Visible = true;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
@@ -1638,6 +1645,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (tbTargetCalendar.SelectedIndex == 2) tbTargetCalendar_SelectedItemChanged(null, null);
                 tbTargetCalendar.SelectedIndex = 2;
                 tbTargetCalendar.Enabled = false;
+                lExcludeItems.Text = "Exclude items. Affects those previously synced:-";
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) {
                 ActiveCalendarProfile.DeregisterForPushSync();
@@ -1650,6 +1658,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddGoogleColour.Visible = false;
                 ddOutlookColour.Visible = true;
                 cbSingleCategoryOnly.Visible = true;
+                cbExcludeTentative.Visible = false;
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
@@ -1661,6 +1670,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddGoogleColour.Visible = true;
                 ddOutlookColour.Visible = false;
                 cbSingleCategoryOnly.Visible = false;
+                cbExcludeTentative.Visible = true;
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
@@ -2063,6 +2073,22 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
+        }
+
+        private void cbExcludeAllDays_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeAllDays = cbExcludeAllDays.Checked;
+            cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
+            cbExcludeFreeAllDays.Checked = false;
+        }
+        private void cbExcludeFreeAllDays_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFreeAllDays = cbExcludeFreeAllDays.Checked;
+        }
+
+        private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
+        }
+        private void cbExcludeFree_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFree = cbExcludeFree.Checked;
         }
         #endregion
         #endregion

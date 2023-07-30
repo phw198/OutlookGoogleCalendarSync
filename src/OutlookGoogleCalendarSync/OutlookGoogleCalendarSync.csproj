@@ -457,6 +457,10 @@
     <Content Include="ErrorReportingTemplate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\animated-tray-icon-strip-64x.bmp" />
+    <None Include="Resources\ogcs128x128-animated.gif" />
+    <None Include="Resources\ogcs128x128.png" />
+    <None Include="Resources\icon.ico" />
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
