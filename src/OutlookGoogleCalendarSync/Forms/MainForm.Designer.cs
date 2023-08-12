@@ -95,6 +95,7 @@
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
+            this.cbDeleteWhenCatExcl = new System.Windows.Forms.CheckBox();
             this.tabGoogle = new System.Windows.Forms.TabPage();
             this.panelObscure = new System.Windows.Forms.Panel();
             this.panelProfileLoading = new System.Windows.Forms.Panel();
@@ -166,9 +167,9 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.cbExcludePrivate = new System.Windows.Forms.CheckBox();
             this.cbExcludeFree = new System.Windows.Forms.CheckBox();
             this.cbExcludeTentative = new System.Windows.Forms.CheckBox();
-            this.lExcludeItems = new System.Windows.Forms.Label();
             this.cbExcludeFreeAllDays = new System.Windows.Forms.CheckBox();
             this.cbExcludeAllDays = new System.Windows.Forms.CheckBox();
             this.tbMaxAttendees = new System.Windows.Forms.NumericUpDown();
@@ -189,6 +190,8 @@
             this.cbLocation = new System.Windows.Forms.CheckBox();
             this.cbAddColours = new System.Windows.Forms.CheckBox();
             this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
+            this.lWhatExcludeInfo = new System.Windows.Forms.Label();
+            this.lExcludeItems = new System.Windows.Forms.Label();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
             this.cbStartOnStartupAllUsers = new System.Windows.Forms.CheckBox();
             this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
@@ -670,6 +673,7 @@
             this.tabOutlook.Controls.Add(this.ddMailboxName);
             this.tabOutlook.Controls.Add(this.cbOnlyRespondedInvites);
             this.tabOutlook.Controls.Add(this.rbOutlookAltMB);
+            this.tabOutlook.Controls.Add(this.cbDeleteWhenCatExcl);
             this.tabOutlook.Location = new System.Drawing.Point(79, 4);
             this.tabOutlook.Name = "tabOutlook";
             this.tabOutlook.Padding = new System.Windows.Forms.Padding(3);
@@ -959,7 +963,7 @@
             // cbOnlyRespondedInvites
             // 
             this.cbOnlyRespondedInvites.AutoSize = true;
-            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(14, 184);
+            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(14, 190);
             this.cbOnlyRespondedInvites.Name = "cbOnlyRespondedInvites";
             this.cbOnlyRespondedInvites.Size = new System.Drawing.Size(190, 17);
             this.cbOnlyRespondedInvites.TabIndex = 45;
@@ -977,6 +981,17 @@
             this.rbOutlookAltMB.Text = "Alternative mailbox";
             this.rbOutlookAltMB.UseVisualStyleBackColor = true;
             this.rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+            // 
+            // cbDeleteWhenCatExcl
+            // 
+            this.cbDeleteWhenCatExcl.AutoSize = true;
+            this.cbDeleteWhenCatExcl.Location = new System.Drawing.Point(14, 171);
+            this.cbDeleteWhenCatExcl.Name = "cbDeleteWhenCatExcl";
+            this.cbDeleteWhenCatExcl.Size = new System.Drawing.Size(175, 17);
+            this.cbDeleteWhenCatExcl.TabIndex = 47;
+            this.cbDeleteWhenCatExcl.Text = "Delete synced items if excluded";
+            this.cbDeleteWhenCatExcl.UseVisualStyleBackColor = true;
+            this.cbDeleteWhenCatExcl.CheckedChanged += new System.EventHandler(this.cbDeleteWhenCatExcl_CheckedChanged);
             // 
             // tabGoogle
             // 
@@ -1917,9 +1932,9 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFree);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeTentative);
-            this.gbSyncOptions_What.Controls.Add(this.lExcludeItems);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFreeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.tbMaxAttendees);
@@ -1940,15 +1955,29 @@
             this.gbSyncOptions_What.Controls.Add(this.cbLocation);
             this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
             this.gbSyncOptions_What.Controls.Add(this.cbUseOutlookDefaultReminder);
+            this.gbSyncOptions_What.Controls.Add(this.lWhatExcludeInfo);
+            this.gbSyncOptions_What.Controls.Add(this.lExcludeItems);
             this.gbSyncOptions_What.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbSyncOptions_What.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 210);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 228);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // cbExcludePrivate
+            // 
+            this.cbExcludePrivate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludePrivate.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludePrivate.Name = "cbExcludePrivate";
+            this.cbExcludePrivate.Size = new System.Drawing.Size(68, 17);
+            this.cbExcludePrivate.TabIndex = 55;
+            this.cbExcludePrivate.Text = "Private";
+            this.cbExcludePrivate.UseVisualStyleBackColor = true;
+            this.cbExcludePrivate.CheckedChanged += new System.EventHandler(this.cbExcludePrivate_CheckedChanged);
             // 
             // cbExcludeFree
             // 
@@ -1974,21 +2003,11 @@
             this.cbExcludeTentative.UseVisualStyleBackColor = true;
             this.cbExcludeTentative.CheckedChanged += new System.EventHandler(this.cbExcludeTentative_CheckedChanged);
             // 
-            // lExcludeItems
-            // 
-            this.lExcludeItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lExcludeItems.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lExcludeItems.Location = new System.Drawing.Point(6, 153);
-            this.lExcludeItems.Name = "lExcludeItems";
-            this.lExcludeItems.Size = new System.Drawing.Size(237, 14);
-            this.lExcludeItems.TabIndex = 52;
-            this.lExcludeItems.Text = "Exclude items. Affects those previously synced";
-            // 
             // cbExcludeFreeAllDays
             // 
             this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 188);
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 206);
             this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
             this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
             this.cbExcludeFreeAllDays.TabIndex = 50;
@@ -2000,7 +2019,7 @@
             // 
             this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 206);
             this.cbExcludeAllDays.Name = "cbExcludeAllDays";
             this.cbExcludeAllDays.Size = new System.Drawing.Size(87, 17);
             this.cbExcludeAllDays.TabIndex = 49;
@@ -2246,6 +2265,28 @@
             this.cbUseOutlookDefaultReminder.Text = "Use Outlook default";
             this.cbUseOutlookDefaultReminder.UseVisualStyleBackColor = true;
             this.cbUseOutlookDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseOutlookDefaultReminder_CheckedChanged);
+            // 
+            // lWhatExcludeInfo
+            // 
+            this.lWhatExcludeInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.lWhatExcludeInfo.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lWhatExcludeInfo.Location = new System.Drawing.Point(228, 149);
+            this.lWhatExcludeInfo.Name = "lWhatExcludeInfo";
+            this.lWhatExcludeInfo.Size = new System.Drawing.Size(23, 23);
+            this.lWhatExcludeInfo.TabIndex = 56;
+            this.lWhatExcludeInfo.Text = "i";
+            this.lWhatExcludeInfo.MouseLeave += new System.EventHandler(this.lWhatExcludeInfo_MouseLeave);
+            this.lWhatExcludeInfo.MouseHover += new System.EventHandler(this.lWhatExcludeInfo_MouseHover);
+            // 
+            // lExcludeItems
+            // 
+            this.lExcludeItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lExcludeItems.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lExcludeItems.Location = new System.Drawing.Point(6, 153);
+            this.lExcludeItems.Name = "lExcludeItems";
+            this.lExcludeItems.Size = new System.Drawing.Size(237, 14);
+            this.lExcludeItems.TabIndex = 52;
+            this.lExcludeItems.Text = "Exclude items. Affects those previously synced";
             // 
             // tabAppBehaviour
             // 
@@ -3830,5 +3871,8 @@
         private System.Windows.Forms.CheckBox cbExcludeFree;
         private System.Windows.Forms.CheckBox cbExcludeTentative;
         private System.Windows.Forms.Label lExcludeItems;
+        private System.Windows.Forms.CheckBox cbExcludePrivate;
+        private System.Windows.Forms.Label lWhatExcludeInfo;
+        private System.Windows.Forms.CheckBox cbDeleteWhenCatExcl;
     }
 }

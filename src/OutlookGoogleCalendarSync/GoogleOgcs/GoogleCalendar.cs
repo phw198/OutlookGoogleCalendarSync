@@ -354,6 +354,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         result = result.Except(allDays).ToList();
                     }
                 }
+                if (profile.ExcludePrivate) {
+                    List<Event> privacy = result.Where(ev => profile.ExcludePrivate && ev.Visibility == "private").ToList();
+                    if (privacy.Count > 0) {
+                        log.Debug(privacy.Count + " Google Private items excluded.");
+                        result = result.Except(privacy).ToList();
+                    }
+                }
             }
 
             if (profile.ExcludeDeclinedInvites) {
@@ -1359,7 +1366,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
             }
 
-            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && !profile.DeleteWhenCategoryExcluded) {
                 //Check if Google items to be deleted were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) &&

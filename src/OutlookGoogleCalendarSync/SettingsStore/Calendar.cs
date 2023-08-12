@@ -38,6 +38,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             SharedCalendar = "";
             UseOutlookCalendar = new OutlookCalendarListEntry();
             CategoriesRestrictBy = RestrictBy.Exclude;
+            DeleteWhenCategoryExcluded = true;
             Categories = new List<String>();
             OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
@@ -89,6 +90,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             ColourMaps = new ColourMappingDictionary();
             ExcludeFree = false;
             ExcludeTentative = false;
+            ExcludePrivate = false;
             ExcludeAllDays = false;
             ExcludeFreeAllDays = false;
 
@@ -107,6 +109,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public string SharedCalendar { get; set; }
         [DataMember] public OutlookCalendarListEntry UseOutlookCalendar { get; set; }
         [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
+        [DataMember] public Boolean DeleteWhenCategoryExcluded { get; set; }
         [DataMember] public List<string> Categories { get; set; }
         /// <summary>Only allow Outlook to have one category assigned</summary>
         [DataMember] public Boolean SingleCategoryOnly { get; set; }
@@ -184,6 +187,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public class ColourMappingDictionary : Dictionary<String, String> { }
         [DataMember] public bool ExcludeFree { get; set; }
         [DataMember] public bool ExcludeTentative { get; set; }
+        [DataMember] public bool ExcludePrivate { get; set; }        
         [DataMember] public bool ExcludeAllDays { get; set; }
         [DataMember] public bool ExcludeFreeAllDays { get; set; }
         #endregion
@@ -260,6 +264,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             }
             log.Info("  Calendar: " + (UseOutlookCalendar.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar.ToString());
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
+            log.Info("  Delete When Excluded:" + DeleteWhenCategoryExcluded);
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
@@ -320,6 +325,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
             log.Info("  ExcludeFree: " + ExcludeFree);
             log.Info("  ExcludeTentative: " + ExcludeTentative);
+            log.Info("  ExcludePrivate: " + ExcludePrivate);
             log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
         }
 

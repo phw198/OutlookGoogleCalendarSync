@@ -78,6 +78,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             //Outlook
             ToolTips.SetToolTip(cbOutlookCalendars,
                 "The Outlook calendar to synchonize with.");
+            ToolTips.SetToolTip(cbDeleteWhenCatExcl,
+                "If items are already synced in Google and subsequently excluded by a category filter.");
             ToolTips.SetToolTip(btTestOutlookFilter,
                 "Check how many appointments are returned for the date range being synced.");
 
@@ -369,6 +371,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         OutlookOgcs.Calendar.Categories.BuildPicker(ref clbCategories);
                         enableOutlookSettingsUI(true);
                     }
+                    cbDeleteWhenCatExcl.Checked = profile.DeleteWhenCategoryExcluded;
                     #endregion
                     cbOnlyRespondedInvites.Checked = profile.OnlyRespondedInvites;
                     btCustomTzMap.Visible = Settings.Instance.TimezoneMaps.Count != 0;
@@ -562,6 +565,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
                     cbExcludeFree.Checked = profile.ExcludeFree;
                     cbExcludeTentative.Checked = profile.ExcludeTentative;
+                    cbExcludePrivate.Checked = profile.ExcludePrivate;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -1319,6 +1323,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             miCatSelectInvert_Click(null, null);
         }
 
+        private void cbDeleteWhenCatExcl_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.DeleteWhenCategoryExcluded = cbDeleteWhenCatExcl.Checked;
+        }
+
         private void clbCategories_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
 
@@ -1577,7 +1585,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 210; break;
+                    case "What": section.Height = 228; break;
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -1616,6 +1624,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SyncDirection = (Sync.Direction)syncDirection.SelectedItem;
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
+                cbDeleteWhenCatExcl.Visible = true;
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = Sync.Direction.OutlookToGoogle.Id - 1;
 
@@ -1632,8 +1641,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDNDand.Visible = true;
                 cbSingleCategoryOnly.Visible = true;
                 lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
+                lWhatExcludeInfo.Left = 207;
                 cbExcludeTentative.Visible = true;
             } else {
+                cbDeleteWhenCatExcl.Visible = false;
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
 
@@ -1646,6 +1657,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbTargetCalendar.SelectedIndex = 2;
                 tbTargetCalendar.Enabled = false;
                 lExcludeItems.Text = "Exclude items. Affects those previously synced:-";
+                lWhatExcludeInfo.Left = 228;
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) {
                 ActiveCalendarProfile.DeregisterForPushSync();
@@ -1970,6 +1982,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void lWhatInfo_MouseLeave(object sender, EventArgs e) {
             showWhatPostit("Description");
         }
+        private void lWhatExcludeInfo_MouseHover(object sender, EventArgs e) {
+            showWhatPostit("AffectedExcludeItems");
+        }
+        private void lWhatExcludeInfo_MouseLeave(object sender, EventArgs e) {
+            showWhatPostit("Description");
+        }
         private void showWhatPostit(String info) {
             switch (info) {
                 case "Description": {
@@ -1982,6 +2000,16 @@ namespace OutlookGoogleCalendarSync.Forms {
                 case "AffectedItems": {
                         tbWhatHelp.Text = "Changes will only affect items synced hereon in.\r" +
                             "To update ALL items, click the Sync button whilst pressing the shift key.";
+                        WhatPostit.Visible = true;
+                        break;
+                    }
+                case "AffectedExcludeItems": {
+                        if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                            tbWhatHelp.Text = "Excluding items will only affect items synced hereon in.";
+                        } else {
+                            tbWhatHelp.Text = "Excluding items will delete those previously synced.";
+                        }
+                        tbWhatHelp.Text += "\rFor more fine-grained control, consider filtering on categories.";
                         WhatPostit.Visible = true;
                         break;
                     }
@@ -2075,6 +2103,15 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SingleCategoryOnly = cbSingleCategoryOnly.Checked;
         }
 
+        private void cbExcludeFree_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeFree = cbExcludeFree.Checked;
+        }
+        private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
+        }
+        private void cbExcludePrivate_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludePrivate = cbExcludePrivate.Checked;
+        }
         private void cbExcludeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeAllDays = cbExcludeAllDays.Checked;
             cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
@@ -2082,13 +2119,6 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbExcludeFreeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeFreeAllDays = cbExcludeFreeAllDays.Checked;
-        }
-
-        private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
-        }
-        private void cbExcludeFree_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.ExcludeFree = cbExcludeFree.Checked;
         }
         #endregion
         #endregion

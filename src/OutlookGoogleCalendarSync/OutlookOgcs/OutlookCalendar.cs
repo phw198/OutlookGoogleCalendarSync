@@ -175,6 +175,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 Int32 allDayFiltered = 0;
                 Int32 availabilityFiltered = 0;
+                Int32 privacyFiltered = 0;
                 Int32 responseFiltered = 0;
 
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
@@ -214,22 +215,6 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     else {
                         Boolean filtered = false;
 
-                        //Availability
-                        if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
-                            if ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
-                                (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree)) {
-                                availabilityFiltered++; continue;
-                            }
-
-                            if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
-                                if (profile.ExcludeFreeAllDays)
-                                    filtered = (ai.BusyStatus == OlBusyStatus.olFree);
-                                else
-                                    filtered = true;
-                                if (filtered) { allDayFiltered++; continue; }
-                            }
-                        }
-
                         //Categories
                         try {
                             if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
@@ -248,7 +233,27 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             } else throw;
                         }
                         if (filtered) { ExcludedByCategory.Add(ai.EntryID); continue; }
-                        
+
+                        //Availability, Privacy
+                        if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
+                            if ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
+                                (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree)) {
+                                availabilityFiltered++; continue;
+                            }
+
+                            if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
+                                if (profile.ExcludeFreeAllDays)
+                                    filtered = (ai.BusyStatus == OlBusyStatus.olFree);
+                                else
+                                    filtered = true;
+                                if (filtered) { allDayFiltered++; continue; }
+                            }
+
+                            if (profile.ExcludePrivate && ai.Sensitivity == OlSensitivity.olPrivate) {
+                                privacyFiltered++; continue;
+                            }
+                        }
+
                         //Invitation
                         if (profile.OnlyRespondedInvites) {
                             //These are actually filtered out later on when identifying differences

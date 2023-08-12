@@ -136,6 +136,8 @@ namespace OutlookGoogleCalendarSync.Sync {
         }
 
         public void Sync_Requested(object sender = null, EventArgs e = null) {
+            //Forms.Main.Instance.Console.
+            //return;
             ManualForceCompare = false;
             if (sender != null && sender.GetType().ToString().EndsWith("Timer")) { //Automated sync
                 Forms.Main.Instance.NotificationTray.UpdateItem("delayRemove", enabled: false);
