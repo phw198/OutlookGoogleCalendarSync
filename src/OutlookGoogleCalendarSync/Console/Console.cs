@@ -452,10 +452,11 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public void CallGappScript(String type) {
-            log.Debug("Switching to MD5 for " + type);
+        /// <summary>Invoke execution of a Google App Script via a GET request</summary>
+        public void CallGappScript() {
+            /*
             try {
-                Forms.Main.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/AKfycbwWILS02uGDgR5rSWEkzOS5FHc1N3MEPpIaMz0zOGIDhQRbhAw/exec?action=makePrivate&accountType="+ type +"&gmailAccount="+ Settings.Instance.GaccountEmail);
+                Forms.Main.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/<GUID>/exec?key=value");
                 while (Forms.Main.Instance.GappBrowser.ReadyState != WebBrowserReadyState.Complete) {
                     System.Windows.Forms.Application.DoEvents();
                     System.Threading.Thread.Sleep(100);
@@ -464,6 +465,7 @@ namespace OutlookGoogleCalendarSync {
                 OGCSexception.Analyse(ex);
             }
             log.Debug("Done");
+            */
         }
     }
 }

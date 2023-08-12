@@ -406,11 +406,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     Settings.Instance.Subscribed = SubscribedBefore;
                 }
 
-                //Check for any unmigrated entries
-                if (subscriptions.Where(s => s.ExtendedProperties != null && s.ExtendedProperties.Shared != null
-                    && s.ExtendedProperties.Shared.ContainsKey("migrated") && s.ExtendedProperties.Shared["migrated"] == "true").Count() < subscriptions.Count())
-                    Forms.Main.Instance.Console.CallGappScript("subscriber");
-
                 if (prevSubscriptionStart != Settings.Instance.Subscribed) {
                     if (((Settings.Instance.Subscribed != SubscribedNever && Settings.Instance.Subscribed != SubscribedBefore) &&
                         (prevSubscriptionStart == SubscribedNever || prevSubscriptionStart == SubscribedBefore)) //Newly subscribed
@@ -472,12 +467,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } else {
                 log.Fine("User has kindly donated.");
                 Settings.Instance.Donor = true;
-
-                //Check for any unmigrated entries
-                if (donations.Where(d => d.ExtendedProperties != null && d.ExtendedProperties.Shared != null
-                    && d.ExtendedProperties.Shared.ContainsKey("migrated") && d.ExtendedProperties.Shared["migrated"] == "true").Count() < donations.Count())
-                    Forms.Main.Instance.Console.CallGappScript("donor");
-
                 return true;
             }
         }
