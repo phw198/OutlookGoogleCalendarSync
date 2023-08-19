@@ -339,23 +339,28 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            List<Event> availability = new();
+            List<Event> allDays = new();
+            List<Event> privacy = new();
+            List<Event> declined = new();
+            List<Event> goals = new();
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
-                    List<Event> availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
+                    availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
                     if (availability.Count > 0) {
                         log.Debug(availability.Count + " Google Free items excluded.");
                         result = result.Except(availability).ToList();
                     }
                 }
                 if (profile.ExcludeAllDays) {
-                    List<Event> allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
+                    allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
                     if (allDays.Count > 0) {
                         log.Debug(allDays.Count + " Google all-day items excluded.");
                         result = result.Except(allDays).ToList();
                     }
                 }
                 if (profile.ExcludePrivate) {
-                    List<Event> privacy = result.Where(ev => profile.ExcludePrivate && ev.Visibility == "private").ToList();
+                    privacy = result.Where(ev => profile.ExcludePrivate && ev.Visibility == "private").ToList();
                     if (privacy.Count > 0) {
                         log.Debug(privacy.Count + " Google Private items excluded.");
                         result = result.Except(privacy).ToList();
@@ -364,7 +369,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (profile.ExcludeDeclinedInvites) {
-                List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
+                declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
                 if (declined.Count > 0) {
                     log.Debug(declined.Count + " Google Event invites have been declined and will be excluded.");
                     result = result.Except(declined).ToList();
@@ -372,12 +377,26 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if ((IsDefaultCalendar() ?? true) && profile.ExcludeGoals) {
-                List<Event> goals = result.Where(ev =>
+                goals = result.Where(ev =>
                     !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
                     ev.Organizer != null && ev.Organizer.Email == "unknownorganizer@calendar.google.com" && ev.Organizer.DisplayName == "Google Calendar").ToList();
                 if (goals.Count > 0) {
                     log.Debug(goals.Count + " Google Events are Goals and will be excluded.");
                     result = result.Except(goals).ToList();
+                }
+            }
+
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                List<Event> allExcluded = availability.Concat(allDays).Concat(privacy).Concat(declined).Concat(goals).ToList();
+                for (int g = 0; g < allExcluded.Count(); g++) {
+                    Event ev = allExcluded[g];
+                    if (CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
+                        log.Debug("Previously synced Google item is now excluded. Removing Outlook metadata.");
+                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oEntryId);
+                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oCalendarId);
+                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oGlobalApptId);
+                        this.UpdateCalendarEntry_save(ref ev);
+                    }
                 }
             }
 
