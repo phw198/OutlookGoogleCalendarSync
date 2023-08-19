@@ -263,6 +263,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Add(ref ai, MetadataId.gEventID, ev.Id);
             LogProperties(ai, log4net.Core.Level.Debug);
         }
+        
+        /// <summary>
+        /// Remove the Google event IDs from an Outlook appointment.
+        /// </summary>
+        public static void RemoveGoogleIDs(ref AppointmentItem ai) {
+            Remove(ref ai, MetadataId.gEventID);
+            Remove(ref ai, MetadataId.gCalendarId);
+        }
 
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
             add(ref ai, key, OlUserPropertyType.olText, value);
