@@ -1034,6 +1034,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
+                    if (CustomProperty.ExistsAny(ev)) {
+                        CustomProperty.RemoveOutlookIDs(ref ev);
+                        UpdateCalendarEntry_save(ref ev);
+                    }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, Console.Markup.calendar);
                 } else {
                     Forms.Main.Instance.Console.Update("Deleted: " + eventSummary, Console.Markup.calendar);
