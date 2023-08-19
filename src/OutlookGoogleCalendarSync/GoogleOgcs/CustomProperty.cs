@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id;
         }
 
-        public static Boolean ExistsAny(Event ev) {
+        public static Boolean ExistAnyOutlookIDs(Event ev) {
             if (Exists(ev, MetadataId.oEntryId)) return true;
             if (Exists(ev, MetadataId.oGlobalApptId)) return true;
             if (Exists(ev, MetadataId.oCalendarId)) return true;

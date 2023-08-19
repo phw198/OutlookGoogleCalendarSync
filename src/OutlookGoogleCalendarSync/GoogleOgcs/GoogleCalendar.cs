@@ -390,12 +390,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 List<Event> allExcluded = availability.Concat(allDays).Concat(privacy).Concat(declined).Concat(goals).ToList();
                 for (int g = 0; g < allExcluded.Count(); g++) {
                     Event ev = allExcluded[g];
-                    if (CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
+                    if (CustomProperty.ExistAnyOutlookIDs(ev)) {
                         log.Debug("Previously synced Google item is now excluded. Removing Outlook metadata.");
-                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oEntryId);
-                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oCalendarId);
-                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.oGlobalApptId);
-                        this.UpdateCalendarEntry_save(ref ev);
+                        CustomProperty.RemoveOutlookIDs(ref ev);
+                        UpdateCalendarEntry_save(ref ev);
                     }
                 }
             }
@@ -575,7 +573,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai)) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
@@ -1136,7 +1134,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     consoleTitle = "";
                                     Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev), verbose: true);
                                     gEvents[g] = ev;
-                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistsAny(ai)) {
+                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
                                         OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, ev);
                                         ai.Save();

@@ -223,7 +223,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        public static Boolean ExistsAny(AppointmentItem ai) {
+        public static Boolean ExistAnyGoogleIDs(AppointmentItem ai) {
             if (Exists(ai, MetadataId.gEventID)) return true;
             if (Exists(ai, MetadataId.gCalendarId)) return true;
             return false;

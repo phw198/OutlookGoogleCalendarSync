@@ -262,10 +262,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     responseFiltered++;
                             }
                         } finally {
-                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && !CustomProperty.GoogleIdMissing(ai)) {
+                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
                                 log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
-                                CustomProperty.Remove(ref ai, CustomProperty.MetadataId.gEventID);
-                                CustomProperty.Remove(ref ai, CustomProperty.MetadataId.gCalendarId);
+                                CustomProperty.RemoveGoogleIDs(ref ai);
                                 ai.Save();
                             }
                         }
@@ -402,7 +401,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             ai.Save();
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || GoogleOgcs.CustomProperty.ExistsAny(ev)) {
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || GoogleOgcs.CustomProperty.ExistAnyOutlookIDs(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
                 GoogleOgcs.CustomProperty.AddOutlookIDs(ref ev, ai);
                 GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
@@ -860,7 +859,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ai), verbose: true);
                                     oAppointments[o] = ai;
 
-                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || GoogleOgcs.CustomProperty.ExistsAny(ev)) {
+                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || GoogleOgcs.CustomProperty.ExistAnyOutlookIDs(ev)) {
                                         log.Debug("Updating the Outlook appointment IDs in Google event.");
                                         GoogleOgcs.CustomProperty.AddOutlookIDs(ref ev, ai);
                                         GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
