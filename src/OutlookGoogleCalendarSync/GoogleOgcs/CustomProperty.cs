@@ -220,6 +220,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
         }
 
+        /// <summary>
+        /// Remove the Outlook appointment IDs from a Google event.
+        /// </summary>
+        public static void RemoveOutlookIDs(ref Event ev) {
+            Remove(ref ev, MetadataId.oEntryId);
+            Remove(ref ev, MetadataId.oGlobalApptId);
+            Remove(ref ev, MetadataId.oCalendarId);
+        }
+
         public static void Add(ref Event ev, MetadataId key, String value) {
             String addkeyName = metadataIdKeyName(key);
             if (ev.ExtendedProperties == null) ev.ExtendedProperties = new Event.ExtendedPropertiesData();
