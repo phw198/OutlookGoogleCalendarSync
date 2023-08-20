@@ -2449,5 +2449,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
+
+        private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
+            syncOptionSizing(gbGoogle_Account, pbExpandGoogleAccount);
+        }
+
+        private void llMultipleOGCS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
+        }
     }
 }
