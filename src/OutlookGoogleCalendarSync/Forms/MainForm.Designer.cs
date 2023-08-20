@@ -97,8 +97,26 @@
             this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
             this.cbDeleteWhenCatExcl = new System.Windows.Forms.CheckBox();
             this.tabGoogle = new System.Windows.Forms.TabPage();
+            this.panelObscure = new System.Windows.Forms.Panel();
+            this.panelProfileLoading = new System.Windows.Forms.Panel();
+            this.txtProfileLoading = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.panelGoogle = new System.Windows.Forms.Panel();
+            this.pbExpandGoogleOauth = new System.Windows.Forms.PictureBox();
+            this.cbShowDeveloperOptions = new System.Windows.Forms.CheckBox();
+            this.pbExpandGoogleConfig = new System.Windows.Forms.PictureBox();
             this.pbExpandGoogleAccount = new System.Windows.Forms.PictureBox();
+            this.gbGoogle_OAuth = new System.Windows.Forms.GroupBox();
+            this.tbClientSecret = new System.Windows.Forms.TextBox();
+            this.tbClientID = new System.Windows.Forms.TextBox();
+            this.llAPIConsole = new System.Windows.Forms.LinkLabel();
+            this.cbShowClientSecret = new System.Windows.Forms.CheckBox();
+            this.lGoogleAPIInstructions = new System.Windows.Forms.TextBox();
+            this.lClientID = new System.Windows.Forms.Label();
+            this.lSecret = new System.Windows.Forms.Label();
+            this.gbGoogle_GConfig = new System.Windows.Forms.GroupBox();
+            this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
+            this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
             this.gbGoogle_Account = new System.Windows.Forms.GroupBox();
             this.llMultipleOGCS = new System.Windows.Forms.LinkLabel();
             this.label14 = new System.Windows.Forms.Label();
@@ -111,21 +129,6 @@
             this.tbConnectedAcc = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.cbListHiddenGcals = new System.Windows.Forms.CheckBox();
-            this.panelObscure = new System.Windows.Forms.Panel();
-            this.panelProfileLoading = new System.Windows.Forms.Panel();
-            this.txtProfileLoading = new System.Windows.Forms.Label();
-            this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
-            this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
-            this.gbDeveloperOptions = new System.Windows.Forms.GroupBox();
-            this.llAPIConsole = new System.Windows.Forms.LinkLabel();
-            this.cbShowClientSecret = new System.Windows.Forms.CheckBox();
-            this.lGoogleAPIInstructions = new System.Windows.Forms.TextBox();
-            this.tbClientSecret = new System.Windows.Forms.TextBox();
-            this.tbClientID = new System.Windows.Forms.TextBox();
-            this.lClientID = new System.Windows.Forms.Label();
-            this.lSecret = new System.Windows.Forms.Label();
-            this.cbShowDeveloperOptions = new System.Windows.Forms.CheckBox();
-            this.label12 = new System.Windows.Forms.Label();
             this.tabSyncOptions = new System.Windows.Forms.TabPage();
             this.WhatPostit = new System.Windows.Forms.Panel();
             this.tbWhatHelp = new System.Windows.Forms.RichTextBox();
@@ -306,12 +309,15 @@
             this.msCategories.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabGoogle.SuspendLayout();
-            this.panelGoogle.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleAccount)).BeginInit();
-            this.gbGoogle_Account.SuspendLayout();
             this.panelObscure.SuspendLayout();
             this.panelProfileLoading.SuspendLayout();
-            this.gbDeveloperOptions.SuspendLayout();
+            this.panelGoogle.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleOauth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleConfig)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleAccount)).BeginInit();
+            this.gbGoogle_OAuth.SuspendLayout();
+            this.gbGoogle_GConfig.SuspendLayout();
+            this.gbGoogle_Account.SuspendLayout();
             this.tabSyncOptions.SuspendLayout();
             this.WhatPostit.SuspendLayout();
             this.panelSyncOptions.SuspendLayout();
@@ -915,7 +921,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label11.Location = new System.Drawing.Point(67, 13);
+            this.label11.Location = new System.Drawing.Point(67, 10);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(268, 15);
             this.label11.TabIndex = 26;
@@ -1004,209 +1010,20 @@
             // tabGoogle
             // 
             this.tabGoogle.BackColor = System.Drawing.Color.White;
-            this.tabGoogle.Controls.Add(this.panelGoogle);
             this.tabGoogle.Controls.Add(this.panelObscure);
-            this.tabGoogle.Controls.Add(this.cbExcludeDeclinedInvites);
-            this.tabGoogle.Controls.Add(this.cbExcludeGoals);
-            this.tabGoogle.Controls.Add(this.gbDeveloperOptions);
-            this.tabGoogle.Controls.Add(this.cbShowDeveloperOptions);
             this.tabGoogle.Controls.Add(this.label12);
+            this.tabGoogle.Controls.Add(this.panelGoogle);
             this.tabGoogle.Location = new System.Drawing.Point(79, 4);
             this.tabGoogle.Name = "tabGoogle";
-            this.tabGoogle.Padding = new System.Windows.Forms.Padding(3);
             this.tabGoogle.Size = new System.Drawing.Size(392, 455);
             this.tabGoogle.TabIndex = 1;
             this.tabGoogle.Text = "  Google";
-            // 
-            // panelGoogle
-            // 
-            this.panelGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelGoogle.AutoScroll = true;
-            this.panelGoogle.Controls.Add(this.pbExpandGoogleAccount);
-            this.panelGoogle.Controls.Add(this.gbGoogle_Account);
-            this.panelGoogle.Location = new System.Drawing.Point(4, 31);
-            this.panelGoogle.Name = "panelGoogle";
-            this.panelGoogle.Size = new System.Drawing.Size(385, 260);
-            this.panelGoogle.TabIndex = 52;
-            // 
-            // pbExpandGoogleAccount
-            // 
-            this.pbExpandGoogleAccount.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandGoogleAccount.Location = new System.Drawing.Point(1, 0);
-            this.pbExpandGoogleAccount.Name = "pbExpandGoogleAccount";
-            this.pbExpandGoogleAccount.Size = new System.Drawing.Size(20, 20);
-            this.pbExpandGoogleAccount.TabIndex = 44;
-            this.pbExpandGoogleAccount.TabStop = false;
-            this.pbExpandGoogleAccount.Click += new System.EventHandler(this.pbExpandGoogleAccount_Click);
-            // 
-            // gbGoogle_Account
-            // 
-            this.gbGoogle_Account.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbGoogle_Account.Controls.Add(this.llMultipleOGCS);
-            this.gbGoogle_Account.Controls.Add(this.label14);
-            this.gbGoogle_Account.Controls.Add(this.cbGoogleCalendars);
-            this.gbGoogle_Account.Controls.Add(this.bGetGoogleCalendars);
-            this.gbGoogle_Account.Controls.Add(this.lGoogleCalendar);
-            this.gbGoogle_Account.Controls.Add(this.lGoogleHelp);
-            this.gbGoogle_Account.Controls.Add(this.btResetGCal);
-            this.gbGoogle_Account.Controls.Add(this.label13);
-            this.gbGoogle_Account.Controls.Add(this.tbConnectedAcc);
-            this.gbGoogle_Account.Controls.Add(this.label7);
-            this.gbGoogle_Account.Controls.Add(this.cbListHiddenGcals);
-            this.gbGoogle_Account.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gbGoogle_Account.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbGoogle_Account.Location = new System.Drawing.Point(10, 2);
-            this.gbGoogle_Account.MinimumSize = new System.Drawing.Size(368, 0);
-            this.gbGoogle_Account.Name = "gbGoogle_Account";
-            this.gbGoogle_Account.Size = new System.Drawing.Size(368, 240);
-            this.gbGoogle_Account.TabIndex = 43;
-            this.gbGoogle_Account.TabStop = false;
-            this.gbGoogle_Account.Text = "  Account && Calendar";
-            // 
-            // llMultipleOGCS
-            // 
-            this.llMultipleOGCS.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.llMultipleOGCS.AutoSize = true;
-            this.llMultipleOGCS.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llMultipleOGCS.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.llMultipleOGCS.Location = new System.Drawing.Point(104, 45);
-            this.llMultipleOGCS.Name = "llMultipleOGCS";
-            this.llMultipleOGCS.Size = new System.Drawing.Size(156, 13);
-            this.llMultipleOGCS.TabIndex = 51;
-            this.llMultipleOGCS.TabStop = true;
-            this.llMultipleOGCS.Text = "run multiple instances of OGCS.";
-            this.llMultipleOGCS.Visible = false;
-            this.llMultipleOGCS.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llMultipleOGCS_LinkClicked);
-            // 
-            // label14
-            // 
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.label14.Location = new System.Drawing.Point(9, 19);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(350, 33);
-            this.label14.TabIndex = 50;
-            this.label14.Text = "The Google account is the same across all Profiles.\r\nTo sync calendars from more " +
-    "than one account,";
-            this.label14.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // cbGoogleCalendars
-            // 
-            this.cbGoogleCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbGoogleCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbGoogleCalendars.FormattingEnabled = true;
-            this.cbGoogleCalendars.Location = new System.Drawing.Point(114, 192);
-            this.cbGoogleCalendars.Name = "cbGoogleCalendars";
-            this.cbGoogleCalendars.Size = new System.Drawing.Size(245, 21);
-            this.cbGoogleCalendars.TabIndex = 6;
-            this.cbGoogleCalendars.SelectedIndexChanged += new System.EventHandler(this.cbGoogleCalendars_SelectedIndexChanged);
-            // 
-            // bGetGoogleCalendars
-            // 
-            this.bGetGoogleCalendars.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.bGetGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bGetGoogleCalendars.Location = new System.Drawing.Point(24, 111);
-            this.bGetGoogleCalendars.Name = "bGetGoogleCalendars";
-            this.bGetGoogleCalendars.Size = new System.Drawing.Size(115, 23);
-            this.bGetGoogleCalendars.TabIndex = 7;
-            this.bGetGoogleCalendars.Text = "Retrieve Calendars";
-            this.bGetGoogleCalendars.UseVisualStyleBackColor = true;
-            this.bGetGoogleCalendars.Click += new System.EventHandler(this.GetMyGoogleCalendars_Click);
-            // 
-            // lGoogleCalendar
-            // 
-            this.lGoogleCalendar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lGoogleCalendar.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lGoogleCalendar.Location = new System.Drawing.Point(6, 195);
-            this.lGoogleCalendar.Name = "lGoogleCalendar";
-            this.lGoogleCalendar.Size = new System.Drawing.Size(81, 14);
-            this.lGoogleCalendar.TabIndex = 8;
-            this.lGoogleCalendar.Text = "Select calendar";
-            // 
-            // lGoogleHelp
-            // 
-            this.lGoogleHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lGoogleHelp.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lGoogleHelp.Location = new System.Drawing.Point(145, 97);
-            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
-            this.lGoogleHelp.Name = "lGoogleHelp";
-            this.lGoogleHelp.Size = new System.Drawing.Size(199, 52);
-            this.lGoogleHelp.TabIndex = 9;
-            this.lGoogleHelp.Text = "If this is the first time, you\'ll need to authorise the app to connect.\r\nJust tak" +
-    "es a few clicks and your password is never exposed.";
-            // 
-            // btResetGCal
-            // 
-            this.btResetGCal.BackColor = System.Drawing.Color.Transparent;
-            this.btResetGCal.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btResetGCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btResetGCal.ForeColor = System.Drawing.Color.Red;
-            this.btResetGCal.Location = new System.Drawing.Point(24, 158);
-            this.btResetGCal.Name = "btResetGCal";
-            this.btResetGCal.Size = new System.Drawing.Size(115, 23);
-            this.btResetGCal.TabIndex = 10;
-            this.btResetGCal.Text = "Disconnect Account";
-            this.btResetGCal.UseVisualStyleBackColor = false;
-            this.btResetGCal.Click += new System.EventHandler(this.btResetGCal_Click);
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label13.Location = new System.Drawing.Point(143, 156);
-            this.label13.MaximumSize = new System.Drawing.Size(200, 0);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(189, 26);
-            this.label13.TabIndex = 28;
-            this.label13.Text = "Disconnect the Google account the application is using to synchronise with\r\n";
-            // 
-            // tbConnectedAcc
-            // 
-            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbConnectedAcc.Location = new System.Drawing.Point(114, 68);
-            this.tbConnectedAcc.Name = "tbConnectedAcc";
-            this.tbConnectedAcc.ReadOnly = true;
-            this.tbConnectedAcc.Size = new System.Drawing.Size(245, 20);
-            this.tbConnectedAcc.TabIndex = 32;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label7.Location = new System.Drawing.Point(6, 71);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(102, 13);
-            this.label7.TabIndex = 33;
-            this.label7.Text = "Connected Account";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // cbListHiddenGcals
-            // 
-            this.cbListHiddenGcals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbListHiddenGcals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbListHiddenGcals.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbListHiddenGcals.Location = new System.Drawing.Point(280, 219);
-            this.cbListHiddenGcals.Name = "cbListHiddenGcals";
-            this.cbListHiddenGcals.Size = new System.Drawing.Size(79, 17);
-            this.cbListHiddenGcals.TabIndex = 30;
-            this.cbListHiddenGcals.Text = "List Hidden";
-            this.cbListHiddenGcals.UseVisualStyleBackColor = true;
-            this.cbListHiddenGcals.CheckedChanged += new System.EventHandler(this.cbListHiddenGcals_CheckedChanged);
             // 
             // panelObscure
             // 
             this.panelObscure.BackColor = System.Drawing.SystemColors.Control;
             this.panelObscure.Controls.Add(this.panelProfileLoading);
-            this.panelObscure.Location = new System.Drawing.Point(0, 575);
+            this.panelObscure.Location = new System.Drawing.Point(0, 75);
             this.panelObscure.Name = "panelObscure";
             this.panelObscure.Size = new System.Drawing.Size(392, 78);
             this.panelObscure.TabIndex = 49;
@@ -1235,100 +1052,115 @@
             this.txtProfileLoading.Text = "PROFILE LOADING";
             this.txtProfileLoading.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // cbExcludeDeclinedInvites
+            // label12
             // 
-            this.cbExcludeDeclinedInvites.AutoSize = true;
-            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(14, 237);
-            this.cbExcludeDeclinedInvites.Name = "cbExcludeDeclinedInvites";
-            this.cbExcludeDeclinedInvites.Size = new System.Drawing.Size(190, 17);
-            this.cbExcludeDeclinedInvites.TabIndex = 47;
-            this.cbExcludeDeclinedInvites.Text = "Exclude invitations I have declined";
-            this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
-            this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
+            this.label12.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label12.Location = new System.Drawing.Point(68, 10);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(263, 15);
+            this.label12.TabIndex = 27;
+            this.label12.Text = "Select the Google Calendar to Synchronise";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // cbExcludeGoals
+            // panelGoogle
             // 
-            this.cbExcludeGoals.AutoSize = true;
-            this.cbExcludeGoals.Location = new System.Drawing.Point(14, 256);
-            this.cbExcludeGoals.Name = "cbExcludeGoals";
-            this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
-            this.cbExcludeGoals.TabIndex = 46;
-            this.cbExcludeGoals.Text = "Exclude \"Goal\" events from sync";
-            this.cbExcludeGoals.UseVisualStyleBackColor = true;
-            this.cbExcludeGoals.CheckedChanged += new System.EventHandler(this.cbExcludeGoals_CheckedChanged);
-            // 
-            // gbDeveloperOptions
-            // 
-            this.gbDeveloperOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panelGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbDeveloperOptions.Controls.Add(this.llAPIConsole);
-            this.gbDeveloperOptions.Controls.Add(this.cbShowClientSecret);
-            this.gbDeveloperOptions.Controls.Add(this.lGoogleAPIInstructions);
-            this.gbDeveloperOptions.Controls.Add(this.tbClientSecret);
-            this.gbDeveloperOptions.Controls.Add(this.tbClientID);
-            this.gbDeveloperOptions.Controls.Add(this.lClientID);
-            this.gbDeveloperOptions.Controls.Add(this.lSecret);
-            this.gbDeveloperOptions.Location = new System.Drawing.Point(14, 297);
-            this.gbDeveloperOptions.Name = "gbDeveloperOptions";
-            this.gbDeveloperOptions.Size = new System.Drawing.Size(364, 171);
-            this.gbDeveloperOptions.TabIndex = 31;
-            this.gbDeveloperOptions.TabStop = false;
-            this.gbDeveloperOptions.Text = "Google OAuth API";
-            this.gbDeveloperOptions.Visible = false;
+            this.panelGoogle.AutoScroll = true;
+            this.panelGoogle.Controls.Add(this.pbExpandGoogleOauth);
+            this.panelGoogle.Controls.Add(this.cbShowDeveloperOptions);
+            this.panelGoogle.Controls.Add(this.pbExpandGoogleConfig);
+            this.panelGoogle.Controls.Add(this.pbExpandGoogleAccount);
+            this.panelGoogle.Controls.Add(this.gbGoogle_OAuth);
+            this.panelGoogle.Controls.Add(this.gbGoogle_GConfig);
+            this.panelGoogle.Controls.Add(this.gbGoogle_Account);
+            this.panelGoogle.Location = new System.Drawing.Point(4, 31);
+            this.panelGoogle.Name = "panelGoogle";
+            this.panelGoogle.Size = new System.Drawing.Size(385, 427);
+            this.panelGoogle.TabIndex = 52;
             // 
-            // llAPIConsole
+            // pbExpandGoogleOauth
             // 
-            this.llAPIConsole.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.llAPIConsole.AutoSize = true;
-            this.llAPIConsole.Location = new System.Drawing.Point(44, 89);
-            this.llAPIConsole.Name = "llAPIConsole";
-            this.llAPIConsole.Size = new System.Drawing.Size(273, 13);
-            this.llAPIConsole.TabIndex = 5;
-            this.llAPIConsole.TabStop = true;
-            this.llAPIConsole.Text = "https://console.developers.google.com/apis/credentials";
-            this.llAPIConsole.Visible = false;
-            this.llAPIConsole.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llAPIConsole_LinkClicked);
+            this.pbExpandGoogleOauth.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandGoogleOauth.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandGoogleOauth.Location = new System.Drawing.Point(1, 336);
+            this.pbExpandGoogleOauth.Name = "pbExpandGoogleOauth";
+            this.pbExpandGoogleOauth.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandGoogleOauth.TabIndex = 50;
+            this.pbExpandGoogleOauth.TabStop = false;
+            this.pbExpandGoogleOauth.Visible = false;
+            this.pbExpandGoogleOauth.Click += new System.EventHandler(this.pbExpandGoogleOauth_Click);
             // 
-            // cbShowClientSecret
+            // cbShowDeveloperOptions
             // 
-            this.cbShowClientSecret.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbShowClientSecret.AutoSize = true;
-            this.cbShowClientSecret.Enabled = false;
-            this.cbShowClientSecret.Location = new System.Drawing.Point(299, 143);
-            this.cbShowClientSecret.Name = "cbShowClientSecret";
-            this.cbShowClientSecret.Size = new System.Drawing.Size(53, 17);
-            this.cbShowClientSecret.TabIndex = 29;
-            this.cbShowClientSecret.Text = "Show";
-            this.cbShowClientSecret.UseVisualStyleBackColor = true;
-            this.cbShowClientSecret.Visible = false;
-            this.cbShowClientSecret.CheckedChanged += new System.EventHandler(this.cbShowClientSecret_CheckedChanged);
+            this.cbShowDeveloperOptions.AutoSize = true;
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(23, 316);
+            this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
+            this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
+            this.cbShowDeveloperOptions.TabIndex = 48;
+            this.cbShowDeveloperOptions.Text = "Show advanced/developer options";
+            this.cbShowDeveloperOptions.UseVisualStyleBackColor = true;
+            this.cbShowDeveloperOptions.CheckedChanged += new System.EventHandler(this.cbShowDeveloperOptions_CheckedChanged);
             // 
-            // lGoogleAPIInstructions
+            // pbExpandGoogleConfig
             // 
-            this.lGoogleAPIInstructions.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.lGoogleAPIInstructions.BackColor = System.Drawing.SystemColors.Window;
-            this.lGoogleAPIInstructions.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lGoogleAPIInstructions.Location = new System.Drawing.Point(13, 20);
-            this.lGoogleAPIInstructions.Multiline = true;
-            this.lGoogleAPIInstructions.Name = "lGoogleAPIInstructions";
-            this.lGoogleAPIInstructions.ReadOnly = true;
-            this.lGoogleAPIInstructions.Size = new System.Drawing.Size(339, 71);
-            this.lGoogleAPIInstructions.TabIndex = 4;
-            this.lGoogleAPIInstructions.Text = resources.GetString("lGoogleAPIInstructions.Text");
-            this.lGoogleAPIInstructions.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.lGoogleAPIInstructions.Visible = false;
+            this.pbExpandGoogleConfig.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandGoogleConfig.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandGoogleConfig.Location = new System.Drawing.Point(1, 243);
+            this.pbExpandGoogleConfig.Name = "pbExpandGoogleConfig";
+            this.pbExpandGoogleConfig.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandGoogleConfig.TabIndex = 47;
+            this.pbExpandGoogleConfig.TabStop = false;
+            this.pbExpandGoogleConfig.Click += new System.EventHandler(this.pbExpandGoogleConfig_Click);
+            // 
+            // pbExpandGoogleAccount
+            // 
+            this.pbExpandGoogleAccount.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandGoogleAccount.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandGoogleAccount.Location = new System.Drawing.Point(1, 0);
+            this.pbExpandGoogleAccount.Name = "pbExpandGoogleAccount";
+            this.pbExpandGoogleAccount.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandGoogleAccount.TabIndex = 44;
+            this.pbExpandGoogleAccount.TabStop = false;
+            this.pbExpandGoogleAccount.Click += new System.EventHandler(this.pbExpandGoogleAccount_Click);
+            // 
+            // gbGoogle_OAuth
+            // 
+            this.gbGoogle_OAuth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle_OAuth.Controls.Add(this.tbClientSecret);
+            this.gbGoogle_OAuth.Controls.Add(this.tbClientID);
+            this.gbGoogle_OAuth.Controls.Add(this.llAPIConsole);
+            this.gbGoogle_OAuth.Controls.Add(this.cbShowClientSecret);
+            this.gbGoogle_OAuth.Controls.Add(this.lGoogleAPIInstructions);
+            this.gbGoogle_OAuth.Controls.Add(this.lClientID);
+            this.gbGoogle_OAuth.Controls.Add(this.lSecret);
+            this.gbGoogle_OAuth.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbGoogle_OAuth.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbGoogle_OAuth.Location = new System.Drawing.Point(10, 339);
+            this.gbGoogle_OAuth.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbGoogle_OAuth.Name = "gbGoogle_OAuth";
+            this.gbGoogle_OAuth.Size = new System.Drawing.Size(368, 174);
+            this.gbGoogle_OAuth.TabIndex = 49;
+            this.gbGoogle_OAuth.TabStop = false;
+            this.gbGoogle_OAuth.Text = "  Google OAuth API";
+            this.gbGoogle_OAuth.Visible = false;
             // 
             // tbClientSecret
             // 
             this.tbClientSecret.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbClientSecret.Location = new System.Drawing.Point(63, 140);
+            this.tbClientSecret.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbClientSecret.Location = new System.Drawing.Point(54, 145);
             this.tbClientSecret.Name = "tbClientSecret";
             this.tbClientSecret.ReadOnly = true;
             this.tbClientSecret.Size = new System.Drawing.Size(230, 20);
-            this.tbClientSecret.TabIndex = 3;
+            this.tbClientSecret.TabIndex = 33;
             this.tbClientSecret.UseSystemPasswordChar = true;
-            this.tbClientSecret.Visible = false;
             this.tbClientSecret.TextChanged += new System.EventHandler(this.tbClientSecret_TextChanged);
             this.tbClientSecret.Leave += new System.EventHandler(this.personalApiKey_Leave);
             // 
@@ -1336,58 +1168,284 @@
             // 
             this.tbClientID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbClientID.Location = new System.Drawing.Point(63, 114);
+            this.tbClientID.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbClientID.Location = new System.Drawing.Point(54, 119);
             this.tbClientID.Name = "tbClientID";
             this.tbClientID.ReadOnly = true;
             this.tbClientID.Size = new System.Drawing.Size(289, 20);
-            this.tbClientID.TabIndex = 2;
-            this.tbClientID.Visible = false;
+            this.tbClientID.TabIndex = 32;
             this.tbClientID.TextChanged += new System.EventHandler(this.tbClientID_TextChanged);
             this.tbClientID.Leave += new System.EventHandler(this.personalApiKey_Leave);
+            // 
+            // llAPIConsole
+            // 
+            this.llAPIConsole.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.llAPIConsole.AutoSize = true;
+            this.llAPIConsole.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llAPIConsole.Location = new System.Drawing.Point(38, 94);
+            this.llAPIConsole.Name = "llAPIConsole";
+            this.llAPIConsole.Size = new System.Drawing.Size(273, 13);
+            this.llAPIConsole.TabIndex = 35;
+            this.llAPIConsole.TabStop = true;
+            this.llAPIConsole.Text = "https://console.developers.google.com/apis/credentials";
+            this.llAPIConsole.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llAPIConsole_LinkClicked);
+            // 
+            // cbShowClientSecret
+            // 
+            this.cbShowClientSecret.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbShowClientSecret.AutoSize = true;
+            this.cbShowClientSecret.Enabled = false;
+            this.cbShowClientSecret.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbShowClientSecret.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbShowClientSecret.Location = new System.Drawing.Point(290, 148);
+            this.cbShowClientSecret.Name = "cbShowClientSecret";
+            this.cbShowClientSecret.Size = new System.Drawing.Size(53, 17);
+            this.cbShowClientSecret.TabIndex = 36;
+            this.cbShowClientSecret.Text = "Show";
+            this.cbShowClientSecret.UseVisualStyleBackColor = true;
+            this.cbShowClientSecret.CheckedChanged += new System.EventHandler(this.cbShowClientSecret_CheckedChanged);
+            // 
+            // lGoogleAPIInstructions
+            // 
+            this.lGoogleAPIInstructions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lGoogleAPIInstructions.BackColor = System.Drawing.SystemColors.Window;
+            this.lGoogleAPIInstructions.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lGoogleAPIInstructions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lGoogleAPIInstructions.Location = new System.Drawing.Point(8, 25);
+            this.lGoogleAPIInstructions.Multiline = true;
+            this.lGoogleAPIInstructions.Name = "lGoogleAPIInstructions";
+            this.lGoogleAPIInstructions.ReadOnly = true;
+            this.lGoogleAPIInstructions.Size = new System.Drawing.Size(335, 71);
+            this.lGoogleAPIInstructions.TabIndex = 34;
+            this.lGoogleAPIInstructions.Text = resources.GetString("lGoogleAPIInstructions.Text");
+            this.lGoogleAPIInstructions.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lClientID
             // 
             this.lClientID.AutoSize = true;
-            this.lClientID.Location = new System.Drawing.Point(10, 117);
+            this.lClientID.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lClientID.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lClientID.Location = new System.Drawing.Point(5, 122);
             this.lClientID.Name = "lClientID";
             this.lClientID.Size = new System.Drawing.Size(47, 13);
-            this.lClientID.TabIndex = 0;
+            this.lClientID.TabIndex = 30;
             this.lClientID.Text = "Client ID";
-            this.lClientID.Visible = false;
             // 
             // lSecret
             // 
             this.lSecret.AutoSize = true;
-            this.lSecret.Location = new System.Drawing.Point(10, 143);
+            this.lSecret.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lSecret.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lSecret.Location = new System.Drawing.Point(5, 148);
             this.lSecret.Name = "lSecret";
             this.lSecret.Size = new System.Drawing.Size(38, 13);
-            this.lSecret.TabIndex = 1;
+            this.lSecret.TabIndex = 31;
             this.lSecret.Text = "Secret";
-            this.lSecret.Visible = false;
             // 
-            // cbShowDeveloperOptions
+            // gbGoogle_GConfig
             // 
-            this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(14, 275);
-            this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
-            this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
-            this.cbShowDeveloperOptions.TabIndex = 30;
-            this.cbShowDeveloperOptions.Text = "Show advanced/developer options";
-            this.cbShowDeveloperOptions.UseVisualStyleBackColor = true;
-            this.cbShowDeveloperOptions.CheckedChanged += new System.EventHandler(this.cbShowDeveloperOptions_CheckedChanged);
+            this.gbGoogle_GConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle_GConfig.Controls.Add(this.cbExcludeDeclinedInvites);
+            this.gbGoogle_GConfig.Controls.Add(this.cbExcludeGoals);
+            this.gbGoogle_GConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbGoogle_GConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 246);
+            this.gbGoogle_GConfig.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbGoogle_GConfig.Name = "gbGoogle_GConfig";
+            this.gbGoogle_GConfig.Size = new System.Drawing.Size(368, 64);
+            this.gbGoogle_GConfig.TabIndex = 45;
+            this.gbGoogle_GConfig.TabStop = false;
+            this.gbGoogle_GConfig.Text = "  Sync Configuration";
             // 
-            // label12
+            // cbExcludeDeclinedInvites
             // 
-            this.label12.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label12.Location = new System.Drawing.Point(68, 13);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(263, 15);
-            this.label12.TabIndex = 27;
-            this.label12.Text = "Select the Google Calendar to Synchronise";
-            this.label12.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.cbExcludeDeclinedInvites.AutoSize = true;
+            this.cbExcludeDeclinedInvites.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeDeclinedInvites.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(13, 22);
+            this.cbExcludeDeclinedInvites.Name = "cbExcludeDeclinedInvites";
+            this.cbExcludeDeclinedInvites.Size = new System.Drawing.Size(190, 17);
+            this.cbExcludeDeclinedInvites.TabIndex = 49;
+            this.cbExcludeDeclinedInvites.Text = "Exclude invitations I have declined";
+            this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
+            this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
+            // 
+            // cbExcludeGoals
+            // 
+            this.cbExcludeGoals.AutoSize = true;
+            this.cbExcludeGoals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeGoals.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeGoals.Location = new System.Drawing.Point(13, 41);
+            this.cbExcludeGoals.Name = "cbExcludeGoals";
+            this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
+            this.cbExcludeGoals.TabIndex = 48;
+            this.cbExcludeGoals.Text = "Exclude \"Goal\" events from sync";
+            this.cbExcludeGoals.UseVisualStyleBackColor = true;
+            this.cbExcludeGoals.CheckedChanged += new System.EventHandler(this.cbExcludeGoals_CheckedChanged);
+            // 
+            // gbGoogle_Account
+            // 
+            this.gbGoogle_Account.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle_Account.Controls.Add(this.llMultipleOGCS);
+            this.gbGoogle_Account.Controls.Add(this.label14);
+            this.gbGoogle_Account.Controls.Add(this.cbGoogleCalendars);
+            this.gbGoogle_Account.Controls.Add(this.bGetGoogleCalendars);
+            this.gbGoogle_Account.Controls.Add(this.lGoogleCalendar);
+            this.gbGoogle_Account.Controls.Add(this.lGoogleHelp);
+            this.gbGoogle_Account.Controls.Add(this.btResetGCal);
+            this.gbGoogle_Account.Controls.Add(this.label13);
+            this.gbGoogle_Account.Controls.Add(this.tbConnectedAcc);
+            this.gbGoogle_Account.Controls.Add(this.label7);
+            this.gbGoogle_Account.Controls.Add(this.cbListHiddenGcals);
+            this.gbGoogle_Account.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbGoogle_Account.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbGoogle_Account.Location = new System.Drawing.Point(10, 2);
+            this.gbGoogle_Account.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbGoogle_Account.Name = "gbGoogle_Account";
+            this.gbGoogle_Account.Size = new System.Drawing.Size(368, 242);
+            this.gbGoogle_Account.TabIndex = 43;
+            this.gbGoogle_Account.TabStop = false;
+            this.gbGoogle_Account.Text = "  Account && Calendar";
+            // 
+            // llMultipleOGCS
+            // 
+            this.llMultipleOGCS.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.llMultipleOGCS.AutoSize = true;
+            this.llMultipleOGCS.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llMultipleOGCS.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.llMultipleOGCS.Location = new System.Drawing.Point(104, 47);
+            this.llMultipleOGCS.Name = "llMultipleOGCS";
+            this.llMultipleOGCS.Size = new System.Drawing.Size(156, 13);
+            this.llMultipleOGCS.TabIndex = 51;
+            this.llMultipleOGCS.TabStop = true;
+            this.llMultipleOGCS.Text = "run multiple instances of OGCS.";
+            this.llMultipleOGCS.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llMultipleOGCS_LinkClicked);
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.label14.Location = new System.Drawing.Point(9, 21);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(346, 33);
+            this.label14.TabIndex = 50;
+            this.label14.Text = "The Google account is the same across all Profiles.\r\nTo sync calendars from more " +
+    "than one account,";
+            this.label14.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // cbGoogleCalendars
+            // 
+            this.cbGoogleCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbGoogleCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbGoogleCalendars.FormattingEnabled = true;
+            this.cbGoogleCalendars.Location = new System.Drawing.Point(114, 194);
+            this.cbGoogleCalendars.Name = "cbGoogleCalendars";
+            this.cbGoogleCalendars.Size = new System.Drawing.Size(241, 21);
+            this.cbGoogleCalendars.TabIndex = 6;
+            this.cbGoogleCalendars.SelectedIndexChanged += new System.EventHandler(this.cbGoogleCalendars_SelectedIndexChanged);
+            // 
+            // bGetGoogleCalendars
+            // 
+            this.bGetGoogleCalendars.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.bGetGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bGetGoogleCalendars.Location = new System.Drawing.Point(24, 113);
+            this.bGetGoogleCalendars.Name = "bGetGoogleCalendars";
+            this.bGetGoogleCalendars.Size = new System.Drawing.Size(115, 23);
+            this.bGetGoogleCalendars.TabIndex = 7;
+            this.bGetGoogleCalendars.Text = "Retrieve Calendars";
+            this.bGetGoogleCalendars.UseVisualStyleBackColor = true;
+            this.bGetGoogleCalendars.Click += new System.EventHandler(this.GetMyGoogleCalendars_Click);
+            // 
+            // lGoogleCalendar
+            // 
+            this.lGoogleCalendar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lGoogleCalendar.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lGoogleCalendar.Location = new System.Drawing.Point(6, 197);
+            this.lGoogleCalendar.Name = "lGoogleCalendar";
+            this.lGoogleCalendar.Size = new System.Drawing.Size(81, 14);
+            this.lGoogleCalendar.TabIndex = 8;
+            this.lGoogleCalendar.Text = "Select calendar";
+            // 
+            // lGoogleHelp
+            // 
+            this.lGoogleHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lGoogleHelp.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lGoogleHelp.Location = new System.Drawing.Point(145, 99);
+            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
+            this.lGoogleHelp.Name = "lGoogleHelp";
+            this.lGoogleHelp.Size = new System.Drawing.Size(199, 52);
+            this.lGoogleHelp.TabIndex = 9;
+            this.lGoogleHelp.Text = "If this is the first time, you\'ll need to authorise the app to connect.\r\nJust tak" +
+    "es a few clicks and your password is never exposed.";
+            // 
+            // btResetGCal
+            // 
+            this.btResetGCal.BackColor = System.Drawing.Color.Transparent;
+            this.btResetGCal.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btResetGCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btResetGCal.ForeColor = System.Drawing.Color.Red;
+            this.btResetGCal.Location = new System.Drawing.Point(24, 160);
+            this.btResetGCal.Name = "btResetGCal";
+            this.btResetGCal.Size = new System.Drawing.Size(115, 23);
+            this.btResetGCal.TabIndex = 10;
+            this.btResetGCal.Text = "Disconnect Account";
+            this.btResetGCal.UseVisualStyleBackColor = false;
+            this.btResetGCal.Click += new System.EventHandler(this.btResetGCal_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label13.Location = new System.Drawing.Point(143, 158);
+            this.label13.MaximumSize = new System.Drawing.Size(200, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(189, 26);
+            this.label13.TabIndex = 28;
+            this.label13.Text = "Disconnect the Google account the application is using to synchronise with\r\n";
+            // 
+            // tbConnectedAcc
+            // 
+            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbConnectedAcc.Location = new System.Drawing.Point(114, 70);
+            this.tbConnectedAcc.Name = "tbConnectedAcc";
+            this.tbConnectedAcc.ReadOnly = true;
+            this.tbConnectedAcc.Size = new System.Drawing.Size(241, 20);
+            this.tbConnectedAcc.TabIndex = 32;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label7.Location = new System.Drawing.Point(6, 73);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(102, 13);
+            this.label7.TabIndex = 33;
+            this.label7.Text = "Connected Account";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // cbListHiddenGcals
+            // 
+            this.cbListHiddenGcals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbListHiddenGcals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbListHiddenGcals.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbListHiddenGcals.Location = new System.Drawing.Point(280, 221);
+            this.cbListHiddenGcals.Name = "cbListHiddenGcals";
+            this.cbListHiddenGcals.Size = new System.Drawing.Size(79, 17);
+            this.cbListHiddenGcals.TabIndex = 30;
+            this.cbListHiddenGcals.Text = "List Hidden";
+            this.cbListHiddenGcals.UseVisualStyleBackColor = true;
+            this.cbListHiddenGcals.CheckedChanged += new System.EventHandler(this.cbListHiddenGcals_CheckedChanged);
             // 
             // tabSyncOptions
             // 
@@ -1431,7 +1489,7 @@
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label15.Location = new System.Drawing.Point(121, 13);
+            this.label15.Location = new System.Drawing.Point(121, 10);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(153, 15);
             this.label15.TabIndex = 35;
@@ -3664,15 +3722,20 @@
             this.groupBox1.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
-            this.panelGoogle.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleAccount)).EndInit();
-            this.gbGoogle_Account.ResumeLayout(false);
-            this.gbGoogle_Account.PerformLayout();
             this.panelObscure.ResumeLayout(false);
             this.panelProfileLoading.ResumeLayout(false);
             this.panelProfileLoading.PerformLayout();
-            this.gbDeveloperOptions.ResumeLayout(false);
-            this.gbDeveloperOptions.PerformLayout();
+            this.panelGoogle.ResumeLayout(false);
+            this.panelGoogle.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleOauth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleConfig)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandGoogleAccount)).EndInit();
+            this.gbGoogle_OAuth.ResumeLayout(false);
+            this.gbGoogle_OAuth.PerformLayout();
+            this.gbGoogle_GConfig.ResumeLayout(false);
+            this.gbGoogle_GConfig.PerformLayout();
+            this.gbGoogle_Account.ResumeLayout(false);
+            this.gbGoogle_Account.PerformLayout();
             this.tabSyncOptions.ResumeLayout(false);
             this.tabSyncOptions.PerformLayout();
             this.WhatPostit.ResumeLayout(false);
@@ -3843,15 +3906,6 @@
         private System.Windows.Forms.ContextMenuStrip msSettingsActions;
         private System.Windows.Forms.ToolStripMenuItem miExportSettings;
         private System.Windows.Forms.ToolStripMenuItem miImportSettings;
-        private System.Windows.Forms.GroupBox gbDeveloperOptions;
-        private System.Windows.Forms.LinkLabel llAPIConsole;
-        private System.Windows.Forms.CheckBox cbShowClientSecret;
-        private System.Windows.Forms.TextBox lGoogleAPIInstructions;
-        private System.Windows.Forms.TextBox tbClientSecret;
-        private System.Windows.Forms.TextBox tbClientID;
-        private System.Windows.Forms.Label lClientID;
-        private System.Windows.Forms.Label lSecret;
-        private System.Windows.Forms.CheckBox cbShowDeveloperOptions;
         public System.Windows.Forms.Label lOutlookCalendar;
         public System.Windows.Forms.TabPage tabOutlook;
         private System.Windows.Forms.Panel howObfuscatePanel;
@@ -3899,13 +3953,11 @@
         public Extensions.GoogleColourPicker ddGoogleColour;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnValue;
-        private System.Windows.Forms.CheckBox cbExcludeGoals;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.ComboBox ddAvailabilty;
-        private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
         private System.Windows.Forms.CheckBox cbSingleCategoryOnly;
         private System.Windows.Forms.NumericUpDown tbMaxAttendees;
         private System.Windows.Forms.CheckBox cbListHiddenGcals;
@@ -3971,5 +4023,19 @@
         private System.Windows.Forms.PictureBox pbExpandGoogleAccount;
         private System.Windows.Forms.GroupBox gbGoogle_Account;
         private System.Windows.Forms.LinkLabel llMultipleOGCS;
+        private System.Windows.Forms.PictureBox pbExpandGoogleConfig;
+        private System.Windows.Forms.GroupBox gbGoogle_GConfig;
+        private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
+        private System.Windows.Forms.CheckBox cbExcludeGoals;
+        private System.Windows.Forms.PictureBox pbExpandGoogleOauth;
+        private System.Windows.Forms.GroupBox gbGoogle_OAuth;
+        private System.Windows.Forms.LinkLabel llAPIConsole;
+        private System.Windows.Forms.CheckBox cbShowClientSecret;
+        private System.Windows.Forms.TextBox lGoogleAPIInstructions;
+        private System.Windows.Forms.TextBox tbClientSecret;
+        private System.Windows.Forms.TextBox tbClientID;
+        private System.Windows.Forms.Label lClientID;
+        private System.Windows.Forms.Label lSecret;
+        private System.Windows.Forms.CheckBox cbShowDeveloperOptions;
     }
 }

@@ -30,6 +30,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             InitializeComponent();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
+            gbGoogle_Account.MinimumSize = new System.Drawing.Size(0, 0);
+            gbGoogle_GConfig.MinimumSize = new System.Drawing.Size(0, 0);
+            gbGoogle_OAuth.MinimumSize = new System.Drawing.Size(0, 0);
             gbSyncOptions_How.MinimumSize = new System.Drawing.Size(0, 0);
             gbSyncOptions_When.MinimumSize = new System.Drawing.Size(0, 0);
             gbSyncOptions_What.MinimumSize = new System.Drawing.Size(0, 0);
@@ -164,9 +167,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #endregion
             UpdateGUIsettings_Profile();
+            #region Google
+            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount, true);
+            groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
+            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth, false);
+            #endregion
             #region Application behaviour
-            syncOptionSizing(gbAppBehaviour_Logging, pbExpandLogging, true);
-            syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
+            groupboxSizing(gbAppBehaviour_Logging, pbExpandLogging, true);
+            groupboxSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
             cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbStartOnStartupAllUsers.Enabled = Settings.Instance.StartOnStartup;
@@ -437,9 +445,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     #endregion
                     #region Sync Options box
-                    syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
-                    syncOptionSizing(gbSyncOptions_When, pbExpandWhen, false);
-                    syncOptionSizing(gbSyncOptions_What, pbExpandWhat, false);
+                    groupboxSizing(gbSyncOptions_How, pbExpandHow, true);
+                    groupboxSizing(gbSyncOptions_When, pbExpandWhen, false);
+                    groupboxSizing(gbSyncOptions_What, pbExpandWhat, false);
                     #region How
                     if (syncDirection.Items.Count == 0) {
                         syncDirection.Items.Add(Sync.Direction.OutlookToGoogle);
@@ -1535,14 +1543,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         #region Developer Options
         private void cbShowDeveloperOptions_CheckedChanged(object sender, EventArgs e) {
             //Toggle visibility
-            gbDeveloperOptions.Visible =
-            lGoogleAPIInstructions.Visible =
-            llAPIConsole.Visible =
-            lClientID.Visible =
-            lSecret.Visible =
-            tbClientID.Visible =
-            tbClientSecret.Visible =
-            cbShowClientSecret.Visible =
+            pbExpandGoogleOauth.Visible =
+            gbGoogle_OAuth.Visible =
                 cbShowDeveloperOptions.Checked;
         }
 
@@ -1577,15 +1579,21 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #endregion
         #region Sync options
-        private void syncOptionSizing(GroupBox section, PictureBox sectionImage, Boolean? expand = null) {
+        private void groupboxSizing(GroupBox section, PictureBox sectionImage, Boolean? expand = null) {
             int minSectionHeight = Convert.ToInt16(22 * magnification);
             Boolean expandSection = expand ?? section.Height - minSectionHeight <= 5;
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
+                    //Google
+                    case "Account": section.Height = 242; break;
+                    case "GConfig": section.Height = 64; break;
+                    case "OAuth": section.Height = 174; break;
+                    //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 228; break;
+                    //Application Behaviour
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -1597,7 +1605,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             sectionImage.Refresh();
 
-            if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
+            if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
+                gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
+                pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
+                cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
+                gbGoogle_OAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
+                pbExpandGoogleOauth.Top = gbGoogle_OAuth.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
                 gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
                 pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
                 gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
@@ -1610,13 +1625,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbExpandHow_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbSyncOptions_How, pbExpandHow);
+            groupboxSizing(gbSyncOptions_How, pbExpandHow);
         }
         private void pbExpandWhen_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbSyncOptions_When, pbExpandWhen);
+            groupboxSizing(gbSyncOptions_When, pbExpandWhen);
         }
         private void pbExpandWhat_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbSyncOptions_What, pbExpandWhat);
+            groupboxSizing(gbSyncOptions_What, pbExpandWhat);
         }
 
         #region How
@@ -1712,13 +1727,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.howObfuscatePanel.Visible = true;
             this.howMorePanel.Visible = false;
             this.btCloseRegexRules.Visible = true;
-            syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
+            groupboxSizing(gbSyncOptions_How, pbExpandHow, true);
         }
         private void btCloseRegexRules_Click(object sender, EventArgs e) {
             this.btCloseRegexRules.Visible = false;
             this.howMorePanel.Visible = true;
             this.howObfuscatePanel.Visible = false;
-            syncOptionSizing(gbSyncOptions_How, pbExpandHow, true);
+            groupboxSizing(gbSyncOptions_How, pbExpandHow, true);
         }
         private void gbSyncOptions_HowExpand(Boolean show, Int16 newHeight) {
             int minPanelHeight = Convert.ToInt16(50 * magnification);
@@ -2214,11 +2229,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbExpandLogging_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbAppBehaviour_Logging, pbExpandLogging);
+            groupboxSizing(gbAppBehaviour_Logging, pbExpandLogging);
         }
 
         private void pbExpandProxy_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbAppBehaviour_Proxy, pbExpandProxy);
+            groupboxSizing(gbAppBehaviour_Proxy, pbExpandProxy);
         }
 
         private void cbCreateFiles_CheckedChanged(object sender, EventArgs e) {
@@ -2451,11 +2466,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
 
         private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
-            syncOptionSizing(gbGoogle_Account, pbExpandGoogleAccount);
+            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount);
         }
 
         private void llMultipleOGCS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
+        }
+
+        private void pbExpandGoogleConfig_Click(object sender, EventArgs e) {
+            groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig);
+        }
+
+        private void pbExpandGoogleOauth_Click(object sender, EventArgs e) {
+            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
         }
     }
 }
