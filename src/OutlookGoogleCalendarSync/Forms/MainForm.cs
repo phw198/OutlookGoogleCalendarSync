@@ -30,13 +30,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             InitializeComponent();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
-            gbGoogle_Account.MinimumSize = new System.Drawing.Size(0, 0);
-            gbGoogle_GConfig.MinimumSize = new System.Drawing.Size(0, 0);
-            gbGoogle_OAuth.MinimumSize = new System.Drawing.Size(0, 0);
-            gbSyncOptions_How.MinimumSize = new System.Drawing.Size(0, 0);
-            gbSyncOptions_When.MinimumSize = new System.Drawing.Size(0, 0);
-            gbSyncOptions_What.MinimumSize = new System.Drawing.Size(0, 0);
-            gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(0, 0);
+            gbGoogle_Account.MinimumSize =
+            gbGoogle_GConfig.MinimumSize =
+            gbGoogle_OAuth.MinimumSize =
+            gbSyncOptions_How.MinimumSize =
+            gbSyncOptions_When.MinimumSize =
+            gbSyncOptions_What.MinimumSize =
+            gbAppBehaviour_Proxy.MinimumSize =
             gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(0, 0);
 
             if (startingTab != null && startingTab == "Help") this.tabApp.SelectedTab = this.tabPage_Help;
@@ -1238,6 +1238,52 @@ namespace OutlookGoogleCalendarSync.Forms {
             new Forms.ProfileManage("Rename", ddProfile).ShowDialog();
         }
         #endregion
+
+        private void groupboxSizing(GroupBox section, PictureBox sectionImage, Boolean? expand = null) {
+            int minSectionHeight = Convert.ToInt16(22 * magnification);
+            Boolean expandSection = expand ?? section.Height - minSectionHeight <= 5;
+            if (expandSection) {
+                if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                switch (section.Name.ToString().Split('_').LastOrDefault()) {
+                    //Google
+                    case "Account": section.Height = 242; break;
+                    case "GConfig": section.Height = 64; break;
+                    case "OAuth": section.Height = 174; break;
+                    //Settings
+                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
+                    case "When": section.Height = 119; break;
+                    case "What": section.Height = 228; break;
+                    //Application Behaviour
+                    case "Logging": section.Height = 111; break;
+                    case "Proxy": section.Height = 197; break;
+                }
+                section.Height = Convert.ToInt16(section.Height * magnification);
+            } else {
+                if (section.Height > minSectionHeight)
+                    sectionImage.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                section.Height = minSectionHeight;
+            }
+            sectionImage.Refresh();
+
+            if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
+                gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
+                pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
+                cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
+                gbGoogle_OAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
+                pbExpandGoogleOauth.Top = gbGoogle_OAuth.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
+                gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
+                pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
+                gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
+                pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandLogging|pbExpandProxy".Contains(sectionImage.Name)) {
+                gbAppBehaviour_Proxy.Top = gbAppBehaviour_Logging.Location.Y + gbAppBehaviour_Logging.Height + Convert.ToInt16(10 * magnification);
+                pbExpandProxy.Top = gbAppBehaviour_Proxy.Top - Convert.ToInt16(2 * magnification);
+            }
+        }
+
         #region Outlook settings
         private void enableOutlookSettingsUI(Boolean enable) {
             this.clbCategories.Enabled = enable;
@@ -1430,6 +1476,20 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #endregion
         #region Google settings
+        private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
+            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount);
+        }
+        private void pbExpandGoogleConfig_Click(object sender, EventArgs e) {
+            groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig);
+        }
+        private void pbExpandGoogleOauth_Click(object sender, EventArgs e) {
+            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
+        }
+
+        private void llMultipleOGCS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
+        }
+
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
             if (bGetGoogleCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Google calendars.");
@@ -1579,51 +1639,6 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #endregion
         #region Sync options
-        private void groupboxSizing(GroupBox section, PictureBox sectionImage, Boolean? expand = null) {
-            int minSectionHeight = Convert.ToInt16(22 * magnification);
-            Boolean expandSection = expand ?? section.Height - minSectionHeight <= 5;
-            if (expandSection) {
-                if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                switch (section.Name.ToString().Split('_').LastOrDefault()) {
-                    //Google
-                    case "Account": section.Height = 242; break;
-                    case "GConfig": section.Height = 64; break;
-                    case "OAuth": section.Height = 174; break;
-                    //Settings
-                    case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
-                    case "When": section.Height = 119; break;
-                    case "What": section.Height = 228; break;
-                    //Application Behaviour
-                    case "Logging": section.Height = 111; break;
-                    case "Proxy": section.Height = 197; break;
-                }
-                section.Height = Convert.ToInt16(section.Height * magnification);
-            } else {
-                if (section.Height > minSectionHeight)
-                    sectionImage.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                section.Height = minSectionHeight;
-            }
-            sectionImage.Refresh();
-
-            if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
-                gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
-                pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
-                cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
-                gbGoogle_OAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
-                pbExpandGoogleOauth.Top = gbGoogle_OAuth.Top - Convert.ToInt16(2 * magnification);
-
-            } else if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
-                gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
-                pbExpandWhen.Top = gbSyncOptions_When.Top - Convert.ToInt16(2 * magnification);
-                gbSyncOptions_What.Top = gbSyncOptions_When.Location.Y + gbSyncOptions_When.Height + Convert.ToInt16(10 * magnification);
-                pbExpandWhat.Top = gbSyncOptions_What.Top - Convert.ToInt16(2 * magnification);
-
-            } else if ("pbExpandLogging|pbExpandProxy".Contains(sectionImage.Name)) {
-                gbAppBehaviour_Proxy.Top = gbAppBehaviour_Logging.Location.Y + gbAppBehaviour_Logging.Height + Convert.ToInt16(10 * magnification);
-                pbExpandProxy.Top = gbAppBehaviour_Proxy.Top - Convert.ToInt16(2 * magnification);
-            }
-        }
-
         private void pbExpandHow_Click(object sender, EventArgs e) {
             groupboxSizing(gbSyncOptions_How, pbExpandHow);
         }
@@ -2464,21 +2479,5 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
-
-        private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount);
-        }
-
-        private void llMultipleOGCS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
-        }
-
-        private void pbExpandGoogleConfig_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig);
-        }
-
-        private void pbExpandGoogleOauth_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
-        }
     }
 }
