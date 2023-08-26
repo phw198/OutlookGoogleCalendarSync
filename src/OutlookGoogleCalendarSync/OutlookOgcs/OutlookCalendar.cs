@@ -572,8 +572,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
             if (profile.AddDescription) {
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
-                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified))
-                        ai.Body = ev.Description;
+                    if (ev.Description.Length == 8 * 1024 && ai.Body.Length > 8 * 1024) {
+                        log.Warn("Event description has been truncated, so will not be synced to Outlook.");
+                    } else {
+                        if (Sync.Engine.CompareAttribute("Description", Sync.Direction.GoogleToOutlook, ev.Description, ai.Body, sb, ref itemModified))
+                            ai.Body = ev.Description;
+                    }
                 }
             }
 
