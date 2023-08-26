@@ -167,6 +167,8 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.tbExcludeSubjectText = new System.Windows.Forms.TextBox();
+            this.cbExcludeSubject = new System.Windows.Forms.CheckBox();
             this.cbExcludePrivate = new System.Windows.Forms.CheckBox();
             this.cbExcludeFree = new System.Windows.Forms.CheckBox();
             this.cbExcludeTentative = new System.Windows.Forms.CheckBox();
@@ -1932,6 +1934,8 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.tbExcludeSubjectText);
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeSubject);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFree);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeTentative);
@@ -1962,10 +1966,33 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 228);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 250);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // tbExcludeSubjectText
+            // 
+            this.tbExcludeSubjectText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbExcludeSubjectText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 221);
+            this.tbExcludeSubjectText.Name = "tbExcludeSubjectText";
+            this.tbExcludeSubjectText.Size = new System.Drawing.Size(201, 20);
+            this.tbExcludeSubjectText.TabIndex = 58;
+            this.tbExcludeSubjectText.Leave += new System.EventHandler(this.tbExcludeSubjectText_Leave);
+            // 
+            // cbExcludeSubject
+            // 
+            this.cbExcludeSubject.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeSubject.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeSubject.Location = new System.Drawing.Point(22, 224);
+            this.cbExcludeSubject.Name = "cbExcludeSubject";
+            this.cbExcludeSubject.Size = new System.Drawing.Size(126, 17);
+            this.cbExcludeSubject.TabIndex = 57;
+            this.cbExcludeSubject.Text = "Subjects that contain";
+            this.cbExcludeSubject.UseVisualStyleBackColor = true;
+            this.cbExcludeSubject.CheckedChanged += new System.EventHandler(this.cbExcludeSubject_CheckedChanged);
             // 
             // cbExcludePrivate
             // 
@@ -3874,5 +3901,7 @@
         private System.Windows.Forms.CheckBox cbExcludePrivate;
         private System.Windows.Forms.Label lWhatExcludeInfo;
         private System.Windows.Forms.CheckBox cbDeleteWhenCatExcl;
+        private System.Windows.Forms.TextBox tbExcludeSubjectText;
+        private System.Windows.Forms.CheckBox cbExcludeSubject;
     }
 }

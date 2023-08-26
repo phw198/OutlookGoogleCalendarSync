@@ -176,6 +176,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Int32 allDayFiltered = 0;
                 Int32 availabilityFiltered = 0;
                 Int32 privacyFiltered = 0;
+                Int32 subjectFiltered = 0;
                 Int32 responseFiltered = 0;
 
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
@@ -234,7 +235,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                         if (filtered) { ExcludedByCategory.Add(ai.EntryID); continue; }
 
-                        //Availability, Privacy
+                        //Availability, Privacy, Subject
                         if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
                             if ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
                                 (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree)) {
@@ -252,6 +253,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             if (profile.ExcludePrivate && ai.Sensitivity == OlSensitivity.olPrivate) {
                                 privacyFiltered++; continue;
                             }
+
+                            if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
+                                Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
+                                if (rgx.IsMatch(ai.Subject)) {
+                                    log.Fine("Regex has matched subject string: " + profile.ExcludeSubjectText);
+                                    subjectFiltered++; continue;
+                                }
+                            }
                         }
 
                         //Invitation
@@ -260,7 +269,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             if (ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
                                 responseFiltered++;
                         }
-                        
+
                         result.Add(ai);
                     }
                 }
@@ -268,9 +277,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
                     if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
                     if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
+                    if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText +"' filtered out.");
                     if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                    if ((allDayFiltered + ExcludedByCategory.Count + responseFiltered) > 0) {
+                    if ((availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered) > 0) {
                         if (result.Count == 0)
                             Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
                         else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)

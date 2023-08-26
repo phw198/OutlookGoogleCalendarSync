@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.GoogleOgcs {
@@ -341,7 +342,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
-                    List<Event> availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
+                    List<Event> availability = result.Where(ev => ev.Transparency == "transparent").ToList();
                     if (availability.Count > 0) {
                         log.Debug(availability.Count + " Google Free items excluded.");
                         result = result.Except(availability).ToList();
@@ -355,10 +356,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
                 }
                 if (profile.ExcludePrivate) {
-                    List<Event> privacy = result.Where(ev => profile.ExcludePrivate && ev.Visibility == "private").ToList();
+                    List<Event> privacy = result.Where(ev => ev.Visibility == "private").ToList();
                     if (privacy.Count > 0) {
                         log.Debug(privacy.Count + " Google Private items excluded.");
                         result = result.Except(privacy).ToList();
+                    }
+                }
+                if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
+                    Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
+                    List<Event> subject = result.Where(ev => rgx.IsMatch(ev.Summary)).ToList();
+                    if (subject.Count > 0) {
+                        log.Debug(subject.Count + " Google items excluded with Subject containing '" + profile.ExcludeSubjectText + "'");
+                        result = result.Except(subject).ToList();
                     }
                 }
             }
