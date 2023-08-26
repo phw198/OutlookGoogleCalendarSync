@@ -304,7 +304,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 if (Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
                 else {
                     foreach (FindReplace findReplace in Obfuscation.FindReplace) {
-                        log.Info("    '" + findReplace.find + "' -> '" + findReplace.replace + "'");
+                        log.Info("    " + findReplace.target + ": '" + findReplace.find + "' -> '" + findReplace.replace + "'");
                     }
                 }
             }
