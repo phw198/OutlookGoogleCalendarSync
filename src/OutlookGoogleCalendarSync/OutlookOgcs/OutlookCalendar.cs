@@ -952,9 +952,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="oBusyStatus">Outlook's current setting</param>
         private OlBusyStatus getAvailability(String gTransparency, OlBusyStatus? oBusyStatus) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-
+            List<String> persistOutlookStatus = new List<String> { OlBusyStatus.olTentative.ToString(), OlBusyStatus.olOutOfOffice.ToString(), "olWorkingElsewhere" };
+            
             if (!profile.SetEntriesAvailable)
-                return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                return (gTransparency == "transparent") ? OlBusyStatus.olFree :  
+                    persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus: OlBusyStatus.olBusy;
 
             OlBusyStatus overrideFbStatus = OlBusyStatus.olFree;
             try {
@@ -968,14 +970,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
                     if (oBusyStatus == null)
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
+                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
                     else
                         return (OlBusyStatus)oBusyStatus;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oBusyStatus == null))
                         return overrideFbStatus;
                     else
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
+                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
+                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
                 }
             }
         }
