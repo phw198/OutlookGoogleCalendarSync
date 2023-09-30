@@ -1933,23 +1933,37 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void tbMinuteOffsets_ValueChanged(object sender, EventArgs e) {
+            String tooltip = "Set to zero to disable automated syncs";
             if (!Settings.Instance.UsingPersonalAPIkeys()) {
-                //Fair usage - most frequent sync interval is 2 hours when Push enabled
+                String fup = "Fair usage policy: Minimum sync interval of " + MinSyncMinutes + "mins" + (ActiveCalendarProfile.OutlookPush ? " with Push Sync enabled" : "") + ".";
+                
                 tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
-                if (cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
-                    if ((int)tbInterval.Value < MinSyncMinutes)
-                        tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : MinSyncMinutes;
-                    else if ((int)tbInterval.Value > MinSyncMinutes) {
-                        tbInterval.Value = (MinSyncMinutes / 60) + 1;
-                        cbIntervalUnit.Text = "Hours";
-                    }
+                cbIntervalUnit.SelectedIndexChanged -= new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
+                try {
+                    if (cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
+                        if ((int)tbInterval.Value <= MinSyncMinutes)
+                            tooltip = fup;
+                        if ((int)tbInterval.Value < MinSyncMinutes) {
+                            tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : MinSyncMinutes;
+                        } else if ((int)tbInterval.Value > (tbInterval.Maximum - 1)) {
+                            tbInterval.Value = ((int)tbInterval.Value / 60) + 1;
+                            cbIntervalUnit.Text = "Hours";
+                        }
 
-                } else if (cbIntervalUnit.SelectedItem.ToString() == "Hours") {
-                    if (((int)tbInterval.Value * 60) < MinSyncMinutes)
-                        tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : (MinSyncMinutes / 60);
+                    } else if (cbIntervalUnit.SelectedItem.ToString() == "Hours") {
+                        if (((int)tbInterval.Value * 60) <= MinSyncMinutes)
+                            tooltip = fup;
+                        if (((int)tbInterval.Value * 60) < MinSyncMinutes)
+                            tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : (MinSyncMinutes / 60);
+                    }
+                } finally {
+                    tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
+                    cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
                 }
-                tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
             }
+            if (tbInterval.Value == 0)
+                tooltip = "Set to non-zero to enable automated syncs";
+            ToolTips.SetToolTip(tbInterval, tooltip);
 
             ActiveCalendarProfile.SyncInterval = (int)tbInterval.Value;
             ActiveCalendarProfile.OgcsTimer.SetNextSync();
@@ -1958,7 +1972,9 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbIntervalUnit_SelectedIndexChanged(object sender, EventArgs e) {
             if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < MinSyncMinutes) {
-                tbInterval.Value = MinSyncMinutes;
+                tbInterval.Value = Math.Min((int)tbInterval.Value * 60, tbInterval.Maximum - 1);
+            } else if (cbIntervalUnit.Text == "Hours") {
+                tbInterval.Value = Math.Ceiling((decimal)(int)tbInterval.Value / 60);
             }
             ActiveCalendarProfile.SyncIntervalUnit = cbIntervalUnit.Text;
             ActiveCalendarProfile.OgcsTimer.SetNextSync();
