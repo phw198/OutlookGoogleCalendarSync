@@ -122,6 +122,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Otherwise, for multiple categories and only one synced with OGCS, manually prefix the category name(s) with \"OGCS \".");
             ToolTips.SetToolTip(cbReminderDND,
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
+            ToolTips.SetToolTip(cbExcludeSubject,
+                "Supports use of regular expressions.");
 
             //Application behaviour
             ToolTips.SetToolTip(cbStartOnStartup, "Start OGCS when current Windows user logs in.");
@@ -566,6 +568,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeFree.Checked = profile.ExcludeFree;
                     cbExcludeTentative.Checked = profile.ExcludeTentative;
                     cbExcludePrivate.Checked = profile.ExcludePrivate;
+                    cbExcludeSubject.Checked = profile.ExcludeSubject;
+                    tbExcludeSubjectText.Text = profile.ExcludeSubjectText;
                     this.gbSyncOptions_What.ResumeLayout();
                     #endregion
                     #endregion
@@ -1585,7 +1589,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 228; break;
+                    case "What": section.Height = 250; break;
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
                 }
@@ -2119,6 +2123,14 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbExcludeFreeAllDays_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeFreeAllDays = cbExcludeFreeAllDays.Checked;
+        }
+        private void cbExcludeSubject_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeSubject =
+            tbExcludeSubjectText.Enabled =
+                cbExcludeSubject.Checked;
+        }
+        private void tbExcludeSubjectText_Leave(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeSubjectText = tbExcludeSubjectText.Text;
         }
         #endregion
         #endregion

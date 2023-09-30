@@ -93,6 +93,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             ExcludePrivate = false;
             ExcludeAllDays = false;
             ExcludeFreeAllDays = false;
+            ExcludeSubject = false;
+            ExcludeSubjectText = "";
 
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
@@ -190,6 +192,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool ExcludePrivate { get; set; }        
         [DataMember] public bool ExcludeAllDays { get; set; }
         [DataMember] public bool ExcludeFreeAllDays { get; set; }
+        [DataMember] public bool ExcludeSubject { get; set; }
+        [DataMember] public string ExcludeSubjectText { get; set; }
         #endregion
         #endregion
 
@@ -327,6 +331,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  ExcludeTentative: " + ExcludeTentative);
             log.Info("  ExcludePrivate: " + ExcludePrivate);
             log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
+            log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
         }
 
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {
