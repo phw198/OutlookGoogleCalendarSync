@@ -305,7 +305,16 @@ namespace OutlookGoogleCalendarSync {
 
         private Dictionary<String, String> explodeRrule(IList<String> allRules) {
             log.Fine("Analysing Event RRULEs...");
-            foreach (String rrule in allRules) {
+            foreach (String aRule in allRules) {
+                String rrule = null;
+                System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"^RRULE(;([\w\-])+=.+?):", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(aRule);
+                if (matches.Count > 0) {
+                    log.Warn("The following custom RRULE parameter(s) have been ignored: " + matches[0].Result("$1"));
+                    rrule = aRule.Replace(matches[0].Result("$1"), String.Empty);
+                } else {
+                    rrule = aRule;
+                }
                 if (rrule.StartsWith("RRULE:")) {
                     log.Debug("Converting " + rrule);
                     String[] rrules = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
