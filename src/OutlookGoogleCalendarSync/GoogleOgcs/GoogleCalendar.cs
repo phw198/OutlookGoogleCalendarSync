@@ -306,7 +306,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 backoff++;
                                 if (backoff == BackoffLimit) {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
-                                    throw;
+                                    aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    OGCSexception.LogAsFail(ref aex);
+                                    throw aex;
                                 } else {
                                     int backoffDelay = (int)Math.Pow(2, backoff);
                                     log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
@@ -2157,7 +2159,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static Boolean? IsDefaultCalendar() {
             try {
                 SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
+                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
                 return null;
 
                 return profile.UseGoogleCalendar.Id == Settings.Instance.GaccountEmail;

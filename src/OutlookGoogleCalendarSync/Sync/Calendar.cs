@@ -53,7 +53,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         WorkerSupportsCancellation = true
                     };
 
-                    if (this.Profile.UseGoogleCalendar == null || string.IsNullOrEmpty(this.Profile.UseGoogleCalendar.Id)) {
+                    if (string.IsNullOrEmpty(this.Profile.UseGoogleCalendar?.Id)) {
                         MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
                         return;
                     }

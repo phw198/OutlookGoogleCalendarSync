@@ -271,7 +271,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
 
             log.Info("GOOGLE SETTINGS:-");
-            log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Calendar: " + (UseGoogleCalendar?.Id == null ? "" : UseGoogleCalendar.ToString(true)));
             log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
             log.Info("  Cloak Email: " + CloakEmail);

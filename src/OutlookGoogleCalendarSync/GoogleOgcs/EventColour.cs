@@ -180,7 +180,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 List<Palette> activePalette = new List<Palette>();
-                if (profile.UseGoogleCalendar == null) return activePalette;
+                if (profile.UseGoogleCalendar?.Id == null) return activePalette;
 
                 if (profile.UseGoogleCalendar.ColourId == "0") {
                     GoogleOgcs.Calendar.Instance.GetCalendars();
