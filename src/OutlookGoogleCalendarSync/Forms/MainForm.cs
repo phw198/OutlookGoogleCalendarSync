@@ -93,6 +93,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Disconnect the Google account being used to synchonize with.");
             ToolTips.SetToolTip(cbListHiddenGcals,
                 "Include hidden calendars in the above drop down.");
+            ToolTips.SetToolTip(cbDeleteWhenColourExcl,
+                "If items are already synced in Outlook and subsequently excluded by a colour filter.");
 
             //Settings
             ToolTips.SetToolTip(tbInterval,
@@ -167,11 +169,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbMuteClicks.Checked = Settings.Instance.MuteClickSounds;
             #endregion
             UpdateGUIsettings_Profile();
-            #region Google
-            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount, true);
-            groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
-            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth, false);
-            #endregion
             #region Application behaviour
             groupboxSizing(gbAppBehaviour_Logging, pbExpandLogging, true);
             groupboxSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
@@ -270,7 +267,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     LastSyncVal = profile.LastSyncDateText;
                     NextSyncVal = profile.OgcsTimer?.NextSyncDateText;
                     #endregion
-                    #region Outlook box
+                    #region Outlook page
                     #region Mailbox
                     if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) {
                         rbOutlookDefaultMB.Checked = true;
@@ -414,7 +411,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     #endregion
                     #endregion
-                    #region Google box
+                    #region Google page
+                    groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount, true);
+                    groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
+                    groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth, false);
+
                     tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
                     if (profile.UseGoogleCalendar?.Id != null) {
                         foreach (GoogleCalendarListEntry cle in this.cbGoogleCalendars.Items) {
@@ -434,6 +435,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                         tbClientSecret.ReadOnly = false;
                     }
 
+                    cbColourFilter.SelectedItem = profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include ? "Include" : "Exclude";
+                    GoogleOgcs.Calendar.BuildOfflineColourPicker(clbColours);
+                    cbDeleteWhenColourExcl.Checked = profile.DeleteWhenColourExcluded;
                     cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
                     cbExcludeGoals.Checked = profile.ExcludeGoals;
                     cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
@@ -444,7 +448,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         tbClientSecret.Text = Settings.Instance.PersonalClientSecret;
                     }
                     #endregion
-                    #region Sync Options box
+                    #region Sync Options page
                     groupboxSizing(gbSyncOptions_How, pbExpandHow, true);
                     groupboxSizing(gbSyncOptions_When, pbExpandWhen, false);
                     groupboxSizing(gbSyncOptions_What, pbExpandWhat, false);
@@ -1247,7 +1251,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Google
                     case "Account": section.Height = 242; break;
-                    case "GConfig": section.Height = 64; break;
+                    case "GConfig": section.Height = 122; break;
                     case "OAuth": section.Height = 174; break;
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
@@ -1486,6 +1490,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
         }
 
+        #region Google Account
         private void llMultipleOGCS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
         }
@@ -1592,6 +1597,65 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbListHiddenGcals_CheckedChanged(object sender, EventArgs e) {
             cbGoogleCalendars_BuildList();
         }
+        #endregion
+
+        #region GoogleConfig
+        #region Colours
+        private void cbColourFilter_SelectedIndexChanged(object sender, EventArgs e) {
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.ColoursRestrictBy = (cbColourFilter.SelectedItem.ToString() == "Include") ?
+                SettingsStore.Calendar.RestrictBy.Include : SettingsStore.Calendar.RestrictBy.Exclude;
+            //Invert selection
+            miColourSelectInvert_Click(null, null);
+        }
+
+        private void cbDeleteWhenColourExcl_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.DeleteWhenColourExcluded = cbDeleteWhenColourExcl.Checked;
+        }
+
+        private void clbColours_SelectedIndexChanged(object sender, EventArgs e) {
+            if (this.LoadingProfileConfig) return;
+
+            ActiveCalendarProfile.Colours.Clear();
+            foreach (object item in clbColours.CheckedItems) {
+                ActiveCalendarProfile.Colours.Add(item.ToString());
+            }
+        }
+
+        private void refreshColours() {
+            GoogleOgcs.Calendar.Instance.ColourPalette.Get();
+            GoogleOgcs.Calendar.Instance.ColourPalette.BuildPicker(clbColours);
+        }
+        private void miColourRefresh_Click(object sender, EventArgs e) {
+            refreshColours();
+        }
+        /// <summary>Shim function to work around x-thread call of BuildPicker()</summary>
+        public void miColourBuildPicker_Click(object sender, EventArgs e) {
+            CheckedListBox clb = GetControlThreadSafe(clbColours) as CheckedListBox;
+            GoogleOgcs.Calendar.Instance.ColourPalette.BuildPicker(clb);
+            SetControlPropertyThreadSafe(clbColours, "Items", clb.Items);
+        }
+        private void miColourSelectNone_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbColours.Items.Count; i++) {
+                clbColours.SetItemCheckState(i, CheckState.Unchecked);
+            }
+            clbColours_SelectedIndexChanged(null, null);
+            this.clbColours.SelectedIndexChanged += new System.EventHandler(this.clbColours_SelectedIndexChanged);
+        }
+        private void miColourSelectAll_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbColours.Items.Count; i++) {
+                clbColours.SetItemCheckState(i, CheckState.Checked);
+            }
+            clbColours_SelectedIndexChanged(null, null);
+        }
+        private void miColourSelectInvert_Click(object sender, EventArgs e) {
+            for (int i = 0; i < clbColours.Items.Count; i++) {
+                clbColours.SetItemChecked(i, !clbColours.CheckedIndices.Contains(i));
+            }
+            clbColours_SelectedIndexChanged(null, null);
+        }
+        #endregion
 
         private void cbExcludeDeclinedInvites_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeDeclinedInvites = cbExcludeDeclinedInvites.Checked;
@@ -1599,6 +1663,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeGoals = cbExcludeGoals.Checked;
         }
+        #endregion
 
         #region Developer Options
         private void cbShowDeveloperOptions_CheckedChanged(object sender, EventArgs e) {
@@ -1654,7 +1719,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             ActiveCalendarProfile.SyncDirection = (Sync.Direction)syncDirection.SelectedItem;
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
-                cbDeleteWhenCatExcl.Visible = true;
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = Sync.Direction.OutlookToGoogle.Id - 1;
 
@@ -1674,7 +1738,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lWhatExcludeInfo.Left = 207;
                 cbExcludeTentative.Visible = true;
             } else {
-                cbDeleteWhenCatExcl.Visible = false;
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
 
@@ -1966,20 +2029,20 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!Settings.Instance.UsingPersonalAPIkeys()) {
                 //Fair usage - most frequent sync interval is 2 hours when Push enabled
                 tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
-                if (cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
+                    if (cbIntervalUnit.SelectedItem.ToString() == "Minutes") {
                     if ((int)tbInterval.Value < MinSyncMinutes)
-                        tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : MinSyncMinutes;
+                            tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : MinSyncMinutes;
                     else if ((int)tbInterval.Value > MinSyncMinutes) {
                         tbInterval.Value = (MinSyncMinutes / 60) + 1;
-                        cbIntervalUnit.Text = "Hours";
-                    }
+                            cbIntervalUnit.Text = "Hours";
+                        }
 
-                } else if (cbIntervalUnit.SelectedItem.ToString() == "Hours") {
+                    } else if (cbIntervalUnit.SelectedItem.ToString() == "Hours") {
                     if (((int)tbInterval.Value * 60) < MinSyncMinutes)
-                        tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : (MinSyncMinutes / 60);
+                            tbInterval.Value = (tbInterval.Value < Convert.ToInt16(tbInterval.Text)) ? 0 : (MinSyncMinutes / 60);
+                    }
+                    tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
                 }
-                tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
-            }
 
             ActiveCalendarProfile.SyncInterval = (int)tbInterval.Value;
             ActiveCalendarProfile.OgcsTimer.SetNextSync();
@@ -1987,7 +2050,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbIntervalUnit_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < MinSyncMinutes) {
+                if (cbIntervalUnit.Text == "Minutes" && (int)tbInterval.Value > 0 && (int)tbInterval.Value < MinSyncMinutes) {
                 tbInterval.Value = MinSyncMinutes;
             }
             ActiveCalendarProfile.SyncIntervalUnit = cbIntervalUnit.Text;
@@ -2379,20 +2442,20 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
 
         #region Thread safe access to form components
-        //private delegate Control getControlThreadSafeDelegate(Control control);
+        private delegate Control getControlThreadSafeDelegate(Control control);
 
-        private delegate void setControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
         private delegate object getControlPropertyThreadSafeDelegate(Control control, string propertyName);
+        private delegate void setControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
 
         private delegate void callControlMethodThreadSafeDelegate(Control control, string methodName, object methodArgValue);
 
-        //private static Control getControlThreadSafe(Control control) {
-        //    if (control.InvokeRequired) {
-        //        return (Control)control.Invoke(new getControlThreadSafeDelegate(getControlThreadSafe), new object[] { control });
-        //    } else {
-        //        return control;
-        //    }
-        //}
+        public static Control GetControlThreadSafe(Control control) {
+            if (control.InvokeRequired) {
+                return (Control)control.Invoke(new getControlThreadSafeDelegate(GetControlThreadSafe), new object[] { control });
+            } else {
+                return control.GetType().InvokeMember("discarded", System.Reflection.BindingFlags.CreateInstance, null, control, null) as Control;
+            }
+        }
 
         public object GetControlPropertyThreadSafe(Control control, string propertyName) {
             if (control.InvokeRequired) {
@@ -2405,8 +2468,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (control.InvokeRequired) {
                 control.Invoke(new setControlPropertyThreadSafeDelegate(SetControlPropertyThreadSafe), new object[] { control, propertyName, propertyValue });
             } else {
+                if (control is CheckedListBox && propertyValue is CheckedListBox.ObjectCollection) {
+                    (control as CheckedListBox).Items.AddRange(propertyValue as CheckedListBox.ObjectCollection);
+                    return;
+                }
                 var theObject = control.GetType().InvokeMember(propertyName, System.Reflection.BindingFlags.SetProperty, null, control, new object[] { propertyValue });
-                if (control.GetType().Name == "TextBox") {
+                if (control is TextBox) {
                     TextBox tb = control as TextBox;
                     tb.SelectionStart = tb.Text.Length;
                     tb.ScrollToCaret();

@@ -25,9 +25,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         Authenticator = new GoogleOgcs.Authenticator()
                     };
                     instance.Authenticator.GetAuthenticated();
-                    if (instance.Authenticator.Authenticated)
+                    if (instance.Authenticator.Authenticated) {
                         instance.Authenticator.OgcsUserStatus();
-                    else {
+                        _ = instance.ColourPalette;
+                    } else {
                         instance = null;
                         if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
                             throw new OperationCanceledException();
@@ -41,6 +42,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public Calendar() { }
         private Boolean openedIssue1593 = false;
         public GoogleOgcs.Authenticator Authenticator;
+
+        /// <summary>Google Events excluded through user config <Event.Id, Appt.EntryId></summary>
+        public Dictionary<String, String> ExcludedByColour { get; private set; }
 
         private GoogleOgcs.EventColour colourPalette;
 
@@ -271,6 +275,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public List<Event> GetCalendarEntriesInRange(DateTime from, DateTime to) {
             List<Event> result = new List<Event>();
+            ExcludedByColour = new Dictionary<String, String>();
             Events request = null;
             String pageToken = null;
             Int16 pageNum = 1;
@@ -339,6 +344,25 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            //Colours
+            List<Event> colour = new List<Event>();
+            if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
+                colour = result.Where(ev => (profile.Colours.Count() == 0 || (String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains("<Default calendar colour>")) ||
+                    !String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId)))).ToList();
+
+            } else if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
+                colour = result.Where(ev => (profile.Colours.Count() > 0 && (String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains("<Default calendar colour>")) ||
+                        !String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId)))).ToList();
+            }
+            if (colour.Count > 0) {
+                log.Debug(colour.Count + " Google items contain a colour that is filtered out.");
+            }
+            foreach (Event ev in colour) {
+                ExcludedByColour.Add(ev.Id, CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId));
+            }
+            result = result.Except(colour).ToList();
+
+            //Availability, Privacy
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
                     List<Event> availability = result.Where(ev => profile.ExcludeFree && ev.Transparency == "transparent").ToList();
@@ -363,6 +387,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
+            //Invitation
             if (profile.ExcludeDeclinedInvites) {
                 List<Event> declined = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) && ev.Attendees != null && ev.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1).ToList();
                 if (declined.Count > 0) {
@@ -371,6 +396,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
+            //Goals
             if ((IsDefaultCalendar() ?? true) && profile.ExcludeGoals) {
                 List<Event> goals = result.Where(ev =>
                     !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
@@ -1366,12 +1392,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
             }
 
-            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && !profile.DeleteWhenCategoryExcluded) {
+            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
                 //Check if Google items to be deleted were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) &&
-                        OutlookOgcs.Calendar.Instance.ExcludedByCategory.Contains(CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId))) {
+                    if (OutlookOgcs.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
+                        OutlookOgcs.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId) ?? "")) {
                         google.Remove(google[g]);
+                    }
+                }
+            }
+            if (outlook.Count > 0 && GoogleOgcs.Calendar.Instance.ExcludedByColour.Count > 0) {
+                //Check if Outlook items to be created were filtered out from Google
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (ExcludedByColour.ContainsValue(outlook[o].EntryID) ||
+                        ExcludedByColour.ContainsKey(OutlookOgcs.CustomProperty.Get(outlook[o], OutlookOgcs.CustomProperty.MetadataId.gEventID) ?? "")) {
+                        outlook.Remove(outlook[o]);
                     }
                 }
             }
@@ -2155,6 +2190,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 OGCSexception.Analyse(ex);
                 return null;
         }
+        }
+
+        /// <summary>
+        /// Build colour list from any saved in Settings, instead of downloading from Google.
+        /// </summary>
+        /// <param name="clb">The checklistbox to populate with the colours.</param>
+        public static void BuildOfflineColourPicker(System.Windows.Forms.CheckedListBox clb) {
+            if (IsInstanceNull || !Instance.Authenticator.Authenticated) {
+                clb.BeginUpdate();
+                clb.Items.Clear();
+                foreach (String colour in Forms.Main.Instance.ActiveCalendarProfile.Colours) {
+                    clb.Items.Add(colour, true);
+                }
+                clb.EndUpdate();
+            } else {
+                Instance.ColourPalette.BuildPicker(clb);
+            }
         }
         #endregion
 

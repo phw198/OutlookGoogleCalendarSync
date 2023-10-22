@@ -47,6 +47,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             //Google
             UseGoogleCalendar = new GoogleCalendarListEntry();
             CloakEmail = true;
+            ColoursRestrictBy = RestrictBy.Exclude;
+            DeleteWhenColourExcluded = true;
+            Colours = new List<String>();
             ExcludeDeclinedInvites = true;
             ExcludeGoals = true;
 
@@ -127,6 +130,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         #region Google
         [DataMember] public GoogleCalendarListEntry UseGoogleCalendar { get; set; }
         [DataMember] public Boolean CloakEmail { get; set; }
+        [DataMember] public RestrictBy ColoursRestrictBy { get; set; }
+        [DataMember] public Boolean DeleteWhenColourExcluded { get; set; }
+        [DataMember] public List<string> Colours { get; set; }
         [DataMember] public Boolean ExcludeDeclinedInvites { get; set; }
         [DataMember] public Boolean ExcludeGoals { get; set; }
         #endregion
@@ -272,6 +278,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Colour Filter: " + ColoursRestrictBy.ToString());
+            log.Info("  Delete When Excluded:" + DeleteWhenColourExcluded);
+            log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
             log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
             log.Info("  Cloak Email: " + CloakEmail);
