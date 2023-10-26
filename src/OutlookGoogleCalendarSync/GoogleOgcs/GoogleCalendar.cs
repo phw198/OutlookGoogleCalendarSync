@@ -460,10 +460,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
-            ev.Summary = Obfuscate.ApplyRegex(ai.Subject, null, Sync.Direction.OutlookToGoogle);
+            ev.Summary = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, null, Sync.Direction.OutlookToGoogle);
             if (profile.AddDescription) {
                 try {
-                    ev.Description = ai.Body;
+                    ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body, null, Sync.Direction.OutlookToGoogle);
                 } catch (System.Exception ex) {
                     if (OGCSexception.GetErrorCode(ex) == "0x80004004") {
                         Forms.Main.Instance.Console.Update("You do not have the rights to programmatically access Outlook appointment descriptions.<br/>" +
@@ -472,7 +472,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
             if (profile.AddLocation)
-                ev.Location = ai.Location;
+                ev.Location = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location, null, Sync.Direction.OutlookToGoogle);
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
             ev.Transparency = getAvailability(ai.BusyStatus, null);
             ev.ColorId = getColour(ai.Categories, null)?.Id ?? EventColour.Palette.NullPalette.Id;
@@ -779,7 +779,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
             }
 
-            String subjectObfuscated = Obfuscate.ApplyRegex(ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
+            String subjectObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
                 ev.Summary = subjectObfuscated;
             }
@@ -797,13 +797,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     {
                         outlookBody = outlookBody.Substring(0, 8 * 1024);
                     }
-                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, outlookBody, sb, ref itemModified))
-                        ev.Description = outlookBody;
+                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, outlookBody, ev.Description, Sync.Direction.OutlookToGoogle);
+                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, bodyObfuscated, sb, ref itemModified))
+                        ev.Description = bodyObfuscated;
                 }
             }
 
-            if (profile.AddLocation && Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, ai.Location, sb, ref itemModified))
-                ev.Location = ai.Location;
+            if (profile.AddLocation) {
+                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location, ev.Location, Sync.Direction.OutlookToGoogle);
+                if (Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, locationObfuscated, sb, ref itemModified))
+                    ev.Location = locationObfuscated;
+            }
 
             String gPrivacy = ev.Visibility ?? "default";
             String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
@@ -1849,9 +1853,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (profile.Obfuscation.Enabled) {
                 if (profile.Obfuscation.Direction.Id == Sync.Direction.OutlookToGoogle.Id)
-                    sigAi = Obfuscate.ApplyRegex(sigAi, null, Sync.Direction.OutlookToGoogle);
+                    sigAi = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, sigAi, null, Sync.Direction.OutlookToGoogle);
                 else
-                    sigEv = Obfuscate.ApplyRegex(sigEv, null, Sync.Direction.GoogleToOutlook);
+                    sigEv = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, sigEv, null, Sync.Direction.GoogleToOutlook);
             }
             return (sigEv == sigAi);
         }

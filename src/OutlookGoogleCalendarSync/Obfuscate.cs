@@ -8,9 +8,18 @@ namespace OutlookGoogleCalendarSync {
     [DataContract]
     public class Obfuscate {
         private static readonly ILog log = LogManager.GetLogger(typeof(Obfuscate));
-        private const int findCol = 0;
-        private const int replaceCol = 1;
-            
+
+        public enum Columns : int {
+            find = 0,
+            replace = 1,
+            target = 2
+        }
+        public enum Property {
+            Description,
+            Location,
+            Subject
+        }
+
         public Obfuscate() {
             setDefaults();
         }
@@ -37,7 +46,7 @@ namespace OutlookGoogleCalendarSync {
         private void setDefaults() {
             this.Enabled = false;
             this.Direction = Sync.Direction.OutlookToGoogle;
-            this.findReplace = new List<FindReplace>();
+            this.findReplace = new List<FindReplace> { new FindReplace(null, null, "S") } ;
         }
 
         public void SaveRegex(DataGridView data) {
@@ -48,13 +57,13 @@ namespace OutlookGoogleCalendarSync {
             }
 
             foreach (DataGridViewRow row in data.Rows) {
-                if (row.Cells[findCol].Value != null) {
+                if (row.Cells[((int)Columns.find)].Value != null) {
                     this.findReplace.Add(
                         new FindReplace(
-                            row.Cells[findCol].Value.ToString(), 
-                            row.Cells[replaceCol].Value == null ? "" : row.Cells[replaceCol].Value.ToString() 
+                            row.Cells[((int)Columns.find)].Value.ToString(), 
+                            row.Cells[((int)Columns.replace)].Value == null ? "" : row.Cells[((int)Columns.replace)].Value.ToString(),
+                            String.IsNullOrEmpty(row.Cells[((int)Columns.target)].Value?.ToString().Trim()) ? "S" : row.Cells[((int)Columns.target)].Value.ToString()
                         ));
-                    
                 }
             }
         }
@@ -62,8 +71,9 @@ namespace OutlookGoogleCalendarSync {
         public void LoadRegex(DataGridView data) {
             int dataRow = 0;
             foreach (FindReplace regex in findReplace) {
-                data.Rows[dataRow].Cells[findCol].Value = regex.find;
-                data.Rows[dataRow].Cells[replaceCol].Value = regex.replace;
+                data.Rows[dataRow].Cells[((int)Columns.find)].Value = regex.find;
+                data.Rows[dataRow].Cells[((int)Columns.replace)].Value = regex.replace;
+                data.Rows[dataRow].Cells[((int)Columns.target)].Value = String.IsNullOrEmpty(regex.target) ? "S" : regex.target;
                 data.CurrentCell = data.Rows[dataRow].Cells[0];
                 data.NotifyCurrentCellDirty(true);
                 data.NotifyCurrentCellDirty(false);
@@ -79,19 +89,24 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="target">Target calendar string, null if creating</param>
         /// <param name="direction">Direction engine is being synced</param>
         /// <returns></returns>
-        public static String ApplyRegex(String source, String target, Sync.Direction direction) {
+        public static String ApplyRegex(Property property, String source, String target, Sync.Direction direction) {
             String retStr = source ?? "";
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (profile.Obfuscation.Enabled) {
                 if (direction.Id == profile.Obfuscation.Direction.Id) {
                     foreach (FindReplace regex in profile.Obfuscation.FindReplace) {
-                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
-                            regex.find, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (property == Property.Subject && regex.target.Contains("S") ||
+                            property == Property.Location && regex.target.Contains("L") ||
+                            property == Property.Description && regex.target.Contains("D")
+                        ) {
+                            System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(
+                                regex.find, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-                        System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
-                        if (matches.Count > 0) {
-                            log.Fine("Regex has matched and altered string: " + regex.find);
-                            retStr = rgx.Replace(retStr, regex.replace ?? "");
+                            System.Text.RegularExpressions.MatchCollection matches = rgx.Matches(retStr);
+                            if (matches.Count > 0) {
+                                log.Fine("Regex has matched and altered "+ property.ToString() +" string: " + regex.find);
+                                retStr = rgx.Replace(retStr, regex.replace ?? "");
+                            }
                         }
                     }
                 } else {
@@ -104,14 +119,17 @@ namespace OutlookGoogleCalendarSync {
 
     [DataContract]
     public class FindReplace {
-        public FindReplace(String find, String replace) {
+        public FindReplace(String find, String replace, String target) {
             this.find = find;
             this.replace = replace;
+            this.target = target;
         }
 
         [DataMember]
-        public string find { get; set; }
+        public string find { get; internal set; }
         [DataMember]
-        public string replace { get; set; }
+        public string replace { get; internal set; }
+        [DataMember]
+        public string target { get; internal set; }
     }
 }

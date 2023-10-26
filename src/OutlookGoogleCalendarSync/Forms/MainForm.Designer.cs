@@ -153,6 +153,7 @@
             this.dgObfuscateRegex = new System.Windows.Forms.DataGridView();
             this.regexFind = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.regexReplace = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.regexTarget = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lDirection = new System.Windows.Forms.Label();
             this.pbExpandWhat = new System.Windows.Forms.PictureBox();
             this.pbExpandWhen = new System.Windows.Forms.PictureBox();
@@ -1710,7 +1711,8 @@
             this.dgObfuscateRegex.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgObfuscateRegex.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.regexFind,
-            this.regexReplace});
+            this.regexReplace,
+            this.regexTarget});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1723,9 +1725,9 @@
             this.dgObfuscateRegex.Name = "dgObfuscateRegex";
             this.dgObfuscateRegex.RowHeadersWidth = 27;
             this.dgObfuscateRegex.RowsDefaultCellStyle = dataGridViewCellStyle2;
-            this.dgObfuscateRegex.ShowCellToolTips = false;
             this.dgObfuscateRegex.Size = new System.Drawing.Size(351, 99);
             this.dgObfuscateRegex.TabIndex = 45;
+            this.dgObfuscateRegex.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgObfuscateRegex_CellValidating);
             this.dgObfuscateRegex.Leave += new System.EventHandler(this.dgObfuscateRegex_Leave);
             // 
             // regexFind
@@ -1733,12 +1735,22 @@
             this.regexFind.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.regexFind.HeaderText = "Find";
             this.regexFind.Name = "regexFind";
+            this.regexFind.ToolTipText = "All rules are applied in order provided using AND logic.\nSupports use of regular " +
+    "expressions.";
             // 
             // regexReplace
             // 
             this.regexReplace.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.regexReplace.HeaderText = "Replace";
             this.regexReplace.Name = "regexReplace";
+            this.regexReplace.ToolTipText = this.regexFind.ToolTipText;
+            // 
+            // regexTarget
+            // 
+            this.regexTarget.HeaderText = "Target";
+            this.regexTarget.Name = "regexTarget";
+            this.regexTarget.ToolTipText = "[S]ubject, [L]ocation, [D]escription. Multiple values allowed.";
+            this.regexTarget.Width = 50;
             // 
             // lDirection
             // 
@@ -3795,6 +3807,7 @@
         public System.Windows.Forms.DataGridView dgObfuscateRegex;
         private System.Windows.Forms.DataGridViewTextBoxColumn regexFind;
         private System.Windows.Forms.DataGridViewTextBoxColumn regexReplace;
+        private System.Windows.Forms.DataGridViewTextBoxColumn regexTarget;
         private System.Windows.Forms.Panel howMorePanel;
         private System.Windows.Forms.DomainUpDown tbTargetCalendar;
         private System.Windows.Forms.CheckBox cbPrivate;

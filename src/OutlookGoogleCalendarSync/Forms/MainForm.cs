@@ -104,8 +104,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Close obfuscation rules.");
             ToolTips.SetToolTip(cbOfuscate,
                 "Mask specified words in calendar item subject.\nTakes effect for new or updated calendar items.");
-            ToolTips.SetToolTip(dgObfuscateRegex,
-                "All rules are applied in order provided using AND logic.\nSupports use of regular expressions.");
             ToolTips.SetToolTip(cbUseGoogleDefaultReminder,
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
             ToolTips.SetToolTip(cbUseOutlookDefaultReminder,
@@ -1911,6 +1909,24 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void dgObfuscateRegex_Leave(object sender, EventArgs e) {
             ActiveCalendarProfile.Obfuscation.SaveRegex(dgObfuscateRegex);
+        }
+
+        private void dgObfuscateRegex_CellValidating(object sender, DataGridViewCellValidatingEventArgs e) {
+            if (dgObfuscateRegex.Rows[e.RowIndex].IsNewRow) return;
+            if (e.ColumnIndex != ((int)Obfuscate.Columns.target)) return;
+
+            String strVal = e.FormattedValue.ToString().ToUpper().Replace(" ", "");
+            if (String.IsNullOrEmpty(strVal)) strVal = "S";
+
+            System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex("[^SLD]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            if (rgx.IsMatch(strVal)) {
+                e.Cancel = true;
+                OgcsMessageBox.Show("Cell must only include the characters:-\r   S = Subject\r   L = Location\r   D = Description", 
+                    "Invalid target values", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            dgObfuscateRegex.Rows[e.RowIndex].Cells[((int)Obfuscate.Columns.target)].Value = strVal;
+            dgObfuscateRegex.RefreshEdit();
         }
         #endregion
         #endregion
