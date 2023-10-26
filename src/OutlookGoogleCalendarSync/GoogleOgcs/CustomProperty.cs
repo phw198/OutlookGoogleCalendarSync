@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id;
         }
 
-        public static Boolean ExistsAny(Event ev) {
+        public static Boolean ExistAnyOutlookIDs(Event ev) {
             if (Exists(ev, MetadataId.oEntryId)) return true;
             if (Exists(ev, MetadataId.oGlobalApptId)) return true;
             if (Exists(ev, MetadataId.oCalendarId)) return true;
@@ -218,6 +218,15 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Add(ref ev, MetadataId.oEntryId, ai.EntryID);
             Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
             CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
+        }
+
+        /// <summary>
+        /// Remove the Outlook appointment IDs from a Google event.
+        /// </summary>
+        public static void RemoveOutlookIDs(ref Event ev) {
+            Remove(ref ev, MetadataId.oEntryId);
+            Remove(ref ev, MetadataId.oGlobalApptId);
+            Remove(ref ev, MetadataId.oCalendarId);
         }
 
         public static void Add(ref Event ev, MetadataId key, String value) {

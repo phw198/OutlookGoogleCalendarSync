@@ -223,7 +223,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        public static Boolean ExistsAny(AppointmentItem ai) {
+        public static Boolean ExistAnyGoogleIDs(AppointmentItem ai) {
             if (Exists(ai, MetadataId.gEventID)) return true;
             if (Exists(ai, MetadataId.gCalendarId)) return true;
             return false;
@@ -262,6 +262,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Add(ref ai, MetadataId.gCalendarId, Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
             Add(ref ai, MetadataId.gEventID, ev.Id);
             LogProperties(ai, log4net.Core.Level.Debug);
+        }
+        
+        /// <summary>
+        /// Remove the Google event IDs from an Outlook appointment.
+        /// </summary>
+        public static void RemoveGoogleIDs(ref AppointmentItem ai) {
+            Remove(ref ai, MetadataId.gEventID);
+            Remove(ref ai, MetadataId.gCalendarId);
         }
 
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
