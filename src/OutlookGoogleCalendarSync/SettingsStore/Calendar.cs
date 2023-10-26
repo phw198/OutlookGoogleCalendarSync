@@ -146,6 +146,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool SetEntriesPrivate { get; set; }
         [DataMember] public String PrivacyLevel { get; set; }
         [DataMember] public bool SetEntriesAvailable { get; set; }
+        /// <summary>Set availability status for all entries</summary>
         [DataMember] public String AvailabilityStatus { get; set; }
         [DataMember] public bool SetEntriesColour { get; set; }
         /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
