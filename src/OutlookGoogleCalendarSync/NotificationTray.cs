@@ -349,6 +349,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
             if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
+                this.icon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
                 this.icon.ShowBalloonTip(
                     500,
                     "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),

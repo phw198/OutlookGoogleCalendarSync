@@ -92,7 +92,7 @@ namespace OutlookGoogleCalendarSync {
                     //https://api.country.is/
                     String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
                     Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
-                    if (ipGeoInfo.HasValues && ipGeoInfo["status"].ToString() == "success") {
+                    if (ipGeoInfo.HasValues && ipGeoInfo["status"]?.ToString() == "success") {
                         Continent = ipGeoInfo["continent"]?.ToString();
                         Country = ipGeoInfo["country"]?.ToString();
                         CountryCode = ipGeoInfo["countryCode"]?.ToString();

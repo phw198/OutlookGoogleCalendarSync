@@ -108,6 +108,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If the calendar settings in Google have a default reminder configured, use this when Outlook has no reminder.");
             ToolTips.SetToolTip(cbUseOutlookDefaultReminder,
                 "If the calendar settings in Outlook have a default reminder configured, use this when Google has no reminder.");
+            ToolTips.SetToolTip(cbAddDescription_OnlyToGoogle,
+                "Helps avoid data loss due to Google's 8Kb limit.");
             ToolTips.SetToolTip(cbAddAttendees,
                 "BE AWARE: Deleting Google event through mobile/web calendar app will notify all attendees.");
             ToolTips.SetToolTip(tbMaxAttendees,

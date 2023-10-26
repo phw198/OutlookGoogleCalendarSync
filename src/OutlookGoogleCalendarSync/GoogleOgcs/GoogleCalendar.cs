@@ -307,7 +307,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                 backoff++;
                                 if (backoff == BackoffLimit) {
                                     log.Error("API limit backoff was not successful. Retrieve failed.");
-                                    throw;
+                                    aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    OGCSexception.LogAsFail(ref aex);
+                                    throw aex;
                                 } else {
                                     int backoffDelay = (int)Math.Pow(2, backoff);
                                     log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
@@ -551,7 +553,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int backoff = 0;
             while (backoff < BackoffLimit) {
                 try {
-                    createdEvent = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id).Execute();
+                    EventsResource.InsertRequest request = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
+                    request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
+                    createdEvent = request.Execute();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
@@ -962,7 +966,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int backoff = 0;
             while (backoff < BackoffLimit) {
                 try {
-                    ev = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                    EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                    request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
+                    ev = request.Execute();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
@@ -1082,7 +1088,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int backoff = 0;
             while (backoff < BackoffLimit) {
                 try {
-                    string request = Service.Events.Delete(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                    EventsResource.DeleteRequest request = Service.Events.Delete(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, ev.Id);
+                    request.SendUpdates = EventsResource.DeleteRequest.SendUpdatesEnum.None;
+                    string result = request.Execute();
                     break;
                 } catch (Google.GoogleApiException ex) {
                     switch (HandleAPIlimits(ref ex, ev)) {
@@ -2141,9 +2149,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } else if (ex.Error?.Code == 412 && ex.Error.Message.Contains("Precondition Failed")) {
                 log.Warn("The Event has changed since it was last retrieved - attempting to force an overwrite.");
+                EventsResource.UpdateRequest request;
                 try {
-                    EventsResource.UpdateRequest request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                    request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                     request.ETagAction = Google.Apis.ETagAction.Ignore;
+                    request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
                     ev = request.Execute();
                     log.Debug("Successfully forced save by ignoring eTag values.");
                 } catch (System.Exception ex2) {
@@ -2160,7 +2170,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         log.Warn("Attempting trample of remote version...");
                         ev.ETag = remoteEv.ETag;
                         ev.Sequence = remoteEv.Sequence;
-                        ev = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id).Execute();
+                        request = GoogleOgcs.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                        request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
+                        ev = request.Execute();
                         log.Debug("Successful!");
                     } catch {
                         return ApiException.throwException;
@@ -2181,7 +2193,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static Boolean? IsDefaultCalendar() {
             try {
                 SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
+                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
                 return null;
 
                 return profile.UseGoogleCalendar.Id == Settings.Instance.GaccountEmail;
