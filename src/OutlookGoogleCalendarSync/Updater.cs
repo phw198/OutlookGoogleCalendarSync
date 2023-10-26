@@ -442,7 +442,7 @@ namespace OutlookGoogleCalendarSync {
             string html = "";
             String errorDetails = "";
             try {
-                html = new Extensions.OgcsWebClient().DownloadString("https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/latest_zip_release.md");
+                html = new Extensions.OgcsWebClient().DownloadString("https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/latest_zip_release.md");
             } catch (System.Net.WebException ex) {
                 if (OGCSexception.GetErrorCode(ex) == "0x80131509")
                     log.Warn("Failed to retrieve data (no network?): " + ex.Message);
@@ -454,19 +454,19 @@ namespace OutlookGoogleCalendarSync {
 
             if (!string.IsNullOrEmpty(html)) {
                 log.Debug("Finding Beta release...");
-                MatchCollection release = getRelease(html, @"<strong>Beta</strong>: <a href=""(.*?)"">v([\d\.]+)</a>");
+                MatchCollection release = getRelease(html, @"\*\*Beta\*\*: \[v([\d\.]+)\]\((.*?)\)");
                 if (release.Count > 0) {
                     releaseType = "Beta";
-                    releaseURL = release[0].Result("$1");
-                    releaseVersion = release[0].Result("$2");
+                    releaseURL = release[0].Result("$2");
+                    releaseVersion = release[0].Result("$1");
                 }
                 if (Settings.Instance.AlphaReleases) {
                     log.Debug("Finding Alpha release...");
-                    release = getRelease(html, @"<strong>Alpha</strong>: <a href=""(.*?)"">v([\d\.]+)</a>");
+                    release = getRelease(html, @"\*\*Alpha\*\*: \[v([\d\.]+)\]\((.*?)\)");
                     if (release.Count > 0) {
                         releaseType = "Alpha";
-                        releaseURL = release[0].Result("$1");
-                        releaseVersion = release[0].Result("$2");
+                        releaseURL = release[0].Result("$2");
+                        releaseVersion = release[0].Result("$1");
                     }
                 }
             }
