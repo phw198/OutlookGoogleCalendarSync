@@ -1220,7 +1220,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     if (!string.IsNullOrEmpty(html)) {
                         html = html.Replace("\n", "");
-                        rgx = new Regex(@"<h2><a.*?href=\""(#" + hResult + ".*?)\"", RegexOptions.IgnoreCase);
+                        rgx = new Regex(@"<h2.*?><a.*?href=\""(#" + hResult + ".*?)\"", RegexOptions.IgnoreCase);
                         MatchCollection sourceAnchors = rgx.Matches(html);
                         if (sourceAnchors.Count == 0) {
                             log.Debug("Could not find the COM error " + hResult + " in the wiki.");
