@@ -1831,7 +1831,7 @@
             this.tbInterval.ForeColor = System.Drawing.SystemColors.ControlText;
             this.tbInterval.Location = new System.Drawing.Point(94, 70);
             this.tbInterval.Maximum = new decimal(new int[] {
-            121,
+            181,
             0,
             0,
             0});
