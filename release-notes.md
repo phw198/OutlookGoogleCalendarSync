@@ -11,9 +11,41 @@ p {
 
 # Release Notes
 
+## v2.10.2.0 - Alpha
+
+:high_brightness: **Enhancements**
+- New options to:
+    - Exclude Google items based on colour [[#1553](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1553)]
+    - Exclude items based on title/subject [[#1688](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1688)]
+    - Obfuscate any of subject, location, description [[#500](https://github.com/phw198/OutlookGoogleCalendarSync/issues/500)]
+- When deletion prompt is declined, sync item instead [[#1691](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1691)]
+- If Google "Busy" status, persist Outlook statuses of: Out of office, Tentative, Working elsewhere [[#1259](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1259)]
+- Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
+
+:beetle: **Bugfix**
+- Redirect to the wiki when COM error encountered [[#1710](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1710)]
+- Fix failing check for new ZIP releases [[#1711](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1711)]
+- Detect and remove custom application recurrence rules [[#1712](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1712)]
+- Fix incorrect detection of multiple OGCS instances with same config [[#1717](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1717)]
+- Previously synced exclusion no longer deleted when reinstated [[#1686](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1686)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.10.1.0 - Alpha
 
-**Enhancements**
+:high_brightness: **Enhancements**
 - New [options to exclude](guide/syncoptions#exclusions):
     - All-day items [[#104](https://github.com/phw198/OutlookGoogleCalendarSync/issues/104)]
     - Items by availability: free, tentative [[#825](https://github.com/phw198/OutlookGoogleCalendarSync/issues/825)]
@@ -26,7 +58,7 @@ p {
     - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
 - Update of third-party DLL files
 
-**Bugfix**
+:beetle: **Bugfix**
 - Incorrect detection of deleted occurrences within a series [[#1653](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1653)]
 - Handle Outlook recurring series having different start/end time zones, which Google does not allow
 - Better API quota management
