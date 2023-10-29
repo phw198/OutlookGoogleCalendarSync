@@ -1260,7 +1260,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 228; break;
+                    case "What": section.Height = 250; break;
                     //Application Behaviour
                     case "Logging": section.Height = 111; break;
                     case "Proxy": section.Height = 197; break;
