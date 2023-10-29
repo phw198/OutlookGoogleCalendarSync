@@ -27,12 +27,12 @@
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.btUpgrade = new System.Windows.Forms.Button();
             this.wbPanel = new System.Windows.Forms.Panel();
+            this.llViewOnGithub = new System.Windows.Forms.LinkLabel();
             this.btLater = new System.Windows.Forms.Button();
             this.lSummary = new System.Windows.Forms.Label();
             this.lTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btSkipVersion = new System.Windows.Forms.Button();
-            this.llViewOnGithub = new System.Windows.Forms.LinkLabel();
             this.wbPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,6 +46,7 @@
             this.webBrowser.Size = new System.Drawing.Size(465, 166);
             this.webBrowser.TabIndex = 0;
             this.webBrowser.WebBrowserShortcutsEnabled = false;
+            this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser_Navigating);
             // 
             // btUpgrade
             // 
@@ -71,6 +72,21 @@
             this.wbPanel.Name = "wbPanel";
             this.wbPanel.Size = new System.Drawing.Size(467, 168);
             this.wbPanel.TabIndex = 2;
+            // 
+            // llViewOnGithub
+            // 
+            this.llViewOnGithub.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.llViewOnGithub.AutoSize = true;
+            this.llViewOnGithub.BackColor = System.Drawing.Color.White;
+            this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
+            this.llViewOnGithub.Name = "llViewOnGithub";
+            this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
+            this.llViewOnGithub.TabIndex = 9;
+            this.llViewOnGithub.TabStop = true;
+            this.llViewOnGithub.Text = "View Release Notes Online";
+            this.llViewOnGithub.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.llViewOnGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llViewOnGithub_LinkClicked);
             // 
             // btLater
             // 
@@ -123,21 +139,6 @@
             this.btSkipVersion.Text = "Skip This Version";
             this.btSkipVersion.UseVisualStyleBackColor = true;
             this.btSkipVersion.Click += new System.EventHandler(this.btSkipVersion_Click);
-            // 
-            // llViewOnGithub
-            // 
-            this.llViewOnGithub.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.llViewOnGithub.AutoSize = true;
-            this.llViewOnGithub.BackColor = System.Drawing.Color.White;
-            this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
-            this.llViewOnGithub.Name = "llViewOnGithub";
-            this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
-            this.llViewOnGithub.TabIndex = 9;
-            this.llViewOnGithub.TabStop = true;
-            this.llViewOnGithub.Text = "View Release Notes Online";
-            this.llViewOnGithub.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.llViewOnGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llViewOnGithub_LinkClicked);
             // 
             // UpdateInfo
             // 

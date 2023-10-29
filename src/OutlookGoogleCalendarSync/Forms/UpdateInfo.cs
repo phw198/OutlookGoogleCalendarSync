@@ -70,6 +70,16 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch { }
         }
 
+        /// <summary>
+        /// Intercept clicked links and open in default browser
+        /// </summary>
+        private void webBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
+            if (!(e.Url.ToString().Equals("about:blank", StringComparison.InvariantCultureIgnoreCase))) {
+                Helper.OpenBrowser(e.Url.ToString());
+                e.Cancel = true;
+            }
+        }
+
         private void btSkipVersion_Click(object sender, EventArgs e) {
             log.Info("User has opted to skip upgrading to this version.");
             Settings.Instance.SkipVersion = version;

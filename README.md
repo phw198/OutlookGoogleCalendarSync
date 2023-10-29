@@ -29,17 +29,17 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.0-beta/OutlookGoogleCalendarSync-2.10.0-beta-full.nupkg.svg)  
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.0-beta/OutlookGoogleCalendarSync-2.10.0-beta-delta.nupkg.svg)
 
-### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.10.1-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.1-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.10.1-alpha)
+### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.10.2-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.2-alpha/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.10.2-alpha)
 
-:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.1-alpha/OGCS_Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.1-alpha/OGCS_Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.1-alpha/OGCS_Setup.exe)
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.2-alpha/OGCS_Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.2-alpha/OGCS_Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.2-alpha/OGCS_Setup.exe)
 
-:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.1-alpha/Portable_OGCS_v2.10.1.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.1-alpha/Portable_OGCS_v2.10.1.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.1-alpha/Portable_OGCS_v2.10.1.zip)
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.2-alpha/Portable_OGCS_v2.10.2.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.2-alpha/Portable_OGCS_v2.10.2.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.10.2-alpha/Portable_OGCS_v2.10.2.zip)
 
 :information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.1-alpha/OutlookGoogleCalendarSync-2.10.1-alpha-full.nupkg.svg)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.1-alpha/OutlookGoogleCalendarSync-2.10.1-alpha-delta.nupkg.svg)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.2-alpha/OutlookGoogleCalendarSync-2.10.2-alpha-full.nupkg.svg)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.10.2-alpha/OutlookGoogleCalendarSync-2.10.2-alpha-delta.nupkg.svg)
 
 ## Functionality
 - Supports all versions of Outlook from 2003 to 2019/Microsoft365 64-bit!
@@ -61,7 +61,9 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
 - Exclude calendar items by:
    - Availability (free/tentative)
    - Privacy (private)
-   - Category
+   - Title/subject
+   - Outlook category
+   - Google colour
 - Differential comparison updates only attributes that have changed
 - Customisable date range to synchronise, past and future
 - Frequency of automatic syncs, including push-sync from Outlook
