@@ -105,11 +105,12 @@ These settings operating differently according to your sync direction. When cale
 * One-way: both newly created items will be not be synced _and_ previously synced will be removed.
 * Two-way: only newly created items will be not be synced to the target calendar.   
 
-If greater control is needed around what should sync, [include or excluding Outlook categories](outlook#filtering) that are manually assigned to individual items may suit better.
+If greater control is needed around what should sync, include or excluding [Outlook categories](outlook#filtering) / [Google colours](google#filtering) that are manually assigned to individual items may suit better.
 
 **Availability:** Exclude calendar items marked as _Free_ or _Tentative_. Note that Tentative is only available when syncing from Outlook.  
 **Privacy:** Exclude calendar items marked as _Private_.  
-**All-Day:** Exclude all-day calendar items, or those spanning several days from midnight to midnight. Optionally, only exclude all-day items that are marked _Free_.
+**All-Day:** Exclude all-day calendar items, or those spanning several days from midnight to midnight. Optionally, only exclude all-day items that are marked _Free_.  
+**Subject that contains:** Exclude any items with subjects/titles that match this search string. Supports [regular expressions](https://www.regular-expressions.info).  
 
 <p>&nbsp;</p>
 {% include navigation-buttons.html %}

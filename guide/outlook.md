@@ -23,8 +23,8 @@ This is where you configure the Outlook calendar you wish to sync.
 ### Filtering
 **Filter categories:** Restrict the items to be synced by either excluding or including various categories that have been assigned to calendar appointments. Your selection will automatically invert which switching between include or exclude. The default is to not exclude anything.
 
-**Delete synced items if excluded:** This is only relevant for two-way sync - by default, excluded Outlook calendar items _will_ be deleted from the Google calendar.  
-In some more complex configuratons, it may be desirable to stop this behaviour. For example, syncing a Google calendar to Outlook for colleagues to have visiblity, but needing to mark Outlook as _Free_ so the calendar is not blocked out; this can be achieved by manually setting the availability and assigning an excluded category.  
+**Delete synced items if excluded:** By default this is checked and excluded Outlook calendar items _will_ be deleted from the Google calendar if they have previously been synced.  
+In some more complex configuratons, it may be desirable to stop this behaviour. For example, two-way syncing a Google calendar to Outlook for colleagues to have visiblity, but needing to mark Outlook as _Free_ so the calendar is not blocked out and not having that sync back to Google. This can be achieved by  setting the availability, assigning an excluded category and _not_ deleting items with excluded categories.  
 **Only sync invites I've responded to:** Exclude invitations without a response.
 
 ### Date Format
