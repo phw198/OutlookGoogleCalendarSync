@@ -11,7 +11,11 @@ p {
 
 # Release Notes
 
-<p style="font-family: 'Kalam', cursive; font-size: 18px; margin-left: -27px; color: royalblue;">:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap" rel="stylesheet">
+
+<p style="font-family: 'Kalam', cursive; font-size: 19px; text-indent: -24px; color: royalblue;">:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
   <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
     <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="padding-top:4px; position: relative; top: 8px;">
   </a></nobr>
