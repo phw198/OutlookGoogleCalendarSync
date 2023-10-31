@@ -11,6 +11,23 @@ p {
 
 # Release Notes
 
+<p style="font-family: 'Kalam', cursive; font-size: 18px; margin-left: -27px; color: royalblue;">:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
+  <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
+    <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="padding-top:4px; position: relative; top: 8px;">
+  </a></nobr>
+</p>
+<br/>&nbsp;<br/>
+
+<script>
+  var donate_item_name = "Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section";
+  var gaccount = new URL(window.location.href).searchParams.get("id");
+  if (gaccount != null && gaccount != "") {
+    donate_item_name = "Outlook Google Calendar Sync from " + atob(gaccount);
+  }
+  var paypalUrl = document.getElementById("donateButton")
+  document.getElementById("donateButton").href += donate_item_name
+</script>
+
 ## v2.10.2.0 - Alpha
 
 :high_brightness: **Enhancements**
