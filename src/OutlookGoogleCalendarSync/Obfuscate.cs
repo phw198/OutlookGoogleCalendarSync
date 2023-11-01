@@ -33,7 +33,10 @@ namespace OutlookGoogleCalendarSync {
                 return this.findReplace ?? new List<FindReplace>();
             }
             set {
-                this.findReplace = value;
+                this.findReplace.Clear();
+                foreach (FindReplace fr in value) {
+                    this.findReplace.Add(new FindReplace(fr.find, fr.replace, fr.target));
+                }
             }
         }
 
@@ -122,7 +125,7 @@ namespace OutlookGoogleCalendarSync {
         public FindReplace(String find, String replace, String target) {
             this.find = find;
             this.replace = replace;
-            this.target = target;
+            this.target = target ?? "S";
         }
 
         [DataMember]
