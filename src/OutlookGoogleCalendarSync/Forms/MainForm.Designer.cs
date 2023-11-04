@@ -1492,15 +1492,16 @@
             // 
             // lGoogleHelp
             // 
+            this.lGoogleHelp.AutoSize = true;
             this.lGoogleHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lGoogleHelp.ForeColor = System.Drawing.SystemColors.ControlText;
             this.lGoogleHelp.Location = new System.Drawing.Point(145, 99);
             this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
             this.lGoogleHelp.Name = "lGoogleHelp";
-            this.lGoogleHelp.Size = new System.Drawing.Size(199, 52);
+            this.lGoogleHelp.Size = new System.Drawing.Size(169, 52);
             this.lGoogleHelp.TabIndex = 9;
-            this.lGoogleHelp.Text = "If this is the first time, you\'ll need to authorise the app to connect.\r\nJust tak" +
-    "es a few clicks and your password is never exposed.";
+            this.lGoogleHelp.Text = "If this is the first time, you\'ll need to\r\nauthorise the app to connect.\r\nJust ta" +
+    "kes a few clicks and your\r\npassword is never exposed.";
             // 
             // btResetGCal
             // 
@@ -1524,9 +1525,9 @@
             this.label13.Location = new System.Drawing.Point(143, 158);
             this.label13.MaximumSize = new System.Drawing.Size(200, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(189, 26);
+            this.label13.Size = new System.Drawing.Size(192, 26);
             this.label13.TabIndex = 28;
-            this.label13.Text = "Disconnect the Google account the application is using to synchronise with\r\n";
+            this.label13.Text = "Disconnect the Google account the application is using to synchronise with.\r\n";
             // 
             // tbConnectedAcc
             // 
