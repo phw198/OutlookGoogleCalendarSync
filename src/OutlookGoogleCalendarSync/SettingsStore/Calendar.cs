@@ -275,7 +275,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             }
             log.Info("  Calendar: " + (UseOutlookCalendar.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar.ToString());
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
-            log.Info("  Delete When Excluded:" + DeleteWhenCategoryExcluded);
+            log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
@@ -284,7 +284,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("GOOGLE SETTINGS:-");
             log.Info("  Calendar: " + (UseGoogleCalendar?.Id == null ? "" : UseGoogleCalendar.ToString(true)));
             log.Info("  Colour Filter: " + ColoursRestrictBy.ToString());
-            log.Info("  Delete When Excluded:" + DeleteWhenColourExcluded);
+            log.Info("  Delete When Excluded: " + DeleteWhenColourExcluded);
             log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
             log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
