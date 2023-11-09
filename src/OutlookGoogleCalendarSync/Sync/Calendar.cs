@@ -114,6 +114,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                         mainFrm.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
                             " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
                         mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
+                        if (Sync.Engine.Calendar.Instance.Profile.OutlookGalBlocked) 
+                            mainFrm.Console.BuildOutput("<div style='font-size:11px; padding-top:5px'>Corporate policy/anti-virus is restricting certain functionality. "+
+                                "This may prevent proper detection of meeting organiser's time zones.</div>", ref sb);
 
                         //Make the clock emoji show the right time
                         int minsPastHour = DateTime.Now.Minute;
