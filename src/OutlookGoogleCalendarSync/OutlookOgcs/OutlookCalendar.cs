@@ -590,7 +590,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
             if (profile.AddDescription) {
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
-                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, ai.Body, Sync.Direction.OutlookToGoogle);
+                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, ai.Body, Sync.Direction.GoogleToOutlook);
                     if (bodyObfuscated.Length == 8 * 1024 && ai.Body.Length > 8 * 1024) {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
@@ -601,7 +601,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             if (profile.AddLocation) {
-                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Location, ai.Location, Sync.Direction.OutlookToGoogle);
+                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Location, ai.Location, Sync.Direction.GoogleToOutlook);
                 if (Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, locationObfuscated, ai.Location, sb, ref itemModified))
                     ai.Location = ev.Location;
             }
