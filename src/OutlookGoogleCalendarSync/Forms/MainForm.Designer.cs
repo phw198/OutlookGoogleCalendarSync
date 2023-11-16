@@ -1495,8 +1495,8 @@
             this.lGoogleHelp.AutoSize = true;
             this.lGoogleHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lGoogleHelp.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lGoogleHelp.Location = new System.Drawing.Point(145, 99);
-            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 52);
+            this.lGoogleHelp.Location = new System.Drawing.Point(145, 97);
+            this.lGoogleHelp.MaximumSize = new System.Drawing.Size(220, 0);
             this.lGoogleHelp.Name = "lGoogleHelp";
             this.lGoogleHelp.Size = new System.Drawing.Size(169, 52);
             this.lGoogleHelp.TabIndex = 9;
