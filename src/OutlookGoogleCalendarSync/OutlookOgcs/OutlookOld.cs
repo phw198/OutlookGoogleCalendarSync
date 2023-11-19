@@ -417,7 +417,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
             }
         }
-        
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
@@ -816,10 +816,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
             return ai.End;
         }
-        
+
         public String GetEndTimeZoneID(AppointmentItem ai) {
             return "UTC";
         }
         #endregion
+
+        public void AddRtfBody(ref AppointmentItem ai, String RtfDocument) { }
     }
 }

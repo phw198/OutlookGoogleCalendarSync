@@ -95,6 +95,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Include hidden calendars in the above drop down.");
             ToolTips.SetToolTip(cbDeleteWhenColourExcl,
                 "If items are already synced in Outlook and subsequently excluded by a colour filter.");
+            ToolTips.SetToolTip(cbAddGMeet,
+                "Sync conference details embedded in Outlook appointment body.");
 
             //Settings
             ToolTips.SetToolTip(tbInterval,
@@ -443,7 +445,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
                     cbExcludeGoals.Checked = profile.ExcludeGoals;
                     cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
-
+                    cbAddGMeet.Checked = profile.AddGMeet;
+                    
                     if (Settings.Instance.UsingPersonalAPIkeys()) {
                         cbShowDeveloperOptions.Checked = true;
                         tbClientID.Text = Settings.Instance.PersonalClientIdentifier;
@@ -607,23 +610,37 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             if (isTrue) {
-                SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
-                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
-                SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
-                cbAddAttendees.ForeColor = SystemColors.GrayText;
-                cbAddDescription.ForeColor = SystemColors.GrayText;
-                rbOutlookSharedCal.ForeColor = SystemColors.GrayText;
+                checkboxSoftRestrict(cbAddAttendees, true);
+                checkboxSoftRestrict(cbAddDescription, true);
+                checkboxSoftRestrict(rbOutlookSharedCal, true);
+                checkboxSoftRestrict(cbAddGMeet, true);
                 //If a sync is running, disable relevant config in that profile
                 SettingsStore.Calendar activeProfile = Settings.Profile.InPlay();
                 if (activeProfile != null) {
                     activeProfile.AddAttendees = false;
                     activeProfile.AddDescription = false;
+                    activeProfile.AddGMeet = false;
                 }
             } else {
-                cbAddAttendees.ForeColor = SystemColors.ControlText;
-                cbAddDescription.ForeColor = SystemColors.ControlText;
-                rbOutlookSharedCal.ForeColor = SystemColors.ControlText;
+                checkboxSoftRestrict(cbAddAttendees, false);
+                checkboxSoftRestrict(cbAddDescription, false);
+                checkboxSoftRestrict(rbOutlookSharedCal, false);
+                checkboxSoftRestrict(cbAddGMeet, false);
+            }
+        }
+
+        /// <summary>
+        /// Make a checkbox look disabled, but still able to show a tooltip
+        /// </summary>
+        /// <param name="cb">The form control</param>
+        /// <param name="disable">Disable or enable</param>
+        private void checkboxSoftRestrict(Control cb, Boolean disable) {
+            if (disable) {
+                cb.ForeColor = SystemColors.GrayText;
+                SetControlPropertyThreadSafe(cb, "Checked", false);
+            } else {
+                cb.ForeColor = SystemColors.ControlText;
             }
         }
 
@@ -1255,7 +1272,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Google
                     case "Account": section.Height = 242; break;
-                    case "GConfig": section.Height = 122; break;
+                    case "GConfig": section.Height = 130; break;
                     case "OAuth": section.Height = 174; break;
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
@@ -1667,6 +1684,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeGoals = cbExcludeGoals.Checked;
         }
+        private void cbGMeet_CheckedChanged(object sender, EventArgs e) {
+            if (!this.LoadingProfileConfig && !cbAddDescription.Checked) {
+                cbAddGMeet.Checked = false;
+            }
+            ActiveCalendarProfile.AddGMeet = cbAddGMeet.Checked;
+        }
+
         #endregion
 
         #region Developer Options
@@ -2161,6 +2185,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             ActiveCalendarProfile.AddDescription = cbAddDescription.Checked;
             cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
+            checkboxSoftRestrict(cbAddGMeet, !cbAddDescription.Checked);
+            ToolTips.SetToolTip(cbAddGMeet, cbAddDescription.Checked ? "Sync conference details embedded in Outlook appointment body." : "Requires sync of Description (under Options > What)");
             showWhatPostit("Description");
         }
         private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {

@@ -115,6 +115,7 @@
             this.lClientID = new System.Windows.Forms.Label();
             this.lSecret = new System.Windows.Forms.Label();
             this.gbGoogle_GConfig = new System.Windows.Forms.GroupBox();
+            this.cbAddGMeet = new System.Windows.Forms.CheckBox();
             this.cbDeleteWhenColourExcl = new System.Windows.Forms.CheckBox();
             this.label35 = new System.Windows.Forms.Label();
             this.cbColourFilter = new System.Windows.Forms.ComboBox();
@@ -1100,7 +1101,7 @@
             // 
             this.pbExpandGoogleOauth.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandGoogleOauth.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandGoogleOauth.Location = new System.Drawing.Point(1, 394);
+            this.pbExpandGoogleOauth.Location = new System.Drawing.Point(1, 402);
             this.pbExpandGoogleOauth.Name = "pbExpandGoogleOauth";
             this.pbExpandGoogleOauth.Size = new System.Drawing.Size(20, 20);
             this.pbExpandGoogleOauth.TabIndex = 50;
@@ -1111,7 +1112,7 @@
             // cbShowDeveloperOptions
             // 
             this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(23, 374);
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(23, 382);
             this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
             this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
             this.cbShowDeveloperOptions.TabIndex = 48;
@@ -1154,7 +1155,7 @@
             this.gbGoogle_OAuth.Controls.Add(this.lSecret);
             this.gbGoogle_OAuth.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbGoogle_OAuth.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbGoogle_OAuth.Location = new System.Drawing.Point(10, 397);
+            this.gbGoogle_OAuth.Location = new System.Drawing.Point(10, 405);
             this.gbGoogle_OAuth.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbGoogle_OAuth.Name = "gbGoogle_OAuth";
             this.gbGoogle_OAuth.Size = new System.Drawing.Size(368, 174);
@@ -1260,6 +1261,7 @@
             // 
             this.gbGoogle_GConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle_GConfig.Controls.Add(this.cbAddGMeet);
             this.gbGoogle_GConfig.Controls.Add(this.cbDeleteWhenColourExcl);
             this.gbGoogle_GConfig.Controls.Add(this.label35);
             this.gbGoogle_GConfig.Controls.Add(this.cbColourFilter);
@@ -1271,10 +1273,23 @@
             this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 246);
             this.gbGoogle_GConfig.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbGoogle_GConfig.Name = "gbGoogle_GConfig";
-            this.gbGoogle_GConfig.Size = new System.Drawing.Size(368, 122);
+            this.gbGoogle_GConfig.Size = new System.Drawing.Size(368, 130);
             this.gbGoogle_GConfig.TabIndex = 45;
             this.gbGoogle_GConfig.TabStop = false;
             this.gbGoogle_GConfig.Text = "  Sync Configuration";
+            // 
+            // cbAddGMeet
+            // 
+            this.cbAddGMeet.AutoSize = true;
+            this.cbAddGMeet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbAddGMeet.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbAddGMeet.Location = new System.Drawing.Point(13, 109);
+            this.cbAddGMeet.Name = "cbAddGMeet";
+            this.cbAddGMeet.Size = new System.Drawing.Size(150, 17);
+            this.cbAddGMeet.TabIndex = 54;
+            this.cbAddGMeet.Text = "Include Meet conferences";
+            this.cbAddGMeet.UseVisualStyleBackColor = true;
+            this.cbAddGMeet.CheckedChanged += new System.EventHandler(this.cbGMeet_CheckedChanged);
             // 
             // cbDeleteWhenColourExcl
             // 
@@ -4203,5 +4218,6 @@
         public System.Windows.Forms.ComboBox cbColourFilter;
         public System.Windows.Forms.CheckedListBox clbColours;
         private System.Windows.Forms.CheckBox cbDeleteWhenColourExcl;
+        private System.Windows.Forms.CheckBox cbAddGMeet;
     }
 }
