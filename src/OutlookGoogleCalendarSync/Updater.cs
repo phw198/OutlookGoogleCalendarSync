@@ -211,7 +211,7 @@ namespace OutlookGoogleCalendarSync {
                                         //File does not exist: C:\Users\Paul\AppData\Local\OutlookGoogleCalendarSync\packages\OutlookGoogleCalendarSync-2.8.4-alpha-full.nupkg
                                         //Extract the nupkg filename
                                         String regexMatch = ".*" + updates.PackageDirectory.Replace(@"\", @"\\") + @"\\(.*?([\d\.]+-\w+).*)$";
-                                        System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(ex.InnerException.Message, regexMatch);
+                                        Match match = Regex.Match(ex.InnerException.Message, regexMatch);
 
                                         if (match?.Groups?.Count == 3) {
                                             log.Warn("Could not update due to missing file " + match.Groups[1]);

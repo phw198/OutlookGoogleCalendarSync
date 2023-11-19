@@ -503,7 +503,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Version = Application.ProductVersion;
                 if (isHotFix) {
                     if (!(Settings.Instance.CloudLogging ?? false) | Settings.Instance.TelemetryDisabled) {
-                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "cloud logging" : "");
+                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "automatic feedback of errors" : "");
                         if (Settings.Instance.TelemetryDisabled) {
                             if (!String.IsNullOrEmpty(disabledSetting)) disabledSetting += " and ";
                             disabledSetting += "telemetry";
