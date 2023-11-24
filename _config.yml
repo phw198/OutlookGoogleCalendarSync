@@ -67,5 +67,3 @@ exclude:
   - jekyll-architect-theme.gemspec
   - src
   - _posts/2014-04-06-welcome-to-jekyll.markdown
-include: 
-  - .well-known
