@@ -398,6 +398,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
             } else ai.ReminderSet = profile.UseOutlookDefaultReminder;
 
+            if (profile.AddGMeet && !String.IsNullOrEmpty(ev.HangoutLink)) {
+                ai.GoogleMeet(ev.HangoutLink);
+            }
+
             //Add the Google event IDs into Outlook appointment.
             CustomProperty.AddGoogleIDs(ref ai, ev);
         }
@@ -589,19 +593,46 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ai.Subject = summaryObfuscated;
             }
             if (profile.AddDescription) {
+                String oGMeetUrl = CustomProperty.Get(ai, CustomProperty.MetadataId.gMeetUrl);
+
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
-                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, ai.Body, Sync.Direction.OutlookToGoogle);
-                    if (bodyObfuscated.Length == 8 * 1024 && ai.Body.Length > 8 * 1024) {
+                    String aiBody = ai.Body?.RemoveLineBreaks();
+                    Boolean descriptionChanged = false;
+                    if (!String.IsNullOrEmpty(aiBody)) {
+                        Regex htmlDataTag = new Regex(@"<data:image.*?>");
+                        aiBody = htmlDataTag.Replace(aiBody, "");
+                        aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, ai.BodyFormat()).RemoveLineBreaks(), "").Trim();
+                    }
+                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description, @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
+                    if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
-                        if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, bodyObfuscated, ai.Body, sb, ref itemModified))
+                        String evBodyForCompare = bodyObfuscated;
+                        switch (ai.BodyFormat()) {
+                            case OlBodyFormat.olFormatHTML:
+                                evBodyForCompare = Regex.Replace(bodyObfuscated, "[\n]+", " "); break;
+                            case OlBodyFormat.olFormatRichText:
+                                evBodyForCompare = Regex.Replace(bodyObfuscated, "[\n]", ""); break;
+                            case OlBodyFormat.olFormatPlain:
+                                evBodyForCompare = Regex.Replace(bodyObfuscated, "[\n]", ""); break;
+                        }
+                        if (descriptionChanged = Sync.Engine.CompareAttribute("Description", Sync.Direction.GoogleToOutlook, evBodyForCompare, aiBody, sb, ref itemModified))
                             ai.Body = bodyObfuscated;
+                    }
+                    if (profile.AddGMeet) {
+                        if (descriptionChanged || Sync.Engine.CompareAttribute("Google Meet", Sync.Direction.GoogleToOutlook, ev.HangoutLink, oGMeetUrl, sb, ref itemModified)) {
+                            ai.GoogleMeet(ev.HangoutLink);
+                            if (String.IsNullOrEmpty(ev.HangoutLink) && !String.IsNullOrEmpty(oGMeetUrl) && !descriptionChanged) {
+                                log.Debug("Removing GMeet information from body.");
+                                ai.Body = bodyObfuscated;
+                            }
+                        }
                     }
                 }
             }
 
             if (profile.AddLocation) {
-                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Location, ai.Location, Sync.Direction.OutlookToGoogle);
+                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Location, ai.Location, Sync.Direction.GoogleToOutlook);
                 if (Sync.Engine.CompareAttribute("Location", Sync.Direction.GoogleToOutlook, locationObfuscated, ai.Location, sb, ref itemModified))
                     ai.Location = ev.Location;
             }
