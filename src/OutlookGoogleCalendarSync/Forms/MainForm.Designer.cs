@@ -3819,12 +3819,15 @@
             this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn1.HeaderText = "Find";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ToolTipText = "All rules are applied in order provided using AND logic.\nSupports use of regular " +
+    "expressions.";
             // 
             // dataGridViewTextBoxColumn2
             // 
             this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn2.HeaderText = "Replace";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ToolTipText = this.dataGridViewTextBoxColumn1.ToolTipText;
             // 
             // dataGridViewTextBoxColumn3
             // 
@@ -3834,7 +3837,7 @@
             this.dataGridViewTextBoxColumn3.HeaderText = "AboutName";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             this.dataGridViewTextBoxColumn3.ReadOnly = true;
-            this.dataGridViewTextBoxColumn3.Width = 5;
+            this.dataGridViewTextBoxColumn3.ToolTipText = "[S]ubject, [L]ocation, [D]escription. Multiple values allowed.";
             // 
             // dataGridViewTextBoxColumn4
             // 
