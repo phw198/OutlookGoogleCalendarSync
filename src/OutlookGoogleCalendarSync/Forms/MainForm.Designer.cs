@@ -70,17 +70,10 @@
             this.miRenameProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.tabAppSettings = new System.Windows.Forms.TabControl();
             this.tabOutlook = new System.Windows.Forms.TabPage();
-            this.btCustomTzMap = new System.Windows.Forms.Button();
-            this.cbOutlookCalendars = new System.Windows.Forms.ComboBox();
-            this.lFilterCategories = new System.Windows.Forms.Label();
-            this.cbCategoryFilter = new System.Windows.Forms.ComboBox();
-            this.clbCategories = new System.Windows.Forms.CheckedListBox();
-            this.msCategories = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.miCatSelectAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.miCatSelectNone = new System.Windows.Forms.ToolStripMenuItem();
-            this.miCatSelectInvert = new System.Windows.Forms.ToolStripMenuItem();
-            this.miCatRefresh = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panelOutlook = new System.Windows.Forms.Panel();
+            this.pbExpandOutlookDate = new System.Windows.Forms.PictureBox();
+            this.pbExpandOutlookConfig = new System.Windows.Forms.PictureBox();
+            this.gbOutlook_ODate = new System.Windows.Forms.GroupBox();
             this.label32 = new System.Windows.Forms.Label();
             this.urlDateFormats = new System.Windows.Forms.LinkLabel();
             this.btTestOutlookFilter = new System.Windows.Forms.Button();
@@ -88,14 +81,38 @@
             this.tbOutlookDateFormat = new System.Windows.Forms.TextBox();
             this.cbOutlookDateFormat = new System.Windows.Forms.ComboBox();
             this.txtDateFormats = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.lOutlookCalendar = new System.Windows.Forms.Label();
-            this.rbOutlookDefaultMB = new System.Windows.Forms.RadioButton();
-            this.rbOutlookSharedCal = new System.Windows.Forms.RadioButton();
-            this.ddMailboxName = new System.Windows.Forms.ComboBox();
-            this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
-            this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
+            this.gbOutlook_OConfig = new System.Windows.Forms.GroupBox();
+            this.lFilterCategories = new System.Windows.Forms.Label();
+            this.btCustomTzMap = new System.Windows.Forms.Button();
             this.cbDeleteWhenCatExcl = new System.Windows.Forms.CheckBox();
+            this.cbOnlyRespondedInvites = new System.Windows.Forms.CheckBox();
+            this.cbCategoryFilter = new System.Windows.Forms.ComboBox();
+            this.clbCategories = new System.Windows.Forms.CheckedListBox();
+            this.msCategories = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.miCatSelectAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCatSelectNone = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCatSelectInvert = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCatRefresh = new System.Windows.Forms.ToolStripMenuItem();
+            this.pbExpandOutlookAccount = new System.Windows.Forms.PictureBox();
+            this.gbOutlook_OAccount = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.rbOutlookDefaultMB = new System.Windows.Forms.RadioButton();
+            this.ddMailboxName = new System.Windows.Forms.ComboBox();
+            this.cbOutlookCalendars = new System.Windows.Forms.ComboBox();
+            this.rbOutlookSharedCal = new System.Windows.Forms.RadioButton();
+            this.lOutlookCalendar = new System.Windows.Forms.Label();
+            this.rbOutlookAltMB = new System.Windows.Forms.RadioButton();
+            this.bGetOutlookCalendars = new System.Windows.Forms.Button();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label36 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label37 = new System.Windows.Forms.Label();
+            this.label38 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.label39 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label40 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.tabGoogle = new System.Windows.Forms.TabPage();
             this.panelObscure = new System.Windows.Forms.Panel();
             this.panelProfileLoading = new System.Windows.Forms.Panel();
@@ -319,8 +336,15 @@
             this.msProfileActions.SuspendLayout();
             this.tabAppSettings.SuspendLayout();
             this.tabOutlook.SuspendLayout();
+            this.panelOutlook.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookDate)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookConfig)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).BeginInit();
+            this.gbOutlook_ODate.SuspendLayout();
+            this.gbOutlook_OConfig.SuspendLayout();
+            this.gbOutlook_OAccount.SuspendLayout();
             this.msCategories.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.panelObscure.SuspendLayout();
             this.panelProfileLoading.SuspendLayout();
@@ -688,20 +712,8 @@
             // tabOutlook
             // 
             this.tabOutlook.BackColor = System.Drawing.Color.White;
-            this.tabOutlook.Controls.Add(this.btCustomTzMap);
-            this.tabOutlook.Controls.Add(this.cbOutlookCalendars);
-            this.tabOutlook.Controls.Add(this.lFilterCategories);
-            this.tabOutlook.Controls.Add(this.cbCategoryFilter);
-            this.tabOutlook.Controls.Add(this.clbCategories);
-            this.tabOutlook.Controls.Add(this.groupBox1);
+            this.tabOutlook.Controls.Add(this.panelOutlook);
             this.tabOutlook.Controls.Add(this.label11);
-            this.tabOutlook.Controls.Add(this.lOutlookCalendar);
-            this.tabOutlook.Controls.Add(this.rbOutlookDefaultMB);
-            this.tabOutlook.Controls.Add(this.rbOutlookSharedCal);
-            this.tabOutlook.Controls.Add(this.ddMailboxName);
-            this.tabOutlook.Controls.Add(this.cbOnlyRespondedInvites);
-            this.tabOutlook.Controls.Add(this.rbOutlookAltMB);
-            this.tabOutlook.Controls.Add(this.cbDeleteWhenCatExcl);
             this.tabOutlook.Location = new System.Drawing.Point(79, 4);
             this.tabOutlook.Name = "tabOutlook";
             this.tabOutlook.Padding = new System.Windows.Forms.Padding(3);
@@ -709,10 +721,198 @@
             this.tabOutlook.TabIndex = 0;
             this.tabOutlook.Text = "  Outlook";
             // 
+            // panelOutlook
+            // 
+            this.panelOutlook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelOutlook.AutoScroll = true;
+            this.panelOutlook.Controls.Add(this.pbExpandOutlookDate);
+            this.panelOutlook.Controls.Add(this.pbExpandOutlookConfig);
+            this.panelOutlook.Controls.Add(this.gbOutlook_ODate);
+            this.panelOutlook.Controls.Add(this.gbOutlook_OConfig);
+            this.panelOutlook.Controls.Add(this.pbExpandOutlookAccount);
+            this.panelOutlook.Controls.Add(this.gbOutlook_OAccount);
+            this.panelOutlook.Location = new System.Drawing.Point(4, 31);
+            this.panelOutlook.Name = "panelOutlook";
+            this.panelOutlook.Size = new System.Drawing.Size(385, 398);
+            this.panelOutlook.TabIndex = 50;
+            // 
+            // pbExpandOutlookDate
+            // 
+            this.pbExpandOutlookDate.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandOutlookDate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandOutlookDate.Location = new System.Drawing.Point(0, 547);
+            this.pbExpandOutlookDate.Name = "pbExpandOutlookDate";
+            this.pbExpandOutlookDate.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandOutlookDate.TabIndex = 56;
+            this.pbExpandOutlookDate.TabStop = false;
+            this.pbExpandOutlookDate.Click += new System.EventHandler(this.pbExpandOutlookDate_Click);
+            // 
+            // pbExpandOutlookConfig
+            // 
+            this.pbExpandOutlookConfig.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandOutlookConfig.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandOutlookConfig.Location = new System.Drawing.Point(0, 356);
+            this.pbExpandOutlookConfig.Name = "pbExpandOutlookConfig";
+            this.pbExpandOutlookConfig.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandOutlookConfig.TabIndex = 55;
+            this.pbExpandOutlookConfig.TabStop = false;
+            this.pbExpandOutlookConfig.Click += new System.EventHandler(this.pbExpandOutlookConfig_Click);
+            // 
+            // gbOutlook_ODate
+            // 
+            this.gbOutlook_ODate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbOutlook_ODate.Controls.Add(this.label32);
+            this.gbOutlook_ODate.Controls.Add(this.urlDateFormats);
+            this.gbOutlook_ODate.Controls.Add(this.btTestOutlookFilter);
+            this.gbOutlook_ODate.Controls.Add(this.tbOutlookDateFormatResult);
+            this.gbOutlook_ODate.Controls.Add(this.tbOutlookDateFormat);
+            this.gbOutlook_ODate.Controls.Add(this.cbOutlookDateFormat);
+            this.gbOutlook_ODate.Controls.Add(this.txtDateFormats);
+            this.gbOutlook_ODate.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbOutlook_ODate.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbOutlook_ODate.Location = new System.Drawing.Point(10, 551);
+            this.gbOutlook_ODate.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbOutlook_ODate.Name = "gbOutlook_ODate";
+            this.gbOutlook_ODate.Size = new System.Drawing.Size(368, 160);
+            this.gbOutlook_ODate.TabIndex = 40;
+            this.gbOutlook_ODate.TabStop = false;
+            this.gbOutlook_ODate.Text = "  Regional Date Format";
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label32.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label32.Location = new System.Drawing.Point(10, 109);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(79, 13);
+            this.label32.TabIndex = 42;
+            this.label32.Text = "Current Format:";
+            // 
+            // urlDateFormats
+            // 
+            this.urlDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.urlDateFormats.AutoSize = true;
+            this.urlDateFormats.BackColor = System.Drawing.Color.Transparent;
+            this.urlDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.urlDateFormats.Location = new System.Drawing.Point(40, 51);
+            this.urlDateFormats.Margin = new System.Windows.Forms.Padding(0);
+            this.urlDateFormats.Name = "urlDateFormats";
+            this.urlDateFormats.Size = new System.Drawing.Size(82, 13);
+            this.urlDateFormats.TabIndex = 41;
+            this.urlDateFormats.TabStop = true;
+            this.urlDateFormats.Text = "different formats";
+            this.urlDateFormats.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.urlDateFormats.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.urlDateFormats_LinkClicked);
+            // 
+            // btTestOutlookFilter
+            // 
+            this.btTestOutlookFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btTestOutlookFilter.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btTestOutlookFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btTestOutlookFilter.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btTestOutlookFilter.Location = new System.Drawing.Point(274, 128);
+            this.btTestOutlookFilter.Name = "btTestOutlookFilter";
+            this.btTestOutlookFilter.Size = new System.Drawing.Size(75, 23);
+            this.btTestOutlookFilter.TabIndex = 40;
+            this.btTestOutlookFilter.Text = "Test";
+            this.btTestOutlookFilter.UseVisualStyleBackColor = true;
+            this.btTestOutlookFilter.Click += new System.EventHandler(this.btTestOutlookFilter_Click);
+            // 
+            // tbOutlookDateFormatResult
+            // 
+            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbOutlookDateFormatResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbOutlookDateFormatResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbOutlookDateFormatResult.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.tbOutlookDateFormatResult.Location = new System.Drawing.Point(90, 109);
+            this.tbOutlookDateFormatResult.Name = "tbOutlookDateFormatResult";
+            this.tbOutlookDateFormatResult.Size = new System.Drawing.Size(268, 13);
+            this.tbOutlookDateFormatResult.TabIndex = 39;
+            this.tbOutlookDateFormatResult.Text = "The date format result";
+            // 
+            // tbOutlookDateFormat
+            // 
+            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
+            this.tbOutlookDateFormat.Name = "tbOutlookDateFormat";
+            this.tbOutlookDateFormat.ReadOnly = true;
+            this.tbOutlookDateFormat.Size = new System.Drawing.Size(203, 20);
+            this.tbOutlookDateFormat.TabIndex = 38;
+            this.tbOutlookDateFormat.TextChanged += new System.EventHandler(this.tbOutlookDateFormat_TextChanged);
+            this.tbOutlookDateFormat.Leave += new System.EventHandler(this.tbOutlookDateFormat_Leave);
+            // 
+            // cbOutlookDateFormat
+            // 
+            this.cbOutlookDateFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbOutlookDateFormat.FormattingEnabled = true;
+            this.cbOutlookDateFormat.Location = new System.Drawing.Point(8, 79);
+            this.cbOutlookDateFormat.Name = "cbOutlookDateFormat";
+            this.cbOutlookDateFormat.Size = new System.Drawing.Size(140, 21);
+            this.cbOutlookDateFormat.TabIndex = 37;
+            this.cbOutlookDateFormat.SelectedIndexChanged += new System.EventHandler(this.cbOutlookDateFormat_SelectedIndexChanged);
+            // 
+            // txtDateFormats
+            // 
+            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDateFormats.BackColor = System.Drawing.SystemColors.Window;
+            this.txtDateFormats.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDateFormats.Location = new System.Drawing.Point(6, 25);
+            this.txtDateFormats.Multiline = true;
+            this.txtDateFormats.Name = "txtDateFormats";
+            this.txtDateFormats.Size = new System.Drawing.Size(352, 45);
+            this.txtDateFormats.TabIndex = 36;
+            this.txtDateFormats.Text = "Hopefully you will not need to adjust this.\r\nHowever, Microsoft\'s support of \"non" +
+    "-standard\" locales is poor.\r\nTry different formats  if no Outlook appointments a" +
+    "re being returned.";
+            this.txtDateFormats.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // gbOutlook_OConfig
+            // 
+            this.gbOutlook_OConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbOutlook_OConfig.Controls.Add(this.lFilterCategories);
+            this.gbOutlook_OConfig.Controls.Add(this.btCustomTzMap);
+            this.gbOutlook_OConfig.Controls.Add(this.cbDeleteWhenCatExcl);
+            this.gbOutlook_OConfig.Controls.Add(this.cbOnlyRespondedInvites);
+            this.gbOutlook_OConfig.Controls.Add(this.cbCategoryFilter);
+            this.gbOutlook_OConfig.Controls.Add(this.clbCategories);
+            this.gbOutlook_OConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbOutlook_OConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbOutlook_OConfig.Location = new System.Drawing.Point(10, 359);
+            this.gbOutlook_OConfig.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbOutlook_OConfig.Name = "gbOutlook_OConfig";
+            this.gbOutlook_OConfig.Size = new System.Drawing.Size(368, 183);
+            this.gbOutlook_OConfig.TabIndex = 54;
+            this.gbOutlook_OConfig.TabStop = false;
+            this.gbOutlook_OConfig.Text = "  Sync Configuration";
+            // 
+            // lFilterCategories
+            // 
+            this.lFilterCategories.AutoSize = true;
+            this.lFilterCategories.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lFilterCategories.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lFilterCategories.Location = new System.Drawing.Point(8, 26);
+            this.lFilterCategories.Name = "lFilterCategories";
+            this.lFilterCategories.Size = new System.Drawing.Size(81, 13);
+            this.lFilterCategories.TabIndex = 44;
+            this.lFilterCategories.Text = "Filter categories";
+            // 
             // btCustomTzMap
             // 
             this.btCustomTzMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btCustomTzMap.Location = new System.Drawing.Point(12, 264);
+            this.btCustomTzMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btCustomTzMap.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btCustomTzMap.Location = new System.Drawing.Point(9, 139);
             this.btCustomTzMap.Name = "btCustomTzMap";
             this.btCustomTzMap.Size = new System.Drawing.Size(189, 23);
             this.btCustomTzMap.TabIndex = 46;
@@ -720,35 +920,41 @@
             this.btCustomTzMap.UseVisualStyleBackColor = true;
             this.btCustomTzMap.Click += new System.EventHandler(this.btCustomTzMap_Click);
             // 
-            // cbOutlookCalendars
+            // cbDeleteWhenCatExcl
             // 
-            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbOutlookCalendars.FormattingEnabled = true;
-            this.cbOutlookCalendars.Location = new System.Drawing.Point(96, 118);
-            this.cbOutlookCalendars.Name = "cbOutlookCalendars";
-            this.cbOutlookCalendars.Size = new System.Drawing.Size(288, 21);
-            this.cbOutlookCalendars.TabIndex = 24;
-            this.cbOutlookCalendars.SelectedIndexChanged += new System.EventHandler(this.cbOutlookCalendar_SelectedIndexChanged);
+            this.cbDeleteWhenCatExcl.AutoSize = true;
+            this.cbDeleteWhenCatExcl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbDeleteWhenCatExcl.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbDeleteWhenCatExcl.Location = new System.Drawing.Point(11, 46);
+            this.cbDeleteWhenCatExcl.Name = "cbDeleteWhenCatExcl";
+            this.cbDeleteWhenCatExcl.Size = new System.Drawing.Size(175, 17);
+            this.cbDeleteWhenCatExcl.TabIndex = 47;
+            this.cbDeleteWhenCatExcl.Text = "Delete synced items if excluded";
+            this.cbDeleteWhenCatExcl.UseVisualStyleBackColor = true;
+            this.cbDeleteWhenCatExcl.CheckedChanged += new System.EventHandler(this.cbDeleteWhenCatExcl_CheckedChanged);
             // 
-            // lFilterCategories
+            // cbOnlyRespondedInvites
             // 
-            this.lFilterCategories.AutoSize = true;
-            this.lFilterCategories.Location = new System.Drawing.Point(11, 151);
-            this.lFilterCategories.Name = "lFilterCategories";
-            this.lFilterCategories.Size = new System.Drawing.Size(81, 13);
-            this.lFilterCategories.TabIndex = 44;
-            this.lFilterCategories.Text = "Filter categories";
+            this.cbOnlyRespondedInvites.AutoSize = true;
+            this.cbOnlyRespondedInvites.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbOnlyRespondedInvites.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(11, 65);
+            this.cbOnlyRespondedInvites.Name = "cbOnlyRespondedInvites";
+            this.cbOnlyRespondedInvites.Size = new System.Drawing.Size(190, 17);
+            this.cbOnlyRespondedInvites.TabIndex = 45;
+            this.cbOnlyRespondedInvites.Text = "Only sync invites I\'ve responded to";
+            this.cbOnlyRespondedInvites.UseVisualStyleBackColor = true;
+            this.cbOnlyRespondedInvites.CheckedChanged += new System.EventHandler(this.cbOnlyRespondedInvites_CheckedChanged);
             // 
             // cbCategoryFilter
             // 
             this.cbCategoryFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCategoryFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbCategoryFilter.FormattingEnabled = true;
             this.cbCategoryFilter.Items.AddRange(new object[] {
             "Exclude",
             "Include"});
-            this.cbCategoryFilter.Location = new System.Drawing.Point(96, 148);
+            this.cbCategoryFilter.Location = new System.Drawing.Point(93, 23);
             this.cbCategoryFilter.Name = "cbCategoryFilter";
             this.cbCategoryFilter.Size = new System.Drawing.Size(105, 21);
             this.cbCategoryFilter.TabIndex = 43;
@@ -761,15 +967,17 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.clbCategories.CheckOnClick = true;
             this.clbCategories.ContextMenuStrip = this.msCategories;
+            this.clbCategories.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.clbCategories.ForeColor = System.Drawing.SystemColors.ControlText;
             this.clbCategories.FormattingEnabled = true;
             this.clbCategories.Items.AddRange(new object[] {
             "Category1",
             "Category2",
             "Category3",
             "Category4"});
-            this.clbCategories.Location = new System.Drawing.Point(207, 148);
+            this.clbCategories.Location = new System.Drawing.Point(204, 23);
             this.clbCategories.Name = "clbCategories";
-            this.clbCategories.Size = new System.Drawing.Size(177, 139);
+            this.clbCategories.Size = new System.Drawing.Size(158, 139);
             this.clbCategories.Sorted = true;
             this.clbCategories.TabIndex = 42;
             this.clbCategories.SelectedIndexChanged += new System.EventHandler(this.clbCategories_SelectedIndexChanged);
@@ -814,120 +1022,251 @@
             this.miCatRefresh.Text = "Refresh Categories";
             this.miCatRefresh.Click += new System.EventHandler(this.miCatRefresh_Click);
             // 
-            // groupBox1
+            // pbExpandOutlookAccount
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.pbExpandOutlookAccount.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbExpandOutlookAccount.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
+            this.pbExpandOutlookAccount.Location = new System.Drawing.Point(1, 0);
+            this.pbExpandOutlookAccount.Name = "pbExpandOutlookAccount";
+            this.pbExpandOutlookAccount.Size = new System.Drawing.Size(20, 20);
+            this.pbExpandOutlookAccount.TabIndex = 53;
+            this.pbExpandOutlookAccount.TabStop = false;
+            this.pbExpandOutlookAccount.Click += new System.EventHandler(this.pbExpandOutlookAccount_Click);
+            // 
+            // gbOutlook_OAccount
+            // 
+            this.gbOutlook_OAccount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.label32);
-            this.groupBox1.Controls.Add(this.urlDateFormats);
-            this.groupBox1.Controls.Add(this.btTestOutlookFilter);
-            this.groupBox1.Controls.Add(this.tbOutlookDateFormatResult);
-            this.groupBox1.Controls.Add(this.tbOutlookDateFormat);
-            this.groupBox1.Controls.Add(this.cbOutlookDateFormat);
-            this.groupBox1.Controls.Add(this.txtDateFormats);
-            this.groupBox1.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.groupBox1.Location = new System.Drawing.Point(6, 291);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(378, 160);
-            this.groupBox1.TabIndex = 40;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Regional Date Format";
+            this.gbOutlook_OAccount.Controls.Add(this.groupBox3);
+            this.gbOutlook_OAccount.Controls.Add(this.bGetOutlookCalendars);
+            this.gbOutlook_OAccount.Controls.Add(this.linkLabel1);
+            this.gbOutlook_OAccount.Controls.Add(this.label36);
+            this.gbOutlook_OAccount.Controls.Add(this.comboBox1);
+            this.gbOutlook_OAccount.Controls.Add(this.label37);
+            this.gbOutlook_OAccount.Controls.Add(this.label38);
+            this.gbOutlook_OAccount.Controls.Add(this.button2);
+            this.gbOutlook_OAccount.Controls.Add(this.label39);
+            this.gbOutlook_OAccount.Controls.Add(this.textBox1);
+            this.gbOutlook_OAccount.Controls.Add(this.label40);
+            this.gbOutlook_OAccount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbOutlook_OAccount.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.gbOutlook_OAccount.Location = new System.Drawing.Point(10, 2);
+            this.gbOutlook_OAccount.MinimumSize = new System.Drawing.Size(368, 0);
+            this.gbOutlook_OAccount.Name = "gbOutlook_OAccount";
+            this.gbOutlook_OAccount.Size = new System.Drawing.Size(368, 351);
+            this.gbOutlook_OAccount.TabIndex = 49;
+            this.gbOutlook_OAccount.TabStop = false;
+            this.gbOutlook_OAccount.Text = "  Account && Calendar";
             // 
-            // label32
+            // groupBox3
             // 
-            this.label32.AutoSize = true;
-            this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label32.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label32.Location = new System.Drawing.Point(10, 109);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(79, 13);
-            this.label32.TabIndex = 42;
-            this.label32.Text = "Current Format:";
-            // 
-            // urlDateFormats
-            // 
-            this.urlDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.urlDateFormats.AutoSize = true;
-            this.urlDateFormats.BackColor = System.Drawing.Color.Transparent;
-            this.urlDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.urlDateFormats.Location = new System.Drawing.Point(45, 51);
-            this.urlDateFormats.Margin = new System.Windows.Forms.Padding(0);
-            this.urlDateFormats.Name = "urlDateFormats";
-            this.urlDateFormats.Size = new System.Drawing.Size(82, 13);
-            this.urlDateFormats.TabIndex = 41;
-            this.urlDateFormats.TabStop = true;
-            this.urlDateFormats.Text = "different formats";
-            this.urlDateFormats.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.urlDateFormats.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.urlDateFormats_LinkClicked);
-            // 
-            // btTestOutlookFilter
-            // 
-            this.btTestOutlookFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btTestOutlookFilter.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btTestOutlookFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btTestOutlookFilter.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btTestOutlookFilter.Location = new System.Drawing.Point(284, 128);
-            this.btTestOutlookFilter.Name = "btTestOutlookFilter";
-            this.btTestOutlookFilter.Size = new System.Drawing.Size(75, 23);
-            this.btTestOutlookFilter.TabIndex = 40;
-            this.btTestOutlookFilter.Text = "Test";
-            this.btTestOutlookFilter.UseVisualStyleBackColor = true;
-            this.btTestOutlookFilter.Click += new System.EventHandler(this.btTestOutlookFilter_Click);
-            // 
-            // tbOutlookDateFormatResult
-            // 
-            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbOutlookDateFormatResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tbOutlookDateFormatResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbOutlookDateFormatResult.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbOutlookDateFormatResult.Location = new System.Drawing.Point(90, 109);
-            this.tbOutlookDateFormatResult.Name = "tbOutlookDateFormatResult";
-            this.tbOutlookDateFormatResult.Size = new System.Drawing.Size(278, 13);
-            this.tbOutlookDateFormatResult.TabIndex = 39;
-            this.tbOutlookDateFormatResult.Text = "The date format result";
+            this.groupBox3.Controls.Add(this.rbOutlookDefaultMB);
+            this.groupBox3.Controls.Add(this.ddMailboxName);
+            this.groupBox3.Controls.Add(this.cbOutlookCalendars);
+            this.groupBox3.Controls.Add(this.rbOutlookSharedCal);
+            this.groupBox3.Controls.Add(this.lOutlookCalendar);
+            this.groupBox3.Controls.Add(this.rbOutlookAltMB);
+            this.groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox3.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.groupBox3.Location = new System.Drawing.Point(9, 221);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(353, 124);
+            this.groupBox3.TabIndex = 52;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Office Outlook Client";
             // 
-            // tbOutlookDateFormat
+            // rbOutlookDefaultMB
             // 
-            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.rbOutlookDefaultMB.AutoSize = true;
+            this.rbOutlookDefaultMB.Checked = true;
+            this.rbOutlookDefaultMB.Location = new System.Drawing.Point(6, 19);
+            this.rbOutlookDefaultMB.Name = "rbOutlookDefaultMB";
+            this.rbOutlookDefaultMB.Size = new System.Drawing.Size(97, 17);
+            this.rbOutlookDefaultMB.TabIndex = 18;
+            this.rbOutlookDefaultMB.TabStop = true;
+            this.rbOutlookDefaultMB.Text = "Default mailbox";
+            this.rbOutlookDefaultMB.UseVisualStyleBackColor = true;
+            this.rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
+            // 
+            // ddMailboxName
+            // 
+            this.ddMailboxName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
-            this.tbOutlookDateFormat.Name = "tbOutlookDateFormat";
-            this.tbOutlookDateFormat.ReadOnly = true;
-            this.tbOutlookDateFormat.Size = new System.Drawing.Size(213, 20);
-            this.tbOutlookDateFormat.TabIndex = 38;
-            this.tbOutlookDateFormat.TextChanged += new System.EventHandler(this.tbOutlookDateFormat_TextChanged);
-            this.tbOutlookDateFormat.Leave += new System.EventHandler(this.tbOutlookDateFormat_Leave);
+            this.ddMailboxName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddMailboxName.FormattingEnabled = true;
+            this.ddMailboxName.Location = new System.Drawing.Point(118, 41);
+            this.ddMailboxName.Name = "ddMailboxName";
+            this.ddMailboxName.Size = new System.Drawing.Size(229, 21);
+            this.ddMailboxName.Sorted = true;
+            this.ddMailboxName.TabIndex = 16;
+            this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
             // 
-            // cbOutlookDateFormat
+            // cbOutlookCalendars
             // 
-            this.cbOutlookDateFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbOutlookDateFormat.FormattingEnabled = true;
-            this.cbOutlookDateFormat.Location = new System.Drawing.Point(8, 79);
-            this.cbOutlookDateFormat.Name = "cbOutlookDateFormat";
-            this.cbOutlookDateFormat.Size = new System.Drawing.Size(140, 21);
-            this.cbOutlookDateFormat.TabIndex = 37;
-            this.cbOutlookDateFormat.SelectedIndexChanged += new System.EventHandler(this.cbOutlookDateFormat_SelectedIndexChanged);
-            // 
-            // txtDateFormats
-            // 
-            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDateFormats.BackColor = System.Drawing.SystemColors.Window;
-            this.txtDateFormats.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtDateFormats.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDateFormats.Location = new System.Drawing.Point(6, 25);
-            this.txtDateFormats.Multiline = true;
-            this.txtDateFormats.Name = "txtDateFormats";
-            this.txtDateFormats.Size = new System.Drawing.Size(362, 45);
-            this.txtDateFormats.TabIndex = 36;
-            this.txtDateFormats.Text = "Hopefully you will not need to adjust this.\r\nHowever, Microsoft\'s support of \"non" +
-    "-standard\" locales is poor.\r\nTry different formats  if no Outlook appointments a" +
-    "re being returned.";
-            this.txtDateFormats.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbOutlookCalendars.FormattingEnabled = true;
+            this.cbOutlookCalendars.Location = new System.Drawing.Point(88, 91);
+            this.cbOutlookCalendars.Name = "cbOutlookCalendars";
+            this.cbOutlookCalendars.Size = new System.Drawing.Size(259, 21);
+            this.cbOutlookCalendars.TabIndex = 24;
+            this.cbOutlookCalendars.SelectedIndexChanged += new System.EventHandler(this.cbOutlookCalendar_SelectedIndexChanged);
+            // 
+            // rbOutlookSharedCal
+            // 
+            this.rbOutlookSharedCal.AutoSize = true;
+            this.rbOutlookSharedCal.Location = new System.Drawing.Point(6, 66);
+            this.rbOutlookSharedCal.Name = "rbOutlookSharedCal";
+            this.rbOutlookSharedCal.Size = new System.Drawing.Size(104, 17);
+            this.rbOutlookSharedCal.TabIndex = 19;
+            this.rbOutlookSharedCal.Text = "Shared Calendar";
+            this.rbOutlookSharedCal.UseVisualStyleBackColor = true;
+            this.rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
+            // 
+            // lOutlookCalendar
+            // 
+            this.lOutlookCalendar.AutoSize = true;
+            this.lOutlookCalendar.Location = new System.Drawing.Point(3, 94);
+            this.lOutlookCalendar.Name = "lOutlookCalendar";
+            this.lOutlookCalendar.Size = new System.Drawing.Size(81, 13);
+            this.lOutlookCalendar.TabIndex = 25;
+            this.lOutlookCalendar.Text = "Select calendar";
+            // 
+            // rbOutlookAltMB
+            // 
+            this.rbOutlookAltMB.AutoSize = true;
+            this.rbOutlookAltMB.Location = new System.Drawing.Point(6, 42);
+            this.rbOutlookAltMB.Name = "rbOutlookAltMB";
+            this.rbOutlookAltMB.Size = new System.Drawing.Size(113, 17);
+            this.rbOutlookAltMB.TabIndex = 17;
+            this.rbOutlookAltMB.Text = "Alternative mailbox";
+            this.rbOutlookAltMB.UseVisualStyleBackColor = true;
+            this.rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
+            // 
+            // bGetOutlookCalendars
+            // 
+            this.bGetOutlookCalendars.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.bGetOutlookCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bGetOutlookCalendars.Location = new System.Drawing.Point(24, 113);
+            this.bGetOutlookCalendars.Name = "bGetOutlookCalendars";
+            this.bGetOutlookCalendars.Size = new System.Drawing.Size(115, 23);
+            this.bGetOutlookCalendars.TabIndex = 48;
+            this.bGetOutlookCalendars.Text = "Retrieve Calendars";
+            this.bGetOutlookCalendars.UseVisualStyleBackColor = true;
+            this.bGetOutlookCalendars.Click += new System.EventHandler(this.bGetOutlookCalendars_Click);
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linkLabel1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.linkLabel1.Location = new System.Drawing.Point(104, 47);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(156, 13);
+            this.linkLabel1.TabIndex = 51;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "run multiple instances of OGCS.";
+            // 
+            // label36
+            // 
+            this.label36.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.label36.Location = new System.Drawing.Point(9, 21);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(346, 33);
+            this.label36.TabIndex = 50;
+            this.label36.Text = "The Outlook account is the same across all Profiles.\r\nTo sync calendars from more" +
+    " than one account,";
+            this.label36.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(114, 194);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(241, 21);
+            this.comboBox1.TabIndex = 6;
+            // 
+            // label37
+            // 
+            this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label37.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label37.Location = new System.Drawing.Point(6, 197);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(81, 14);
+            this.label37.TabIndex = 8;
+            this.label37.Text = "Select calendar";
+            // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label38.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label38.Location = new System.Drawing.Point(145, 97);
+            this.label38.MaximumSize = new System.Drawing.Size(220, 0);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(169, 52);
+            this.label38.TabIndex = 9;
+            this.label38.Text = "If this is the first time, you\'ll need to\r\nauthorise the app to connect.\r\nJust ta" +
+    "kes a few clicks and your\r\npassword is never exposed.";
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.Transparent;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button2.ForeColor = System.Drawing.Color.Red;
+            this.button2.Location = new System.Drawing.Point(24, 160);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(115, 23);
+            this.button2.TabIndex = 10;
+            this.button2.Text = "Disconnect Account";
+            this.button2.UseVisualStyleBackColor = false;
+            // 
+            // label39
+            // 
+            this.label39.AutoSize = true;
+            this.label39.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label39.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label39.Location = new System.Drawing.Point(143, 158);
+            this.label39.MaximumSize = new System.Drawing.Size(200, 0);
+            this.label39.Name = "label39";
+            this.label39.Size = new System.Drawing.Size(192, 26);
+            this.label39.TabIndex = 28;
+            this.label39.Text = "Disconnect the Google account the application is using to synchronise with.\r\n";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(114, 70);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.Size = new System.Drawing.Size(241, 20);
+            this.textBox1.TabIndex = 32;
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label40.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label40.Location = new System.Drawing.Point(6, 73);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(102, 13);
+            this.label40.TabIndex = 33;
+            this.label40.Text = "Connected Account";
+            this.label40.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label11
             // 
@@ -941,85 +1280,6 @@
             this.label11.TabIndex = 26;
             this.label11.Text = "Select the Outlook Calendar to Synchronise";
             this.label11.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // lOutlookCalendar
-            // 
-            this.lOutlookCalendar.AutoSize = true;
-            this.lOutlookCalendar.Location = new System.Drawing.Point(11, 121);
-            this.lOutlookCalendar.Name = "lOutlookCalendar";
-            this.lOutlookCalendar.Size = new System.Drawing.Size(81, 13);
-            this.lOutlookCalendar.TabIndex = 25;
-            this.lOutlookCalendar.Text = "Select calendar";
-            // 
-            // rbOutlookDefaultMB
-            // 
-            this.rbOutlookDefaultMB.AutoSize = true;
-            this.rbOutlookDefaultMB.Checked = true;
-            this.rbOutlookDefaultMB.Location = new System.Drawing.Point(14, 46);
-            this.rbOutlookDefaultMB.Name = "rbOutlookDefaultMB";
-            this.rbOutlookDefaultMB.Size = new System.Drawing.Size(97, 17);
-            this.rbOutlookDefaultMB.TabIndex = 18;
-            this.rbOutlookDefaultMB.TabStop = true;
-            this.rbOutlookDefaultMB.Text = "Default mailbox";
-            this.rbOutlookDefaultMB.UseVisualStyleBackColor = true;
-            this.rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
-            // 
-            // rbOutlookSharedCal
-            // 
-            this.rbOutlookSharedCal.AutoSize = true;
-            this.rbOutlookSharedCal.Location = new System.Drawing.Point(14, 93);
-            this.rbOutlookSharedCal.Name = "rbOutlookSharedCal";
-            this.rbOutlookSharedCal.Size = new System.Drawing.Size(104, 17);
-            this.rbOutlookSharedCal.TabIndex = 19;
-            this.rbOutlookSharedCal.Text = "Shared Calendar";
-            this.rbOutlookSharedCal.UseVisualStyleBackColor = true;
-            this.rbOutlookSharedCal.CheckedChanged += new System.EventHandler(this.rbOutlookSharedCal_CheckedChanged);
-            // 
-            // ddMailboxName
-            // 
-            this.ddMailboxName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ddMailboxName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddMailboxName.FormattingEnabled = true;
-            this.ddMailboxName.Location = new System.Drawing.Point(126, 68);
-            this.ddMailboxName.Name = "ddMailboxName";
-            this.ddMailboxName.Size = new System.Drawing.Size(258, 21);
-            this.ddMailboxName.Sorted = true;
-            this.ddMailboxName.TabIndex = 16;
-            this.ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-            // 
-            // cbOnlyRespondedInvites
-            // 
-            this.cbOnlyRespondedInvites.AutoSize = true;
-            this.cbOnlyRespondedInvites.Location = new System.Drawing.Point(14, 190);
-            this.cbOnlyRespondedInvites.Name = "cbOnlyRespondedInvites";
-            this.cbOnlyRespondedInvites.Size = new System.Drawing.Size(190, 17);
-            this.cbOnlyRespondedInvites.TabIndex = 45;
-            this.cbOnlyRespondedInvites.Text = "Only sync invites I\'ve responded to";
-            this.cbOnlyRespondedInvites.UseVisualStyleBackColor = true;
-            this.cbOnlyRespondedInvites.CheckedChanged += new System.EventHandler(this.cbOnlyRespondedInvites_CheckedChanged);
-            // 
-            // rbOutlookAltMB
-            // 
-            this.rbOutlookAltMB.AutoSize = true;
-            this.rbOutlookAltMB.Location = new System.Drawing.Point(14, 69);
-            this.rbOutlookAltMB.Name = "rbOutlookAltMB";
-            this.rbOutlookAltMB.Size = new System.Drawing.Size(113, 17);
-            this.rbOutlookAltMB.TabIndex = 17;
-            this.rbOutlookAltMB.Text = "Alternative mailbox";
-            this.rbOutlookAltMB.UseVisualStyleBackColor = true;
-            this.rbOutlookAltMB.CheckedChanged += new System.EventHandler(this.rbOutlookAltMB_CheckedChanged);
-            // 
-            // cbDeleteWhenCatExcl
-            // 
-            this.cbDeleteWhenCatExcl.AutoSize = true;
-            this.cbDeleteWhenCatExcl.Location = new System.Drawing.Point(14, 171);
-            this.cbDeleteWhenCatExcl.Name = "cbDeleteWhenCatExcl";
-            this.cbDeleteWhenCatExcl.Size = new System.Drawing.Size(175, 17);
-            this.cbDeleteWhenCatExcl.TabIndex = 47;
-            this.cbDeleteWhenCatExcl.Text = "Delete synced items if excluded";
-            this.cbDeleteWhenCatExcl.UseVisualStyleBackColor = true;
-            this.cbDeleteWhenCatExcl.CheckedChanged += new System.EventHandler(this.cbDeleteWhenCatExcl_CheckedChanged);
             // 
             // tabGoogle
             // 
@@ -3886,9 +4146,19 @@
             this.tabAppSettings.ResumeLayout(false);
             this.tabOutlook.ResumeLayout(false);
             this.tabOutlook.PerformLayout();
+            this.panelOutlook.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookDate)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookConfig)).EndInit();
+            this.gbOutlook_ODate.ResumeLayout(false);
+            this.gbOutlook_ODate.PerformLayout();
+            this.gbOutlook_OConfig.ResumeLayout(false);
+            this.gbOutlook_OConfig.PerformLayout();
             this.msCategories.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).EndInit();
+            this.gbOutlook_OAccount.ResumeLayout(false);
+            this.gbOutlook_OAccount.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
             this.panelObscure.ResumeLayout(false);
@@ -4033,7 +4303,7 @@
         private System.Windows.Forms.CheckBox cbDisableDeletion;
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
         private System.Windows.Forms.Button btObfuscateRules;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbOutlook_ODate;
         private System.Windows.Forms.TextBox tbOutlookDateFormat;
         private System.Windows.Forms.ComboBox cbOutlookDateFormat;
         private System.Windows.Forms.TextBox txtDateFormats;
@@ -4220,5 +4490,23 @@
         public System.Windows.Forms.CheckedListBox clbColours;
         private System.Windows.Forms.CheckBox cbDeleteWhenColourExcl;
         private System.Windows.Forms.CheckBox cbAddGMeet;
+        private System.Windows.Forms.Button bGetOutlookCalendars;
+        private System.Windows.Forms.Panel panelOutlook;
+        private System.Windows.Forms.PictureBox pbExpandOutlookAccount;
+        private System.Windows.Forms.GroupBox gbOutlook_OAccount;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.Label label38;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label39;
+        public System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label40;
+        private System.Windows.Forms.PictureBox pbExpandOutlookConfig;
+        private System.Windows.Forms.GroupBox gbOutlook_OConfig;
+        private System.Windows.Forms.PictureBox pbExpandOutlookDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
     }
 }

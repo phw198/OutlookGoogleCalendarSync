@@ -30,6 +30,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             InitializeComponent();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
+            gbOutlook_OAccount.MinimumSize =
+            gbOutlook_OConfig.MinimumSize =
+            gbOutlook_ODate.MinimumSize =
             gbGoogle_Account.MinimumSize =
             gbGoogle_GConfig.MinimumSize =
             gbGoogle_OAuth.MinimumSize =
@@ -1270,6 +1273,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
+                    //Outlook
+                    case "OAccount": section.Height = 351; break;
+                    case "OConfig": section.Height = 183; break;
+                    case "ODate": section.Height = 160; break;
                     //Google
                     case "Account": section.Height = 242; break;
                     case "GConfig": section.Height = 130; break;
@@ -1290,7 +1297,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             sectionImage.Refresh();
 
-            if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
+            if ("pbExpandOutlookAccount|pbExpandOutlookConfig|pbExpandOutlookDate".Contains(sectionImage.Name)) {
+                gbOutlook_OConfig.Top = gbOutlook_OAccount.Location.Y + gbOutlook_OAccount.Height + Convert.ToInt16(10 * magnification);
+                pbExpandOutlookConfig.Top = gbOutlook_OConfig.Top - Convert.ToInt16(2 * magnification); 
+                gbOutlook_ODate.Top = gbOutlook_OConfig.Location.Y + gbOutlook_OConfig.Height + Convert.ToInt16(10 * magnification);
+                pbExpandOutlookDate.Top = gbOutlook_ODate.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
                 gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
                 pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
                 cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
@@ -1310,6 +1323,16 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         #region Outlook settings
+        private void pbExpandOutlookAccount_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_OAccount, pbExpandOutlookAccount);
+        }
+        private void pbExpandOutlookConfig_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_OConfig, pbExpandOutlookConfig);
+        }
+        private void pbExpandOutlookDate_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_ODate, pbExpandOutlookDate);
+        }
+
         private void enableOutlookSettingsUI(Boolean enable) {
             this.clbCategories.Enabled = enable;
             this.cbOutlookCalendars.Enabled = enable;
