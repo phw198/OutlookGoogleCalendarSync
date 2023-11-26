@@ -2618,5 +2618,56 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
+
+        private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
+            if (bGetOutlookCalendars.Text == "Cancel retrieval") {
+                log.Warn("User cancelled retrieval of Outlook calendars.");
+                OutlookOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                return;
+            }
+
+            //This should be in OutlookOgcs.Calendar.Instance() ***
+            OutlookOgcs.Calendar.Instance.Authenticator = new OutlookOgcs.Authenticator();
+            OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+
+            log.Debug("Retrieving Outlook calendar list.");
+            this.bGetOutlookCalendars.Text = "Cancel retrieval";
+            try {
+                OutlookOgcs.Calendar.Instance.GetCalendars();
+            //} catch (AggregateException agex) {
+            //    OGCSexception.AnalyseAggregate(agex, false);
+            //} catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+            //    OGCSexception.AnalyseTokenResponse(ex, false);
+            //} catch (OperationCanceledException) {
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+                OgcsMessageBox.Show("Failed to retrieve Outlook calendars.\r\n" +
+                    "Please check the output on the Sync tab for more details.", "Outlook calendar retrieval failed",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                StringBuilder sb = new StringBuilder();
+                console.BuildOutput("Unable to get the list of Outlook calendars. The following error occurred:", ref sb, false);
+                if (ex is ApplicationException && ex.InnerException != null /*&& ex.InnerException is Google.GoogleApiException*/) {
+                    console.BuildOutput(ex.Message, ref sb, false);
+                    console.Update(sb, Console.Markup.fail, logit: true);
+                } else {
+                    console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
+                    console.Update(sb, Console.Markup.error, logit: true);
+                    if (Settings.Instance.Proxy.Type == "IE") {
+                        if (OgcsMessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                            "Test it now? If successful, please retry retrieving your Outlook calendars.",
+                            "Test IE Internet Access",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                        }
+                    }
+                }
+            }
+
+            //cbGoogleCalendars_BuildList();
+
+            bGetOutlookCalendars.Enabled = true;
+            cbOutlookCalendars.Enabled = true;
+            bGetOutlookCalendars.Text = "Retrieve Calendars";
+        }
     }
 }
