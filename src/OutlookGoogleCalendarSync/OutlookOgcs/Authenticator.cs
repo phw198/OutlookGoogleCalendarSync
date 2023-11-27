@@ -22,7 +22,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //}
             }
         }
-        IPublicClientApplication oAuthApp;
+        private IPublicClientApplication oAuthApp;
 
         public Authenticator() {
             CancelTokenSource = new System.Threading.CancellationTokenSource();
@@ -97,18 +97,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             if (authResult == null) return false;
 
-            String resultText = await GetHttpContentWithToken(graphAPIEndpoint, authResult.AccessToken);
-
-            //String username= $"Username: {authResult.Account.Username}";
-            //String token = $"Token Expires: {authResult.ExpiresOn.ToLocalTime()}";
+            String resultText = GetHttpContentWithToken(graphAPIEndpoint, authResult.AccessToken);
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", authResult.Account.Username);
 
             if (!String.IsNullOrEmpty(authResult.AccessToken) && authResult.ExpiresOn != null) {
                 log.Info("Refresh and Access token successfully retrieved.");
                 log.Debug("Access token expires " + authResult.ExpiresOn.ToLocalTime().ToString());
             }
 
-            //this.SignOutButton.Visibility = Visibility.Visible;
-            return true;
+            authenticated = true;
+            Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
+            return authenticated;
         }
 
         /// <summary>
@@ -117,15 +116,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         /// <param name="url">The URL</param>
         /// <param name="token">The token</param>
         /// <returns>String containing the results of the GET operation</returns>
-        private async Task<String> GetHttpContentWithToken(String url, String token) {
-            var httpClient = new System.Net.Http.HttpClient();
-            System.Net.Http.HttpResponseMessage response;
+        private String GetHttpContentWithToken(String url, String token) {
+            Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
             try {
-                var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, url);
-                //Add the token in Authorization header
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                response = await httpClient.SendAsync(request);
-                var content = await response.Content.ReadAsStringAsync();
+                wc.Headers.Add("Authorization", "Bearer " + token);
+                String content = wc.DownloadString(url);
                 return content;
             } catch (System.Exception ex) {
                 return ex.ToString();

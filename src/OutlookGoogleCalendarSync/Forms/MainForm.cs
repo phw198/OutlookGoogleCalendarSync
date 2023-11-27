@@ -423,7 +423,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
                     groupboxSizing(gbGoogle_GOAuth, pbExpandGoogleOauth, false);
 
-                    tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
+                    tbGoogleConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
                     if (profile.UseGoogleCalendar?.Id != null) {
                         foreach (GoogleCalendarListEntry cle in this.cbGoogleCalendars.Items) {
                             if (cle.Id == profile.UseGoogleCalendar.Id) {
@@ -1632,7 +1632,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.GaccountEmail = "";
-                    tbConnectedAcc.Text = "Not connected";
+                    tbGoogleConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
@@ -2649,8 +2649,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 return;
             }
 
-            //This should be in OutlookOgcs.Calendar.Instance() ***
-            OutlookOgcs.Calendar.Instance.Authenticator = new OutlookOgcs.Authenticator();
+            //This needs removing once finished to stop repeated auth***
             OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
 
             log.Debug("Retrieving Outlook calendar list.");

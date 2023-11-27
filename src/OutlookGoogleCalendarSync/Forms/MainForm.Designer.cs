@@ -110,7 +110,7 @@
             this.label38 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.label39 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tbOutlookConnectedAcc = new System.Windows.Forms.TextBox();
             this.label40 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.tabGoogle = new System.Windows.Forms.TabPage();
@@ -153,7 +153,7 @@
             this.lGoogleHelp = new System.Windows.Forms.Label();
             this.btResetGCal = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
-            this.tbConnectedAcc = new System.Windows.Forms.TextBox();
+            this.tbGoogleConnectedAcc = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.cbListHiddenGcals = new System.Windows.Forms.CheckBox();
             this.tabSyncOptions = new System.Windows.Forms.TabPage();
@@ -339,11 +339,11 @@
             this.panelOutlook.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookDate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookConfig)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).BeginInit();
             this.gbOutlook_ODate.SuspendLayout();
             this.gbOutlook_OConfig.SuspendLayout();
-            this.gbOutlook_OAccount.SuspendLayout();
             this.msCategories.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).BeginInit();
+            this.gbOutlook_OAccount.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.panelObscure.SuspendLayout();
@@ -1046,7 +1046,7 @@
             this.gbOutlook_OAccount.Controls.Add(this.label38);
             this.gbOutlook_OAccount.Controls.Add(this.button2);
             this.gbOutlook_OAccount.Controls.Add(this.label39);
-            this.gbOutlook_OAccount.Controls.Add(this.textBox1);
+            this.gbOutlook_OAccount.Controls.Add(this.tbOutlookConnectedAcc);
             this.gbOutlook_OAccount.Controls.Add(this.label40);
             this.gbOutlook_OAccount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbOutlook_OAccount.ForeColor = System.Drawing.SystemColors.MenuHighlight;
@@ -1245,16 +1245,16 @@
             this.label39.TabIndex = 28;
             this.label39.Text = "Disconnect the Google account the application is using to synchronise with.\r\n";
             // 
-            // textBox1
+            // tbOutlookConnectedAcc
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbOutlookConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(114, 70);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(241, 20);
-            this.textBox1.TabIndex = 32;
+            this.tbOutlookConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbOutlookConnectedAcc.Location = new System.Drawing.Point(114, 70);
+            this.tbOutlookConnectedAcc.Name = "tbOutlookConnectedAcc";
+            this.tbOutlookConnectedAcc.ReadOnly = true;
+            this.tbOutlookConnectedAcc.Size = new System.Drawing.Size(241, 20);
+            this.tbOutlookConnectedAcc.TabIndex = 32;
             // 
             // label40
             // 
@@ -1689,7 +1689,7 @@
             this.gbGoogle_GAccount.Controls.Add(this.lGoogleHelp);
             this.gbGoogle_GAccount.Controls.Add(this.btResetGCal);
             this.gbGoogle_GAccount.Controls.Add(this.label13);
-            this.gbGoogle_GAccount.Controls.Add(this.tbConnectedAcc);
+            this.gbGoogle_GAccount.Controls.Add(this.tbGoogleConnectedAcc);
             this.gbGoogle_GAccount.Controls.Add(this.label7);
             this.gbGoogle_GAccount.Controls.Add(this.cbListHiddenGcals);
             this.gbGoogle_GAccount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1804,16 +1804,16 @@
             this.label13.TabIndex = 28;
             this.label13.Text = "Disconnect the Google account the application is using to synchronise with.\r\n";
             // 
-            // tbConnectedAcc
+            // tbGoogleConnectedAcc
             // 
-            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbGoogleConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbConnectedAcc.Location = new System.Drawing.Point(114, 70);
-            this.tbConnectedAcc.Name = "tbConnectedAcc";
-            this.tbConnectedAcc.ReadOnly = true;
-            this.tbConnectedAcc.Size = new System.Drawing.Size(241, 20);
-            this.tbConnectedAcc.TabIndex = 32;
+            this.tbGoogleConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbGoogleConnectedAcc.Location = new System.Drawing.Point(114, 70);
+            this.tbGoogleConnectedAcc.Name = "tbGoogleConnectedAcc";
+            this.tbGoogleConnectedAcc.ReadOnly = true;
+            this.tbGoogleConnectedAcc.Size = new System.Drawing.Size(241, 20);
+            this.tbGoogleConnectedAcc.TabIndex = 32;
             // 
             // label7
             // 
@@ -4389,7 +4389,7 @@
         private System.Windows.Forms.Label lDonateTip;
         private System.Windows.Forms.CheckBox cbLocation;
         private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.TextBox tbConnectedAcc;
+        public System.Windows.Forms.TextBox tbGoogleConnectedAcc;
         private System.Windows.Forms.CheckBox cbUseOutlookDefaultReminder;
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Label label26;
@@ -4505,11 +4505,10 @@
         private System.Windows.Forms.Label label38;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label39;
-        public System.Windows.Forms.TextBox textBox1;
+        public System.Windows.Forms.TextBox tbOutlookConnectedAcc;
         private System.Windows.Forms.Label label40;
         private System.Windows.Forms.PictureBox pbExpandOutlookConfig;
         private System.Windows.Forms.GroupBox gbOutlook_OConfig;
         private System.Windows.Forms.PictureBox pbExpandOutlookDate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
     }
 }
