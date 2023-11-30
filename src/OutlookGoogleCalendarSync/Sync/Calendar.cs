@@ -362,6 +362,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Outlook returns recurring items that span the sync date range, Google doesn't
                     //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
                     for (int o = outlookEntries.Count - 1; o >= 0; o--) {
+                        if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
+
                         log.Fine("Processing " + (o + 1) + "/" + outlookEntries.Count);
                         AppointmentItem ai = null;
                         try {
@@ -411,6 +413,15 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         if (ai.IsRecurring && ai.Start.Date < this.Profile.SyncStart && ai.End.Date < this.Profile.SyncStart) {
+                            if (!Sync.Engine.Instance.ManualForceCompare && Profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id && Profile.MergeItems &&
+                                OutlookOgcs.CustomProperty.AnyStartsWith(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) &&
+                                OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) != this.Profile.UseGoogleCalendar.Id)
+                            {
+                                log.Debug("Outlook recurring master, outside sync window, originates from a different Google calendar than that being synced. Will not attempt to find matching Google master event.");
+                                outlookEntries.Remove(ai);
+                                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                                continue;
+                            }
                             //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                             //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                             RecurrencePattern oPattern = ai.GetRecurrencePattern();
