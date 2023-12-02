@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using log4net;
 using Microsoft.Identity.Client;
-using log4net;
+using Microsoft.Identity.Client.Extensions.Msal;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
-        private Boolean authenticated = false;
         public System.Threading.CancellationTokenSource CancelTokenSource;
+        public const String TokenFile = "Microsoft.Identity.Client.Extensions.Msal.TokenResponse-user";
+        private String tokenFullPath;
+        private Boolean tokenFileExists { get { return System.IO.File.Exists(tokenFullPath); } }
         private static readonly String _clientId = "3f85f044-607a-4139-bb2e-e12eac105f14";
         private static String clientId {
             get {
@@ -22,17 +23,19 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 //}
             }
         }
+
+        private Boolean authenticated = false;
         private IPublicClientApplication oAuthApp;
+        private AuthenticationResult authResult = null;
 
         public Authenticator() {
             CancelTokenSource = new System.Threading.CancellationTokenSource();
-            oAuthApp = PublicClientApplicationBuilder.Create(clientId).Build();
         }
 
         public void GetAuthenticated() {
-            if (this.authenticated) return;
+            if (this.authenticated && authResult != null) return;
 
-            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Outlook", Console.Markup.h2, newLine: false, verbose: true);
+            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
 
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();
@@ -55,24 +58,39 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft. The following error occurred:", ex);
                 }
             } catch (System.Exception ex) {
-                log.Fail("Problem encountered in getCalendarClientSecrets()");
-                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google!", ex);
+                log.Fail("Problem encountered in spawnOauth()"); //getCalendarClientSecrets ***
+                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft!", ex);
             }
         }
 
         private async Task<bool> getAuthenticated(String clientId) {
+            log.Debug("Authenticating with Microsoft Graph service...");
+
+            tokenFullPath = System.IO.Path.Combine(Program.UserFilePath, TokenFile);
+            log.Debug("Microsoft credential file location: " + tokenFullPath);
+            if (!tokenFileExists)
+                log.Info("No Microsoft credentials file available - need user authorisation for OGCS to manage their calendar.");
+
+            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(TokenFile, Program.UserFilePath).Build();
+
+            oAuthApp = PublicClientApplicationBuilder.Create(clientId)
+                .WithAuthority("https://login.microsoftonline.com/common")
+                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .Build();
+
+            MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
+            cacheHelper.RegisterCache(oAuthApp.UserTokenCache);
+            
             String[] scopes = new string[] { "user.read" };
-            String graphAPIEndpoint = "https://graph.microsoft.com/v1.0/me";
 
             IAccount firstAccount = (await oAuthApp.GetAccountsAsync()).FirstOrDefault();
             if (firstAccount == null)
                 log.Warn("The user has not signed-in before or there is no account information in the cache.");
 
-            AuthenticationResult authResult = null;
             try {
                 authResult = await oAuthApp.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
             } catch (MsalUiRequiredException msalSilentEx) {
-                // This indicates you need to call AcquireTokenInteractive to acquire a token
+                // This indicates the need to call AcquireTokenInteractive to acquire a token
                 log.Warn($"Failed acquiring MS Graph token silently: {msalSilentEx.Message}");
 
                 try {
@@ -80,6 +98,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         .WithAccount(firstAccount)
                         .WithPrompt(Prompt.SelectAccount)
                         .ExecuteAsync();
+
+                    if (tokenFileExists)
+                        log.Info("User has provided Graph authorisation and credential file saved.");
+
+                    if (authResult != null)
+                        Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
+
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
                     if (msalInteractiveEx.Message.Trim() == "User canceled authentication.")
@@ -97,29 +122,31 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             if (authResult == null) return false;
 
-            String resultText = GetHttpContentWithToken(graphAPIEndpoint, authResult.AccessToken);
-            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", authResult.Account.Username);
-
             if (!String.IsNullOrEmpty(authResult.AccessToken) && authResult.ExpiresOn != null) {
                 log.Info("Refresh and Access token successfully retrieved.");
                 log.Debug("Access token expires " + authResult.ExpiresOn.ToLocalTime().ToString());
             }
 
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", authResult.Account.Username);
+            getMSaccountEmail();
             authenticated = true;
-            Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
             return authenticated;
         }
 
+        private void getMSaccountEmail() {
+            String resultText = GetHttpContentWithToken("https://graph.microsoft.com/v1.0/me");
+        }
+        
         /// <summary>
-        /// Perform an HTTP GET request to a URL using an HTTP Authorization header
+        /// Perform an HTTP GET request against a Graph URL using an HTTP Authorization bearer token header
         /// </summary>
-        /// <param name="url">The URL</param>
-        /// <param name="token">The token</param>
+        /// <param name="url">The Graph URL</param>
+        /// <param name="token">The bearer token</param>
         /// <returns>String containing the results of the GET operation</returns>
-        private String GetHttpContentWithToken(String url, String token) {
+        private String GetHttpContentWithToken(String url) {
             Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
             try {
-                wc.Headers.Add("Authorization", "Bearer " + token);
+                wc.Headers.Add("Authorization", "Bearer " + authResult?.AccessToken);
                 String content = wc.DownloadString(url);
                 return content;
             } catch (System.Exception ex) {
