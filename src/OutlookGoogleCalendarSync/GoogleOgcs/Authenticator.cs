@@ -59,7 +59,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 ClientSecrets cs = getCalendarClientSecrets();
                 //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
-                var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
+                Task task = Task.Run(async () => { await getAuthenticated(cs); });
                 try {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
@@ -109,7 +109,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
                 if (tokenFileExists)
-                    log.Debug("User has provided authorisation and credential file saved.");
+                    log.Debug("User has provided Google authorisation and credential file saved.");
 
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
