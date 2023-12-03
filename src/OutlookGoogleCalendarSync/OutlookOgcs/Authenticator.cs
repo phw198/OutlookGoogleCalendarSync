@@ -4,6 +4,7 @@ using Microsoft.Identity.Client.Extensions.Msal;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.OutlookOgcs {
     public class Authenticator {
@@ -27,16 +28,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private Boolean authenticated = false;
         private IPublicClientApplication oAuthApp;
         private AuthenticationResult authResult = null;
+        private Boolean noInteractiveAuth = false;
 
         public Authenticator() {
             CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
-        public void GetAuthenticated() {
+        public void GetAuthenticated(Boolean noInteractiveAuth = false) {
             if (this.authenticated && authResult != null) return;
 
-            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
-
+            this.noInteractiveAuth = noInteractiveAuth;
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();
             while (oAuth.IsAlive) {
@@ -53,6 +54,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
+                    OgcsMessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.", 
+                        "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft. The following error occurred:", ex);
@@ -91,8 +94,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 authResult = await oAuthApp.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
             } catch (MsalUiRequiredException msalSilentEx) {
                 // This indicates the need to call AcquireTokenInteractive to acquire a token
-                log.Warn($"Failed acquiring MS Graph token silently: {msalSilentEx.Message}");
+                log.Warn($"Unable to acquire MS Graph token silently: {msalSilentEx.Message}");
 
+                if (this.noInteractiveAuth) return false;
+                new System.Threading.Thread(() => {
+                    //Otherwise the subsequent async oAuthApp calls fail!!
+                    Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
+                }).Start();
+                
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
@@ -107,16 +116,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
-                    if (msalInteractiveEx.Message.Trim() == "User canceled authentication.")
+                    if (msalInteractiveEx.Message.Trim() == "User canceled authentication.") {
                         CancelTokenSource.Cancel(true);
-                    throw;
+                        return false;
+                    } else throw;
                 } catch (System.Exception) {
                     log.Fail("Error during AcquireTokenInteractive()");
                     throw;
                 }
             } catch (System.Exception ex) {
-                log.Fail("Problem encountered in getAuthenticated()");
-                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft!", ex);
+                Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft! The following error occurred:", ex);
                 return false;
             }
 
@@ -137,6 +146,33 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String resultText = GetHttpContentWithToken("https://graph.microsoft.com/v1.0/me");
         }
         
+        public void Reset(Boolean reauthorise = true) {
+            log.Info("Resetting Microsoft Calendar authentication details.");
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", "Not connected");
+            authenticated = false;
+            try {
+                var accounts = oAuthApp.GetAccountsAsync().Result;
+                log.Debug(accounts.Count() + " account(s) in the MSAL cache.");
+                foreach (IAccount account in accounts) {
+                    try {
+                        log.Debug("Removing account from MSAL cache: " + EmailAddress.MaskAddress(account.Username));
+                        oAuthApp.RemoveAsync(account).RunSynchronously();
+                    } catch (MsalException ex) {
+                        OGCSexception.Analyse($"Could not remove Microsoft account '{EmailAddress.MaskAddress(account.Username)}' from MSAL cache.", ex);
+                    }
+                }
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Failed to sign out of Microsoft account.", ex);
+            }
+            if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
+            if (!OutlookOgcs.Calendar.IsInstanceNull) {
+                OutlookOgcs.Calendar.Instance.Authenticator = new Authenticator();
+                //GoogleOgcs.Calendar.Instance.Service = null; ***
+                if (reauthorise)
+                    OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+            }
+        }
+
         /// <summary>
         /// Perform an HTTP GET request against a Graph URL using an HTTP Authorization bearer token header
         /// </summary>

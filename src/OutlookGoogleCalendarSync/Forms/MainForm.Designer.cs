@@ -108,7 +108,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label37 = new System.Windows.Forms.Label();
             this.label38 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btResetOCal = new System.Windows.Forms.Button();
             this.label39 = new System.Windows.Forms.Label();
             this.tbOutlookConnectedAcc = new System.Windows.Forms.TextBox();
             this.label40 = new System.Windows.Forms.Label();
@@ -1044,7 +1044,7 @@
             this.gbOutlook_OAccount.Controls.Add(this.comboBox1);
             this.gbOutlook_OAccount.Controls.Add(this.label37);
             this.gbOutlook_OAccount.Controls.Add(this.label38);
-            this.gbOutlook_OAccount.Controls.Add(this.button2);
+            this.gbOutlook_OAccount.Controls.Add(this.btResetOCal);
             this.gbOutlook_OAccount.Controls.Add(this.label39);
             this.gbOutlook_OAccount.Controls.Add(this.tbOutlookConnectedAcc);
             this.gbOutlook_OAccount.Controls.Add(this.label40);
@@ -1181,8 +1181,8 @@
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(346, 33);
             this.label36.TabIndex = 50;
-            this.label36.Text = "The Outlook account is the same across all Profiles.\r\nTo sync calendars from more" +
-    " than one account,";
+            this.label36.Text = "The Microsoft account is the same across all Profiles.\r\nTo sync calendars from mo" +
+    "re than one account,";
             this.label36.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // comboBox1
@@ -1220,18 +1220,18 @@
             this.label38.Text = "If this is the first time, you\'ll need to\r\nauthorise the app to connect.\r\nJust ta" +
     "kes a few clicks and your\r\npassword is never exposed.";
             // 
-            // button2
+            // btResetOCal
             // 
-            this.button2.BackColor = System.Drawing.Color.Transparent;
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.ForeColor = System.Drawing.Color.Red;
-            this.button2.Location = new System.Drawing.Point(24, 160);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(115, 23);
-            this.button2.TabIndex = 10;
-            this.button2.Text = "Disconnect Account";
-            this.button2.UseVisualStyleBackColor = false;
+            this.btResetOCal.BackColor = System.Drawing.Color.Transparent;
+            this.btResetOCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btResetOCal.ForeColor = System.Drawing.Color.Red;
+            this.btResetOCal.Location = new System.Drawing.Point(24, 160);
+            this.btResetOCal.Name = "btResetOCal";
+            this.btResetOCal.Size = new System.Drawing.Size(115, 23);
+            this.btResetOCal.TabIndex = 10;
+            this.btResetOCal.Text = "Disconnect Account";
+            this.btResetOCal.UseVisualStyleBackColor = false;
+            this.btResetOCal.Click += new System.EventHandler(this.btResetOCal_Click);
             // 
             // label39
             // 
@@ -1243,7 +1243,7 @@
             this.label39.Name = "label39";
             this.label39.Size = new System.Drawing.Size(192, 26);
             this.label39.TabIndex = 28;
-            this.label39.Text = "Disconnect the Google account the application is using to synchronise with.\r\n";
+            this.label39.Text = "Disconnect the Microsoft account the application is using to synchronise with.\r\n";
             // 
             // tbOutlookConnectedAcc
             // 
@@ -1781,7 +1781,6 @@
             // btResetGCal
             // 
             this.btResetGCal.BackColor = System.Drawing.Color.Transparent;
-            this.btResetGCal.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btResetGCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btResetGCal.ForeColor = System.Drawing.Color.Red;
             this.btResetGCal.Location = new System.Drawing.Point(24, 160);
@@ -4503,7 +4502,7 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label37;
         private System.Windows.Forms.Label label38;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btResetOCal;
         private System.Windows.Forms.Label label39;
         public System.Windows.Forms.TextBox tbOutlookConnectedAcc;
         private System.Windows.Forms.Label label40;

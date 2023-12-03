@@ -2691,5 +2691,27 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbOutlookCalendars.Enabled = true;
             bGetOutlookCalendars.Text = "Retrieve Calendars";
         }
+
+        private void btResetOCal_Click(object sender, EventArgs e) {
+            btResetOCal.ForeColor = Color.Red;
+            if (OgcsMessageBox.Show("This will disconnect the Microsoft account you are using to synchronise with.\r\n" +
+                "Useful if you want to start syncing to a different account.",
+                "Disconnect Microsoft account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) 
+            {
+                log.Info("User requested reset of Microsoft authentication details.");
+                //ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry(); ***
+                //this.cbGoogleCalendars.Items.Clear();
+                //this.tbClientID.ReadOnly = false;
+                //this.tbClientSecret.ReadOnly = false;
+                if (!OutlookOgcs.Calendar.IsInstanceNull && OutlookOgcs.Calendar.Instance.Authenticator != null)
+                    OutlookOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                else {
+                    //Settings.Instance.AssignedClientIdentifier = "";
+                    //Settings.Instance.GaccountEmail = "";
+                    tbOutlookConnectedAcc.Text = "Not connected";
+                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, OutlookOgcs.Authenticator.TokenFile));
+                }
+            }
+        }
     }
 }
