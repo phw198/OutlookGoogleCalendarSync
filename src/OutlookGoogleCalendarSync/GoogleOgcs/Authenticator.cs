@@ -114,9 +114,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
                 if (ex.Error.Error == "access_denied") {
-                    String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
+                    String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google calendar.";
                     log.Warn("User did not provide authorisation code. Sync will not be able to work.");
-                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
