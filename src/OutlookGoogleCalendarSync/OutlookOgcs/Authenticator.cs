@@ -1,4 +1,5 @@
 ﻿using log4net;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
@@ -46,6 +47,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
+
+        public GraphServiceClient GraphClient;
+        private readonly String graphBaseUrl = "https://graph.microsoft.com/v1.0";
+
         private void spawnOauth() {
             try {
                 //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
@@ -54,7 +59,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
-                    OgcsMessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.", 
+                    OgcsMessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.",
                         "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
@@ -83,8 +88,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
             cacheHelper.RegisterCache(oAuthApp.UserTokenCache);
-            
-            String[] scopes = new string[] { "user.read" };
+
+            String[] scopes = new string[] { "user.read", "Calendars.ReadWrite.Shared" };
 
             IAccount firstAccount = (await oAuthApp.GetAccountsAsync()).FirstOrDefault();
             if (firstAccount == null)
@@ -101,11 +106,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     //Otherwise the subsequent async oAuthApp calls fail!!
                     Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
                 }).Start();
-                
+
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
-                        .WithPrompt(Prompt.SelectAccount)
+                        .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
                         .ExecuteAsync();
 
                     if (tokenFileExists)
@@ -138,14 +143,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", authResult.Account.Username);
             getMSaccountEmail();
+
+#pragma warning disable 1998 //Lacks await
+            GraphClient = new GraphServiceClient(graphBaseUrl,
+                new DelegateAuthenticationProvider(async (requestMessage) => {
+                    requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                }),
+                new HttpProvider(new System.Net.Http.HttpClientHandler() { Proxy = new Extensions.OgcsWebClient().Proxy }, true)
+            );
+#pragma warning restore 1998
+
             authenticated = true;
             return authenticated;
         }
 
         private void getMSaccountEmail() {
-            String resultText = GetHttpContentWithToken("https://graph.microsoft.com/v1.0/me");
+            String resultText = GetHttpContentWithToken(graphBaseUrl + "/me");
+            log.Debug("Microsoft UPN: " + EmailAddress.MaskAddress(Newtonsoft.Json.Linq.JObject.Parse(resultText)["userPrincipalName"]?.ToString() ?? ""));
         }
-        
+
         public void Reset(Boolean reauthorise = true) {
             log.Info("Resetting Microsoft Calendar authentication details.");
             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", "Not connected");
