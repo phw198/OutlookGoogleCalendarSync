@@ -257,7 +257,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                                 if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
                                     Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
-                                    if (rgx.IsMatch(ai.Subject)) {
+                                    if (rgx.IsMatch(ai.Subject ?? "")) {
                                         log.Fine("Regex has matched subject string: " + profile.ExcludeSubjectText);
                                         subjectFiltered++; continue;
                                     }
@@ -595,10 +595,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
                         if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, bodyObfuscated, ai.Body, sb, ref itemModified))
-                            ai.Body = bodyObfuscated;
+                                ai.Body = bodyObfuscated;
+                            }
+                        }
                     }
-                }
-            }
 
             if (profile.AddLocation) {
                 String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Location, ai.Location, Sync.Direction.OutlookToGoogle);
