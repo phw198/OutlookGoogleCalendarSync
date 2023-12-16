@@ -144,7 +144,7 @@ If this is the first time using this application, you will need to authorise it 
   </data>
   <data name="label23.Text" xml:space="preserve">
     <value>The "Synchronisation Options" tab is the heart of the application. Here you specify 
-HOW - The direction of synchronisation, and how is deals with existing entries (merging and deleting)
+HOW - The direction of synchronisation, and how it deals with existing entries (merging and deleting)
 WHEN - The date range to synchronise and whether automatically at a regular interval, push changes as they occur in Outlook, or simply manually on-demand
 WHAT - Choose the meeting attributes to sync: attendees, description and reminders.</value>
   </data>
