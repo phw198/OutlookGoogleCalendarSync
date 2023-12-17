@@ -36,22 +36,21 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             public void StartSync(Boolean manualIgnition, Boolean updateSyncSchedule = true) {
                 Forms.Main mainFrm = Forms.Main.Instance;
-                mainFrm.bSyncNow.Text = "Stop Sync";
-                mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
-                this.Profile.LogSettings();
                 try {
-                    Sync.Engine.Instance.SyncStarted = DateTime.Now;
-                    String cacheNextSync = this.Profile.OgcsTimer.NextSyncDateText;
-
-                    mainFrm.Console.Clear();
-
                     //Set up a separate thread for the sync to operate in. Keeps the UI responsive.
                     Sync.Engine.Instance.bwSync = new AbortableBackgroundWorker() {
                         //Don't need thread to report back. The logbox is updated from the thread anyway.
                         WorkerReportsProgress = false,
                         WorkerSupportsCancellation = true
                     };
+                    Sync.Engine.Instance.SyncStarted = DateTime.Now;
+                    String cacheNextSync = this.Profile.OgcsTimer.NextSyncDateText;
+                    mainFrm.bSyncNow.Text = "Stop Sync";
+                    mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
+                    mainFrm.Console.Clear();
+
+                    this.Profile.LogSettings();
 
                     if (string.IsNullOrEmpty(this.Profile.UseGoogleCalendar?.Id)) {
                         MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
