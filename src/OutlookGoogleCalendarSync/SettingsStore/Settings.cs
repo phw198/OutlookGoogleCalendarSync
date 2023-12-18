@@ -106,6 +106,8 @@ namespace OutlookGoogleCalendarSync {
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
             cloudLogging = null;
+            AnonymiseLogs = false;
+            TelemetryDisabled = false;
             portable = false;
             Proxy = new SettingsStore.Proxy();
 
@@ -243,6 +245,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!Loading()) XMLManager.ExportElement(this, "CloudLogging", value, ConfigFile);
             }
         }
+        [DataMember] public bool AnonymiseLogs { get; set; }
         [DataMember] public bool TelemetryDisabled { get; set; }
         //Proxy
         [DataMember] public SettingsStore.Proxy Proxy { get; set; }
@@ -389,6 +392,8 @@ namespace OutlookGoogleCalendarSync {
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
             log.Info("  Error Reporting: " + CloudLogging ?? "Undefined");
+            log.Info("  Anonymise Logs: " + AnonymiseLogs);
+            log.Info("  Telemetry Disabled: " + TelemetryDisabled);
 
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);

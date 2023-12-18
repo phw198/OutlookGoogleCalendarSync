@@ -263,16 +263,18 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
                 try {
-                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai);
+                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai, out String anonSummary);
                     if (string.IsNullOrEmpty(itemSummary)) {
                         try {
                             itemSummary = cai.Start.Date.ToShortDateString() + " => " + cai.Subject;
+                            anonSummary = cai.Start.Date.ToShortDateString() + " => " + GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         } catch {
                             itemSummary = cai.Subject;
+                            anonSummary = GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         }
                     }
-                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
-                        Console.Markup.warning, logit: true);
+                    String message = "<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>";
+                    Forms.Main.Instance.Console.Update(message, message.Replace(itemSummary, anonSummary), Console.Markup.warning);
 
                 } finally {
                     log.Debug("Outlook object removed.");
@@ -761,7 +763,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             ai = outlookEntries[o];
                             OutlookOgcs.CustomProperty.LogProperties(ai, log4net.Core.Level.Debug);
                             if (OutlookOgcs.CustomProperty.Extirpate(ref ai)) {
-                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.calendar);
+                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary), anonSummary, Console.Markup.calendar);
                                 ai.Save();
                             }
                         } finally {
@@ -775,7 +777,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Event ev = googleEntries[g];
                         GoogleOgcs.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
                         if (GoogleOgcs.CustomProperty.Extirpate(ref ev)) {
-                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary), anonSummary, Console.Markup.calendar);
                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                         }
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;

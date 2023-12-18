@@ -195,6 +195,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            cbAnonymiseLogs.Checked = Settings.Instance.AnonymiseLogs;
             cbTelemetryDisabled.Checked = Settings.Instance.TelemetryDisabled;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             #endregion
@@ -1262,7 +1263,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case "When": section.Height = 119; break;
                     case "What": section.Height = 228; break;
                     //Application Behaviour
-                    case "Logging": section.Height = 111; break;
+                    case "Logging": section.Height = 125; break;
                     case "Proxy": section.Height = 197; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
@@ -2387,6 +2388,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Settings.Instance.CloudLogging = null;
             else
                 Settings.Instance.CloudLogging = cbCloudLogging.Checked;
+        }
+
+        private void cbAnonymiseLogs_CheckedChanged(object sender, EventArgs e) {
+            if (!Settings.AreApplied) return;
+
+            Settings.Instance.AnonymiseLogs = cbAnonymiseLogs.Checked;
         }
 
         private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {

@@ -449,7 +449,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 for (int p = 1; p <= ups.Count; p++) {
                     try {
                         up = ups[p];
-                        log.Debug(up.Name + "=" + up.Value.ToString());
+                        if (up.Name == metadataIdKeyName(MetadataId.gCalendarId))
+                            log.Debug(up.Name + "=" + EmailAddress.MaskAddress(up.Value.ToString()));
+                        else
+                            log.Debug(up.Name + "=" + up.Value.ToString());
                     } finally {
                         up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
                     }
