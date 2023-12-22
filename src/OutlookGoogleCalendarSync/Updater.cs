@@ -253,7 +253,9 @@ namespace OutlookGoogleCalendarSync {
                 } else {
                     log.Info("Already running the latest version of OGCS.");
                     if (this.isManualCheck) { //Was a manual check, so give feedback
-                        OgcsMessageBox.Show("You are already running the latest version of OGCS.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        String beta = "";
+                        if (!Settings.Instance.AlphaReleases && Application.ProductVersion.EndsWith(".0.0")) beta = "beta ";
+                        OgcsMessageBox.Show($"You are already running the latest {beta}version of OGCS.", "Latest Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
@@ -482,7 +484,11 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else {
                     log.Info("Already on latest ZIP release.");
-                    if (isManualCheck) OgcsMessageBox.Show("You are already on the latest release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (isManualCheck) {
+                        String beta = "";
+                        if (!Settings.Instance.AlphaReleases && Application.ProductVersion.EndsWith(".0.0")) beta = "beta ";
+                        OgcsMessageBox.Show($"You are already on the latest {beta}release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
             } else {
                 log.Info("Did not find ZIP release.");
