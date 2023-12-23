@@ -114,6 +114,11 @@ namespace OutlookGoogleCalendarSync.Sync {
         public DateTime SyncStarted { get; protected set; }
 
         public AbortableBackgroundWorker bwSync { get; private set; }
+
+        /// <summary>
+        /// If the background work is actively running.
+        /// NB: There is a delay between instantiation and running.
+        /// </summary>
         public Boolean SyncingNow {
             get {
                 if (bwSync == null) return false;

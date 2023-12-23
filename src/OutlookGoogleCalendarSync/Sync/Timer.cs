@@ -172,12 +172,17 @@ namespace OutlookGoogleCalendarSync.Sync {
             try {
                 SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
 
+                if (Sync.Engine.Instance.bwSync != null || Sync.Engine.Instance.JobQueue.Count() > 0 ) {
+                    log.Fine("Currently busy syncing; won't check for Push.");
+                    return;
+                }
+
                 //In case the IOutlook.Connect() has to be called which needs an active profile
                 if (Sync.Engine.Calendar.Instance.Profile == null)
                     //Force in the push sync profile
                     Sync.Engine.Calendar.Instance.Profile = profile;
-
                 if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
+
                 log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
                 System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
