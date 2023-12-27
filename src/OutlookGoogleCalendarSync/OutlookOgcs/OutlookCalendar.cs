@@ -43,6 +43,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 return instance;
             }
         }
+        public OutlookOgcs.Authenticator Authenticator;
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
@@ -59,7 +60,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             SharedCalendar
         }
         public EphemeralProperties EphemeralProperties = new EphemeralProperties();
-        
+
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId, Event.Id></Appt.EntryId></summary>
         public Dictionary<String, String> ExcludedByCategory { get; private set; }
 
@@ -119,7 +120,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     String wikiURL = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Resolving-Outlook-Error-Messages#one-or-more-items-in-the-folder-you-synchronized-do-not-match";
                     ex.Data.Add("OGCS", ex.Message + "<br/>Please view the wiki for suggestions on " +
                         "<a href='" + wikiURL + "' target='_blank'>how to resolve conflicts</a> within your Outlook account.");
-                    if (!suppressAdvisories && OgcsMessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?", 
+                    if (!suppressAdvisories && OgcsMessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?",
                         "Outlook conflicts exist", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         Helper.OpenBrowser(wikiURL);
                 }
@@ -234,7 +235,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                         (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
                                 } else throw;
                             }
-                        if (filtered) { ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue; }
+                            if (filtered) { ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue; }
 
                             //Availability, Privacy, Subject
                             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
@@ -1014,10 +1015,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private OlBusyStatus getAvailability(String gTransparency, OlBusyStatus? oBusyStatus) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             List<String> persistOutlookStatus = new List<String> { OlBusyStatus.olTentative.ToString(), OlBusyStatus.olOutOfOffice.ToString(), "olWorkingElsewhere" };
-            
+
             if (!profile.SetEntriesAvailable)
-                return (gTransparency == "transparent") ? OlBusyStatus.olFree :  
-                    persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus: OlBusyStatus.olBusy;
+                return (gTransparency == "transparent") ? OlBusyStatus.olFree :
+                    persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
 
             OlBusyStatus overrideFbStatus = OlBusyStatus.olFree;
             try {
@@ -1246,7 +1247,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             comGa4Ev.AddParameter("com_object", hResult);
             comGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
             comGa4Ev.Send();
-            
+
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);
                 log.Debug("Extracting specific COM error code from Exception error message.");
@@ -1263,7 +1264,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     OGCSexception.Analyse("Parsing error message with regex failed.", ex2);
                 }
             }
-            
+
             if (!string.IsNullOrEmpty(hResult)) {
                 try {
                     String html = "";
@@ -1645,5 +1646,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
         #endregion
+
+        public void GetCalendars() {
+            
+        }
     }
 }

@@ -59,7 +59,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 ClientSecrets cs = getCalendarClientSecrets();
                 //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
-                var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
+                Task task = Task.Run(async () => { await getAuthenticated(cs); });
                 try {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
@@ -109,14 +109,14 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
                 if (tokenFileExists)
-                    log.Debug("User has provided authorisation and credential file saved.");
+                    log.Debug("User has provided Google authorisation and credential file saved.");
 
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
                 if (ex.Error.Error == "access_denied") {
-                    String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
+                    String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google calendar.";
                     log.Warn("User did not provide authorisation code. Sync will not be able to work.");
-                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
@@ -197,7 +197,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
             Settings.Instance.GaccountEmail = "";
-            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", "Not connected");
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbGoogleConnectedAcc, "Text", "Not connected");
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
             if (!GoogleOgcs.Calendar.IsInstanceNull) {
@@ -224,7 +224,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                         log.Debug("Looks like the Google account username value has been tampering with? :-O");
                     Settings.Instance.GaccountEmail = email;
-                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", email);
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbGoogleConnectedAcc, "Text", email);
                     log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
                 }
                 getEmailAttempts = 0;

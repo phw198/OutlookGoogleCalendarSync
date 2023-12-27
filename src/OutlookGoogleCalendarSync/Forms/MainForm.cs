@@ -30,9 +30,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             InitializeComponent();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
-            gbGoogle_Account.MinimumSize =
+            gbOutlook_OAccount.MinimumSize =
+            gbOutlook_OConfig.MinimumSize =
+            gbOutlook_ODate.MinimumSize =
+            gbGoogle_GAccount.MinimumSize =
             gbGoogle_GConfig.MinimumSize =
-            gbGoogle_OAuth.MinimumSize =
+            gbGoogle_GOAuth.MinimumSize =
             gbSyncOptions_How.MinimumSize =
             gbSyncOptions_When.MinimumSize =
             gbSyncOptions_What.MinimumSize =
@@ -416,11 +419,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #endregion
                     #region Google page
-                    groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount, true);
+                    groupboxSizing(gbGoogle_GAccount, pbExpandGoogleAccount, true);
                     groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
-                    groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth, false);
+                    groupboxSizing(gbGoogle_GOAuth, pbExpandGoogleOauth, false);
 
-                    tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
+                    tbGoogleConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
                     if (profile.UseGoogleCalendar?.Id != null) {
                         foreach (GoogleCalendarListEntry cle in this.cbGoogleCalendars.Items) {
                             if (cle.Id == profile.UseGoogleCalendar.Id) {
@@ -1270,10 +1273,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (expandSection) {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
+                    //Outlook
+                    case "OAccount": section.Height = 351; break;
+                    case "OConfig": section.Height = 183; break;
+                    case "ODate": section.Height = 160; break;
                     //Google
-                    case "Account": section.Height = 242; break;
+                    case "GAccount": section.Height = 242; break;
                     case "GConfig": section.Height = 130; break;
-                    case "OAuth": section.Height = 174; break;
+                    case "GOAuth": section.Height = 174; break;
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
@@ -1290,12 +1297,18 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             sectionImage.Refresh();
 
-            if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
-                gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
+            if ("pbExpandOutlookAccount|pbExpandOutlookConfig|pbExpandOutlookDate".Contains(sectionImage.Name)) { //|pbExpandGoogleOauth
+                gbOutlook_OConfig.Top = gbOutlook_OAccount.Location.Y + gbOutlook_OAccount.Height + Convert.ToInt16(10 * magnification);
+                pbExpandOutlookConfig.Top = gbOutlook_OConfig.Top - Convert.ToInt16(2 * magnification); 
+                gbOutlook_ODate.Top = gbOutlook_OConfig.Location.Y + gbOutlook_OConfig.Height + Convert.ToInt16(10 * magnification);
+                pbExpandOutlookDate.Top = gbOutlook_ODate.Top - Convert.ToInt16(2 * magnification);
+
+            } else if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
+                gbGoogle_GConfig.Top = gbGoogle_GAccount.Location.Y + gbGoogle_GAccount.Height + Convert.ToInt16(10 * magnification);
                 pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
                 cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
-                gbGoogle_OAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
-                pbExpandGoogleOauth.Top = gbGoogle_OAuth.Top - Convert.ToInt16(2 * magnification);
+                gbGoogle_GOAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
+                pbExpandGoogleOauth.Top = gbGoogle_GOAuth.Top - Convert.ToInt16(2 * magnification);
 
             } else if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
                 gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
@@ -1310,6 +1323,16 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         #region Outlook settings
+        private void pbExpandOutlookAccount_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_OAccount, pbExpandOutlookAccount);
+        }
+        private void pbExpandOutlookConfig_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_OConfig, pbExpandOutlookConfig);
+        }
+        private void pbExpandOutlookDate_Click(object sender, EventArgs e) {
+            groupboxSizing(gbOutlook_ODate, pbExpandOutlookDate);
+        }
+
         private void enableOutlookSettingsUI(Boolean enable) {
             this.clbCategories.Enabled = enable;
             this.cbOutlookCalendars.Enabled = enable;
@@ -1502,13 +1525,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #region Google settings
         private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount);
+            groupboxSizing(gbGoogle_GAccount, pbExpandGoogleAccount);
         }
         private void pbExpandGoogleConfig_Click(object sender, EventArgs e) {
             groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig);
         }
         private void pbExpandGoogleOauth_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
+            groupboxSizing(gbGoogle_GOAuth, pbExpandGoogleOauth);
         }
 
         #region Google Account
@@ -1609,7 +1632,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.GaccountEmail = "";
-                    tbConnectedAcc.Text = "Not connected";
+                    tbGoogleConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
@@ -1697,7 +1720,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbShowDeveloperOptions_CheckedChanged(object sender, EventArgs e) {
             //Toggle visibility
             pbExpandGoogleOauth.Visible =
-            gbGoogle_OAuth.Visible =
+            gbGoogle_GOAuth.Visible =
                 cbShowDeveloperOptions.Checked;
         }
 
@@ -2618,5 +2641,77 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
+
+        private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
+            if (bGetOutlookCalendars.Text == "Cancel retrieval") {
+                log.Warn("User cancelled retrieval of Outlook calendars.");
+                OutlookOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                return;
+            }
+
+            //This needs removing once finished to stop repeated auth***
+            OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+
+            log.Debug("Retrieving Outlook calendar list.");
+            this.bGetOutlookCalendars.Text = "Cancel retrieval";
+            try {
+                OutlookOgcs.Calendar.Instance.GetCalendars();
+            //} catch (AggregateException agex) {
+            //    OGCSexception.AnalyseAggregate(agex, false);
+            //} catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+            //    OGCSexception.AnalyseTokenResponse(ex, false);
+            //} catch (OperationCanceledException) {
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse(ex);
+                OgcsMessageBox.Show("Failed to retrieve Outlook calendars.\r\n" +
+                    "Please check the output on the Sync tab for more details.", "Outlook calendar retrieval failed",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                StringBuilder sb = new StringBuilder();
+                console.BuildOutput("Unable to get the list of Outlook calendars. The following error occurred:", ref sb, false);
+                if (ex is ApplicationException && ex.InnerException != null /*&& ex.InnerException is Google.GoogleApiException*/) {
+                    console.BuildOutput(ex.Message, ref sb, false);
+                    console.Update(sb, Console.Markup.fail, logit: true);
+                } else {
+                    console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
+                    console.Update(sb, Console.Markup.error, logit: true);
+                    if (Settings.Instance.Proxy.Type == "IE") {
+                        if (OgcsMessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                            "Test it now? If successful, please retry retrieving your Outlook calendars.",
+                            "Test IE Internet Access",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
+                        }
+                    }
+                }
+            }
+
+            //cbGoogleCalendars_BuildList();
+
+            bGetOutlookCalendars.Enabled = true;
+            cbOutlookCalendars.Enabled = true;
+            bGetOutlookCalendars.Text = "Retrieve Calendars";
+        }
+
+        private void btResetOCal_Click(object sender, EventArgs e) {
+            btResetOCal.ForeColor = Color.Red;
+            if (OgcsMessageBox.Show("This will disconnect the Microsoft account you are using to synchronise with.\r\n" +
+                "Useful if you want to start syncing to a different account.",
+                "Disconnect Microsoft account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) 
+            {
+                log.Info("User requested reset of Microsoft authentication details.");
+                //ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry(); ***
+                //this.cbGoogleCalendars.Items.Clear();
+                //this.tbClientID.ReadOnly = false;
+                //this.tbClientSecret.ReadOnly = false;
+                if (!OutlookOgcs.Calendar.IsInstanceNull && OutlookOgcs.Calendar.Instance.Authenticator != null)
+                    OutlookOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                else {
+                    //Settings.Instance.AssignedClientIdentifier = "";
+                    //Settings.Instance.GaccountEmail = "";
+                    tbOutlookConnectedAcc.Text = "Not connected";
+                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, OutlookOgcs.Authenticator.TokenFile));
+                }
+            }
+        }
     }
 }
