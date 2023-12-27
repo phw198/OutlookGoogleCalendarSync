@@ -308,35 +308,35 @@ namespace OutlookGoogleCalendarSync.Forms {
                         rbOutlookAltMB.Enabled = false;
                         rbOutlookAltMB.Checked = false;
                     }
-                    Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
-                    Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-                    for (int fld = 1; fld <= theFolders.Count; fld++) {
-                        MAPIFolder theFolder = theFolders[fld];
-                        try {
-                            //Create a dictionary of folder names and a list of their ID(s)
-                            if (!folderIDs.ContainsKey(theFolder.Name)) {
-                                folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
-                            } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
-                                folderIDs[theFolder.Name].Add(theFolder.EntryID);
+                        Folders theFolders = OutlookOgcs.Calendar.Instance.Folders;
+                        Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
+                        for (int fld = 1; fld <= theFolders.Count; fld++) {
+                            MAPIFolder theFolder = theFolders[fld];
+                            try {
+                                //Create a dictionary of folder names and a list of their ID(s)
+                                if (!folderIDs.ContainsKey(theFolder.Name)) {
+                                    folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
+                                } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
+                                    folderIDs[theFolder.Name].Add(theFolder.EntryID);
+                                }
+                            } catch (System.Exception ex) {
+                                OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
+                            } finally {
+                                theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
                             }
-                        } catch (System.Exception ex) {
-                            OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
-                        } finally {
-                            theFolder = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(theFolder);
                         }
-                    }
-                    ddMailboxName.Items.Clear();
-                    ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
-                    ddMailboxName.SelectedItem = profile.MailboxName;
+                        ddMailboxName.Items.Clear();
+                        ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
+                        ddMailboxName.SelectedItem = profile.MailboxName;
 
-                    if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
-                        if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
-                            log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
+                        if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
+                            if (profile.OutlookService == OutlookOgcs.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
+                                log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
 
-                        ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-                        ddMailboxName.SelectedIndex = 0;
-                        ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-                    }
+                            ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                            ddMailboxName.SelectedIndex = 0;
+                            ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                        }
 
                     log.Debug("List Calendar folders");
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
@@ -1274,7 +1274,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Outlook
-                    case "OAccount": section.Height = 351; break;
+                    case "OAccount": section.Height = groupBox1.Height < 50 ? 200 : 368; break;
                     case "OConfig": section.Height = 183; break;
                     case "ODate": section.Height = 160; break;
                     //Google
@@ -1339,7 +1339,47 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.ddMailboxName.Enabled = rbOutlookAltMB.Checked ? enable : false;
         }
 
+        private void rbOutlookOnline_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookOnline.Checked) {
+                rbOutlookDefaultMB.Checked =
+                rbOutlookAltMB.Checked =
+                rbOutlookSharedCal.Checked =
+                gbOutlook_ODate.Visible =
+                pbExpandOutlookDate.Visible = false;
+                groupBox1.Height = 211;
+                gbOutlook_OAccount.Height = 268;
+            } else {
+                gbOutlook_ODate.Visible =
+                pbExpandOutlookDate.Visible = true;
+                groupBox1.Height = 40;
+                label36.Top = 39;
+                gbOutlook_OAccount.Height = 368;
+            }
+            groupBox3.Top = groupBox1.Location.Y + groupBox1.Height + Convert.ToInt16(10 * magnification);
+            lOutlookCalendar.Top = groupBox3.Location.Y + groupBox3.Height + Convert.ToInt16(9 * magnification);
+            cbOutlookCalendars.Top = groupBox3.Location.Y + groupBox3.Height + Convert.ToInt16(5 * magnification);
+            groupboxSizing(gbOutlook_OAccount, pbExpandOutlookAccount, true);
+            
+            if (!Settings.AreApplied) return;
+
+            if (rbOutlookOnline.Checked) {
+                this.rbOutlookDefaultMB.Checked = false;
+
+                /*enableOutlookSettingsUI(false);
+                ActiveCalendarProfile.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
+                OutlookOgcs.Calendar.Instance.Reset();
+                //Update available calendars
+                if (LoadingProfileConfig)
+                    cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
+                cbOutlookCalendars.DataSource = new BindingSource(OutlookOgcs.Calendar.Instance.CalendarFolders, null);
+                if (LoadingProfileConfig)
+                    cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                refreshCategories();*/
+            }
+        }
+
         public void rbOutlookDefaultMB_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookDefaultMB.Checked) rbOutlookOnline.Checked = false;
             if (!Settings.AreApplied) return;
 
             if (rbOutlookDefaultMB.Checked) {
@@ -1357,6 +1397,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookAltMB.Checked) rbOutlookOnline.Checked = false;
             if (!Settings.AreApplied) return;
 
             if (rbOutlookAltMB.Checked) {
@@ -1378,6 +1419,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void rbOutlookSharedCal_CheckedChanged(object sender, EventArgs e) {
+            if (rbOutlookSharedCal.Checked) rbOutlookOnline.Checked = false;
             if (!Settings.AreApplied) return;
 
             if (rbOutlookSharedCal.Checked && ActiveCalendarProfile.OutlookGalBlocked) {
