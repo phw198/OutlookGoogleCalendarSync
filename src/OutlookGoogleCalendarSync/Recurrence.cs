@@ -601,7 +601,7 @@ namespace OutlookGoogleCalendarSync {
                                                 Microsoft.Office.Interop.Outlook.AppointmentItem ai2 = null;
                                                 try {
                                                     ai2 = oExcp2.AppointmentItem;
-                                                    if (oExcp.OriginalDate.Date == oExcp2.OriginalDate.Date && oExcp.OriginalDate.Date != ai2.Start.Date) { 
+                                                    if (oExcp.OriginalDate.Date == oExcp2.OriginalDate.Date && oExcp.OriginalDate.Date != ai2.Start.Date) {
                                                         //It's an additional exception which has the same original start date, but was moved
                                                         log.Warn(GoogleOgcs.Calendar.GetEventSummary(ev));
                                                         log.Warn("This item is not really deleted, but moved to another date in Outlook on "+ ai2.Start.Date.ToString("dd-MMM-yyyy"));
@@ -914,21 +914,21 @@ namespace OutlookGoogleCalendarSync {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = oExcps[e];
-                        if (oExcp.OriginalDate.Date == instanceOrigDate.Date)
-                            log.Debug("Found Outlook exception for original date " + instanceOrigDate);
-                        
                         DeletionState isDeleted = exceptionIsDeleted(oExcp);
-                        if (isDeleted == DeletionState.Inaccessible) {
-                            log.Warn("This exception is inaccessible.");
-                            return;
-                        } else if (isDeleted == DeletionState.Deleted) {
-                            if (processingDeletions) {
-                                log.Debug("This exception is deleted.");
-                                return;
-                            }
-                        }
 
                         if (oExcp.OriginalDate.Date == instanceOrigDate.Date) {
+                            log.Debug("Found Outlook exception for original date " + instanceOrigDate);
+
+                            if (isDeleted == DeletionState.Inaccessible) {
+                            log.Warn("This exception is inaccessible.");
+                                return;
+                            } else if (isDeleted == DeletionState.Deleted) {
+                                if (processingDeletions) {
+                                log.Debug("This exception is deleted.");
+                                    return;
+                                }
+                            }
+
                             try {
                                 ai = oExcp.AppointmentItem;
                                 return;
@@ -937,7 +937,7 @@ namespace OutlookGoogleCalendarSync {
                                 break;
                             }
                         } else if (processingDeletions && isDeleted != DeletionState.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
-                            log.Debug("An exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
+                            log.Debug("An Outlook exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
                             return;
                         }
                     } finally {
