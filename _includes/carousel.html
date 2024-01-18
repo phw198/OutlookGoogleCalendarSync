@@ -33,7 +33,7 @@
               <div class="carousel__track_quote">{{ item.quote }}</div>
               <div class="carousel__track_name">{% if item.url %}<a href="{{item.url}}" target="_blank">{{ item.name }}</a>{% else %}{{item.name }}{% endif %}</div>
               <div class="carousel__track_date">{{ item.date }}</div>
-              <span style="position: absolute; bottom: 5px; right: 140px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
+              <span style="position: absolute; bottom: 7px; right: 123px;"><img src="images/quotemark-close.png" style="width:25px; opacity: 0.8;"/></span>
             </div>
             {% endfor %}
           </ul>
@@ -132,14 +132,14 @@
   text-align: right;
 }
 .carousel__indicator {
-  height: 15px;
-  width: 15px;
+  height: 10px;
+  width: 10px;
   border-radius: 100%;
   display: inline-block;
   z-index: 2;
   cursor: pointer;
   opacity: 0.35;
-  margin: 0 1px 0 1px;
+  margin: 0px 0px 0px 0px;
 }
 .carousel__indicator:hover {
   opacity: 0.75;
@@ -174,7 +174,7 @@ font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
 .carousel__track_date {  
     padding-right: 13px;
     position: absolute;
-    top: 28px;
+    top: 32px;
     right: 1px;
     font-size: 9px;
 }

@@ -9,9 +9,13 @@ layout: page
 
 {% include carousel.html height="90" unit="px" duration="10" number="1" %}
 
+### :warning: "New Outlook" Preview
+<font color="darkred">The "<a href="https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-windows">New Outlook</a>" preview release is for cloud-only mailboxes and does not support this software.<br/>
+   Work is underway for OGCS to no longer require the Outlook client at all, but it's a significant rewrite. Please be patient :sweat_smile:</font>
+
 ## Functionality
 
-- Supports all versions of Outlook from 2003 to 2019 64-bit! 
+- Supports all versions of Outlook from 2003 to 2019 64-bit 
    - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
