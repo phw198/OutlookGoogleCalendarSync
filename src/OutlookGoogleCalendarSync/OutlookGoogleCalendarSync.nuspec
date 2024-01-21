@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.10.2-alpha</version>
+    <version>2.10.3-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,28 +12,24 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.10.2?
+# What's New In v2.10.3?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
-
 - New option to:
-    - Exclude Google items based on colour [[#1553](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1553)]
-    - Exclude items based on title/subject [[#1688](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1688)]
-    - Obfuscate any of subject, location, description [[#500](https://github.com/phw198/OutlookGoogleCalendarSync/issues/500)]
-- When deletion prompt is declined, sync item instead [[#1691](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1691)]
-- If Google "Busy" status, persist Outlook statuses of: Out of office, Tentative, Working elsewhere [[#1259](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1259)]
-- Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
+    - Sync Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+    - Anonymise calendar subjects in log file [[#1755](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1755)]
+- Improved efficiency when locating Google recurring series [[#1738](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1738)]
+- Handle poorly configured proxy servers [[#1745](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1745)]
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
-
-- Redirect to the wiki when COM error encountered [[#1710](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1710)]
-- Fix failing check for new ZIP releases [[#1711](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1711)]
-- Detect and remove custom application recurrence rules [[#1712](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1712)]
-- Fix incorrect detection of multiple OGCS instances with same config [[#1717](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1717)]
-- Previously synced exclusion no longer deleted when reinstated [[#1686](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1686)]
+- Failing to delete occurrence of Google series [[#1753](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1753)]
+- Handle Google rate limiting for too many meeting attendees [[#1744](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1744)]
+- Apply existing obfuscation rules against item Subjects [[#1725](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1725)]
+    - Handle items with no Subject text [[#1731](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1731)]
+- Cropped text on Google 'Retrieve Calendars' screen [[#1730](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1730)]
 
     </releaseNotes>
-    <copyright>Copyright 2023</copyright>
+    <copyright>Copyright 2024</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>
