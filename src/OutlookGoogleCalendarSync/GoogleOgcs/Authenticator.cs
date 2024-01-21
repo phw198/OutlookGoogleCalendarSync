@@ -59,7 +59,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             try {
                 ClientSecrets cs = getCalendarClientSecrets();
                 //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
-                var task = System.Threading.Tasks.Task.Run(async () => { await getAuthenticated(cs); });
+                Task task = Task.Run(async () => { await getAuthenticated(cs); });
                 try {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
@@ -109,7 +109,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
                 if (tokenFileExists)
-                    log.Debug("User has provided authorisation and credential file saved.");
+                    log.Debug("User has provided Google authorisation and credential file saved.");
 
             } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
@@ -284,8 +284,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
         }
 
-        public static String GetMd5(String input, Boolean isEmailAddress = false) {
-            log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
+        public static String GetMd5(String input, Boolean isEmailAddress = false, Boolean silent = false) {
+            if (!silent) log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     sb.Append(hash[i].ToString("x2"));
                 }
             } catch (System.Exception ex) {
-                log.Error("Failed to create MD5 for '" + EmailAddress.MaskAddress(input) + "'");
+                log.Error("Failed to create MD5" + (silent ? "." : " for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'."));
                 OGCSexception.Analyse(ex);
             }
             return sb.ToString();

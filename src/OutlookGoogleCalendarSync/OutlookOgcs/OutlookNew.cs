@@ -123,7 +123,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
-                    Calendar.Categories.Dispose();
+                    Calendar.Categories?.Dispose();
                     explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
@@ -185,11 +185,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return currentUserName;
         }
         public Boolean Offline() {
+            NameSpace oNS = null;
             try {
-                return oApp.GetNamespace("mapi").Offline;
+                oNS = oApp.GetNamespace("mapi");
+                return oNS.Offline;
             } catch {
                 OutlookOgcs.Calendar.Instance.Reset();
                 return false;
+            } finally {
+                if (oNS != null) oNS.Logoff();
+                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -764,8 +769,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         else organiserTZid = tzi.Id;
                     }
                 } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
-                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
+                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary) +
+                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", anonSummary, Console.Markup.warning);
                     if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
                     else OGCSexception.Analyse(ex);
                     organiserTZname = null;
@@ -968,5 +973,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return ai.EndTimeZone.ID;
         }
         #endregion
+
+        public void AddRtfBody(ref AppointmentItem ai, String RtfDocument) {
+            if (OutlookOgcs.Factory.OutlookVersionName != Factory.OutlookVersionNames.Outlook2007) {
+#if !DEVELOP_AGAINST_2007
+                if (String.IsNullOrEmpty(RtfDocument))
+                    ai.RTFBody = " ";
+                else
+                    ai.RTFBody = System.Text.Encoding.ASCII.GetBytes(RtfDocument);
+#endif
+            }
+        }
     }
 }

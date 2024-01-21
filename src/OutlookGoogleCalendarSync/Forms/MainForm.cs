@@ -30,9 +30,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             InitializeComponent();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
-            gbGoogle_Account.MinimumSize =
+            gbGoogle_GAccount.MinimumSize =
             gbGoogle_GConfig.MinimumSize =
-            gbGoogle_OAuth.MinimumSize =
+            gbGoogle_GOAuth.MinimumSize =
             gbSyncOptions_How.MinimumSize =
             gbSyncOptions_When.MinimumSize =
             gbSyncOptions_What.MinimumSize =
@@ -95,6 +95,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Include hidden calendars in the above drop down.");
             ToolTips.SetToolTip(cbDeleteWhenColourExcl,
                 "If items are already synced in Outlook and subsequently excluded by a colour filter.");
+            ToolTips.SetToolTip(cbAddGMeet,
+                "Sync conference details embedded in Outlook appointment body.");
 
             //Settings
             ToolTips.SetToolTip(tbInterval,
@@ -195,6 +197,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             cbCloudLogging.CheckState = Settings.Instance.CloudLogging == null ? CheckState.Indeterminate : (CheckState)(Convert.ToInt16((bool)Settings.Instance.CloudLogging));
+            cbAnonymiseLogs.Checked = Settings.Instance.AnonymiseLogs;
             cbTelemetryDisabled.Checked = Settings.Instance.TelemetryDisabled;
             cbCreateFiles.Checked = Settings.Instance.CreateCSVFiles;
             #endregion
@@ -414,9 +417,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #endregion
                     #region Google page
-                    groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount, true);
+                    groupboxSizing(gbGoogle_GAccount, pbExpandGoogleAccount, true);
                     groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig, true);
-                    groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth, false);
+                    groupboxSizing(gbGoogle_GOAuth, pbExpandGoogleOauth, false);
 
                     tbConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.GaccountEmail) ? "Not connected" : Settings.Instance.GaccountEmail;
                     if (profile.UseGoogleCalendar?.Id != null) {
@@ -443,7 +446,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
                     cbExcludeGoals.Checked = profile.ExcludeGoals;
                     cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
-
+                    cbAddGMeet.Checked = profile.AddGMeet;
+                    
                     if (Settings.Instance.UsingPersonalAPIkeys()) {
                         cbShowDeveloperOptions.Checked = true;
                         tbClientID.Text = Settings.Instance.PersonalClientIdentifier;
@@ -607,23 +611,37 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
             if (isTrue) {
-                SetControlPropertyThreadSafe(cbAddAttendees, "Checked", false);
-                SetControlPropertyThreadSafe(cbAddDescription, "Checked", false);
-                SetControlPropertyThreadSafe(rbOutlookSharedCal, "Checked", false);
                 //Mimic appearance of disabled control - but can't disable else tooltip doesn't work
-                cbAddAttendees.ForeColor = SystemColors.GrayText;
-                cbAddDescription.ForeColor = SystemColors.GrayText;
-                rbOutlookSharedCal.ForeColor = SystemColors.GrayText;
+                checkboxSoftRestrict(cbAddAttendees, true);
+                checkboxSoftRestrict(cbAddDescription, true);
+                checkboxSoftRestrict(rbOutlookSharedCal, true);
+                checkboxSoftRestrict(cbAddGMeet, true);
                 //If a sync is running, disable relevant config in that profile
                 SettingsStore.Calendar activeProfile = Settings.Profile.InPlay();
                 if (activeProfile != null) {
                     activeProfile.AddAttendees = false;
                     activeProfile.AddDescription = false;
+                    activeProfile.AddGMeet = false;
                 }
             } else {
-                cbAddAttendees.ForeColor = SystemColors.ControlText;
-                cbAddDescription.ForeColor = SystemColors.ControlText;
-                rbOutlookSharedCal.ForeColor = SystemColors.ControlText;
+                checkboxSoftRestrict(cbAddAttendees, false);
+                checkboxSoftRestrict(cbAddDescription, false);
+                checkboxSoftRestrict(rbOutlookSharedCal, false);
+                checkboxSoftRestrict(cbAddGMeet, false);
+            }
+        }
+
+        /// <summary>
+        /// Make a checkbox look disabled, but still able to show a tooltip
+        /// </summary>
+        /// <param name="cb">The form control</param>
+        /// <param name="disable">Disable or enable</param>
+        private void checkboxSoftRestrict(Control cb, Boolean disable) {
+            if (disable) {
+                cb.ForeColor = SystemColors.GrayText;
+                SetControlPropertyThreadSafe(cb, "Checked", false);
+            } else {
+                cb.ForeColor = SystemColors.ControlText;
             }
         }
 
@@ -1254,15 +1272,15 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Google
-                    case "Account": section.Height = 242; break;
-                    case "GConfig": section.Height = 122; break;
-                    case "OAuth": section.Height = 174; break;
+                    case "GAccount": section.Height = 242; break;
+                    case "GConfig": section.Height = 130; break;
+                    case "GOAuth": section.Height = 174; break;
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
                     case "When": section.Height = 119; break;
-                    case "What": section.Height = 228; break;
+                    case "What": section.Height = 250; break;
                     //Application Behaviour
-                    case "Logging": section.Height = 111; break;
+                    case "Logging": section.Height = 125; break;
                     case "Proxy": section.Height = 197; break;
                 }
                 section.Height = Convert.ToInt16(section.Height * magnification);
@@ -1274,11 +1292,11 @@ namespace OutlookGoogleCalendarSync.Forms {
             sectionImage.Refresh();
 
             if ("pbExpandGoogleAccount|pbExpandGoogleConfig|pbExpandGoogleOauth".Contains(sectionImage.Name)) {
-                gbGoogle_GConfig.Top = gbGoogle_Account.Location.Y + gbGoogle_Account.Height + Convert.ToInt16(10 * magnification);
+                gbGoogle_GConfig.Top = gbGoogle_GAccount.Location.Y + gbGoogle_GAccount.Height + Convert.ToInt16(10 * magnification);
                 pbExpandGoogleConfig.Top = gbGoogle_GConfig.Top - Convert.ToInt16(2 * magnification);
                 cbShowDeveloperOptions.Top = gbGoogle_GConfig.Location.Y + gbGoogle_GConfig.Height + Convert.ToInt16(5 * magnification);
-                gbGoogle_OAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
-                pbExpandGoogleOauth.Top = gbGoogle_OAuth.Top - Convert.ToInt16(2 * magnification);
+                gbGoogle_GOAuth.Top = cbShowDeveloperOptions.Location.Y + cbShowDeveloperOptions.Height + Convert.ToInt16(5 * magnification);
+                pbExpandGoogleOauth.Top = gbGoogle_GOAuth.Top - Convert.ToInt16(2 * magnification);
 
             } else if ("pbExpandHow|pbExpandWhen|pbExpandWhat".Contains(sectionImage.Name)) {
                 gbSyncOptions_When.Top = gbSyncOptions_How.Location.Y + gbSyncOptions_How.Height + Convert.ToInt16(10 * magnification);
@@ -1485,13 +1503,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #region Google settings
         private void pbExpandGoogleAccount_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_Account, pbExpandGoogleAccount);
+            groupboxSizing(gbGoogle_GAccount, pbExpandGoogleAccount);
         }
         private void pbExpandGoogleConfig_Click(object sender, EventArgs e) {
             groupboxSizing(gbGoogle_GConfig, pbExpandGoogleConfig);
         }
         private void pbExpandGoogleOauth_Click(object sender, EventArgs e) {
-            groupboxSizing(gbGoogle_OAuth, pbExpandGoogleOauth);
+            groupboxSizing(gbGoogle_GOAuth, pbExpandGoogleOauth);
         }
 
         #region Google Account
@@ -1667,13 +1685,20 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeGoals = cbExcludeGoals.Checked;
         }
+        private void cbGMeet_CheckedChanged(object sender, EventArgs e) {
+            if (!this.LoadingProfileConfig && !cbAddDescription.Checked) {
+                cbAddGMeet.Checked = false;
+            }
+            ActiveCalendarProfile.AddGMeet = cbAddGMeet.Checked;
+        }
+
         #endregion
 
         #region Developer Options
         private void cbShowDeveloperOptions_CheckedChanged(object sender, EventArgs e) {
             //Toggle visibility
             pbExpandGoogleOauth.Visible =
-            gbGoogle_OAuth.Visible =
+            gbGoogle_GOAuth.Visible =
                 cbShowDeveloperOptions.Checked;
         }
 
@@ -2161,6 +2186,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             ActiveCalendarProfile.AddDescription = cbAddDescription.Checked;
             cbAddDescription_OnlyToGoogle.Enabled = cbAddDescription.Checked;
+            checkboxSoftRestrict(cbAddGMeet, !cbAddDescription.Checked);
+            ToolTips.SetToolTip(cbAddGMeet, cbAddDescription.Checked ? "Sync conference details embedded in Outlook appointment body." : "Requires sync of Description (under Options > What)");
             showWhatPostit("Description");
         }
         private void cbAddDescription_OnlyToGoogle_CheckedChanged(object sender, EventArgs e) {
@@ -2387,6 +2414,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Settings.Instance.CloudLogging = null;
             else
                 Settings.Instance.CloudLogging = cbCloudLogging.Checked;
+        }
+
+        private void cbAnonymiseLogs_CheckedChanged(object sender, EventArgs e) {
+            if (!Settings.AreApplied) return;
+
+            Settings.Instance.AnonymiseLogs = cbAnonymiseLogs.Checked;
         }
 
         private void cbTelemetryDisabled_CheckedChanged(object sender, EventArgs e) {

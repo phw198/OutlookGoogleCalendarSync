@@ -503,7 +503,7 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Instance.Version = Application.ProductVersion;
                 if (isHotFix) {
                     if (!(Settings.Instance.CloudLogging ?? false) | Settings.Instance.TelemetryDisabled) {
-                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "cloud logging" : "");
+                        String disabledSetting = (!(Settings.Instance.CloudLogging ?? false) ? "automatic feedback of errors" : "");
                         if (Settings.Instance.TelemetryDisabled) {
                             if (!String.IsNullOrEmpty(disabledSetting)) disabledSetting += " and ";
                             disabledSetting += "telemetry";
@@ -515,7 +515,12 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                 } else { //Release notes not updated for hotfixes.
-                    Helper.OpenBrowser(OgcsWebsite + "/release-notes.html");
+                    String releaseNotesUrl = "/release-notes.html";
+                    if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
+                        byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(Settings.Instance.GaccountEmail);
+                        releaseNotesUrl += "?id=" + System.Convert.ToBase64String(plainTextBytes);
+                    }
+                    Helper.OpenBrowser(OgcsWebsite + releaseNotesUrl);
                     if (isSquirrelInstall) {
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                         Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);

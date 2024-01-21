@@ -162,11 +162,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return currentUserName;
         }
         public Boolean Offline() {
+            NameSpace oNS = null;
             try {
-                return oApp.GetNamespace("mapi").Offline;
+                oNS = oApp.GetNamespace("mapi");
+                return oNS.Offline;
             } catch {
                 OutlookOgcs.Calendar.Instance.Reset();
                 return false;
+            } finally {
+                if (oNS != null) oNS.Logoff();
+                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -417,7 +422,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
             }
         }
-        
+
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
@@ -816,10 +821,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
             return ai.End;
         }
-        
+
         public String GetEndTimeZoneID(AppointmentItem ai) {
             return "UTC";
         }
         #endregion
+
+        public void AddRtfBody(ref AppointmentItem ai, String RtfDocument) { }
     }
 }

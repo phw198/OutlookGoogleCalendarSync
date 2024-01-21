@@ -95,6 +95,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             gCalendarId,
             ogcsModified,
             forceSave,
+            gMeetUrl,
             locallyCopied,
             originalStartDate
         }
@@ -263,7 +264,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             Add(ref ai, MetadataId.gEventID, ev.Id);
             LogProperties(ai, log4net.Core.Level.Debug);
         }
-        
+
         /// <summary>
         /// Remove the Google event IDs from an Outlook appointment.
         /// </summary>
@@ -399,6 +400,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 metadataIdKeyName(MetadataId.forceSave),
                 metadataIdKeyName(MetadataId.gCalendarId),
                 metadataIdKeyName(MetadataId.gEventID),
+                metadataIdKeyName(MetadataId.gMeetUrl),
                 metadataIdKeyName(MetadataId.locallyCopied),
                 metadataIdKeyName(MetadataId.ogcsModified),
                 metadataIdKeyName(MetadataId.originalStartDate)
@@ -449,7 +451,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 for (int p = 1; p <= ups.Count; p++) {
                     try {
                         up = ups[p];
-                        log.Debug(up.Name + "=" + up.Value.ToString());
+                        if (up.Name == metadataIdKeyName(MetadataId.gCalendarId))
+                            log.Debug(up.Name + "=" + EmailAddress.MaskAddress(up.Value.ToString()));
+                        else
+                            log.Debug(up.Name + "=" + up.Value.ToString());
                     } finally {
                         up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
                     }
@@ -459,6 +464,34 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } finally {
                 ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
             }
+        }
+    }
+
+    public static class ReflectionProperties {
+        private static readonly ILog log = LogManager.GetLogger(typeof(ReflectionProperties));
+
+        public static OlBodyFormat BodyFormat(this AppointmentItem ai) {
+            OlBodyFormat format = OlBodyFormat.olFormatUnspecified;
+            try {
+                format = (OlBodyFormat)ai.GetType().InvokeMember("BodyFormat", System.Reflection.BindingFlags.GetProperty, null, ai, null);
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Unable to determine AppointmentItem body format.", ex);
+            }
+            return format;
+        }
+
+        public static String RTFBodyAsString(this AppointmentItem ai) {
+#if DEVELOP_AGAINST_2007
+            return "";
+#else
+            return System.Text.Encoding.ASCII.GetString(ai.RTFBody as byte[]);
+#endif
+        }
+        private static Boolean RTFIsHtml(this AppointmentItem ai) {
+            //RTF Specification: https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxrtfex/4e5f466b-068a-42b2-b3d5-c9b3d5872438
+            String bodyCode = ai.RTFBodyAsString();
+            Regex rgx = new Regex(@"\\rtf1.*?\\fromhtml1.*?\\fonttbl", RegexOptions.IgnoreCase);
+            return rgx.IsMatch(bodyCode);
         }
     }
 }

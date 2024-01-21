@@ -250,6 +250,29 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
+        /// Log a different string than that displayed to the Console
+        /// </summary>
+        /// <param name="moreOutput">Console output</param>
+        /// <param name="logEntry">Log output</param>
+        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false) {
+            if (string.IsNullOrEmpty(logEntry))
+                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble);
+            else {
+                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, logit: false);
+                if (markupPrefix == Markup.warning)
+                    log.Warn(logEntry);
+                else if (markupPrefix == Markup.fail)
+                    log.Fail(logEntry);
+                else if (markupPrefix == Markup.error)
+                    log.Error(logEntry);
+                else if (verbose)
+                    log.Debug(logEntry);
+                else
+                    log.Info(logEntry);
+            }
+        }
+
+        /// <summary>
         /// Update the console with further text
         /// </summary>
         /// <param name="moreOutput">The text to update the console with</param>
@@ -326,11 +349,11 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false) {
+        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
             Markup emoji = Markup.error;
             if (OGCSexception.LoggingAsFail(ex))
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
         }
 
         private String parseEmoji(String output, Markup? markupPrefix = null) {
@@ -376,7 +399,7 @@ namespace OutlookGoogleCalendarSync {
             return output;
         }
 
-        public void FormatEventChanges(StringBuilder sb) {
+        public void FormatEventChanges(StringBuilder sb, String anonymised) {
             sb.Insert(0, ":" + Markup.calendar.ToString() + ":");
 
             String[] lines = sb.ToString().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -392,7 +415,13 @@ namespace OutlookGoogleCalendarSync {
             }
             table.Append("</table>");
 
-            Update(lines[0] + "<br/>" + table.ToString(), verbose: true, newLine: false);
+            if (Settings.Instance.AnonymiseLogs) {
+                MatchCollection matches = Regex.Matches(anonymised, @"^Subject:\s(.*?)\s=>\s(.*?)$", RegexOptions.Multiline);
+                if (matches.Count > 0) {
+                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
+                }
+            }
+            Update(lines[0] + "<br/>" + table.ToString(), anonymised, verbose: true, newLine: false);
         }
 
         #region Mute webbrowser navigation click sounds
