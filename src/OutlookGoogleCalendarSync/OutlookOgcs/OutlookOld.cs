@@ -162,11 +162,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return currentUserName;
         }
         public Boolean Offline() {
+            NameSpace oNS = null;
             try {
-                return oApp.GetNamespace("mapi").Offline;
+                oNS = oApp.GetNamespace("mapi");
+                return oNS.Offline;
             } catch {
                 OutlookOgcs.Calendar.Instance.Reset();
                 return false;
+            } finally {
+                if (oNS != null) oNS.Logoff();
+                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
