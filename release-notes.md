@@ -32,6 +32,36 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.10.3.0 - Alpha
+
+:high_brightness: **Enhancements**
+- New options to:
+    - Sync Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+    - Anonymise calendar subjects in log file [[#1755](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1755)]
+- Improved efficiency when locating Google recurring series [[#1738](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1738)]
+- Handle poorly configured proxy servers [[#1745](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1745)]
+
+:beetle: **Bugfix**
+- Failing to delete occurrence of Google series [[#1753](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1753)]
+- Handle Google rate limiting for too many meeting attendees [[#1744](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1744)]
+- Apply existing obfuscation rules against item Subjects [[#1725](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1725)]
+    - Handle items with no Subject text [[#1731](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1731)]
+- Cropped text on Google 'Retrieve Calendars' screen [[#1730](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1730)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.10.2.0 - Alpha
 
 :high_brightness: **Enhancements**
