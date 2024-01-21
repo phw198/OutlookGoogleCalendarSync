@@ -396,7 +396,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
                 if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
                     Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
-                    List<Event> subject = result.Where(ev => rgx.IsMatch(ev.Summary)).ToList();
+                    List<Event> subject = result.Where(ev => rgx.IsMatch(ev.Summary ?? "")).ToList();
                     if (subject.Count > 0) {
                         log.Debug(subject.Count + " Google items excluded with Subject containing '" + profile.ExcludeSubjectText + "'");
                         result = result.Except(subject).ToList();

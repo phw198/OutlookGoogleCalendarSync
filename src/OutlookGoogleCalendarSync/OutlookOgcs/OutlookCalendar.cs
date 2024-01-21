@@ -257,7 +257,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
                                 if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
                                     Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
-                                    if (rgx.IsMatch(ai.Subject)) {
+                                    if (rgx.IsMatch(ai.Subject ?? "")) {
                                         log.Fine("Regex has matched subject string: " + profile.ExcludeSubjectText);
                                         subjectFiltered++; continue;
                                     }
