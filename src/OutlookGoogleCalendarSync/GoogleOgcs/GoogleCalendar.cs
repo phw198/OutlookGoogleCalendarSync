@@ -657,7 +657,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai)) {
+            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
@@ -2189,22 +2189,6 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            if (profile.AddAttendees && ex.Message.Contains("Calendar usage limits exceeded. [403]") && ev != null) {
-                //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
-                //This happens because too many attendees have been added in a short period of time.
-                //See https://support.google.com/a/answer/2905486?hl=en-uk&hlrm=en
-
-                Forms.Main.Instance.Console.Update("You have added enough meeting attendees to have reached the Google API limit.<br/>" +
-                    "Don't worry, this only lasts for an hour or two, but until then attendees will not be synced.", Console.Markup.warning);
-
-                APIlimitReached_attendee = true;
-                Settings.Instance.APIlimit_inEffect = true;
-                Settings.Instance.APIlimit_lastHit = DateTime.Now;
-
-                ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
-                return ApiException.justContinue;
-
-            }
 
             if (ex.Error?.Code == 400 && ex.Error.Message.Contains("Invalid time zone definition") &&
                 (ev.Start.TimeZone == "Europe/Kyiv" || ev.End.TimeZone == "Europe/Kyiv")) {
@@ -2221,7 +2205,22 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ApiException.backoffThenRetry;
 
             } else if (ex.Error?.Code == 403 && ex.Error.Errors?.First().Domain == "usageLimits") {
-                if (ex.Error.Errors.First().Reason == "rateLimitExceeded") {
+                if (ex.Message.Contains("Calendar usage limits exceeded") && profile.AddAttendees && ev != null) {
+                    //"Google.Apis.Requests.RequestError\r\nCalendar usage limits exceeded. [403]\r\nErrors [\r\n\tMessage[Calendar usage limits exceeded.] Location[ - ] Reason[quotaExceeded] Domain[usageLimits]\r\n]\r\n"
+                    //This happens because too many attendees have been added in a short period of time.
+                    //See https://support.google.com/a/answer/2905486?hl=en-uk&hlrm=en
+
+                    Forms.Main.Instance.Console.Update("You have added enough meeting attendees to have reached the Google API limit.<br/>" +
+                        "Don't worry, this only lasts for an hour or two, but until then attendees will not be synced.", Console.Markup.warning);
+
+                    APIlimitReached_attendee = true;
+                    Settings.Instance.APIlimit_inEffect = true;
+                    Settings.Instance.APIlimit_lastHit = DateTime.Now;
+
+                    ev.Attendees = new List<Google.Apis.Calendar.v3.Data.EventAttendee>();
+                    return ApiException.backoffThenRetry;
+                
+                } else if (ex.Error.Errors.First().Reason == "rateLimitExceeded") {
                     if (ex.Message.Contains("limit 'Queries per minute'")) {
                         log.Fail(OGCSexception.FriendlyMessage(ex));
                         OGCSexception.LogAsFail(ref ex);
