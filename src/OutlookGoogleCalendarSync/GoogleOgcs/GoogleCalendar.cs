@@ -700,12 +700,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
-                    String summary = OutlookOgcs.Calendar.GetEventSummary(compare.Key, out String anonSummary, true);
+                    String summary = OutlookOgcs.Calendar.GetEventSummary(compare.Key, out String anonSummary);
                     if (ex is ApplicationException) {
-                        Forms.Main.Instance.Console.Update(summary + "Event update skipped.", anonSummary, Console.Markup.warning);
+                        Forms.Main.Instance.Console.Update(summary + "<br/>Event update skipped.", anonSummary, Console.Markup.warning);
                         continue;
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError(summary + "Event update failed.", ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(summary + "<br/>Event update failed.", ex, logEntry: anonSummary);
                         if (ex is System.Runtime.InteropServices.COMException) throw;
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -907,7 +907,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Description = bodyObfuscated;
 
                     if (profile.AddGMeet) {
-                        String outlookGMeet = OutlookOgcs.GMeet.RgxGmeetUrl().Match(ai.Body)?.Value;
+                        String outlookGMeet = OutlookOgcs.GMeet.RgxGmeetUrl().Match(ai.Body ?? "")?.Value;
                         if (Sync.Engine.CompareAttribute("Google Meet", Sync.Direction.OutlookToGoogle, ev.HangoutLink, outlookGMeet, sb, ref itemModified)) {
                             try {
                                 GMeet.GoogleMeet(ev, outlookGMeet);
