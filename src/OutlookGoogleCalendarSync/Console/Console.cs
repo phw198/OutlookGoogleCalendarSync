@@ -299,6 +299,7 @@ namespace OutlookGoogleCalendarSync {
                     contentInnerHtml = matches[0].Result("$1");
                 }
 
+                moreOutput = moreOutput.Replace("\r\n", "<br/>");
                 String htmlOutput = parseEmoji(moreOutput, markupPrefix);
 
                 if (logit) {
