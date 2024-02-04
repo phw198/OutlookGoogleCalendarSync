@@ -52,6 +52,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Colours = new List<String>();
             ExcludeDeclinedInvites = true;
             ExcludeGoals = true;
+            AddGMeet = true;
 
             //Sync Options
             //How
@@ -137,6 +138,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public List<string> Colours { get; set; }
         [DataMember] public Boolean ExcludeDeclinedInvites { get; set; }
         [DataMember] public Boolean ExcludeGoals { get; set; }
+        [DataMember] public Boolean AddGMeet { get; set; }
         #endregion
         #region Sync Options
         /// <summary>For O->G match on signatures. Useful for Appled iCals where immutable Outlook IDs change every sync.</summary>
@@ -288,6 +290,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
             log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
+            log.Info("  Include Google Meet: " + AddGMeet);
             log.Info("  Cloak Email: " + CloakEmail);
 
             log.Info("SYNC OPTIONS:-");

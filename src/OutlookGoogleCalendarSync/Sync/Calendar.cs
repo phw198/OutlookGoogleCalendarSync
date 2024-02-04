@@ -266,16 +266,18 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
                 try {
-                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai);
+                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai, out String anonSummary);
                     if (string.IsNullOrEmpty(itemSummary)) {
                         try {
                             itemSummary = cai.Start.Date.ToShortDateString() + " => " + cai.Subject;
+                            anonSummary = cai.Start.Date.ToShortDateString() + " => " + GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         } catch {
                             itemSummary = cai.Subject;
+                            anonSummary = GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         }
                     }
-                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
-                        Console.Markup.warning, logit: true);
+                    String message = "<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>";
+                    Forms.Main.Instance.Console.Update(message, message.Replace(itemSummary, anonSummary), Console.Markup.warning);
 
                 } finally {
                     log.Debug("Outlook object removed.");
@@ -416,6 +418,15 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         if (ai.IsRecurring && ai.Start.Date < this.Profile.SyncStart && ai.End.Date < this.Profile.SyncStart) {
+                            if (!Sync.Engine.Instance.ManualForceCompare && Profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id && Profile.MergeItems &&
+                                OutlookOgcs.CustomProperty.AnyStartsWith(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) &&
+                                OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) != this.Profile.UseGoogleCalendar.Id)
+                            {
+                                log.Fine("Outlook recurring master, outside sync window, originates from a different Google calendar than that being synced. Will not attempt to find matching Google master event.");
+                                outlookEntries.Remove(ai);
+                                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                                continue;
+                            }
                             //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                             //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                             RecurrencePattern oPattern = ai.GetRecurrencePattern();
@@ -766,7 +777,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             ai = outlookEntries[o];
                             OutlookOgcs.CustomProperty.LogProperties(ai, log4net.Core.Level.Debug);
                             if (OutlookOgcs.CustomProperty.Extirpate(ref ai)) {
-                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.calendar);
+                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary), anonSummary, Console.Markup.calendar);
                                 ai.Save();
                             }
                         } finally {
@@ -780,7 +791,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Event ev = googleEntries[g];
                         GoogleOgcs.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
                         if (GoogleOgcs.CustomProperty.Extirpate(ref ev)) {
-                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary), anonSummary, Console.Markup.calendar);
                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                         }
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
