@@ -68,7 +68,7 @@ namespace System.Windows.Forms {
         /// <param name="logText">Alternative main text to log</param>
         public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, String logText = null) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
-            log.Debug(caption + ": " + logText ?? text);
+            log.Debug(caption + ": " + (logText ?? text));
 
             if (mainFrm == null || mainFrm.IsDisposed)
                 return MessageBox.Show(text, caption, buttons, icon);

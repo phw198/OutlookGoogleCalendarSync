@@ -437,7 +437,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, out String anonSummary, true) + "Appointment update failed.", ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(compare.Value, out String anonSummary) + "<br/>Appointment update failed.", ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -603,7 +603,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         aiBody = htmlDataTag.Replace(aiBody, "");
                         aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, ai.BodyFormat()).RemoveLineBreaks(), "").Trim();
                     }
-                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description, @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
+                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description ?? "", @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
                     if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
