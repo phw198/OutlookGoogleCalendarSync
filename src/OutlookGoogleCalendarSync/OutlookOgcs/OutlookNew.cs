@@ -104,7 +104,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } finally {
                 // Done. Log off.
-                if (oNS != null) oNS.Logoff();
+                if (oNS != null) try { oNS.Logoff(); } catch { }
                 oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
