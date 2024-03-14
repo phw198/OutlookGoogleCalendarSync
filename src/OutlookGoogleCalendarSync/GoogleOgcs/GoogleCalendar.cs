@@ -834,12 +834,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 for (int r = 0; r < ev.Recurrence.Count; r++) {
                     String rrule = ev.Recurrence[r];
                     if (rrule.StartsWith("RRULE:")) {
+                        log.Fine("Google recurrence = " + rrule);
                         if (oRrules != null) {
-                            String[] gRrule_bits = rrule.Split(';');
+                            String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
                             String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
                             if (gRrule_bits.Count() != oRrule_bits.Count()) {
                                 if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
                                     ev.Recurrence[r] = oRrules.First();
+                                    if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
+                                        //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
+                                        //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
+                                        ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
+                                    }
                                     break;
                                 }
                             }
