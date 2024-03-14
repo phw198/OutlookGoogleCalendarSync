@@ -291,6 +291,7 @@
     <Compile Include="Extensions\NumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Extensions\String.cs" />
     <Compile Include="Extensions\WebClient.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -325,6 +326,8 @@
       <DependentUpon>TimezoneMap.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="GoogleOgcs\GMeet.cs" />
+    <Compile Include="OutlookOgcs\GMeet.cs" />
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
@@ -454,6 +457,7 @@
     <Content Include="ErrorReportingTemplate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\gmeet_logo.png" />
     <None Include="Resources\animated-tray-icon-strip-64x.bmp" />
     <None Include="Resources\ogcs128x128-animated.gif" />
     <None Include="Resources\ogcs128x128.png" />

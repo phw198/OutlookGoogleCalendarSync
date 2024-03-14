@@ -166,4 +166,7 @@
   <data name="animated_tray_icon_strip_64x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\animated-tray-icon-strip-64x.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="gmeet_logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gmeet_logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

@@ -123,7 +123,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
-                    Calendar.Categories.Dispose();
+                    Calendar.Categories?.Dispose();
                     explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
@@ -185,11 +185,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return currentUserName;
         }
         public Boolean Offline() {
+            NameSpace oNS = null;
             try {
-                return oApp.GetNamespace("mapi").Offline;
+                oNS = oApp.GetNamespace("mapi");
+                return oNS.Offline;
             } catch {
                 OutlookOgcs.Calendar.Instance.Reset();
                 return false;
+            } finally {
+                if (oNS != null) oNS.Logoff();
+                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -290,57 +295,67 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 Folders binFolders = null;
                 Store binStore = null;
                 PropertyAccessor pa = null;
-                try {
-                    binFolders = oNS.Folders;
-                    log.Fine("Checking mailbox name is still accessible.");
-                    Boolean folderExists = false;
-                    foreach (MAPIFolder fld in binFolders) {
-                        if (fld.Name == profile.MailboxName) {
-                            folderExists = true;
-                            break;
-                        }
-                    }
-                    if (folderExists) {
-                        binStore = binFolders[profile.MailboxName].Store;
-                    } else {
-                        binStore = binFolders.GetFirst().Store;
-                        log.Warn("Alternate mailbox '" + profile.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
-                        OgcsMessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
-                            "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
-                            "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        profile.MailboxName = binStore.DisplayName;
-                        profile.SyncInterval = 0;
-                        profile.OutlookPush = false;
-                        Forms.Main.Instance.ddProfile.SelectedValue = profile._ProfileName;
-                        Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
-                    }
-                    pa = binStore.PropertyAccessor;
-                    string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
+                int mailboxNos = -1;
+                do {
                     try {
-                        object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
-                        excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
+                        if (mailboxNos >= 0) {
+                            if (profile.MailboxName == Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString()) continue;
+                            profile.MailboxName = Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString();
+                            Forms.Main.Instance.ddMailboxName.Text = profile.MailboxName;
+                        }
+                        log.Debug($"Scanning mailbox '{profile.MailboxName}' for calendars.");
+                        binFolders = oNS.Folders;
+                        log.Fine("Checking mailbox name is still accessible.");
+                        Boolean folderExists = false;
+                        foreach (MAPIFolder fld in binFolders) {
+                            if (fld.Name == profile.MailboxName) {
+                                folderExists = true;
+                                break;
+                            }
+                        }
+                        if (folderExists) {
+                            binStore = binFolders[profile.MailboxName].Store;
+                        } else {
+                            binStore = binFolders.GetFirst().Store;
+                            log.Warn("Alternate mailbox '" + profile.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
+                            OgcsMessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                                "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
+                                "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            profile.MailboxName = binStore.DisplayName;
+                            profile.SyncInterval = 0;
+                            profile.OutlookPush = false;
+                            Forms.Main.Instance.ddProfile.SelectedValue = profile._ProfileName;
+                            Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                        }
+                        pa = binStore.PropertyAccessor;
+                        string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
+                        try {
+                            object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
+                            excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
+                        } catch (System.Exception ex) {
+                            OGCSexception.Analyse("Could not access 'Deleted Items' folder property.", OGCSexception.LogAsFail(ex));
+                        }
+                        Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
+                        if (updateGUI) {
+                            Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
+                            Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
+                        }
+                        findCalendars(oNS.Folders[profile.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
+                        if (updateGUI) {
+                            Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
+                            Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
+                        }
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Could not access 'Deleted Items' folder property.", OGCSexception.LogAsFail(ex));
+                        OGCSexception.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", ex, true);
+                        if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
+                            throw new System.Exception("Failed to access alternate mailbox calendar '" + profile.MailboxName + "'", ex);
+                    } finally {
+                        pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
+                        binStore = (Store)OutlookOgcs.Calendar.ReleaseObject(binStore);
+                        binFolders = (Folders)OutlookOgcs.Calendar.ReleaseObject(binFolders);
+                        mailboxNos++;
                     }
-                    Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
-                    if (updateGUI) {
-                        Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
-                        Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                    }
-                    findCalendars(oNS.Folders[profile.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
-                    if (updateGUI) {
-                        Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                        Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
-                    }
-                } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", ex, true);
-                    if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
-                        throw new System.Exception("Failed to access alternate mailbox calendar '" + profile.MailboxName + "'", ex);
-                } finally {
-                    pa = (PropertyAccessor)OutlookOgcs.Calendar.ReleaseObject(pa);
-                    binStore = (Store)OutlookOgcs.Calendar.ReleaseObject(binStore);
-                    binFolders = (Folders)OutlookOgcs.Calendar.ReleaseObject(binFolders);
-                }
+                } while (calendarFolders.Count() == 0 && mailboxNos < Forms.Main.Instance.ddMailboxName.Items.Count);
 
                 //Default to first calendar in drop down
                 defaultCalendar = calendarFolders.FirstOrDefault().Value;
@@ -764,8 +779,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         else organiserTZid = tzi.Id;
                     }
                 } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai) +
-                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", Console.Markup.warning);
+                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary) +
+                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", anonSummary, Console.Markup.warning);
                     if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
                     else OGCSexception.Analyse(ex);
                     organiserTZname = null;
@@ -968,5 +983,16 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             return ai.EndTimeZone.ID;
         }
         #endregion
+
+        public void AddRtfBody(ref AppointmentItem ai, String RtfDocument) {
+            if (OutlookOgcs.Factory.OutlookVersionName != Factory.OutlookVersionNames.Outlook2007) {
+#if !DEVELOP_AGAINST_2007
+                if (String.IsNullOrEmpty(RtfDocument))
+                    ai.RTFBody = " ";
+                else
+                    ai.RTFBody = System.Text.Encoding.ASCII.GetBytes(RtfDocument);
+#endif
+            }
+        }
     }
 }
