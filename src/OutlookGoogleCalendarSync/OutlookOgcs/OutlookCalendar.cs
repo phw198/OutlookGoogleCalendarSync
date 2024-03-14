@@ -19,9 +19,17 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Interface IOutlook;
 
         /// <summary>
-        /// Whether instance of OutlookCalendar class should connect to Outlook application
+        /// Whether instance of OutlookCalendar class should connect to the Outlook application
         /// </summary>
         public static Boolean InstanceConnect { get; private set; }
+        /// <summary>
+        /// Whether instance of OutlookCalendar class is currently connected to the Outlook application
+        /// </summary>
+        public static Boolean InstanceIsConnected { 
+            get {
+                return (instance != null && instance.Folders != null);
+            }
+        }
 
         public static Calendar Instance {
             get {
