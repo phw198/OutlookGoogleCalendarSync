@@ -151,9 +151,9 @@ namespace OutlookGoogleCalendarSync {
                     if (endDate < oPattern.PatternStartDate) {
                     log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
                         log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
-                        String summary = GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary, onlyIfNotVerbose: true);
-                        Forms.Main.Instance.Console.Update(summary + "The recurring Google event has an end date <i>before</i> the start date, which Outlook doesn't allow.<br/>" +
-                            "The synced Outlook recurrence has been changed to a single occurrence.", anonSummary, Console.Markup.warning);
+                        String summary = GoogleOgcs.Calendar.GetEventSummary("The recurring Google event has an end date <i>before</i> the start date, which Outlook doesn't allow.<br/>" +
+                            "The synced Outlook recurrence has been changed to a single occurrence.", ev, out String anonSummary, onlyIfNotVerbose: true);
+                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         oPattern.Occurrences = 1;
                     } else
                         oPattern.PatternEndDate = endDate;
@@ -434,7 +434,7 @@ namespace OutlookGoogleCalendarSync {
         private Event getGoogleInstance(String recurringEventId, DateTime originalInstanceDate) {
             return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate);
         }
-        
+
         /// <summary>
         /// Get occurrence that is Outlook exception equivalent
         /// </summary>
@@ -450,7 +450,7 @@ namespace OutlookGoogleCalendarSync {
             }
             log.Debug("Finding Google instance for " + (oIsDeleted == DeletionState.Deleted ? "deleted " : "") + "Outlook exception:-");
             log.Debug("  Original date: " + oExcp.OriginalDate.ToString("dd/MM/yyyy"));
-            if (oIsDeleted == DeletionState.NotDeleted ) {
+            if (oIsDeleted == DeletionState.NotDeleted) {
                 AppointmentItem ai = null;
                 try {
                     ai = oExcp.AppointmentItem;
@@ -627,7 +627,7 @@ namespace OutlookGoogleCalendarSync {
                                     }
                                     if (!skipDelete) {
                                         log.Fine("None found.");
-                                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary) + "<br/>Occurrence deleted.", anonSummary, Console.Markup.calendar, verbose: true);
+                                        Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary("<br/>Occurrence deleted.", ev, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                                         ev.Status = "cancelled";
                                         GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                                     }
@@ -708,10 +708,12 @@ namespace OutlookGoogleCalendarSync {
                                         if (oIsDeleted == DeletionState.NotDeleted) {
                                             log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
                                             String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
-                                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary) + "<br/>" +
-                                                "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook.<br/>" +
-                                                "This can happen if, for example, you declined the occurrence (which is synced to Google) and proposed a new time that is subsequently accepted by the organiser.<br/>" +
-                                                "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, anonSummary, Console.Markup.warning);
+                                            Forms.Main.Instance.Console.Update(
+                                                OutlookOgcs.Calendar.GetEventSummary("<br/>" +
+                                                    "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook.<br/>" +
+                                                    "This can happen if, for example, you declined the occurrence (which is synced to Google) and proposed a new time that is subsequently accepted by the organiser.<br/>" +
+                                                    "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, ai, out String anonSummary)
+                                                , anonSummary, Console.Markup.warning);
                                         }
                                         continue;
                                     } else if (oIsDeleted == DeletionState.Deleted && gExcp.Status != "cancelled") {
@@ -728,7 +730,7 @@ namespace OutlookGoogleCalendarSync {
                                             dr = OgcsMessageBox.Show(msg, "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question, msg.Replace(summary, anonSummary));
                                         }
                                         if (dr == DialogResult.Yes) {
-                                            Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(gExcp, out String anonSummary2) + "<br/>Occurrence deleted.", anonSummary2, Console.Markup.calendar, verbose: true);
+                                            Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary("<br/>Occurrence deleted.", gExcp, out String anonSummary2), anonSummary2, Console.Markup.calendar, verbose: true);
                                             gExcp.Status = "cancelled";
                                             log.Debug("Exception deleted.");
                                             excp_itemModified++;
@@ -760,7 +762,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
-                                            Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(gExcp, out String anonSummary, true) + "Updated event exception failed to save.", ex, logEntry: anonSummary);
+                                            Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
                                             OGCSexception.Analyse(ex, true);
                                             if (OgcsMessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
@@ -862,20 +864,21 @@ namespace OutlookGoogleCalendarSync {
                                 log.Warn("Unable to find Outlook exception for " + gExcpOrigDate.ToString() + " now on " + gExcpCurrDate?.Date.ToString());
                                 log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
                                 String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync G->O.</i>" : "";
-                                Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(gExcp, out String anonSummary) + "<br/>" +
-                                    "This occurrence cannot be found in Outlook.<br/>" +
-                                    "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
-                                    "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, anonSummary, Console.Markup.warning);
+                                Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(
+                                        "<br/>This occurrence cannot be found in Outlook.<br/>" +
+                                        "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
+                                        "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, gExcp, out String anonSummary), 
+                                    anonSummary, Console.Markup.warning);
                             }
                             continue;
                         }
 
                         if (gExcp.Status == "cancelled") {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp, out String anonSummary) + "<br/>Occurrence deleted.", anonSummary, Console.Markup.calendar, verbose: true);
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp, out String anonSummary) + "<br/>Occurrence declined.", anonSummary, Console.Markup.calendar, verbose: true);
+                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else {
@@ -888,8 +891,10 @@ namespace OutlookGoogleCalendarSync {
                                 } catch (System.Exception ex) {
                                     OGCSexception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
-                                        Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(newAiExcp, out String anonSummary, true) + "Uh oh! Outlook wasn't able to save this recurrence exception! " +
-                                            "You may have two occurences on the same day, which it doesn't allow.", anonSummary, Console.Markup.warning);
+                                        Forms.Main.Instance.Console.Update(
+                                            OutlookOgcs.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                                "You may have two occurences on the same day, which it doesn't allow.", newAiExcp, out String anonSummary, true)
+                                            , anonSummary, Console.Markup.warning);
                                     }
                                 }
                             }
@@ -925,7 +930,7 @@ namespace OutlookGoogleCalendarSync {
                                 return;
                             } else if (isDeleted == DeletionState.Deleted) {
                                 if (processingDeletions) {
-                                log.Debug("This exception is deleted.");
+                                    log.Debug("This exception is deleted.");
                                     return;
                                 }
                             }

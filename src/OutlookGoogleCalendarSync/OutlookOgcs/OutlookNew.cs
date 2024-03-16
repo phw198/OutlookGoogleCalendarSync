@@ -769,8 +769,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         else organiserTZid = tzi.Id;
                     }
                 } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary) +
-                        "<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", anonSummary, Console.Markup.warning);
+                    Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary("<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", ai, out String anonSummary), 
+                        anonSummary, Console.Markup.warning);
                     if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
                     else OGCSexception.Analyse(ex);
                     organiserTZname = null;
