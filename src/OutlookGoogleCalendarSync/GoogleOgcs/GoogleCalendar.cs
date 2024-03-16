@@ -292,6 +292,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
+                lr.EventTypes = new String[] { "default", "focusTime", "outOfOffice" }; //Excluding workingLocation
 
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
