@@ -311,6 +311,7 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cbAnonymiseLogs = new System.Windows.Forms.CheckBox();
+            this.label36 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2223,6 +2224,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.label36);
             this.gbSyncOptions_What.Controls.Add(this.tbExcludeSubjectText);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeSubject);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
@@ -2255,7 +2257,7 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 250);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 265);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
@@ -2265,7 +2267,7 @@
             this.tbExcludeSubjectText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbExcludeSubjectText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 221);
+            this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 236);
             this.tbExcludeSubjectText.Name = "tbExcludeSubjectText";
             this.tbExcludeSubjectText.Size = new System.Drawing.Size(201, 20);
             this.tbExcludeSubjectText.TabIndex = 58;
@@ -2275,7 +2277,7 @@
             // 
             this.cbExcludeSubject.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeSubject.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeSubject.Location = new System.Drawing.Point(22, 224);
+            this.cbExcludeSubject.Location = new System.Drawing.Point(22, 239);
             this.cbExcludeSubject.Name = "cbExcludeSubject";
             this.cbExcludeSubject.Size = new System.Drawing.Size(126, 17);
             this.cbExcludeSubject.TabIndex = 57;
@@ -2287,7 +2289,7 @@
             // 
             this.cbExcludePrivate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludePrivate.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 203);
             this.cbExcludePrivate.Name = "cbExcludePrivate";
             this.cbExcludePrivate.Size = new System.Drawing.Size(68, 17);
             this.cbExcludePrivate.TabIndex = 55;
@@ -2299,7 +2301,7 @@
             // 
             this.cbExcludeFree.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFree.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFree.Location = new System.Drawing.Point(22, 170);
+            this.cbExcludeFree.Location = new System.Drawing.Point(22, 185);
             this.cbExcludeFree.Name = "cbExcludeFree";
             this.cbExcludeFree.Size = new System.Drawing.Size(52, 17);
             this.cbExcludeFree.TabIndex = 54;
@@ -2311,7 +2313,7 @@
             // 
             this.cbExcludeTentative.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeTentative.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeTentative.Location = new System.Drawing.Point(103, 170);
+            this.cbExcludeTentative.Location = new System.Drawing.Point(103, 185);
             this.cbExcludeTentative.Name = "cbExcludeTentative";
             this.cbExcludeTentative.Size = new System.Drawing.Size(106, 17);
             this.cbExcludeTentative.TabIndex = 53;
@@ -2323,7 +2325,7 @@
             // 
             this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 206);
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 221);
             this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
             this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
             this.cbExcludeFreeAllDays.TabIndex = 50;
@@ -2335,7 +2337,7 @@
             // 
             this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 206);
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 221);
             this.cbExcludeAllDays.Name = "cbExcludeAllDays";
             this.cbExcludeAllDays.Size = new System.Drawing.Size(87, 17);
             this.cbExcludeAllDays.TabIndex = 49;
@@ -3877,6 +3879,16 @@
             this.cbAnonymiseLogs.UseVisualStyleBackColor = true;
             this.cbAnonymiseLogs.CheckedChanged += new System.EventHandler(this.cbAnonymiseLogs_CheckedChanged);
             // 
+            // label36
+            // 
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label36.Location = new System.Drawing.Point(7, 167);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(279, 14);
+            this.label36.TabIndex = 59;
+            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -4239,5 +4251,6 @@
         private System.Windows.Forms.CheckBox cbDeleteWhenColourExcl;
         private System.Windows.Forms.CheckBox cbAddGMeet;
         private System.Windows.Forms.CheckBox cbAnonymiseLogs;
+        private System.Windows.Forms.Label label36;
     }
 }

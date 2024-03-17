@@ -93,6 +93,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Disconnect the Google account being used to synchonize with.");
             ToolTips.SetToolTip(cbListHiddenGcals,
                 "Include hidden calendars in the above drop down.");
+            ToolTips.SetToolTip(cbColourFilter,
+                "Individual and entire series. Not for occurrences of series.");
             ToolTips.SetToolTip(cbDeleteWhenColourExcl,
                 "If items are already synced in Outlook and subsequently excluded by a colour filter.");
             ToolTips.SetToolTip(cbAddGMeet,
