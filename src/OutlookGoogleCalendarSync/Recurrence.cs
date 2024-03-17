@@ -448,7 +448,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("Abandoning fetch of Google instance for inaccessible Outlook exception.");
                 return null;
             }
-            log.Debug("Finding Google instance for " + (oIsDeleted == DeletionState.Deleted ? "deleted " : "") + "Outlook exception:-");
+            log.Debug("Finding Google instance for " + oIsDeleted.ToString() + " Outlook exception:-");
             log.Debug("  Original date: " + oExcp.OriginalDate.ToString("dd/MM/yyyy"));
             if (oIsDeleted == DeletionState.NotDeleted) {
                 AppointmentItem ai = null;
@@ -482,7 +482,9 @@ namespace OutlookGoogleCalendarSync {
             if (gInstances == null) return null;
 
             //Add any new exceptions to local cache
-            googleExceptions = googleExceptions.Union(gInstances.Where(ev => !String.IsNullOrEmpty(ev.RecurringEventId))).ToList();
+            List<Event> alreadyCached = gInstances.Where(gi => googleExceptions.Except(new List<Event> { gi }).Any(ge => ge.Id == gi.Id)).ToList();
+            googleExceptions = gInstances.Where(ev => !String.IsNullOrEmpty(ev.RecurringEventId)).Union(googleExceptions.Except(alreadyCached)).ToList();
+
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
                     if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
@@ -837,11 +839,17 @@ namespace OutlookGoogleCalendarSync {
             
             //Process deleted exceptions first
             List<Event> gCancelledExcps = gExcps.Where(exp => exp.Status == "cancelled").ToList();
-            processOutlookExceptions(ref ai, gCancelledExcps, forceCompare, true);
+            if (gCancelledExcps.Count > 0) {
+                log.Debug(gCancelledExcps.Count + " cancelled exceptions.");
+                processOutlookExceptions(ref ai, gCancelledExcps, forceCompare, true);
+            }
 
             //Then process everything else
             gExcps = gExcps.Except(gCancelledExcps).ToList();
-            processOutlookExceptions(ref ai, gExcps, forceCompare, false);
+            if (gExcps.Count > 0) {
+                log.Debug(gExcps.Count + " other exceptions.");
+                processOutlookExceptions(ref ai, gExcps, forceCompare, false);
+            }
         }
 
         private void processOutlookExceptions(ref AppointmentItem ai, List<Event> evExceptions, Boolean forceCompare, Boolean processingDeletions) {
@@ -853,21 +861,21 @@ namespace OutlookGoogleCalendarSync {
 
                 foreach (Event gExcp in evExceptions) {
                     DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    DateTime? gExcpCurrDate = gExcp.Start == null ? null : gExcp.Start.SafeDateTime();
-                    log.Fine("Found Google exception for original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.ToString() : ""));
+                    DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
+                    log.Fine("Found Google exception for original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : ""));
 
                     AppointmentItem newAiExcp = null;
                     try {
                         getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
                             if (gExcp.Status != "cancelled") {
-                                log.Warn("Unable to find Outlook exception for " + gExcpOrigDate.ToString() + " now on " + gExcpCurrDate?.Date.ToString());
+                                log.Warn("Unable to find Outlook exception for " + gExcpOrigDate.ToString() + " now on " + gExcpCurrDate?.ToShortDateString());
                                 log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
                                 String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync G->O.</i>" : "";
                                 Forms.Main.Instance.Console.Update(GoogleOgcs.Calendar.GetEventSummary(
                                         "<br/>This occurrence cannot be found in Outlook.<br/>" +
                                         "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
-                                        "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, gExcp, out String anonSummary), 
+                                        "<u>Suggested fix</u>: delete the entire series in Outlook and let OGCS recreate it." + syncDirectionTip, gExcp, out String anonSummary), 
                                     anonSummary, Console.Markup.warning);
                             }
                             continue;
@@ -926,7 +934,7 @@ namespace OutlookGoogleCalendarSync {
                             log.Debug("Found Outlook exception for original date " + instanceOrigDate);
 
                             if (isDeleted == DeletionState.Inaccessible) {
-                            log.Warn("This exception is inaccessible.");
+                                log.Warn("This exception is inaccessible.");
                                 return;
                             } else if (isDeleted == DeletionState.Deleted) {
                                 if (processingDeletions) {
