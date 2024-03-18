@@ -515,7 +515,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                         success = googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     }
-                    if (bubbleText != "") Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                    if (bubbleText != "") {
+                        log.Info(bubbleText.Replace("\r\n", ". "));
+                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
+                        String changes = rgx.Replace(bubbleText, "").Trim('0');
+                        if (Settings.Instance.ShowSystemNotifications && 
+                            (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                    }
 
                     return SyncResult.OK;
                 } finally {

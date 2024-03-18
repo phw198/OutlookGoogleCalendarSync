@@ -318,7 +318,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 System.Windows.Forms.Application.DoEvents();
 
-                if (Forms.Main.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
+                if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
