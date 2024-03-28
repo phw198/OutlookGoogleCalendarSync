@@ -350,7 +350,7 @@ First time using Meet?{\field{\*\fldinst{ HYPERLINK ""https://gsuite.google.com/
         }
 
         public static Boolean BodyHasGmeetUrl(this AppointmentItem ai) {
-            return rgxGmeetUrl.IsMatch(ai.Body);
+            return rgxGmeetUrl.IsMatch(ai.Body ?? "");
         }
 
         /// <summary>
