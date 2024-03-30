@@ -2252,7 +2252,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 return;
             }
             try {
-                new Forms.ColourMap().ShowDialog(this);
+                this.btColourMap.Enabled = false;
+                using (Forms.ColourMap colourForm = new ColourMap()) {
+                    colourForm.ShowDialog();
+                }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }

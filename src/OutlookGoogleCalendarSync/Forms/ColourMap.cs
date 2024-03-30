@@ -31,6 +31,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (disposing) {
                 if (components != null)
                     components.Dispose();
+                Forms.Main.Instance.btColourMap.Enabled = true;
                 OutlookOgcs.Calendar.Disconnect(true);
             }
             base.Dispose(disposing);

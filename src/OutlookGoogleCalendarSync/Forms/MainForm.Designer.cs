@@ -4143,7 +4143,7 @@
         private System.Windows.Forms.Button btSocialGitHub;
         private System.Windows.Forms.Button btFbLike;
         public System.Windows.Forms.Button btCustomTzMap;
-        private System.Windows.Forms.Button btColourMap;
+        public System.Windows.Forms.Button btColourMap;
         public Extensions.GoogleColourPicker ddGoogleColour;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnValue;
