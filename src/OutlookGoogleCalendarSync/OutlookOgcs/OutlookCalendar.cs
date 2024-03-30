@@ -103,8 +103,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
             } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131527") { //COM object separated from underlying RCW
-                    log.Warn(ex.Message);
+                if (Ogcs.Outlook.Errors.HandleComError(ex) == Ogcs.Outlook.Errors.ErrorType.ObjectSeparatedFromRcw) {
                     try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw;
@@ -1106,7 +1105,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (oApp == null)
                         throw new ApplicationException("GetActiveObject() returned NULL without throwing an error.");
                 } catch (System.Exception ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x800401E3") { //MK_E_UNAVAILABLE
+                    if (Ogcs.Outlook.Errors.HandleComError(ex) == Ogcs.Outlook.Errors.ErrorType.Unavailable) { //MK_E_UNAVAILABLE
                         log.Warn("Attachment failed - Outlook is running without GUI for programmatic access.");
                     } else {
                         log.Warn("Attachment failed.");
@@ -1188,11 +1187,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 throw caughtException;
             } catch (System.Runtime.InteropServices.COMException ex) {
-                String hResult = OGCSexception.GetErrorCode(ex);
+                Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex, out String hResult);
 
-                if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
-                    (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
-                    (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
+                if (error == Ogcs.Outlook.Errors.ErrorType.RpcRejected ||
+                    error == Ogcs.Outlook.Errors.ErrorType.PermissionFailure ||
+                    error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                    error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
                 {
                     log.Warn(ex.Message);
                     throw new ApplicationException("Outlook is busy.", ex);

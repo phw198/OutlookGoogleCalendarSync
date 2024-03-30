@@ -131,8 +131,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 try {
                                     syncResult = manualIgnition ? manualSynchronize() : synchronize();
                                 } catch (System.Exception ex) {
-                                    String hResult = OGCSexception.GetErrorCode(ex);
-
                                     if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
@@ -142,21 +140,19 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
 
-                                    } else if (
-                                        (ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
-                                        (ex is System.Runtime.InteropServices.COMException && (
-                                            ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
-                                            hResult == "0x800706BE" || //The remote procedure call failed
-                                            hResult == "0x800706BA")) //The RPC server is unavailable
-                                        ) {
+                                    }
+                                    Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                                    if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                        error == Ogcs.Outlook.Errors.ErrorType.RpcFailed ||
+                                        error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
+                                    {
                                         OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
                                         String message = "It looks like Outlook was closed during the sync.";
-                                        if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                        if (error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
                                         mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else if (ex is System.Runtime.InteropServices.COMException && 
-                                        OGCSexception.GetErrorCode(ex) == "0x80040201") { //The operation failed.  The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
+                                    } else if (error == Ogcs.Outlook.Errors.ErrorType.OperationFailed) {
                                         mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 

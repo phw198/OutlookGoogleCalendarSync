@@ -83,11 +83,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         outlookVersionFull = oApp.Version;
                         attempts = maxAttempts + 1;
                     } catch (System.Runtime.InteropServices.COMException ex) {
-                        String hResult = OGCSexception.GetErrorCode(ex);
-
-                        if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
-                            (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
-                            (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
+                        Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                        if (error == Ogcs.Outlook.Errors.ErrorType.PermissionFailure ||
+                            error == Ogcs.Outlook.Errors.ErrorType.RpcRejected || 
+                            error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                            error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
                         {
                             log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
                             if (attempts == maxAttempts) {
