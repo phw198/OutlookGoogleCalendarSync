@@ -466,6 +466,12 @@ namespace OutlookGoogleCalendarSync {
             } else {
                 foreach (Event gExcp in googleExceptions) {
                     if (gExcp.RecurringEventId == gRecurringEventID) {
+                        log.Debug("oExcp.OriginalDate: " + oExcp.OriginalDate.ToString("dd/MM/yyyy HH:mm:sszzz"));
+                        log.Debug("gExcp.OriginalStartTime.SafeDateTime(): " + gExcp.OriginalStartTime.SafeDateTime().ToString("dd/MM/yyyy HH:mm:sszzz"));
+                        log.Debug("gExcp.OriginalStartTime.DateTimeRaw: " + gExcp.OriginalStartTime.DateTimeRaw);
+                        log.Debug("gExcp.OriginalStartTime.Date: " + gExcp.OriginalStartTime.Date);
+                        log.Debug("gExcp.OriginalStartTime.DateTime: " + gExcp.OriginalStartTime.DateTime?.ToString("dd/MM/yyyy HH:mm:sszzz"));
+                        log.Debug("gExcp.OriginalStartTime.TimeZone: " + gExcp.OriginalStartTime.TimeZone);
                         if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
                             && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
                             ) ||
@@ -487,6 +493,11 @@ namespace OutlookGoogleCalendarSync {
 
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
+                    log.Debug("oExcp.OriginalDate: " + oExcp.OriginalDate.ToString("dd/MM/yyyy HH:mm:sszzz"));
+                    log.Debug("gInst.OriginalStartTime.DateTimeRaw: " + gInst.OriginalStartTime.DateTimeRaw);
+                    log.Debug("gInst.OriginalStartTime.Date: " + gInst.OriginalStartTime.Date);
+                    log.Debug("gInst.OriginalStartTime.DateTime: " + gInst.OriginalStartTime.DateTime?.ToString("dd/MM/yyyy HH:mm:sszzz"));
+                    log.Debug("gInst.OriginalStartTime.TimeZone: " + gInst.OriginalStartTime.TimeZone);
                     if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
                         && oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime()
                         ) ||
