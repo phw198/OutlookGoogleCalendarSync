@@ -150,6 +150,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 #endif
                         }
                     } catch (System.Exception ex) {
+                        String hResult = OGCSexception.GetErrorCode(ex);
+                        if (new String[] { "0x800706BA", "0x8001010E" }.Contains(hResult) ||  //RPC server is unavailable, RPC_E_WRONG_THREAD
+                            (hResult == "0x80004002" && ex.Message.Contains("0x8001010E (RPC_E_WRONG_THREAD")))
+                            throw;
+
                         log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
                         log.Debug("Reverting to default mailbox categories.");
                         this.categories = oApp.Session.Categories;
