@@ -352,17 +352,23 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             List<Event> allDays = new();
             List<Event> privacy = new();
             List<Event> declined = new();
+            List<Event> subject = new();
             List<Event> goals = new();
             List<Event> colour = new();
 
             //Colours
             if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                colour = result.Where(ev => (profile.Colours.Count() == 0 || (String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains("<Default calendar colour>")) ||
-                    !String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId)))).ToList();
-
+                colour = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) &&
+                    (profile.Colours.Count() == 0 || (String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains("<Default calendar colour>")) ||
+                        !String.IsNullOrEmpty(ev.ColorId) && !profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId))
+                    )
+                ).ToList();
             } else if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                colour = result.Where(ev => (profile.Colours.Count() > 0 && (String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains("<Default calendar colour>")) ||
-                        !String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId)))).ToList();
+                colour = result.Where(ev => string.IsNullOrEmpty(ev.RecurringEventId) &&
+                    (profile.Colours.Count() > 0 && (String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains("<Default calendar colour>")) ||
+                        !String.IsNullOrEmpty(ev.ColorId) && profile.Colours.Contains(EventColour.Palette.GetColourName(ev.ColorId))
+                    )
+                ).ToList();
             }
             if (colour.Count > 0) {
                 log.Debug(colour.Count + " Google items contain a colour that is filtered out.");
@@ -375,21 +381,21 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //Availability, Privacy
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
-                    availability = result.Where(ev => ev.Transparency == "transparent").ToList();
+                    availability = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.Transparency == "transparent").ToList();
                     if (availability.Count > 0) {
                         log.Debug(availability.Count + " Google Free items excluded.");
                         result = result.Except(availability).ToList();
                     }
                 }
                 if (profile.ExcludeAllDays) {
-                    allDays = result.Where(ev => ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
+                    allDays = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ev.Transparency == "transparent" : true)).ToList();
                     if (allDays.Count > 0) {
                         log.Debug(allDays.Count + " Google all-day items excluded.");
                         result = result.Except(allDays).ToList();
                     }
                 }
                 if (profile.ExcludePrivate) {
-                    privacy = result.Where(ev => ev.Visibility == "private").ToList();
+                    privacy = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.Visibility == "private").ToList();
                     if (privacy.Count > 0) {
                         log.Debug(privacy.Count + " Google Private items excluded.");
                         result = result.Except(privacy).ToList();
@@ -397,7 +403,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
                 if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
                     Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
-                    List<Event> subject = result.Where(ev => rgx.IsMatch(ev.Summary ?? "")).ToList();
+                    subject = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && rgx.IsMatch(ev.Summary ?? "")).ToList();
                     if (subject.Count > 0) {
                         log.Debug(subject.Count + " Google items excluded with Subject containing '" + profile.ExcludeSubjectText + "'");
                         result = result.Except(subject).ToList();
@@ -426,7 +432,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                List<Event> allExcluded = availability.Concat(allDays).Concat(privacy).Concat(declined).Concat(goals).ToList();
+                List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
                 for (int g = 0; g < allExcluded.Count(); g++) {
                     Event ev = allExcluded[g];
                     if (CustomProperty.ExistAnyOutlookIDs(ev)) {
