@@ -1,6 +1,22 @@
 | Release Notes |
 |:---|
 
+# v2.10.4.0 - Alpha
+
+**Enhancements**
+- New option: only show notifications when changes have been synced [[#1769](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1769)]
+- Re-release of sync for Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+- UI guidance that configured exclusions don't apply to series occurrences [[#1758](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1758)]
+- Added menu option to Sync button for 'Full Sync'
+- Logging improvements
+
+**Bugfix**
+- Empty appointment descriptions broke GMeet details sync [[#1776](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1776),[#1810](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1810)]
+- Finding calendar folders in alternate mailboxes [[#673](https://github.com/phw198/OutlookGoogleCalendarSync/issues/673)]
+- Handle oddly specified annual recurrences in Google [[#1799](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1799)]
+- Exclude Google's new 'Working Location' attribute [[#1817](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1817)]
+- Handle connection issues to alternate mailboxes when refreshing Outlook categories [[#1823](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1823)]
+
 # v2.10.3.0 - Alpha
 
 **Enhancements**
