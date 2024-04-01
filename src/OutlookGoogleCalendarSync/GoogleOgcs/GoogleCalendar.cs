@@ -500,11 +500,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
                     if (ex is ApplicationException) {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation skipped.", ai, out String anonSummary, true);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
+                        if (ex.InnerException is Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary, true);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -709,8 +710,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
                     if (ex is ApplicationException) {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update skipped.", compare.Key, out String anonSummary);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update skipped.<br/>" + ex.Message, compare.Key, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
+                        if (ex.InnerException is Google.GoogleApiException) break;
                         continue;
                     } else {
                         String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
@@ -1163,12 +1165,19 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             continue;
                         }
                     }
-                    Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary("Deleted event failed to remove.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
-                    OGCSexception.Analyse(ex, true);
-                    if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (ex is ApplicationException) {
+                        String summary = GetEventSummary("<br/>Event deletion skipped.<br/>" + ex.Message, ev, out String anonSummary);
+                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
+                        if (ex.InnerException is Google.GoogleApiException) break;
                         continue;
-                    else {
-                        throw new UserCancelledSyncException("User chose not to continue sync.");
+                    } else {
+                        String summary = GetEventSummary("<br/>Event deletion failed.", ev, out String anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
+                        OGCSexception.Analyse(ex, true);
+                        if (OgcsMessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            continue;
+                        else
+                            throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
                 }
             }
@@ -2399,7 +2408,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         /// <summary>
         /// This is solely for purposefully causing an error to assist when developing
         /// </summary>
-        private void throwApiException() {
+        public void ThrowApiException() {
             Google.GoogleApiException ex = new Google.GoogleApiException("Service", "Rate Limit Exceeded");
             Google.Apis.Requests.SingleError err = new Google.Apis.Requests.SingleError { Domain = "usageLimits", Reason = "rateLimitExceeded" };
             ex.Error = new Google.Apis.Requests.RequestError { Errors = new List<Google.Apis.Requests.SingleError>(), Code = 403 };

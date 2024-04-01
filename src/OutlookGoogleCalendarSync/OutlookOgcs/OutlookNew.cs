@@ -728,8 +728,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
             } catch (System.Exception ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x800706BA") { //RPC Server Unavailable
-                    OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+                Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable || error == Ogcs.Outlook.Errors.ErrorType.WrongThread) {
+                    OutlookOgcs.Calendar.Instance.Reset();
                     OutlookOgcs.Calendar.Categories.Get(oApp, useOutlookCalendar);
                 }
             }

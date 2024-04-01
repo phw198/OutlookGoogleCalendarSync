@@ -215,12 +215,39 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Colors colours = null;
             calendarPalette = new List<Palette>();
             eventPalette = new List<Palette>();
+            int backoff = 0;
             try {
-                colours = GoogleOgcs.Calendar.Instance.Service.Colors.Get().Execute();
+                while (backoff < GoogleOgcs.Calendar.BackoffLimit) {
+                    try {
+                        colours = GoogleOgcs.Calendar.Instance.Service.Colors.Get().Execute();
+                        break;
+                    } catch (Google.GoogleApiException ex) {
+                        switch (GoogleOgcs.Calendar.HandleAPIlimits(ref ex, null)) {
+                            case GoogleOgcs.Calendar.ApiException.throwException: throw;
+                            case GoogleOgcs.Calendar.ApiException.freeAPIexhausted:
+                                OGCSexception.LogAsFail(ref ex);
+                                OGCSexception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
+                                OGCSexception.LogAsFail(ref aex);
+                                throw aex;
+                            case GoogleOgcs.Calendar.ApiException.backoffThenRetry:
+                                backoff++;
+                                if (backoff == GoogleOgcs.Calendar.BackoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve Event colours failed.");
+                                    throw;
+                                } else {
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
+                                }
+                                break;
+                        }
+                    }
+                }
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving calendar Event colours.");
                 OGCSexception.Analyse(ex);
-                return;
+                throw;
             }
 
             if (colours == null) log.Warn("No colours found!");

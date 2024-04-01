@@ -739,6 +739,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
+        private void miSyncDelta_Click(object sender, EventArgs e) {
+            this.bSyncNow.Text = "Start Sync";
+        }
+        private void miSyncFull_Click(object sender, EventArgs e) {
+            this.bSyncNow.Text = "Start Full Sync";
+        }
+
         public enum SyncNotes {
             DailyQuotaExhaustedInfo,
             DailyQuotaExhaustedPreviously,
@@ -2256,7 +2263,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 return;
             }
             try {
-                new Forms.ColourMap().ShowDialog(this);
+                this.btColourMap.Enabled = false;
+                using (Forms.ColourMap colourForm = new ColourMap()) {
+                    colourForm.ShowDialog();
+                }
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
             }
