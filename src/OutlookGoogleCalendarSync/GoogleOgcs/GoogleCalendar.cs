@@ -493,12 +493,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
-                    String summary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary, true);
                     if (ex is ApplicationException) {
-                        Forms.Main.Instance.Console.Update(summary + "Event creation skipped.", anonSummary, Console.Markup.warning);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation skipped.", ai, out String anonSummary, true);
+                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         continue;
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError(summary + "Event creation failed.", ex, logEntry: anonSummary);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary, true);
+                        Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -515,7 +516,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;
                     }
-                    Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary, true) + "New event failed to save.", ex, logEntry: anonSummary);
+                    Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
@@ -534,7 +535,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             string itemSummary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary);
-            log.Debug("Processing >> " + anonSummary);
+            log.Debug("Processing >> " + (anonSummary ?? itemSummary));
             Forms.Main.Instance.Console.Update(itemSummary, anonSummary, Console.Markup.calendar, verbose: true);
 
             Event ev = new Event();
@@ -701,12 +702,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
-                    String summary = OutlookOgcs.Calendar.GetEventSummary(compare.Key, out String anonSummary);
                     if (ex is ApplicationException) {
-                        Forms.Main.Instance.Console.Update(summary + "<br/>Event update skipped.", anonSummary, Console.Markup.warning);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update skipped.", compare.Key, out String anonSummary);
+                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         continue;
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError(summary + "<br/>Event update failed.", ex, logEntry: anonSummary);
+                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         if (ex is System.Runtime.InteropServices.COMException) throw;
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -722,7 +724,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         entriesUpdated++;
                         eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, out String anonSummary, true) + "Updated event failed to save.", ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -749,7 +751,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         UpdateCalendarEntry_save(ref ev);
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary(compare.Key, out String anonSummary, true) + "Updated event failed to save.", ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -782,7 +784,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
 
             String aiSummary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary);
-            log.Debug("Processing >> " + anonSummary);
+            log.Debug("Processing >> " + (anonSummary ?? aiSummary));
 
             if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
                 log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
@@ -1135,7 +1137,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     doDelete = deleteCalendarEntry(ev);
                 } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary, true) + "Event deletion failed.", ex, logEntry: anonSummary);
+                    Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary("Event deletion failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
@@ -1155,7 +1157,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             continue;
                         }
                     }
-                    Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary, true) + "Deleted event failed to remove.", ex, logEntry: anonSummary);
+                    Forms.Main.Instance.Console.UpdateWithError(GoogleOgcs.Calendar.GetEventSummary("Deleted event failed to remove.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("Deleted Google event failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
@@ -1178,9 +1180,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         CustomProperty.RemoveOutlookIDs(ref ev);
                         UpdateCalendarEntry_save(ref ev);
                     }
-                    Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, "Not deleted: " + anonSummary, Console.Markup.calendar);
+                    Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                 } else {
-                    Forms.Main.Instance.Console.Update("Deleted: " + eventSummary, "Deleted: " + anonSummary, Console.Markup.calendar);
+                    Forms.Main.Instance.Console.Update("Deleted: " + eventSummary, anonSummary?.Prepend("Deleted: "), Console.Markup.calendar);
                 }
             } else {
                 Forms.Main.Instance.Console.Update(eventSummary, anonSummary, Console.Markup.calendar, verbose: true);
@@ -1261,7 +1263,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     unclaimedEvents.Remove(originalEv);
                                     if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
                                     consoleTitle = "";
-                                    Forms.Main.Instance.Console.Update("Reclaimed: " + GetEventSummary(ev, out String anonSummary), anonSummary, verbose: true);
+                                    Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ev, out String anonSummary, appendContext: false), anonSummary, verbose: true);
                                     gEvents[g] = ev;
                                     if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
@@ -2061,7 +2063,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         try {
                             tw.WriteLine(exportToCSV(ev));
                         } catch (System.Exception ex) {
-                            Forms.Main.Instance.Console.Update("Failed to output following Google event to CSV:-<br/>" + GetEventSummary(ev, out String anonSummary), anonSummary, Console.Markup.warning);
+                            Forms.Main.Instance.Console.Update(GetEventSummary("Failed to output following Google event to CSV:-<br/>", ev, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning);
                             OGCSexception.Analyse(ex, true);
                         }
                     }
@@ -2128,15 +2130,42 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             return csv.ToString();
         }
 
+        /// <summary>
+        /// Get the anonymised summary of an Event item, else standard summary.
+        /// </summary>
+        /// <param name="ev">The Event item.</param>
+        /// <returns>The summary, anonymised if settings dictate.</returns>
         public static String GetEventSummary(Event ev) {
-            GetEventSummary(ev, out String anonymisedSummary, false);
-            return anonymisedSummary;
+            String eventSummary = GetEventSummary(ev, out String anonymisedSummary, false);
+            return anonymisedSummary ?? eventSummary;
         }
 
         /// <summary>
-        /// Get the summary of an event.
+        /// Pre/Append context to the summary of an Event item.
         /// </summary>
-        /// <param name="ai">The event.</param>
+        /// <param name="context">Text to add before/after the summary and anonymised summary.</param>
+        /// <param name="ev">The Event item.</param>
+        /// <param name="eventSummaryAnonymised">The anonymised summary with context.</param>
+        /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
+        /// <param name="appendContext">If the context should be before or after.</param>
+        /// <returns>The standard summary.</returns>
+        public static string GetEventSummary(String context, Event ev, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false, Boolean appendContext = true) {
+            String eventSummary = GetEventSummary(ev, out String anonymisedSummary, onlyIfNotVerbose);
+            if (appendContext) {
+                eventSummary = eventSummary + context;
+                eventSummaryAnonymised = anonymisedSummary?.Append(context);
+            } else {
+                eventSummary = context + eventSummary;
+                eventSummaryAnonymised = anonymisedSummary?.Prepend(context);
+            }
+            return eventSummary;
+        }
+
+
+        /// <summary>
+        /// Get the summary of an Event.
+        /// </summary>
+        /// <param name="ev">The event.</param>
         /// <param name="eventSummaryAnonymised">Anonymised version of the returned summary string value.</param>
         /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
         /// <returns></returns>
@@ -2153,10 +2182,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
                         eventSummary += " (R)";
                     
-                    eventSummaryAnonymised = eventSummary + " => \"" + (Settings.Instance.AnonymiseLogs ? Authenticator.GetMd5(ev.Summary, silent: true) : ev.Summary) + "\"";
-                    eventSummary += " => \"" + ev.Summary + "\"";
-
-                    if (onlyIfNotVerbose) eventSummary += "<br/>";
+                    if (Settings.Instance.AnonymiseLogs)
+                        eventSummaryAnonymised = eventSummary + " => \"" + Authenticator.GetMd5(ev.Summary, silent: true) + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
+                    eventSummary += " => \"" + ev.Summary + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
+                    
                 } catch {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");

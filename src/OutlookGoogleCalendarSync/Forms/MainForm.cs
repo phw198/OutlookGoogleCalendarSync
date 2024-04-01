@@ -176,7 +176,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             #region Application behaviour
             groupboxSizing(gbAppBehaviour_Logging, pbExpandLogging, true);
             groupboxSizing(gbAppBehaviour_Proxy, pbExpandProxy, false);
-            cbShowBubbleTooltips.Checked = Settings.Instance.ShowBubbleTooltipWhenSyncing;
+            cbShowSystemNotifications.Checked = Settings.Instance.ShowSystemNotifications;
+            cbShowSystemNotificationsIfChange.Enabled = Settings.Instance.ShowSystemNotifications;
+            cbShowSystemNotificationsIfChange.Checked = Settings.Instance.ShowSystemNotificationsIfChange;
             cbStartOnStartup.Checked = Settings.Instance.StartOnStartup;
             cbStartOnStartupAllUsers.Enabled = Settings.Instance.StartOnStartup;
             cbStartOnStartupAllUsers.Checked = Settings.Instance.StartOnStartupAllUsers;
@@ -1015,7 +1017,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.ShowInTaskbar = false;
                 this.Hide();
                 if (Settings.Instance.ShowBubbleWhenMinimising) {
-                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", tagValue: "ShowBubbleWhenMinimising");
+                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowBubbleWhenMinimising");
                 } else {
                     trayIcon.Tag = "";
                 }
@@ -2351,8 +2353,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.SuppressSocialPopup = cbSuppressSocialPopup.Checked;
         }
 
-        private void cbShowBubbleTooltipsCheckedChanged(object sender, System.EventArgs e) {
-            Settings.Instance.ShowBubbleTooltipWhenSyncing = cbShowBubbleTooltips.Checked;
+        private void cbShowSystemNotifications_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ShowSystemNotifications = cbShowSystemNotifications.Checked;
+            if (!cbShowSystemNotifications.Checked) cbShowSystemNotificationsIfChange.Checked = false;
+            cbShowSystemNotificationsIfChange.Enabled = cbShowSystemNotifications.Checked;
+        }
+        private void cbShowSystemNotificationsIfChange_CheckedChanged(object sender, EventArgs e) {
+            Settings.Instance.ShowSystemNotificationsIfChange = cbShowSystemNotificationsIfChange.Checked;
         }
 
         private void cbStartInTrayCheckedChanged(object sender, System.EventArgs e) {

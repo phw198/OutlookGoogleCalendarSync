@@ -214,6 +214,7 @@
             this.lWhatExcludeInfo = new System.Windows.Forms.Label();
             this.lExcludeItems = new System.Windows.Forms.Label();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbShowSystemNotificationsIfChange = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartupAllUsers = new System.Windows.Forms.CheckBox();
             this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
             this.panelAppBehaviour = new System.Windows.Forms.Panel();
@@ -236,6 +237,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.pbExpandLogging = new System.Windows.Forms.PictureBox();
             this.gbAppBehaviour_Logging = new System.Windows.Forms.GroupBox();
+            this.cbAnonymiseLogs = new System.Windows.Forms.CheckBox();
             this.cbTelemetryDisabled = new System.Windows.Forms.CheckBox();
             this.btLogLocation = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -246,7 +248,7 @@
             this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.cbMinimiseNotClose = new System.Windows.Forms.CheckBox();
             this.cbPortable = new System.Windows.Forms.CheckBox();
-            this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
+            this.cbShowSystemNotifications = new System.Windows.Forms.CheckBox();
             this.cbMinimiseToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
@@ -310,7 +312,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cbAnonymiseLogs = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2607,6 +2608,7 @@
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbShowSystemNotificationsIfChange);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartupAllUsers);
             this.tabAppBehaviour.Controls.Add(this.cbSuppressSocialPopup);
             this.tabAppBehaviour.Controls.Add(this.panelAppBehaviour);
@@ -2614,7 +2616,7 @@
             this.tabAppBehaviour.Controls.Add(this.cbHideSplash);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseNotClose);
             this.tabAppBehaviour.Controls.Add(this.cbPortable);
-            this.tabAppBehaviour.Controls.Add(this.cbShowBubbleTooltips);
+            this.tabAppBehaviour.Controls.Add(this.cbShowSystemNotifications);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseToTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartInTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartup);
@@ -2623,6 +2625,16 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(473, 488);
             this.tabAppBehaviour.TabIndex = 4;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbShowSystemNotificationsIfChange
+            // 
+            this.cbShowSystemNotificationsIfChange.Location = new System.Drawing.Point(270, 107);
+            this.cbShowSystemNotificationsIfChange.Name = "cbShowSystemNotificationsIfChange";
+            this.cbShowSystemNotificationsIfChange.Size = new System.Drawing.Size(151, 17);
+            this.cbShowSystemNotificationsIfChange.TabIndex = 48;
+            this.cbShowSystemNotificationsIfChange.Text = "Only if changes are found";
+            this.cbShowSystemNotificationsIfChange.UseVisualStyleBackColor = true;
+            this.cbShowSystemNotificationsIfChange.CheckedChanged += new System.EventHandler(this.cbShowSystemNotificationsIfChange_CheckedChanged);
             // 
             // cbStartOnStartupAllUsers
             // 
@@ -2695,7 +2707,7 @@
             this.gbAppBehaviour_Proxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbAppBehaviour_Proxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbAppBehaviour_Proxy.Location = new System.Drawing.Point(32, 136);
-            this.gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(366, 0);
+            this.gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(379, 0);
             this.gbAppBehaviour_Proxy.Name = "gbAppBehaviour_Proxy";
             this.gbAppBehaviour_Proxy.Size = new System.Drawing.Size(379, 197);
             this.gbAppBehaviour_Proxy.TabIndex = 46;
@@ -2912,7 +2924,7 @@
             this.gbAppBehaviour_Logging.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbAppBehaviour_Logging.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbAppBehaviour_Logging.Location = new System.Drawing.Point(32, 4);
-            this.gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(366, 0);
+            this.gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(379, 0);
             this.gbAppBehaviour_Logging.Name = "gbAppBehaviour_Logging";
             this.gbAppBehaviour_Logging.Size = new System.Drawing.Size(379, 125);
             this.gbAppBehaviour_Logging.TabIndex = 45;
@@ -3056,15 +3068,15 @@
             this.cbPortable.UseVisualStyleBackColor = true;
             this.cbPortable.CheckedChanged += new System.EventHandler(this.cbPortable_CheckedChanged);
             // 
-            // cbShowBubbleTooltips
+            // cbShowSystemNotifications
             // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(56, 107);
-            this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
-            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 17);
-            this.cbShowBubbleTooltips.TabIndex = 14;
-            this.cbShowBubbleTooltips.Text = "Show bubble tooltip in tray when syncing";
-            this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
-            this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.cbShowBubbleTooltipsCheckedChanged);
+            this.cbShowSystemNotifications.Location = new System.Drawing.Point(56, 107);
+            this.cbShowSystemNotifications.Name = "cbShowSystemNotifications";
+            this.cbShowSystemNotifications.Size = new System.Drawing.Size(224, 17);
+            this.cbShowSystemNotifications.TabIndex = 14;
+            this.cbShowSystemNotifications.Text = "Show system notifications when syncing";
+            this.cbShowSystemNotifications.UseVisualStyleBackColor = true;
+            this.cbShowSystemNotifications.CheckedChanged += new System.EventHandler(this.cbShowSystemNotifications_CheckedChanged);
             // 
             // cbMinimiseToTray
             // 
@@ -4194,7 +4206,8 @@
         public System.Windows.Forms.CheckBox cbHideSplash;
         private System.Windows.Forms.CheckBox cbMinimiseNotClose;
         private System.Windows.Forms.CheckBox cbPortable;
-        private System.Windows.Forms.CheckBox cbShowBubbleTooltips;
+        private System.Windows.Forms.CheckBox cbShowSystemNotifications;
+        private System.Windows.Forms.CheckBox cbShowSystemNotificationsIfChange;
         private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
         private System.Windows.Forms.CheckBox cbStartOnStartup;

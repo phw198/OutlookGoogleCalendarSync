@@ -94,7 +94,8 @@ namespace OutlookGoogleCalendarSync {
             Calendars.Add(new SettingsStore.Calendar());
 
             MuteClickSounds = false;
-            ShowBubbleTooltipWhenSyncing = true;
+            ShowSystemNotifications = true;
+            ShowSystemNotificationsIfChange = false;
             StartOnStartup = false;
             StartOnStartupAllUsers = false;
             StartupDelay = 0;
@@ -218,7 +219,8 @@ namespace OutlookGoogleCalendarSync {
                 suppressSocialPopup = value;
             }
         }
-        [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
+        [DataMember] public bool ShowSystemNotifications { get; set; }
+        [DataMember] public bool ShowSystemNotificationsIfChange { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartOnStartupAllUsers { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
@@ -375,7 +377,7 @@ namespace OutlookGoogleCalendarSync {
             } 
         
             log.Info("APPLICATION BEHAVIOUR:-");
-            log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
+            log.Info("  ShowSystemNotifications: " + ShowSystemNotifications + "; OnlyIfChange: " + ShowSystemNotificationsIfChange);
             log.Info("  StartOnStartup: " + StartOnStartup + "; AllUsers: " + StartOnStartupAllUsers + "; DelayedStartup: " + StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
