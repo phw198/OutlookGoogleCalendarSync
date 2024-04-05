@@ -40,8 +40,8 @@ google_ad_testing: "off"
 show_alpha_downloads: true
 beta-version: 2.10.0
 beta-release-date: Jul-2023
-alpha-version: 2.10.2
-alpha-release-date: Oct-2023
+alpha-version: 2.10.4
+alpha-release-date: Apr-2024
 
 # Build settings
 markdown: kramdown
