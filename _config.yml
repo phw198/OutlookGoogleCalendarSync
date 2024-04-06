@@ -42,6 +42,7 @@ beta-version: 2.10.0
 beta-release-date: Jul-2023
 alpha-version: 2.10.4
 alpha-release-date: Apr-2024
+# Forcing build
 
 # Build settings
 markdown: kramdown
