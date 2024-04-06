@@ -150,6 +150,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 #endif
                         }
                     } catch (System.Exception ex) {
+                        Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                        if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable || error == Ogcs.Outlook.Errors.ErrorType.WrongThread) 
+                            throw;
+
                         log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
                         log.Debug("Reverting to default mailbox categories.");
                         this.categories = oApp.Session.Categories;

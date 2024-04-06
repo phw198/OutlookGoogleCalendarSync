@@ -114,6 +114,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                         mainFrm.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
                             " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
                         mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
+                        if (Sync.Engine.Calendar.Instance.Profile.OutlookGalBlocked) 
+                            mainFrm.Console.BuildOutput("<div style='font-size:11px; padding-top:5px'>Corporate policy/anti-virus is restricting certain functionality. "+
+                                "This may prevent proper detection of meeting organiser time zones, resulting in incorrect local start times due to DST.</div>", ref sb);
 
                         //Make the clock emoji show the right time
                         int minsPastHour = DateTime.Now.Minute;
@@ -128,8 +131,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 try {
                                     syncResult = manualIgnition ? manualSynchronize() : synchronize();
                                 } catch (System.Exception ex) {
-                                    String hResult = OGCSexception.GetErrorCode(ex);
-
                                     if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
@@ -139,21 +140,19 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
 
-                                    } else if (
-                                        (ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
-                                        (ex is System.Runtime.InteropServices.COMException && (
-                                            ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
-                                            hResult == "0x800706BE" || //The remote procedure call failed
-                                            hResult == "0x800706BA")) //The RPC server is unavailable
-                                        ) {
+                                    }
+                                    Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                                    if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                        error == Ogcs.Outlook.Errors.ErrorType.RpcFailed ||
+                                        error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
+                                    {
                                         OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
                                         String message = "It looks like Outlook was closed during the sync.";
-                                        if (hResult == "0x800706BE") message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                        if (error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
                                         mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else if (ex is System.Runtime.InteropServices.COMException && 
-                                        OGCSexception.GetErrorCode(ex) == "0x80040201") { //The operation failed.  The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
+                                    } else if (error == Ogcs.Outlook.Errors.ErrorType.OperationFailed) {
                                         mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
                                         syncResult = SyncResult.ReconnectThenRetry;
 
@@ -263,16 +262,18 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
                 try {
-                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai);
+                    String itemSummary = OutlookOgcs.Calendar.GetEventSummary(cai, out String anonSummary);
                     if (string.IsNullOrEmpty(itemSummary)) {
                         try {
                             itemSummary = cai.Start.Date.ToShortDateString() + " => " + cai.Subject;
+                            anonSummary = cai.Start.Date.ToShortDateString() + " => " + GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         } catch {
                             itemSummary = cai.Subject;
+                            anonSummary = GoogleOgcs.Authenticator.GetMd5(cai.Subject);
                         }
                     }
-                    Forms.Main.Instance.Console.Update("<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>",
-                        Console.Markup.warning, logit: true);
+                    String message = "<p>" + itemSummary + "</p><p>There is problem with this item - it will not be synced.</p><p>" + errMsg + "</p>";
+                    Forms.Main.Instance.Console.Update(message, message.Replace(itemSummary, anonSummary), Console.Markup.warning);
 
                 } finally {
                     log.Debug("Outlook object removed.");
@@ -362,6 +363,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Outlook returns recurring items that span the sync date range, Google doesn't
                     //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
                     for (int o = outlookEntries.Count - 1; o >= 0; o--) {
+                        if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
+
                         log.Fine("Processing " + (o + 1) + "/" + outlookEntries.Count);
                         AppointmentItem ai = null;
                         try {
@@ -411,6 +414,15 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         if (ai.IsRecurring && ai.Start.Date < this.Profile.SyncStart && ai.End.Date < this.Profile.SyncStart) {
+                            if (!Sync.Engine.Instance.ManualForceCompare && Profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id && Profile.MergeItems &&
+                                OutlookOgcs.CustomProperty.AnyStartsWith(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) &&
+                                OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId) != this.Profile.UseGoogleCalendar.Id)
+                            {
+                                log.Fine("Outlook recurring master, outside sync window, originates from a different Google calendar than that being synced. Will not attempt to find matching Google master event.");
+                                outlookEntries.Remove(ai);
+                                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                                continue;
+                            }
                             //We won't bother getting Google master event if appointment is yearly reoccurring in a month outside of sync range
                             //Otherwise, every sync, the master event will have to be retrieved, compared, concluded nothing's changed (probably) = waste of API calls
                             RecurrencePattern oPattern = ai.GetRecurrencePattern();
@@ -499,7 +511,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                         success = googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     }
-                    if (bubbleText != "") Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                    if (bubbleText != "") {
+                        log.Info(bubbleText.Replace("\r\n", ". "));
+                        System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
+                        String changes = rgx.Replace(bubbleText, "").Trim('0');
+                        if (Settings.Instance.ShowSystemNotifications && 
+                            (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                    }
 
                     return SyncResult.OK;
                 } finally {
@@ -761,7 +779,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             ai = outlookEntries[o];
                             OutlookOgcs.CustomProperty.LogProperties(ai, log4net.Core.Level.Debug);
                             if (OutlookOgcs.CustomProperty.Extirpate(ref ai)) {
-                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai), Console.Markup.calendar);
+                                console.Update(OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary), anonSummary, Console.Markup.calendar);
                                 ai.Save();
                             }
                         } finally {
@@ -775,7 +793,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Event ev = googleEntries[g];
                         GoogleOgcs.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
                         if (GoogleOgcs.CustomProperty.Extirpate(ref ev)) {
-                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev), Console.Markup.calendar);
+                            console.Update(GoogleOgcs.Calendar.GetEventSummary(ev, out String anonSummary), anonSummary, Console.Markup.calendar);
                             GoogleOgcs.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                         }
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;

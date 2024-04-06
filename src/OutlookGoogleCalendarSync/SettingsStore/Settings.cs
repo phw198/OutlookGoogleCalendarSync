@@ -94,7 +94,8 @@ namespace OutlookGoogleCalendarSync {
             Calendars.Add(new SettingsStore.Calendar());
 
             MuteClickSounds = false;
-            ShowBubbleTooltipWhenSyncing = true;
+            ShowSystemNotifications = true;
+            ShowSystemNotificationsIfChange = false;
             StartOnStartup = false;
             StartOnStartupAllUsers = false;
             StartupDelay = 0;
@@ -106,6 +107,8 @@ namespace OutlookGoogleCalendarSync {
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
             cloudLogging = null;
+            AnonymiseLogs = false;
+            TelemetryDisabled = false;
             portable = false;
             Proxy = new SettingsStore.Proxy();
 
@@ -216,7 +219,8 @@ namespace OutlookGoogleCalendarSync {
                 suppressSocialPopup = value;
             }
         }
-        [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
+        [DataMember] public bool ShowSystemNotifications { get; set; }
+        [DataMember] public bool ShowSystemNotificationsIfChange { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartOnStartupAllUsers { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
@@ -243,6 +247,7 @@ namespace OutlookGoogleCalendarSync {
                 if (!Loading()) XMLManager.ExportElement(this, "CloudLogging", value, ConfigFile);
             }
         }
+        [DataMember] public bool AnonymiseLogs { get; set; }
         [DataMember] public bool TelemetryDisabled { get; set; }
         //Proxy
         [DataMember] public SettingsStore.Proxy Proxy { get; set; }
@@ -372,7 +377,7 @@ namespace OutlookGoogleCalendarSync {
             } 
         
             log.Info("APPLICATION BEHAVIOUR:-");
-            log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
+            log.Info("  ShowSystemNotifications: " + ShowSystemNotifications + "; OnlyIfChange: " + ShowSystemNotificationsIfChange);
             log.Info("  StartOnStartup: " + StartOnStartup + "; AllUsers: " + StartOnStartupAllUsers + "; DelayedStartup: " + StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
@@ -389,6 +394,8 @@ namespace OutlookGoogleCalendarSync {
             //((log4net.Repository.Hierarchy.Hierarchy)log.Logger.Repository).Root.Level.Name);
             log.Info("  Logging Level: "+ LoggingLevel);
             log.Info("  Error Reporting: " + CloudLogging ?? "Undefined");
+            log.Info("  Anonymise Logs: " + AnonymiseLogs);
+            log.Info("  Telemetry Disabled: " + TelemetryDisabled);
 
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);

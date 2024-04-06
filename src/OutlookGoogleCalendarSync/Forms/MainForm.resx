@@ -117,11 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="msSyncActions.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <metadata name="msProfileActions.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>403, 17</value>
+    <value>536, 17</value>
   </metadata>
   <metadata name="msCategories.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>126, 17</value>
+    <value>259, 17</value>
   </metadata>
   <data name="lGoogleAPIInstructions.Text" xml:space="preserve">
     <value>To change the Client ID and secret, first disconnect your account
@@ -132,10 +135,10 @@ You'll need to enable the Calendar API in your project:
 </value>
   </data>
   <metadata name="msColours.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>150, 17</value>
   </metadata>
   <metadata name="msSettingsActions.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>251, 17</value>
+    <value>384, 17</value>
   </metadata>
   <data name="label21.Text" xml:space="preserve">
     <value>On the "Google" tab, select the calendar you wish to synchronise.
@@ -144,7 +147,7 @@ If this is the first time using this application, you will need to authorise it 
   </data>
   <data name="label23.Text" xml:space="preserve">
     <value>The "Synchronisation Options" tab is the heart of the application. Here you specify 
-HOW - The direction of synchronisation, and how is deals with existing entries (merging and deleting)
+HOW - The direction of synchronisation, and how it deals with existing entries (merging and deleting)
 WHEN - The date range to synchronise and whether automatically at a regular interval, push changes as they occur in Outlook, or simply manually on-demand
 WHAT - Choose the meeting attributes to sync: attendees, description and reminders.</value>
   </data>
@@ -163,7 +166,7 @@ or support further improvements,
 any donations would be greatly appreciated!</value>
   </data>
   <metadata name="trayIcon.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>546, 17</value>
+    <value>679, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="trayIcon.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

@@ -192,14 +192,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                 failures++;
                 log.Warn("Push Sync failed " + failures + " times to check for changed items.");
 
-                String hResult = OGCSexception.GetErrorCode(ex);
-                if ((ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
-                    (ex is System.Runtime.InteropServices.COMException && (
-                        ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
-                        hResult == "0x800706BE" || //The remote procedure call failed
-                        hResult == "0x800706BA")) //The RPC server is unavailable
-                    ) {
-                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                    error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients ||
+                    error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
+                {
                     try {
                         OutlookOgcs.Calendar.Instance.Reset();
                     } catch (System.Exception ex2) {

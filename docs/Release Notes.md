@@ -1,6 +1,38 @@
 | Release Notes |
 |:---|
 
+# v2.10.4.0 - Alpha
+
+**Enhancements**
+- New option: only show notifications when changes have been synced [[#1769](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1769)]
+- Re-release of sync for Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+- UI guidance that configured exclusions don't apply to series occurrences [[#1758](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1758)]
+- Added menu option to Sync button for 'Full Sync'
+- Logging improvements
+
+**Bugfix**
+- Empty appointment descriptions broke GMeet details sync [[#1776](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1776),[#1810](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1810)]
+- Finding calendar folders in alternate mailboxes [[#673](https://github.com/phw198/OutlookGoogleCalendarSync/issues/673)]
+- Handle oddly specified annual recurrences in Google [[#1799](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1799)]
+- Exclude Google's new 'Working Location' attribute [[#1817](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1817)]
+- Handle connection issues to alternate mailboxes when refreshing Outlook categories [[#1823](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1823)]
+
+# v2.10.3.0 - Alpha
+
+**Enhancements**
+- New option to:
+    - Sync Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+    - Anonymise calendar subjects in log file [[#1755](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1755)]
+- Improved efficiency when locating Google recurring series [[#1738](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1738)]
+- Handle poorly configured proxy servers [[#1745](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1745)]
+
+**Bugfix**
+- Failing to delete occurrence of Google series [[#1753](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1753)]
+- Handle Google rate limiting for too many meeting attendees [[#1744](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1744)]
+- Apply existing obfuscation rules against item Subjects [[#1725](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1725)]
+    - Handle items with no Subject text [[#1731](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1731)]
+- Cropped text on Google 'Retrieve Calendars' screen [[#1730](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1730)]
+
 # v2.10.2.0 - Alpha
 
 **Enhancements**

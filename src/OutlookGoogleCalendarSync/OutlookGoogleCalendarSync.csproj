@@ -364,6 +364,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="OutlookOgcs\CustomProperty.cs" />
     <Compile Include="OutlookOgcs\OutlookCategories.cs" />
+    <Compile Include="Ogcs.Outlook\OutlookErrors.cs" />
     <Compile Include="SettingsStore\Calendar.cs" />
     <Compile Include="SettingsStore\Proxy.cs" />
     <Compile Include="SettingsStore\Upgrade.cs" />

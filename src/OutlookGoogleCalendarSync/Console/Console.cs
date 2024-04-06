@@ -250,6 +250,20 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
+        /// Log a different string than that displayed to the Console
+        /// </summary>
+        /// <param name="moreOutput">Console output</param>
+        /// <param name="logEntry">Log output</param>
+        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false) {
+            if (string.IsNullOrEmpty(logEntry))
+                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble);
+            else {
+                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, logit: false);
+                logLinesSansHtml(logEntry, markupPrefix, verbose);
+            }
+        }
+
+        /// <summary>
         /// Update the console with further text
         /// </summary>
         /// <param name="moreOutput">The text to update the console with</param>
@@ -276,25 +290,10 @@ namespace OutlookGoogleCalendarSync {
                     contentInnerHtml = matches[0].Result("$1");
                 }
 
+                moreOutput = moreOutput.Replace("\r\n", "<br/>");
                 String htmlOutput = parseEmoji(moreOutput, markupPrefix);
 
-                if (logit) {
-                    //Log the output sans HTML tags
-                    String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
-                    tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
-                    tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
-                    String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (markupPrefix == Markup.warning)
-                        logLines.ToList().ForEach(l => log.Warn(l));
-                    else if (markupPrefix == Markup.fail)
-                        logLines.ToList().ForEach(l => log.Fail(l));
-                    else if (markupPrefix == Markup.error)
-                        logLines.ToList().ForEach(l => log.Error(l));
-                    else if (verbose)
-                        logLines.ToList().ForEach(l => log.Debug(l));
-                    else
-                        logLines.ToList().ForEach(l => log.Info(l));
-                }
+                if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose);               
 
                 //Don't add append line break to Markup that's already wrapped in <div> tags
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
@@ -319,18 +318,36 @@ namespace OutlookGoogleCalendarSync {
                 }
                 System.Windows.Forms.Application.DoEvents();
 
-                if (Forms.Main.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
+                if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
             }
         }
 
-        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false) {
+        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
             Markup emoji = Markup.error;
             if (OGCSexception.LoggingAsFail(ex))
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
+        }
+
+        /// <summary>Log the output sans HTML tags.</summary>
+        private void logLinesSansHtml(String htmlOutput, Markup? markupPrefix = null, Boolean verbose = false) {
+            String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
+            tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
+            tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
+            String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (markupPrefix == Markup.warning)
+                logLines.ToList().ForEach(l => log.Warn(l));
+            else if (markupPrefix == Markup.fail)
+                logLines.ToList().ForEach(l => log.Fail(l));
+            else if (markupPrefix == Markup.error)
+                logLines.ToList().ForEach(l => log.Error(l));
+            else if (verbose)
+                logLines.ToList().ForEach(l => log.Debug(l));
+            else
+                logLines.ToList().ForEach(l => log.Info(l));
         }
 
         private String parseEmoji(String output, Markup? markupPrefix = null) {
@@ -376,7 +393,7 @@ namespace OutlookGoogleCalendarSync {
             return output;
         }
 
-        public void FormatEventChanges(StringBuilder sb) {
+        public void FormatEventChanges(StringBuilder sb, String anonymised) {
             sb.Insert(0, ":" + Markup.calendar.ToString() + ":");
 
             String[] lines = sb.ToString().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -392,7 +409,13 @@ namespace OutlookGoogleCalendarSync {
             }
             table.Append("</table>");
 
-            Update(lines[0] + "<br/>" + table.ToString(), verbose: true, newLine: false);
+            if (Settings.Instance.AnonymiseLogs) {
+                MatchCollection matches = Regex.Matches(anonymised, @"^Subject:\s(.*?)\s=>\s(.*?)$", RegexOptions.Multiline);
+                if (matches.Count > 0) {
+                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
+                }
+            }
+            Update(lines[0] + "<br/>" + table.ToString(), anonymised, verbose: true, newLine: false);
         }
 
         #region Mute webbrowser navigation click sounds
