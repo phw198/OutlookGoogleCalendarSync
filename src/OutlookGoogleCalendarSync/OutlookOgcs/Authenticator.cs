@@ -26,17 +26,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
         }
 
-        private Boolean authenticated = false;
+        public Boolean Authenticated { get; protected set; }
         private IPublicClientApplication oAuthApp;
         private AuthenticationResult authResult = null;
         private Boolean noInteractiveAuth = false;
 
         public Authenticator() {
+            Authenticated = false;
             CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
         public void GetAuthenticated(Boolean noInteractiveAuth = false) {
-            if (this.authenticated && authResult != null) return;
+            if (this.Authenticated && authResult != null) return;
 
             this.noInteractiveAuth = noInteractiveAuth;
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
@@ -153,8 +154,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             );
 #pragma warning restore 1998
 
-            authenticated = true;
-            return authenticated;
+            Authenticated = true;
+            return Authenticated;
         }
 
         private void getMSaccountEmail() {
@@ -165,7 +166,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public void Reset(Boolean reauthorise = true) {
             log.Info("Resetting Microsoft Calendar authentication details.");
             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", "Not connected");
-            authenticated = false;
+            Authenticated = false;
             try {
                 var accounts = oAuthApp.GetAccountsAsync().Result;
                 log.Debug(accounts.Count() + " account(s) in the MSAL cache.");
