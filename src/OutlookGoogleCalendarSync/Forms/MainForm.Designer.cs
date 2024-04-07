@@ -206,6 +206,7 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.label36 = new System.Windows.Forms.Label();
             this.tbExcludeSubjectText = new System.Windows.Forms.TextBox();
             this.cbExcludeSubject = new System.Windows.Forms.CheckBox();
             this.cbExcludePrivate = new System.Windows.Forms.CheckBox();
@@ -332,7 +333,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.label36 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1135,7 +1135,7 @@
             // 
             this.bGetOutlookCalendars.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.bGetOutlookCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bGetOutlookCalendars.Location = new System.Drawing.Point(29, 130);
+            this.bGetOutlookCalendars.Location = new System.Drawing.Point(21, 130);
             this.bGetOutlookCalendars.Name = "bGetOutlookCalendars";
             this.bGetOutlookCalendars.Size = new System.Drawing.Size(115, 23);
             this.bGetOutlookCalendars.TabIndex = 48;
@@ -1172,8 +1172,8 @@
             this.label39.AutoSize = true;
             this.label39.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label39.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label39.Location = new System.Drawing.Point(148, 175);
-            this.label39.MaximumSize = new System.Drawing.Size(200, 0);
+            this.label39.Location = new System.Drawing.Point(140, 175);
+            this.label39.MaximumSize = new System.Drawing.Size(192, 0);
             this.label39.Name = "label39";
             this.label39.Size = new System.Drawing.Size(192, 26);
             this.label39.TabIndex = 28;
@@ -1184,7 +1184,7 @@
             this.btResetOCal.BackColor = System.Drawing.Color.Transparent;
             this.btResetOCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btResetOCal.ForeColor = System.Drawing.Color.Red;
-            this.btResetOCal.Location = new System.Drawing.Point(29, 177);
+            this.btResetOCal.Location = new System.Drawing.Point(21, 177);
             this.btResetOCal.Name = "btResetOCal";
             this.btResetOCal.Size = new System.Drawing.Size(115, 23);
             this.btResetOCal.TabIndex = 10;
@@ -1197,8 +1197,8 @@
             this.label38.AutoSize = true;
             this.label38.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label38.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label38.Location = new System.Drawing.Point(150, 114);
-            this.label38.MaximumSize = new System.Drawing.Size(220, 0);
+            this.label38.Location = new System.Drawing.Point(142, 114);
+            this.label38.MaximumSize = new System.Drawing.Size(169, 0);
             this.label38.Name = "label38";
             this.label38.Size = new System.Drawing.Size(169, 52);
             this.label38.TabIndex = 9;
@@ -2556,6 +2556,16 @@
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // label36
+            // 
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label36.Location = new System.Drawing.Point(7, 167);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(279, 14);
+            this.label36.TabIndex = 59;
+            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
             // 
             // tbExcludeSubjectText
             // 
@@ -4184,16 +4194,6 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // label36
-            // 
-            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label36.Location = new System.Drawing.Point(7, 167);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(279, 14);
-            this.label36.TabIndex = 59;
-            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
             // 
             // Main
             // 
