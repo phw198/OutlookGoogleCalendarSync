@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
             buildMenu();
 
-            if (OutlookOgcs.Calendar.OOMsecurityInfo) {
+            if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);

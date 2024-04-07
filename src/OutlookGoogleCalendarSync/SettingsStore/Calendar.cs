@@ -33,7 +33,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             _ProfileName = "Default";
 
             //Outlook
-            OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
+            OutlookService = Outlook.Calendar.Service.DefaultMailbox;
             MailboxName = "";
             SharedCalendar = "";
             UseOutlookCalendar = new OutlookCalendarListEntry();
@@ -110,7 +110,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public enum RestrictBy {
             Include, Exclude
         }
-        [DataMember] public OutlookOgcs.Calendar.Service OutlookService { get; set; }
+        [DataMember] public Outlook.Calendar.Service OutlookService { get; set; }
         [DataMember] public string MailboxName { get; set; }
         [DataMember] public string SharedCalendar { get; set; }
         [DataMember] public OutlookCalendarListEntry UseOutlookCalendar { get; set; }
@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: " + OutlookService.ToString());
-            if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
+            if (OutlookService == Outlook.Calendar.Service.SharedCalendar) {
                 log.Info("  Shared Calendar: " + SharedCalendar);
             } else {
                 log.Info("  Mailbox/FolderStore Name: " + MailboxName);
@@ -309,10 +309,10 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             }
             if (ColourMaps.Count > 0) {
                 log.Info("  Custom Colour/Category Mapping:-");
-                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                     log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                 else
-                    ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                    ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
                         c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
             }
             log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);

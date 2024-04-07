@@ -500,12 +500,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
                     if (ex is ApplicationException) {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -523,7 +523,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;
                     }
-                    Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
+                    Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                     OGCSexception.Analyse(ex, true);
                     if (OgcsMessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
@@ -541,7 +541,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         private Event createCalendarEntry(AppointmentItem ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            string itemSummary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary);
+            string itemSummary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
             log.Debug("Processing >> " + (anonSummary ?? itemSummary));
             Forms.Main.Instance.Console.Update(itemSummary, anonSummary, Console.Markup.calendar, verbose: true);
 
@@ -558,7 +558,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 ev.Start.DateTime = ai.Start;
                 ev.End.DateTime = ai.End;
             }
-            ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+            ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
             ev.Summary = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, null, Sync.Direction.OutlookToGoogle);
             if (profile.AddDescription) {
@@ -596,7 +596,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             //Reminder alert
             ev.Reminders = new Event.RemindersData();
             if (profile.AddReminders) {
-                if (OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai)) {
+                if (Outlook.Calendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.ReminderSet) {
                         ev.Reminders.UseDefault = false;
                         EventReminder reminder = new EventReminder {
@@ -667,16 +667,16 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai))) {
+            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
-                OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
-                OutlookOgcs.CustomProperty.SetOGCSlastModified(ref ai);
+                Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                Outlook.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
 
-            if (profile.AddGMeet && OutlookOgcs.GMeet.BodyHasGmeetUrl(ai)) {
+            if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
                 log.Info("Adding GMeet conference details.");
-                String outlookGMeet = OutlookOgcs.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
+                String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
                 GMeet.GoogleMeet(createdEvent, outlookGMeet);
                 createdEvent = patchEvent(createdEvent) ?? createdEvent;
                 log.Fine("Conference data added.");
@@ -710,12 +710,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
                 } catch (System.Exception ex) {
                     if (ex is ApplicationException) {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update skipped.<br/>" + ex.Message, compare.Key, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event update skipped.<br/>" + ex.Message, compare.Key, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = OutlookOgcs.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         if (ex is System.Runtime.InteropServices.COMException) throw;
                         OGCSexception.Analyse(ex, true);
@@ -732,7 +732,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         entriesUpdated++;
                         eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -759,7 +759,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         UpdateCalendarEntry_save(ref ev);
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(OutlookOgcs.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -781,7 +781,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         if (ev.Updated > ai.LastModificationTime)
                             return null;
                     } else {
-                        if (OutlookOgcs.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
+                        if (Outlook.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
                             log.Fine("Outlook last modified by OGCS.");
                             return null;
                         }
@@ -791,7 +791,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
 
-            String aiSummary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary);
+            String aiSummary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
             log.Debug("Processing >> " + (anonSummary ?? aiSummary));
 
             if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
@@ -892,7 +892,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (ev.Start.DateTime != null) {
                 String currentStartTZ = ev.Start.TimeZone;
                 String currentEndTZ = ev.End.TimeZone;
-                ev = OutlookOgcs.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+                ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
                 if (ev.Recurrence != null && ev.Start.TimeZone != ev.End.TimeZone) {
                     log.Warn("Outlook recurring series has a different start and end timezone, which Google does not allow. Setting both to the start timezone.");
                     ev.End.TimeZone = ev.Start.TimeZone;
@@ -924,7 +924,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         ev.Description = bodyObfuscated;
 
                     if (profile.AddGMeet) {
-                        String outlookGMeet = OutlookOgcs.GMeet.RgxGmeetUrl().Match(ai.Body ?? "")?.Value;
+                        String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body ?? "")?.Value;
                         if (Sync.Engine.CompareAttribute("Google Meet", Sync.Direction.OutlookToGoogle, ev.HangoutLink, outlookGMeet, sb, ref itemModified)) {
                             try {
                                 GMeet.GoogleMeet(ev, outlookGMeet);
@@ -983,7 +983,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     try {
                         CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
                     } catch (System.Exception ex) {
-                        if (OutlookOgcs.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
+                        if (Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
                             Forms.Main.Instance.Console.Update("Outlook is currently disconnected from Exchange, so it's not possible to sync attendees.<br/>" +
                                 "Please reconnect or do not sync attendees.", Console.Markup.error);
                             throw new System.Exception("Outlook has disconnected from Exchange.");
@@ -996,7 +996,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             #region Reminders
             if (profile.AddReminders) {
-                Boolean OKtoSyncReminder = OutlookOgcs.Calendar.Instance.IsOKtoSyncReminder(ai);
+                Boolean OKtoSyncReminder = Outlook.Calendar.Instance.IsOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
                     //Find the popup reminder(s) in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
@@ -1270,7 +1270,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         unclaimedEvents.Add(ev);
                         for (int o = oAppointments.Count - 1; o >= 0; o--) {
                             AppointmentItem ai = oAppointments[o];
-                            if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(ai))) {
+                            if (SignaturesMatch(sigEv, Outlook.Calendar.signature(ai))) {
                                 try {
                                     Event originalEv = ev;
                                     CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -1280,9 +1280,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                                     consoleTitle = "";
                                     Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ev, out String anonSummary, appendContext: false), anonSummary, verbose: true);
                                     gEvents[g] = ev;
-                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || OutlookOgcs.CustomProperty.ExistAnyGoogleIDs(ai)) {
+                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
-                                        OutlookOgcs.CustomProperty.AddGoogleIDs(ref ai, ev);
+                                        Outlook.CustomProperty.AddGoogleIDs(ref ai, ev);
                                         ai.Save();
                                     }
                                 } catch (System.Exception ex) {
@@ -1389,9 +1389,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 Boolean foundMatch = false;
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     try {
-                        if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                        if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + Outlook.Calendar.GetEventSummary(outlook[o]));
 
-                        if (SignaturesMatch(sigEv, OutlookOgcs.Calendar.signature(outlook[o]))) {
+                        if (SignaturesMatch(sigEv, Outlook.Calendar.signature(outlook[o]))) {
                             foundMatch = true;
                             compare.Add(outlook[o], google[g]);
                             outlook.Remove(outlook[o]);
@@ -1401,7 +1401,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     } catch (System.Exception ex) {
                         if (!log.IsUltraFineEnabled()) {
                             try {
-                                log.Info(OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                                log.Info(Outlook.Calendar.GetEventSummary(outlook[o]));
                             } catch { }
                         }
                         if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
@@ -1441,12 +1441,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                     for (int o = outlook.Count - 1; o >= 0; o--) {
                         try {
-                            if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                            if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + Outlook.Calendar.GetEventSummary(outlook[o]));
 
                             String compare_oID;
-                            if (outlookIDmissing && compare_gEntryID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern)) {
+                            if (outlookIDmissing && compare_gEntryID.StartsWith(Outlook.Calendar.GlobalIdPattern)) {
                                 //compare_gEntryID actually holds GlobalID up to v2.3.2.3 - yes, confusing I know, but we're sorting this now
-                                compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
+                                compare_oID = Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(outlook[o]);
                             } else {
                                 compare_oID = outlook[o].EntryID;
                             }
@@ -1473,7 +1473,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         } catch (System.Exception ex) {
                             if (!log.IsUltraFineEnabled()) {
                                 try {
-                                    log.Info(OutlookOgcs.Calendar.GetEventSummary(outlook[o]));
+                                    log.Info(Outlook.Calendar.GetEventSummary(outlook[o]));
                                 } catch { }
                             }
                             if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
@@ -1529,11 +1529,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
             }
 
-            if (google.Count > 0 && OutlookOgcs.Calendar.Instance.ExcludedByCategory.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
+            if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
                 //Check if Google items to be deleted were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
-                    if (OutlookOgcs.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
-                        OutlookOgcs.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId) ?? "")) {
+                    if (Outlook.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
+                        Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(google[g], CustomProperty.MetadataId.oEntryId) ?? "")) {
                         google.Remove(google[g]);
                     }
                 }
@@ -1542,7 +1542,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 //Check if Outlook items to be created were filtered out from Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (ExcludedByColour.ContainsValue(outlook[o].EntryID) ||
-                        ExcludedByColour.ContainsKey(OutlookOgcs.CustomProperty.Get(outlook[o], OutlookOgcs.CustomProperty.MetadataId.gEventID) ?? "")) {
+                        ExcludedByColour.ContainsKey(Outlook.CustomProperty.Get(outlook[o], Outlook.CustomProperty.MetadataId.gEventID) ?? "")) {
                         outlook.Remove(outlook[o]);
                     }
                 }
@@ -1559,7 +1559,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (OutlookOgcs.CustomProperty.Exists(outlook[o], OutlookOgcs.CustomProperty.MetadataId.gEventID))
+                    if (Outlook.CustomProperty.Exists(outlook[o], Outlook.CustomProperty.MetadataId.gEventID))
                         outlook.Remove(outlook[o]);
                 }
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
@@ -1571,7 +1571,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
-                OutlookOgcs.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
+                Outlook.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
             }
         }
 
@@ -1587,22 +1587,22 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             if (CustomProperty.Exists(ev, CustomProperty.MetadataId.oGlobalApptId)) {
                 String gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oGlobalApptId);
-                String oGlobalID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
+                String oGlobalID = Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
 
                 //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 && oGlobalID == gCompareID) //Actually simple compare of EntryId for O2003
+                if ((Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003 && oGlobalID == gCompareID) //Actually simple compare of EntryId for O2003
                     ||
-                    (OutlookOgcs.Factory.OutlookVersionName != OutlookOgcs.Factory.OutlookVersionNames.Outlook2003 &&
+                    (Outlook.Factory.OutlookVersionName != Outlook.Factory.OutlookVersionNames.Outlook2003 &&
                         (
-                            (oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                            gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            (oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                            gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                             gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
                             ||
-                            (!oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                            !gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                            (!oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                            !gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                             gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16)) //Or it's really a Entry ID (failsafe match)
                         )
                     ))
@@ -1623,11 +1623,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                             //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
                             //The former is identified by ExplorerWatcher adding a special flag
-                            if (OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.locallyCopied) == true.ToString()) {
+                            if (Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.locallyCopied) == true.ToString()) {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
-                                if (profile.OutlookGalBlocked || ai.Organizer != OutlookOgcs.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                if (profile.OutlookGalBlocked || ai.Organizer != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
                                     if (profile.OutlookGalBlocked)
                                         log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
                                     else
@@ -1643,7 +1643,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
-                            if (SignaturesMatch(signature(ev), OutlookOgcs.Calendar.signature(ai))) {
+                            if (SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
                                 return true;
@@ -1652,11 +1652,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     }
 
                 } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
-                    oGlobalID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
-                    gCompareID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern) &&
+                    oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                    gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                     gCompareID.Substring(72) != oGlobalID.Substring(72) &&
-                    OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID) == ev.Id &&
-                    SignaturesMatch(signature(ev), OutlookOgcs.Calendar.signature(ai))) 
+                    Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID) == ev.Id &&
+                    SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) 
                 {
                     //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
                     log.Warn("Appointment GlobalID has completely changed, but Google Event ID matches so relying on that!");
@@ -1688,7 +1688,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     bool foundAttendee = false;
                     Recipient recipient = ai.Recipients[o];
                     log.Fine("Comparing Outlook recipient: " + recipient.Name);
-                    String recipientSMTP = OutlookOgcs.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
+                    String recipientSMTP = Outlook.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
                     foreach (Google.Apis.Calendar.v3.Data.EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<Google.Apis.Calendar.v3.Data.EventAttendee>()) {
                         GoogleOgcs.EventAttendee ogcsAttendee = new GoogleOgcs.EventAttendee(attendee);
                         if (ogcsAttendee.Email != null && (recipientSMTP.ToLower() == ogcsAttendee.Email.ToLower())) {
@@ -1964,7 +1964,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
             if (profile.ColourMaps.Count > 0) {
-                KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => OutlookOgcs.Calendar.Categories.OutlookColour(cm.Key) == categoryColour);
+                KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => Outlook.Calendar.Categories.OutlookColour(cm.Key) == categoryColour);
                 if (kvp.Key != null) {
                     gColour = ColourPalette.ActivePalette.FirstOrDefault(ap => ap.Id == kvp.Value);
                     if (gColour != null) {
@@ -1974,7 +1974,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 }
             }
             //Algorithmic closest colour matching
-            System.Drawing.Color color = OutlookOgcs.Categories.Map.RgbColour((OlCategoryColor)categoryColour);
+            System.Drawing.Color color = Outlook.Categories.Map.RgbColour((OlCategoryColor)categoryColour);
             EventColour.Palette closest = ColourPalette.GetClosestColour(color);
             return (closest.Id == "0") ? EventColour.Palette.NullPalette : closest;
         }
@@ -1988,8 +1988,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!string.IsNullOrEmpty(aiCategories)) {
                 log.Fine("Categories: " + aiCategories);
                 try {
-                    String category = aiCategories.Split(new[] { OutlookOgcs.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
-                    categoryColour = OutlookOgcs.Calendar.Categories.OutlookColour(category);
+                    String category = aiCategories.Split(new[] { Outlook.Calendar.Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault();
+                    categoryColour = Outlook.Calendar.Categories.OutlookColour(category);
                 } catch (System.Exception ex) {
                     log.Error("Failed determining colour for Event from AppointmentItem categories: " + aiCategories);
                     OGCSexception.Analyse(ex);
@@ -2218,7 +2218,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             GoogleOgcs.EventAttendee ea = new GoogleOgcs.EventAttendee();
             log.Fine("Creating attendee " + recipient.Name);
             ea.DisplayName = recipient.Name;
-            ea.Email = OutlookOgcs.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
+            ea.Email = Outlook.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
             ea.Optional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
             if (isOrganiser) {
                 //ea.Organizer = true; This is read-only. The best we can do is force them to have accepted the "invite"

@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     public class GMeetLogo {
         private static GMeetLogo instance;
         private static readonly ILog log = LogManager.GetLogger(typeof(GMeetLogo));

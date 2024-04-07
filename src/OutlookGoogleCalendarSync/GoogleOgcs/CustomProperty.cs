@@ -216,7 +216,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static void AddOutlookIDs(ref Event ev, AppointmentItem ai) {
             Add(ref ev, MetadataId.oCalendarId, Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
             Add(ref ev, MetadataId.oEntryId, ai.EntryID);
-            Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
+            Add(ref ev, MetadataId.oGlobalApptId, Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
             CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
         }
 

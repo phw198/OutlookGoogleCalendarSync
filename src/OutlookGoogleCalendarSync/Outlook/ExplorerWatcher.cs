@@ -2,9 +2,8 @@
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     class ExplorerWatcher {
         private static readonly ILog log = LogManager.GetLogger(typeof(ExplorerWatcher));
 
@@ -74,11 +73,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         } else {
                             throw new ApplicationException("The item is not an appointment item.");
                         }
-                        log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
+                        log.Debug(Calendar.GetEventSummary(copiedAi));
                         String entryID = copiedAi.EntryID;
-                        if (OutlookOgcs.CustomProperty.AnyStartsWith(copiedAi, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
+                        if (CustomProperty.AnyStartsWith(copiedAi, CustomProperty.MetadataId.gEventID)) {
                             Dictionary<String, object> propertyBackup = cleanIDs(ref copiedAi);
-                            OutlookOgcs.CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.originalStartDate, copiedAi.Start);
+                            CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.originalStartDate, copiedAi.Start);
                             copiedAi.Save();
                             System.Threading.Thread repopIDsThrd = new System.Threading.Thread(() => repopulateIDs(entryID, propertyBackup));
                             repopIDsThrd.Start();
@@ -86,7 +85,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         } else {
                             log.Debug("This item isn't managed by OGCS.");
                             //But we still need to tag the pasted item as a "copied" item to avoid bad matches on Google events.
-                            OutlookOgcs.CustomProperty.Add(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.locallyCopied, true.ToString());
+                            CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.locallyCopied, true.ToString());
                             copiedAi.Save();
                             //Untag the original copied item
                             System.Threading.Thread untagAsCopiedThrd = new System.Threading.Thread(() => untagAsCopied(entryID));
@@ -101,7 +100,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         OGCSexception.Analyse(ex);
 
                     } finally {
-                        copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
+                        copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
                     }
                 }
             } catch (System.Exception ex) {
@@ -130,18 +129,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         log.Fine("Property value: " + backupValue);
                         propertyBackup.Add(metaDataId, backupValue);
                     } finally {
-                        up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
+                        up = (UserProperty)Calendar.ReleaseObject(up);
                     }
                 }
-                OutlookOgcs.CustomProperty.Extirpate(ref copiedAi);
-                OutlookOgcs.CustomProperty.Add(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.locallyCopied, true.ToString());
+                CustomProperty.Extirpate(ref copiedAi);
+                CustomProperty.Add(ref copiedAi, CustomProperty.MetadataId.locallyCopied, true.ToString());
                 copiedAi.Save();
 
             } catch (System.Exception ex) {
                 log.Warn("Failed to clean OGCS properties from copied item.");
                 OGCSexception.Analyse(ex);
             } finally {
-                ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
             return propertyBackup;
         }
@@ -154,12 +153,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             AppointmentItem copiedAi = null;
             try {
                 untagAsCopied(entryID);
-                OutlookOgcs.Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out copiedAi);
+                Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out copiedAi);
                 if (copiedAi == null) {
                     throw new System.Exception("Could not find Outlook item with entryID " + entryID + " for post-processing.");
                 }
 
-                log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
+                log.Debug(Calendar.GetEventSummary(copiedAi));
                 foreach (KeyValuePair<String, object> property in propertyValues) {
                     if (property.Value is DateTime)
                         addOutlookCustomProperty(ref copiedAi, property.Key, OlUserPropertyType.olDateTime, property.Value);
@@ -167,7 +166,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         addOutlookCustomProperty(ref copiedAi, property.Key, OlUserPropertyType.olText, property.Value);
                 }
                 log.Fine("Restored properties:-");
-                OutlookOgcs.CustomProperty.LogProperties(copiedAi, log4net.Core.Level.Debug);
+                CustomProperty.LogProperties(copiedAi, log4net.Core.Level.Debug);
                 copiedAi.Save();
 
             } catch (System.Exception ex) {
@@ -180,7 +179,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 OGCSexception.Analyse("Failed to repopulate OGCS properties back to copied item.", ex);
             } finally {
-                copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
+                copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }
         }
 
@@ -191,13 +190,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             AppointmentItem copiedAi = null;
             try {
-                OutlookOgcs.Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out copiedAi);
+                Calendar.Instance.IOutlook.GetAppointmentByID(entryID, out copiedAi);
                 if (copiedAi == null) {
                     throw new System.Exception("Could not find Outlook item with entryID " + entryID + " for post-processing.");
                 }
-                log.Debug(OutlookOgcs.Calendar.GetEventSummary(copiedAi));
-                String deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.locallyCopied.ToString());
-                deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, OutlookOgcs.CustomProperty.MetadataId.originalStartDate.ToString());
+                log.Debug(Calendar.GetEventSummary(copiedAi));
+                String deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, CustomProperty.MetadataId.locallyCopied.ToString());
+                deletedPropVal = deleteOutlookCustomProperty(ref copiedAi, CustomProperty.MetadataId.originalStartDate.ToString());
                 copiedAi.Save();
 
                 if (!String.IsNullOrEmpty(deletedPropVal)) {
@@ -256,7 +255,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 OGCSexception.Analyse("Failed to remove OGCS 'copied' property on copied item.", ex);
             } finally {
-                copiedAi = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(copiedAi);
+                copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }
         }
 

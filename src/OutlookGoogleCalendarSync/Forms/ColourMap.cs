@@ -24,7 +24,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void ColourMap_FormClosed(object sender, EventArgs e) {
-            OutlookOgcs.Calendar.Disconnect(true);
+            Outlook.Calendar.Disconnect(true);
         }
 
         protected override void Dispose(bool disposing) {
@@ -32,7 +32,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (components != null)
                     components.Dispose();
                 Forms.Main.Instance.btColourMap.Enabled = true;
-                OutlookOgcs.Calendar.Disconnect(true);
+                Outlook.Calendar.Disconnect(true);
             }
             base.Dispose(disposing);
         }
@@ -273,22 +273,22 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
 
                 if (string.IsNullOrEmpty(oCatName))
-                    oCatName = OutlookOgcs.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id, false);
+                    oCatName = Outlook.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id, false);
 
                 if (!string.IsNullOrEmpty(oCatName)) {
-                    foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
+                    foreach (Outlook.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
                         if (cInfo.Text == oCatName) {
                             ddOutlookColour.SelectedItem = cInfo;
                             return;
                         }
                     }
                     log.Warn("The category '" + oCatName + "' exists, but wasn't found in Outlook colour dropdown.");
-                    OutlookOgcs.Calendar.Instance.IOutlook.RefreshCategories();
+                    Outlook.Calendar.Instance.IOutlook.RefreshCategories();
                     while (ddOutlookColour.Items.Count > 0)
                         ddOutlookColour.Items.RemoveAt(0);
                     ddOutlookColour.AddCategoryColours();
 
-                    foreach (OutlookOgcs.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
+                    foreach (Outlook.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
                         if (cInfo.Text == oCatName) {
                             ddOutlookColour.SelectedItem = cInfo;
                             return;

@@ -159,7 +159,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             this.lastRunTime = DateTime.Now;
             try {
                 log.Fine("Updating calendar item count following Push Sync.");
-                this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
+                this.lastRunItemCount = Outlook.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("Failed to update item count following a Push Sync.", ex);
             }
@@ -177,9 +177,9 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Force in the push sync profile
                     Sync.Engine.Calendar.Instance.Profile = profile;
 
-                if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
+                if (Outlook.Calendar.Instance.IOutlook.NoGUIexists()) return;
                 log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
-                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
+                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = Outlook.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
                     log.Debug("Changes found for Push sync.");
@@ -192,13 +192,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                 failures++;
                 log.Warn("Push Sync failed " + failures + " times to check for changed items.");
 
-                Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
-                if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                    error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients ||
-                    error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
+                Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                    error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients ||
+                    error == Outlook.Errors.ErrorType.RpcFailed) //
                 {
                     try {
-                        OutlookOgcs.Calendar.Instance.Reset();
+                        Outlook.Calendar.Instance.Reset();
                     } catch (System.Exception ex2) {
                         OGCSexception.Analyse("Failed resetting Outlook connection.", ex2);
                     }

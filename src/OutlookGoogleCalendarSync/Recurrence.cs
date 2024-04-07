@@ -37,12 +37,12 @@ namespace OutlookGoogleCalendarSync {
                 if (ai.AllDayEvent)
                     utcEnd = rp.PatternEndDate;
                 else {
-                    DateTime localEnd = rp.PatternEndDate + OutlookOgcs.Calendar.Instance.IOutlook.GetEndInEndTimeZone(ai).TimeOfDay;
-                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(OutlookOgcs.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
+                    DateTime localEnd = rp.PatternEndDate + Outlook.Calendar.Instance.IOutlook.GetEndInEndTimeZone(ai).TimeOfDay;
+                    utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(Outlook.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
                 }
                 gPattern.Add("RRULE:" + buildRrule(rp, utcEnd));
             } finally {
-                rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
+                rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
             }
             log.Debug(string.Join("\r\n", gPattern.ToArray()));
             return gPattern;
@@ -51,7 +51,7 @@ namespace OutlookGoogleCalendarSync {
         public void BuildOutlookPattern(Event ev, AppointmentItem ai) {
             RecurrencePattern ignore;
             buildOutlookPattern(ev, ai, out ignore);
-            ignore = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(ignore);
+            ignore = (RecurrencePattern)Outlook.Calendar.ReleaseObject(ignore);
         }
 
         private void buildOutlookPattern(Event ev, AppointmentItem ai, out RecurrencePattern oPattern) {
@@ -130,7 +130,7 @@ namespace OutlookGoogleCalendarSync {
             #endregion
 
             #region RANGE
-            ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             oPattern.PatternStartDate = ev.Start.SafeDateTime();
             if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1 && ruleBook["FREQ"] != "YEARLY")
                 oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
@@ -169,7 +169,7 @@ namespace OutlookGoogleCalendarSync {
             if (ev.Recurrence == null) return;
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
-            AppointmentItem evAI = OutlookOgcs.Calendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+            AppointmentItem evAI = Outlook.Calendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
             evAI.Start = ev.Start.SafeDateTime(); 
 
             RecurrencePattern evOpattern = null;
@@ -213,9 +213,9 @@ namespace OutlookGoogleCalendarSync {
                     aiOpattern.Occurrences = evOpattern.Occurrences;
                 }
             } finally {
-                evOpattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(evOpattern);
+                evOpattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(evOpattern);
                 evAI.Delete();
-                evAI = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(evAI);
+                evAI = (AppointmentItem)Outlook.Calendar.ReleaseObject(evAI);
             }
         }
 
@@ -456,7 +456,7 @@ namespace OutlookGoogleCalendarSync {
                     ai = oExcp.AppointmentItem;
                     log.Debug("  Current  date: " + ai.Start.ToString("dd/MM/yyyy"));
                 } finally {
-                    ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                    ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
                 }
             }
             if (dirtyCache) {
@@ -499,12 +499,12 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Event GetGoogleMasterEvent(AppointmentItem ai) {
-            log.Fine("Found a master Outlook recurring item outside sync date range: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+            log.Fine("Found a master Outlook recurring item outside sync date range: " + Outlook.Calendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
             Boolean haveMatchingEv = false;
-            if (OutlookOgcs.CustomProperty.Exists(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID)) {
-                String googleIdValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gEventID);
-                String googleCalValue = OutlookOgcs.CustomProperty.Get(ai, OutlookOgcs.CustomProperty.MetadataId.gCalendarId);
+            if (Outlook.CustomProperty.Exists(ai, Outlook.CustomProperty.MetadataId.gEventID)) {
+                String googleIdValue = Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID);
+                String googleCalValue = Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gCalendarId);
                 if (googleCalValue == null || googleCalValue == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id) {
                     Event ev = GoogleOgcs.Calendar.Instance.GetCalendarEntry(googleIdValue);
                     if (ev != null) {
@@ -531,8 +531,8 @@ namespace OutlookGoogleCalendarSync {
                     }
                     if (GoogleOgcs.CustomProperty.OutlookIdMissing(ev)) {
                         String compare_oID;
-                        if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith(OutlookOgcs.Calendar.GlobalIdPattern)) { //We got a Global ID, not Entry ID
-                            compare_oID = OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
+                        if (!string.IsNullOrEmpty(gEntryID) && gEntryID.StartsWith(Outlook.Calendar.GlobalIdPattern)) { //We got a Global ID, not Entry ID
+                            compare_oID = Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
                         } else {
                             compare_oID = ai.EntryID;
                         }
@@ -552,13 +552,13 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else {
                     log.Debug("Event \"" + ev.Summary + "\" does not have Outlook EntryID stored.");
-                    if (GoogleOgcs.Calendar.SignaturesMatch(GoogleOgcs.Calendar.signature(ev), OutlookOgcs.Calendar.signature(ai))) {
+                    if (GoogleOgcs.Calendar.SignaturesMatch(GoogleOgcs.Calendar.signature(ev), Outlook.Calendar.signature(ai))) {
                         log.Debug("Master event matched on simple signatures.");
                         return ev;
                     }
                 }
             }
-            log.Warn("Failed to find master Google event for: " + OutlookOgcs.Calendar.GetEventSummary(ai));
+            log.Warn("Failed to find master Google event for: " + Outlook.Calendar.GetEventSummary(ai));
             return null;
         }
 
@@ -618,7 +618,7 @@ namespace OutlookGoogleCalendarSync {
                                                 } catch (System.Exception ex) {
                                                     OGCSexception.Analyse(ex);
                                                 } finally {
-                                                    ai2 = (Microsoft.Office.Interop.Outlook.AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai2);
+                                                    ai2 = (Microsoft.Office.Interop.Outlook.AppointmentItem)Outlook.Calendar.ReleaseObject(ai2);
                                                 }
                                             }
                                         } catch (System.Exception ex) {
@@ -651,15 +651,15 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
                     } finally {
-                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
+                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);
                     }
                 }
             } finally {
                 for (int e = 1; e <= excps.Count; e++) {
-                    Microsoft.Office.Interop.Outlook.Exception garbage = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(excps[e]);
+                    Microsoft.Office.Interop.Outlook.Exception garbage = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(excps[e]);
                 }
-                excps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(excps);
-                rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
+                excps = (Exceptions)Outlook.Calendar.ReleaseObject(excps);
+                rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
             }
         }
 
@@ -671,7 +671,7 @@ namespace OutlookGoogleCalendarSync {
                     rp = ai.GetRecurrencePattern();
                     excps = rp.Exceptions;
                     if (excps.Count > 0) {
-                        log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                        log.Debug(Outlook.Calendar.GetEventSummary(ai));
                         log.Debug("This is a recurring appointment with " + excps.Count + " exceptions that will now be iteratively compared.");
                         for (int e = 1; e <= excps.Count; e++) {
                             Microsoft.Office.Interop.Outlook.Exception oExcp = null;
@@ -690,7 +690,7 @@ namespace OutlookGoogleCalendarSync {
                                 } else {
                                     aiExcp = oExcp.AppointmentItem;
                                     oExcp_currDate = aiExcp.Start;
-                                    aiExcp = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(aiExcp);
+                                    aiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(aiExcp);
                                 }
                                 if (oExcp_currDate < Sync.Engine.Calendar.Instance.Profile.SyncStart.Date || oExcp_currDate > Sync.Engine.Calendar.Instance.Profile.SyncEnd.Date) {
                                     log.Fine("Exception is" + logDeleted + " outside date range being synced: " + oExcp_currDate.Date.ToString("dd/MM/yyyy"));
@@ -709,7 +709,7 @@ namespace OutlookGoogleCalendarSync {
                                             log.Warn("Outlook is NOT deleted though - a mismatch has occurred somehow!");
                                             String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync O->G.</i>" : "";
                                             Forms.Main.Instance.Console.Update(
-                                                OutlookOgcs.Calendar.GetEventSummary("<br/>" +
+                                                Outlook.Calendar.GetEventSummary("<br/>" +
                                                     "The occurrence on " + oExcp.OriginalDate.ToShortDateString() + " does not exist in Google, but does in Outlook.<br/>" +
                                                     "This can happen if, for example, you declined the occurrence (which is synced to Google) and proposed a new time that is subsequently accepted by the organiser.<br/>" +
                                                     "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, ai, out String anonSummary)
@@ -721,7 +721,7 @@ namespace OutlookGoogleCalendarSync {
                                         log.Fine("Checking if we have another Google instance that /is/ cancelled on " + movedToStartDate.ToString("dd-MMM-yyyy") + " that this one has been moved to.");
                                         Event duplicate = Recurrence.Instance.getGoogleInstance(gExcp.RecurringEventId, movedToStartDate);
                                         DialogResult dr = DialogResult.Yes;
-                                        String summary = OutlookOgcs.Calendar.GetEventSummary(ai, out String anonSummary);
+                                        String summary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
                                         if (duplicate?.Status == "cancelled") {
                                             log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date cannot be safely deleted automatically.");
                                             String msg = summary + "\r\n\r\nAn occurrence on " + movedToStartDate.ToString("dd-MMM-yyyy") + " was previously deleted, before another occurrence on " + oExcp.OriginalDate.ToString("dd-MMM-yyyy") +
@@ -776,14 +776,14 @@ namespace OutlookGoogleCalendarSync {
                                     if (oIsDeleted == DeletionState.Deleted) log.Debug("The Outlook appointment is deleted, so not a problem.");
                                 }
                             } finally {
-                                aiExcp = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(aiExcp);
-                                oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
+                                aiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(aiExcp);
+                                oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);
                             }
                         }
                     }
                 } finally {
-                    excps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(excps);
-                    rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
+                    excps = (Exceptions)Outlook.Calendar.ReleaseObject(excps);
+                    rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
                 }
             }
         }
@@ -798,8 +798,8 @@ namespace OutlookGoogleCalendarSync {
                 excps = rp.Exceptions;
                 return excps.Count != 0;
             } finally {
-                excps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(excps);
-                rp = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(rp);
+                excps = (Exceptions)Outlook.Calendar.ReleaseObject(excps);
+                rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
             }
         }
 
@@ -819,7 +819,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 return DeletionState.Inaccessible;
             } finally {
-                ai = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(ai);
+                ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
             }
         }
 
@@ -874,16 +874,16 @@ namespace OutlookGoogleCalendarSync {
                         }
 
                         if (gExcp.Status == "cancelled") {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                            Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
-                            Forms.Main.Instance.Console.Update(OutlookOgcs.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                            Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
 
                         } else {
                             int itemModified = 0;
-                            OutlookOgcs.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified,
+                            Outlook.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified,
                                 forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.Date);
                             if (itemModified > 0) {
                                 try {
@@ -892,7 +892,7 @@ namespace OutlookGoogleCalendarSync {
                                     OGCSexception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
                                         Forms.Main.Instance.Console.Update(
-                                            OutlookOgcs.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                            Outlook.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
                                                 "You may have two occurences on the same day, which it doesn't allow.", newAiExcp, out String anonSummary, true)
                                             , anonSummary, Console.Markup.warning);
                                     }
@@ -900,11 +900,11 @@ namespace OutlookGoogleCalendarSync {
                             }
                         }
                     } finally {
-                        newAiExcp = (AppointmentItem)OutlookOgcs.Calendar.ReleaseObject(newAiExcp);
+                        newAiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(newAiExcp);
                     }
                 }
             } finally {
-                oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);
+                oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
             }
         }
 
@@ -947,11 +947,11 @@ namespace OutlookGoogleCalendarSync {
                             return;
                         }
                     } finally {
-                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)OutlookOgcs.Calendar.ReleaseObject(oExcp);
+                        oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);
                     }
                 }
             } finally {
-                oExcps = (Exceptions)OutlookOgcs.Calendar.ReleaseObject(oExcps);
+                oExcps = (Exceptions)Outlook.Calendar.ReleaseObject(oExcps);
             }
 
             //Finally check if the occurrence is not an exception, or an exception has moved to the same date as a deleted exception

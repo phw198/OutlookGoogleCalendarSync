@@ -42,7 +42,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             public Color RgbValue {
                 get {
                     if (UseWebAppColours) {
-                        if (rgbConvertedFromHex.IsEmpty && HexValue != null) rgbConvertedFromHex = OutlookOgcs.Categories.Map.RgbColour(HexValue);
+                        if (rgbConvertedFromHex.IsEmpty && HexValue != null) rgbConvertedFromHex = Outlook.Categories.Map.RgbColour(HexValue);
                         return rgbConvertedFromHex;
                     }
                     return rgbValue;
@@ -254,10 +254,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             else log.Debug(colours.Event__.Count() + " event colours and " + colours.Calendar.Count() + " calendars (with a colour) found.");
 
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Event__) {
-                eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, Outlook.Categories.Map.RgbColour(colour.Value.Background)));
             }
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Calendar) {
-                calendarPalette.Add(new Palette(Palette.Type.Calendar, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                calendarPalette.Add(new Palette(Palette.Type.Calendar, colour.Key, colour.Value.Background, Outlook.Categories.Map.RgbColour(colour.Value.Background)));
             }
             Forms.Main.Instance.miColourBuildPicker_Click(null, null);
         }
