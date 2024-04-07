@@ -152,6 +152,19 @@ namespace OutlookGoogleCalendarSync {
         public class TimezoneMappingDictionary : Dictionary<String, String> { }
         #endregion
         #region Google
+        private String _GaccountEmail;
+        [DataMember] public String GaccountEmail {
+            get { return _GaccountEmail; }
+            set {
+                _GaccountEmail = value;
+                if (!this.Loading())
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbGoogleConnectedAcc, "Text", String.IsNullOrEmpty(value) ? "Not connected" : value);
+            }
+        }
+        public String GaccountEmail_masked() {
+            if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
+            return EmailAddress.MaskAddress(GaccountEmail);
+        }
         [DataMember] public String AssignedClientIdentifier {
             get { return assignedClientIdentifier; }
             set {
@@ -192,11 +205,6 @@ namespace OutlookGoogleCalendarSync {
                 apiLimit_lastHit = value;
                 if (!Loading()) XMLManager.ExportElement(this, "APIlimit_lastHit", value, ConfigFile);
             }
-        }
-        [DataMember] public String GaccountEmail { get; set; }
-        public String GaccountEmail_masked() {
-            if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
-            return EmailAddress.MaskAddress(GaccountEmail);
         }
         #endregion
         #region App behaviour
@@ -343,7 +351,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Boolean Loading() {
-            return Program.CalledByProcess("Load,isNewVersion");
+            return Program.CalledByProcess("Load,isNewVersion,parseArgumentsAndInitialise");
         }
 
         public void LogSettings() {
