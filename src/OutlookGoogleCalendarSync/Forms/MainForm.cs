@@ -1686,7 +1686,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.GaccountEmail = "";
-                    tbGoogleConnectedAcc.Text = "Not connected";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
                 }
             }
