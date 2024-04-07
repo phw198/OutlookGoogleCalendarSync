@@ -356,7 +356,7 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="GoogleOgcs\GMeet.cs" />
-    <Compile Include="OutlookOgcs\Authenticator.cs" />
+    <Compile Include="Ogcs.Outlook.Graph\O365Authenticator.cs" />
     <Compile Include="OutlookOgcs\GMeet.cs" />
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />

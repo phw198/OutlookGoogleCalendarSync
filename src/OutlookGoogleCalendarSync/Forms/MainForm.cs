@@ -1379,7 +1379,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 /*enableOutlookSettingsUI(false);
                 ActiveCalendarProfile.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
-                OutlookOgcs.Calendar.Instance.Reset();
+            OutlookOgcs.Calendar.Instance.Reset();
                 //Update available calendars
                 if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
@@ -2777,7 +2777,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     //Settings.Instance.AssignedClientIdentifier = "";
                     //Settings.Instance.GaccountEmail = "";
                     tbOutlookConnectedAcc.Text = "Not connected";
-                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, OutlookOgcs.Authenticator.TokenFile));
+                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Ogcs.Outlook.Graph.Authenticator.TokenFile));
                 }
             }
         }
