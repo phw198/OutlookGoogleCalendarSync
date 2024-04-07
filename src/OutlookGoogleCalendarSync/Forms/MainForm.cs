@@ -305,6 +305,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         } else {
                             rbOutlookDefaultMB.Checked = true;
                         }
+                        tbOutlookConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.MSaccountEmail) ? "Not connected" : Settings.Instance.MSaccountEmail;
                     }
 
                     //Mailboxes the user has access to
@@ -2774,8 +2775,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     OutlookOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     //Settings.Instance.AssignedClientIdentifier = "";
-                    //Settings.Instance.GaccountEmail = "";
-                    tbOutlookConnectedAcc.Text = "Not connected";
+                    Settings.Instance.MSaccountEmail = "";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Ogcs.Outlook.Graph.Authenticator.TokenFile));
                 }
             }

@@ -142,7 +142,7 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook.Graph {
                 log.Debug("Access token expires " + authResult.ExpiresOn.ToLocalTime().ToString());
             }
 
-            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", authResult.Account.Username);
+            Settings.Instance.MSaccountEmail = authResult.Account.Username;
             getMSaccountEmail();
 
 #pragma warning disable 1998 //Lacks await
@@ -165,7 +165,7 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook.Graph {
 
         public void Reset(Boolean reauthorise = true) {
             log.Info("Resetting Microsoft Calendar authentication details.");
-            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", "Not connected");
+            Settings.Instance.MSaccountEmail = "";
             Authenticated = false;
             try {
                 var accounts = oAuthApp.GetAccountsAsync().Result;
@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook.Graph {
             }
             if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
             if (!OutlookOgcs.Calendar.IsInstanceNull) {
-                OutlookOgcs.Calendar.Instance.Authenticator = new Authenticator();
+                    OutlookOgcs.Calendar.Instance.Authenticator = new Authenticator();
                 //GoogleOgcs.Calendar.Instance.Service = null; ***
                 if (reauthorise)
                     OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();

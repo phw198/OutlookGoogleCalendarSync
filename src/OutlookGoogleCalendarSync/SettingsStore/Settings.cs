@@ -139,8 +139,17 @@ namespace OutlookGoogleCalendarSync {
                 instance = value;
             }
         }
-        
+
         #region Outlook
+        private String _MSaccountEmail;
+        [DataMember] public String MSaccountEmail {
+            get { return _MSaccountEmail; }
+            set { 
+                _MSaccountEmail = value;
+                if (!this.Loading())
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbOutlookConnectedAcc, "Text", String.IsNullOrEmpty(value) ? "Not connected" : value);
+            }
+        }
         [DataMember] public Boolean DisconnectOutlookBetweenSync { get; set; }
         [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
         [CollectionDataContract(
