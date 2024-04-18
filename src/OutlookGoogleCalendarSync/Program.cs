@@ -509,7 +509,7 @@ namespace OutlookGoogleCalendarSync {
                             disabledSetting += "telemetry";
                         }
                         if (OgcsMessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
-                            "Hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            "OGCS hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             Settings.Instance.TelemetryDisabled = false;
                             Settings.Instance.CloudLogging = true;
                         }
