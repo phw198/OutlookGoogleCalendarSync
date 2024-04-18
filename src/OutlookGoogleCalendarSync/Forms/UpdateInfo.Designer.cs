@@ -14,7 +14,6 @@
                 this.Visible = true;
                 disposing = false;
             }
-            System.Windows.Forms.MessageBox.Show("Disposing of updateInfo form.");
             try {
                 if (disposing && (components != null)) {
                     components.Dispose();

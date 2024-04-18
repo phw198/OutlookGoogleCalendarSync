@@ -74,7 +74,6 @@ namespace OutlookGoogleCalendarSync {
                 
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
-                Updater.CheckForUpdate();
 
                 TimezoneDB.Instance.CheckForUpdate();
 

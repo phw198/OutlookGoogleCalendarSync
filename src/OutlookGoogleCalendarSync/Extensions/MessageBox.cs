@@ -71,7 +71,6 @@ namespace System.Windows.Forms {
             log.Debug(caption + ": " + (logText ?? text));
 
             if (mainFrm == null || mainFrm.IsDisposed) {
-                log.Fine("Showing messagbox without mainFrm");
                 return MessageBox.Show(text, caption, buttons, icon, MessageBoxDefaultButton.Button1, options: MessageBoxOptions.DefaultDesktopOnly);
             }
 
