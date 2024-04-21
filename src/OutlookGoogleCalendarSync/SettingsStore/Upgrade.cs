@@ -10,7 +10,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         //OGCS releases that require the settings XML to be upgraded
         private const String multipleCalendarsVersion = "2.9.3.0";
-        private const String syncNotificationVersion = "2.10.4.0";
+        private const String syncNotificationVersion = "2.10.5.0";
         private static Int32 multipleCalendars = Program.VersionToInt(multipleCalendarsVersion);
         private static Int32 syncNotification = Program.VersionToInt(syncNotificationVersion);
 
@@ -171,6 +171,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         private static void upgradeToSyncNotification(XDocument xml) {
             XElement settingsElement = XMLManager.GetElement("Settings", xml);
             XMLManager.RenameElement("ShowBubbleTooltipWhenSyncing", settingsElement, "ShowSystemNotifications");
+            XMLManager.RenameElement("ShowBubbleWhenMinimising", settingsElement, "ShowSystemNotificationWhenMinimising");
         }
     }
 }
