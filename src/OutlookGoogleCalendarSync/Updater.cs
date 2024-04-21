@@ -99,6 +99,8 @@ namespace OutlookGoogleCalendarSync {
         private async Task<Boolean> githubCheck() {
             log.Debug("Checking for Squirrel update...");
             UpdateManager updateManager = null;
+            Forms.UpdateInfo updateInfoFrm = null;
+            UpdateInfo updates = null;
             isBusy = true;
             try {
                 String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -108,7 +110,15 @@ namespace OutlookGoogleCalendarSync {
                 else
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
 
-                UpdateInfo updates = await updateManager.CheckForUpdate();
+                try {
+                    updates = await updateManager.CheckForUpdate();
+                } catch (System.Exception ex) {
+                    if (ex.Message.Contains("Couldn't acquire lock")) {
+                        log.Fail(ex.Message);
+                        return false;
+                    }
+                    throw;
+                }
                 if ((Settings.Instance.AlphaReleases && updates.ReleasesToApply.Any()) ||
                     updates.ReleasesToApply.Any(r => r.Version.SpecialVersion != "alpha")) {
 
@@ -173,10 +183,10 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
 
-                    var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
+                    var t = new System.Threading.Thread(() => updateInfoFrm = new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
                     t.Start();
-                    t.Join();
+                    t.Join();         
 
                     squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                     squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade pending");
@@ -198,12 +208,13 @@ namespace OutlookGoogleCalendarSync {
                             squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Upgrade");
 
                             log.Info("Applying the updated release(s)...");
+                            updateInfoFrm.PrepareForUpgrade();
                             //updateManager.UpdateApp().Wait();
 
                             int ApplyAttempt = 1;
                             while (ApplyAttempt <= 5) {
                                 try {
-                                    updateManager.ApplyReleases(updates).Wait();
+                                    await updateManager.ApplyReleases(updates, updateInfoFrm.ShowUpgradeProgress);
                                     break;
                                 } catch (System.AggregateException ex) {
                                     ApplyAttempt++;
@@ -226,8 +237,13 @@ namespace OutlookGoogleCalendarSync {
 
                             log.Info("The application has been successfully updated.");
                             squirrelGaEv.AddParameter(GA4.Squirrel.result, "Successful");
-                            OgcsMessageBox.Show("The application has been updated and will now restart.",
-                                "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            
+                            updateInfoFrm.UpgradeCompleted();
+                            while (updateInfoFrm.AwaitingRestart) {
+                                Application.DoEvents();
+                                System.Threading.Thread.Sleep(100);
+                            }
+
                             restartUpdateExe = updateManager.RootAppDirectory + "\\Update.exe";
                             return true;
 
@@ -283,6 +299,7 @@ namespace OutlookGoogleCalendarSync {
                 throw;
             } finally {
                 isBusy = false;
+                updateInfoFrm?.Dispose();
                 updateManager.Dispose();
             }
             return false;
