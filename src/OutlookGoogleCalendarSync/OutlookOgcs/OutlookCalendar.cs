@@ -599,8 +599,10 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Boolean descriptionChanged = false;
                     if (!String.IsNullOrEmpty(aiBody)) {
                         Regex htmlDataTag = new Regex(@"<data:image.*?>");
-                        aiBody = htmlDataTag.Replace(aiBody, "");
-                        aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, ai.BodyFormat()).RemoveLineBreaks(), "").Trim();
+                        aiBody = htmlDataTag.Replace(aiBody, "").Trim();
+                        OlBodyFormat bodyFormat = ai.BodyFormat();
+                        if (bodyFormat != OlBodyFormat.olFormatUnspecified)
+                            aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, bodyFormat).RemoveLineBreaks(), "").Trim();
                     }
                     String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description ?? "", @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
                     if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
