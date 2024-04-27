@@ -140,26 +140,27 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
 
-                                    }
-                                    Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
-                                    if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                                        error == Ogcs.Outlook.Errors.ErrorType.RpcFailed ||
-                                        error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
-                                    {
-                                        OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
-                                        String message = "It looks like Outlook was closed during the sync.";
-                                        if (error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
-                                        mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
-
-                                    } else if (error == Ogcs.Outlook.Errors.ErrorType.OperationFailed) {
-                                        mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
-
                                     } else {
-                                        OGCSexception.Analyse(ex, true);
-                                        mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
-                                        syncResult = SyncResult.Fail;
+                                        Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
+                                        if (error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                            error == Ogcs.Outlook.Errors.ErrorType.RpcFailed ||
+                                            error == Ogcs.Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
+                                        {
+                                            OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                                            String message = "It looks like Outlook was closed during the sync.";
+                                            if (error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                            mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
+
+                                        } else if (error == Ogcs.Outlook.Errors.ErrorType.OperationFailed) {
+                                            mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
+
+                                        } else {
+                                            OGCSexception.Analyse(ex, true);
+                                            mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
+                                            syncResult = SyncResult.Fail;
+                                        }
                                     }
                                 }
                             }
