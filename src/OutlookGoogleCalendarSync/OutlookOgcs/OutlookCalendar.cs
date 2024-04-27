@@ -1552,7 +1552,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
             }
 
-            if (outlook.Count > 0 && GoogleOgcs.Calendar.Instance.ExcludedByColour.Count > 0 && !profile.DeleteWhenColourExcluded) {
+            if (outlook.Count > 0 && GoogleOgcs.Calendar.Instance.ExcludedByColour?.Count > 0 && !profile.DeleteWhenColourExcluded) {
                 //Check if Outlook items to be deleted were filtered out from Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (GoogleOgcs.Calendar.Instance.ExcludedByColour.ContainsValue(outlook[o].EntryID) ||
@@ -1561,7 +1561,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                 }
             }
-            if (google.Count > 0 && Instance.ExcludedByCategory.Count > 0) {
+            if (google.Count > 0 && Instance.ExcludedByCategory?.Count > 0) {
                 //Check if Google items to be created were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
