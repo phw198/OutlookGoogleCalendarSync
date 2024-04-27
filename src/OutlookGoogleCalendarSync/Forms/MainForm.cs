@@ -1008,11 +1008,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (this.WindowState == FormWindowState.Minimized || !this.Visible || !this.TopMost || !this.ShowInTaskbar) {
                 this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
                 this.Show(); //Show minimised back in taskbar
-                this.ShowInTaskbar = true;
                 this.WindowState = FormWindowState.Normal;
+                this.ShowInTaskbar = true;
                 if (forceToTop) this.TopMost = true;
                 this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
                 this.Show(); //Now restore
+                if (this.Location.X < 0 || this.Location.Y < 0) this.CenterToScreen();
                 this.TopMost = false;
                 this.Refresh();
                 System.Windows.Forms.Application.DoEvents();
