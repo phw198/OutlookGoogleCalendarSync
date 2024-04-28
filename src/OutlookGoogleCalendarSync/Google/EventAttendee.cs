@@ -2,15 +2,15 @@
 using System;
 using System.Reflection;
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
-    class EventAttendee : Google.Apis.Calendar.v3.Data.EventAttendee {
+namespace OutlookGoogleCalendarSync.Google {
+    class EventAttendee : global::Google.Apis.Calendar.v3.Data.EventAttendee {
         private static readonly ILog log = LogManager.GetLogger(typeof(EventAttendee));
         public const String EmailCloak = ".ogcs";
 
-        private Google.Apis.Calendar.v3.Data.EventAttendee parent { get; set; }
+        private global::Google.Apis.Calendar.v3.Data.EventAttendee parent { get; set; }
 
         public EventAttendee() { }
-        public EventAttendee(Google.Apis.Calendar.v3.Data.EventAttendee baseAttendee) {
+        public EventAttendee(global::Google.Apis.Calendar.v3.Data.EventAttendee baseAttendee) {
             parent = baseAttendee;
             foreach (PropertyInfo prop in parent.GetType().GetProperties()) {
                 try {

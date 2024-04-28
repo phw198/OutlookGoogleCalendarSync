@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Linq;
@@ -412,7 +413,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.AnonymiseLogs) {
                 MatchCollection matches = Regex.Matches(anonymised, @"^Subject:\s(.*?)\s=>\s(.*?)$", RegexOptions.Multiline);
                 if (matches.Count > 0) {
-                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
+                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + Ogcs.Google.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + Ogcs.Google.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
                 }
             }
             Update(lines[0] + "<br/>" + table.ToString(), anonymised, verbose: true, newLine: false);

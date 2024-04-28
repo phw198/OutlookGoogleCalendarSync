@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 if (Forms.Main.Instance.ActiveCalendarProfile.ColourMaps.Count > 0) colourGridView.Rows.Clear();
                 foreach (KeyValuePair<String, String> colourMap in Forms.Main.Instance.ActiveCalendarProfile.ColourMaps) {
-                    addRow(colourMap.Key, GoogleOgcs.EventColour.Palette.GetColourName(colourMap.Value));
+                    addRow(colourMap.Key, Ogcs.Google.EventColour.Palette.GetColourName(colourMap.Value));
                 }
                 ddOutlookColour.AddCategoryColours();
                 if (ddOutlookColour.Items.Count > 0)
@@ -136,7 +137,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 foreach (DataGridViewRow row in colourGridView.Rows) {
                     if (string.IsNullOrEmpty(row.Cells["OutlookColour"].Value?.ToString()?.Trim()) || string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString()?.Trim())) continue;
                     try {
-                        profile.ColourMaps.Add(row.Cells["OutlookColour"].Value.ToString(), GoogleOgcs.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString()));
+                        profile.ColourMaps.Add(row.Cells["OutlookColour"].Value.ToString(), Ogcs.Google.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString()));
                     } catch (System.ArgumentException ex) {
                         if (OGCSexception.GetErrorCode(ex) == "0x80070057") {
                             //An item with the same key has already been added
@@ -243,13 +244,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 
                 foreach (DataGridViewRow row in colourGridView.Rows) {
                     if (row.Cells["OutlookColour"].Value.ToString() == ddOutlookColour.SelectedItem.Text && !string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString())) {
-                        String colourId = GoogleOgcs.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString());
+                        String colourId = Ogcs.Google.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString());
                         ddGoogleColour.SelectedIndex = Convert.ToInt16(colourId);
                         return;
                     }
                 }
 
-                ddGoogleColour.SelectedIndex = Convert.ToInt16(GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
+                ddGoogleColour.SelectedIndex = Convert.ToInt16(Ogcs.Google.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
 
             } catch (System.Exception ex) {
                 OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);

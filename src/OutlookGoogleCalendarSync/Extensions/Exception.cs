@@ -76,14 +76,14 @@ namespace OutlookGoogleCalendarSync {
                     if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
                     else log.Error(agex.Message);
 
-                } else if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
-                    AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
+                } else if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
+                    AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
 
                 } else Analyse(ex);
             }
         }
 
-        public static void AnalyseTokenResponse(Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
+        public static void AnalyseTokenResponse(global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
             log.Warn("Token response error: " + ex.Message);
@@ -107,14 +107,14 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String FriendlyMessage(System.Exception ex) {
-            if (ex is Google.GoogleApiException) {
-                Google.GoogleApiException gaex = ex as Google.GoogleApiException;
+            if (ex is global::Google.GoogleApiException) {
+                global::Google.GoogleApiException gaex = ex as global::Google.GoogleApiException;
                 if (gaex.Error != null)
                     return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
                 else
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
             } else {
-                return ex.Message + (ex.InnerException != null && !(ex.InnerException is Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
+                return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
             }
         }
 
@@ -175,7 +175,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
-        public static void LogAsFail(ref Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+        public static void LogAsFail(ref global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
             if (ex.Data.Contains(LogAs))
                 ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
             else
@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
-        public static void LogAsFail(ref Google.GoogleApiException ex) {
+        public static void LogAsFail(ref global::Google.GoogleApiException ex) {
             if (ex.Data.Contains(LogAs))
                 ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
             else

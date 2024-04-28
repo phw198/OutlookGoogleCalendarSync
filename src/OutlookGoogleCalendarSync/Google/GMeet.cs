@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     static class GMeet {
         private static readonly ILog log = LogManager.GetLogger(typeof(GMeet));
 

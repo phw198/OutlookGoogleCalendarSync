@@ -326,14 +326,18 @@
       <DependentUpon>TimezoneMap.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="GoogleOgcs\GMeet.cs" />
+    <Compile Include="Google\ApiKeyring.cs" />
+    <Compile Include="Google\Authenticator.cs" />
+    <Compile Include="Google\CustomProperty.cs" />
+    <Compile Include="Google\ErrorReporting.cs" />
+    <Compile Include="Google\EventAttendee.cs" />
+    <Compile Include="Google\EventColour.cs" />
+    <Compile Include="Google\GMeet.cs" />
+    <Compile Include="Google\GoogleCalendar.cs" />
     <Compile Include="Outlook.Factory\OutlookFactory.cs" />
     <Compile Include="Outlook.Factory\OutlookInterface.cs" />
     <Compile Include="Outlook.Factory\OutlookNew.cs" />
     <Compile Include="Outlook.Factory\OutlookOld.cs" />
-    <Compile Include="GoogleOgcs\ErrorReporting.cs" />
-    <Compile Include="GoogleOgcs\CustomProperty.cs" />
-    <Compile Include="GoogleOgcs\EventColour.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
@@ -354,11 +358,8 @@
     <Compile Include="Forms\UpdateInfo.Designer.cs">
       <DependentUpon>UpdateInfo.cs</DependentUpon>
     </Compile>
-    <Compile Include="GoogleOgcs\ApiKeyring.cs" />
     <Compile Include="EmailAddress.cs" />
     <Compile Include="Extensions\Exception.cs" />
-    <Compile Include="GoogleOgcs\Authenticator.cs" />
-    <Compile Include="GoogleOgcs\EventAttendee.cs" />
     <Compile Include="Sync\Calendar.cs" />
     <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
@@ -373,7 +374,6 @@
       <DependentUpon>Splash.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\ILogExtension.cs" />
-    <Compile Include="GoogleOgcs\GoogleCalendar.cs" />
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

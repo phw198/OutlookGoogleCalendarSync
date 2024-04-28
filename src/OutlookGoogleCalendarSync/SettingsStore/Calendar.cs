@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -313,7 +314,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                     log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                 else
                     ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
-                        c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
+                        c.Value + ":" + Ogcs.Google.EventColour.Palette.GetColourName(c.Value)));
             }
             log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);

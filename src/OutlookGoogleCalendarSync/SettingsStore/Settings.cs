@@ -1,7 +1,7 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
-            subscribed = GoogleOgcs.Authenticator.SubscribedNever;
+            subscribed = Ogcs.Google.Authenticator.SubscribedNever;
             donor = false;
             hideSplashScreen = null;
             suppressSocialPopup = false;
@@ -242,8 +242,8 @@ namespace OutlookGoogleCalendarSync {
             get { return cloudLogging; }
             set {
                 cloudLogging = value;
-                GoogleOgcs.ErrorReporting.SetThreshold(value ?? false);
-                if (value == null) GoogleOgcs.ErrorReporting.ErrorOccurred = false;
+                Ogcs.Google.ErrorReporting.SetThreshold(value ?? false);
+                if (value == null) Ogcs.Google.ErrorReporting.ErrorOccurred = false;
                 if (!Loading()) XMLManager.ExportElement(this, "CloudLogging", value, ConfigFile);
             }
         }
@@ -271,7 +271,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public Boolean UserIsBenefactor() {
-            return Subscribed != GoogleOgcs.Authenticator.SubscribedNever || donor;
+            return Subscribed != Ogcs.Google.Authenticator.SubscribedNever || donor;
         }
         [DataMember] public DateTime Subscribed {
             get { return subscribed; }

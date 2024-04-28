@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ using System.Text.RegularExpressions;
  *       sync engine, so that's for another day!
  */
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class ApiKeyring {
         private static readonly ILog log = LogManager.GetLogger(typeof(ApiKeyring));
         private const String keyringURL = "https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/keyring.md";
@@ -152,7 +153,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             System.Windows.Forms.OgcsMessageBox.Show("Your Google authorisation token needs updating.\r\n" +
                 "The process to reauthorise access to your Google account will now begin...",
                 "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-            GoogleOgcs.Calendar.Instance.Authenticator.Reset();
+            Ogcs.Google.Calendar.Instance.Authenticator.Reset();
         }
 
         private static MatchCollection findText(string source, string pattern) {

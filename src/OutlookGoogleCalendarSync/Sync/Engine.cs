@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -174,7 +175,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Start(manualIgnition: true, updateSyncSchedule: false);
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
-                    GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                    Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {

@@ -1,4 +1,5 @@
 ﻿///#define DEVELOP_AGAINST_2007     //Develop as for Outlook 2007 for greatest compatiblity
+using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -79,9 +80,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return colour;
             }
 
-            public static OutlookCOM.OlCategoryColor GetClosestCategory(GoogleOgcs.EventColour.Palette basePalette) {
+            public static OutlookCOM.OlCategoryColor GetClosestCategory(Ogcs.Google.EventColour.Palette basePalette) {
                 try {
-                    var colourDistance = Colours.Select(x => new { Value = x, Diff = GoogleOgcs.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
+                    var colourDistance = Colours.Select(x => new { Value = x, Diff = Ogcs.Google.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
                     var minDistance = colourDistance.Min(x => x.Diff);
                     return colourDistance.Find(x => x.Diff == minDistance).Value.Key;
                 } catch (System.Exception ex) {

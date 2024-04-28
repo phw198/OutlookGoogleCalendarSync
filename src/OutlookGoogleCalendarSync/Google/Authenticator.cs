@@ -1,4 +1,5 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Util.Store;
@@ -11,14 +12,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
         private Boolean authenticated = false;
         public Boolean Authenticated { get { return authenticated; } }
 
-        public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
+        public const String TokenFile = "global::Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
         private String tokenFullPath;
         private Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
 
@@ -111,7 +112,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (tokenFileExists)
                     log.Debug("User has provided Google authorisation and credential file saved.");
 
-            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+            } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //OGCSexception.AnalyseTokenResponse(ex);
                 if (ex.Error.Error == "access_denied") {
                     String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
@@ -137,9 +138,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 log.Debug("Access token expires " + credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value).ToLocalTime().ToString());
             }
 
-            GoogleOgcs.Calendar.Instance.Service = new CalendarService(new Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
+            Ogcs.Google.Calendar.Instance.Service = new CalendarService(new global::Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
             if (Settings.Instance.Proxy.Type == "Custom")
-                GoogleOgcs.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+                Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
 
             if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.UtcNow.AddMinutes(1)) {
                 log.Debug("Access token needs refreshing.");
@@ -148,9 +149,9 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 int backoff = 0;
                 while (backoff < Calendar.BackoffLimit) {
                     try {
-                        GoogleOgcs.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                        Ogcs.Google.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
                         break;
-                    } catch (Google.GoogleApiException ex) {
+                    } catch (global::Google.GoogleApiException ex) {
                         switch (Calendar.HandleAPIlimits(ref ex, null)) {
                             case Calendar.ApiException.throwException: throw;
                             case Calendar.ApiException.freeAPIexhausted:
@@ -174,8 +175,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                         }
 
                     } catch (System.Exception ex) {
-                        if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException)
-                            OGCSexception.AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
+                        if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException)
+                            OGCSexception.AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
                         else {
                             OGCSexception.Analyse(ex);
                             Forms.Main.Instance.Console.Update("Unable to communicate with Google services. " + (ex.InnerException != null ? ex.InnerException.Message : ex.Message), Console.Markup.warning);
@@ -200,12 +201,12 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", "Not connected");
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
-            if (!GoogleOgcs.Calendar.IsInstanceNull) {
-                GoogleOgcs.Calendar.Instance.Authenticator = null;
-                GoogleOgcs.Calendar.Instance.Service = null;
+            if (!Ogcs.Google.Calendar.IsInstanceNull) {
+                Ogcs.Google.Calendar.Instance.Authenticator = null;
+                Ogcs.Google.Calendar.Instance.Service = null;
                 if (reauthorise) {
-                    GoogleOgcs.Calendar.Instance.Authenticator = new Authenticator();
-                    GoogleOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+                    Ogcs.Google.Calendar.Instance.Authenticator = new Authenticator();
+                    Ogcs.Google.Calendar.Instance.Authenticator.GetAuthenticated();
                 }
             }
         }
@@ -333,7 +334,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all subscribers from past year.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("hahospj0gkekqentakho0vv224@group.calendar.google.com");
+                    EventsResource.ListRequest lr = Ogcs.Google.Calendar.Instance.Service.Events.List("hahospj0gkekqentakho0vv224@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;
@@ -353,18 +354,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     log.Warn("User's Google account username is not present - cannot check if they have subscribed.");
                     return false;
                 }
-            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+            } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 OGCSexception.AnalyseTokenResponse(ex);
 
-            } catch (Google.GoogleApiException ex) {
-                switch (GoogleOgcs.Calendar.HandleAPIlimits(ref ex, null)) {
+            } catch (global::Google.GoogleApiException ex) {
+                switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
                     case Calendar.ApiException.throwException: throw;
                     case Calendar.ApiException.freeAPIexhausted:
                         OGCSexception.LogAsFail(ref ex);
                         OGCSexception.Analyse(ex);
-                        System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
+                        System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.Instance.SubscriptionInvite, ex);
                         OGCSexception.LogAsFail(ref aex);
-                        GoogleOgcs.Calendar.Instance.Service = null;
+                        Ogcs.Google.Calendar.Instance.Service = null;
                         throw aex;
                 }
 
@@ -428,7 +429,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             log.Debug("Retrieving all donors.");
             try {
                 do {
-                    EventsResource.ListRequest lr = GoogleOgcs.Calendar.Instance.Service.Events.List("toiqu5lfdklneh5aqq509jhhk8@group.calendar.google.com");
+                    EventsResource.ListRequest lr = Ogcs.Google.Calendar.Instance.Service.Events.List("toiqu5lfdklneh5aqq509jhhk8@group.calendar.google.com");
 
                     lr.PageToken = pageToken;
                     lr.SingleEvents = true;

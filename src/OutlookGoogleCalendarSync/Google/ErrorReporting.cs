@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Text.RegularExpressions;
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     class ErrorReporting {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 

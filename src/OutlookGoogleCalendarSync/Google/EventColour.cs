@@ -1,12 +1,12 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class EventColour {
         public class Palette {
             private Boolean UseWebAppColours = true;
@@ -183,8 +183,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (profile.UseGoogleCalendar?.Id == null) return activePalette;
 
                 if (profile.UseGoogleCalendar.ColourId == "0") {
-                    GoogleOgcs.Calendar.Instance.GetCalendars();
-                    profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
+                    Ogcs.Google.Calendar.Instance.GetCalendars();
+                    profile.UseGoogleCalendar.ColourId = Ogcs.Google.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
                 }
 
                 //Palette currentCal = calendarPalette.Find(p => p.Id == profile.UseGoogleCalendar.ColourId);
@@ -217,22 +217,22 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             eventPalette = new List<Palette>();
             int backoff = 0;
             try {
-                while (backoff < GoogleOgcs.Calendar.BackoffLimit) {
+                while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
                     try {
-                        colours = GoogleOgcs.Calendar.Instance.Service.Colors.Get().Execute();
+                        colours = Ogcs.Google.Calendar.Instance.Service.Colors.Get().Execute();
                         break;
-                    } catch (Google.GoogleApiException ex) {
-                        switch (GoogleOgcs.Calendar.HandleAPIlimits(ref ex, null)) {
-                            case GoogleOgcs.Calendar.ApiException.throwException: throw;
-                            case GoogleOgcs.Calendar.ApiException.freeAPIexhausted:
+                    } catch (global::Google.GoogleApiException ex) {
+                        switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
+                            case Ogcs.Google.Calendar.ApiException.throwException: throw;
+                            case Ogcs.Google.Calendar.ApiException.freeAPIexhausted:
                                 OGCSexception.LogAsFail(ref ex);
                                 OGCSexception.Analyse(ex);
-                                System.ApplicationException aex = new System.ApplicationException(GoogleOgcs.Calendar.Instance.SubscriptionInvite, ex);
+                                System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.Instance.SubscriptionInvite, ex);
                                 OGCSexception.LogAsFail(ref aex);
                                 throw aex;
-                            case GoogleOgcs.Calendar.ApiException.backoffThenRetry:
+                            case Ogcs.Google.Calendar.ApiException.backoffThenRetry:
                                 backoff++;
-                                if (backoff == GoogleOgcs.Calendar.BackoffLimit) {
+                                if (backoff == Ogcs.Google.Calendar.BackoffLimit) {
                                     log.Error("API limit backoff was not successful. Retrieve Event colours failed.");
                                     throw;
                                 } else {
@@ -270,7 +270,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             clb.BeginUpdate();
             clb.Items.Clear();
             clb.Items.Add("<Default calendar colour>");
-            foreach (Palette colour in GoogleOgcs.Calendar.Instance.ColourPalette.eventPalette) {
+            foreach (Palette colour in Ogcs.Google.Calendar.Instance.ColourPalette.eventPalette) {
                 clb.Items.Add(colour.Name);
             }
             foreach (String colour in Forms.Main.Instance.ActiveCalendarProfile.Colours) {

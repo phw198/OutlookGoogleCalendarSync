@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using log4net.Core;
 using System;
 using System.Collections.Generic;
@@ -72,19 +73,19 @@ namespace OutlookGoogleCalendarSync {
         /// When an error is logged, check if user has chosen to upload logs or not
         /// </summary>
         protected override void Append(LoggingEvent loggingEvent) {
-            if (!GoogleOgcs.ErrorReporting.Initialised || GoogleOgcs.ErrorReporting.ErrorOccurred) return;
-            GoogleOgcs.ErrorReporting.ErrorOccurred = true;
+            if (!Ogcs.Google.ErrorReporting.Initialised || Ogcs.Google.ErrorReporting.ErrorOccurred) return;
+            Ogcs.Google.ErrorReporting.ErrorOccurred = true;
             String configSetting = null;
 
             if (Settings.AreLoaded) configSetting = Settings.Instance.CloudLogging.ToString();
             else configSetting = XMLManager.ImportElement("CloudLogging", Settings.ConfigFile);
 
             if (!string.IsNullOrEmpty(configSetting)) {
-                if (Convert.ToBoolean(configSetting) && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "ALL") {
-                    GoogleOgcs.ErrorReporting.SetThreshold(true);
+                if (Convert.ToBoolean(configSetting) && Ogcs.Google.ErrorReporting.GetThreshold().ToString().ToUpper() != "ALL") {
+                    Ogcs.Google.ErrorReporting.SetThreshold(true);
                     replayLogs();
-                } else if (!Convert.ToBoolean(configSetting) && GoogleOgcs.ErrorReporting.GetThreshold().ToString().ToUpper() != "OFF") {
-                    GoogleOgcs.ErrorReporting.SetThreshold(false);
+                } else if (!Convert.ToBoolean(configSetting) && Ogcs.Google.ErrorReporting.GetThreshold().ToString().ToUpper() != "OFF") {
+                    Ogcs.Google.ErrorReporting.SetThreshold(false);
                 }
                 return;
             }
@@ -93,7 +94,7 @@ namespace OutlookGoogleCalendarSync {
             Forms.ErrorReporting frm = Forms.ErrorReporting.Instance;
             DialogResult dr = frm.ShowDialog();
             if (dr == DialogResult.Cancel) {
-                GoogleOgcs.ErrorReporting.ErrorOccurred = false;
+                Ogcs.Google.ErrorReporting.ErrorOccurred = false;
                 return;
             }
             Boolean confirmative = dr == DialogResult.Yes;

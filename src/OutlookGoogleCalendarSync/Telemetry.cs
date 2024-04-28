@@ -1,9 +1,9 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Management;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OutlookGoogleCalendarSync {
@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 if (Settings.AreLoaded && !string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) {
                     log.Debug("Settings have been loaded, which contains Gmail account.");
-                    uuId = GoogleOgcs.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
+                    uuId = Ogcs.Google.Authenticator.GetMd5(Settings.Instance.GaccountEmail, true);
 
                 } else {
                     log.Debug("Settings not loaded; checking if the raw settings file has Gmail account set.");
@@ -42,7 +42,7 @@ namespace OutlookGoogleCalendarSync {
 
                     if (!string.IsNullOrEmpty(gmailAccount)) {
                         log.Fine("Gmail account found in settings files.");
-                        uuId = GoogleOgcs.Authenticator.GetMd5(gmailAccount, true);
+                        uuId = Ogcs.Google.Authenticator.GetMd5(gmailAccount, true);
                     } else {
                         log.Warn("No Gmail account found, building custom thumbprint instead.");
                         String customThumbprint = "";
@@ -61,7 +61,7 @@ namespace OutlookGoogleCalendarSync {
                         String volumeSerial = dsk["VolumeSerialNumber"].ToString();
                         customThumbprint += ";" + volumeSerial;
 
-                        uuId = GoogleOgcs.Authenticator.GetMd5(customThumbprint);
+                        uuId = Ogcs.Google.Authenticator.GetMd5(customThumbprint);
                     }
                 }
 
