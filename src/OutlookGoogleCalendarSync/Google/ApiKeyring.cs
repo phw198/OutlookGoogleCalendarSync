@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ using System.Text.RegularExpressions;
  *       sync engine, so that's for another day!
  */
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class ApiKeyring {
         private static readonly ILog log = LogManager.GetLogger(typeof(ApiKeyring));
         private const String keyringURL = "https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/keyring.md";
@@ -95,7 +96,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } catch (System.Exception ex) {
                 log.Fail("Failed picking "+ keyType.ToString() +" API key. clientID=" + Settings.Instance.AssignedClientIdentifier);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 log.Debug("Reverting to default key.");
                 Key = new ApiKey.DefaultKey(keyType);
             }
@@ -149,10 +150,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public static void ChangeKeys() {
             log.Info("Google API keys and refresh token are being updated.");
-            System.Windows.Forms.OgcsMessageBox.Show("Your Google authorisation token needs updating.\r\n" +
+            Ogcs.Extensions.MessageBox.Show("Your Google authorisation token needs updating.\r\n" +
                 "The process to reauthorise access to your Google account will now begin...",
                 "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-            GoogleOgcs.Calendar.Instance.Authenticator.Reset();
+            Ogcs.Google.Calendar.Instance.Authenticator.Reset();
         }
 
         private static MatchCollection findText(string source, string pattern) {
@@ -183,7 +184,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 this.ClientSecret = clientSecret;
             } catch (System.Exception ex) {
                 log.Error("Failed creating API key.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 throw;
             }
         }

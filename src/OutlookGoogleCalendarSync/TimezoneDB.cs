@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using NodaTime.TimeZones;
 using System;
 using System.IO;
@@ -64,7 +65,7 @@ namespace OutlookGoogleCalendarSync {
                     html = wc.DownloadString(nodatimeURL);
                 } catch (System.Exception ex) {
                     log.Error("Failed to get latest NodaTime db version.");
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                     return;
                 }
 
@@ -87,7 +88,7 @@ namespace OutlookGoogleCalendarSync {
                                     instance = null;
                                 } catch (System.Exception ex) {
                                     log.Error("Failed to download new TZDB database from " + html);
-                                    OGCSexception.Analyse(ex);
+                                    Ogcs.Exception.Analyse(ex);
                                 }
                             }
                         } else {
@@ -96,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not check for timezone data update.", ex);
+                ex.Analyse("Could not check for timezone data update.");
             }
         }
 
@@ -121,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
                     return fixedTimezone;
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to detect and translate Alexa timezone: " + timezone, ex);
+                ex.Analyse("Failed to detect and translate Alexa timezone: " + timezone);
             }
             return timezone;
         }
@@ -144,7 +145,7 @@ namespace OutlookGoogleCalendarSync {
                     return gmtOffset;
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to detect any timezone offset for: " + outlookTimezone, ex);
+                ex.Analyse("Failed to detect any timezone offset for: " + outlookTimezone);
             }
             return null;
         }
@@ -167,7 +168,7 @@ namespace OutlookGoogleCalendarSync {
                     utcOffset = Convert.ToInt16(offset.Seconds / 3600);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.", ex);
+                ex.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.");
             }
             return utcOffset;
         }

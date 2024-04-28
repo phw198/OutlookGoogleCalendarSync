@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
@@ -128,7 +129,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
-                "This option safeguards against that by appending '" + GoogleOgcs.EventAttendee.EmailCloak + "' to their email address.");
+                "This option safeguards against that by appending '" + Ogcs.Google.EventAttendee.EmailCloak + "' to their email address.");
             ToolTips.SetToolTip(cbSingleCategoryOnly,
                 "Only allow a single Outlook category - ie 1:1 sync with Google.\n" +
                 "Otherwise, for multiple categories and only one synced with OGCS, manually prefix the category name(s) with \"OGCS \".");
@@ -224,7 +225,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dgAbout.Rows[r].Cells[1].Value = Settings.ConfigFile;
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Subscription";
-            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed <= GoogleOgcs.Authenticator.SubscribedBefore) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
+            dgAbout.Rows[r].Cells[1].Value = (Settings.Instance.Subscribed <= Ogcs.Google.Authenticator.SubscribedBefore) ? "N/A" : Settings.Instance.Subscribed.ToShortDateString();
             dgAbout.Rows.Add(); r++;
             dgAbout.Rows[r].Cells[0].Value = "Timezone DB";
             dgAbout.Rows[r].Cells[1].Value = TimezoneDB.Instance.Version;
@@ -326,7 +327,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                                     folderIDs[theFolder.Name].Add(theFolder.EntryID);
                                 }
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
+                                ex.LogAsFail().Analyse("Failed to get EntryID for folder: " + theFolder.Name);
                             } finally {
                                 theFolder = (MAPIFolder)Outlook.Calendar.ReleaseObject(theFolder);
                             }
@@ -363,7 +364,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     if (cbOutlookCalendars.SelectedIndex == -1) {
                         if (!string.IsNullOrEmpty(profile.UseOutlookCalendar.Id)) {
                             log.Warn("Outlook calendar '" + profile.UseOutlookCalendar.Name + "' could no longer be found. Selected calendar '" + Outlook.Calendar.Instance.CalendarFolders.First().Key + "' instead.");
-                            OgcsMessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                            Ogcs.Extensions.MessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
                                 "'" + Outlook.Calendar.Instance.CalendarFolders.First().Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
                                 "Outlook Calendar Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             profile.SyncInterval = 0;
@@ -449,11 +450,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
 
                     cbColourFilter.SelectedItem = profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include ? "Include" : "Exclude";
-                    GoogleOgcs.Calendar.BuildOfflineColourPicker(clbColours);
+                    Ogcs.Google.Calendar.BuildOfflineColourPicker(clbColours);
                     cbDeleteWhenColourExcl.Checked = profile.DeleteWhenColourExcluded;
                     cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
                     cbExcludeGoals.Checked = profile.ExcludeGoals;
-                    cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
+                    cbExcludeGoals.Enabled = Ogcs.Google.Calendar.IsDefaultCalendar() ?? true;
                     cbAddGMeet.Checked = profile.AddGMeet;
                     
                     if (Settings.Instance.UsingPersonalAPIkeys()) {
@@ -598,7 +599,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #endregion
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Unable to set GUI profile.", ex);
+                    ex.Analyse("Unable to set GUI profile.");
                     throw;
                 } finally {
                     this.LoadingProfileConfig = false;
@@ -613,7 +614,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
                 ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
             } catch (System.InvalidOperationException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Cross-thread operation
+                if (ex.GetErrorCode() == "0x80131509") { //Cross-thread operation
                     log.Warn("Can't set form tooltips from sync thread.");
                     //Won't worry too much - will work fine on OGCS startup, and will only arrive here if GAL has been blocked *after* startup. Should be very unlikely.
                 }
@@ -660,13 +661,13 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             if (rbProxyCustom.Checked) {
                 if (String.IsNullOrEmpty(txtProxyServer.Text) || String.IsNullOrEmpty(txtProxyPort.Text)) {
-                    OgcsMessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled",
+                    Ogcs.Extensions.MessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 int nPort;
                 if (!int.TryParse(txtProxyPort.Text, out nPort)) {
-                    OgcsMessageBox.Show("Proxy server port must be a number.", "Invalid Proxy Port",
+                    Ogcs.Extensions.MessageBox.Show("Proxy server port must be a number.", "Invalid Proxy Port",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -709,13 +710,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddAvailabilty.DataSource = new BindingSource(availability, null);
                 ddAvailabilty.Enabled = profile.SetEntriesAvailable;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed building availability dropdown values.", ex);
+                ex.Analyse("Failed building availability dropdown values.");
                 return;
             }
             try {
                 ddAvailabilty.SelectedValue = Enum.Parse(typeof(OlBusyStatus), profile.AvailabilityStatus);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed selecting availability dropdown value from Settings.", ex);
+                ex.Analyse("Failed selecting availability dropdown value from Settings.");
             } finally {
                 if (ddAvailabilty.SelectedIndex == -1 && ddAvailabilty.Items.Count > 0)
                     ddAvailabilty.SelectedIndex = 0;
@@ -727,14 +728,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Sync.Engine.Instance.Sync_Requested(sender, e);
             } catch (System.AggregateException ex) {
-                OGCSexception.AnalyseAggregate(ex, false);
+                ex.AnalyseAggregate(false);
             } catch (System.ApplicationException ex) {
                 if (ex.Message.ToLower().Contains("try again") && sender != null) {
                     Sync_Click(null, null);
                 }
             } catch (System.Exception ex) {
                 console.UpdateWithError("Problem encountered during synchronisation.", ex);
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             } finally {
                 if (!Sync.Engine.Instance.SyncingNow) {
                     bSyncNow.Text = "Start Sync";
@@ -975,7 +976,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                     } catch (System.Exception ex) {
                         log.Warn("Failed to process captured F1 key.");
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                         return true;
                     }
@@ -983,7 +984,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             } catch (System.Exception ex) {
                 log.Warn("Failed to process captured command key.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -1051,7 +1052,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     notLogFile();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Console_KeyDown detected.", OGCSexception.LogAsFail(ex));
+                ex.LogAsFail().Analyse("Console_KeyDown detected.");
             }
         }
 
@@ -1081,17 +1082,17 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!String.IsNullOrEmpty(tbSyncNote.Tag.ToString())) {
                 if (tbSyncNote.Tag.ToString().EndsWith("for ")) {
                     log.Info("User wanted to subscribe, but Google account username is not known :(");
-                    DialogResult authorise = OgcsMessageBox.Show("Thank you for your interest in subscribing. " +
+                    DialogResult authorise = Ogcs.Extensions.MessageBox.Show("Thank you for your interest in subscribing. " +
                        "To kick things off, you'll need to re-authorise OGCS to manage your Google calendar. " +
                        "Would you like to do that now?", "Proceed with authorisation?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (authorise == DialogResult.Yes) {
                         log.Debug("Resetting Google account access.");
-                        GoogleOgcs.Calendar.Instance.Authenticator.Reset();
-                        GoogleOgcs.Calendar.Instance.Authenticator.UserSubscriptionCheck();
+                        Ogcs.Google.Calendar.Instance.Authenticator.Reset();
+                        Ogcs.Google.Calendar.Instance.Authenticator.UserSubscriptionCheck();
                     }
                 } else {
                     if (tbSyncNote.Tag.ToString().Contains("OGCS Premium renewal")) {
-                        OgcsMessageBox.Show("Before renewing, please ensure you don't already have an active recurring annual payment set up in PayPal :-)",
+                        Ogcs.Extensions.MessageBox.Show("Before renewing, please ensure you don't already have an active recurring annual payment set up in PayPal :-)",
                             "Recurring payment already configured?", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     Helper.OpenBrowser(tbSyncNote.Tag.ToString());
@@ -1220,7 +1221,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                                 this.panelObscure.Visible = true;
                             }
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse(ex);
+                            Ogcs.Exception.Analyse(ex);
                         }
                         cal.SetActive();
                         break;
@@ -1270,7 +1271,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 Settings.Instance.Save();
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
+                ex.Analyse("Failed to delete profile '" + profileName + "'.");
                 throw;
             }
         }
@@ -1566,10 +1567,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 msg += " and " + ActiveCalendarProfile.SyncEnd.ToString(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
 
                 log.Info(msg);
-                OgcsMessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Ogcs.Extensions.MessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Profile '" + Settings.Profile.Name(ActiveCalendarProfile) + "', calendar ID " + ActiveCalendarProfile.UseOutlookCalendar.Id, ex);
-                OgcsMessageBox.Show(ex.Message, "Unable to perform test", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ex.Analyse("Profile '" + Settings.Profile.Name(ActiveCalendarProfile) + "', calendar ID " + ActiveCalendarProfile.UseOutlookCalendar.Id);
+                Ogcs.Extensions.MessageBox.Show(ex.Message, "Unable to perform test", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1597,34 +1598,34 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void GetMyGoogleCalendars_Click(object sender, EventArgs e) {
             if (bGetGoogleCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Google calendars.");
-                GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                 return;
             }
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
             try {
-                GoogleOgcs.Calendar.Instance.GetCalendars();
+                Ogcs.Google.Calendar.Instance.GetCalendars();
             } catch (AggregateException agex) {
-                OGCSexception.AnalyseAggregate(agex, false);
-            } catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                OGCSexception.AnalyseTokenResponse(ex, false);
+                agex.AnalyseAggregate(false);
+            } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+                ex.AnalyseTokenResponse(false);
             } catch (OperationCanceledException) {
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
-                OgcsMessageBox.Show("Failed to retrieve Google calendars.\r\n" +
+                Ogcs.Exception.Analyse(ex);
+                Ogcs.Extensions.MessageBox.Show("Failed to retrieve Google calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
                 console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
-                if (ex is ApplicationException && ex.InnerException != null && ex.InnerException is Google.GoogleApiException) {
+                if (ex is ApplicationException && ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException) {
                     console.BuildOutput(ex.Message, ref sb, false);
                     console.Update(sb, Console.Markup.fail, logit: true);
                 } else {
-                    console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
+                    console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
-                        if (OgcsMessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                        if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
                             "Test it now? If successful, please retry retrieving your Google calendars.",
                             "Test IE Internet Access",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
@@ -1642,10 +1643,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbGoogleCalendars_BuildList() {
-            if (GoogleOgcs.Calendar.Instance.CalendarList.Count > 0) {
+            if (Ogcs.Google.Calendar.Instance.CalendarList.Count > 0) {
                 cbGoogleCalendars.Items.Clear();
-                GoogleOgcs.Calendar.Instance.CalendarList.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
-                foreach (GoogleCalendarListEntry mcle in GoogleOgcs.Calendar.Instance.CalendarList) {
+                Ogcs.Google.Calendar.Instance.CalendarList.Sort((x, y) => (x.Sorted()).CompareTo(y.Sorted()));
+                foreach (GoogleCalendarListEntry mcle in Ogcs.Google.Calendar.Instance.CalendarList) {
                     if (!cbListHiddenGcals.Checked && mcle.Hidden) continue;
                     cbGoogleCalendars.Items.Add(mcle);
                     if (cbGoogleCalendars.SelectedIndex == -1 && mcle.Id == ActiveCalendarProfile.UseGoogleCalendar?.Id)
@@ -1664,17 +1665,17 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
             if (cbGoogleCalendars.Text.StartsWith("[Read Only]") && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
-                OgcsMessageBox.Show("You cannot " + (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
+                Ogcs.Extensions.MessageBox.Show("You cannot " + (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ? "two-way " : "") + "sync with a read-only Google calendar.\n" +
                     "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabGoogle"];
             }
-            cbExcludeGoals.Enabled = GoogleOgcs.Calendar.IsDefaultCalendar() ?? true;
+            cbExcludeGoals.Enabled = Ogcs.Google.Calendar.IsDefaultCalendar() ?? true;
             if (sender != null)
                 log.Warn("Google calendar selection changed to: " + ActiveCalendarProfile.UseGoogleCalendar.ToString(true));
         }
 
         private void btResetGCal_Click(object sender, EventArgs e) {
-            if (OgcsMessageBox.Show("This will disconnect the Google account you are using to synchronise with.\r\n" +
+            if (Ogcs.Extensions.MessageBox.Show("This will disconnect the Google account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
                 "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
                 log.Info("User requested reset of Google authentication details.");
@@ -1682,12 +1683,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
-                if (!GoogleOgcs.Calendar.IsInstanceNull && GoogleOgcs.Calendar.Instance.Authenticator != null)
-                    GoogleOgcs.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                if (!Ogcs.Google.Calendar.IsInstanceNull && Ogcs.Google.Calendar.Instance.Authenticator != null)
+                    Ogcs.Google.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.GaccountEmail = "";
-                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, GoogleOgcs.Authenticator.TokenFile));
+                    System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Ogcs.Google.Authenticator.TokenFile));
                 }
             }
         }
@@ -1722,8 +1723,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void refreshColours() {
-            GoogleOgcs.Calendar.Instance.ColourPalette.Get();
-            GoogleOgcs.Calendar.Instance.ColourPalette.BuildPicker(clbColours);
+            Ogcs.Google.Calendar.Instance.ColourPalette.Get();
+            Ogcs.Google.Calendar.Instance.ColourPalette.BuildPicker(clbColours);
         }
         private void miColourRefresh_Click(object sender, EventArgs e) {
             refreshColours();
@@ -1731,7 +1732,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         /// <summary>Shim function to work around x-thread call of BuildPicker()</summary>
         public void miColourBuildPicker_Click(object sender, EventArgs e) {
             CheckedListBox clb = GetControlThreadSafe(clbColours) as CheckedListBox;
-            GoogleOgcs.Calendar.Instance.ColourPalette.BuildPicker(clb);
+            Ogcs.Google.Calendar.Instance.ColourPalette.BuildPicker(clb);
             SetControlPropertyThreadSafe(clbColours, "Items", clb.Items);
         }
         private void miColourSelectNone_Click(object sender, EventArgs e) {
@@ -2021,13 +2022,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
 
-                GoogleOgcs.EventColour.Palette palette = GoogleOgcs.EventColour.Palette.NullPalette;
-                if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
+                Ogcs.Google.EventColour.Palette palette = Ogcs.Google.EventColour.Palette.NullPalette;
+                if (Ogcs.Google.Calendar.IsColourPaletteNull || !Ogcs.Google.Calendar.Instance.ColourPalette.IsCached())
                     offlineAddGoogleColour();
                 else {
-                    if (ddGoogleColour.Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count)
+                    if (ddGoogleColour.Items.Count != Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette.Count)
                         ddGoogleColour.AddPaletteColours();
-                    palette = GoogleOgcs.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory);
+                    palette = Ogcs.Google.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory);
                     ddGoogleColour.SelectedIndex = Convert.ToInt16(palette.Id);
                 }
 
@@ -2037,7 +2038,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddGoogleColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
+                ex.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.");
             } finally {
                 ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
             }
@@ -2053,7 +2054,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
 
                 String oCatName = null;
-                if (GoogleOgcs.Calendar.IsColourPaletteNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached())
+                if (Ogcs.Google.Calendar.IsColourPaletteNull || !Ogcs.Google.Calendar.Instance.ColourPalette.IsCached())
                     oCatName = ActiveCalendarProfile.SetEntriesColourName;
                 else
                     oCatName = Outlook.Calendar.Instance.GetCategoryColour(ddGoogleColour.SelectedItem.Id);
@@ -2071,7 +2072,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddOutlookColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
+                ex.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.");
             } finally {
                 ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
             }
@@ -2081,14 +2082,14 @@ namespace OutlookGoogleCalendarSync.Forms {
         /// Avoid connecting to Google simply to add correct profile colour to dropdown
         /// </summary>
         private void offlineAddGoogleColour() {
-            GoogleOgcs.EventColour.Palette localPalette = new GoogleOgcs.EventColour.Palette(
-                    GoogleOgcs.EventColour.Palette.Type.Event, ActiveCalendarProfile.SetEntriesColourGoogleId, null, Color.Transparent);
-            if (!ddGoogleColour.Items.Cast<GoogleOgcs.EventColour.Palette>().Any(cbi => cbi.Id == localPalette.Id)) {
+            Ogcs.Google.EventColour.Palette localPalette = new Ogcs.Google.EventColour.Palette(
+                    Ogcs.Google.EventColour.Palette.Type.Event, ActiveCalendarProfile.SetEntriesColourGoogleId, null, Color.Transparent);
+            if (!ddGoogleColour.Items.Cast<Ogcs.Google.EventColour.Palette>().Any(cbi => cbi.Id == localPalette.Id)) {
                 ddGoogleColour.Items.Add(localPalette);
                 ddGoogleColour.SelectedItem = localPalette;
                 return;
             }
-            foreach (GoogleOgcs.EventColour.Palette item in ddGoogleColour.Items) {
+            foreach (Ogcs.Google.EventColour.Palette item in ddGoogleColour.Items) {
                 if (item.Id == localPalette.Id) {
                     ddGoogleColour.SelectedItem = item;
                     break;
@@ -2118,7 +2119,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             if (rgx.IsMatch(strVal)) {
                 e.Cancel = true;
-                OgcsMessageBox.Show("Cell must only include the characters:-\r   S = Subject\r   L = Location\r   D = Description", 
+                Ogcs.Extensions.MessageBox.Show("Cell must only include the characters:-\r   S = Subject\r   L = Location\r   D = Description",
                     "Invalid target values", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             dgObfuscateRegex.Rows[e.RowIndex].Cells[((int)Obfuscate.Columns.target)].Value = strVal;
@@ -2324,7 +2325,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void btColourMap_Click(object sender, EventArgs e) {
             if (ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(ActiveCalendarProfile.UseGoogleCalendar.Id)) {
-                OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             try {
@@ -2333,7 +2334,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     colourForm.ShowDialog();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
@@ -2375,10 +2376,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
-                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for startup key(s).", ex);
+                if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                ex.Analyse("Failed accessing registry for startup key(s).");
                 if (this.Visible) {
-                    OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                    Ogcs.Extensions.MessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 cbStartOnStartup.CheckedChanged -= cbStartOnStartup_CheckedChanged;
@@ -2393,10 +2394,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
-                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for HKLM startup key.", ex);
+                if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                ex.Analyse("Failed accessing registry for HKLM startup key.");
                 if (this.Visible) {
-                    OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
+                    Ogcs.Extensions.MessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 cbStartOnStartupAllUsers.CheckedChanged -= cbStartOnStartupAllUsers_CheckedChanged;
@@ -2454,7 +2455,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbPortable_CheckedChanged(object sender, EventArgs e) {
             if (Settings.AreApplied) {
                 if (Program.StartedWithFileArgs)
-                    OgcsMessageBox.Show("It is not possible to change portability of OGCS when it is started with command line parameters.",
+                    Ogcs.Extensions.MessageBox.Show("It is not possible to change portability of OGCS when it is started with command line parameters.",
                         "Cannot change portability", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 else {
                     Settings.Instance.Portable = cbPortable.Checked;
@@ -2543,7 +2544,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Helper.OpenBrowser(Program.OgcsWebsite + "/browseruseragent");
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to check browser's user agent.", ex);
+                ex.Analyse("Failed to check browser's user agent.");
             }
         }
 
@@ -2679,7 +2680,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 

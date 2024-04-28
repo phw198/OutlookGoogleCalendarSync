@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Linq;
@@ -131,7 +132,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     outlookVersionName = (OutlookVersionNames)version;
                     outlookVersionNameFull = outlookVersionName.ToString();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook client version.", ex);
+                    ex.Analyse("Failed determining Outlook client version.");
                     outlookVersionNameFull = "Failed-" + versionFull;
                     outlookVersionName = OutlookVersionNames.Failed;
                 }
@@ -181,12 +182,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                     log.Error("Could not determine exact Outlook version with codebase v16.");
 
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed determining Click-to-Run release.", ex);
+                                ex.Analyse("Failed determining Click-to-Run release.");
                             }
                         }
                     }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook release name from registry for codebase v16.", ex);
+                    ex.Analyse("Failed determining Outlook release name from registry for codebase v16.");
                 }
             } finally {
                 log.Info("Outlook product name: " + outlookVersionNameFull);

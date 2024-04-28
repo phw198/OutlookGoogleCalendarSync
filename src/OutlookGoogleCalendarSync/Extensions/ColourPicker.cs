@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -66,9 +67,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Add all the available Google colours
         /// </summary>
         public void AddPaletteColours(Boolean connectToGoogle = false) {
-            if (GoogleOgcs.Calendar.IsInstanceNull && !connectToGoogle) return;
+            if (Ogcs.Google.Calendar.IsInstanceNull && !connectToGoogle) return;
 
-            foreach (GoogleOgcs.EventColour.Palette palette in GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette) {
+            foreach (Ogcs.Google.EventColour.Palette palette in Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette) {
                 Items.Add(palette);
             }
         }
@@ -79,50 +80,50 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 return;
 
             // Get the colour
-            GoogleOgcs.EventColour.Palette colour = (GoogleOgcs.EventColour.Palette)Items[e.Index];
+            Ogcs.Google.EventColour.Palette colour = (Ogcs.Google.EventColour.Palette)Items[e.Index];
             ColourCombobox.DrawComboboxItemColour(cbColour, new SolidBrush(colour.RgbValue), colour.Name, e);
         }
 
-        public new GoogleOgcs.EventColour.Palette SelectedItem {
-            get { return (GoogleOgcs.EventColour.Palette)base.SelectedItem; }
+        public new Ogcs.Google.EventColour.Palette SelectedItem {
+            get { return (Ogcs.Google.EventColour.Palette)base.SelectedItem; }
             set { base.SelectedItem = value; }
         }
         
         private void ColourPicker_Enter(object sender, EventArgs e) {
             if (Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar.Id)) {
-                OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             ToolTip loading = new ToolTip();
             try {
-                GoogleOgcs.EventColour.Palette currentSelection = null;
+                Ogcs.Google.EventColour.Palette currentSelection = null;
 
-                if (GoogleOgcs.Calendar.IsInstanceNull || !GoogleOgcs.Calendar.Instance.ColourPalette.IsCached()) {
+                if (Ogcs.Google.Calendar.IsInstanceNull || !Ogcs.Google.Calendar.Instance.ColourPalette.IsCached()) {
                     loading.SetToolTip(this, "Retrieving colours from Google...");
                     loading.ShowAlways = true;
                     loading.InitialDelay = 0;
                     loading.Show("Retrieving colours from Google...", this, this.FindForm().PointToClient(this.Parent.PointToScreen(this.Location)));
 
-                    GoogleOgcs.Calendar.Instance.ColourPalette.Get();
-                    currentSelection = (GoogleOgcs.EventColour.Palette)SelectedItem;
+                    Ogcs.Google.Calendar.Instance.ColourPalette.Get();
+                    currentSelection = (Ogcs.Google.EventColour.Palette)SelectedItem;
                     
                     loading.Hide(this);
                 }
-                if (Items.Count != GoogleOgcs.Calendar.Instance.ColourPalette.ActivePalette.Count) {
+                if (Items.Count != Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette.Count) {
                     while (Items.Count > 0)
                         Items.RemoveAt(0);
                     AddPaletteColours(true);
                 }
 
-                foreach (GoogleOgcs.EventColour.Palette pInfo in Items) {
+                foreach (Ogcs.Google.EventColour.Palette pInfo in Items) {
                     if (pInfo.Id == currentSelection?.Id) {
                         SelectedItem = pInfo;
                         break;
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ColourPicker_Enter()", ex);
+                ex.Analyse("ColourPicker_Enter()");
             } finally {
                 loading.Hide(this);
                 loading.RemoveAll();
@@ -233,7 +234,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("OutlookColourComboboxCell.Paint()", ex);
+                ex.Analyse("OutlookColourComboboxCell.Paint()");
             }
         }
     }
@@ -253,7 +254,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                         ctl.PopulateDropdownItems();
                     if (!string.IsNullOrEmpty(currentText)) this.Value = currentText;
 
-                    foreach (GoogleOgcs.EventColour.Palette p in Forms.ColourMap.GoogleComboBox.Items) {
+                    foreach (Ogcs.Google.EventColour.Palette p in Forms.ColourMap.GoogleComboBox.Items) {
                         if (p.Name == (String)this.Value) {
                             ctl.SelectedValue = p;
                             break;
@@ -271,7 +272,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
         public override Type ValueType {
             get {
-                return typeof(GoogleOgcs.EventColour.Palette);
+                return typeof(Ogcs.Google.EventColour.Palette);
             }
         }
 
@@ -289,7 +290,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 if (rowIndex < 0)
                     return;
 
-                foreach (GoogleOgcs.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
+                foreach (Ogcs.Google.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
                     if (ci.Name == this.Value?.ToString()) {
                         Brush boxBrush = new SolidBrush(ci.RgbValue);
                         Brush textBrush = SystemBrushes.WindowText;
@@ -298,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("GoogleColourComboboxCell.Paint()", ex);
+                ex.Analyse("GoogleColourComboboxCell.Paint()");
             }
         }
     }
@@ -424,7 +425,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 if ((e.State & DrawItemState.NoFocusRect) == DrawItemState.None)
                     e.DrawFocusRectangle();
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 
@@ -447,7 +448,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     cellBounds.Y + ((cellBounds.Height - Control.DefaultFont.Height) / 2));
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
     }
@@ -479,7 +480,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (indexItem < 0 || indexItem >= cbColour.Items.Count)
                 return;
 
-            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair< Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
+            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair<Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
             if (kvp.Key != null) {
                 // Get the colour
                 OlCategoryColor olColour = kvp.Key.OutlookCategory;
@@ -502,8 +503,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         public void PopulateDropdownItems() {
-            Dictionary <GoogleOgcs.EventColour.Palette, String> cbItems = new Dictionary<GoogleOgcs.EventColour.Palette, String>();
-            foreach (GoogleOgcs.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
+            Dictionary<Ogcs.Google.EventColour.Palette, String> cbItems = new Dictionary<Ogcs.Google.EventColour.Palette, String>();
+            foreach (Ogcs.Google.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
                 cbItems.Add(ci, ci.Name);
             }
             this.DataSource = new BindingSource(cbItems, null);
@@ -516,7 +517,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (e.Index < 0 || e.Index >= cbColour.Items.Count)
                 return;
 
-            KeyValuePair<GoogleOgcs.EventColour.Palette, String> kvp = (KeyValuePair<GoogleOgcs.EventColour.Palette, String>)cbColour.Items[e.Index];
+            KeyValuePair<Ogcs.Google.EventColour.Palette, String> kvp = (KeyValuePair<Ogcs.Google.EventColour.Palette, String>)cbColour.Items[e.Index];
             if (kvp.Key != null) {
                 // Get the colour
                 Brush brush = new SolidBrush(kvp.Key.RgbValue);

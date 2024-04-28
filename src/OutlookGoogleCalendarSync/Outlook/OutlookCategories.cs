@@ -1,4 +1,5 @@
 ﻿///#define DEVELOP_AGAINST_2007     //Develop as for Outlook 2007 for greatest compatiblity
+using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -74,19 +75,19 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     colour = ColorTranslator.FromHtml(hexColour);
                     log.Fine("Converted '" + hexColour + "' to " + colour.ToString());
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.", ex);
+                    ex.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.");
                 }
                 return colour;
             }
 
-            public static OutlookCOM.OlCategoryColor GetClosestCategory(GoogleOgcs.EventColour.Palette basePalette) {
+            public static OutlookCOM.OlCategoryColor GetClosestCategory(Ogcs.Google.EventColour.Palette basePalette) {
                 try {
-                    var colourDistance = Colours.Select(x => new { Value = x, Diff = GoogleOgcs.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
+                    var colourDistance = Colours.Select(x => new { Value = x, Diff = Ogcs.Google.EventColour.GetDiff(x.Value, basePalette.RgbValue) }).ToList();
                     var minDistance = colourDistance.Min(x => x.Diff);
                     return colourDistance.Find(x => x.Diff == minDistance).Value.Key;
                 } catch (System.Exception ex) {
                     log.Warn("Failed to get closest Outlook category for " + basePalette.ToString());
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                     return OutlookCOM.OlCategoryColor.olCategoryColorNone;
                 }
             }
@@ -115,7 +116,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Delimiter = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
             } catch (System.Exception ex) {
                 log.Error("Failed to get system ListSeparator value.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 Delimiter = ", ";
             }
         }
@@ -202,7 +203,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 if (this._categories != null && this._categories.Count > 0) { }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Categories are not accessible!", OGCSexception.LogAsFail(ex));
+                ex.LogAsFail().Analyse("Categories are not accessible!");
                 this._categories = null;
             }
             if (this._categories == null || Calendar.Categories == null) {
@@ -215,11 +216,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         OutlookCOM.OlCategoryColor catColour = cat.Color;
                     }
                 } catch (System.Exception ex) {
-                    if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
+                    if (ex.GetErrorCode(0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
                         log.Warn("Outlook category '" + catName + "' seems to have changed!");
                         Calendar.Instance.IOutlook.RefreshCategories();
                     } else {
-                        OGCSexception.Analyse("Could not access all the Outlook categories.", ex);
+                        ex.Analyse("Could not access all the Outlook categories.");
                         this.categories = null;
                         return;
                     }
@@ -277,7 +278,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         }
                     }
                 } catch (System.Runtime.InteropServices.COMException ex) {
-                    if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //The operation failed.
+                    if (ex.GetErrorCode(0x0000FFFF) == "0x00004005") { //The operation failed.
                         log.Warn("It seems a category has been manually removed in Outlook.");
                         Calendar.Instance.IOutlook.RefreshCategories();
                     } else throw;
@@ -293,7 +294,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
             String newCategoryName = "OGCS " + FriendlyCategoryName(olCategory);
             if (!createMissingCategory) {
-                createMissingCategory = OgcsMessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
+                createMissingCategory = Ogcs.Extensions.MessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
                     "Create new Outlook category?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
             }
             if (createMissingCategory) {

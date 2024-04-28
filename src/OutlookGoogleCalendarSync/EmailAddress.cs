@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using log4net;
@@ -75,7 +76,7 @@ namespace OutlookGoogleCalendarSync {
                     return sourceContainingEmailAddress.Replace(emailAddress, masked);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             return sourceContainingEmailAddress;
         }

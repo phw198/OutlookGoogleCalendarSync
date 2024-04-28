@@ -1,6 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using System;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
     public partial class UpdateInfo : Form {
@@ -50,8 +51,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             } catch (System.Exception ex) {
                 log.Debug("A problem was encountered showing the release notes.");
-                OGCSexception.Analyse(ex);
-                dr = OgcsMessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
+                Ogcs.Exception.Analyse(ex);
+                dr = Ogcs.Extensions.MessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
                                releaseVersion + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             }
         }
