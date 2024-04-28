@@ -91,7 +91,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         
         private void ColourPicker_Enter(object sender, EventArgs e) {
             if (Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar.Id)) {
-                OgcsMessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

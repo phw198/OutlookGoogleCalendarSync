@@ -92,7 +92,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     while ((syncResult == Sync.Engine.SyncResult.Fail || syncResult == Sync.Engine.SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                         if (failedAttempts > (syncResult == Sync.Engine.SyncResult.ReconnectThenRetry ? 1 : 0)) {
-                            if (OgcsMessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
+                            if (Ogcs.Extensions.MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
                                 MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
                                 log.Info("User opted to abandon further syncs.");
                                 syncResult = Sync.Engine.SyncResult.Abandon;
@@ -493,7 +493,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         if (this.Profile.ColourMaps.Count > 0) {
                             this.Profile.ColourMaps.ToList().ForEach(c => {
                                 if (Outlook.Calendar.Categories.OutlookColour(c.Key) == null) {
-                                    if (OgcsMessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
+                                    if (Ogcs.Extensions.MessageBox.Show("There is a problem with your colour mapping configuration.\r\nColours may not get synced as intended.\r\nReview maps now for missing Outlook colours?",
                                         "Invalid colour map", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Error) == DialogResult.Yes)
                                         new Forms.ColourMap().ShowDialog();
                                 }
@@ -572,13 +572,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                 //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
                 if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
                     googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
-                    if (OgcsMessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
+                    if (Ogcs.Extensions.MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                         googleEntriesToBeDeleted = new List<Event>();
 
                     } else if (this.Profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id &&
-                        OgcsMessageBox.Show("If you are syncing an Apple iCalendar from Outlook and get the 'mass deletion' warning for every sync, "+
+                        Ogcs.Extensions.MessageBox.Show("If you are syncing an Apple iCalendar from Outlook and get the 'mass deletion' warning for every sync, "+
                         "would you like to read up on a potential solution?", "iCal Syncing?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Syncing-Apple-iCalendar-in-Outlook-causes-'mass-deletion'-warnings");
                     }
@@ -682,7 +682,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
                 if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
                     outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 1) {
-                    if (OgcsMessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
+                    if (Ogcs.Extensions.MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 

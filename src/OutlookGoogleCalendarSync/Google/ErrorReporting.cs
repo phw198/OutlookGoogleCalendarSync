@@ -78,7 +78,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             //} catch (System.Exception ex) {
                 //Logging isn't initialised yet, so don't catch this error - let it crash out so user is aware and hopefully reports it!
-                //System.Windows.Forms.OgcsMessageBox.Show(ex.Message);
+                //Ogcs.Extensions.MessageBox.Show(ex.Message);
                 //log.Debug("Failed to initialise error reporting.");
                 //Ogcs.Exception.Analyse(ex);
             }

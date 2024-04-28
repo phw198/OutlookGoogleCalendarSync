@@ -120,7 +120,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     String wikiURL = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Resolving-Outlook-Error-Messages#one-or-more-items-in-the-folder-you-synchronized-do-not-match";
                     ex.Data.Add("OGCS", ex.Message + "<br/>Please view the wiki for suggestions on " +
                         "<a href='" + wikiURL + "' target='_blank'>how to resolve conflicts</a> within your Outlook account.");
-                    if (!suppressAdvisories && OgcsMessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?",
+                    if (!suppressAdvisories && Ogcs.Extensions.MessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?",
                         "Outlook conflicts exist", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         Helper.OpenBrowser(wikiURL);
                 }
@@ -319,7 +319,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Appointment creation failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                             Ogcs.Exception.Analyse(ex, true);
-                            if (OgcsMessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            if (Ogcs.Extensions.MessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
                                 throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -332,7 +332,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("New appointment failed to save.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
-                        if (OgcsMessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (Ogcs.Extensions.MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -440,7 +440,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("<br/>Appointment update failed.", compare.Value, out String anonSummary), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
-                        if (OgcsMessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (Ogcs.Extensions.MessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -453,7 +453,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } catch (System.Exception ex) {
                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated appointment failed to save.", compare.Value, out String anonSummary, true), ex, logEntry: anonSummary);
                             Ogcs.Exception.Analyse(ex, true);
-                            if (OgcsMessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            if (Ogcs.Extensions.MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
                                 throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -819,7 +819,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
-                        if (OgcsMessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (Ogcs.Extensions.MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -831,7 +831,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Deleted appointment failed to remove.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
-                        if (OgcsMessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        if (Ogcs.Extensions.MessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
@@ -847,7 +847,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (OgcsMessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
+                if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
@@ -939,7 +939,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                         log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
                     } else {
-                        if (OgcsMessageBox.Show(unclaimedAi.Count + " Outlook calendar items can't be matched to Google.\r\n" +
+                        if (Ogcs.Extensions.MessageBox.Show(unclaimedAi.Count + " Outlook calendar items can't be matched to Google.\r\n" +
                             "Remember, it's recommended to have a dedicated Outlook calendar to sync with, " +
                             "or you may wish to merge with unmatched events. Continue with deletions?",
                             "Delete unmatched Outlook items?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {

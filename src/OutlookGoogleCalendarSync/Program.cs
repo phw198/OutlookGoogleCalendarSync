@@ -135,7 +135,7 @@ namespace OutlookGoogleCalendarSync {
             StartedWithFileArgs = (args.Length != 0 && args.Count(a => a.StartsWith("/") && !a.StartsWith("/d")) != 0);
 
             if (args.Contains("/?") || args.Contains("/help", StringComparer.OrdinalIgnoreCase)) {
-                OgcsMessageBox.Show("Command line parameters:-\r\n" +
+                Ogcs.Extensions.MessageBox.Show("Command line parameters:-\r\n" +
                     "  /?\t\tShow options\r\n" +
                     "  /l:OGcalsync.log\tFile to log to\r\n" +
                     "  /s:settings.xml\tSettings file to use.\r\n\t\tFile created with defaults if it doesn't exist\r\n" +
@@ -347,7 +347,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.UnauthorizedAccessException ex) {
                     log.Warn("Could not create/update " + hive.ToString() + " registry key. " + ex.Message);
                     Settings.Instance.StartOnStartup = false;
-                    if (OgcsMessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
+                    if (Ogcs.Extensions.MessageBox.Show("You don't have permission to update the registry, so the application can't be set to run on startup.\r\n" +
                         "Try manually adding a shortcut to the 'Startup' folder in Windows instead?", "Permission denied", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)
                         == DialogResult.Yes) {
                         System.Diagnostics.Process.Start(System.Windows.Forms.Application.StartupPath);
@@ -509,7 +509,7 @@ namespace OutlookGoogleCalendarSync {
                             if (!String.IsNullOrEmpty(disabledSetting)) disabledSetting += " and ";
                             disabledSetting += "telemetry";
                         }
-                        if (OgcsMessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
+                        if (Ogcs.Extensions.MessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
                             "Hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             Settings.Instance.TelemetryDisabled = false;
                             Settings.Instance.CloudLogging = true;
@@ -543,7 +543,7 @@ namespace OutlookGoogleCalendarSync {
                         !System.Windows.Forms.Application.ExecutablePath.ToString().StartsWith(expectedInstallDir))
                     {
                         log.Warn("OGCS is running from " + System.Windows.Forms.Application.ExecutablePath.ToString());
-                        OgcsMessageBox.Show("A suspected improper install location has been detected.\r\n" +
+                        Ogcs.Extensions.MessageBox.Show("A suspected improper install location has been detected.\r\n" +
                             "Click 'OK' for further details.", "Improper Install Location",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/265");
@@ -682,7 +682,7 @@ namespace OutlookGoogleCalendarSync {
 
                             String cmdLine = getProcessCommandLine(process.Id);
                             if (cmdLine == currentCmdLine) {
-                                OgcsMessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n" +
+                                Ogcs.Extensions.MessageBox.Show("You already have an instance of OGCS running using the same configuration.\r\n" +
                                     "This is not recommended and may cause problems if they sync at the same time.",
                                     "Multiple OGCS instances running", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                 return;

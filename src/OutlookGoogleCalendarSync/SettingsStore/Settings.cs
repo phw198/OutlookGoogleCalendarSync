@@ -330,7 +330,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void ResetFile(String XMLfile = null) {
-            System.Windows.Forms.OgcsMessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
+            Ogcs.Extensions.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
                     "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
             log.Warn("Resetting settings.xml file to defaults.");
             System.IO.File.Delete(XMLfile ?? ConfigFile);

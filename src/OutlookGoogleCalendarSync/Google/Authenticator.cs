@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (ex.Error.Error == "access_denied") {
                     String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
                     log.Warn("User did not provide authorisation code. Sync will not be able to work.");
-                    OgcsMessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    Ogcs.Extensions.MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(noAuthGiven);
                 } else {
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
@@ -247,7 +247,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     if (rgx.IsMatch(ex.Message)) {
                         if (Settings.Instance.UsingPersonalAPIkeys()) {
                             String msg = "If you are using your own API keys, you must also enable the Google+ API.";
-                            OgcsMessageBox.Show(msg, "Missing API Service", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                            Ogcs.Extensions.MessageBox.Show(msg, "Missing API Service", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                             throw new System.ApplicationException(msg);
                         } else {
                             if (getEmailAttempts > 1) {
@@ -255,7 +255,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                 log.Debug("Using previously retrieved username: " + Settings.Instance.GaccountEmail_masked());
                             } else {
                                 if ((new ApiKey.DefaultKey(ApiKeyring.KeyType.Standard)).ClientId == Settings.Instance.AssignedClientIdentifier) {
-                                    System.Windows.Forms.OgcsMessageBox.Show(ex.Message + "\r\n\r\nPlease check your internet connection and any relevant proxy configuration.",
+                                    Ogcs.Extensions.MessageBox.Show(ex.Message + "\r\n\r\nPlease check your internet connection and any relevant proxy configuration.",
                                         "Unable to communicate with Google", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                                     throw;
                                 } else {
@@ -318,7 +318,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 checkedOgcsUserStatus = true;
 
                 if (Settings.Instance.UserIsBenefactor() && Settings.Instance.HideSplashScreen == null) {
-                    Boolean hideSplash = OgcsMessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
+                    Boolean hideSplash = Ogcs.Extensions.MessageBox.Show("Thank you for your support of OGCS!\r\nWould you like the splash screen to be hidden from now on?", "Hide Splash Screen?",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
                     Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", hideSplash);
                     Settings.Instance.HideSplashScreen = hideSplash;

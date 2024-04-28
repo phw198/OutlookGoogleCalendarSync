@@ -159,12 +159,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Info("Manual sync requested.");
                     if (SyncingNow) {
                         log.Info("Already busy syncing, cannot accept another sync request.");
-                        OgcsMessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Ogcs.Extensions.MessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
                     if (Control.ModifierKeys == Keys.Shift) {
                         if (Forms.Main.Instance.ActiveCalendarProfile.SyncDirection == Direction.Bidirectional) {
-                            OgcsMessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
+                            Ogcs.Extensions.MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
                                 "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                             return;
                         }
@@ -186,7 +186,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         AbortSync();
                     }
                     if (this.JobQueue.Count() > 0) {
-                        if (OgcsMessageBox.Show("There are " + this.JobQueue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
+                        if (Ogcs.Extensions.MessageBox.Show("There are " + this.JobQueue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
                             "Clear queued syncs?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             log.Info("User requested clear down of sync queue.");
                             this.JobQueue.Clear();

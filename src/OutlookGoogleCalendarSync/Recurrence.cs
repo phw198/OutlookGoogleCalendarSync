@@ -729,7 +729,7 @@ namespace OutlookGoogleCalendarSync {
                                             String msg = summary + "\r\n\r\nAn occurrence on " + movedToStartDate.ToString("dd-MMM-yyyy") + " was previously deleted, before another occurrence on " + oExcp.OriginalDate.ToString("dd-MMM-yyyy") +
                                                 " was rescheduled to the same date and then deleted again. " +
                                                 "Please confirm the Google occurrence, currently on " + movedToStartDate.ToString("dd-MMM-yyyy") + ", should be deleted?";
-                                            dr = OgcsMessageBox.Show(msg, "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question, msg.Replace(summary, anonSummary));
+                                            dr = Ogcs.Extensions.MessageBox.Show(msg, "Confirm deletion of recurring series occurrence", MessageBoxButtons.YesNo, MessageBoxIcon.Question, msg.Replace(summary, anonSummary));
                                         }
                                         if (dr == DialogResult.Yes) {
                                             Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary("<br/>Occurrence deleted.", gExcp, out String anonSummary2), anonSummary2, Console.Markup.calendar, verbose: true);
@@ -766,7 +766,7 @@ namespace OutlookGoogleCalendarSync {
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
                                             Ogcs.Exception.Analyse(ex, true);
-                                            if (OgcsMessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                            if (Ogcs.Extensions.MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
                                             else {
                                                 throw new UserCancelledSyncException("User chose not to continue sync.");

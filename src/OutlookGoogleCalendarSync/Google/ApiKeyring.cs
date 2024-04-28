@@ -150,7 +150,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
         public static void ChangeKeys() {
             log.Info("Google API keys and refresh token are being updated.");
-            System.Windows.Forms.OgcsMessageBox.Show("Your Google authorisation token needs updating.\r\n" +
+            Ogcs.Extensions.MessageBox.Show("Your Google authorisation token needs updating.\r\n" +
                 "The process to reauthorise access to your Google account will now begin...",
                 "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
             Ogcs.Google.Calendar.Instance.Authenticator.Reset();

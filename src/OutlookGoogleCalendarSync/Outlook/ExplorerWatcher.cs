@@ -208,7 +208,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             if (origStartDate < profile.SyncStart && copiedAi.Start >= profile.SyncStart) {
                                 Int16 newDaysInPast = (Int16)(profile.SyncStart.Date - origStartDate.Date).TotalDays;
-                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                Ogcs.Extensions.MessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
                                     "An already synced appointment has been moved back into the synced date range.\r\n" +
                                     "In order to avoid it being deleted, configuration has automatically been updated to " + (profile.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
                                     "After the next sync you may revert it to " + profile.DaysInThePast + ".", "Appointment moved into synced date range",
@@ -217,7 +217,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             } else if (origStartDate >= profile.SyncStart && copiedAi.Start < profile.SyncStart) {
                                 Int16 newDaysInPast = (Int16)(profile.SyncStart.Date - copiedAi.Start.Date).TotalDays;
-                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                Ogcs.Extensions.MessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
                                     "An already synced appointment has been moved out of the synced date range.\r\n" +
                                     "In order this is synced, configuration has automatically been updated to " + (profile.DaysInThePast + newDaysInPast) + " days in the past.\r\n" +
                                     "After the next sync you may revert it to " + profile.DaysInThePast + ".", "Appointment moved out of synced date range",
@@ -226,7 +226,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             } else if (origStartDate > profile.SyncEnd && copiedAi.Start <= profile.SyncEnd) {
                                 Int16 newDaysInFuture = (Int16)(origStartDate - profile.SyncEnd.Date).TotalDays;
-                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                Ogcs.Extensions.MessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
                                     "An already synced appointment has been moved into the synced date range.\r\n" +
                                     "In order this is synced, configuration has automatically been updated to " + (profile.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
                                     "After the next sync you may revert it to " + profile.DaysInTheFuture + ".", "Appointment moved into synced date range",
@@ -235,7 +235,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             } else if (origStartDate <= profile.SyncEnd && copiedAi.Start > profile.SyncEnd) {
                                 Int16 newDaysInFuture = (Int16)(copiedAi.Start.Date - profile.SyncEnd.Date).TotalDays;
-                                System.Windows.Forms.OgcsMessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
+                                Ogcs.Extensions.MessageBox.Show("Sync profile affected: " + profile._ProfileName + "\r\n" +
                                     "An already synced appointment has been moved out of the synced date range.\r\n" +
                                     "In order this is synced, configuration has automatically been updated to " + (profile.DaysInTheFuture + newDaysInFuture) + " days in the future.\r\n" +
                                     "After the next sync you may revert it to " + profile.DaysInTheFuture + ".", "Appointment moved out of synced date range",

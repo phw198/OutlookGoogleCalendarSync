@@ -56,7 +56,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!profile.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
                     if (profile.AddAttendees) {
-                        System.Windows.Forms.OgcsMessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
+                        Ogcs.Extensions.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
                             "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
                             "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
                             System.Windows.Forms.MessageBoxIcon.Warning);
@@ -320,7 +320,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             binStore = binFolders.GetFirst().Store;
                             log.Warn("Alternate mailbox '" + profile.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
-                            OgcsMessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                            Ogcs.Extensions.MessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
                                 "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
                                 "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             profile.MailboxName = binStore.DisplayName;
@@ -363,7 +363,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 defaultCalendar = calendarFolders.FirstOrDefault().Value;
                 if (defaultCalendar == null) {
                     log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
-                    System.Windows.Forms.OgcsMessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                    Ogcs.Extensions.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
                         "Reverting to the default mailbox calendar", "Calendar not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     getDefaultCalendar(oNS, ref defaultCalendar);
                     Forms.Main.Instance.ddMailboxName.Text = "";
@@ -431,7 +431,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (interactive) {
                     String sharerName = ".";
                     if (sharer != null) sharerName = " for '" + sharer.Name + "'.";
-                    OgcsMessageBox.Show("Could not find shared calendar" + sharerName, "No shared calendar found",
+                    Ogcs.Extensions.MessageBox.Show("Could not find shared calendar" + sharerName, "No shared calendar found",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return null;
                 } else {
@@ -510,7 +510,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
                         Ogcs.Exception.Analyse("Failed to recurse MAPI folders.", ex);
-                        OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
+                        Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }

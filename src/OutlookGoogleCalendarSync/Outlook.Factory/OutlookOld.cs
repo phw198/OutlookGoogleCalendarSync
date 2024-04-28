@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!profile.OutlookGalBlocked && currentUserName == "Unknown") {
                     log.Info("Current username is \"Unknown\"");
                     if (profile.AddAttendees) {
-                        System.Windows.Forms.OgcsMessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
+                        Ogcs.Extensions.MessageBox.Show("It appears you do not have an Email Account configured in Outlook.\r\n" +
                             "You should set one up now (Tools > Email Accounts) to avoid problems syncing meeting attendees.",
                             "No Email Account Found", System.Windows.Forms.MessageBoxButtons.OK,
                             System.Windows.Forms.MessageBoxIcon.Warning);
@@ -278,7 +278,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 log.Error("Failed to get shared calendar from " + sharedURI + ". " + ex.Message);
-                OgcsMessageBox.Show("Could not find a shared calendar for '" + sharer.Name + "'.", "No shared calendar found",
+                Ogcs.Extensions.MessageBox.Show("Could not find a shared calendar for '" + sharer.Name + "'.", "No shared calendar found",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return null;
             } finally {
@@ -352,7 +352,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
                         Ogcs.Exception.Analyse("Failed to recurse MAPI folders.", ex);
-                        OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
+                        Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }

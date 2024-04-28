@@ -119,15 +119,15 @@ namespace OutlookGoogleCalendarSync.Forms {
                 String gDuplicates = string.Join("\r\n", gColValues.GroupBy(v => v).Where(g => g.Count() > 1).Select(s => "- " + s.Key).ToList());
 
                 if (!string.IsNullOrEmpty(oDuplicates) && (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id || profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) {
-                    OgcsMessageBox.Show("The following Outlook categories cannot be mapped more than once:-\r\n\r\n" + oDuplicates, "Duplicate Outlook Mappings", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    Ogcs.Extensions.MessageBox.Show("The following Outlook categories cannot be mapped more than once:-\r\n\r\n" + oDuplicates, "Duplicate Outlook Mappings", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                     return;
                 } else if (!string.IsNullOrEmpty(gDuplicates) && (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) {
-                    OgcsMessageBox.Show("The following Google colours cannot be mapped more than once:-\r\n\r\n" + gDuplicates, "Duplicate Google Mappings", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    Ogcs.Extensions.MessageBox.Show("The following Google colours cannot be mapped more than once:-\r\n\r\n" + gDuplicates, "Duplicate Google Mappings", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                     return;
                 }
             } catch (System.Exception ex) {
                 Ogcs.Exception.Analyse("Failed looking for duplicating mappings before storing in Settings.", ex);
-                OgcsMessageBox.Show("An error was encountered storing your custom mappings.", "Cannot save mappings", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Ogcs.Extensions.MessageBox.Show("An error was encountered storing your custom mappings.", "Cannot save mappings", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

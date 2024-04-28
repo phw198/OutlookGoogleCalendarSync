@@ -294,7 +294,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             log.Debug("Did not find Outlook category " + olCategory.ToString() + (categoryName == null ? "" : " \"" + categoryName + "\""));
             String newCategoryName = "OGCS " + FriendlyCategoryName(olCategory);
             if (!createMissingCategory) {
-                createMissingCategory = OgcsMessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
+                createMissingCategory = Ogcs.Extensions.MessageBox.Show("There is no matching Outlook category.\r\nWould you like to create one of the form '" + newCategoryName + "'?",
                     "Create new Outlook category?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
             }
             if (createMissingCategory) {

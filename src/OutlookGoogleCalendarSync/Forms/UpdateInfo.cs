@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch (System.Exception ex) {
                 log.Debug("A problem was encountered showing the release notes.");
                 Ogcs.Exception.Analyse(ex);
-                dr = OgcsMessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
+                dr = Ogcs.Extensions.MessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
                                releaseVersion + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             }
         }
