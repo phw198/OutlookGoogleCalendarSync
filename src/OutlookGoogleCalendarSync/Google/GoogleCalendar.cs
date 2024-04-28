@@ -216,7 +216,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", Ogcs.Exception.LogAsFail(ex));
-                Ogcs.Exception.Analyse("recurringEventId: " + recurringEventId, ex);
+                ex.Analyse("recurringEventId: " + recurringEventId);
                 return null;
             }
         }
@@ -567,7 +567,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body, null, Sync.Direction.OutlookToGoogle);
                 } catch (System.Exception ex) {
-                    if (Ogcs.Exception.GetErrorCode(ex) == "0x80004004") {
+                    if (ex.GetErrorCode() == "0x80004004") {
                         Forms.Main.Instance.Console.Update("You do not have the rights to programmatically access Outlook appointment descriptions.<br/>" +
                             "It may be best to stop syncing the Description attribute.", Console.Markup.warning);
                     } else throw;
@@ -933,7 +933,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                 ev = patchEvent(ev) ?? ev;
                                 log.Fine("Conference data change successfully saved.");
                             } catch (System.Exception ex) {
-                                Ogcs.Exception.Analyse("Could not update conference data in existing Event.", ex);
+                                ex.Analyse("Could not update conference data in existing Event.");
                             }
                         }
                     }
@@ -1798,7 +1798,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             Ogcs.Exception.LogAsFail(ref ex);
-                            Ogcs.Exception.Analyse("Not able to " + stage, ex);
+                            ex.Analyse("Not able to " + stage);
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             Ogcs.Exception.LogAsFail(ref aex);
                             throw aex;
@@ -1814,11 +1814,11 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
                             break;
                     }
-                    Ogcs.Exception.Analyse("Not able to " + stage, ex);
+                    ex.Analyse("Not able to " + stage);
                     throw new System.ApplicationException("Unable to " + stage + ".", ex);
 
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Not able to " + stage, ex);
+                    ex.Analyse("Not able to " + stage);
                     throw;
                 }
             }
@@ -1840,7 +1840,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         String responseBody = response.Content.ReadAsStringAsync().Result;
                         cal = Newtonsoft.Json.JsonConvert.DeserializeObject<CalendarListEntry>(responseBody);
                     } catch (System.Exception ex2) {
-                        Ogcs.Exception.Analyse("Failed retrieving calendarList via HttpRequestMessage.", ex2);
+                        ex2.Analyse("Failed retrieving calendarList via HttpRequestMessage.");
                         throw;
                     }
                 } else throw;
@@ -1905,7 +1905,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (fbStatus != OlBusyStatus.olFree)
                     overrideTransparency = "opaque";
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.", ex);
+                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.");
             }
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
@@ -2053,7 +2053,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Debug("Previous export renamed to " + backupFilename);
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to backup previous CSV file.", ex);
+                ex.Analyse("Failed to backup previous CSV file.");
             }
 
             Stream stream = null;
@@ -2064,7 +2064,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     tw = new StreamWriter(stream, Encoding.UTF8);
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
-                    Ogcs.Exception.Analyse("Error opening file '" + filename + "' for writing.", ex);
+                    ex.Analyse("Error opening file '" + filename + "' for writing.");
                     return;
                 }
                 try {
@@ -2198,11 +2198,11 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
                     if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
                         eventSummary += " (R)";
-                    
+
                     if (Settings.Instance.AnonymiseLogs)
                         eventSummaryAnonymised = eventSummary + " => \"" + Authenticator.GetMd5(ev.Summary, silent: true) + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
                     eventSummary += " => \"" + ev.Summary + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
-                    
+
                 } catch {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
@@ -2284,10 +2284,10 @@ namespace OutlookGoogleCalendarSync.Google {
 
                     ev.Attendees = new List<global::Google.Apis.Calendar.v3.Data.EventAttendee>();
                     return ApiException.backoffThenRetry;
-                
+
                 } else if (ex.Error.Errors.First().Reason == "rateLimitExceeded") {
                     if (ex.Message.Contains("limit 'Queries per minute'")) {
-                        log.Fail(Ogcs.Exception.FriendlyMessage(ex));
+                        log.Fail(ex.FriendlyMessage());
                         Ogcs.Exception.LogAsFail(ref ex);
                         return ApiException.backoffThenRetry;
 
@@ -2344,7 +2344,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Debug("Successfully forced save by ignoring eTag values.");
                 } catch (System.Exception ex2) {
                     try {
-                        Ogcs.Exception.Analyse("Failed forcing save with ETagAction.Ignore", Ogcs.Exception.LogAsFail(ex2));
+                        ex2.LogAsFail().Analyse("Failed forcing save with ETagAction.Ignore");
                         log.Fine("Current eTag: " + ev.ETag);
                         log.Fine("Current Updated: " + ev.UpdatedRaw);
                         log.Fine("Current Sequence: " + ev.Sequence);
@@ -2367,7 +2367,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 return ApiException.justContinue;
 
             } else if (ex.Error?.Code == 500) {
-                log.Fail(Ogcs.Exception.FriendlyMessage(ex));
+                log.Fail(ex.FriendlyMessage());
                 Ogcs.Exception.LogAsFail(ref ex);
                 return ApiException.backoffThenRetry;
             }

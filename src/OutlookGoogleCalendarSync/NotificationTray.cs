@@ -59,7 +59,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 animatedIconFrame = 0;
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not set up animated system tray icon.", ex);
+                ex.Analyse("Could not set up animated system tray icon.");
             }
         }
 

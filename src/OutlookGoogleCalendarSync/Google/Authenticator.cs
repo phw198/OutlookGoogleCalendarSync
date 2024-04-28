@@ -67,7 +67,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse(ex);
+                    ex.Analyse();
                 }
             } catch (System.Exception ex) {
                 log.Fail("Problem encountered in getCalendarClientSecrets()");
@@ -239,7 +239,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     System.IO.StreamReader sr = new System.IO.StreamReader(stream);
                     log.Error(sr.ReadToEnd());
                 }
-                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509") {
+                if (ex.GetErrorCode() == "0x80131509") {
                     log.Warn(ex.Message);
                     System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\b(403|Forbidden|Prohibited|Insufficient Permission)\b", 
                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -356,7 +356,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     return false;
                 }
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                Ogcs.Exception.AnalyseTokenResponse(ex);
+                ex.AnalyseTokenResponse();
 
             } catch (global::Google.GoogleApiException ex) {
                 switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {

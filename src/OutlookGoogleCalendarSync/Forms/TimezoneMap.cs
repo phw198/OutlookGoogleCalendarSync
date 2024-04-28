@@ -74,7 +74,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Populating gridview cells from Settings.", ex);
+                ex.Analyse("Populating gridview cells from Settings.");
             }
         }
 
@@ -95,7 +95,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tzGridView.NotifyCurrentCellDirty(false);
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Adding timezone map row #" + lastRow, ex);
+                ex.Analyse("Adding timezone map row #" + lastRow);
             }
         }
 
@@ -120,13 +120,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                     try {
                         Settings.Instance.TimezoneMaps.Add(row.Cells[0].Value.ToString(), row.Cells[1].Value.ToString());
                     } catch (System.ArgumentException ex) {
-                        if (Ogcs.Exception.GetErrorCode(ex) == "0x80070057") {
+                        if (ex.GetErrorCode() == "0x80070057") {
                             //An item with the same key has already been added
                         } else throw;
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not save timezone mappings to Settings.", ex);
+                ex.Analyse("Could not save timezone mappings to Settings.");
             } finally {
                 this.Close();
                 Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.btCustomTzMap, "Visible", Settings.Instance.TimezoneMaps.Count != 0);
@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Debug("Cell[" + cell.RowIndex + "][" + cell.ColumnIndex + "] caused error.");
                 } catch {
                 } finally {
-                    Ogcs.Exception.Analyse("Bad cell value in timezone data grid.", e.Exception);
+                    e.Exception.Analyse("Bad cell value in timezone data grid.");
                 }
             }
         }

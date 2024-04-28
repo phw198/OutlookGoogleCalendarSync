@@ -12,7 +12,7 @@ namespace OutlookGoogleCalendarSync {
                 System.Diagnostics.Process.Start(url);
                 return;
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not open default browser.", Ogcs.Exception.LogAsFail(ex));
+                ex.LogAsFail().Analyse("Could not open default browser.");
             }
 
             //OK, let's try and determine the default browser from the registry and then directly invoke it. Why is this so much work!

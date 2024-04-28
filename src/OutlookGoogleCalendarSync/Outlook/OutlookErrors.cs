@@ -26,7 +26,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static ErrorType HandleComError(System.Exception ex, out String hResult) {
             ErrorType retVal = ErrorType.Unhandled;
             try {
-                hResult = Ogcs.Exception.GetErrorCode(ex);
+                hResult = ex.GetErrorCode();
                 log.Warn($"[{hResult}] >> {ex.Message}");
 
                 if (hResult == "0x800401E3" && ex.Message.Contains("MK_E_UNAVAILABLE")) {

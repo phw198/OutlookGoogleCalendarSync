@@ -52,11 +52,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 File.Copy(Settings.ConfigFile, backupFile, false);
                 log.Info(backupFile + " created.");
             } catch (System.IO.IOException ex) {
-                if (Ogcs.Exception.GetErrorCode(ex) == "0x80070050") { //File already exists
+                if (ex.GetErrorCode() == "0x80070050") { //File already exists
                     log.Warn("The backfile already exists, not overwriting " + backupFile);
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to create backup settings file", ex);
+                ex.Analyse("Failed to create backup settings file");
             }
         }
 
@@ -127,7 +127,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 XMLManager.MoveElement("LastSyncDate", settingsElement, calendarElement);
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Problem encountered whilst upgrading " + Settings.ConfigFilename, ex);
+                ex.Analyse("Problem encountered whilst upgrading " + Settings.ConfigFilename);
                 throw ex;
             } finally {
                 if (xml != null) {
@@ -143,11 +143,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                                 "Settings Cannot Be Saved", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Cancel) 
                             {
                                 log.Warn("User cancelled attempt to save new settings file.");
-                                Ogcs.Exception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                                ex.Analyse("Could not save upgraded settings file " + Settings.ConfigFile);
                                 throw;
                             }
                         } catch (System.Exception ex) {
-                            Ogcs.Exception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                            ex.Analyse("Could not save upgraded settings file " + Settings.ConfigFile);
                             throw;
                         }
                     }

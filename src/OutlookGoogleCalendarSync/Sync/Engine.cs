@@ -62,7 +62,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Engine.Instance.ActiveProfile = job.Profile;
                         Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
                     } catch (System.Exception ex) {
-                        Ogcs.Exception.Analyse("Scheduled sync encountered a problem.", ex, true);
+                        ex.Analyse("Scheduled sync encountered a problem.", true);
                     }
                 }
             }

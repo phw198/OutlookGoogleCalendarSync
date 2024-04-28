@@ -267,7 +267,7 @@ namespace OutlookGoogleCalendarSync {
                         System.IO.File.Delete(file);
                         log.Debug("Deleted " + MaskFilePath(file));
                     } catch (System.Exception ex) {
-                        Ogcs.Exception.Analyse("Could not delete file " + file, Ogcs.Exception.LogAsFail(ex));
+                        ex.LogAsFail().Analyse("Could not delete file " + file);
                     }
                 }
             }
@@ -499,7 +499,7 @@ namespace OutlookGoogleCalendarSync {
                     Program.ManageStartupRegKey();
                 } catch (System.Exception ex) {
                     if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                    Ogcs.Exception.Analyse("Failed accessing registry for startup key.", ex);
+                    ex.Analyse("Failed accessing registry for startup key.");
                 }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (isHotFix) {
@@ -622,7 +622,7 @@ namespace OutlookGoogleCalendarSync {
                 } else
                     return path;
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Problems accessing environment variables.", ex);
+                ex.Analyse("Problems accessing environment variables.");
                 return path;
             }
         }
@@ -693,7 +693,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Unable to check for concurrent OGCS processes.", ex);
+                ex.Analyse("Unable to check for concurrent OGCS processes.");
             }
         }
 

@@ -52,7 +52,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not alter Event conference data.", ex);
+                ex.Analyse("Could not alter Event conference data.");
             }
         }
     }

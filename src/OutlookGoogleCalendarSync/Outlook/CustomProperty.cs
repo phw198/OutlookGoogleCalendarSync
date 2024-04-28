@@ -461,7 +461,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to log Appointment UserProperties", ex);
+                ex.Analyse("Failed to log Appointment UserProperties");
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
@@ -476,7 +476,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 format = (OlBodyFormat)ai.GetType().InvokeMember("BodyFormat", System.Reflection.BindingFlags.GetProperty, null, ai, null);
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Unable to determine AppointmentItem body format.", ex);
+                ex.Analyse("Unable to determine AppointmentItem body format.");
             }
             return format;
         }

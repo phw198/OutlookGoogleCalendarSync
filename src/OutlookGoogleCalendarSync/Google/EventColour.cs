@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     id = eventColourNames.First(n => (n.Value as Metadata).Name == name).Key.ToString();
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Could not find colour ID for '" + name + "'.", ex);
+                    ex.Analyse("Could not find colour ID for '" + name + "'.");
                 }
                 return id;
             }
@@ -162,7 +162,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     else
                         log.Error("GetColourName(): ID '" + id + "' not found.");
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Could not find colour name for '" + id + "'.", ex);
+                    ex.Analyse("Could not find colour name for '" + id + "'.");
                 }
                 return name;
             }

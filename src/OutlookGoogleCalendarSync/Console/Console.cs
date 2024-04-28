@@ -328,7 +328,7 @@ namespace OutlookGoogleCalendarSync {
 
         public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
             Markup emoji = Markup.error;
-            if (Ogcs.Exception.LoggingAsFail(ex))
+            if (ex.LoggingAsFail())
                 emoji = Markup.fail;
             Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
         }

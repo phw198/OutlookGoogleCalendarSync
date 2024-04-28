@@ -97,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not check for timezone data update.", ex);
+                ex.Analyse("Could not check for timezone data update.");
             }
         }
 
@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
                     return fixedTimezone;
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to detect and translate Alexa timezone: " + timezone, ex);
+                ex.Analyse("Failed to detect and translate Alexa timezone: " + timezone);
             }
             return timezone;
         }
@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync {
                     return gmtOffset;
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to detect any timezone offset for: " + outlookTimezone, ex);
+                ex.Analyse("Failed to detect any timezone offset for: " + outlookTimezone);
             }
             return null;
         }
@@ -168,7 +168,7 @@ namespace OutlookGoogleCalendarSync {
                     utcOffset = Convert.ToInt16(offset.Seconds / 3600);
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.", ex);
+                ex.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.");
             }
             return utcOffset;
         }

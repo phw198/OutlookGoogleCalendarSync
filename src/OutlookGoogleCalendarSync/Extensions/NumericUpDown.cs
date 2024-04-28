@@ -35,7 +35,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                         this.tooltip.RemoveAll();
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse(this.Name, ex);
+                ex.Analyse(this.Name);
             }
         }
     }

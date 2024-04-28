@@ -50,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     newCalendar.InitialiseTimer();
                     newCalendar.RegisterForPushSync();
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Failed to add new profile.", ex);
+                    ex.Analyse("Failed to add new profile.");
                     throw;
                 }
 
@@ -69,7 +69,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Info("Renamed calendar settings from '" + currentProfileName + "' to '" + newProfileName + "'.");
 
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.", ex);
+                    ex.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.");
                     throw;
                 }
                 Forms.Main.Instance.NotificationTray.RenameProfileItem(currentProfileName, newProfileName);

@@ -225,7 +225,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } catch (System.Exception ex2) {
                             if (delay == maxDelay) {
                                 log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
-                                if (Ogcs.Exception.GetErrorCode(ex2) == "0x80004004") { //E_ABORT
+                                if (ex2.GetErrorCode() == "0x80004004") { //E_ABORT
                                     log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
                                 } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex2));
                                 profile.OutlookGalBlocked = true;
@@ -344,14 +344,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 } catch (System.Exception ex) {
                     if (oApp.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ||
-                        Ogcs.Exception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
-                        Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                        ex.GetErrorCode() == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
+                        ex.GetErrorCode(0x000FFFFF) == "0x00040115") {
                         log.Warn(ex.Message);
                         log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
                         Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
-                        Ogcs.Exception.Analyse("Failed to recurse MAPI folders.", ex);
+                        ex.Analyse("Failed to recurse MAPI folders.");
                         Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -373,7 +373,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 calendarFolders.Add(name, folder);
             } catch (System.ArgumentException ex) {
-                if (Ogcs.Exception.GetErrorCode(ex) == "0x80070057") {
+                if (ex.GetErrorCode() == "0x80070057") {
                     //An item with the same key has already been added.
                     //Let's recurse up to the parent folder, looking to make it unique
                     object parentObj = (parentFolder != null ? parentFolder.Parent : folder.Parent);
@@ -408,7 +408,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 }
                 log.Info(o2003recurring.Count + " recurring items successfully kept for Outlook 2003.");
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Unable to iterate Outlook items.", ex);
+                ex.Analyse("Unable to iterate Outlook items.");
             }
             restrictedItems.AddRange(o2003recurring);
 

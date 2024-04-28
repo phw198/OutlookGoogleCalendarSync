@@ -123,7 +123,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("ColourPicker_Enter()", ex);
+                ex.Analyse("ColourPicker_Enter()");
             } finally {
                 loading.Hide(this);
                 loading.RemoveAll();
@@ -234,7 +234,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("OutlookColourComboboxCell.Paint()", ex);
+                ex.Analyse("OutlookColourComboboxCell.Paint()");
             }
         }
     }
@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("GoogleColourComboboxCell.Paint()", ex);
+                ex.Analyse("GoogleColourComboboxCell.Paint()");
             }
         }
     }
@@ -480,7 +480,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (indexItem < 0 || indexItem >= cbColour.Items.Count)
                 return;
 
-            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair< Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
+            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair<Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
             if (kvp.Key != null) {
                 // Get the colour
                 OlCategoryColor olColour = kvp.Key.OutlookCategory;
@@ -503,7 +503,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         public void PopulateDropdownItems() {
-            Dictionary <Ogcs.Google.EventColour.Palette, String> cbItems = new Dictionary<Ogcs.Google.EventColour.Palette, String>();
+            Dictionary<Ogcs.Google.EventColour.Palette, String> cbItems = new Dictionary<Ogcs.Google.EventColour.Palette, String>();
             foreach (Ogcs.Google.EventColour.Palette ci in Forms.ColourMap.GoogleComboBox.Items) {
                 cbItems.Add(ci, ci.Name);
             }

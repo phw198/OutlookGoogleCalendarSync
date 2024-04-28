@@ -11,14 +11,14 @@ namespace OutlookGoogleCalendarSync {
         public UserCancelledSyncException(string message, System.Exception inner) : base(message, inner) { }
     }
 
-    class Exception {
+    public static class Exception {
         private static readonly ILog log = LogManager.GetLogger(typeof(Ogcs.Exception));
 
-        public static void Analyse(String warnDetail, System.Exception ex, Boolean includeStackTrace = false) {
+        public static void Analyse(this System.Exception ex, String warnDetail, Boolean includeStackTrace = false) {
             log.Warn(warnDetail);
             Analyse(ex, includeStackTrace: includeStackTrace);
         }
-        public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
+        public static void Analyse(this System.Exception ex, Boolean includeStackTrace = false) {
             log4net.Core.Level logLevel = log4net.Core.Level.Error;
             if (LoggingAsFail(ex)) {
                 if (ex is ApplicationException) return;
@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync {
             if (includeStackTrace) log.ErrorOrFail(ex.StackTrace, logLevel);
         }
 
-        public static String GetErrorCode(System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
+        public static String GetErrorCode(this System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
             UInt32 maskedCode = (uint)(getErrorCode(ex) & mask);
             return "0x" + maskedCode.ToString("X8");
         }
@@ -71,7 +71,7 @@ namespace OutlookGoogleCalendarSync {
             return -1;
         }
 
-        public static void AnalyseAggregate(AggregateException agex, Boolean throwError = true) {
+        public static void AnalyseAggregate(this AggregateException agex, Boolean throwError = true) {
             foreach (System.Exception ex in agex.InnerExceptions) {
                 if (ex is ApplicationException) {
                     if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
@@ -84,7 +84,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public static void AnalyseTokenResponse(global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
+        public static void AnalyseTokenResponse(this global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
             log.Warn("Token response error: " + ex.Message);
@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync {
             if (throwError) throw ex;
         }
 
-        public static String FriendlyMessage(System.Exception ex) {
+        public static String FriendlyMessage(this System.Exception ex) {
             if (ex is global::Google.GoogleApiException) {
                 global::Google.GoogleApiException gaex = ex as global::Google.GoogleApiException;
                 if (gaex.Error != null)
@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged
         /// </summary>
-        public static System.Exception LogAsFail(System.Exception ex) {
+        public static System.Exception LogAsFail(this System.Exception ex) {
             LogAsFail(ref ex);
             return ex;
         }
@@ -194,7 +194,7 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>
         /// Check if this exception has been set to log as log4net FAIL (not ERROR)
         /// </summary>
-        public static Boolean LoggingAsFail(System.Exception ex) {
+        public static Boolean LoggingAsFail(this System.Exception ex) {
             return (ex.Data.Contains(LogAs) && ex.Data[LogAs].ToString() == LogLevel.FAIL.ToString());
         }
         #endregion

@@ -349,7 +349,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to log Event ExtendedProperties", ex);
+                ex.Analyse("Failed to log Event ExtendedProperties");
             }
         }
     }

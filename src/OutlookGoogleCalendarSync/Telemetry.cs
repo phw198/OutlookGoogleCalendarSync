@@ -103,7 +103,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not get IP geolocation.", Ogcs.Exception.LogAsFail(ex));
+                ex.LogAsFail().Analyse("Could not get IP geolocation.");
             }
         }
 

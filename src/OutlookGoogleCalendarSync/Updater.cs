@@ -84,7 +84,7 @@ namespace OutlookGoogleCalendarSync {
                     isSquirrelInstall = updateManager.IsInstalledApp;
                 }
             } catch (System.Exception ex) {
-                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131500") //Update.exe not found
+                if (ex.GetErrorCode() == "0x80131500") //Update.exe not found
                     log.Debug(ex.Message);
                 else {
                     log.Error("Failed to determine if app is a Squirrel install. Assuming not.");
@@ -157,7 +157,7 @@ namespace OutlookGoogleCalendarSync {
                             } catch (System.Exception ex) {
                                 squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                                 squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
-                                Ogcs.Exception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
+                                ex.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version);
                                 ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             } finally {
@@ -208,7 +208,7 @@ namespace OutlookGoogleCalendarSync {
                                     break;
                                 } catch (System.AggregateException ex) {
                                     ApplyAttempt++;
-                                    if (Ogcs.Exception.GetErrorCode(ex.InnerException) == "0x80070057") { //File does not exist
+                                    if (ex.InnerException.GetErrorCode() == "0x80070057") { //File does not exist
                                         //File does not exist: C:\Users\Paul\AppData\Local\OutlookGoogleCalendarSync\packages\OutlookGoogleCalendarSync-2.8.4-alpha-full.nupkg
                                         //Extract the nupkg filename
                                         String regexMatch = ".*" + updates.PackageDirectory.Replace(@"\", @"\\") + @"\\(.*?([\d\.]+-\w+).*)$";
@@ -275,7 +275,7 @@ namespace OutlookGoogleCalendarSync {
                     throw;
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed checking for update.", Ogcs.Exception.LogAsFail(ex), true);
+                ex.LogAsFail().Analyse("Failed checking for update.", true);
                 Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
                 githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
@@ -416,7 +416,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void clickOnceUninstallError(System.Exception ex) {
-            if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509") {
+            if (ex.GetErrorCode() == "0x80131509") {
                 log.Debug("No ClickOnce install found.");
             } else {
                 log.Error("Failed removing ClickOnce install.");
@@ -447,12 +447,12 @@ namespace OutlookGoogleCalendarSync {
             try {
                 html = new Extensions.OgcsWebClient().DownloadString("https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/latest_zip_release.md");
             } catch (System.Net.WebException ex) {
-                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509")
+                if (ex.GetErrorCode() == "0x80131509")
                     log.Warn("Failed to retrieve data (no network?): " + ex.Message);
                 else
-                    Ogcs.Exception.Analyse("Failed to retrieve data", ex);
+                    ex.Analyse("Failed to retrieve data");
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed to retrieve data: ", ex);
+                ex.Analyse("Failed to retrieve data: ");
             }
 
             if (!string.IsNullOrEmpty(html)) {

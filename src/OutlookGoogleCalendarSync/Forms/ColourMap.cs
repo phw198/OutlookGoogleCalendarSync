@@ -10,7 +10,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private static readonly ILog log = LogManager.GetLogger(typeof(ColourMap));
         public static Extensions.OutlookColourPicker OutlookComboBox = new Extensions.OutlookColourPicker();
         public static Extensions.GoogleColourPicker GoogleComboBox = new Extensions.GoogleColourPicker();
-        
+
         public ColourMap() {
             log.Info("Opening colour mapping window.");
             OutlookComboBox = null;
@@ -57,7 +57,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddGoogleColour.SelectedIndex = 0;
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Populating gridview cells from Settings.", ex);
+                ex.Analyse("Populating gridview cells from Settings.");
             }
         }
 
@@ -78,7 +78,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 colourGridView.NotifyCurrentCellDirty(false);
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Adding colour/category map row #" + lastRow, ex);
+                ex.Analyse("Adding colour/category map row #" + lastRow);
             }
         }
 
@@ -96,7 +96,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         colourGridView.CurrentCell = lastCell;
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow, ex);
+                ex.Analyse("newRowNeeded(): Adding colour/category map row #" + lastRow);
             } finally {
                 colourGridView.NotifyCurrentCellDirty(true);
                 colourGridView.NotifyCurrentCellDirty(false);
@@ -115,7 +115,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     oColValues.Add(row.Cells["OutlookColour"].Value.ToString());
                     gColValues.Add(row.Cells["GoogleColour"].Value.ToString());
                 }
-                String oDuplicates = string.Join("\r\n", oColValues.GroupBy(v => v).Where(g => g.Count() > 1).Select(s => "- "+ s.Key).ToList());
+                String oDuplicates = string.Join("\r\n", oColValues.GroupBy(v => v).Where(g => g.Count() > 1).Select(s => "- " + s.Key).ToList());
                 String gDuplicates = string.Join("\r\n", gColValues.GroupBy(v => v).Where(g => g.Count() > 1).Select(s => "- " + s.Key).ToList());
 
                 if (!string.IsNullOrEmpty(oDuplicates) && (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id || profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) {
@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     return;
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Failed looking for duplicating mappings before storing in Settings.", ex);
+                ex.Analyse("Failed looking for duplicating mappings before storing in Settings.");
                 Ogcs.Extensions.MessageBox.Show("An error was encountered storing your custom mappings.", "Cannot save mappings", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -139,13 +139,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                     try {
                         profile.ColourMaps.Add(row.Cells["OutlookColour"].Value.ToString(), Ogcs.Google.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString()));
                     } catch (System.ArgumentException ex) {
-                        if (Ogcs.Exception.GetErrorCode(ex) == "0x80070057") {
+                        if (ex.GetErrorCode() == "0x80070057") {
                             //An item with the same key has already been added
                         } else throw;
                     }
                 }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Could not save colour/category mappings to Settings.", ex);
+                ex.Analyse("Could not save colour/category mappings to Settings.");
             } finally {
                 this.Close();
             }
@@ -241,7 +241,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             try {
                 ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
-                
+
                 foreach (DataGridViewRow row in colourGridView.Rows) {
                     if (row.Cells["OutlookColour"].Value.ToString() == ddOutlookColour.SelectedItem.Text && !string.IsNullOrEmpty(row.Cells["GoogleColour"].Value?.ToString())) {
                         String colourId = Ogcs.Google.EventColour.Palette.GetColourId(row.Cells["GoogleColour"].Value.ToString());
@@ -253,7 +253,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddGoogleColour.SelectedIndex = Convert.ToInt16(Ogcs.Google.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory).Id);
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
+                ex.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.");
             } finally {
                 ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
             }
@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.SelectedIndex = 0;
 
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
+                ex.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.");
             } finally {
                 ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
             }

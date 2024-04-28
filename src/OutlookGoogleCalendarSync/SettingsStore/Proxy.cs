@@ -112,17 +112,17 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                                     sr = new System.IO.StreamReader(stream);
                                     log.Fail(sr.ReadToEnd());
                                 } catch (System.Exception ex2) {
-                                    Ogcs.Exception.Analyse("Could not analyse WebException response.", ex2);
+                                    ex2.Analyse("Could not analyse WebException response.");
                                 } finally {
                                     if (sr != null) sr.Close();
                                     if (stream != null) stream.Close();
                                 }
                             } else
-                                Ogcs.Exception.Analyse("Testing proxy connection failed.", ex);
+                                ex.Analyse("Testing proxy connection failed.");
                         }
                     }
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Failed to confirm proxy settings.", ex);
+                    ex.Analyse("Failed to confirm proxy settings.");
                 }
             }
         }

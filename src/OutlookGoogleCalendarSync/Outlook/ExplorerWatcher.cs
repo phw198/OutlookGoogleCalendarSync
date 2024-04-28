@@ -172,13 +172,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 if (ex is System.Runtime.InteropServices.COMException && (
-                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
-                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                    ex.GetErrorCode() == "0x8004010F" || //The message you specified cannot be found
+                    ex.GetErrorCode() == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
                 {
                     log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
                     Ogcs.Exception.LogAsFail(ref ex);
                 }
-                Ogcs.Exception.Analyse("Failed to repopulate OGCS properties back to copied item.", ex);
+                ex.Analyse("Failed to repopulate OGCS properties back to copied item.");
             } finally {
                 copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }
@@ -248,13 +248,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 if (ex is System.Runtime.InteropServices.COMException && (
-                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
-                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                    ex.GetErrorCode() == "0x8004010F" || //The message you specified cannot be found
+                    ex.GetErrorCode() == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
                 {
                     log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
                     Ogcs.Exception.LogAsFail(ref ex);
                 }
-                Ogcs.Exception.Analyse("Failed to remove OGCS 'copied' property on copied item.", ex);
+                ex.Analyse("Failed to remove OGCS 'copied' property on copied item.");
             } finally {
                 copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }

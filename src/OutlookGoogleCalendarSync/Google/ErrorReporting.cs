@@ -65,7 +65,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     File.WriteAllLines(credFile, newLines.ToArray());
                 } catch (System.IO.IOException ex) {
-                    if (Ogcs.Exception.GetErrorCode(ex) == "0x80070020")
+                    if (ex.GetErrorCode() == "0x80070020")
                         log.Warn("ErrorReporting.json is being used by another process (perhaps multiple instances of OGCS are being started on system startup?)");
                     else
                         throw;

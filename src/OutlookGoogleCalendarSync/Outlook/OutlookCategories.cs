@@ -75,7 +75,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     colour = ColorTranslator.FromHtml(hexColour);
                     log.Fine("Converted '" + hexColour + "' to " + colour.ToString());
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.", ex);
+                    ex.Analyse("Could not convert hex '" + hexColour + "' to RGB colour.");
                 }
                 return colour;
             }
@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 if (this._categories != null && this._categories.Count > 0) { }
             } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse("Categories are not accessible!", Ogcs.Exception.LogAsFail(ex));
+                ex.LogAsFail().Analyse("Categories are not accessible!");
                 this._categories = null;
             }
             if (this._categories == null || Calendar.Categories == null) {
@@ -216,11 +216,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         OutlookCOM.OlCategoryColor catColour = cat.Color;
                     }
                 } catch (System.Exception ex) {
-                    if (Ogcs.Exception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
+                    if (ex.GetErrorCode(0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
                         log.Warn("Outlook category '" + catName + "' seems to have changed!");
                         Calendar.Instance.IOutlook.RefreshCategories();
                     } else {
-                        Ogcs.Exception.Analyse("Could not access all the Outlook categories.", ex);
+                        ex.Analyse("Could not access all the Outlook categories.");
                         this.categories = null;
                         return;
                     }
@@ -278,7 +278,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         }
                     }
                 } catch (System.Runtime.InteropServices.COMException ex) {
-                    if (Ogcs.Exception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //The operation failed.
+                    if (ex.GetErrorCode(0x0000FFFF) == "0x00004005") { //The operation failed.
                         log.Warn("It seems a category has been manually removed in Outlook.");
                         Calendar.Instance.IOutlook.RefreshCategories();
                     } else throw;
