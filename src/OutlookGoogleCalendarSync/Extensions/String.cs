@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace OutlookGoogleCalendarSync {
-    public static class StringExtensions {
+namespace OutlookGoogleCalendarSync.Extensions {
+    public static class OgcsString {
         public static String Append(this String input, String append) {
             return (String.IsNullOrEmpty(input) ? input : input + append);
         }
