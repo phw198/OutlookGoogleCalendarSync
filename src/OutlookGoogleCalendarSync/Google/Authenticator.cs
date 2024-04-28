@@ -1,16 +1,17 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Util.Store;
 using log4net;
 using Newtonsoft.Json.Linq;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Google {
     public class Authenticator {
@@ -142,7 +143,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (Settings.Instance.Proxy.Type == "Custom")
                 Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
 
-            if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < DateTime.UtcNow.AddMinutes(1)) {
+            if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < System.DateTime.UtcNow.AddMinutes(1)) {
                 log.Debug("Access token needs refreshing.");
                 //This will happen automatically when using the calendar service
                 //But we need a valid token before we call getGaccountEmail() which doesn't use the service
@@ -307,8 +308,8 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         #region OGCS user status
-        public static readonly DateTime SubscribedNever = new DateTime(2000, 1, 1);
-        public static readonly DateTime SubscribedBefore = new DateTime(2001, 1, 1);
+        public static readonly System.DateTime SubscribedNever = new System.DateTime(2000, 1, 1);
+        public static readonly System.DateTime SubscribedBefore = new System.DateTime(2001, 1, 1);
 
         public void OgcsUserStatus() {
             if (!checkedOgcsUserStatus) {
@@ -383,9 +384,9 @@ namespace OutlookGoogleCalendarSync.Google {
             } else {
                 Boolean subscribed;
                 Event subscription = subscriptions.Last();
-                DateTime subscriptionStart = subscription.Start.SafeDateTime().Date;
+                System.DateTime subscriptionStart = subscription.Start.SafeDateTime().Date;
                 log.Debug("Last subscription date: " + subscriptionStart.ToString());
-                Double subscriptionRemaining = (subscriptionStart.AddYears(1) - DateTime.Now.Date).TotalDays;
+                Double subscriptionRemaining = (subscriptionStart.AddYears(1) - System.DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {
                     if (subscriptionRemaining > 360)
                         Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.RecentSubscription, null);
@@ -398,7 +399,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     subscribed = false;
                 }
 
-                DateTime prevSubscriptionStart = Settings.Instance.Subscribed;
+                System.DateTime prevSubscriptionStart = Settings.Instance.Subscribed;
                 if (subscribed) {
                     log.Info("User has an active subscription.");
                     Settings.Instance.Subscribed = subscriptionStart;

@@ -1,12 +1,13 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Outlook {
     class OutlookOld : Interface {
@@ -194,10 +195,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             Recipient currentUser = null;
             try {
-                DateTime triggerOOMsecurity = DateTime.Now;
+                System.DateTime triggerOOMsecurity = System.DateTime.Now;
                 try {
                     currentUser = oNS.CurrentUser;
-                    if (!Forms.Main.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
+                    if (!Forms.Main.Instance.IsHandleCreated && (System.DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
                         log.Warn(">1s delay possibly due to Outlook security popup.");
                         Outlook.Calendar.OOMsecurityInfo = true;
                     }
@@ -804,8 +805,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return ai;
         }
 
-        private DateTime WindowsTimeZone(EventDateTime time) {
-            DateTime theDate = time.SafeDateTime();
+        private System.DateTime WindowsTimeZone(EventDateTime time) {
+            System.DateTime theDate = time.SafeDateTime();
             /*if (time.TimeZone == null)*/
             return theDate;
 
@@ -819,7 +820,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             */
         }
 
-        public DateTime GetEndInEndTimeZone(AppointmentItem ai) {
+        public System.DateTime GetEndInEndTimeZone(AppointmentItem ai) {
             return ai.End;
         }
 

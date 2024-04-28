@@ -1,11 +1,12 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync {
     class Recurrence {
@@ -34,11 +35,11 @@ namespace OutlookGoogleCalendarSync {
             RecurrencePattern rp = null;
             try {
                 rp = ai.GetRecurrencePattern();
-                DateTime utcEnd;
+                System.DateTime utcEnd;
                 if (ai.AllDayEvent)
                     utcEnd = rp.PatternEndDate;
                 else {
-                    DateTime localEnd = rp.PatternEndDate + Outlook.Calendar.Instance.IOutlook.GetEndInEndTimeZone(ai).TimeOfDay;
+                    System.DateTime localEnd = rp.PatternEndDate + Outlook.Calendar.Instance.IOutlook.GetEndInEndTimeZone(ai).TimeOfDay;
                     utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(Outlook.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
                 }
                 gPattern.Add("RRULE:" + buildRrule(rp, utcEnd));
@@ -142,11 +143,11 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
                     oPattern.NoEndDate = true;
                 } else {
-                    DateTime endDate;
+                    System.DateTime endDate;
                     if (ruleBook["UNTIL"].Length == 8 && !ruleBook["UNTIL"].EndsWith("Z"))
-                        endDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
                     else {
-                        endDate = DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
+                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
                         endDate = endDate.AddHours(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
                     }
                     if (endDate < oPattern.PatternStartDate) {
@@ -220,7 +221,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private String buildRrule(RecurrencePattern oPattern, DateTime recurrenceEndUtc) {
+        private String buildRrule(RecurrencePattern oPattern, System.DateTime recurrenceEndUtc) {
             log.Fine("Building RRULE");
             rrule = new Dictionary<String, String>();
             #region RECURRENCE PATTERN
@@ -373,7 +374,7 @@ namespace OutlookGoogleCalendarSync {
             return dowMask;
         }
 
-        public static String IANAdate(DateTime dt) {
+        public static String IANAdate(System.DateTime dt) {
             return dt.ToString("yyyyMMddTHHmmssZ");
         }
         #endregion
@@ -432,7 +433,7 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="recurringEventId">The recurring series to search within</param>
         /// <param name="originalInstanceDate">The date to search for</param>
         /// <returns></returns>
-        private Event getGoogleInstance(String recurringEventId, DateTime originalInstanceDate) {
+        private Event getGoogleInstance(String recurringEventId, System.DateTime originalInstanceDate) {
             return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate);
         }
 
@@ -581,7 +582,7 @@ namespace OutlookGoogleCalendarSync {
                         oExcp = excps[e];
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
-                            DateTime gDate = ev.OriginalStartTime.SafeDateTime();
+                            System.DateTime gDate = ev.OriginalStartTime.SafeDateTime();
                             DeletionState isDeleted = exceptionIsDeleted(oExcp);
                             if (isDeleted == DeletionState.Inaccessible) {
                                 log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
@@ -680,7 +681,7 @@ namespace OutlookGoogleCalendarSync {
                             try {
                                 oExcp = excps[e];
                                 int excp_itemModified = 0;
-                                DateTime oExcp_currDate;
+                                System.DateTime oExcp_currDate;
 
                                 //Check the exception falls in the date range being synced
                                 DeletionState oIsDeleted = exceptionIsDeleted(oExcp);
@@ -718,7 +719,7 @@ namespace OutlookGoogleCalendarSync {
                                         }
                                         continue;
                                     } else if (oIsDeleted == DeletionState.Deleted && gExcp.Status != "cancelled") {
-                                        DateTime movedToStartDate = gExcp.Start.SafeDateTime().Date;
+                                        System.DateTime movedToStartDate = gExcp.Start.SafeDateTime().Date;
                                         log.Fine("Checking if we have another Google instance that /is/ cancelled on " + movedToStartDate.ToString("dd-MMM-yyyy") + " that this one has been moved to.");
                                         Event duplicate = Recurrence.Instance.getGoogleInstance(gExcp.RecurringEventId, movedToStartDate);
                                         DialogResult dr = DialogResult.Yes;
@@ -744,7 +745,7 @@ namespace OutlookGoogleCalendarSync {
                                             log.Fine("Modification time difference (in days) between G and O exception: " + modifiedDiff);
                                             Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
                                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);
-                                            if (forceCompare && excp_itemModified == 0 && DateTime.Now > aiExcp.LastModificationTime.AddDays(1)) {
+                                            if (forceCompare && excp_itemModified == 0 && System.DateTime.Now > aiExcp.LastModificationTime.AddDays(1)) {
                                                 Ogcs.Google.CustomProperty.SetOGCSlastModified(ref gExcp);
                                                 try {
                                                     log.Debug("Doing a dummy update in order to update the last modified date of Google recurring series exception.");
@@ -853,8 +854,8 @@ namespace OutlookGoogleCalendarSync {
                 oPattern = ai.GetRecurrencePattern();
 
                 foreach (Event gExcp in evExceptions) {
-                    DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    DateTime? gExcpCurrDate = gExcp.Start == null ? null : gExcp.Start.SafeDateTime();
+                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
+                    System.DateTime? gExcpCurrDate = gExcp.Start == null ? null : gExcp.Start.SafeDateTime();
                     log.Fine("Found Google exception for original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.ToString() : ""));
 
                     AppointmentItem newAiExcp = null;
@@ -909,7 +910,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
+        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 

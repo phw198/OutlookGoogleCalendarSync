@@ -1,8 +1,8 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Calendar.v3;
+﻿using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Google {
     /// <summary>
@@ -275,7 +276,7 @@ namespace OutlookGoogleCalendarSync.Google {
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd);
         }
 
-        public List<Event> GetCalendarEntriesInRange(DateTime from, DateTime to) {
+        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to) {
             List<Event> result = new List<Event>();
             ExcludedByColour = new Dictionary<String, String>();
             Events request = null;
@@ -805,8 +806,8 @@ namespace OutlookGoogleCalendarSync.Google {
             sb.AppendLine(aiSummary);
 
             //Handle an event's all-day attribute being toggled
-            DateTime evStart = ev.Start.SafeDateTime();
-            DateTime evEnd = ev.End.SafeDateTime();
+            System.DateTime evStart = ev.Start.SafeDateTime();
+            System.DateTime evEnd = ev.End.SafeDateTime();
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
@@ -1345,7 +1346,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
                 duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":" + (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
                 //Skip the first one, the original 
-                DateTime? lastSeenDuplicateSet = null;
+                System.DateTime? lastSeenDuplicateSet = null;
                 for (int g = 0; g < duplicateCheck.Count(); g++) {
                     Event ev = duplicateCheck[g];
                     if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
@@ -2191,10 +2192,10 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
                     if (ev.Start.DateTime != null) {
-                        DateTime gDate = (DateTime)ev.Start.DateTime;
+                        System.DateTime gDate = (System.DateTime)ev.Start.DateTime;
                         eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
-                        eventSummary += DateTime.Parse(ev.Start.Date).ToShortDateString();
+                        eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
                     if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
                         eventSummary += " (R)";
                     
@@ -2279,7 +2280,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                     APIlimitReached_attendee = true;
                     Settings.Instance.APIlimit_inEffect = true;
-                    Settings.Instance.APIlimit_lastHit = DateTime.Now;
+                    Settings.Instance.APIlimit_lastHit = System.DateTime.Now;
 
                     ev.Attendees = new List<global::Google.Apis.Calendar.v3.Data.EventAttendee>();
                     return ApiException.backoffThenRetry;
@@ -2296,8 +2297,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
                         //Delay next scheduled sync until after the new quota
                         if (profile.SyncInterval != 0) {
-                            DateTime utcNow = DateTime.UtcNow;
-                            DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
+                            System.DateTime utcNow = System.DateTime.UtcNow;
+                            System.DateTime quotaReset = utcNow.Date.AddHours(8).AddMinutes(utcNow.Minute);
                             if ((quotaReset - utcNow).Ticks < 0) quotaReset = quotaReset.AddDays(1);
                             int delayMins = (int)(quotaReset - utcNow).TotalMinutes;
                             profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
@@ -2306,7 +2307,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         return ApiException.freeAPIexhausted;
 
                     } else if (ex.Message.Contains("Rate Limit Exceeded")) {
-                        if (Settings.Instance.Subscribed > DateTime.Now.AddYears(-1))
+                        if (Settings.Instance.Subscribed > System.DateTime.Now.AddYears(-1))
                             return ApiException.backoffThenRetry;
 
                         log.Warn("Google's free Calendar quota is being exceeded!");
@@ -2314,8 +2315,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
                         //Delay next scheduled sync for an hour
                         if (profile.SyncInterval != 0) {
-                            DateTime utcNow = DateTime.UtcNow;
-                            DateTime nextSync = utcNow.AddMinutes(60 + new Random().Next(1, 10));
+                            System.DateTime utcNow = System.DateTime.UtcNow;
+                            System.DateTime nextSync = utcNow.AddMinutes(60 + new Random().Next(1, 10));
                             int delayMins = (int)(nextSync - utcNow).TotalMinutes;
                             profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                             Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes to let free quota rebuild.", Console.Markup.warning);

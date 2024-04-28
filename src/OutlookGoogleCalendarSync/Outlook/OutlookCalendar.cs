@@ -1,14 +1,15 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Outlook {
     /// <summary>
@@ -162,8 +163,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 OutlookItems.Sort("[Start]", Type.Missing);
                 OutlookItems.IncludeRecurrences = false;
 
-                DateTime min = DateTime.MinValue;
-                DateTime max = DateTime.MaxValue;
+                System.DateTime min = System.DateTime.MinValue;
+                System.DateTime max = System.DateTime.MaxValue;
                 if (!noDateFilter) {
                     min = profile.SyncStart;
                     max = profile.SyncEnd;
@@ -197,7 +198,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.NullReferenceException) {
                         log.Debug("NullReferenceException accessing ai.End");
                         try {
-                            DateTime start = ai.Start;
+                            System.DateTime start = ai.Start;
                         } catch (System.NullReferenceException) {
                             try { log.Debug("Subject: " + ai.Subject); } catch { }
                             log.Fail("Appointment item seems unusable - no Start or End date! Discarding.");
@@ -355,8 +356,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            ai.Start = new DateTime();
-            ai.End = new DateTime();
+            ai.Start = new System.DateTime();
+            ai.End = new System.DateTime();
             ai.AllDayEvent = ev.AllDayEvent();
             ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             Recurrence.Instance.BuildOutlookPattern(ev, ai);
@@ -529,10 +530,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #endregion
 
             #region Start/End & Recurrence
-            DateTime evStartParsedDate = ev.Start.SafeDateTime();
+            System.DateTime evStartParsedDate = ev.Start.SafeDateTime();
             Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, evStartParsedDate, ai.Start, sb, ref itemModified);
 
-            DateTime evEndParsedDate = ev.End.SafeDateTime();
+            System.DateTime evEndParsedDate = ev.End.SafeDateTime();
             Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, evEndParsedDate, ai.End, sb, ref itemModified);
 
             RecurrencePattern oPattern = null;
@@ -1636,7 +1637,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.ReminderDND) {
-                DateTime alarm;
+                System.DateTime alarm;
                 if (ai.ReminderSet)
                     alarm = ai.Start.AddMinutes(-ai.ReminderMinutesBeforeStart);
                 else {
@@ -1650,15 +1651,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
             return true;
         }
-        private Boolean isOKtoSyncReminder(DateTime alarm) {
+        private Boolean isOKtoSyncReminder(System.DateTime alarm) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.ReminderDNDstart.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {
                 //eg 22:00 to 06:00
                 //Make sure end time is the day following the start time
                 int shiftDay = 0;
-                DateTime dndStart;
-                DateTime dndEnd;
+                System.DateTime dndStart;
+                System.DateTime dndEnd;
                 if (alarm.TimeOfDay < profile.ReminderDNDstart.TimeOfDay) shiftDay = -1;
                 dndStart = alarm.Date.AddDays(shiftDay).Add(profile.ReminderDNDstart.TimeOfDay);
                 dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(profile.ReminderDNDend.TimeOfDay);
