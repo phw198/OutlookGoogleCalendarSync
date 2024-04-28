@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
 
-                                    }
+                                    } else {
                                     Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
                                     if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                                         error == Outlook.Errors.ErrorType.RpcFailed ||
@@ -163,6 +163,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         syncResult = SyncResult.Fail;
                                     }
                                 }
+                            }
                             }
                         );
 

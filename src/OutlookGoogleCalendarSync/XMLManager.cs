@@ -228,5 +228,17 @@ namespace OutlookGoogleCalendarSync {
                 ex.Analyse($"Could not move '{nodeName}'");
             }
         }
+
+        public static void RenameElement(String nodeName, XElement parent, String newNodeName) {
+            try {
+                XElement sourceElement = getElement(nodeName, parent);
+                if (sourceElement == null)
+                    log.Warn($"Could not find settings node '{nodeName}' for rename.");
+                else
+                    sourceElement.Name = ns + newNodeName;
+            } catch (System.Exception ex) {
+                OGCSexception.Analyse("Could not rename '" + nodeName + "'", ex);
+            }
+        }
     }
 }

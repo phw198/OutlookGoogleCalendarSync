@@ -75,7 +75,6 @@ namespace OutlookGoogleCalendarSync {
                 
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
-                Updater.CheckForUpdate();
 
                 TimezoneDB.Instance.CheckForUpdate();
 
@@ -510,7 +509,7 @@ namespace OutlookGoogleCalendarSync {
                             disabledSetting += "telemetry";
                         }
                         if (Ogcs.Extensions.MessageBox.Show("As you are running a hotfix release, it would be helpful if you could enable " + disabledSetting + ".",
-                            "Hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            "OGCS hotfix release troubleshooting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             Settings.Instance.TelemetryDisabled = false;
                             Settings.Instance.CloudLogging = true;
                         }

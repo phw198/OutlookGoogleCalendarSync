@@ -88,6 +88,9 @@ namespace OutlookGoogleCalendarSync.Google {
             freeAPIexhausted,
             throwException
         }
+
+        private static String[] permittedEventTypes = new String[] { "default", "focusTime", "outOfOffice" }; //Excluding workingLocation
+        
         private static Random random = new Random();
         public int MinDefaultReminder = int.MinValue;
         public Int16 UTCoffset { get; internal set; }
@@ -231,6 +234,10 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < BackoffLimit) {
                     try {
                         request = gr.Execute();
+                        if (!permittedEventTypes.Contains(request.EventType)) {
+                            log.Warn($"Non-consumer version of EventType '{request.EventType}' found - excluding.");
+                            return null;
+                        }
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         if (ex.Error.Code == 404) { //Not found
@@ -294,7 +301,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
-                lr.EventTypes = new String[] { "default", "focusTime", "outOfOffice" }; //Excluding workingLocation
+                lr.EventTypes = permittedEventTypes;
 
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
@@ -1531,7 +1538,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
             }
 
-            if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
+            if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory?.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
                 //Check if Google items to be deleted were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (Outlook.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
@@ -1540,7 +1547,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             }
-            if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour.Count > 0) {
+            if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour?.Count > 0) {
                 //Check if Outlook items to be created were filtered out from Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (ExcludedByColour.ContainsValue(outlook[o].EntryID) ||

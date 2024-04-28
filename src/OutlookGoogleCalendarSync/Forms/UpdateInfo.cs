@@ -1,6 +1,7 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
@@ -9,6 +10,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private String version = "";
         private String anchorRequested = "";
+        private DialogResult optionChosen = DialogResult.None;
         private String htmlHead = @"
 <html>
     <head>
@@ -54,6 +56,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Ogcs.Exception.Analyse(ex);
                 dr = Ogcs.Extensions.MessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
                                releaseVersion + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            } finally {
+                optionChosen = dr;
             }
         }
 
@@ -90,5 +94,94 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void llViewOnGithub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             Helper.OpenBrowser(llViewOnGithub.Tag.ToString());
         }
+
+        #region Upgrading
+        public void PrepareForUpgrade() {
+            btUpgrade.Text = "Upgrading";
+            btSkipVersion.Visible = false;
+            btLater.Visible = false;
+
+            Point frmLocation = this.DesktopLocation;
+            this.Visible = true;
+            this.DesktopLocation = frmLocation;
+            Application.DoEvents();
+
+            //Copied from InitializeComponent()
+            //Recreating webBrowser
+            this.webBrowser = new WebBrowser();
+            this.wbPanel.Controls.Add(this.webBrowser);
+            this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webBrowser.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.ScriptErrorsSuppressed = true;
+            this.webBrowser.Size = new System.Drawing.Size(465, 166);
+            this.webBrowser.TabIndex = 0;
+            this.webBrowser.WebBrowserShortcutsEnabled = false;
+            this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser_Navigating);
+            this.Controls.Add(wbPanel);
+
+            this.webBrowser.Navigate("about:blank");
+            webBrowser.Document.Write(cachedWebPage);
+            this.webBrowser.Refresh(WebBrowserRefreshOption.Completely);
+            while (webBrowser.ReadyState != WebBrowserReadyState.Complete) {
+                System.Threading.Thread.Sleep(250);
+                Application.DoEvents();
+    }
+            Application.DoEvents();
+}
+
+        private int previousProgress = 0;
+
+        public void ShowUpgradeProgress(int i) {
+            log.Debug($"Update progress: {i}%");
+
+            Rectangle rect = new Rectangle(0, 0, 0, 0);
+            for (int j = previousProgress; j <= (btUpgrade.Width * i / 100); j++) {
+                Bitmap bmp = new Bitmap(btUpgrade.Width, btUpgrade.Height);
+                Graphics g = Graphics.FromImage(bmp);
+                rect = new Rectangle(0, 0, Math.Max(5, j), bmp.Height);
+                using (var b1 = new System.Drawing.SolidBrush(Color.LimeGreen))
+                    g.FillRectangle(b1, rect);
+                btUpgrade.BackgroundImage = bmp;
+                Application.DoEvents();
+                System.Threading.Thread.Sleep(50);
+            }
+            previousProgress = rect.Width;
+        }
+
+        public void UpgradeCompleted() {
+            if (this.Visible) btUpgrade.Text = "Restart";
+            else
+                OgcsMessageBox.Show("The application has been updated and will now restart.",
+                    "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        public Boolean AwaitingRestart { 
+            get { return btUpgrade.Text == "Restart" && this.Visible; }
+        }
+
+        private String cachedWebPage;
+
+        private void btUpgrade_Click(object sender, EventArgs e) {
+            if (this.btUpgrade.Text == "Upgrading") return;
+            
+            if (this.AwaitingRestart && !this.IsDisposed) {
+                this.btUpgrade.Text = "Restarting";
+                this.Dispose();
+            }
+            
+            cachedWebPage = webBrowser.DocumentText;
+            this.webBrowser.Dispose();
+        }
+
+        private void UpdateInfo_FormClosed(object sender, FormClosedEventArgs e) {
+            log.Info("Closed. " + e.CloseReason.ToString());
+            this.optionChosen = DialogResult.Cancel;
+        }
+
+        private void UpdateInfo_FormClosing(object sender, FormClosingEventArgs e) {
+            log.Info("Closing. " + e.CloseReason.ToString());
+        }
+        #endregion
     }
 }
