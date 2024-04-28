@@ -73,7 +73,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             log.Debug(caption + ": " + (logText ?? text));
 
             if (mainFrm == null || mainFrm.IsDisposed) {
-                return MessageBox.Show(text, caption, buttons, icon, MessageBoxDefaultButton.Button1, options: MessageBoxOptions.DefaultDesktopOnly);
+                return System.Windows.Forms.MessageBox.Show(text, caption, buttons, icon, MessageBoxDefaultButton.Button1, options: MessageBoxOptions.DefaultDesktopOnly);
             }
 
             if (mainFrm.InvokeRequired) {

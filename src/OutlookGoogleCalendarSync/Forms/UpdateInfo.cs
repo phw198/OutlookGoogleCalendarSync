@@ -153,7 +153,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         public void UpgradeCompleted() {
             if (this.Visible) btUpgrade.Text = "Restart";
             else
-                OgcsMessageBox.Show("The application has been updated and will now restart.",
+                Ogcs.Extensions.MessageBox.Show("The application has been updated and will now restart.",
                     "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public Boolean AwaitingRestart { 

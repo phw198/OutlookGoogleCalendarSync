@@ -237,7 +237,7 @@ namespace OutlookGoogleCalendarSync {
                 else
                     sourceElement.Name = ns + newNodeName;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not rename '" + nodeName + "'", ex);
+                ex.Analyse($"Could not rename '{nodeName}'");
             }
         }
     }
