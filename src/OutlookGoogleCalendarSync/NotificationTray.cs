@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -57,8 +58,8 @@ namespace OutlookGoogleCalendarSync {
                     animatedIconFrames[i] = Icon.FromHandle(bmp.GetHicon());
                 }
                 animatedIconFrame = 0;
-            } catch (Exception ex) {
-                OGCSexception.Analyse("Could not set up animated system tray icon.", ex);
+            } catch (System.Exception ex) {
+                Ogcs.Exception.Analyse("Could not set up animated system tray icon.", ex);
             }
         }
 
@@ -132,7 +133,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
@@ -155,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
                     
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RenameProfileItem(String currentText, String newText) {
@@ -174,7 +175,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RemoveProfileItem(String itemText) {
@@ -193,7 +194,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 

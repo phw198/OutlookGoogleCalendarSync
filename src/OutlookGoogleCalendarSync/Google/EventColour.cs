@@ -58,7 +58,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     try {
                         name = GetColourName(Id);
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         name = HexValue;
                     }
                     return name;
@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     id = eventColourNames.First(n => (n.Value as Metadata).Name == name).Key.ToString();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Could not find colour ID for '" + name + "'.", ex);
+                    Ogcs.Exception.Analyse("Could not find colour ID for '" + name + "'.", ex);
                 }
                 return id;
             }
@@ -162,7 +162,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     else
                         log.Error("GetColourName(): ID '" + id + "' not found.");
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Could not find colour name for '" + id + "'.", ex);
+                    Ogcs.Exception.Analyse("Could not find colour name for '" + id + "'.", ex);
                 }
                 return name;
             }
@@ -225,10 +225,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
                             case Ogcs.Google.Calendar.ApiException.throwException: throw;
                             case Ogcs.Google.Calendar.ApiException.freeAPIexhausted:
-                                OGCSexception.LogAsFail(ref ex);
-                                OGCSexception.Analyse(ex);
+                                Ogcs.Exception.LogAsFail(ref ex);
+                                Ogcs.Exception.Analyse(ex);
                                 System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.Instance.SubscriptionInvite, ex);
-                                OGCSexception.LogAsFail(ref aex);
+                                Ogcs.Exception.LogAsFail(ref aex);
                                 throw aex;
                             case Ogcs.Google.Calendar.ApiException.backoffThenRetry:
                                 backoff++;
@@ -246,7 +246,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving calendar Event colours.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 throw;
             }
 
@@ -304,7 +304,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 return colourDistance.Find(x => x.Diff == minDistance).Value;
             } catch (System.Exception ex) {
                 log.Warn("Failed to get closest Event colour for " + baseColour.Name);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 return Palette.NullPalette;
             }
         }

@@ -93,7 +93,7 @@ namespace OutlookGoogleCalendarSync {
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                     MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException("Suggest startup delay");
                 }
@@ -111,7 +111,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
                 log.Fatal("Application unexpectedly terminated!");
                 MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
@@ -267,7 +267,7 @@ namespace OutlookGoogleCalendarSync {
                         System.IO.File.Delete(file);
                         log.Debug("Deleted " + MaskFilePath(file));
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Could not delete file " + file, OGCSexception.LogAsFail(ex));
+                        Ogcs.Exception.Analyse("Could not delete file " + file, Ogcs.Exception.LogAsFail(ex));
                     }
                 }
             }
@@ -498,8 +498,8 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     Program.ManageStartupRegKey();
                 } catch (System.Exception ex) {
-                    if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                    OGCSexception.Analyse("Failed accessing registry for startup key.", ex);
+                    if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                    Ogcs.Exception.Analyse("Failed accessing registry for startup key.", ex);
                 }
                 Settings.Instance.Version = Application.ProductVersion;
                 if (isHotFix) {
@@ -562,7 +562,7 @@ namespace OutlookGoogleCalendarSync {
                 else return false;
             } catch (System.Exception ex) {
                 log.Error("Failed to determine if OGCS was started by CLI.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 return false;
             }
         }
@@ -622,7 +622,7 @@ namespace OutlookGoogleCalendarSync {
                 } else
                     return path;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Problems accessing environment variables.", ex);
+                Ogcs.Exception.Analyse("Problems accessing environment variables.", ex);
                 return path;
             }
         }
@@ -657,7 +657,7 @@ namespace OutlookGoogleCalendarSync {
                 stackFrames.ForEach(sf => stackString += sf.GetMethod().Name + " < ");
                 log.Warn("StackTrace path: " + stackString);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 
@@ -693,7 +693,7 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Unable to check for concurrent OGCS processes.", ex);
+                Ogcs.Exception.Analyse("Unable to check for concurrent OGCS processes.", ex);
             }
         }
 

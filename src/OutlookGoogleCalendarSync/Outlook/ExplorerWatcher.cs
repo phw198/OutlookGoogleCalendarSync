@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Collections.Generic;
@@ -97,14 +98,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     } catch (System.Exception ex) {
                         log.Warn("Not able to process copy and pasted event.");
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
 
                     } finally {
                         copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 
@@ -138,7 +139,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 log.Warn("Failed to clean OGCS properties from copied item.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
@@ -171,13 +172,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 if (ex is System.Runtime.InteropServices.COMException && (
-                    OGCSexception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
-                    OGCSexception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
+                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
                 {
                     log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
-                    OGCSexception.LogAsFail(ref ex);
+                    Ogcs.Exception.LogAsFail(ref ex);
                 }
-                OGCSexception.Analyse("Failed to repopulate OGCS properties back to copied item.", ex);
+                Ogcs.Exception.Analyse("Failed to repopulate OGCS properties back to copied item.", ex);
             } finally {
                 copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }
@@ -247,13 +248,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 if (ex is System.Runtime.InteropServices.COMException && (
-                    OGCSexception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
-                    OGCSexception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
+                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010F" || //The message you specified cannot be found
+                    Ogcs.Exception.GetErrorCode(ex) == "0x8004010A"))  //The operation cannot be performed because the object has been deleted
                 {
                     log.Warn("Could not find Outlook item with entryID " + entryID + " for post-processing.");
-                    OGCSexception.LogAsFail(ref ex);
+                    Ogcs.Exception.LogAsFail(ref ex);
                 }
-                OGCSexception.Analyse("Failed to remove OGCS 'copied' property on copied item.", ex);
+                Ogcs.Exception.Analyse("Failed to remove OGCS 'copied' property on copied item.", ex);
             } finally {
                 copiedAi = (AppointmentItem)Calendar.ReleaseObject(copiedAi);
             }
@@ -267,7 +268,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         ups.Add(addKeyName, keyType);
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         ups.Add(addKeyName, keyType, false);
                     }
                 }

@@ -1,4 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not alter Event conference data.", ex);
+                Ogcs.Exception.Analyse("Could not alter Event conference data.", ex);
             }
         }
     }

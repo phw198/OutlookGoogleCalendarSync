@@ -66,7 +66,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
             } catch (System.Exception ex) {
                 log.Fail("Problem encountered in getCalendarClientSecrets()");
@@ -113,7 +113,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Debug("User has provided Google authorisation and credential file saved.");
 
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                //OGCSexception.AnalyseTokenResponse(ex);
+                //Ogcs.Exception.AnalyseTokenResponse(ex);
                 if (ex.Error.Error == "access_denied") {
                     String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
                     log.Warn("User did not provide authorisation code. Sync will not be able to work.");
@@ -127,7 +127,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The operation was cancelled.", Console.Markup.warning);
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Google. The following error occurred:", ex);
             }
 
@@ -155,10 +155,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         switch (Calendar.HandleAPIlimits(ref ex, null)) {
                             case Calendar.ApiException.throwException: throw;
                             case Calendar.ApiException.freeAPIexhausted:
-                                OGCSexception.LogAsFail(ref ex);
-                                OGCSexception.Analyse(ex);
+                                Ogcs.Exception.LogAsFail(ref ex);
+                                Ogcs.Exception.Analyse(ex);
                                 System.ApplicationException aex = new System.ApplicationException(Calendar.Instance.SubscriptionInvite, ex);
-                                OGCSexception.LogAsFail(ref aex);
+                                Ogcs.Exception.LogAsFail(ref aex);
                                 authenticated = false;
                                 return authenticated;
                         case Calendar.ApiException.backoffThenRetry:
@@ -176,9 +176,9 @@ namespace OutlookGoogleCalendarSync.Google {
 
                     } catch (System.Exception ex) {
                         if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException)
-                            OGCSexception.AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
+                            Ogcs.Exception.AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, false);
                         else {
-                            OGCSexception.Analyse(ex);
+                            Ogcs.Exception.Analyse(ex);
                             Forms.Main.Instance.Console.Update("Unable to communicate with Google services. " + (ex.InnerException != null ? ex.InnerException.Message : ex.Message), Console.Markup.warning);
                         }
                         authenticated = false;
@@ -238,7 +238,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     System.IO.StreamReader sr = new System.IO.StreamReader(stream);
                     log.Error(sr.ReadToEnd());
                 }
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509") {
                     log.Warn(ex.Message);
                     System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\b(403|Forbidden|Prohibited|Insufficient Permission)\b", 
                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -268,7 +268,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         throw;
                     }
                 }
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 if (ex.Message.ToLower().Contains("access denied")) {
                     Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked."
                        + "<br/>Try disconnecting your Google account and reauthorising OGCS.", Console.Markup.error);
@@ -280,7 +280,7 @@ namespace OutlookGoogleCalendarSync.Google {
             } catch (System.Exception ex) {
                 log.Debug("JSON: " + jsonString);
                 log.Error("Failed to retrieve Google account username.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 log.Debug("Using previously retrieved username: " + Settings.Instance.GaccountEmail_masked());
             }
         }
@@ -301,7 +301,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             } catch (System.Exception ex) {
                 log.Error("Failed to create MD5" + (silent ? "." : " for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'."));
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             return sb.ToString();
         }
@@ -355,16 +355,16 @@ namespace OutlookGoogleCalendarSync.Google {
                     return false;
                 }
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                OGCSexception.AnalyseTokenResponse(ex);
+                Ogcs.Exception.AnalyseTokenResponse(ex);
 
             } catch (global::Google.GoogleApiException ex) {
                 switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
                     case Calendar.ApiException.throwException: throw;
                     case Calendar.ApiException.freeAPIexhausted:
-                        OGCSexception.LogAsFail(ref ex);
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.LogAsFail(ref ex);
+                        Ogcs.Exception.Analyse(ex);
                         System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.Instance.SubscriptionInvite, ex);
-                        OGCSexception.LogAsFail(ref aex);
+                        Ogcs.Exception.LogAsFail(ref aex);
                         Ogcs.Google.Calendar.Instance.Service = null;
                         throw aex;
                 }

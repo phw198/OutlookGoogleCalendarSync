@@ -123,7 +123,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ColourPicker_Enter()", ex);
+                Ogcs.Exception.Analyse("ColourPicker_Enter()", ex);
             } finally {
                 loading.Hide(this);
                 loading.RemoveAll();
@@ -234,7 +234,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("OutlookColourComboboxCell.Paint()", ex);
+                Ogcs.Exception.Analyse("OutlookColourComboboxCell.Paint()", ex);
             }
         }
     }
@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("GoogleColourComboboxCell.Paint()", ex);
+                Ogcs.Exception.Analyse("GoogleColourComboboxCell.Paint()", ex);
             }
         }
     }
@@ -425,7 +425,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 if ((e.State & DrawItemState.NoFocusRect) == DrawItemState.None)
                     e.DrawFocusRectangle();
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 
@@ -448,7 +448,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     cellBounds.Y + ((cellBounds.Height - Control.DefaultFont.Height) / 2));
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
@@ -96,7 +97,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 explorerWatcher = new ExplorerWatcher(oApp);
 
             } catch (System.Runtime.InteropServices.COMException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                             "Please perform an Office Repair or reinstall Outlook and then try running OGCS again.");
@@ -222,14 +223,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         Outlook.Calendar.OOMsecurityInfo = true;
                     }
                 } catch (System.Exception ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80004004") { //Access blocked
+                    if (Ogcs.Exception.GetErrorCode(ex) == "0x80004004") { //Access blocked
                         if (profile.OutlookGalBlocked) { //Fail fast
                             log.Debug("Corporate policy is still blocking access to GAL.");
                             return oNS;
                         }
-                        OGCSexception.LogAsFail(ref ex);
+                        Ogcs.Exception.LogAsFail(ref ex);
                     }
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                     log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
                     oNS = (NameSpace)Outlook.Calendar.ReleaseObject(oNS);
                     Disconnect();
@@ -246,14 +247,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             delay = maxDelay;
                         } catch (System.Exception ex2) {
                             if (delay == maxDelay) {
-                                if (OGCSexception.GetErrorCode(ex2) == "0x80004004") { //E_ABORT
+                                if (Ogcs.Exception.GetErrorCode(ex2) == "0x80004004") { //E_ABORT
                                     log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                                } else OGCSexception.Analyse(ex2);
+                                } else Ogcs.Exception.Analyse(ex2);
                                 log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
                                 profile.OutlookGalBlocked = true;
                                 return oNS;
                             }
-                            OGCSexception.Analyse(ex2);
+                            Ogcs.Exception.Analyse(ex2);
                         }
                         delay++;
                     }
@@ -270,9 +271,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     currentUserName = currentUser.Name;
                 } catch (System.Exception ex) {
                     log.Warn("OGCS is unable to interogate CurrentUser from Outlook.");
-                    if (OGCSexception.GetErrorCode(ex) == "0x80004004") { //E_ABORT
+                    if (Ogcs.Exception.GetErrorCode(ex) == "0x80004004") { //E_ABORT
                         log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                    } else OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                    } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
                     profile.OutlookGalBlocked = true;
                     return oNS;
                 }
@@ -333,7 +334,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
                             excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse("Could not access 'Deleted Items' folder property.", OGCSexception.LogAsFail(ex));
+                            Ogcs.Exception.Analyse("Could not access 'Deleted Items' folder property.", Ogcs.Exception.LogAsFail(ex));
                         }
                         Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
                         if (updateGUI) {
@@ -346,7 +347,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
                         }
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", ex, true);
+                        Ogcs.Exception.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", ex, true);
                         if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
                             throw new System.Exception("Failed to access alternate mailbox calendar '" + profile.MailboxName + "'", ex);
                     } finally {
@@ -469,7 +470,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.lOutlookCalendar, "Text", "Select calendar");
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
                 throw;
             }
         }
@@ -500,14 +501,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 } catch (System.Exception ex) {
                     if (oApp?.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ?? false ||
-                        OGCSexception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
-                        OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                        Ogcs.Exception.GetErrorCode(ex) == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
+                        Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
                         log.Warn(ex.Message);
                         log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
                         Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
-                        OGCSexception.Analyse("Failed to recurse MAPI folders.", ex);
+                        Ogcs.Exception.Analyse("Failed to recurse MAPI folders.", ex);
                         OgcsMessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -529,7 +530,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 calendarFolders.Add(name, folder);
             } catch (System.ArgumentException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80070057") {
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80070057") {
                     //An item with the same key has already been added.
                     //Let's recurse up to the parent folder, looking to make it unique
                     object parentObj = (parentFolder != null ? parentFolder.Parent : folder.Parent);
@@ -609,7 +610,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                     try {
                                         retEmail = eu.PrimarySmtpAddress;
                                     } catch (System.Exception ex) {
-                                        OGCSexception.Analyse("Could not access Exchange users's primary SMTP.", OGCSexception.LogAsFail(ex));
+                                        Ogcs.Exception.Analyse("Could not access Exchange users's primary SMTP.", Ogcs.Exception.LogAsFail(ex));
                                     }
                                 }
                                 if (eu == null || string.IsNullOrEmpty(retEmail)) {
@@ -783,7 +784,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Could not determine the organiser's timezone. Google Event may have incorrect time.", ai, out String anonSummary), 
                         anonSummary, Console.Markup.warning);
                     if (ex.Data.Contains("OGCS")) log.Warn(ex.Message);
-                    else OGCSexception.Analyse(ex);
+                    else Ogcs.Exception.Analyse(ex);
                     organiserTZname = null;
                     organiserTZid = null;
                 }
@@ -971,7 +972,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             } catch (System.Exception ex) {
                 log.Warn("Failed to get the organiser's timezone ID for " + tzDescription);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             return null;
         }

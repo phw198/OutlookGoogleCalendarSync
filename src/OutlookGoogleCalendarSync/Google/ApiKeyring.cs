@@ -96,7 +96,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             } catch (System.Exception ex) {
                 log.Fail("Failed picking "+ keyType.ToString() +" API key. clientID=" + Settings.Instance.AssignedClientIdentifier);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 log.Debug("Reverting to default key.");
                 Key = new ApiKey.DefaultKey(keyType);
             }
@@ -184,7 +184,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 this.ClientSecret = clientSecret;
             } catch (System.Exception ex) {
                 log.Error("Failed creating API key.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 throw;
             }
         }

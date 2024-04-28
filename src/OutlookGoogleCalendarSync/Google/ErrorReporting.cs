@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,7 +65,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     File.WriteAllLines(credFile, newLines.ToArray());
                 } catch (System.IO.IOException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x80070020")
+                    if (Ogcs.Exception.GetErrorCode(ex) == "0x80070020")
                         log.Warn("ErrorReporting.json is being used by another process (perhaps multiple instances of OGCS are being started on system startup?)");
                     else
                         throw;
@@ -79,7 +80,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 //Logging isn't initialised yet, so don't catch this error - let it crash out so user is aware and hopefully reports it!
                 //System.Windows.Forms.OgcsMessageBox.Show(ex.Message);
                 //log.Debug("Failed to initialise error reporting.");
-                //OGCSexception.Analyse(ex);
+                //Ogcs.Exception.Analyse(ex);
             }
         }            
 
@@ -143,7 +144,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             } catch (System.Exception ex) {
                 log.Error("Failed to configure error reporting appender.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
     }

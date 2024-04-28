@@ -77,7 +77,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
                     } catch (System.Exception ex) {
                         mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         return;
                     }
                     Ogcs.Google.Calendar.APIlimitReached_attendee = false;
@@ -136,7 +136,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                         mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
-                                        mainFrm.Console.Update(sb, (OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error), notifyBubble: true);
+                                        mainFrm.Console.Update(sb, (Ogcs.Exception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error), notifyBubble: true);
                                         if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         error == Outlook.Errors.ErrorType.RpcFailed ||
                                         error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
                                     {
-                                        OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                                        Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
                                         String message = "It looks like Outlook was closed during the sync.";
                                         if (error == Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
                                         mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
@@ -158,7 +158,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         syncResult = SyncResult.ReconnectThenRetry;
 
                                     } else {
-                                        OGCSexception.Analyse(ex, true);
+                                        Ogcs.Exception.Analyse(ex, true);
                                         mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
                                         syncResult = SyncResult.Fail;
                                     }
@@ -313,20 +313,20 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Ogcs.Google.Calendar.Instance.GetSettings();
                         googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
                     } catch (AggregateException agex) {
-                        OGCSexception.AnalyseAggregate(agex);
+                        Ogcs.Exception.AnalyseAggregate(agex);
                     } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                        OGCSexception.AnalyseTokenResponse(ex, false);
+                        Ogcs.Exception.AnalyseTokenResponse(ex, false);
                         return SyncResult.Fail;
                     } catch (System.Net.Http.HttpRequestException ex) {
-                        if (ex.InnerException != null && ex.InnerException is System.Net.WebException && OGCSexception.GetErrorCode(ex.InnerException) == "0x80131509") {
-                            ex = OGCSexception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
+                        if (ex.InnerException != null && ex.InnerException is System.Net.WebException && Ogcs.Exception.GetErrorCode(ex.InnerException) == "0x80131509") {
+                            ex = Ogcs.Exception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
                         }
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
                         throw;
                     } catch (System.ApplicationException ex) {
                         if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
-                            (ex.Message.Contains("daily Calendar quota has been exhausted") || OGCSexception.GetErrorCode(ex.InnerException) == "0x80131500")) {
+                            (ex.Message.Contains("daily Calendar quota has been exhausted") || Ogcs.Exception.GetErrorCode(ex.InnerException) == "0x80131500")) {
                             Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
                             DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
                             String tryAfter = "08:00 GMT.";
@@ -339,13 +339,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                             //Already rescheduled to run again once new quota available, so just set to retry.
                             ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar" +
                                 (this.Profile.SyncInterval == 0 ? ". Please try again after " + tryAfter : ", but OGCS is all set to automatically try again after " + tryAfter));
-                            OGCSexception.LogAsFail(ref ex);
+                            Ogcs.Exception.LogAsFail(ref ex);
                         }
                         throw;
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
-                        if (OGCSexception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
+                        if (Ogcs.Exception.GetErrorCode(ex) == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
                             ex.Data["OGCS"] += " Please try again.";
                         throw;
                     }
@@ -381,7 +381,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 continue;
                             }
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse("Encountered error casting calendar object to AppointmentItem - cannot sync it. ExchangeMode=" +
+                            Ogcs.Exception.Analyse("Encountered error casting calendar object to AppointmentItem - cannot sync it. ExchangeMode=" +
                                 Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                             skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
@@ -397,16 +397,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                             checkStartDate = ai.Start;
                             checkEndDate = ai.End;
                         } catch (System.Runtime.InteropServices.COMException ex) {
-                            if (OGCSexception.GetErrorCode(ex) == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
-                                OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
+                            if (Ogcs.Exception.GetErrorCode(ex) == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
+                                Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
                             {
                                 Forms.Main.Instance.Console.UpdateWithError("Cannot continue synchronising.", ex);
                                 return SyncResult.AutoRetry;
-                            } else if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
+                            } else if (Ogcs.Exception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005") { //You must specify a time/hour
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             } else {
                                 log.Debug($"EntryID: {entryID}; Start: {checkStartDate}; End: {checkEndDate}");
-                                OGCSexception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
+                                Ogcs.Exception.Analyse("Calendar item does not have a proper date range - cannot sync it. ExchangeMode=" +
                                     Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString(), ex);
                                 skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
                             }
@@ -456,7 +456,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     }
                                 }
                             } catch (System.Exception ex) {
-                                console.Update("Failed to retrieve master for Google recurring event outside of sync range.", OGCSexception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error);
+                                console.Update("Failed to retrieve master for Google recurring event outside of sync range.", Ogcs.Exception.LoggingAsFail(ex) ? Console.Markup.fail : Console.Markup.error);
                                 throw;
                             } finally {
                                 oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
@@ -803,7 +803,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return returnVal;
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to fully cleanse metadata!", ex);
+                    Ogcs.Exception.Analyse("Failed to fully cleanse metadata!", ex);
                     console.UpdateWithError(null, ex);
                     returnVal = SyncResult.Fail;
                     return returnVal;

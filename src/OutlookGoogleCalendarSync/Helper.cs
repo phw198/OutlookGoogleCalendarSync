@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 
@@ -11,7 +12,7 @@ namespace OutlookGoogleCalendarSync {
                 System.Diagnostics.Process.Start(url);
                 return;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not open default browser.", OGCSexception.LogAsFail(ex));
+                Ogcs.Exception.Analyse("Could not open default browser.", Ogcs.Exception.LogAsFail(ex));
             }
 
             //OK, let's try and determine the default browser from the registry and then directly invoke it. Why is this so much work!
@@ -65,7 +66,7 @@ namespace OutlookGoogleCalendarSync {
                     return browserPath;
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 return "";
             }
         }

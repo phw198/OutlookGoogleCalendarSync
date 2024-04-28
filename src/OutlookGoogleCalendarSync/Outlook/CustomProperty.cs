@@ -1,4 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
@@ -300,7 +301,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         ups = ai.UserProperties;
                         ups.Add(addkeyName, keyType);
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         ups.Add(addkeyName, keyType, false);
                     } finally {
                         ups = (UserProperties)Calendar.ReleaseObject(ups);
@@ -356,7 +357,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 retVal = (DateTime)prop.Value;
                         } catch (System.Exception ex) {
                             log.Error("Failed to retrieve DateTime value for property " + searchKey);
-                            OGCSexception.Analyse(ex);
+                            Ogcs.Exception.Analyse(ex);
                         }
                     }
                 } finally {
@@ -460,7 +461,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to log Appointment UserProperties", ex);
+                Ogcs.Exception.Analyse("Failed to log Appointment UserProperties", ex);
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
@@ -475,7 +476,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 format = (OlBodyFormat)ai.GetType().InvokeMember("BodyFormat", System.Reflection.BindingFlags.GetProperty, null, ai, null);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Unable to determine AppointmentItem body format.", ex);
+                Ogcs.Exception.Analyse("Unable to determine AppointmentItem body format.", ex);
             }
             return format;
         }

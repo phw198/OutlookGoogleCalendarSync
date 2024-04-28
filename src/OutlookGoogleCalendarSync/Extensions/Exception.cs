@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -10,8 +11,8 @@ namespace OutlookGoogleCalendarSync {
         public UserCancelledSyncException(string message, System.Exception inner) : base(message, inner) { }
     }
 
-    class OGCSexception {
-        private static readonly ILog log = LogManager.GetLogger(typeof(OGCSexception));
+    class Exception {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Ogcs.Exception));
 
         public static void Analyse(String warnDetail, System.Exception ex, Boolean includeStackTrace = false) {
             log.Warn(warnDetail);
@@ -30,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
                 errorLocation += ex.TargetSite.Name + "() in ";
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
                 String[] frameBits = st.GetFrame(0).ToString().Split('\\');
-                if (frameBits.Count() == 1) throw new Exception();
+                if (frameBits.Count() == 1) throw new System.Exception();
                 errorLocation += frameBits.LastOrDefault().Trim();
             } catch {
                 errorLocation += "<Unknown File>";
@@ -132,9 +133,9 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.Exception ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged
@@ -149,9 +150,9 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.ApplicationException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         
         /// <summary>
@@ -159,9 +160,9 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.Runtime.InteropServices.COMException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         
         /// <summary>
@@ -169,25 +170,25 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.NullReferenceException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
         public static void LogAsFail(ref global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
         public static void LogAsFail(ref global::Google.GoogleApiException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using System;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
     public partial class ProfileManage : Form {
@@ -56,7 +50,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     newCalendar.InitialiseTimer();
                     newCalendar.RegisterForPushSync();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to add new profile.", ex);
+                    Ogcs.Exception.Analyse("Failed to add new profile.", ex);
                     throw;
                 }
 
@@ -75,7 +69,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Info("Renamed calendar settings from '" + currentProfileName + "' to '" + newProfileName + "'.");
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.", ex);
+                    Ogcs.Exception.Analyse("Failed to rename profile from '" + currentProfileName + "' to '" + newProfileName + "'.", ex);
                     throw;
                 }
                 Forms.Main.Instance.NotificationTray.RenameProfileItem(currentProfileName, newProfileName);

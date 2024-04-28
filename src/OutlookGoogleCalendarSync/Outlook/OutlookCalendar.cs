@@ -35,8 +35,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 } catch (System.ApplicationException) {
                     throw;
                 } catch (System.Exception ex) {
-                    if (ex is System.Runtime.InteropServices.COMException) OGCSexception.LogAsFail(ref ex);
-                    OGCSexception.Analyse(ex);
+                    if (ex is System.Runtime.InteropServices.COMException) Ogcs.Exception.LogAsFail(ref ex);
+                    Ogcs.Exception.Analyse(ex);
                     log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
                     instance = new Calendar();
                     instance.IOutlook.Connect();
@@ -86,7 +86,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 InstanceConnect = false;
                 Instance.IOutlook.Disconnect(onlyWhenNoGUI);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not disconnect from Outlook.", OGCSexception.LogAsFail(ex));
+                Ogcs.Exception.Analyse("Could not disconnect from Outlook.", Ogcs.Exception.LogAsFail(ex));
             } finally {
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
@@ -110,12 +110,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     throw;
                 }
             } catch (System.Runtime.InteropServices.COMException ex) {
-                if (OGCSexception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_LastModificationTime") { //You must specify a time.
-                    OGCSexception.LogAsFail(ref ex);
+                if (Ogcs.Exception.GetErrorCode(ex, 0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_LastModificationTime") { //You must specify a time.
+                    Ogcs.Exception.LogAsFail(ref ex);
                     ex.Data.Add("OGCS", "Corrupted item(s) with no start/end date exist in your Outlook calendar that need fixing or removing before a sync can run.<br/>" +
                         "Switch the calendar folder to <i>List View</i>, sort by date and look for entries with no start and/or end date.");
-                } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00020009" && ex.TargetSite.Name == "get_Categories") { //One or more items in the folder you synchronized do not match. 
-                    OGCSexception.LogAsFail(ref ex);
+                } else if (Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00020009" && ex.TargetSite.Name == "get_Categories") { //One or more items in the folder you synchronized do not match. 
+                    Ogcs.Exception.LogAsFail(ref ex);
                     String wikiURL = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Resolving-Outlook-Error-Messages#one-or-more-items-in-the-folder-you-synchronized-do-not-match";
                     ex.Data.Add("OGCS", ex.Message + "<br/>Please view the wiki for suggestions on " +
                         "<a href='" + wikiURL + "' target='_blank'>how to resolve conflicts</a> within your Outlook account.");
@@ -126,7 +126,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 throw;
 
             } catch (System.ArgumentNullException ex) {
-                OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
+                Ogcs.Exception.Analyse("It seems that Outlook has just been closed.", Ogcs.Exception.LogAsFail(ex));
                 Outlook.Calendar.Instance.Reset();
                 filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
 
@@ -207,7 +207,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         continue;
 
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         log.Debug("Unable to get End date for: " + GetEventSummary(ai));
                         continue;
                     }
@@ -317,7 +317,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             continue;
                         } else {
                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Appointment creation failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
-                            OGCSexception.Analyse(ex, true);
+                            Ogcs.Exception.Analyse(ex, true);
                             if (OgcsMessageBox.Show("Outlook appointment creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -330,7 +330,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         events[g] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("New appointment failed to save.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -388,7 +388,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
                         ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
+                        Ogcs.Exception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
                 } else if ((ev.Reminders?.UseDefault ?? false) && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
                     ai.ReminderSet = true;
@@ -438,7 +438,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("<br/>Appointment update failed.", compare.Value, out String anonSummary), ex, logEntry: anonSummary);
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -451,7 +451,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             entriesUpdated++;
                         } catch (System.Exception ex) {
                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated appointment failed to save.", compare.Value, out String anonSummary, true), ex, logEntry: anonSummary);
-                            OGCSexception.Analyse(ex, true);
+                            Ogcs.Exception.Analyse(ex, true);
                             if (OgcsMessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 continue;
                             else
@@ -769,7 +769,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             itemModified++;
                         }
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
+                        Ogcs.Exception.Analyse("Failed setting Outlook reminder for final popup Google notification.", ex);
                     }
                 }
 
@@ -817,7 +817,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -829,7 +829,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Deleted appointment failed to remove.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
-                        OGCSexception.Analyse(ex, true);
+                        Ogcs.Exception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
                         else
@@ -1022,7 +1022,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 Enum.TryParse(profile.AvailabilityStatus, out overrideFbStatus);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.", ex);
+                Ogcs.Exception.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.", ex);
             }
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
@@ -1109,7 +1109,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         log.Warn("Attachment failed - Outlook is running without GUI for programmatic access.");
                     } else {
                         log.Warn("Attachment failed.");
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                     }
                     if (openOutlookOnFail) openOutlookHandler(ref oApp, withSystemCall);
                 }
@@ -1197,18 +1197,18 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     log.Warn(ex.Message);
                     throw new ApplicationException("Outlook is busy.", ex);
 
-                } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
+                } else if (Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") {
                     log.Warn(ex.Message);
                     log.Debug("OGCS is not able to run as Outlook is not properly connected to the Exchange server?");
                     throw new ApplicationException("Outlook is busy.", ex);
 
-                } else if (OGCSexception.GetErrorCode(ex, 0x000FFFFF) == "0x000702E4") {
+                } else if (Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x000702E4") {
                     log.Warn(ex.Message);
                     throw new ApplicationException("Outlook and OGCS are running in different security elevations.\n" +
                         "Both must be running in Standard or Administrator mode.");
 
                 } else if (!comErrorInWiki(ex)) {
-                    OGCSexception.Analyse("COM error not in wiki.", ex);
+                    Ogcs.Exception.Analyse("COM error not in wiki.", ex);
                     if (!alreadyRedirectedToWikiForComError.Contains(hResult)) {
                         Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---COM-Errors");
                         alreadyRedirectedToWikiForComError.Add(hResult);
@@ -1221,14 +1221,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!comErrorInWiki(ex)) throw;
 
             } catch (System.UnauthorizedAccessException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80070005") { // E_ACCESSDENIED
                     log.Warn(ex.Message);
                     throw new ApplicationException("OGCS was not permitted to start Outlook.\r\n" +
                         "Please manually start Outlook and then restart OGCS again.");
                 }
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Early binding to Outlook appears to have failed.", ex, true);
+                Ogcs.Exception.Analyse("Early binding to Outlook appears to have failed.", ex, true);
                 log.Debug("Could try late binding??");
                 //System.Type oAppType = System.Type.GetTypeFromProgID("Outlook.Application");
                 //ApplicationClass oAppClass = System.Activator.CreateInstance(oAppType) as ApplicationClass;
@@ -1238,7 +1238,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private static Boolean comErrorInWiki(System.Exception ex) {
-            String hResult = OGCSexception.GetErrorCode(ex);
+            String hResult = Ogcs.Exception.GetErrorCode(ex);
             String wikiUrl = "";
             Regex rgx;
 
@@ -1260,7 +1260,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         hResult = matches[0].Groups[1].Value;
                     }
                 } catch (System.Exception ex2) {
-                    OGCSexception.Analyse("Parsing error message with regex failed.", ex2);
+                    Ogcs.Exception.Analyse("Parsing error message with regex failed.", ex2);
                 }
             }
 
@@ -1285,7 +1285,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
 
                 } catch (System.Exception htmlEx) {
-                    OGCSexception.Analyse("Could not parse Wiki for existance of COM error.", htmlEx);
+                    Ogcs.Exception.Analyse("Could not parse Wiki for existance of COM error.", htmlEx);
                 }
             }
 
@@ -1340,7 +1340,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     log.Debug("Previous export renamed to " + backupFilename);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to backup previous CSV file.", ex);
+                Ogcs.Exception.Analyse("Failed to backup previous CSV file.", ex);
             }
 
             Stream stream = null;
@@ -1351,7 +1351,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     tw = new StreamWriter(stream, Encoding.UTF8);
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
-                    OGCSexception.Analyse("Error opening file '" + filename + "' for writing.", ex);
+                    Ogcs.Exception.Analyse("Error opening file '" + filename + "' for writing.", ex);
                     return;
                 }
                 try {
@@ -1365,12 +1365,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             tw.WriteLine(exportToCSV(ai));
                         } catch (System.Exception ex) {
                             Forms.Main.Instance.Console.Update(GetEventSummary("Failed to output following Outlook appointment to CSV:-<br/>", ai, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning);
-                            OGCSexception.Analyse(ex, true);
+                            Ogcs.Exception.Analyse(ex, true);
                         }
                     }
                 } catch (System.Exception ex) {
                     Forms.Main.Instance.Console.Update("Failed to output Outlook events to CSV.", Console.Markup.error);
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
             } finally {
                 if (tw != null) tw.Close();
@@ -1469,13 +1469,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     eventSummary += '"' + ai.Subject + '"' + (onlyIfNotVerbose ? "<br/>" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
-                    if (OGCSexception.GetErrorCode(ex) == "0x8004010F")
+                    if (Ogcs.Exception.GetErrorCode(ex) == "0x8004010F")
                         throw new System.Exception("Cannot access Outlook OST/PST file. Try restarting Outlook.", ex);
                     else
-                        OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
+                        Ogcs.Exception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
+                    Ogcs.Exception.Analyse("Failed to get appointment summary: " + eventSummary, ex, true);
                 }
             }
             return eventSummary;
@@ -1626,7 +1626,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         System.Windows.Forms.Application.DoEvents();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
             GC.Collect();
             return null;

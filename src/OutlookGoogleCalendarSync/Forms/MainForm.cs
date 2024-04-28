@@ -323,7 +323,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                                     folderIDs[theFolder.Name].Add(theFolder.EntryID);
                                 }
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, OGCSexception.LogAsFail(ex));
+                                Ogcs.Exception.Analyse("Failed to get EntryID for folder: " + theFolder.Name, Ogcs.Exception.LogAsFail(ex));
                             } finally {
                                 theFolder = (MAPIFolder)Outlook.Calendar.ReleaseObject(theFolder);
                             }
@@ -595,7 +595,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #endregion
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Unable to set GUI profile.", ex);
+                    Ogcs.Exception.Analyse("Unable to set GUI profile.", ex);
                     throw;
                 } finally {
                     this.LoadingProfileConfig = false;
@@ -610,7 +610,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ToolTips.SetToolTip(cbAddDescription, isTrue ? tooltip : "");
                 ToolTips.SetToolTip(rbOutlookSharedCal, isTrue ? tooltip : "");
             } catch (System.InvalidOperationException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Cross-thread operation
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509") { //Cross-thread operation
                     log.Warn("Can't set form tooltips from sync thread.");
                     //Won't worry too much - will work fine on OGCS startup, and will only arrive here if GAL has been blocked *after* startup. Should be very unlikely.
                 }
@@ -706,13 +706,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddAvailabilty.DataSource = new BindingSource(availability, null);
                 ddAvailabilty.Enabled = profile.SetEntriesAvailable;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed building availability dropdown values.", ex);
+                Ogcs.Exception.Analyse("Failed building availability dropdown values.", ex);
                 return;
             }
             try {
                 ddAvailabilty.SelectedValue = Enum.Parse(typeof(OlBusyStatus), profile.AvailabilityStatus);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed selecting availability dropdown value from Settings.", ex);
+                Ogcs.Exception.Analyse("Failed selecting availability dropdown value from Settings.", ex);
             } finally {
                 if (ddAvailabilty.SelectedIndex == -1 && ddAvailabilty.Items.Count > 0)
                     ddAvailabilty.SelectedIndex = 0;
@@ -724,14 +724,14 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Sync.Engine.Instance.Sync_Requested(sender, e);
             } catch (System.AggregateException ex) {
-                OGCSexception.AnalyseAggregate(ex, false);
+                Ogcs.Exception.AnalyseAggregate(ex, false);
             } catch (System.ApplicationException ex) {
                 if (ex.Message.ToLower().Contains("try again") && sender != null) {
                     Sync_Click(null, null);
                 }
             } catch (System.Exception ex) {
                 console.UpdateWithError("Problem encountered during synchronisation.", ex);
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             } finally {
                 if (!Sync.Engine.Instance.SyncingNow) {
                     bSyncNow.Text = "Start Sync";
@@ -972,7 +972,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                     } catch (System.Exception ex) {
                         log.Warn("Failed to process captured F1 key.");
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide");
                         return true;
                     }
@@ -980,7 +980,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             } catch (System.Exception ex) {
                 log.Warn("Failed to process captured command key.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -1048,7 +1048,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     notLogFile();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Console_KeyDown detected.", OGCSexception.LogAsFail(ex));
+                Ogcs.Exception.Analyse("Console_KeyDown detected.", Ogcs.Exception.LogAsFail(ex));
             }
         }
 
@@ -1217,7 +1217,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                                 this.panelObscure.Visible = true;
                             }
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse(ex);
+                            Ogcs.Exception.Analyse(ex);
                         }
                         cal.SetActive();
                         break;
@@ -1267,7 +1267,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 Settings.Instance.Save();
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
+                Ogcs.Exception.Analyse("Failed to delete profile '" + profileName + "'.", ex);
                 throw;
             }
         }
@@ -1503,7 +1503,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info(msg);
                 OgcsMessageBox.Show(msg, "Date-Time Format Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Profile '" + Settings.Profile.Name(ActiveCalendarProfile) + "', calendar ID " + ActiveCalendarProfile.UseOutlookCalendar.Id, ex);
+                Ogcs.Exception.Analyse("Profile '" + Settings.Profile.Name(ActiveCalendarProfile) + "', calendar ID " + ActiveCalendarProfile.UseOutlookCalendar.Id, ex);
                 OgcsMessageBox.Show(ex.Message, "Unable to perform test", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1541,12 +1541,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Ogcs.Google.Calendar.Instance.GetCalendars();
             } catch (AggregateException agex) {
-                OGCSexception.AnalyseAggregate(agex, false);
+                Ogcs.Exception.AnalyseAggregate(agex, false);
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                OGCSexception.AnalyseTokenResponse(ex, false);
+                Ogcs.Exception.AnalyseTokenResponse(ex, false);
             } catch (OperationCanceledException) {
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 OgcsMessageBox.Show("Failed to retrieve Google calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1556,7 +1556,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     console.BuildOutput(ex.Message, ref sb, false);
                     console.Update(sb, Console.Markup.fail, logit: true);
                 } else {
-                    console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
+                    console.BuildOutput(Ogcs.Exception.FriendlyMessage(ex), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
                         if (OgcsMessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
@@ -1973,7 +1973,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddGoogleColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
+                Ogcs.Exception.Analyse("ddOutlookColour_SelectedIndexChanged(): Could not update ddGoogleColour.", ex);
             } finally {
                 ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
             }
@@ -2007,7 +2007,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ddOutlookColour_SelectedIndexChanged(null, null);
                 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
+                Ogcs.Exception.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.", ex);
             } finally {
                 ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
             }
@@ -2269,7 +2269,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     colourForm.ShowDialog();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
         private void cbSingleCategoryOnly_CheckedChanged(object sender, EventArgs e) {
@@ -2311,8 +2311,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
-                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for startup key(s).", ex);
+                if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                Ogcs.Exception.Analyse("Failed accessing registry for startup key(s).", ex);
                 if (this.Visible) {
                     OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -2329,8 +2329,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Program.ManageStartupRegKey();
             } catch (System.Exception ex) {
-                if (ex is System.Security.SecurityException) OGCSexception.LogAsFail(ref ex); //User doesn't have rights to access registry
-                OGCSexception.Analyse("Failed accessing registry for HKLM startup key.", ex);
+                if (ex is System.Security.SecurityException) Ogcs.Exception.LogAsFail(ref ex); //User doesn't have rights to access registry
+                Ogcs.Exception.Analyse("Failed accessing registry for HKLM startup key.", ex);
                 if (this.Visible) {
                     OgcsMessageBox.Show("You do not have permissions to access the system registry.\nThis setting cannot be used.",
                         "Registry access denied", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -2479,7 +2479,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Helper.OpenBrowser(Program.OgcsWebsite + "/browseruseragent");
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to check browser's user agent.", ex);
+                Ogcs.Exception.Analyse("Failed to check browser's user agent.", ex);
             }
         }
 
@@ -2615,7 +2615,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed checking sync milestone.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 

@@ -62,7 +62,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Engine.Instance.ActiveProfile = job.Profile;
                         Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
+                        Ogcs.Exception.Analyse("Scheduled sync encountered a problem.", ex, true);
                     }
                 }
             }
@@ -202,7 +202,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 bwSync.Dispose();
                 bwSync = null;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             } finally {
                 log.Warn("Sync thread forcefully aborted!");
             }

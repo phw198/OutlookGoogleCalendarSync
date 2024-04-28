@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return Convert.ToBase64String(imgBytes);
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not load GMeet logo.", ex);
+                Ogcs.Exception.Analyse("Could not load GMeet logo.", ex);
                 return "";
             }
         }

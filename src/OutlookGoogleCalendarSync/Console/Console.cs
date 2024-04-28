@@ -310,7 +310,7 @@ namespace OutlookGoogleCalendarSync {
                     } else
                         this.wb.DocumentText = content;
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
 
                 while (navigationStatus != NavigationStatus.completed) {
@@ -328,9 +328,9 @@ namespace OutlookGoogleCalendarSync {
 
         public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
             Markup emoji = Markup.error;
-            if (OGCSexception.LoggingAsFail(ex))
+            if (Ogcs.Exception.LoggingAsFail(ex))
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
         }
 
         /// <summary>Log the output sans HTML tags.</summary>
@@ -389,7 +389,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 log.Error("Failed parsing for emoji.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             return output;
         }
@@ -471,7 +471,7 @@ namespace OutlookGoogleCalendarSync {
                         log.Warn("Could not find default navigation sound registry key.");
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
         #endregion
@@ -486,7 +486,7 @@ namespace OutlookGoogleCalendarSync {
                     System.Threading.Thread.Sleep(100);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             log.Debug("Done");
             */

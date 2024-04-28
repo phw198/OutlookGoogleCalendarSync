@@ -1,7 +1,8 @@
-﻿using System.Runtime.Serialization;
-using System.Net;
-using System;
+﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using System;
+using System.Net;
+using System.Runtime.Serialization;
 
 //***
 //https://developers.google.com/gdata/articles/proxy_setup
@@ -111,17 +112,17 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                                     sr = new System.IO.StreamReader(stream);
                                     log.Fail(sr.ReadToEnd());
                                 } catch (System.Exception ex2) {
-                                    OGCSexception.Analyse("Could not analyse WebException response.", ex2);
+                                    Ogcs.Exception.Analyse("Could not analyse WebException response.", ex2);
                                 } finally {
                                     if (sr != null) sr.Close();
                                     if (stream != null) stream.Close();
                                 }
                             } else
-                                OGCSexception.Analyse("Testing proxy connection failed.", ex);
+                                Ogcs.Exception.Analyse("Testing proxy connection failed.", ex);
                         }
                     }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed to confirm proxy settings.", ex);
+                    Ogcs.Exception.Analyse("Failed to confirm proxy settings.", ex);
                 }
             }
         }

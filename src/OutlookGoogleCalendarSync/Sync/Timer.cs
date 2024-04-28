@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Windows.Forms;
 
@@ -161,7 +162,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 log.Fine("Updating calendar item count following Push Sync.");
                 this.lastRunItemCount = Outlook.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to update item count following a Push Sync.", ex);
+                Ogcs.Exception.Analyse("Failed to update item count following a Push Sync.", ex);
             }
         }
 
@@ -200,10 +201,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                     try {
                         Outlook.Calendar.Instance.Reset();
                     } catch (System.Exception ex2) {
-                        OGCSexception.Analyse("Failed resetting Outlook connection.", ex2);
+                        Ogcs.Exception.Analyse("Failed resetting Outlook connection.", ex2);
                     }
                 } else
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 if (failures == 10)
                     Forms.Main.Instance.Console.UpdateWithError("Push Sync is failing.", ex, notifyBubble: true);
             }

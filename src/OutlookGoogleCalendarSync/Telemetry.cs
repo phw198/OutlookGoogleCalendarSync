@@ -103,7 +103,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not get IP geolocation.", OGCSexception.LogAsFail(ex));
+                Ogcs.Exception.Analyse("Could not get IP geolocation.", Ogcs.Exception.LogAsFail(ex));
             }
         }
 
@@ -153,7 +153,7 @@ namespace OutlookGoogleCalendarSync {
                 wc.UploadStringAsync(new Uri(analyticsUrl), "");
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 
@@ -228,7 +228,7 @@ namespace OutlookGoogleCalendarSync {
                     wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
 
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
             }
 

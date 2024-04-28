@@ -144,7 +144,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Warn("Failed to replay logs.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
     }

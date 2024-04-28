@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Squirrel;
 using System;
 using System.ComponentModel;
@@ -44,7 +45,7 @@ namespace OutlookGoogleCalendarSync {
                            try {
                                System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
                            } catch (System.Exception ex) {
-                               OGCSexception.Analyse(ex, true);
+                               Ogcs.Exception.Analyse(ex, true);
                            }
                            try {
                                Forms.Main.Instance.NotificationTray.ExitItem_Click(null, null);
@@ -83,11 +84,11 @@ namespace OutlookGoogleCalendarSync {
                     isSquirrelInstall = updateManager.IsInstalledApp;
                 }
             } catch (System.Exception ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131500") //Update.exe not found
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131500") //Update.exe not found
                     log.Debug(ex.Message);
                 else {
                     log.Error("Failed to determine if app is a Squirrel install. Assuming not.");
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
             }
             
@@ -156,7 +157,7 @@ namespace OutlookGoogleCalendarSync {
                             } catch (System.Exception ex) {
                                 squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                                 squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
-                                OGCSexception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
+                                Ogcs.Exception.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version, ex);
                                 ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             } finally {
@@ -207,7 +208,7 @@ namespace OutlookGoogleCalendarSync {
                                     break;
                                 } catch (System.AggregateException ex) {
                                     ApplyAttempt++;
-                                    if (OGCSexception.GetErrorCode(ex.InnerException) == "0x80070057") { //File does not exist
+                                    if (Ogcs.Exception.GetErrorCode(ex.InnerException) == "0x80070057") { //File does not exist
                                         //File does not exist: C:\Users\Paul\AppData\Local\OutlookGoogleCalendarSync\packages\OutlookGoogleCalendarSync-2.8.4-alpha-full.nupkg
                                         //Extract the nupkg filename
                                         String regexMatch = ".*" + updates.PackageDirectory.Replace(@"\", @"\\") + @"\\(.*?([\d\.]+-\w+).*)$";
@@ -234,13 +235,13 @@ namespace OutlookGoogleCalendarSync {
                         } catch (System.AggregateException ae) {
                             squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                             foreach (System.Exception ex in ae.InnerExceptions) {
-                                OGCSexception.Analyse(ex, true);
+                                Ogcs.Exception.Analyse(ex, true);
                                 squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
                                 ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             }
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse(ex, true);
+                            Ogcs.Exception.Analyse(ex, true);
                             squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                             squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
                             ex.Data.Add("analyticsLabel", squirrelAnalyticsLabel);
@@ -265,7 +266,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.AggregateException ae) {
                 log.Fail("Failed checking for update.");
                 foreach (System.Exception ex in ae.InnerExceptions) {
-                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex), true);
+                    Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex), true);
                     Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                     githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
                     githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
@@ -274,7 +275,7 @@ namespace OutlookGoogleCalendarSync {
                     throw;
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed checking for update.", OGCSexception.LogAsFail(ex), true);
+                Ogcs.Exception.Analyse("Failed checking for update.", Ogcs.Exception.LogAsFail(ex), true);
                 Telemetry.GA4Event.Event githubGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 githubGaEv.AddParameter(GA4.Squirrel.state, "GitHub check");
                 githubGaEv.AddParameter(GA4.Squirrel.result, "Failed");
@@ -301,7 +302,7 @@ namespace OutlookGoogleCalendarSync {
                 );
             } catch (System.Exception ex) {
                 log.Error("SquirrelAwareApp.HandleEvents failed.");
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         private static void onFirstRun() {
@@ -333,7 +334,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Error("Problem encountered on initiall install.");
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
             Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
             Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
@@ -350,7 +351,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Error("Problem encountered on app update.");
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         private static void onAppUninstall(Version version) {
@@ -388,7 +389,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 log.Error("Problem encountered on app uninstall.");
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
@@ -415,11 +416,11 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void clickOnceUninstallError(System.Exception ex) {
-            if (OGCSexception.GetErrorCode(ex) == "0x80131509") {
+            if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509") {
                 log.Debug("No ClickOnce install found.");
             } else {
                 log.Error("Failed removing ClickOnce install.");
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         #endregion
@@ -446,12 +447,12 @@ namespace OutlookGoogleCalendarSync {
             try {
                 html = new Extensions.OgcsWebClient().DownloadString("https://raw.githubusercontent.com/phw198/OutlookGoogleCalendarSync/master/docs/latest_zip_release.md");
             } catch (System.Net.WebException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509")
+                if (Ogcs.Exception.GetErrorCode(ex) == "0x80131509")
                     log.Warn("Failed to retrieve data (no network?): " + ex.Message);
                 else
-                    OGCSexception.Analyse("Failed to retrieve data", ex);
+                    Ogcs.Exception.Analyse("Failed to retrieve data", ex);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to retrieve data: ", ex);
+                Ogcs.Exception.Analyse("Failed to retrieve data: ", ex);
             }
 
             if (!string.IsNullOrEmpty(html)) {

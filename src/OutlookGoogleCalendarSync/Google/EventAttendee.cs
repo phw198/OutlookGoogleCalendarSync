@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Reflection;
 
@@ -17,7 +18,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     prop.SetValue(this, prop.GetValue(baseAttendee));
                 } catch (System.Exception ex) {
                     log.Warn("Failed to set property " + prop.Name);
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Extensions {
     public partial class OgcsNumericUpDown : NumericUpDown {
@@ -34,7 +35,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                         this.tooltip.RemoveAll();
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(this.Name, ex);
+                Ogcs.Exception.Analyse(this.Name, ex);
             }
         }
     }

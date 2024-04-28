@@ -324,7 +324,7 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("User settings loaded successfully this time.");
                 } catch (System.Exception ex2) {
                     log.Error("Still failed to load settings!");
-                    OGCSexception.Analyse(ex2);
+                    Ogcs.Exception.Analyse(ex2);
                 }
             }
         }

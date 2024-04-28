@@ -543,7 +543,7 @@ namespace OutlookGoogleCalendarSync {
                             try {
                                 Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed saving Outlook IDs to Google Event.", ex, true);
+                                Ogcs.Exception.Analyse("Failed saving Outlook IDs to Google Event.", ex, true);
                             }
                             return ev;
                         }
@@ -617,13 +617,13 @@ namespace OutlookGoogleCalendarSync {
                                                         break;
                                                     }
                                                 } catch (System.Exception ex) {
-                                                    OGCSexception.Analyse(ex);
+                                                    Ogcs.Exception.Analyse(ex);
                                                 } finally {
                                                     ai2 = (Microsoft.Office.Interop.Outlook.AppointmentItem)Outlook.Calendar.ReleaseObject(ai2);
                                                 }
                                             }
                                         } catch (System.Exception ex) {
-                                            OGCSexception.Analyse("Could not check if there are other exceptions with the same original start date.", ex);
+                                            Ogcs.Exception.Analyse("Could not check if there are other exceptions with the same original start date.", ex);
                                         }
                                     }
                                     if (!skipDelete) {
@@ -750,12 +750,12 @@ namespace OutlookGoogleCalendarSync {
                                                     log.Debug("Doing a dummy update in order to update the last modified date of Google recurring series exception.");
                                                     Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                                 } catch (System.Exception ex) {
-                                                    OGCSexception.Analyse("Dummy update of unchanged exception for Google recurring series failed.", ex);
+                                                    Ogcs.Exception.Analyse("Dummy update of unchanged exception for Google recurring series failed.", ex);
                                                 }
                                                 continue;
                                             }
                                         } catch (System.Exception ex) {
-                                            OGCSexception.Analyse(ex, true);
+                                            Ogcs.Exception.Analyse(ex, true);
                                             throw;
                                         }
                                     }
@@ -764,7 +764,7 @@ namespace OutlookGoogleCalendarSync {
                                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
-                                            OGCSexception.Analyse(ex, true);
+                                            Ogcs.Exception.Analyse(ex, true);
                                             if (OgcsMessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;
                                             else {
@@ -811,12 +811,12 @@ namespace OutlookGoogleCalendarSync {
                 ai = oExcp.AppointmentItem;
                 return DeletionState.NotDeleted;
             } catch (System.Exception ex) {
-                OGCSexception.LogAsFail(ref ex);
+                Ogcs.Exception.LogAsFail(ref ex);
                 String originalDate = oExcp.OriginalDate.ToString("dd/MM/yyyy");
                 if (ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") {
-                    OGCSexception.Analyse("This Outlook recurrence instance on " + originalDate + " has become inaccessible, probably due to caching", ex);
+                    Ogcs.Exception.Analyse("This Outlook recurrence instance on " + originalDate + " has become inaccessible, probably due to caching", ex);
                 } else {
-                    OGCSexception.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.", ex);
+                    Ogcs.Exception.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.", ex);
                 }
                 return DeletionState.Inaccessible;
             } finally {
@@ -890,7 +890,7 @@ namespace OutlookGoogleCalendarSync {
                                 try {
                                     newAiExcp.Save();
                                 } catch (System.Exception ex) {
-                                    OGCSexception.Analyse(ex);
+                                    Ogcs.Exception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
