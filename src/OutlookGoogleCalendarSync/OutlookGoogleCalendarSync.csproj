@@ -356,15 +356,22 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="GoogleOgcs\GMeet.cs" />
-    <Compile Include="Ogcs.Outlook.Graph\O365Authenticator.cs" />
-    <Compile Include="OutlookOgcs\GMeet.cs" />
     <Compile Include="GoogleOgcs\ErrorReporting.cs" />
     <Compile Include="GoogleOgcs\CustomProperty.cs" />
     <Compile Include="GoogleOgcs\EventColour.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="OutlookOgcs\CustomProperty.cs" />
-    <Compile Include="OutlookOgcs\OutlookCategories.cs" />
-    <Compile Include="Ogcs.Outlook\OutlookErrors.cs" />
+    <Compile Include="Outlook.Factory\OutlookFactory.cs" />
+    <Compile Include="Outlook.Factory\OutlookGraph.cs" />
+    <Compile Include="Outlook.Factory\OutlookInterface.cs" />
+    <Compile Include="Outlook.Factory\OutlookNew.cs" />
+    <Compile Include="Outlook.Factory\OutlookOld.cs" />
+    <Compile Include="Outlook.Graph\O365Authenticator.cs" />
+    <Compile Include="Outlook\CustomProperty.cs" />
+    <Compile Include="Outlook\ExplorerWatcher.cs" />
+    <Compile Include="Outlook\GMeet.cs" />
+    <Compile Include="Outlook\OutlookCalendar.cs" />
+    <Compile Include="Outlook\OutlookCategories.cs" />
+    <Compile Include="Outlook\OutlookErrors.cs" />
     <Compile Include="SettingsStore\Calendar.cs" />
     <Compile Include="SettingsStore\Proxy.cs" />
     <Compile Include="SettingsStore\Upgrade.cs" />
@@ -383,7 +390,6 @@
     <Compile Include="Extensions\Exception.cs" />
     <Compile Include="GoogleOgcs\Authenticator.cs" />
     <Compile Include="GoogleOgcs\EventAttendee.cs" />
-    <Compile Include="OutlookOgcs\ExplorerWatcher.cs" />
     <Compile Include="Sync\Calendar.cs" />
     <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
@@ -406,11 +412,6 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CalendarListEntry.cs" />
-    <Compile Include="OutlookOgcs\OutlookCalendar.cs" />
-    <Compile Include="OutlookOgcs\OutlookFactory.cs" />
-    <Compile Include="OutlookOgcs\OutlookInterface.cs" />
-    <Compile Include="OutlookOgcs\OutlookNew.cs" />
-    <Compile Include="OutlookOgcs\OutlookOld.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

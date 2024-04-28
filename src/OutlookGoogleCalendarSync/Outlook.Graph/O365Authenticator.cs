@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync.Ogcs.Outlook.Graph {
+namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
@@ -182,11 +182,11 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook.Graph {
                 OGCSexception.Analyse("Failed to sign out of Microsoft account.", ex);
             }
             if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
-            if (!OutlookOgcs.Calendar.IsInstanceNull) {
-                    OutlookOgcs.Calendar.Instance.Authenticator = new Authenticator();
+            if (!Outlook.Calendar.IsInstanceNull) {
+                Outlook.Calendar.Instance.Authenticator = new Authenticator();
                 //GoogleOgcs.Calendar.Instance.Service = null; ***
                 if (reauthorise)
-                    OutlookOgcs.Calendar.Instance.Authenticator.GetAuthenticated();
+                    Outlook.Calendar.Instance.Authenticator.GetAuthenticated();
             }
         }
 

@@ -26,8 +26,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Add all the available Outlook colours
         /// </summary>
         public void AddStandardColours() {
-            foreach (KeyValuePair<OlCategoryColor, Color> colour in OutlookOgcs.Categories.Map.Colours) {
-                Items.Add(new OutlookOgcs.Categories.ColourInfo(colour.Key, colour.Value));
+            foreach (KeyValuePair<OlCategoryColor, Color> colour in Outlook.Categories.Map.Colours) {
+                Items.Add(new Outlook.Categories.ColourInfo(colour.Key, colour.Value));
             }
         }
 
@@ -35,9 +35,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Add just the colours associated with categories
         /// </summary>
         public void AddCategoryColours() {
-            if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003) return;
+            if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) return;
 
-            Items.AddRange(OutlookOgcs.Calendar.Categories.DropdownItems().ToArray());
+            Items.AddRange(Outlook.Calendar.Categories.DropdownItems().ToArray());
         }
 
         public void ColourPicker_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e) {
@@ -46,12 +46,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 return;
 
             // Get the colour
-            OutlookOgcs.Categories.ColourInfo colour = (OutlookOgcs.Categories.ColourInfo)Items[e.Index];
+            Outlook.Categories.ColourInfo colour = (Outlook.Categories.ColourInfo)Items[e.Index];
             ColourCombobox.DrawComboboxItemColour(cbColour, new SolidBrush(colour.Colour), colour.Text, e);
         }
 
-        public new OutlookOgcs.Categories.ColourInfo SelectedItem {
-            get { return (OutlookOgcs.Categories.ColourInfo)base.SelectedItem; }
+        public new Outlook.Categories.ColourInfo SelectedItem {
+            get { return (Outlook.Categories.ColourInfo)base.SelectedItem; }
             set { base.SelectedItem = value; }
         }
     }
@@ -187,8 +187,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     if (ctl.Items.Count == 0)
                         ctl.PopulateDropdownItems();
                     if (!string.IsNullOrEmpty(currentText)) this.Value = currentText;
-					
-                    foreach (OutlookOgcs.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
+
+                    foreach (Outlook.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
                         if (ci.Text == (String)this.Value) {
                             ctl.SelectedValue = ci;
                             break;
@@ -206,7 +206,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
         public override Type ValueType {
             get {
-                return typeof(OutlookOgcs.Categories.ColourInfo);
+                return typeof(Outlook.Categories.ColourInfo);
             }
         }
 
@@ -224,7 +224,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 if (rowIndex < 0)
                     return;
 
-                foreach (OutlookOgcs.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
+                foreach (Outlook.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
                     if (ci.Text == this.Value.ToString()) {
                         Brush boxBrush = new SolidBrush(ci.Colour);
                         Brush textBrush = SystemBrushes.WindowText;
@@ -464,8 +464,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         public void PopulateDropdownItems() {
-            Dictionary<OutlookOgcs.Categories.ColourInfo, String> cbItems = new Dictionary<OutlookOgcs.Categories.ColourInfo, String>();
-            foreach (OutlookOgcs.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
+            Dictionary<Outlook.Categories.ColourInfo, String> cbItems = new Dictionary<Outlook.Categories.ColourInfo, String>();
+            foreach (Outlook.Categories.ColourInfo ci in Forms.ColourMap.OutlookComboBox.Items) {
                 cbItems.Add(ci, ci.Text);
             }
             this.DataSource = new BindingSource(cbItems, null);
@@ -479,11 +479,11 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (indexItem < 0 || indexItem >= cbColour.Items.Count)
                 return;
 
-            KeyValuePair<OutlookOgcs.Categories.ColourInfo, String> kvp = (KeyValuePair< OutlookOgcs.Categories.ColourInfo, String>)cbColour.Items[indexItem];
+            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair< Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
             if (kvp.Key != null) {
                 // Get the colour
                 OlCategoryColor olColour = kvp.Key.OutlookCategory;
-                Brush brush = new SolidBrush(OutlookOgcs.Categories.Map.RgbColour(olColour));
+                Brush brush = new SolidBrush(Outlook.Categories.Map.RgbColour(olColour));
 
                 DrawComboboxItemColour(cbColour, brush, kvp.Value, e);
             }

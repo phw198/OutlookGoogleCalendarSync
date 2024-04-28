@@ -1,7 +1,7 @@
 ﻿using log4net;
 using System;
 
-namespace OutlookGoogleCalendarSync.Ogcs.Outlook {
+namespace OutlookGoogleCalendarSync.Outlook {
     public class Errors {
         private static readonly ILog log = LogManager.GetLogger(typeof(Errors));
 

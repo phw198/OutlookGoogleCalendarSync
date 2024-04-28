@@ -114,7 +114,7 @@ namespace OutlookGoogleCalendarSync {
             if (Program.InDeveloperMode) return;
 
             //OUTLOOK CLIENT
-            Send(Analytics.Category.outlook, Analytics.Action.version, OutlookOgcs.Factory.OutlookVersionNameFull.Replace("Outlook", ""));
+            Send(Analytics.Category.outlook, Analytics.Action.version, Outlook.Factory.OutlookVersionNameFull.Replace("Outlook", ""));
 
             //OGCS APPLICATION
             Send(Analytics.Category.ogcs, Analytics.Action.version, System.Windows.Forms.Application.ProductVersion);

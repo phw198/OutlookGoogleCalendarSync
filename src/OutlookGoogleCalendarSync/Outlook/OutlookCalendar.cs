@@ -9,14 +9,16 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     /// <summary>
-    /// Description of OutlookOgcs.Calendar.
+    /// Class to target Outlook.Calendar for sync.
     /// </summary>
     public class Calendar {
         private static Calendar instance;
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
         public Interface IOutlook;
+
+        public static Boolean IsInstanceNull { get { return instance == null; } }
 
         /// <summary>
         /// Whether instance of OutlookCalendar class should connect to Outlook application
@@ -43,7 +45,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 return instance;
             }
         }
-        public OutlookOgcs.Authenticator Authenticator;
+        public Outlook.Graph.Authenticator Authenticator;
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
@@ -53,13 +55,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public Dictionary<string, MAPIFolder> CalendarFolders {
             get { return IOutlook.CalendarFolders(); }
         }
-        public static OutlookOgcs.Categories Categories;
+        public static Outlook.Categories Categories;
         public enum Service {
             DefaultMailbox,
             AlternativeMailbox,
             SharedCalendar
         }
-        public EphemeralProperties EphemeralProperties = new EphemeralProperties();
+        public Outlook.EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId, Event.Id></Appt.EntryId></summary>
         public Dictionary<String, String> ExcludedByCategory { get; private set; }
@@ -104,8 +106,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
             } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
-                if (Ogcs.Outlook.Errors.HandleComError(ex) == Ogcs.Outlook.Errors.ErrorType.ObjectSeparatedFromRcw) {
-                    try { OutlookOgcs.Calendar.Instance.Reset(); } catch { }
+                if (Outlook.Errors.HandleComError(ex) == Outlook.Errors.ErrorType.ObjectSeparatedFromRcw) {
+                    try { Outlook.Calendar.Instance.Reset(); } catch { }
                     ex.Data.Add("OGCS", "Failed to access the Outlook calendar. Please try again.");
                     throw;
                 }
@@ -127,7 +129,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             } catch (System.ArgumentNullException ex) {
                 OGCSexception.Analyse("It seems that Outlook has just been closed.", OGCSexception.LogAsFail(ex));
-                OutlookOgcs.Calendar.Instance.Reset();
+                Outlook.Calendar.Instance.Reset();
                 filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
 
             } catch (System.Exception) {
@@ -358,7 +360,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             ai.Start = new DateTime();
             ai.End = new DateTime();
             ai.AllDayEvent = ev.AllDayEvent();
-            ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
             Recurrence.Instance.BuildOutlookPattern(ev, ai);
 
             ai.Subject = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, null, Sync.Direction.GoogleToOutlook);
@@ -522,7 +524,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             String newStartTZ = "UTC";
             String newEndTZ = "UTC";
             IOutlook.WindowsTimeZone_get(ai, out currentStartTZ, out currentEndTZ);
-            ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: true);
+            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: true);
             IOutlook.WindowsTimeZone_get(ai, out newStartTZ, out newEndTZ);
             Boolean startTzChange = Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.GoogleToOutlook, newStartTZ, currentStartTZ, sb, ref itemModified);
             Boolean endTzChange = Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.GoogleToOutlook, newEndTZ, currentEndTZ, sb, ref itemModified);
@@ -540,9 +542,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (startChange || endChange || startTzChange || endTzChange) {
                     if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
                         if (startTzChange || endTzChange) {
-                            oPattern = (RecurrencePattern)OutlookOgcs.Calendar.ReleaseObject(oPattern);
+                            oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
                             ai.ClearRecurrencePattern();
-                            ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
+                            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
                             ai.Save();
                             Recurrence.Instance.BuildOutlookPattern(ev, ai);
                             ai.Save(); //Explicit save required to make ai.IsRecurring true again
@@ -558,7 +560,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             }
                         }
                     } else {
-                        ai = OutlookOgcs.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+                        ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
                     }
                 }
 
@@ -638,8 +640,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             }
 
             if (ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
-                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) 
-            {
+                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
                 OlSensitivity gPrivacy = getPrivacy(ev.Visibility, ai.Sensitivity);
                 if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.GoogleToOutlook, gPrivacy.ToString(), ai.Sensitivity.ToString(), sb, ref itemModified)) {
                     ai.Sensitivity = gPrivacy;
@@ -652,7 +653,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
             if ((profile.AddColours || profile.SetEntriesColour) && (
                 ai.RecurrenceState == OlRecurrenceState.olApptMaster ||
-                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring)) 
+                ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring)) //
             {
                 log.Fine("Comparing colours/categories");
                 List<String> aiCategories = new List<string>();
@@ -727,7 +728,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     itemModified++;
                                 }
                             } finally {
-                                recipient = (Recipient)OutlookOgcs.Calendar.ReleaseObject(recipient);
+                                recipient = (Recipient)Outlook.Calendar.ReleaseObject(recipient);
                             }
                         }
                         foreach (EventAttendee gAttendee in addAttendees) {
@@ -739,7 +740,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                             itemModified++;
                         }
                     } finally {
-                        recipients = (Recipients)OutlookOgcs.Calendar.ReleaseObject(recipients);
+                        recipients = (Recipients)Outlook.Calendar.ReleaseObject(recipients);
                     }
                 }
             }
@@ -817,7 +818,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     try {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry:anonSummary);
+                        Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                         OGCSexception.Analyse(ex, true);
                         if (OgcsMessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -931,7 +932,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 log.Debug(unclaimedAi.Count + " unclaimed.");
                 if (unclaimedAi.Count > 0 &&
                     (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id ||
-                     profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id))
+                     profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) //
                 {
                     log.Info(unclaimedAi.Count + " unclaimed orphan appointments found.");
                     if (profile.MergeItems || profile.DisableDelete || profile.ConfirmOnDelete) {
@@ -970,7 +971,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     recipient.Type = (int)(ea.Optional == null ? OlMeetingRecipientType.olRequired : ((bool)ea.Optional ? OlMeetingRecipientType.olOptional : OlMeetingRecipientType.olRequired));
                     //ReadOnly: ea.ResponseStatus
                 } finally {
-                    recipient = (Recipient)OutlookOgcs.Calendar.ReleaseObject(recipient);
+                    recipient = (Recipient)Outlook.Calendar.ReleaseObject(recipient);
                 }
             }
         }
@@ -1059,13 +1060,13 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (profile.SetEntriesColour) {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Colour forced to sync in other direction
                     if (oColour == null) { //Creating item
-                        OlCategoryColor outlookColour = OutlookOgcs.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
+                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
                         return Categories.FindName(outlookColour, profile.SetEntriesColourName);
                     } else return oColour;
 
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null)) {
-                        OlCategoryColor outlookColour = OutlookOgcs.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
+                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
                         return Categories.FindName(outlookColour, profile.SetEntriesColourName);
                     } else return oColour;
                 }
@@ -1081,7 +1082,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             if (profile.ColourMaps.Count > 0) {
                 KeyValuePair<String, String> kvp = profile.ColourMaps.FirstOrDefault(cm => cm.Value == gColourId);
                 if (kvp.Key != null) {
-                    outlookColour = OutlookOgcs.Calendar.Categories.OutlookColour(kvp.Key);
+                    outlookColour = Outlook.Calendar.Categories.OutlookColour(kvp.Key);
                     if (outlookColour != null) {
                         log.Debug("Colour mapping used: " + kvp.Value + ":" + GoogleOgcs.Calendar.Instance.ColourPalette.GetColour(gColourId).Name + " => " + kvp.Key);
                         return kvp.Key;
@@ -1106,7 +1107,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     if (oApp == null)
                         throw new ApplicationException("GetActiveObject() returned NULL without throwing an error.");
                 } catch (System.Exception ex) {
-                    if (Ogcs.Outlook.Errors.HandleComError(ex) == Ogcs.Outlook.Errors.ErrorType.Unavailable) { //MK_E_UNAVAILABLE
+                    if (Outlook.Errors.HandleComError(ex) == Outlook.Errors.ErrorType.Unavailable) { //MK_E_UNAVAILABLE
                         log.Warn("Attachment failed - Outlook is running without GUI for programmatic access.");
                     } else {
                         log.Warn("Attachment failed.");
@@ -1163,7 +1164,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     while (maxWaits > 0 && oApp == null) {
                         if (maxWaits % 2 == 0) log.Info("Waiting for Outlook to start...");
                         oProcess.WaitForInputIdle(15000);
-                        OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
+                        Outlook.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
                         if (oApp == null) {
                             log.Debug("Reattempting starting Outlook without system call.");
                             try { oApp = new Microsoft.Office.Interop.Outlook.Application(); } catch (System.Exception ex) { log.Debug("Errored with: " + ex.Message); }
@@ -1188,12 +1189,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             try {
                 throw caughtException;
             } catch (System.Runtime.InteropServices.COMException ex) {
-                Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex, out String hResult);
+                Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex, out String hResult);
 
-                if (error == Ogcs.Outlook.Errors.ErrorType.RpcRejected ||
-                    error == Ogcs.Outlook.Errors.ErrorType.PermissionFailure ||
-                    error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                    error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
+                if (error == Outlook.Errors.ErrorType.RpcRejected ||
+                    error == Outlook.Errors.ErrorType.PermissionFailure ||
+                    error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                    error == Outlook.Errors.ErrorType.RpcFailed) //
                 {
                     log.Warn(ex.Message);
                     throw new ApplicationException("Outlook is busy.", ex);
@@ -1402,7 +1403,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             csv.Append("\"" + (ai.OptionalAttendees == null ? "" : ai.OptionalAttendees) + "\",");
             csv.Append(ai.ReminderSet + ",");
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
-            csv.Append(OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
+            csv.Append(Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai) + ",");
             csv.Append(ai.EntryID + "," + Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) ?? "") + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
@@ -1465,7 +1466,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     }
                     eventSummary += " " + (ai.IsRecurring ? "(R) " : "") + "=> ";
 
-                    if (Settings.Instance.AnonymiseLogs) 
+                    if (Settings.Instance.AnonymiseLogs)
                         eventSummaryAnonymised = eventSummary + '"' + GoogleOgcs.Authenticator.GetMd5(ai.Subject, silent: true) + '"' + (onlyIfNotVerbose ? "<br/>" : "");
                     eventSummary += '"' + ai.Subject + '"' + (onlyIfNotVerbose ? "<br/>" : "");
 
@@ -1485,7 +1486,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         public static void IdentifyEventDifferences(
             ref List<Event> google,             //need creating
             ref List<AppointmentItem> outlook,  //need deleting
-            ref Dictionary<AppointmentItem, Event> compare)
+            ref Dictionary<AppointmentItem, Event> compare) //
         {
             log.Debug("Comparing Google events to Outlook items...");
             Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
@@ -1529,7 +1530,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                     }
                     if (!foundMatch && profile.MergeItems &&
-                        OutlookOgcs.CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
+                        Outlook.CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
                         outlook.Remove(outlook[o]);
 
                 } else if (profile.MergeItems) {
@@ -1683,7 +1684,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         #endregion
 
         public void GetCalendars() {
-            
+
         }
     }
 }

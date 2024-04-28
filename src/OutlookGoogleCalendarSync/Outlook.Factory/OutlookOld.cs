@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     class OutlookOld : Interface {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookOld));
 
@@ -20,9 +20,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
-            if (!OutlookOgcs.Calendar.InstanceConnect) return;
+            if (!Outlook.Calendar.InstanceConnect) return;
 
-            OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
+            Outlook.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: false);
             log.Debug("Setting up Outlook connection.");
 
             // Get the NameSpace and Logon information.
@@ -79,12 +79,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
 
-                OutlookOgcs.Calendar.Categories = null;
+                Outlook.Calendar.Categories = null;
 
             } finally {
                 // Done. Log off.
                 if (oNS != null) try { oNS.Logoff(); } catch { }
-                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
+                oNS = (NameSpace)Outlook.Calendar.ReleaseObject(oNS);
             }
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
@@ -94,11 +94,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
-                    folders = (Folders)OutlookOgcs.Calendar.ReleaseObject(folders);
-                    useOutlookCalendar = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(useOutlookCalendar);
+                    folders = (Folders)Outlook.Calendar.ReleaseObject(folders);
+                    useOutlookCalendar = (MAPIFolder)Outlook.Calendar.ReleaseObject(useOutlookCalendar);
                     for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
                         MAPIFolder mFld = calendarFolders.ElementAt(fld).Value;
-                        mFld = (MAPIFolder)OutlookOgcs.Calendar.ReleaseObject(mFld);
+                        mFld = (MAPIFolder)Outlook.Calendar.ReleaseObject(mFld);
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
                     calendarFolders = new Dictionary<string, MAPIFolder>();
@@ -125,7 +125,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         log.Fine("No running outlook.exe process found.");
                         retVal = true;
                     } else {
-                        OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
+                        Outlook.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: false);
                         try {
                             explorers = oApp.Explorers;
                             retVal = (explorers.Count == 0);
@@ -135,7 +135,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         }
                     }
                 } finally {
-                    explorers = (Explorers)OutlookOgcs.Calendar.ReleaseObject(explorers);
+                    explorers = (Explorers)Outlook.Calendar.ReleaseObject(explorers);
                 }
             }
             if (retVal) log.Fine("No Outlook GUI detected.");
@@ -167,11 +167,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 oNS = oApp.GetNamespace("mapi");
                 return oNS.Offline;
             } catch {
-                OutlookOgcs.Calendar.Instance.Reset();
+                Outlook.Calendar.Instance.Reset();
                 return false;
             } finally {
                 if (oNS != null) oNS.Logoff();
-                oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
+                oNS = (NameSpace)Outlook.Calendar.ReleaseObject(oNS);
             }
         }
         public OlExchangeConnectionMode ExchangeConnectionMode() {
@@ -198,7 +198,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     currentUser = oNS.CurrentUser;
                     if (!Forms.Main.Instance.IsHandleCreated && (DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
                         log.Warn(">1s delay possibly due to Outlook security popup.");
-                        OutlookOgcs.Calendar.OOMsecurityInfo = true;
+                        Outlook.Calendar.OOMsecurityInfo = true;
                     }
                 } catch (System.Exception ex) {
                     OGCSexception.Analyse(ex);
@@ -207,9 +207,9 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         return oNS;
                     }
                     log.Warn("We seem to have a faux connection to Outlook! Forcing starting it with a system call :-/");
-                    oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
+                    oNS = (NameSpace)Outlook.Calendar.ReleaseObject(oNS);
                     Disconnect();
-                    OutlookOgcs.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
+                    Outlook.Calendar.AttachToOutlook(ref oApp, openOutlookOnFail: true, withSystemCall: true);
                     oNS = oApp.GetNamespace("mapi");
 
                     int maxDelay = 5;
@@ -239,8 +239,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 currentUserSMTP = GetRecipientEmail(currentUser);
                 currentUserName = currentUser.Name;
             } finally {
-                currentUser = (Recipient)OutlookOgcs.Calendar.ReleaseObject(currentUser);
-                if (releaseNamespace) oNS = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(oNS);
+                currentUser = (Recipient)Outlook.Calendar.ReleaseObject(currentUser);
+                if (releaseNamespace) oNS = (NameSpace)Outlook.Calendar.ReleaseObject(oNS);
             }
             return oNS;
         }
@@ -248,7 +248,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private MAPIFolder getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
-            if (profile.OutlookService == OutlookOgcs.Calendar.Service.DefaultMailbox) {
+            if (profile.OutlookService == Outlook.Calendar.Service.DefaultMailbox) {
                 getDefaultCalendar(oNS, ref defaultCalendar);
             }
             log.Debug("Default Calendar folder: " + defaultCalendar.Name);
@@ -280,7 +280,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return null;
             } finally {
-                sharer = (Recipient)OutlookOgcs.Calendar.ReleaseObject(sharer);
+                sharer = (Recipient)Outlook.Calendar.ReleaseObject(sharer);
             }
         }
 
@@ -293,7 +293,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
                     Forms.Main.Instance.rbOutlookDefaultMB.Checked = true;
                 }
-                profile.OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
+                profile.OutlookService = Outlook.Calendar.Service.DefaultMailbox;
                 if (updateGUI)
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged += Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
 
@@ -419,18 +419,18 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 ns = oApp.GetNamespace("mapi");
                 return ns.GetFolderFromID(entryID);
             } finally {
-                ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
+                ns = (NameSpace)Outlook.Calendar.ReleaseObject(ns);
             }
         }
 
         public void GetAppointmentByID(String entryID, out AppointmentItem ai) {
             NameSpace ns = null;
             try {
-                if (oApp == null) OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+                if (oApp == null) Outlook.Calendar.AttachToOutlook(ref oApp);
                 ns = oApp.GetNamespace("mapi");
                 ai = ns.GetItemFromID(entryID) as AppointmentItem;
             } finally {
-                ns = (NameSpace)OutlookOgcs.Calendar.ReleaseObject(ns);
+                ns = (NameSpace)Outlook.Calendar.ReleaseObject(ns);
             }
         }
 
@@ -503,7 +503,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 }
                 return retEmail;
             } finally {
-                addressEntry = (AddressEntry)OutlookOgcs.Calendar.ReleaseObject(addressEntry);
+                addressEntry = (AddressEntry)Outlook.Calendar.ReleaseObject(addressEntry);
             }
         }
 
