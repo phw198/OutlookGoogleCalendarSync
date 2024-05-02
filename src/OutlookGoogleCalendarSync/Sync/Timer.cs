@@ -131,14 +131,14 @@ namespace OutlookGoogleCalendarSync.Sync {
             else if (!activate && this.Enabled) this.Stop();
         }
 
-        public Boolean Running() {
-            return this.Enabled;
+        public Boolean IsRunning {
+            get { return this.Enabled; }
         }
 
         public String Status() {
             var profile = (owningProfile as SettingsStore.Calendar);
-            if (this.Running()) return NextSyncDateText;
-            else if (profile.OgcsPushTimer != null && profile.OgcsPushTimer.Running()) return "Push Sync Active";
+            if (this.IsRunning) return NextSyncDateText;
+            else if (profile.OgcsPushTimer != null && profile.OgcsPushTimer.IsRunning) return "Push Sync Active";
             else return "Inactive";
         }
     }
@@ -229,8 +229,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 profile.OgcsTimer.SetNextSync();
             }
         }
-        public Boolean Running() {
-            return this.Enabled;
+        public Boolean IsRunning { 
+            get { return this.Enabled; } 
         }
     }
 }
