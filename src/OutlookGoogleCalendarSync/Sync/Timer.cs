@@ -50,6 +50,11 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             log.Debug("Scheduled sync triggered for profile: "+ Settings.Profile.Name(this.owningProfile));
 
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) {
+                log.Debug("Too soon after system resume; delaying for 60 seconds...");
+                System.Threading.Thread.Sleep(60 * 1000);
+            }
+
             if (!Sync.Engine.Instance.SyncingNow) {
                 Forms.Main.Instance.Sync_Click(sender, null);
             } else {
@@ -58,6 +63,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
         }
 
+        /// <summary>Get the sync interval as configured in Settings.</summary>
+        /// <returns>Minutes between syncs</returns>
         private int getResyncInterval() {
             var profile = (this.owningProfile as SettingsStore.Calendar);
             int min = profile.SyncInterval;
@@ -113,7 +120,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             Activate(true);
         }
-        
+
         public void Activate(Boolean activate) {
             if (Forms.Main.Instance.InvokeRequired) {
                 log.Error("Attempted to " + (activate ? "" : "de") + "activate " + this.Tag + " from non-GUI thread will not work.");
@@ -167,8 +174,9 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            log.UltraFine("Push sync triggered.");
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) return;
             
+            log.UltraFine("Push sync triggered.");
             try {
                 SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
 
@@ -183,8 +191,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
                     log.Debug("Changes found for Push sync.");
-                        Forms.Main.Instance.Sync_Click(sender, null);
-                    } else {
+                    Forms.Main.Instance.Sync_Click(sender, null);
+                } else {
                     log.Fine("No changes found.");
                 }
                 failures = 0;

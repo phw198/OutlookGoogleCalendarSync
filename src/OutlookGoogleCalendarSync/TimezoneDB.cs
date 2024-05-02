@@ -27,6 +27,8 @@ namespace OutlookGoogleCalendarSync {
         public String Version {
             get { return source.TzdbVersion; }
         }
+        
+        public static DateTime LastSystemResume = DateTime.Now.AddDays(-1);
 
         private TimezoneDB() {
             try {
@@ -46,12 +48,7 @@ namespace OutlookGoogleCalendarSync {
         private static void SystemEvents_TimeChanged(object sender, EventArgs e) {
             log.Info("Detected system timezone change.");
             System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
-
-            foreach(SettingsStore.Calendar profile in Settings.Instance.Calendars) {
-                if (profile.OgcsTimer.Enabled && profile.OgcsTimer.NextSyncDate < DateTime.Now.AddMinutes(1)) {
-                    profile.OgcsTimer.SetNextSync(1, true, false);
-                }
-            }
+            LastSystemResume = DateTime.Now;
         }
 
         public void CheckForUpdate() {
