@@ -1028,7 +1028,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Minimising application to task tray.");
                 this.ShowInTaskbar = false;
                 this.Hide();
-                if (Settings.Instance.ShowBubbleWhenMinimising) {
+                if (Settings.Instance.ShowSystemNotificationWhenMinimising) {
                     NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowBubbleWhenMinimising");
                 } else {
                     trayIcon.Tag = "";
