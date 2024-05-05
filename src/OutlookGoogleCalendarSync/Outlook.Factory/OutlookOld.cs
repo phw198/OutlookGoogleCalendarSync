@@ -17,7 +17,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
-        private OutlookCalendarListEntry useOutlookCalendar;
         private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<String, OutlookCalendarListEntry>();
         private OlExchangeConnectionMode exchangeConnectionMode;
 
@@ -57,7 +56,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 folders = oNS.Folders;
 
                 // Get the Calendar folders
-                useOutlookCalendar = new OutlookCalendarListEntry(getCalendarStore(oNS));
+                getCalendarStore(oNS);
                 if (Forms.Main.Instance.IsHandleCreated && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                     log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
 
@@ -74,9 +73,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                     if ((int)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
                         Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex", 0);
-
-                    KeyValuePair<String, OutlookCalendarListEntry> calendar = (KeyValuePair<String, OutlookCalendarListEntry>)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedItem");
-                    useOutlookCalendar = calendar.Value;
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
@@ -97,7 +93,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
                     folders = (Folders)Outlook.Calendar.ReleaseObject(folders);
-                    useOutlookCalendar = null;
                     for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
@@ -145,12 +140,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Folders Folders() { return folders; }
         public Dictionary<String, OutlookCalendarListEntry> CalendarFolders() {
             return calendarFolders;
-        }
-        public OutlookCalendarListEntry UseOutlookCalendar() {
-            return useOutlookCalendar;
-        }
-        public void UseOutlookCalendar(OutlookCalendarListEntry set) {
-            useOutlookCalendar = set;
         }
         public String CurrentUserSMTP() {
             return currentUserSMTP;
@@ -245,14 +234,18 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return oNS;
         }
 
-        private MAPIFolder getCalendarStore(NameSpace oNS) {
+        private OutlookCalendarListEntry getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            SettingsStore.Calendar profile = Settings.Profile.InPlay();
-            if (profile.OutlookService == Outlook.Calendar.Service.DefaultMailbox) {
-                getDefaultCalendar(oNS, ref defaultCalendar);
+            try {
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
+                if (profile.OutlookService == Outlook.Calendar.Service.DefaultMailbox) {
+                    getDefaultCalendar(oNS, ref defaultCalendar);
+                }
+                log.Debug("Default Calendar folder: " + defaultCalendar.Name);
+                return new OutlookCalendarListEntry(defaultCalendar);
+            } finally {
+                defaultCalendar = (MAPIFolder)Ogcs.Outlook.Calendar.ReleaseObject(defaultCalendar);
             }
-            log.Debug("Default Calendar folder: " + defaultCalendar.Name);
-            return defaultCalendar;
         }
 
         private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI) {

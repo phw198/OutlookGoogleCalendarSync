@@ -171,7 +171,7 @@ namespace OutlookGoogleCalendarSync {
             if (ev.Recurrence == null) return;
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
-            AppointmentItem evAI = Outlook.Calendar.Instance.IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+            AppointmentItem evAI = Ogcs.Outlook.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id).Items.Add() as AppointmentItem;
             evAI.Start = ev.Start.SafeDateTime(); 
 
             RecurrencePattern evOpattern = null;

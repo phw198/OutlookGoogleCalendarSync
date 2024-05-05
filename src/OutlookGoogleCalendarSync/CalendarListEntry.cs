@@ -97,6 +97,11 @@ namespace OutlookGoogleCalendarSync {
             Name = calendarFolder.Name;
         }
 
+        public OutlookCalendarListEntry(Microsoft.Graph.Calendar calendarFolder) {
+            Id = calendarFolder.Id;
+            Name = calendarFolder.Name;
+        }
+
         public override String ToString() {
             return EmailAddress.MaskAddressWithinText(Name) + " (ID: " + Id + ")";
         }

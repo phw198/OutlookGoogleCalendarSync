@@ -137,7 +137,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 OutlookCOM.Store store = null;
                 OutlookCOM.MAPIFolder mapiCalendar = null;
                 try {
-                    mapiCalendar = oApp.Session.GetFolderFromID(calendar.Id);
+                    mapiCalendar = Calendar.Instance.IOutlook.GetFolderByID(calendar.Id);
                     store = mapiCalendar.Store;
                     if (Factory.OutlookVersionName == Factory.OutlookVersionNames.Outlook2007) {
                         log.Debug("Accessing Outlook 2007 categories via reflection.");

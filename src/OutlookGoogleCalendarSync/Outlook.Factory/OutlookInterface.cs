@@ -10,8 +10,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         Boolean NoGUIexists();
         Folders Folders();
         Dictionary<String, OutlookCalendarListEntry> CalendarFolders();
-        OutlookCalendarListEntry UseOutlookCalendar();
-        void UseOutlookCalendar(OutlookCalendarListEntry set);
         NameSpace GetCurrentUser(NameSpace oNS);
         String CurrentUserSMTP();
         String CurrentUserName();

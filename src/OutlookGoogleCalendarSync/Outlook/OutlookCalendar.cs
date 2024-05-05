@@ -314,7 +314,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 MAPIFolder mapiFolder = null;
                 AppointmentItem newAi = null;
                 try {
-                    mapiFolder = IOutlook.GetFolderByID(IOutlook.UseOutlookCalendar().Id);
+                    mapiFolder = IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
                     newAi = mapiFolder.Items.Add() as AppointmentItem;
                     try {
                         createCalendarEntry(ev, ref newAi);

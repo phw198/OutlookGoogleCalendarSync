@@ -17,7 +17,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
-        private OutlookCalendarListEntry useOutlookCalendar;
         private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<String, OutlookCalendarListEntry>();
         private OlExchangeConnectionMode exchangeConnectionMode;
 
@@ -67,7 +66,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 folders = oNS.Folders;
 
                 // Get the Calendar folders
-                useOutlookCalendar = new OutlookCalendarListEntry(getCalendarStore(oNS));
+                getCalendarStore(oNS);
                 if (Forms.Main.Instance.IsHandleCreated && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                     log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
 
@@ -85,14 +84,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if ((int)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
                         Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex", 0);
 
-                    KeyValuePair<String, OutlookCalendarListEntry> calendar = (KeyValuePair<String, OutlookCalendarListEntry>)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedItem");
-                    useOutlookCalendar = calendar.Value;
-
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
                 }
 
                 Outlook.Calendar.Categories = new Outlook.Categories();
-                Calendar.Categories.Get(oApp, useOutlookCalendar);
+                Calendar.Categories.Get(oApp, profile.UseOutlookCalendar);
 
                 //Set up event handlers
                 explorerWatcher = new ExplorerWatcher(oApp);
@@ -118,7 +114,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
                     folders = (Folders)Outlook.Calendar.ReleaseObject(folders);
-                    useOutlookCalendar = null;
                     for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
@@ -168,12 +163,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Folders Folders() { return folders; }
         public Dictionary<String, OutlookCalendarListEntry> CalendarFolders() {
             return calendarFolders;
-        }
-        public OutlookCalendarListEntry UseOutlookCalendar() {
-            return useOutlookCalendar;
-        }
-        public void UseOutlookCalendar(OutlookCalendarListEntry set) {
-            useOutlookCalendar = set;
         }
         public String CurrentUserSMTP() {
             return currentUserSMTP;
@@ -287,122 +276,125 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return oNS;
         }
 
-        private MAPIFolder getCalendarStore(NameSpace oNS) {
+        private OutlookCalendarListEntry getCalendarStore(NameSpace oNS) {
             MAPIFolder defaultCalendar = null;
-            SettingsStore.Calendar profile = Settings.Profile.InPlay();
-            if (profile.OutlookService == Outlook.Calendar.Service.AlternativeMailbox && profile.MailboxName != "") {
-                log.Debug("Finding Alternative Mailbox calendar folders");
-                Folders binFolders = null;
-                Store binStore = null;
-                PropertyAccessor pa = null;
-                int mailboxNos = -1;
-                do {
-                    try {
-                        if (mailboxNos >= 0) {
-                            if (profile.MailboxName == Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString()) continue;
-                            profile.MailboxName = Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString();
-                            Forms.Main.Instance.ddMailboxName.Text = profile.MailboxName;
-                        }
-                        log.Debug($"Scanning mailbox '{profile.MailboxName}' for calendars.");
-                        binFolders = oNS.Folders;
-                        log.Fine("Checking mailbox name is still accessible.");
-                        Boolean folderExists = false;
-                        foreach (MAPIFolder fld in binFolders) {
-                            if (fld.Name == profile.MailboxName) {
-                                folderExists = true;
-                                break;
-                            }
-                        }
-                        if (folderExists) {
-                            binStore = binFolders[profile.MailboxName].Store;
-                        } else {
-                            binStore = binFolders.GetFirst().Store;
-                            log.Warn("Alternate mailbox '" + profile.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
-                            Ogcs.Extensions.MessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
-                                "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
-                                "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            profile.MailboxName = binStore.DisplayName;
-                            profile.SyncInterval = 0;
-                            profile.OutlookPush = false;
-                            Forms.Main.Instance.ddProfile.SelectedValue = profile._ProfileName;
-                            Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
-                        }
-                        pa = binStore.PropertyAccessor;
-                        string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
+            try {
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
+                if (profile.OutlookService == Outlook.Calendar.Service.AlternativeMailbox && profile.MailboxName != "") {
+                    log.Debug("Finding Alternative Mailbox calendar folders");
+                    Folders binFolders = null;
+                    Store binStore = null;
+                    PropertyAccessor pa = null;
+                    int mailboxNos = -1;
+                    do {
                         try {
-                            object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
-                            excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
-                        } catch (System.Exception ex) {
-                            ex.LogAsFail().Analyse("Could not access 'Deleted Items' folder property.");
-                        }
-                        Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
-                        if (updateGUI) {
-                            Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
-                            Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
-                        }
-                        findCalendars(oNS.Folders[profile.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
-                        if (updateGUI) {
-                            Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
-                            Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
-                        }
-                    } catch (System.Exception ex) {
-                        ex.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", true);
-                        if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
-                            throw new System.Exception("Failed to access alternate mailbox calendar '" + profile.MailboxName + "'", ex);
-                    } finally {
-                        pa = (PropertyAccessor)Outlook.Calendar.ReleaseObject(pa);
-                        binStore = (Store)Outlook.Calendar.ReleaseObject(binStore);
-                        binFolders = (Folders)Outlook.Calendar.ReleaseObject(binFolders);
-                        mailboxNos++;
-                    }
-                } while (calendarFolders.Count() == 0 && mailboxNos < Forms.Main.Instance.ddMailboxName.Items.Count);
-
-                //Default to first calendar in drop down
-                defaultCalendar = GetFolderByID(calendarFolders.FirstOrDefault().Value.Id);
-                if (defaultCalendar == null) {
-                    log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
-                    Ogcs.Extensions.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
-                        "Reverting to the default mailbox calendar", "Calendar not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    getDefaultCalendar(oNS, ref defaultCalendar);
-                    Forms.Main.Instance.ddMailboxName.Text = "";
-                }
-
-            } else if (profile.OutlookService == Outlook.Calendar.Service.SharedCalendar) {
-                log.Debug("Finding shared calendar");
-                if (Forms.Main.Instance.Visible && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) && Forms.Main.Instance.ActiveControl?.Name == "rbOutlookSharedCal") {
-                    SelectNamesDialog snd;
-                    try {
-                        snd = oNS.GetSelectNamesDialog();
-                        snd.NumberOfRecipientSelectors = OlRecipientSelectors.olShowNone;
-                        snd.ForceResolution = true;
-                        snd.AllowMultipleSelection = false;
-                        snd.Display();
-                        if (snd.Recipients.Count == 0) {
-                            log.Info("No shared calendar selected.");
-                            getDefaultCalendar(oNS, ref defaultCalendar);
-                        } else {
-                            String sharedURI = snd.Recipients[1].Address;
-                            MAPIFolder sharedCalendar = getSharedCalendar(oNS, sharedURI, true);
-                            if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
-                            else {
-                                profile.SharedCalendar = sharedURI;
-                                return sharedCalendar;
+                            if (mailboxNos >= 0) {
+                                if (profile.MailboxName == Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString()) continue;
+                                profile.MailboxName = Forms.Main.Instance.ddMailboxName.Items[mailboxNos].ToString();
+                                Forms.Main.Instance.ddMailboxName.Text = profile.MailboxName;
                             }
+                            log.Debug($"Scanning mailbox '{profile.MailboxName}' for calendars.");
+                            binFolders = oNS.Folders;
+                            log.Fine("Checking mailbox name is still accessible.");
+                            Boolean folderExists = false;
+                            foreach (MAPIFolder fld in binFolders) {
+                                if (fld.Name == profile.MailboxName) {
+                                    folderExists = true;
+                                    break;
+                                }
+                            }
+                            if (folderExists) {
+                                binStore = binFolders[profile.MailboxName].Store;
+                            } else {
+                                binStore = binFolders.GetFirst().Store;
+                                log.Warn("Alternate mailbox '" + profile.MailboxName + "' could no longer be found. Selected mailbox '" + binStore.DisplayName + "' instead.");
+                                Ogcs.Extensions.MessageBox.Show("The alternate mailbox '" + profile.MailboxName + "' previously configured for syncing is no longer available.\r\n\r\n" +
+                                    "'" + binStore.DisplayName + "' mailbox has been selected instead and any automated syncs have been temporarily disabled.",
+                                    "Mailbox Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                profile.MailboxName = binStore.DisplayName;
+                                profile.SyncInterval = 0;
+                                profile.OutlookPush = false;
+                                Forms.Main.Instance.ddProfile.SelectedValue = profile._ProfileName;
+                                Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
+                            }
+                            pa = binStore.PropertyAccessor;
+                            string excludeDeletedFolder = "FOLDER-DOES-NOT-EXIST";
+                            try {
+                                object bin = pa.GetProperty(PR_IPM_WASTEBASKET_ENTRYID);
+                                excludeDeletedFolder = pa.BinaryToString(bin); //EntryID
+                            } catch (System.Exception ex) {
+                                ex.LogAsFail().Analyse("Could not access 'Deleted Items' folder property.");
+                            }
+                            Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
+                            if (updateGUI) {
+                                Forms.Main.Instance.lOutlookCalendar.Text = "Getting calendars";
+                                Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.Yellow;
+                            }
+                            findCalendars(oNS.Folders[profile.MailboxName].Folders, calendarFolders, excludeDeletedFolder);
+                            if (updateGUI) {
+                                Forms.Main.Instance.lOutlookCalendar.BackColor = System.Drawing.Color.White;
+                                Forms.Main.Instance.lOutlookCalendar.Text = "Select calendar";
+                            }
+                        } catch (System.Exception ex) {
+                            ex.Analyse("Failed to find calendar folders in alternate mailbox '" + profile.MailboxName + "'.", true);
+                            if (!(Forms.Main.Instance.Visible && Forms.Main.Instance.ActiveControl.Name == "rbOutlookAltMB"))
+                                throw new System.Exception("Failed to access alternate mailbox calendar '" + profile.MailboxName + "'", ex);
+                        } finally {
+                            pa = (PropertyAccessor)Outlook.Calendar.ReleaseObject(pa);
+                            binStore = (Store)Outlook.Calendar.ReleaseObject(binStore);
+                            binFolders = (Folders)Outlook.Calendar.ReleaseObject(binFolders);
+                            mailboxNos++;
                         }
-                    } finally {
-                        snd = null;
-                    }
-                } else {
-                    defaultCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
-                    return defaultCalendar;
-                }
+                    } while (calendarFolders.Count() == 0 && mailboxNos < Forms.Main.Instance.ddMailboxName.Items.Count);
 
-            } else {
-                getDefaultCalendar(oNS, ref defaultCalendar);
+                    //Default to first calendar in drop down
+                    defaultCalendar = GetFolderByID(calendarFolders.FirstOrDefault().Value.Id);
+                    if (defaultCalendar == null) {
+                        log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
+                        Ogcs.Extensions.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
+                            "Reverting to the default mailbox calendar", "Calendar not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        getDefaultCalendar(oNS, ref defaultCalendar);
+                        Forms.Main.Instance.ddMailboxName.Text = "";
+                    }
+
+                } else if (profile.OutlookService == Outlook.Calendar.Service.SharedCalendar) {
+                    log.Debug("Finding shared calendar");
+                    if (Forms.Main.Instance.Visible && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) && Forms.Main.Instance.ActiveControl?.Name == "rbOutlookSharedCal") {
+                        SelectNamesDialog snd;
+                        try {
+                            snd = oNS.GetSelectNamesDialog();
+                            snd.NumberOfRecipientSelectors = OlRecipientSelectors.olShowNone;
+                            snd.ForceResolution = true;
+                            snd.AllowMultipleSelection = false;
+                            snd.Display();
+                            if (snd.Recipients.Count == 0) {
+                                log.Info("No shared calendar selected.");
+                                getDefaultCalendar(oNS, ref defaultCalendar);
+                            } else {
+                                String sharedURI = snd.Recipients[1].Address;
+                                MAPIFolder sharedCalendar = getSharedCalendar(oNS, sharedURI, true);
+                                if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
+                                else {
+                                    profile.SharedCalendar = sharedURI;
+                                    defaultCalendar = sharedCalendar;
+                                }
+                            }
+                        } finally {
+                            snd = null;
+                        }
+                    } else {
+                        defaultCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                    }
+
+                } else {
+                    getDefaultCalendar(oNS, ref defaultCalendar);
+                }
+                log.Debug("Default Calendar folder: " + defaultCalendar.Name);
+                log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
+                return new OutlookCalendarListEntry(defaultCalendar);
+            } finally {
+                defaultCalendar = (MAPIFolder)Ogcs.Outlook.Calendar.ReleaseObject(defaultCalendar);
             }
-            log.Debug("Default Calendar folder: " + defaultCalendar.Name);
-            log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
-            return defaultCalendar;
         }
 
         private MAPIFolder getSharedCalendar(NameSpace oNS, String sharedURI, Boolean interactive) {
@@ -725,13 +717,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         public void RefreshCategories() {
             log.Debug("Refreshing categories...");
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
             try {
-                Outlook.Calendar.Categories.Get(oApp, useOutlookCalendar);
+                Outlook.Calendar.Categories.Get(oApp, profile.UseOutlookCalendar);
             } catch (System.Exception ex) {
                 Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
                 if (error == Outlook.Errors.ErrorType.RpcServerUnavailable || error == Outlook.Errors.ErrorType.WrongThread) {
                     Outlook.Calendar.Instance.Reset();
-                    Outlook.Calendar.Categories.Get(oApp, useOutlookCalendar);
+                    Outlook.Calendar.Categories.Get(oApp, profile.UseOutlookCalendar);
                 }
             }
             Extensions.OutlookColourPicker outlookColours = new Extensions.OutlookColourPicker();
