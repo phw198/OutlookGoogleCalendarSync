@@ -130,38 +130,39 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// </summary>
         /// <param name="oApp"></param>
         /// <param name="calendar"></param>
-        public void Get(OutlookCOM.Application oApp, OutlookCOM.MAPIFolder calendar) {
-            OutlookCOM.Store store = null;
-            try {
-                if (Settings.Profile.InPlay().OutlookService == Calendar.Service.DefaultMailbox)
-                    this.categories = oApp.Session.Categories;
-                else {
-                    try {
-                        store = calendar.Store;
-                        if (Factory.OutlookVersionName == Factory.OutlookVersionNames.Outlook2007) {
-                            log.Debug("Accessing Outlook 2007 categories via reflection.");
-                            this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as OutlookCOM.Categories;
-                        } else {
+        public void Get(OutlookCOM.Application oApp, OutlookCalendarListEntry calendar) {
+            if (Settings.Profile.InPlay().OutlookService == Calendar.Service.DefaultMailbox)
+                this.categories = oApp.Session.Categories;
+            else {
+                OutlookCOM.Store store = null;
+                OutlookCOM.MAPIFolder mapiCalendar = null;
+                try {
+                    mapiCalendar = oApp.Session.GetFolderFromID(calendar.Id);
+                    store = mapiCalendar.Store;
+                    if (Factory.OutlookVersionName == Factory.OutlookVersionNames.Outlook2007) {
+                        log.Debug("Accessing Outlook 2007 categories via reflection.");
+                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as OutlookCOM.Categories;
+                    } else {
 #if !DEVELOP_AGAINST_2007
                             log.Debug("Accessing categories through Outlook 2010 store.");
                             this.categories = store.Categories;
 #else
-                            log.Debug("Accessing Outlook 2007 categories via reflection.");
-                            this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as OutlookCOM.Categories;
+                        log.Debug("Accessing Outlook 2007 categories via reflection.");
+                        this.categories = store.GetType().GetProperty("Categories").GetValue(store, null) as OutlookCOM.Categories;
 #endif
-                        }
-                    } catch (System.Exception ex) {
-                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                        if (error == Outlook.Errors.ErrorType.RpcServerUnavailable || error == Outlook.Errors.ErrorType.WrongThread) 
-                            throw;
-
-                        log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
-                        log.Debug("Reverting to default mailbox categories.");
-                        this.categories = oApp.Session.Categories;
                     }
+                } catch (System.Exception ex) {
+                    Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                    if (error == Outlook.Errors.ErrorType.RpcServerUnavailable || error == Outlook.Errors.ErrorType.WrongThread)
+                        throw;
+
+                    log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
+                    log.Debug("Reverting to default mailbox categories.");
+                    this.categories = oApp.Session.Categories;
+                } finally {
+                    store = (OutlookCOM.Store)Calendar.ReleaseObject(store);
+                    mapiCalendar = (OutlookCOM.MAPIFolder)Calendar.ReleaseObject(mapiCalendar);
                 }
-            } finally {
-                store = (OutlookCOM.Store)Calendar.ReleaseObject(store);
             }
         }
 

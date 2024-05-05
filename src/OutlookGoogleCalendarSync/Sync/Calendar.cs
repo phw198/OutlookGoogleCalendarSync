@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 try {
                     #region Read Outlook items
                     console.Update("Scanning Outlook calendar...");
-                    Outlook.Calendar.Instance.IOutlook.UseOutlookCalendar(Outlook.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id));
+                    Outlook.Calendar.Instance.IOutlook.UseOutlookCalendar(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar);
                     outlookEntries = Outlook.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                     console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 

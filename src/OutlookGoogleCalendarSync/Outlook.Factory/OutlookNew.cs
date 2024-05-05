@@ -17,8 +17,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
-        private MAPIFolder useOutlookCalendar;
-        private Dictionary<string, MAPIFolder> calendarFolders = new Dictionary<string, MAPIFolder>();
+        private OutlookCalendarListEntry useOutlookCalendar;
+        private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<String, OutlookCalendarListEntry>();
         private OlExchangeConnectionMode exchangeConnectionMode;
 
         public void Connect() {
@@ -67,7 +67,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 folders = oNS.Folders;
 
                 // Get the Calendar folders
-                useOutlookCalendar = getCalendarStore(oNS);
+                useOutlookCalendar = new OutlookCalendarListEntry(getCalendarStore(oNS));
                 if (Forms.Main.Instance.IsHandleCreated && profile.Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
                     log.Fine("Resetting connection, so re-selecting calendar from GUI dropdown");
 
@@ -76,8 +76,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     //Select the right calendar
                     int c = 0;
-                    foreach (KeyValuePair<String, MAPIFolder> calendarFolder in calendarFolders) {
-                        if (calendarFolder.Value.EntryID == profile.UseOutlookCalendar.Id) {
+                    foreach (OutlookCalendarListEntry calendarFolder in calendarFolders.Values) {
+                        if (calendarFolder.Id == profile.UseOutlookCalendar.Id) {
                             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex", c);
                         }
                         c++;
@@ -85,7 +85,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if ((int)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex") == -1)
                         Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex", 0);
 
-                    KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedItem");
+                    KeyValuePair<String, OutlookCalendarListEntry> calendar = (KeyValuePair<String, OutlookCalendarListEntry>)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedItem");
                     useOutlookCalendar = calendar.Value;
 
                     Forms.Main.Instance.cbOutlookCalendars.SelectedIndexChanged += Forms.Main.Instance.cbOutlookCalendar_SelectedIndexChanged;
@@ -118,13 +118,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 log.Debug("De-referencing all Outlook application objects.");
                 try {
                     folders = (Folders)Outlook.Calendar.ReleaseObject(folders);
-                    useOutlookCalendar = (MAPIFolder)Outlook.Calendar.ReleaseObject(useOutlookCalendar);
+                    useOutlookCalendar = null;
                     for (int fld = calendarFolders.Count - 1; fld >= 0; fld--) {
-                        MAPIFolder mFld = calendarFolders.ElementAt(fld).Value;
-                        mFld = (MAPIFolder)Outlook.Calendar.ReleaseObject(mFld);
                         calendarFolders.Remove(calendarFolders.ElementAt(fld).Key);
                     }
-                    calendarFolders = new Dictionary<string, MAPIFolder>();
+                    calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
                     Calendar.Categories?.Dispose();
                     explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
@@ -168,13 +166,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public Folders Folders() { return folders; }
-        public Dictionary<string, MAPIFolder> CalendarFolders() {
+        public Dictionary<String, OutlookCalendarListEntry> CalendarFolders() {
             return calendarFolders;
         }
-        public MAPIFolder UseOutlookCalendar() {
+        public OutlookCalendarListEntry UseOutlookCalendar() {
             return useOutlookCalendar;
         }
-        public void UseOutlookCalendar(MAPIFolder set) {
+        public void UseOutlookCalendar(OutlookCalendarListEntry set) {
             useOutlookCalendar = set;
         }
         public String CurrentUserSMTP() {
@@ -360,7 +358,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 } while (calendarFolders.Count() == 0 && mailboxNos < Forms.Main.Instance.ddMailboxName.Items.Count);
 
                 //Default to first calendar in drop down
-                defaultCalendar = calendarFolders.FirstOrDefault().Value;
+                defaultCalendar = GetFolderByID(calendarFolders.FirstOrDefault().Value.Id);
                 if (defaultCalendar == null) {
                     log.Info("Could not find Alternative mailbox Calendar folder. Reverting to the default mailbox calendar.");
                     Ogcs.Extensions.MessageBox.Show("Unable to find a Calendar folder in the alternative mailbox.\r\n" +
@@ -423,7 +421,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     log.Debug(sharer.Name + " does not have a calendar shared.");
                     throw new System.Exception("Wrong default item type.");
                 }
-                calendarFolders.Add(sharer.Name, sharedCalendar);
+                calendarFolders.Add(sharer.Name, new OutlookCalendarListEntry(sharedCalendar));
                 return sharedCalendar;
 
             } catch (System.Exception ex) {
@@ -456,7 +454,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged += Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
 
                 defaultCalendar = oNS.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
-                calendarFolders.Add("Default " + defaultCalendar.Name, defaultCalendar);
+                calendarFolders.Add("Default " + defaultCalendar.Name, new OutlookCalendarListEntry(defaultCalendar));
                 string excludeDeletedFolder = folders.Application.Session.GetDefaultFolder(OlDefaultFolders.olFolderDeletedItems).EntryID;
 
                 if (updateGUI) {
@@ -476,7 +474,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        private void findCalendars(Folders folders, Dictionary<string, MAPIFolder> calendarFolders, String excludeDeletedFolder, MAPIFolder defaultCalendar = null) {
+        private void findCalendars(Folders folders, Dictionary<string, OutlookCalendarListEntry> calendarFolders, String excludeDeletedFolder, MAPIFolder defaultCalendar = null) {
             //Initiate progress bar (red line underneath "Getting calendars" text)
             System.Drawing.Graphics g = Forms.Main.Instance.tabOutlook.CreateGraphics();
             System.Drawing.Pen p = new System.Drawing.Pen(System.Drawing.Color.Red, 3);
@@ -529,7 +527,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// <param name="parentFolder">Recursive parent folder - leave null on initial call</param>
         private void calendarFolderAdd(String name, MAPIFolder folder, MAPIFolder parentFolder = null) {
             try {
-                calendarFolders.Add(name, folder);
+                calendarFolders.Add(name, new OutlookCalendarListEntry(folder));
             } catch (System.ArgumentException ex) {
                 if (ex.GetErrorCode() == "0x80070057") {
                     //An item with the same key has already been added.

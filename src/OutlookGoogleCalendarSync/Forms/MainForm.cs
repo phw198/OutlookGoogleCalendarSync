@@ -354,8 +354,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
                     //Select the right calendar
                     int c = 0;
-                    foreach (KeyValuePair<String, MAPIFolder> calendarFolder in Outlook.Calendar.Instance.CalendarFolders) {
-                        if (calendarFolder.Value.EntryID == profile.UseOutlookCalendar.Id) {
+                    foreach (OutlookCalendarListEntry calendarFolder in Outlook.Calendar.Instance.CalendarFolders.Values) {
+                        if (calendarFolder.Id == profile.UseOutlookCalendar.Id) {
                             cbOutlookCalendars.SelectedIndex = c;
                             break;
                         }
@@ -1465,8 +1465,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
-            KeyValuePair<String, MAPIFolder> calendar = (KeyValuePair<String, MAPIFolder>)cbOutlookCalendars.SelectedItem;
-            ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry(calendar.Value);
+            KeyValuePair<String, OutlookCalendarListEntry> calendar = (KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.SelectedItem;
+            ActiveCalendarProfile.UseOutlookCalendar = calendar.Value;
 
             log.Warn("Outlook calendar selection changed to: " + ActiveCalendarProfile.UseOutlookCalendar.ToString());
         }

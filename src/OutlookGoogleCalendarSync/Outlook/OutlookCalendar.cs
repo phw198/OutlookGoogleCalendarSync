@@ -54,7 +54,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Folders Folders {
             get { return IOutlook.Folders(); }
         }
-        public Dictionary<string, MAPIFolder> CalendarFolders {
+        public Dictionary<String, OutlookCalendarListEntry> CalendarFolders {
             get { return IOutlook.CalendarFolders(); }
         }
         public static Outlook.Categories Categories;
@@ -311,8 +311,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
                 Event ev = events[g];
-                AppointmentItem newAi = IOutlook.UseOutlookCalendar().Items.Add() as AppointmentItem;
+                MAPIFolder mapiFolder = null;
+                AppointmentItem newAi = null;
                 try {
+                    mapiFolder = IOutlook.GetFolderByID(IOutlook.UseOutlookCalendar().Id);
+                    newAi = mapiFolder.Items.Add() as AppointmentItem;
                     try {
                         createCalendarEntry(ev, ref newAi);
                     } catch (System.Exception ex) {
@@ -348,6 +351,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 } finally {
                     newAi = (AppointmentItem)ReleaseObject(newAi);
+                    mapiFolder = (MAPIFolder)ReleaseObject(mapiFolder);
                 }
             }
         }
@@ -1685,8 +1689,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
         #endregion
 
-        public void GetCalendars() {
 
-        }
     }
 }
