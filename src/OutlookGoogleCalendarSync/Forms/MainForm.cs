@@ -1248,13 +1248,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void miDeleteProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miDeleteProfile.Text;
             if (ddProfile.Items.Count == 1) {
-                MessageBox.Show("At least one profile must always exist.\nIf you don't want it to automatically sync, set the schedule value to zero.",
+                Ogcs.Extensions.MessageBox.Show("At least one profile must always exist.\nIf you don't want it to automatically sync, set the schedule value to zero.",
                     "Profile deletion", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 return;
             }
 
             String profileName = ddProfile.Text;
-            if (MessageBox.Show("Are you sure you want to remove the calendar settings for profile '" + profileName + "'?",
+            if (Ogcs.Extensions.MessageBox.Show("Are you sure you want to remove the calendar settings for profile '" + profileName + "'?",
                 "Confirm profile deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) return;
 
             try {
@@ -2514,7 +2514,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
                 return;
             }
-            DialogResult dr = MessageBox.Show("The telemetry only captures anonymised usage statistics, such as your version of OGCS and Outlook. " +
+            DialogResult dr = Ogcs.Extensions.MessageBox.Show("The telemetry only captures anonymised usage statistics, such as your version of OGCS and Outlook. " +
                 "This helps focus ongoing improvements. Are you sure you wish to disable telemetry?", "OGCS Usage Statistics", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dr == DialogResult.No) {
                 cbTelemetryDisabled.CheckedChanged -= cbTelemetryDisabled_CheckedChanged;
@@ -2732,7 +2732,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             //} catch (OperationCanceledException) {
             } catch (System.Exception ex) {
                 OGCSexception.Analyse(ex);
-                OgcsMessageBox.Show("Failed to retrieve Outlook calendars.\r\n" +
+                Ogcs.Extensions.MessageBox.Show("Failed to retrieve Outlook calendars.\r\n" +
                     "Please check the output on the Sync tab for more details.", "Outlook calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
@@ -2744,7 +2744,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     console.BuildOutput(OGCSexception.FriendlyMessage(ex), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
-                        if (OgcsMessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                        if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
                             "Test it now? If successful, please retry retrieving your Outlook calendars.",
                             "Test IE Internet Access",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
@@ -2763,7 +2763,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btResetOCal_Click(object sender, EventArgs e) {
             btResetOCal.ForeColor = Color.Red;
-            if (OgcsMessageBox.Show("This will disconnect the Microsoft account you are using to synchronise with.\r\n" +
+            if (Ogcs.Extensions.MessageBox.Show("This will disconnect the Microsoft account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
                 "Disconnect Microsoft account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) 
             {

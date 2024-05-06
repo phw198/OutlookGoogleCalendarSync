@@ -89,12 +89,12 @@ namespace OutlookGoogleCalendarSync {
                         reportError = ex.InnerException.Message;
                         log.Fatal(reportError);
                     }
-                    MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    Ogcs.Extensions.MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
 
                 } catch (System.Runtime.InteropServices.COMException ex) {
                     Ogcs.Exception.Analyse(ex);
-                    MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Ogcs.Extensions.MessageBox.Show(ex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     throw new ApplicationException("Suggest startup delay");
                 }
 
@@ -102,18 +102,18 @@ namespace OutlookGoogleCalendarSync {
                 if (aex.Message == "Suggest startup delay") {
                     if (isCLIstartup() && Settings.Instance.StartOnStartup) {
                         log.Debug("Suggesting to set a startup delay.");
-                        MessageBox.Show("If this error only happens when logging in to Windows, try " +
+                        Ogcs.Extensions.MessageBox.Show("If this error only happens when logging in to Windows, try " +
                             ((Settings.Instance.StartupDelay == 0) ? "setting a" : "increasing the") + " delay for OGCS on startup.",
                             "Set a delay on startup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 } else if (!string.IsNullOrEmpty(aex.Message))
-                    MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Ogcs.Extensions.MessageBox.Show(aex.Message, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
             } catch (System.Exception ex) {
                 Ogcs.Exception.Analyse(ex, true);
                 log.Fatal("Application unexpectedly terminated!");
-                MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Ogcs.Extensions.MessageBox.Show(ex.Message, "Application unexpectedly terminated!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 log.Warn("OGCS has crashed out.");
 
             } finally {

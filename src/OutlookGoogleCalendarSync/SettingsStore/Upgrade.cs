@@ -138,7 +138,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                             break;
                         } catch (System.IO.IOException ex) {
                             log.Fail("Another process has locked file " + Settings.ConfigFile);
-                            if (MessageBox.Show("Another program is using the settings file " + Settings.ConfigFile +
+                            if (Ogcs.Extensions.MessageBox.Show("Another program is using the settings file " + Settings.ConfigFile +
                                 "\r\nPlease close any other instance of OGCS that may be using it.",
                                 "Settings Cannot Be Saved", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Cancel) 
                             {

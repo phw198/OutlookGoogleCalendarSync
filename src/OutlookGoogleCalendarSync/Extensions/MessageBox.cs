@@ -73,9 +73,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
             log.Debug(caption + ": " + (logText ?? text));
 
             if (mainFrm == null || mainFrm.IsDisposed)
-                return MessageBox.Show(text, caption, buttons, icon);
+                dr = System.Windows.Forms.MessageBox.Show(text, caption, buttons, icon);
 
-            if (mainFrm.InvokeRequired) {
+            else if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
                     flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
@@ -103,9 +103,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
             log.Debug(caption + ": " + text);
 
             if (mainFrm == null || mainFrm.IsDisposed)
-                return MessageBox.Show(text, caption, buttons, icon, defaultButton);
+                dr = System.Windows.Forms.MessageBox.Show(text, caption, buttons, icon, defaultButton);
 
-            if (mainFrm.InvokeRequired) {
+            else if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
                     flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);

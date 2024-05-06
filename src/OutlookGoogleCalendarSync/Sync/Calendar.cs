@@ -55,7 +55,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     };
 
                     if (string.IsNullOrEmpty(this.Profile.UseGoogleCalendar?.Id)) {
-                        MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.");
+                        Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Choose Google Calendar", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
 
