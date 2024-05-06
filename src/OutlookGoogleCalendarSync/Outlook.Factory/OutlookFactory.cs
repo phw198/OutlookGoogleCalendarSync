@@ -31,6 +31,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public enum OutlookVersionNames : Int16 {
             Failed = -1,
             Unknown = 0,
+            None = 1,
             Outlook2003 = 11,
             Outlook2007 = 12,
             Outlook2010 = 14,
@@ -62,9 +63,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private const Boolean testing2003 = false;
+        private const Boolean testingGraph = false;
 
         public static Interface GetOutlookInterface() {
-            if (OutlookVersionName >= OutlookVersionNames.Outlook2007) {
+            if (NoClient()) {
+                return new OutlookGraph();
+            } else if (OutlookVersionName >= OutlookVersionNames.Outlook2007) {
                 return new OutlookNew();
             } else {
                 return new OutlookOld();
@@ -74,54 +78,58 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            Outlook.Calendar.AttachToOutlook(ref oApp);
-            try {
-                int attempts = 1;
-                int maxAttempts = 3;
-                while (attempts <= maxAttempts) {
-                    try {
-                        log.Fine("About to access Outlook oApp.version property...");
-                        outlookVersionFull = oApp.Version;
-                        attempts = maxAttempts + 1;
-                    } catch (System.Runtime.InteropServices.COMException ex) {
-                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                        if (error == Outlook.Errors.ErrorType.PermissionFailure ||
-                            error == Outlook.Errors.ErrorType.RpcRejected || 
-                            error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                            error == Outlook.Errors.ErrorType.RpcFailed) //
-                        {
-                            log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
-                            if (attempts == maxAttempts) {
-                                String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
-                                    "Please try running OGCS again later" +
-                                    (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
+            if (testingGraph || !isOutlookInstalled()) {
+                outlookVersionFull = "1.0";
+            } else {
+                Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
+                try {
+                    int attempts = 1;
+                    int maxAttempts = 3;
+                    while (attempts <= maxAttempts) {
+                        try {
+                            log.Fine("About to access Outlook oApp.version property...");
+                            outlookVersionFull = oApp.Version;
+                            attempts = maxAttempts + 1;
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                            if (error == Outlook.Errors.ErrorType.PermissionFailure ||
+                                error == Outlook.Errors.ErrorType.RpcRejected ||
+                                error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                error == Outlook.Errors.ErrorType.RpcFailed) //
+                            {
+                                log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
+                                if (attempts == maxAttempts) {
+                                    String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
+                                        "Please try running OGCS again later" +
+                                        (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
 
-                                throw new ApplicationException(message);
-                            }
-                            System.Threading.Thread.Sleep(10000);
-                            attempts++;
-                        } else throw;
+                                    throw new ApplicationException(message);
+                                }
+                                System.Threading.Thread.Sleep(10000);
+                                attempts++;
+                            } else throw;
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    Outlook.Calendar.PoorlyOfficeInstall(ex);
+                    return;
+                } finally {
+                    if (oApp != null) {
+                        System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                        oApp = null;
                     }
                 }
-
-                log.Info("Outlook Version: " + outlookVersionFull);
 #pragma warning disable 162 //Unreachable code
                 if (testing2003) {
                     log.Info("*** 2003 TESTING ***");
                     outlookVersionFull = "11";
                 }
 #pragma warning restore 162
-                outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
-                getOutlookVersionName(outlookVersion, outlookVersionFull);
-
-            } catch (System.Exception ex) {
-                Outlook.Calendar.PoorlyOfficeInstall(ex);
-            } finally {
-                if (oApp != null) {
-                    System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
-                    oApp = null;
-                }
             }
+
+            log.Info("Outlook Version: " + outlookVersionFull);
+            outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
+            getOutlookVersionName(outlookVersion, outlookVersionFull);
         }
 
         private static void getOutlookVersionName(Int16 version, String versionFull) {
@@ -192,6 +200,43 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } finally {
                 log.Info("Outlook product name: " + outlookVersionNameFull);
             }
+        }
+
+        private static Boolean isOutlookInstalled() {
+            Type requestType = Type.GetTypeFromProgID("Outlook.Application", false);
+            if (requestType == null) {
+                RegistryKey key = null;
+                try {
+                    key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Office", false);
+                    if (key != null) {
+                        double version = 0.0, temp = 0.0;
+                        string[] valueNames = key.GetSubKeyNames();
+                        for (int i = 0; i < valueNames.Length; i++) {
+                            temp = 0.0;
+                            try {
+                                temp = Convert.ToDouble(valueNames[i],
+                                System.Globalization.CultureInfo.CreateSpecificCulture("en-US").NumberFormat);
+                            } catch {
+                            }
+                            if (temp > version) version = temp;
+                        }
+                        key.Close();
+                        if (version != 0.0)
+                            requestType = Type.GetTypeFromProgID("Outlook.Application." + version.ToString().Replace(",", "."), false);
+                    }
+                } catch {
+                    if (key != null) key.Close();
+                }
+            }
+            if (requestType != null) {
+                log.Info("Assembly details: " + requestType.Assembly.FullName);
+                log.Debug("Assembly location: " + requestType.Assembly.Location);
+            }
+            return (requestType != null);
+        }
+
+        public static Boolean NoClient() {
+            return testingGraph || outlookVersionName <= OutlookVersionNames.None;
         }
     }
 }

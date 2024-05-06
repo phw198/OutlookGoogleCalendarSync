@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
@@ -18,11 +19,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static readonly String _clientId = "3f85f044-607a-4139-bb2e-e12eac105f14";
         private static String clientId {
             get {
-                //if (Settings.Instance.UsingPersonalAPIkeys()) {
-                //    return Settings.Instance.PersonalClientIdentifier;
-                //} else {
                 return _clientId;
-                //}
             }
         }
 
@@ -49,7 +46,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
 
-        public GraphServiceClient GraphClient;
         private readonly String graphBaseUrl = "https://graph.microsoft.com/v1.0";
 
         private void spawnOauth() {
@@ -60,10 +56,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
-                    OgcsMessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.",
+                    Ogcs.Extensions.MessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.",
                         "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    ex.Analyse();
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft. The following error occurred:", ex);
                 }
             } catch (System.Exception ex) {
@@ -146,7 +142,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             getMSaccountEmail();
 
 #pragma warning disable 1998 //Lacks await
-            GraphClient = new GraphServiceClient(graphBaseUrl,
+            Ogcs.Outlook.Calendar.Instance.GraphClient = new GraphServiceClient(graphBaseUrl,
                 new DelegateAuthenticationProvider(async (requestMessage) => {
                     requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResult.AccessToken);
                 }),
@@ -175,18 +171,20 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.Debug("Removing account from MSAL cache: " + EmailAddress.MaskAddress(account.Username));
                         oAuthApp.RemoveAsync(account).RunSynchronously();
                     } catch (MsalException ex) {
-                        OGCSexception.Analyse($"Could not remove Microsoft account '{EmailAddress.MaskAddress(account.Username)}' from MSAL cache.", ex);
+                        ex.Analyse($"Could not remove Microsoft account '{EmailAddress.MaskAddress(account.Username)}' from MSAL cache.");
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to sign out of Microsoft account.", ex);
+                ex.Analyse("Failed to sign out of Microsoft account.");
             }
             if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
-            if (!Outlook.Calendar.IsInstanceNull) {
-                Outlook.Calendar.Instance.Authenticator = new Authenticator();
-                //GoogleOgcs.Calendar.Instance.Service = null; ***
-                if (reauthorise)
+            if (!Ogcs.Outlook.Calendar.IsInstanceNull) {
+                Ogcs.Outlook.Calendar.Instance.Authenticator = null;
+                Ogcs.Outlook.Calendar.Instance.GraphClient = null;
+                if (reauthorise) {
+                    Ogcs.Outlook.Calendar.Instance.Authenticator = new Authenticator();
                     Outlook.Calendar.Instance.Authenticator.GetAuthenticated();
+                }
             }
         }
 

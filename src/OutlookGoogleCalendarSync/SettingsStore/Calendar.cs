@@ -20,10 +20,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             setDefaults();
         }
 
-        public override String ToString() {
-            return this._ProfileName + ": O[" + this.UseOutlookCalendar.Name + "] " + this.SyncDirection.ToString() + " G[" + this.UseGoogleCalendar.ToString() + "]";
-        }
-
         //Default values before loading from xml and attribute not yet serialized
         [OnDeserializing]
         void OnDeserializing(StreamingContext context) {
@@ -273,10 +269,10 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  Service: " + OutlookService.ToString());
             if (OutlookService == Outlook.Calendar.Service.SharedCalendar) {
                 log.Info("  Shared Calendar: " + SharedCalendar);
-            } else {
+            } else if (new Object[] { Ogcs.Outlook.Calendar.Service.DefaultMailbox, Ogcs.Outlook.Calendar.Service.AlternativeMailbox }.Contains(OutlookService)) {
                 log.Info("  Mailbox/FolderStore Name: " + MailboxName);
             }
-            log.Info("  Calendar: " + (UseOutlookCalendar.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar.ToString());
+            log.Info("  Calendar: " + (UseOutlookCalendar?.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar?.ToString());
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
             log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
@@ -348,6 +344,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
         }
 
+        /// <summary>Whether the profile is set to O365/Graph API</summary>
+        public Boolean IsOutlookOnline {
+            get { return this.OutlookService == Ogcs.Outlook.Calendar.Service.Graph; }
+        }
+
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {
             if (settingsStore is SettingsStore.Calendar)
                 return settingsStore as SettingsStore.Calendar;
@@ -355,6 +356,9 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         }
 
         #region Override Methods
+        public override String ToString() {
+            return this._ProfileName + ": O[" + this.UseOutlookCalendar.Name + "] " + this.SyncDirection.ToString() + " G[" + this.UseGoogleCalendar.ToString() + "]";
+        }
         public override bool Equals(Object calendarProfile) {
             return (calendarProfile is SettingsStore.Calendar && this._ProfileName == (calendarProfile as SettingsStore.Calendar)._ProfileName);
         }
