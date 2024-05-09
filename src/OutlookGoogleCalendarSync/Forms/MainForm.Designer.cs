@@ -1791,7 +1791,7 @@
             this.bGetGoogleCalendars.TabIndex = 7;
             this.bGetGoogleCalendars.Text = "Retrieve Calendars";
             this.bGetGoogleCalendars.UseVisualStyleBackColor = true;
-            this.bGetGoogleCalendars.Click += new System.EventHandler(this.GetMyGoogleCalendars_Click);
+            this.bGetGoogleCalendars.Click += new System.EventHandler(this.bGetGoogleCalendars_Click);
             // 
             // lGoogleCalendar
             // 
@@ -4323,7 +4323,7 @@
         private System.Windows.Forms.Label lGoogleHelp;
         private System.Windows.Forms.Label lGoogleCalendar;
         private System.Windows.Forms.Button bGetGoogleCalendars;
-        private System.Windows.Forms.ComboBox cbGoogleCalendars;
+        public System.Windows.Forms.ComboBox cbGoogleCalendars;
         private System.Windows.Forms.TabPage tabSyncOptions;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label13;

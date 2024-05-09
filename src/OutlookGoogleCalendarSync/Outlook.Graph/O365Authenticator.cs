@@ -26,17 +26,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public Boolean Authenticated { get; protected set; }
         private IPublicClientApplication oAuthApp;
         private AuthenticationResult authResult = null;
-        private Boolean noInteractiveAuth = false;
+        private Boolean nonInteractiveAuth = false;
 
         public Authenticator() {
             Authenticated = false;
             CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
-        public void GetAuthenticated(Boolean noInteractiveAuth = false) {
+        public void GetAuthenticated(Boolean nonInteractiveAuth = false) {
             if (this.Authenticated && authResult != null) return;
 
-            this.noInteractiveAuth = noInteractiveAuth;
+            this.nonInteractiveAuth = nonInteractiveAuth;
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();
             while (oAuth.IsAlive) {
@@ -98,7 +98,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 // This indicates the need to call AcquireTokenInteractive to acquire a token
                 log.Warn($"Unable to acquire MS Graph token silently: {msalSilentEx.Message}");
 
-                if (this.noInteractiveAuth) return false;
+                if (this.nonInteractiveAuth) return false;
                 new System.Threading.Thread(() => {
                     //Otherwise the subsequent async oAuthApp calls fail!!
                     Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
@@ -142,7 +142,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             getMSaccountEmail();
 
 #pragma warning disable 1998 //Lacks await
-            Ogcs.Outlook.Calendar.Instance.GraphClient = new GraphServiceClient(graphBaseUrl,
+            Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(graphBaseUrl,
                 new DelegateAuthenticationProvider(async (requestMessage) => {
                     requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResult.AccessToken);
                 }),
@@ -179,11 +179,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
             if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
             if (!Ogcs.Outlook.Calendar.IsInstanceNull) {
-                Ogcs.Outlook.Calendar.Instance.Authenticator = null;
-                Ogcs.Outlook.Calendar.Instance.GraphClient = null;
+                Ogcs.Outlook.Graph.Calendar.Instance.Authenticator = null;
+                Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = null;
                 if (reauthorise) {
-                    Ogcs.Outlook.Calendar.Instance.Authenticator = new Authenticator();
-                    Outlook.Calendar.Instance.Authenticator.GetAuthenticated();
+                    Ogcs.Outlook.Graph.Calendar.Instance.Authenticator = new Authenticator();
+                    Outlook.Graph.Calendar.Instance.Authenticator.GetAuthenticated();
                 }
             }
         }

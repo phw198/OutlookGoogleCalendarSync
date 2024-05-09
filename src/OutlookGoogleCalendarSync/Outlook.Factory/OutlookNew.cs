@@ -76,7 +76,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     //Select the right calendar
                     int c = 0;
                     foreach (OutlookCalendarListEntry calendarFolder in calendarFolders.Values) {
-                        if (calendarFolder.Id == profile.UseOutlookCalendar.Id) {
+                        if (calendarFolder.Id == profile.UseOutlookCalendar?.Id) {
                             Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbOutlookCalendars, "SelectedIndex", c);
                         }
                         c++;

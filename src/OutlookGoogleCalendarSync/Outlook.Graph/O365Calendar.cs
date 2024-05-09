@@ -11,19 +11,52 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Calendar {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
-        private static Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
-        public static Dictionary<String, OutlookCalendarListEntry> CalendarFolders {
+        private static Calendar instance;
+        public static Boolean IsInstanceNull { get { return instance == null; } }
+        public static Calendar Instance {
+            get {
+                if (instance == null) {
+                    instance = new Ogcs.Outlook.Graph.Calendar {
+                        Authenticator = new Ogcs.Outlook.Graph.Authenticator()
+                    };
+                }
+                return instance;
+            }
+        }
+        public Calendar() { }
+
+        public Ogcs.Outlook.Graph.Authenticator Authenticator;
+        private GraphServiceClient graphClient;
+        public GraphServiceClient GraphClient {
+            get {
+                if (graphClient == null || !(Authenticator?.Authenticated ?? false)) {
+                    log.Debug("MS Graph service not yet instantiated.");
+                    Authenticator = new Ogcs.Outlook.Graph.Authenticator();
+                    Authenticator.GetAuthenticated(nonInteractiveAuth: true);
+                    if (!Authenticator.Authenticated) {
+                        graphClient = null;
+                        throw new ApplicationException("Microsoft handshake failed.");
+                    }
+                }
+                return graphClient;
+            }
+            set { graphClient = value; }
+        }
+
+
+        private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
+        public Dictionary<String, OutlookCalendarListEntry> CalendarFolders {
             get { return calendarFolders; }
         }
 
         /// <summary>Retrieve calendar list from the cloud.</summary>
-        public static Dictionary<String, OutlookCalendarListEntry> GetCalendars() {
+        public Dictionary<String, OutlookCalendarListEntry> GetCalendars() {
             calendarFolders = new();
             List<Microsoft.Graph.Calendar> cals = new();
 
             var graphThread = new System.Threading.Thread(() => {
                 try {
-                    Microsoft.Graph.IUserCalendarsCollectionPage calPage = Outlook.Calendar.Instance.GraphClient.Me.Calendars.Request().GetAsync().Result;
+                    Microsoft.Graph.IUserCalendarsCollectionPage calPage = GraphClient.Me.Calendars.Request().GetAsync().Result;
                     cals.AddRange(calPage.CurrentPage);
                     while (calPage.NextPageRequest != null) {
                         calPage = calPage.NextPageRequest.GetAsync().Result;

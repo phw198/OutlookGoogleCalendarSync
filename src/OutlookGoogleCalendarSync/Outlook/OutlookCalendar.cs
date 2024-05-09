@@ -31,17 +31,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null) {
-                        instance = new Ogcs.Outlook.Calendar {
-                            Authenticator = new Ogcs.Outlook.Graph.Authenticator()
-                        };
-                    }
+                    if (instance ??= new Ogcs.Outlook.Calendar();
                     if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient())
                         instance.IOutlook.Connect();
-                    if (instance.Authenticator == null) {
-                        instance.Authenticator = new Ogcs.Outlook.Graph.Authenticator(); 
-                        instance.Authenticator.GetAuthenticated(noInteractiveAuth: true);
-                    }
 
                 } catch (System.ApplicationException) {
                     throw;
@@ -56,24 +48,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public Ogcs.Outlook.Graph.Authenticator Authenticator;
-        private O365.GraphServiceClient graphClient;
-        public O365.GraphServiceClient GraphClient {
-            get {
-                if (graphClient == null || !(Authenticator?.Authenticated ?? false)) {
-                    log.Debug("MS Graph service not yet instantiated.");
-                    Authenticator = new Ogcs.Outlook.Graph.Authenticator();
-                    Authenticator.GetAuthenticated(noInteractiveAuth: false);
-                    if (!Authenticator.Authenticated) {
-                        graphClient = null;
-                        throw new ApplicationException("Microsoft handshake failed.");
-                    }
-                }
-                return graphClient;
-            }
-            set { graphClient = value; }
-        }
-
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";
@@ -83,7 +57,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Dictionary<String, OutlookCalendarListEntry> CalendarFolders {
             get {
                 if (Settings.Profile.InPlay().IsOutlookOnline)
-                    return Ogcs.Outlook.Graph.Calendar.CalendarFolders;
+                    return Ogcs.Outlook.Graph.Calendar.Instance.CalendarFolders;
                 else
                     return IOutlook.CalendarFolders(); 
             }

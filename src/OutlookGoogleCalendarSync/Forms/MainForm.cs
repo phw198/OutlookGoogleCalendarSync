@@ -352,7 +352,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Debug("List Calendar folders");
                     this.cbOutlookCalendars_BuildList();
                     if (cbOutlookCalendars.SelectedIndex == -1) {
-                        if (!string.IsNullOrEmpty(profile.UseOutlookCalendar.Id)) {
+                        if (!string.IsNullOrEmpty(profile.UseOutlookCalendar?.Id)) {
                             log.Warn("Outlook calendar '" + profile.UseOutlookCalendar.Name + "' could no longer be found. Selected calendar '" + Outlook.Calendar.Instance.CalendarFolders.First().Key + "' instead.");
                             Ogcs.Extensions.MessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
                                 "'" + Outlook.Calendar.Instance.CalendarFolders.First().Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
@@ -361,7 +361,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             profile.OutlookPush = false;
                             Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
                         }
-                        cbOutlookCalendars.SelectedIndex = 0;
+                        if (cbOutlookCalendars.Enabled) cbOutlookCalendars.SelectedIndex = 0;
                     }
                     #endregion
                     #region Categories
@@ -1340,7 +1340,11 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void enableOutlookSettingsUI(Boolean enable) {
             this.clbCategories.Enabled = enable;
             this.cbOutlookCalendars.Enabled = enable;
-            if (!enable) this.cbOutlookCalendars.SelectedIndex = -1;
+            if (!enable) {
+                cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
+                this.cbOutlookCalendars.SelectedIndex = -1;
+                cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+            }
             this.ddMailboxName.Enabled = rbOutlookAltMB.Checked ? enable : false;
         }
 
@@ -1378,14 +1382,14 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
-                Outlook.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                Outlook.Graph.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                 return;
             }
 
             log.Debug("Retrieving Outlook calendar list.");
             this.bGetOutlookCalendars.Text = "Cancel retrieval";
             try {
-                Ogcs.Outlook.Graph.Calendar.GetCalendars();
+                Ogcs.Outlook.Graph.Calendar.Instance.GetCalendars();
             } catch (OperationCanceledException) {
             } catch (System.Exception ex) {
                 ex.Analyse();
@@ -1424,7 +1428,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             log.Debug("List Calendar folders");
 
             cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
-            cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
+            if (Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count == 0) {
+                cbOutlookCalendars.DataSource = null;
+                cbOutlookCalendars.Items.Clear();
+                cbOutlookCalendars.Items.Add("");
+            } else
+                cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
             cbOutlookCalendars.DisplayMember = "Key";
             cbOutlookCalendars.ValueMember = "Value";
             cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
@@ -1449,8 +1458,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("User requested reset of Microsoft authentication details.");
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
                 this.cbOutlookCalendars.Items.Clear();
-                if (!Outlook.Calendar.IsInstanceNull && Outlook.Calendar.Instance.Authenticator != null)
-                    Outlook.Calendar.Instance.Authenticator.Reset(reauthorise: false);
+                if (!Outlook.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
+                    Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.MSaccountEmail = "";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Outlook.Graph.Authenticator.TokenFile));

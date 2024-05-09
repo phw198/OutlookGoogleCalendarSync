@@ -41,6 +41,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                     newCalendar = new SettingsStore.Calendar();
                     newCalendar._ProfileName = profileName;
+
+                    //Explicitly set the calendars already selected, so it is populated in new profile
+                    newCalendar.UseGoogleCalendar = (GoogleCalendarListEntry)Forms.Main.Instance.cbGoogleCalendars.SelectedItem;
+                    System.Collections.Generic.KeyValuePair<String, OutlookCalendarListEntry> selectedItem = (System.Collections.Generic.KeyValuePair<String, OutlookCalendarListEntry>)Forms.Main.Instance.cbOutlookCalendars.SelectedItem;
+                    newCalendar.UseOutlookCalendar = selectedItem.Value;
+
                     Settings.Instance.Calendars.Add(newCalendar);
                     log.Info("Added new calendar settings '" + profileName + "'.");
                     int addedIdx = ddProfile.Items.Add(profileName);
