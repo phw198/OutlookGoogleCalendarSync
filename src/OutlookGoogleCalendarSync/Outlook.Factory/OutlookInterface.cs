@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Google.Apis.Calendar.v3.Data;
 using Microsoft.Office.Interop.Outlook;
-using Google.Apis.Calendar.v3.Data;
+using System;
+using System.Collections.Generic;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     public interface Interface {
         void Connect();
         void Disconnect(Boolean onlyWhenNoGUI = false);

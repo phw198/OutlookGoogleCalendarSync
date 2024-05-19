@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using log4net;
 
 namespace OutlookGoogleCalendarSync.Forms {
     public partial class UpdateInfo : Form {
@@ -38,7 +39,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     String githubReleaseNotes = Program.OgcsWebsite + "/release-notes";
                     anchorRequested = "v" + releaseVersion.Replace(".", "") + "---" + releaseType;
                     log.Debug("Browser anchor: " + anchorRequested);
-                    llViewOnGithub.Tag = githubReleaseNotes + "#" + anchorRequested;
+                    llViewOnGithub.Tag = githubReleaseNotes +"#"+ anchorRequested;
                     llViewOnGithub.Visible = true;
 
                 } else {
@@ -52,8 +53,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             } catch (System.Exception ex) {
                 log.Debug("A problem was encountered showing the release notes.");
-                OGCSexception.Analyse(ex);
-                dr = OgcsMessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
+                Ogcs.Exception.Analyse(ex);
+                dr = Ogcs.Extensions.MessageBox.Show("A new " + (releaseType == "alpha" ? "alpha " : "") + "release of OGCS is available.\nWould you like to upgrade to v" +
                                releaseVersion + " now?", "OGCS Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             } finally {
                 optionChosen = dr;
@@ -126,9 +127,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             while (webBrowser.ReadyState != WebBrowserReadyState.Complete) {
                 System.Threading.Thread.Sleep(250);
                 Application.DoEvents();
-            }
+    }
             Application.DoEvents();
-        }
+}
 
         private int previousProgress = 0;
 
@@ -152,7 +153,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         public void UpgradeCompleted() {
             if (this.Visible) btUpgrade.Text = "Restart";
             else
-                OgcsMessageBox.Show("The application has been updated and will now restart.",
+                Ogcs.Extensions.MessageBox.Show("The application has been updated and will now restart.",
                     "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public Boolean AwaitingRestart { 

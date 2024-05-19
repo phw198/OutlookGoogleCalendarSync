@@ -1,10 +1,11 @@
 ﻿using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     public class GMeetLogo {
         private static GMeetLogo instance;
         private static readonly ILog log = LogManager.GetLogger(typeof(GMeetLogo));
@@ -16,8 +17,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             GMeetLogoBase64 = base64encode(Properties.Resources.gmeet_logo);
         }
 
-        public String GMeetLogoBase64 { 
-            get; internal set; 
+        public String GMeetLogoBase64 {
+            get; internal set;
         }
 
         private String base64encode(System.Drawing.Image img) {
@@ -30,7 +31,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 return Convert.ToBase64String(imgBytes);
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not load GMeet logo.", ex);
+                ex.Analyse("Could not load GMeet logo.");
                 return "";
             }
         }

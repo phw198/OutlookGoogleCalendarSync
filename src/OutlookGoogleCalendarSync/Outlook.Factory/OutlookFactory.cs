@@ -1,9 +1,10 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Linq;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     class Factory {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
         private static String outlookVersionFull;
@@ -62,7 +63,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
 
         private const Boolean testing2003 = false;
 
-        public static OutlookOgcs.Interface GetOutlookInterface() {
+        public static Interface GetOutlookInterface() {
             if (OutlookVersionName >= OutlookVersionNames.Outlook2007) {
                 return new OutlookNew();
             } else {
@@ -73,7 +74,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+            Outlook.Calendar.AttachToOutlook(ref oApp);
             try {
                 int attempts = 1;
                 int maxAttempts = 3;
@@ -83,11 +84,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         outlookVersionFull = oApp.Version;
                         attempts = maxAttempts + 1;
                     } catch (System.Runtime.InteropServices.COMException ex) {
-                        Ogcs.Outlook.Errors.ErrorType error = Ogcs.Outlook.Errors.HandleComError(ex);
-                        if (error == Ogcs.Outlook.Errors.ErrorType.PermissionFailure ||
-                            error == Ogcs.Outlook.Errors.ErrorType.RpcRejected || 
-                            error == Ogcs.Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                            error == Ogcs.Outlook.Errors.ErrorType.RpcFailed) //
+                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                        if (error == Outlook.Errors.ErrorType.PermissionFailure ||
+                            error == Outlook.Errors.ErrorType.RpcRejected || 
+                            error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                            error == Outlook.Errors.ErrorType.RpcFailed) //
                         {
                             log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
                             if (attempts == maxAttempts) {
@@ -114,7 +115,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 getOutlookVersionName(outlookVersion, outlookVersionFull);
 
             } catch (System.Exception ex) {
-                OutlookOgcs.Calendar.PoorlyOfficeInstall(ex);
+                Outlook.Calendar.PoorlyOfficeInstall(ex);
             } finally {
                 if (oApp != null) {
                     System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
@@ -131,7 +132,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     outlookVersionName = (OutlookVersionNames)version;
                     outlookVersionNameFull = outlookVersionName.ToString();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook client version.", ex);
+                    ex.Analyse("Failed determining Outlook client version.");
                     outlookVersionNameFull = "Failed-" + versionFull;
                     outlookVersionName = OutlookVersionNames.Failed;
                 }
@@ -181,12 +182,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     log.Error("Could not determine exact Outlook version with codebase v16.");
 
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed determining Click-to-Run release.", ex);
+                                ex.Analyse("Failed determining Click-to-Run release.");
                             }
                         }
                     }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook release name from registry for codebase v16.", ex);
+                    ex.Analyse("Failed determining Outlook release name from registry for codebase v16.");
                 }
             } finally {
                 log.Info("Outlook product name: " + outlookVersionNameFull);

@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -60,11 +61,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 File.Copy(Settings.ConfigFile, backupFile, false);
                 log.Info(backupFile + " created.");
             } catch (System.IO.IOException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80070050") { //File already exists
+                if (ex.GetErrorCode() == "0x80070050") { //File already exists
                     log.Warn("The backfile already exists, not overwriting " + backupFile);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to create backup settings file", ex);
+                ex.Analyse("Failed to create backup settings file");
             }
         }
 
@@ -78,7 +79,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 upgradeFunction(xml);
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Problem encountered whilst upgrading " + Settings.ConfigFilename, ex);
+                ex.Analyse("Problem encountered whilst upgrading " + Settings.ConfigFilename);
                 throw ex;
             } finally {
                 if (xml != null) {
@@ -94,11 +95,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                                 "Settings Cannot Be Saved", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation) == DialogResult.Cancel) //
                             {
                                 log.Warn("User cancelled attempt to save new settings file.");
-                                OGCSexception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                                ex.Analyse("Could not save upgraded settings file " + Settings.ConfigFile);
                                 throw;
                             }
                         } catch (System.Exception ex) {
-                            OGCSexception.Analyse("Could not save upgraded settings file " + Settings.ConfigFile, ex);
+                            ex.Analyse("Could not save upgraded settings file " + Settings.ConfigFile);
                             throw;
                         }
                     }
