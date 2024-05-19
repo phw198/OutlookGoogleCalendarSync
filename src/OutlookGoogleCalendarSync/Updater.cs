@@ -40,21 +40,21 @@ namespace OutlookGoogleCalendarSync {
             try {
                 if (!string.IsNullOrEmpty(nonGitHubReleaseUri) || Program.IsInstalled) {
                     try {
-                       if (await githubCheck()) {
-                           log.Info("Restarting OGCS.");
-                           try {
-                               System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
-                           } catch (System.Exception ex) {
+                        if (await githubCheck()) {
+                            log.Info("Restarting OGCS.");
+                            try {
+                                System.Diagnostics.Process.Start(restartUpdateExe, "--processStartAndWait OutlookGoogleCalendarSync.exe");
+                            } catch (System.Exception ex) {
                                Ogcs.Exception.Analyse(ex, true);
-                           }
-                           try {
+                            }
+                            try {
                                Forms.Main.Instance.NotificationTray.ExitItem_Click(null, null);
-                           } catch (System.Exception ex) {
-                               log.Error("Failed to exit via the notification tray icon. " + ex.Message);
-                               log.Debug("NotificationTray is " + (Forms.Main.Instance.NotificationTray == null ? "null" : "not null"));
-                               Forms.Main.Instance.Close();
-                           }
-                       }
+                            } catch (System.Exception ex) {
+                                log.Error("Failed to exit via the notification tray icon. " + ex.Message);
+                                log.Debug("NotificationTray is " + (Forms.Main.Instance.NotificationTray == null ? "null" : "not null"));
+                                Environment.Exit(Environment.ExitCode);
+                            }
+                        }
                     } finally {
                         if (isManualCheck) updateButton.Text = "Check For Update";
                     }
