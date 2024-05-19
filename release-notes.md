@@ -32,6 +32,35 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.10.5.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Improved upgrade mechanism (when upgrading from this version) [[#1837](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1837)]
+- Delay immediate scheduled sync when resuming from hibernate [[#1850](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1850)]
+- Increased maximum startup delay to 600s
+- Code refactor in preparation for O365
+
+:beetle: **Bugfix**
+- Retain notification tray setting on upgrade through v2.10.4 [[#1841](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1841)]
+- Don't attempt GMeet sync when description type unknown [[#1844](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1844)]
+- Fixed regression of error when syncing too soon after system resume [[#1836](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1836)]
+- Properly restore application when minimised from system tray [[#1847](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1847)]
+- Exclude "Working Location" Google event type during 2-way sync [[#1843](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1843)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.10.4.0 - Alpha
 
 :high_brightness: **Enhancements**
