@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public void UpdateAutoSyncItems() {
             Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>
-                (c.OgcsTimer != null && c.OgcsTimer.Running()) ||
+                (c.OgcsTimer != null && c.OgcsTimer.IsRunning) ||
                 (c.OgcsTimer == null && (c.SyncInterval != 0 || c.OutlookPush)));
 
             UpdateItem("autoSyncToggle", autoSyncing ? "Disable" : "Enable");

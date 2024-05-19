@@ -38,6 +38,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             public void StartSync(Boolean manualIgnition, Boolean updateSyncSchedule = true) {
                 Forms.Main mainFrm = Forms.Main.Instance;
                 mainFrm.bSyncNow.Text = "Stop Sync";
+                mainFrm.bSyncNow.MenuEnabled = false;
                 mainFrm.NotificationTray.UpdateItem("sync", "&Stop Sync");
 
                 this.Profile.LogSettings();
@@ -219,6 +220,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Sync.Engine.Instance.bwSync?.Dispose();
                     Sync.Engine.Instance.bwSync = null;
                     Sync.Engine.Instance.ActiveProfile = null;
+                    mainFrm.bSyncNow.MenuEnabled = true;
                     mainFrm.bSyncNow.Text = "Start Sync";
                     mainFrm.NotificationTray.UpdateItem("sync", "&Sync Now");
                     if (Settings.Instance.MuteClickSounds) Console.MuteClicks(false);
