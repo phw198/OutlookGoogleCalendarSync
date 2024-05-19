@@ -3069,7 +3069,7 @@
             0});
             this.tbStartupDelay.Location = new System.Drawing.Point(207, 15);
             this.tbStartupDelay.Maximum = new decimal(new int[] {
-            300,
+            600,
             0,
             0,
             0});

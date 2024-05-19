@@ -161,7 +161,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         OgcsMessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
-                    if (Control.ModifierKeys == Keys.Shift) {
+                    if (Control.ModifierKeys == Keys.Shift || Forms.Main.Instance.bSyncNow.Text == "Start Full Sync") {
                         if (Forms.Main.Instance.ActiveCalendarProfile.SyncDirection == Direction.Bidirectional) {
                             OgcsMessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
                                 "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);

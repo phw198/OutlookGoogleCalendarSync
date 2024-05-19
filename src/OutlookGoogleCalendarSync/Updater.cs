@@ -197,10 +197,12 @@ namespace OutlookGoogleCalendarSync {
                         log.Info("User chose not to upgrade right now.");
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
                         squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Deferred");
+                        squirrelGaEv.Send();
 
                     } else if (dr == DialogResult.Ignore) {
                         Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
                         squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Skipped");
+                        squirrelGaEv.Send();
 
                     } else if (dr == DialogResult.Yes) {
                         try {

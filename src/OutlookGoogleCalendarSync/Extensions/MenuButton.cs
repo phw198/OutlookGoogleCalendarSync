@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -10,8 +11,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
         [DefaultValue(20), Browsable(true), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SplitWidth { get; set; }
 
+        [DefaultValue(true)]
+        public Boolean MenuEnabled { get; set; }
+
         public MenuButton() {
             SplitWidth = 20;
+            MenuEnabled = true;
         }
 
         protected override void OnMouseDown(MouseEventArgs mevent) {
@@ -20,6 +25,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
             // Figure out if the button click was on the button itself or the menu split
             if (Menu != null && mevent.Button == MouseButtons.Left && splitRect.Contains(mevent.Location)) {
+                if (!this.MenuEnabled) return;
+
                 if (this.Menu.Visible) {
                     this.Tag = "CloseRequested";
                     this.Menu.Hide();
@@ -40,7 +47,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 int arrowX = ClientRectangle.Width - (int)(SplitWidth - ((SplitWidth - 7)/2));
                 int arrowY = ClientRectangle.Height / 2 - 1;
 
-                var arrowBrush = Enabled ? SystemBrushes.ControlText : SystemBrushes.ButtonShadow;
+                var arrowBrush = (Enabled && MenuEnabled) ? SystemBrushes.ControlText : SystemBrushes.ButtonShadow;
                 var arrows = new[] { new Point(arrowX, arrowY), new Point(arrowX + 7, arrowY), new Point(arrowX + 3, arrowY + 4) };
                 pEvent.Graphics.FillPolygon(arrowBrush, arrows);
 
