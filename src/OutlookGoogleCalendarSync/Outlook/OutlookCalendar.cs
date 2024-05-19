@@ -614,8 +614,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Boolean descriptionChanged = false;
                     if (!String.IsNullOrEmpty(aiBody)) {
                         Regex htmlDataTag = new Regex(@"<data:image.*?>");
-                        aiBody = htmlDataTag.Replace(aiBody, "");
-                        aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, ai.BodyFormat()).RemoveLineBreaks(), "").Trim();
+                        aiBody = htmlDataTag.Replace(aiBody, "").Trim();
+                        OlBodyFormat bodyFormat = ai.BodyFormat();
+                        if (bodyFormat != OlBodyFormat.olFormatUnspecified)
+                            aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, bodyFormat).RemoveLineBreaks(), "").Trim();
                     }
                     String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description ?? "", @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
                     if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
@@ -1564,7 +1566,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
             }
 
-            if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour.Count > 0 && !profile.DeleteWhenColourExcluded) {
+            if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour?.Count > 0 && !profile.DeleteWhenColourExcluded) {
                 //Check if Outlook items to be deleted were filtered out from Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsValue(outlook[o].EntryID) ||
@@ -1573,7 +1575,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 }
             }
-            if (google.Count > 0 && Instance.ExcludedByCategory.Count > 0) {
+            if (google.Count > 0 && Instance.ExcludedByCategory?.Count > 0) {
                 //Check if Google items to be created were filtered out from Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||

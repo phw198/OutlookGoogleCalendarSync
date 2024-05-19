@@ -249,13 +249,13 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("Start monitoring for Outlook appointments changes on profile: " + this._ProfileName);
             if (this.OgcsPushTimer == null)
                 this.OgcsPushTimer = new Sync.PushSyncTimer(this);
-            if (!this.OgcsPushTimer.Running())
+            if (!this.OgcsPushTimer.IsRunning)
                 this.OgcsPushTimer.Activate(true);
         }
 
         public void DeregisterForPushSync() {
             log.Info("Stop monitoring for Outlook appointment changes on profile: " + this._ProfileName);
-            if (this.OgcsPushTimer != null && this.OgcsPushTimer.Running())
+            if (this.OgcsPushTimer != null && this.OgcsPushTimer.IsRunning)
                 this.OgcsPushTimer.Activate(false);
         }
         #endregion

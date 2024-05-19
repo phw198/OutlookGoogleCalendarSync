@@ -43,6 +43,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             gbAppBehaviour_Proxy.MinimumSize =
             gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(0, 0);
 
+            Program.Updater.CheckForUpdate();
+
             if (startingTab != null && startingTab == "Help") this.tabApp.SelectedTab = this.tabPage_Help;
 
             Instance = this;
@@ -1003,11 +1005,12 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (this.WindowState == FormWindowState.Minimized || !this.Visible || !this.TopMost || !this.ShowInTaskbar) {
                 this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.None; //Reset scrollbar
                 this.Show(); //Show minimised back in taskbar
-                this.ShowInTaskbar = true;
                 this.WindowState = FormWindowState.Normal;
+                this.ShowInTaskbar = true;
                 if (forceToTop) this.TopMost = true;
                 this.tbSyncNote.ScrollBars = RichTextBoxScrollBars.Vertical; //Show scrollbar if necessary
                 this.Show(); //Now restore
+                if (this.Location.X < 0 || this.Location.Y < 0) this.CenterToScreen();
                 this.TopMost = false;
                 this.Refresh();
                 System.Windows.Forms.Application.DoEvents();
@@ -1020,8 +1023,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Minimising application to task tray.");
                 this.ShowInTaskbar = false;
                 this.Hide();
-                if (Settings.Instance.ShowBubbleWhenMinimising) {
-                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowBubbleWhenMinimising");
+                if (Settings.Instance.ShowSystemNotificationWhenMinimising) {
+                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowSystemNotificationWhenMinimising");
                 } else {
                     trayIcon.Tag = "";
                 }
@@ -2678,7 +2681,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbAlphaReleases_CheckedChanged(object sender, EventArgs e) {
             if (this.Visible)
-                Settings.Instance.AlphaReleases = cbAlphaReleases.Checked;
+            Settings.Instance.AlphaReleases = cbAlphaReleases.Checked;
         }
         #endregion
         #endregion
