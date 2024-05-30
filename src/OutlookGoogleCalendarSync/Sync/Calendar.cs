@@ -302,7 +302,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 try {
                     #region Read Outlook items
-                    console.Update("Scanning Outlook calendar...");
+                    console.Update($"Scanning Outlook calendar '{Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}'...");
                     Outlook.Calendar.Instance.IOutlook.UseOutlookCalendar(Outlook.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id));
                     outlookEntries = Outlook.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                     console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
@@ -311,7 +311,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #endregion
 
                     #region Read Google items
-                    console.Update("Scanning Google calendar...");
+                    console.Update($"Scanning Google calendar '{Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}'...");
                     try {
                         Ogcs.Google.Calendar.Instance.GetSettings();
                         googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
