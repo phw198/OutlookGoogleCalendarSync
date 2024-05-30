@@ -312,6 +312,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void Load(String XMLfile = null) {
             try {
+                throw new System.ApplicationException();
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
                 Settings.AreLoaded = true;
@@ -330,8 +331,21 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static void ResetFile(String XMLfile = null) {
-            Ogcs.Extensions.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
+            Ogcs.Extensions.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.\r\n\r\n" +
+                "After clicking 'OK', you will have the opportunity to backup the corrupted settings before they are reset.",
                     "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+            System.Windows.Forms.SaveFileDialog backupFile = new System.Windows.Forms.SaveFileDialog {
+                Title = "Backup Corrupt OGCS Settings to File",
+                FileName = "OGCS_corrupt_settings.xml",
+                Filter = "XML File|*.xml|All Files|*",
+                DefaultExt = "xml",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+            if (backupFile.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                log.Info("Backing up corrupt settings to " + backupFile.FileName);
+                System.IO.File.Copy(XMLfile ?? ConfigFile, backupFile.FileName);
+            }
             log.Warn("Resetting settings.xml file to defaults.");
             System.IO.File.Delete(XMLfile ?? ConfigFile);
             Settings.Instance.Save(XMLfile ?? ConfigFile);
