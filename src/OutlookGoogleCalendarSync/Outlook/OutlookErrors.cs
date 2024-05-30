@@ -1,7 +1,8 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 
-namespace OutlookGoogleCalendarSync.Ogcs.Outlook {
+namespace OutlookGoogleCalendarSync.Outlook {
     public class Errors {
         private static readonly ILog log = LogManager.GetLogger(typeof(Errors));
 
@@ -25,7 +26,7 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook {
         public static ErrorType HandleComError(System.Exception ex, out String hResult) {
             ErrorType retVal = ErrorType.Unhandled;
             try {
-                hResult = OGCSexception.GetErrorCode(ex);
+                hResult = ex.GetErrorCode();
                 log.Warn($"[{hResult}] >> {ex.Message}");
 
                 if (hResult == "0x800401E3" && ex.Message.Contains("MK_E_UNAVAILABLE")) {
@@ -53,7 +54,7 @@ namespace OutlookGoogleCalendarSync.Ogcs.Outlook {
                 }
             } finally {
                 if (retVal != ErrorType.Unhandled)
-                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                    Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
             }
             
             return retVal;
