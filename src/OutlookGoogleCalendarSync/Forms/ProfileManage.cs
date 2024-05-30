@@ -21,12 +21,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.txtProfileName.Text = ddProfile.Text;
             }
 
-            if (!Settings.Instance.UserIsBenefactor()) {
+            if (Settings.Instance.UserIsBenefactor()) {
                 panelDonationNote.Visible = false;
-                this.Height = 135;
+                this.Height = 185;
             } else {
                 panelDonationNote.Visible = true;
-                this.Height = 255;
+                this.Height = 310;
             }
         }
 
@@ -80,6 +80,29 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void pbDonate_Click(object sender, EventArgs e) {
             Program.Donate("Profiles");
+        }
+
+        /// <summary>
+        /// Detect when F1 is pressed for help
+        /// </summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+            try {
+                if (keyData == Keys.F1) {
+                    try {
+                        Helper.OpenBrowser(Program.OgcsWebsite + "/guide/settings");
+                        return true; //This keystroke was handled, don't pass to the control with the focus
+                    } catch (System.Exception ex) {
+                        log.Warn("Failed to process captured F1 key.");
+                        Ogcs.Exception.Analyse(ex);
+                        System.Diagnostics.Process.Start(Program.OgcsWebsite + "/guide/settings");
+                        return true;
+                    }
+                }
+            } catch (System.Exception ex) {
+                log.Warn("Failed to process captured command key.");
+                Ogcs.Exception.Analyse(ex);
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
