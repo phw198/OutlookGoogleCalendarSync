@@ -57,14 +57,17 @@
             this.lLastSyncVal = new System.Windows.Forms.Label();
             this.lNextSync = new System.Windows.Forms.Label();
             this.lLastSync = new System.Windows.Forms.Label();
-            this.bSyncNow = new System.Windows.Forms.Button();
+            this.bSyncNow = new OutlookGoogleCalendarSync.Extensions.MenuButton();
+            this.msSyncActions = new OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip(this.components);
+            this.miSyncDelta = new System.Windows.Forms.ToolStripMenuItem();
+            this.miSyncFull = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage_Settings = new System.Windows.Forms.TabPage();
             this.tabSettingsSub = new System.Windows.Forms.TabControl();
             this.tabSyncSettings = new System.Windows.Forms.TabPage();
             this.label34 = new System.Windows.Forms.Label();
             this.ddProfile = new System.Windows.Forms.ComboBox();
             this.btProfileAction = new OutlookGoogleCalendarSync.Extensions.MenuButton();
-            this.msProfileActions = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.msProfileActions = new OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip(this.components);
             this.miAddProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.miDeleteProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.miRenameProfile = new System.Windows.Forms.ToolStripMenuItem();
@@ -214,6 +217,7 @@
             this.lWhatExcludeInfo = new System.Windows.Forms.Label();
             this.lExcludeItems = new System.Windows.Forms.Label();
             this.tabAppBehaviour = new System.Windows.Forms.TabPage();
+            this.cbShowSystemNotificationsIfChange = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartupAllUsers = new System.Windows.Forms.CheckBox();
             this.cbSuppressSocialPopup = new System.Windows.Forms.CheckBox();
             this.panelAppBehaviour = new System.Windows.Forms.Panel();
@@ -236,6 +240,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.pbExpandLogging = new System.Windows.Forms.PictureBox();
             this.gbAppBehaviour_Logging = new System.Windows.Forms.GroupBox();
+            this.cbAnonymiseLogs = new System.Windows.Forms.CheckBox();
             this.cbTelemetryDisabled = new System.Windows.Forms.CheckBox();
             this.btLogLocation = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -246,13 +251,13 @@
             this.cbHideSplash = new System.Windows.Forms.CheckBox();
             this.cbMinimiseNotClose = new System.Windows.Forms.CheckBox();
             this.cbPortable = new System.Windows.Forms.CheckBox();
-            this.cbShowBubbleTooltips = new System.Windows.Forms.CheckBox();
+            this.cbShowSystemNotifications = new System.Windows.Forms.CheckBox();
             this.cbMinimiseToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.lSettingInfo = new System.Windows.Forms.Label();
             this.bSave = new OutlookGoogleCalendarSync.Extensions.MenuButton();
-            this.msSettingsActions = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.msSettingsActions = new OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip(this.components);
             this.miExportSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.miImportSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage_Help = new System.Windows.Forms.TabPage();
@@ -310,10 +315,11 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cbAnonymiseLogs = new System.Windows.Forms.CheckBox();
+            this.label36 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
+            this.msSyncActions.SuspendLayout();
             this.tabPage_Settings.SuspendLayout();
             this.tabSettingsSub.SuspendLayout();
             this.tabSyncSettings.SuspendLayout();
@@ -545,14 +551,39 @@
             // bSyncNow
             // 
             this.bSyncNow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bSyncNow.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.bSyncNow.Location = new System.Drawing.Point(3, 520);
+            this.bSyncNow.Menu = this.msSyncActions;
             this.bSyncNow.Name = "bSyncNow";
+            this.bSyncNow.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.bSyncNow.Size = new System.Drawing.Size(98, 31);
             this.bSyncNow.TabIndex = 0;
             this.bSyncNow.Text = "Start Sync";
             this.bSyncNow.UseVisualStyleBackColor = true;
             this.bSyncNow.Click += new System.EventHandler(this.Sync_Click);
+            // 
+            // msSyncActions
+            // 
+            this.msSyncActions.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miSyncDelta,
+            this.miSyncFull});
+            this.msSyncActions.Name = "msSyncActions";
+            this.msSyncActions.ShowImageMargin = false;
+            this.msSyncActions.ShowItemToolTips = false;
+            this.msSyncActions.Size = new System.Drawing.Size(97, 48);
+            // 
+            // miSyncDelta
+            // 
+            this.miSyncDelta.Name = "miSyncDelta";
+            this.miSyncDelta.Size = new System.Drawing.Size(96, 22);
+            this.miSyncDelta.Text = "Sync";
+            this.miSyncDelta.Click += new System.EventHandler(this.miSyncDelta_Click);
+            // 
+            // miSyncFull
+            // 
+            this.miSyncFull.Name = "miSyncFull";
+            this.miSyncFull.Size = new System.Drawing.Size(96, 22);
+            this.miSyncFull.Text = "Full Sync";
+            this.miSyncFull.Click += new System.EventHandler(this.miSyncFull_Click);
             // 
             // tabPage_Settings
             // 
@@ -2223,6 +2254,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.label36);
             this.gbSyncOptions_What.Controls.Add(this.tbExcludeSubjectText);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeSubject);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
@@ -2255,7 +2287,7 @@
             this.gbSyncOptions_What.Location = new System.Drawing.Point(10, 284);
             this.gbSyncOptions_What.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbSyncOptions_What.Name = "gbSyncOptions_What";
-            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 250);
+            this.gbSyncOptions_What.Size = new System.Drawing.Size(368, 265);
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
@@ -2265,7 +2297,7 @@
             this.tbExcludeSubjectText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbExcludeSubjectText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 221);
+            this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 236);
             this.tbExcludeSubjectText.Name = "tbExcludeSubjectText";
             this.tbExcludeSubjectText.Size = new System.Drawing.Size(201, 20);
             this.tbExcludeSubjectText.TabIndex = 58;
@@ -2275,7 +2307,7 @@
             // 
             this.cbExcludeSubject.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeSubject.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeSubject.Location = new System.Drawing.Point(22, 224);
+            this.cbExcludeSubject.Location = new System.Drawing.Point(22, 239);
             this.cbExcludeSubject.Name = "cbExcludeSubject";
             this.cbExcludeSubject.Size = new System.Drawing.Size(126, 17);
             this.cbExcludeSubject.TabIndex = 57;
@@ -2287,7 +2319,7 @@
             // 
             this.cbExcludePrivate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludePrivate.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 188);
+            this.cbExcludePrivate.Location = new System.Drawing.Point(22, 203);
             this.cbExcludePrivate.Name = "cbExcludePrivate";
             this.cbExcludePrivate.Size = new System.Drawing.Size(68, 17);
             this.cbExcludePrivate.TabIndex = 55;
@@ -2299,7 +2331,7 @@
             // 
             this.cbExcludeFree.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFree.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFree.Location = new System.Drawing.Point(22, 170);
+            this.cbExcludeFree.Location = new System.Drawing.Point(22, 185);
             this.cbExcludeFree.Name = "cbExcludeFree";
             this.cbExcludeFree.Size = new System.Drawing.Size(52, 17);
             this.cbExcludeFree.TabIndex = 54;
@@ -2311,7 +2343,7 @@
             // 
             this.cbExcludeTentative.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeTentative.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeTentative.Location = new System.Drawing.Point(103, 170);
+            this.cbExcludeTentative.Location = new System.Drawing.Point(103, 185);
             this.cbExcludeTentative.Name = "cbExcludeTentative";
             this.cbExcludeTentative.Size = new System.Drawing.Size(106, 17);
             this.cbExcludeTentative.TabIndex = 53;
@@ -2323,7 +2355,7 @@
             // 
             this.cbExcludeFreeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeFreeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 206);
+            this.cbExcludeFreeAllDays.Location = new System.Drawing.Point(81, 221);
             this.cbExcludeFreeAllDays.Name = "cbExcludeFreeAllDays";
             this.cbExcludeFreeAllDays.Size = new System.Drawing.Size(95, 17);
             this.cbExcludeFreeAllDays.TabIndex = 50;
@@ -2335,7 +2367,7 @@
             // 
             this.cbExcludeAllDays.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeAllDays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 206);
+            this.cbExcludeAllDays.Location = new System.Drawing.Point(22, 221);
             this.cbExcludeAllDays.Name = "cbExcludeAllDays";
             this.cbExcludeAllDays.Size = new System.Drawing.Size(87, 17);
             this.cbExcludeAllDays.TabIndex = 49;
@@ -2607,6 +2639,7 @@
             // tabAppBehaviour
             // 
             this.tabAppBehaviour.BackColor = System.Drawing.Color.White;
+            this.tabAppBehaviour.Controls.Add(this.cbShowSystemNotificationsIfChange);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartupAllUsers);
             this.tabAppBehaviour.Controls.Add(this.cbSuppressSocialPopup);
             this.tabAppBehaviour.Controls.Add(this.panelAppBehaviour);
@@ -2614,7 +2647,7 @@
             this.tabAppBehaviour.Controls.Add(this.cbHideSplash);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseNotClose);
             this.tabAppBehaviour.Controls.Add(this.cbPortable);
-            this.tabAppBehaviour.Controls.Add(this.cbShowBubbleTooltips);
+            this.tabAppBehaviour.Controls.Add(this.cbShowSystemNotifications);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseToTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartInTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartup);
@@ -2623,6 +2656,16 @@
             this.tabAppBehaviour.Size = new System.Drawing.Size(473, 488);
             this.tabAppBehaviour.TabIndex = 4;
             this.tabAppBehaviour.Text = "  Application Behaviour";
+            // 
+            // cbShowSystemNotificationsIfChange
+            // 
+            this.cbShowSystemNotificationsIfChange.Location = new System.Drawing.Point(270, 107);
+            this.cbShowSystemNotificationsIfChange.Name = "cbShowSystemNotificationsIfChange";
+            this.cbShowSystemNotificationsIfChange.Size = new System.Drawing.Size(151, 17);
+            this.cbShowSystemNotificationsIfChange.TabIndex = 48;
+            this.cbShowSystemNotificationsIfChange.Text = "Only if changes are found";
+            this.cbShowSystemNotificationsIfChange.UseVisualStyleBackColor = true;
+            this.cbShowSystemNotificationsIfChange.CheckedChanged += new System.EventHandler(this.cbShowSystemNotificationsIfChange_CheckedChanged);
             // 
             // cbStartOnStartupAllUsers
             // 
@@ -2695,7 +2738,7 @@
             this.gbAppBehaviour_Proxy.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbAppBehaviour_Proxy.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbAppBehaviour_Proxy.Location = new System.Drawing.Point(32, 136);
-            this.gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(366, 0);
+            this.gbAppBehaviour_Proxy.MinimumSize = new System.Drawing.Size(379, 0);
             this.gbAppBehaviour_Proxy.Name = "gbAppBehaviour_Proxy";
             this.gbAppBehaviour_Proxy.Size = new System.Drawing.Size(379, 197);
             this.gbAppBehaviour_Proxy.TabIndex = 46;
@@ -2912,12 +2955,24 @@
             this.gbAppBehaviour_Logging.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbAppBehaviour_Logging.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbAppBehaviour_Logging.Location = new System.Drawing.Point(32, 4);
-            this.gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(366, 0);
+            this.gbAppBehaviour_Logging.MinimumSize = new System.Drawing.Size(379, 0);
             this.gbAppBehaviour_Logging.Name = "gbAppBehaviour_Logging";
             this.gbAppBehaviour_Logging.Size = new System.Drawing.Size(379, 125);
             this.gbAppBehaviour_Logging.TabIndex = 45;
             this.gbAppBehaviour_Logging.TabStop = false;
             this.gbAppBehaviour_Logging.Text = "  Logging";
+            // 
+            // cbAnonymiseLogs
+            // 
+            this.cbAnonymiseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbAnonymiseLogs.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbAnonymiseLogs.Location = new System.Drawing.Point(20, 69);
+            this.cbAnonymiseLogs.Name = "cbAnonymiseLogs";
+            this.cbAnonymiseLogs.Size = new System.Drawing.Size(235, 17);
+            this.cbAnonymiseLogs.TabIndex = 44;
+            this.cbAnonymiseLogs.Text = "Anonymise calendar subjects";
+            this.cbAnonymiseLogs.UseVisualStyleBackColor = true;
+            this.cbAnonymiseLogs.CheckedChanged += new System.EventHandler(this.cbAnonymiseLogs_CheckedChanged);
             // 
             // cbTelemetryDisabled
             // 
@@ -3014,7 +3069,7 @@
             0});
             this.tbStartupDelay.Location = new System.Drawing.Point(207, 15);
             this.tbStartupDelay.Maximum = new decimal(new int[] {
-            300,
+            600,
             0,
             0,
             0});
@@ -3056,15 +3111,15 @@
             this.cbPortable.UseVisualStyleBackColor = true;
             this.cbPortable.CheckedChanged += new System.EventHandler(this.cbPortable_CheckedChanged);
             // 
-            // cbShowBubbleTooltips
+            // cbShowSystemNotifications
             // 
-            this.cbShowBubbleTooltips.Location = new System.Drawing.Point(56, 107);
-            this.cbShowBubbleTooltips.Name = "cbShowBubbleTooltips";
-            this.cbShowBubbleTooltips.Size = new System.Drawing.Size(259, 17);
-            this.cbShowBubbleTooltips.TabIndex = 14;
-            this.cbShowBubbleTooltips.Text = "Show bubble tooltip in tray when syncing";
-            this.cbShowBubbleTooltips.UseVisualStyleBackColor = true;
-            this.cbShowBubbleTooltips.CheckedChanged += new System.EventHandler(this.cbShowBubbleTooltipsCheckedChanged);
+            this.cbShowSystemNotifications.Location = new System.Drawing.Point(56, 107);
+            this.cbShowSystemNotifications.Name = "cbShowSystemNotifications";
+            this.cbShowSystemNotifications.Size = new System.Drawing.Size(224, 17);
+            this.cbShowSystemNotifications.TabIndex = 14;
+            this.cbShowSystemNotifications.Text = "Show system notifications when syncing";
+            this.cbShowSystemNotifications.UseVisualStyleBackColor = true;
+            this.cbShowSystemNotifications.CheckedChanged += new System.EventHandler(this.cbShowSystemNotifications_CheckedChanged);
             // 
             // cbMinimiseToTray
             // 
@@ -3865,17 +3920,15 @@
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
-            // cbAnonymiseLogs
+            // label36
             // 
-            this.cbAnonymiseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbAnonymiseLogs.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAnonymiseLogs.Location = new System.Drawing.Point(20, 69);
-            this.cbAnonymiseLogs.Name = "cbAnonymiseLogs";
-            this.cbAnonymiseLogs.Size = new System.Drawing.Size(235, 17);
-            this.cbAnonymiseLogs.TabIndex = 44;
-            this.cbAnonymiseLogs.Text = "Anonymise calendar subjects";
-            this.cbAnonymiseLogs.UseVisualStyleBackColor = true;
-            this.cbAnonymiseLogs.CheckedChanged += new System.EventHandler(this.cbAnonymiseLogs_CheckedChanged);
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label36.Location = new System.Drawing.Point(7, 167);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(279, 14);
+            this.label36.TabIndex = 59;
+            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
             // 
             // Main
             // 
@@ -3895,6 +3948,7 @@
             this.tabPage_Sync.ResumeLayout(false);
             this.tabPage_Sync.PerformLayout();
             this.consolePanel.ResumeLayout(false);
+            this.msSyncActions.ResumeLayout(false);
             this.tabPage_Settings.ResumeLayout(false);
             this.tabPage_Settings.PerformLayout();
             this.tabSettingsSub.ResumeLayout(false);
@@ -3981,7 +4035,7 @@
         public System.Windows.Forms.TabControl tabApp;
         public System.Windows.Forms.TabPage tabPage_Settings;
         private System.Windows.Forms.PictureBox pbDonate;
-        public System.Windows.Forms.Button bSyncNow;
+        public Extensions.MenuButton bSyncNow;
         private System.Windows.Forms.TabControl tabAppSettings;
         private System.Windows.Forms.RadioButton rbOutlookSharedCal;
         public System.Windows.Forms.RadioButton rbOutlookDefaultMB;
@@ -4092,13 +4146,16 @@
         private System.Windows.Forms.ToolStripMenuItem miColourSelectNone;
         private System.Windows.Forms.ToolStripMenuItem miColourSelectInvert;
         private System.Windows.Forms.ToolStripMenuItem miColourRefresh;
-        private System.Windows.Forms.ContextMenuStrip msProfileActions;
+        private OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip msProfileActions;
         private System.Windows.Forms.ToolStripMenuItem miAddProfile;
         private System.Windows.Forms.ToolStripMenuItem miDeleteProfile;
         private System.Windows.Forms.ToolStripMenuItem miRenameProfile;
-        private System.Windows.Forms.ContextMenuStrip msSettingsActions;
+        private OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip msSettingsActions;
         private System.Windows.Forms.ToolStripMenuItem miExportSettings;
         private System.Windows.Forms.ToolStripMenuItem miImportSettings;
+        private OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip msSyncActions;
+        private System.Windows.Forms.ToolStripMenuItem miSyncDelta;
+        private System.Windows.Forms.ToolStripMenuItem miSyncFull;
         public System.Windows.Forms.Label lOutlookCalendar;
         public System.Windows.Forms.TabPage tabOutlook;
         private System.Windows.Forms.Panel howObfuscatePanel;
@@ -4143,7 +4200,7 @@
         private System.Windows.Forms.Button btSocialGitHub;
         private System.Windows.Forms.Button btFbLike;
         public System.Windows.Forms.Button btCustomTzMap;
-        private System.Windows.Forms.Button btColourMap;
+        public System.Windows.Forms.Button btColourMap;
         public Extensions.GoogleColourPicker ddGoogleColour;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn AboutColumnValue;
@@ -4194,7 +4251,8 @@
         public System.Windows.Forms.CheckBox cbHideSplash;
         private System.Windows.Forms.CheckBox cbMinimiseNotClose;
         private System.Windows.Forms.CheckBox cbPortable;
-        private System.Windows.Forms.CheckBox cbShowBubbleTooltips;
+        private System.Windows.Forms.CheckBox cbShowSystemNotifications;
+        private System.Windows.Forms.CheckBox cbShowSystemNotificationsIfChange;
         private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
@@ -4239,5 +4297,6 @@
         private System.Windows.Forms.CheckBox cbDeleteWhenColourExcl;
         private System.Windows.Forms.CheckBox cbAddGMeet;
         private System.Windows.Forms.CheckBox cbAnonymiseLogs;
+        private System.Windows.Forms.Label label36;
     }
 }

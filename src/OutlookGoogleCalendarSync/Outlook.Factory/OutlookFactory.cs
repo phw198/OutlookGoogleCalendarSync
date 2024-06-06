@@ -1,9 +1,10 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Linq;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     class Factory {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
         private static String outlookVersionFull;
@@ -44,24 +45,25 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             O365BusinessRetail = 21,
             HomeBusinessRetail = 22,
             HomeBusiness2019Retail = 23,
-            HomeStudentRetail = 24,
-            HomeStudent2019Retail = 25,
-            OutlookRetail = 26,
-            Outlook2019Retail = 27,
-            Outlook2019Volume = 28,
-            Outlook2021Volume = 29,
-            Personal2019Retail = 30,
-            Professional2019Retail = 31,
-            Standard2019Volume = 32,
-            Standard2021Volume = 33,
-            ProPlus2019Volume = 34,
-            ProPlus2021Volume = 35,
-            ProPlus2021Retail = 36
+            HomeBusiness2021Retail = 24,
+            HomeStudentRetail = 25,
+            HomeStudent2019Retail = 26,
+            OutlookRetail = 27,
+            Outlook2019Retail = 28,
+            Outlook2019Volume = 29,
+            Outlook2021Volume = 30,
+            Personal2019Retail = 31,
+            Professional2019Retail = 32,
+            Standard2019Volume = 33,
+            Standard2021Volume = 34,
+            ProPlus2019Volume = 35,
+            ProPlus2021Volume = 36,
+            ProPlus2021Retail = 37
         }
 
         private const Boolean testing2003 = false;
 
-        public static OutlookOgcs.Interface GetOutlookInterface() {
+        public static Interface GetOutlookInterface() {
             if (OutlookVersionName >= OutlookVersionNames.Outlook2007) {
                 return new OutlookNew();
             } else {
@@ -72,7 +74,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            OutlookOgcs.Calendar.AttachToOutlook(ref oApp);
+            Outlook.Calendar.AttachToOutlook(ref oApp);
             try {
                 int attempts = 1;
                 int maxAttempts = 3;
@@ -82,11 +84,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         outlookVersionFull = oApp.Version;
                         attempts = maxAttempts + 1;
                     } catch (System.Runtime.InteropServices.COMException ex) {
-                        String hResult = OGCSexception.GetErrorCode(ex);
-
-                        if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED") ||
-                            (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) ||
-                            (hResult == "0x800706BA" || hResult == "0x800706BE")) //Remote Procedure Call failed.
+                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                        if (error == Outlook.Errors.ErrorType.PermissionFailure ||
+                            error == Outlook.Errors.ErrorType.RpcRejected || 
+                            error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                            error == Outlook.Errors.ErrorType.RpcFailed) //
                         {
                             log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
                             if (attempts == maxAttempts) {
@@ -113,7 +115,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 getOutlookVersionName(outlookVersion, outlookVersionFull);
 
             } catch (System.Exception ex) {
-                OutlookOgcs.Calendar.PoorlyOfficeInstall(ex);
+                Outlook.Calendar.PoorlyOfficeInstall(ex);
             } finally {
                 if (oApp != null) {
                     System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
@@ -130,7 +132,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     outlookVersionName = (OutlookVersionNames)version;
                     outlookVersionNameFull = outlookVersionName.ToString();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook client version.", ex);
+                    ex.Analyse("Failed determining Outlook client version.");
                     outlookVersionNameFull = "Failed-" + versionFull;
                     outlookVersionName = OutlookVersionNames.Failed;
                 }
@@ -180,12 +182,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                     log.Error("Could not determine exact Outlook version with codebase v16.");
 
                             } catch (System.Exception ex) {
-                                OGCSexception.Analyse("Failed determining Click-to-Run release.", ex);
+                                ex.Analyse("Failed determining Click-to-Run release.");
                             }
                         }
                     }
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Failed determining Outlook release name from registry for codebase v16.", ex);
+                    ex.Analyse("Failed determining Outlook release name from registry for codebase v16.");
                 }
             } finally {
                 log.Info("Outlook product name: " + outlookVersionNameFull);

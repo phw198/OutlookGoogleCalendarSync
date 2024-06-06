@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +41,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 result = (T)new DataContractSerializer(typeof(T)).ReadObject(fs);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 if (Forms.Main.Instance != null) Forms.Main.Instance.tabApp.SelectedTab = Forms.Main.Instance.tabPage_Settings;
                 throw new ApplicationException("Failed to import settings.");
             } finally {
@@ -59,27 +60,27 @@ namespace OutlookGoogleCalendarSync {
                 return xe.Value;
 
             } catch (System.InvalidOperationException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
+                if (ex.GetErrorCode() == "0x80131509") { //Sequence contains no elements
                     log.Warn("'" + nodeName + "' could not be found.");
                 } else {
                     log.Error("Failed retrieving '" + nodeName + "' from " + filename);
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
                 return null;
 
             } catch (System.IO.IOException ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80070020") { //Setting file in use by another process
+                if (ex.GetErrorCode() == "0x80070020") { //Setting file in use by another process
                     log.Warn("Failed retrieving '" + nodeName + "' from " + filename);
                     log.Warn(ex.Message);
                 } else {
                     log.Error("Failed retrieving '" + nodeName + "' from " + filename);
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
                 return null;
 
             } catch (System.Xml.XmlException ex) {
-                log.Warn("Failed retrieving '" + nodeName + "' from " + filename);
-                if (OGCSexception.GetErrorCode(ex) == "0x80131940") { //hexadecimal value 0x00, is an invalid character
+                log.Warn($"Failed retrieving '{nodeName}' from {filename}");
+                if (ex.GetErrorCode() == "0x80131940") { //hexadecimal value 0x00, is an invalid character
                     log.Warn(ex.Message);
                     Settings.ResetFile(filename);
                     try {
@@ -87,20 +88,20 @@ namespace OutlookGoogleCalendarSync {
                         XElement settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
                         XElement xe = settingsXE.Elements(ns + nodeName).First();
                         if (debugLog)
-                            log.Debug("Retrieved setting '" + nodeName + "' with value '" + xe.Value + "'");
+                            log.Debug($"Retrieved setting '{nodeName}' with value '{xe.Value}'");
                         return xe.Value;
                     } catch (System.Exception ex2) {
-                        OGCSexception.Analyse("Still failed to retrieve '" + nodeName + "' from " + filename, ex2);
+                        ex2.Analyse($"Still failed to retrieve '{nodeName}' from {filename}");
                         return null;
                     }
                 } else {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                     return null;
                 }
 
             } catch (System.Exception ex) {
-                log.Error("Failed retrieving '" + nodeName + "' from " + filename);
-                OGCSexception.Analyse(ex);
+                log.Error($"Failed retrieving '{nodeName}' from {filename}");
+                Ogcs.Exception.Analyse(ex);
                 return null;
             }
         }
@@ -110,7 +111,7 @@ namespace OutlookGoogleCalendarSync {
             try {
                 xml = XDocument.Load(filename);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to load " + filename, ex, true);
+                ex.Analyse("Failed to load " + filename, true);
                 throw;
             }
             XElement settingsXE = null;
@@ -118,7 +119,7 @@ namespace OutlookGoogleCalendarSync {
                 settingsXE = xml.Descendants(ns + "Settings").FirstOrDefault();
             } catch (System.Exception ex) {
                 log.Debug(filename + " head: " + xml.ToString().Substring(0, Math.Min(200, xml.ToString().Length)));
-                OGCSexception.Analyse("Could not access 'Settings' element.", ex, true);
+                ex.Analyse("Could not access 'Settings' element.", true);
                 return;
             }
             XElement xe = null;
@@ -147,7 +148,7 @@ namespace OutlookGoogleCalendarSync {
                 xml.Save(filename);
                 log.Debug("Setting '" + nodeName + "' updated to '" + nodeValue + "'");
             } catch (System.Exception ex) {
-                if (OGCSexception.GetErrorCode(ex) == "0x80131509") { //Sequence contains no elements
+                if (ex.GetErrorCode() == "0x80131509") { //Sequence contains no elements
                     log.Debug("Adding Setting " + nodeName + " for " + settingStore.ToString() + " to " + filename);
                     if (xeProfile != null)
                         xeProfile.Add(new XElement(ns + nodeName, nodeValue));
@@ -156,7 +157,7 @@ namespace OutlookGoogleCalendarSync {
                     xml.Root.Sort();
                     xml.Save(filename);
                 } else {
-                    OGCSexception.Analyse("Failed to export setting " + nodeName + "=" + nodeValue + " for " + settingStore.ToString() + " to " + filename + " file.", ex);
+                    ex.Analyse($"Failed to export setting {nodeName}={nodeValue} for {settingStore.ToString()} to {filename} file.");
                 }
             }
         }
@@ -224,7 +225,19 @@ namespace OutlookGoogleCalendarSync {
                 target.Add(sourceElement);
                 removeElement(nodeName, parent);
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Could not move '" + nodeName + "'", ex);
+                ex.Analyse($"Could not move '{nodeName}'");
+            }
+        }
+
+        public static void RenameElement(String nodeName, XElement parent, String newNodeName) {
+            try {
+                XElement sourceElement = getElement(nodeName, parent);
+                if (sourceElement == null)
+                    log.Warn($"Could not find settings node '{nodeName}' for rename.");
+                else
+                    sourceElement.Name = ns + newNodeName;
+            } catch (System.Exception ex) {
+                ex.Analyse($"Could not rename '{nodeName}'");
             }
         }
     }

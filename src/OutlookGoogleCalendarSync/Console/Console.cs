@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Linq;
@@ -290,6 +291,7 @@ namespace OutlookGoogleCalendarSync {
                     contentInnerHtml = matches[0].Result("$1");
                 }
 
+                moreOutput = moreOutput.Replace("\r\n", "<br/>");
                 String htmlOutput = parseEmoji(moreOutput, markupPrefix);
 
                 if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose);               
@@ -308,7 +310,7 @@ namespace OutlookGoogleCalendarSync {
                     } else
                         this.wb.DocumentText = content;
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 }
 
                 while (navigationStatus != NavigationStatus.completed) {
@@ -317,7 +319,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 System.Windows.Forms.Application.DoEvents();
 
-                if (Forms.Main.Instance.NotificationTray != null && notifyBubble & Settings.Instance.ShowBubbleTooltipWhenSyncing) {
+                if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
@@ -326,9 +328,9 @@ namespace OutlookGoogleCalendarSync {
 
         public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
             Markup emoji = Markup.error;
-            if (OGCSexception.LoggingAsFail(ex))
+            if (ex.LoggingAsFail())
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + OGCSexception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
         }
 
         /// <summary>Log the output sans HTML tags.</summary>
@@ -387,7 +389,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 log.Error("Failed parsing for emoji.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             return output;
         }
@@ -411,7 +413,7 @@ namespace OutlookGoogleCalendarSync {
             if (Settings.Instance.AnonymiseLogs) {
                 MatchCollection matches = Regex.Matches(anonymised, @"^Subject:\s(.*?)\s=>\s(.*?)$", RegexOptions.Multiline);
                 if (matches.Count > 0) {
-                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + GoogleOgcs.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
+                    anonymised = anonymised.Replace(matches[0].Value, "Subject: " + Ogcs.Google.Authenticator.GetMd5(matches[0].Groups[1].Value) + " => " + Ogcs.Google.Authenticator.GetMd5(matches[0].Groups[2].Value.TrimEnd("\r".ToCharArray())));
                 }
             }
             Update(lines[0] + "<br/>" + table.ToString(), anonymised, verbose: true, newLine: false);
@@ -469,7 +471,7 @@ namespace OutlookGoogleCalendarSync {
                         log.Warn("Could not find default navigation sound registry key.");
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
         #endregion
@@ -484,7 +486,7 @@ namespace OutlookGoogleCalendarSync {
                     System.Threading.Thread.Sleep(100);
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
             log.Debug("Done");
             */

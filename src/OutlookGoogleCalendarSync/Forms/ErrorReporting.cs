@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,7 +65,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 btYes.Focus();
 
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             }
         }
 

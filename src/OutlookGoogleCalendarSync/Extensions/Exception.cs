@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -10,14 +11,14 @@ namespace OutlookGoogleCalendarSync {
         public UserCancelledSyncException(string message, System.Exception inner) : base(message, inner) { }
     }
 
-    class OGCSexception {
-        private static readonly ILog log = LogManager.GetLogger(typeof(OGCSexception));
+    public static class Exception {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Ogcs.Exception));
 
-        public static void Analyse(String warnDetail, System.Exception ex, Boolean includeStackTrace = false) {
+        public static void Analyse(this System.Exception ex, String warnDetail, Boolean includeStackTrace = false) {
             log.Warn(warnDetail);
             Analyse(ex, includeStackTrace: includeStackTrace);
         }
-        public static void Analyse(System.Exception ex, Boolean includeStackTrace = false) {
+        public static void Analyse(this System.Exception ex, Boolean includeStackTrace = false) {
             log4net.Core.Level logLevel = log4net.Core.Level.Error;
             if (LoggingAsFail(ex)) {
                 if (ex is ApplicationException) return;
@@ -30,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
                 errorLocation += ex.TargetSite.Name + "() in ";
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
                 String[] frameBits = st.GetFrame(0).ToString().Split('\\');
-                if (frameBits.Count() == 1) throw new Exception();
+                if (frameBits.Count() == 1) throw new System.Exception();
                 errorLocation += frameBits.LastOrDefault().Trim();
             } catch {
                 errorLocation += "<Unknown File>";
@@ -45,7 +46,7 @@ namespace OutlookGoogleCalendarSync {
             if (includeStackTrace) log.ErrorOrFail(ex.StackTrace, logLevel);
         }
 
-        public static String GetErrorCode(System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
+        public static String GetErrorCode(this System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
             UInt32 maskedCode = (uint)(getErrorCode(ex) & mask);
             return "0x" + maskedCode.ToString("X8");
         }
@@ -70,20 +71,20 @@ namespace OutlookGoogleCalendarSync {
             return -1;
         }
 
-        public static void AnalyseAggregate(AggregateException agex, Boolean throwError = true) {
+        public static void AnalyseAggregate(this AggregateException agex, Boolean throwError = true) {
             foreach (System.Exception ex in agex.InnerExceptions) {
                 if (ex is ApplicationException) {
                     if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
                     else log.Error(agex.Message);
 
-                } else if (ex is Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
-                    AnalyseTokenResponse(ex as Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
+                } else if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
+                    AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
 
                 } else Analyse(ex);
             }
         }
 
-        public static void AnalyseTokenResponse(Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
+        public static void AnalyseTokenResponse(this global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
             log.Warn("Token response error: " + ex.Message);
@@ -106,15 +107,15 @@ namespace OutlookGoogleCalendarSync {
             if (throwError) throw ex;
         }
 
-        public static String FriendlyMessage(System.Exception ex) {
-            if (ex is Google.GoogleApiException) {
-                Google.GoogleApiException gaex = ex as Google.GoogleApiException;
+        public static String FriendlyMessage(this System.Exception ex) {
+            if (ex is global::Google.GoogleApiException) {
+                global::Google.GoogleApiException gaex = ex as global::Google.GoogleApiException;
                 if (gaex.Error != null)
                     return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
                 else
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
             } else {
-                return ex.Message + (ex.InnerException != null && !(ex.InnerException is Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
+                return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
             }
         }
 
@@ -132,14 +133,14 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.Exception ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         /// <summary>
         /// Capture this exception as log4net FAIL (not ERROR) when logged
         /// </summary>
-        public static System.Exception LogAsFail(System.Exception ex) {
+        public static System.Exception LogAsFail(this System.Exception ex) {
             LogAsFail(ref ex);
             return ex;
         }
@@ -149,9 +150,9 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.ApplicationException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         
         /// <summary>
@@ -159,9 +160,9 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.Runtime.InteropServices.COMException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
         
         /// <summary>
@@ -169,31 +170,31 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void LogAsFail(ref System.NullReferenceException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
-        public static void LogAsFail(ref Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+        public static void LogAsFail(ref global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>Capture this exception as log4net FAIL (not ERROR) when logged</summary>
-        public static void LogAsFail(ref Google.GoogleApiException ex) {
+        public static void LogAsFail(ref global::Google.GoogleApiException ex) {
             if (ex.Data.Contains(LogAs))
-                ex.Data[LogAs] = OGCSexception.LogLevel.FAIL;
+                ex.Data[LogAs] = Ogcs.Exception.LogLevel.FAIL;
             else
-                ex.Data.Add(LogAs, OGCSexception.LogLevel.FAIL);
+                ex.Data.Add(LogAs, Ogcs.Exception.LogLevel.FAIL);
         }
 
         /// <summary>
         /// Check if this exception has been set to log as log4net FAIL (not ERROR)
         /// </summary>
-        public static Boolean LoggingAsFail(System.Exception ex) {
+        public static Boolean LoggingAsFail(this System.Exception ex) {
             return (ex.Data.Contains(LogAs) && ex.Data[LogAs].ToString() == LogLevel.FAIL.ToString());
         }
         #endregion

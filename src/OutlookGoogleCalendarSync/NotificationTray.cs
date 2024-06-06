@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace OutlookGoogleCalendarSync {
             this.icon.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
             buildMenu();
 
-            if (OutlookOgcs.Calendar.OOMsecurityInfo) {
+            if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);
@@ -57,8 +58,8 @@ namespace OutlookGoogleCalendarSync {
                     animatedIconFrames[i] = Icon.FromHandle(bmp.GetHicon());
                 }
                 animatedIconFrame = 0;
-            } catch (Exception ex) {
-                OGCSexception.Analyse("Could not set up animated system tray icon.", ex);
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not set up animated system tray icon.");
             }
         }
 
@@ -132,7 +133,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
@@ -155,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
                     
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RenameProfileItem(String currentText, String newText) {
@@ -174,7 +175,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RemoveProfileItem(String itemText) {
@@ -193,7 +194,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
@@ -202,7 +203,7 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public void UpdateAutoSyncItems() {
             Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>
-                (c.OgcsTimer != null && c.OgcsTimer.Running()) ||
+                (c.OgcsTimer != null && c.OgcsTimer.IsRunning) ||
                 (c.OgcsTimer == null && (c.SyncInterval != 0 || c.OutlookPush)));
 
             UpdateItem("autoSyncToggle", autoSyncing ? "Disable" : "Enable");
@@ -326,12 +327,12 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
-                Settings.Instance.ShowBubbleWhenMinimising = false;
-                XMLManager.ExportElement(Settings.Instance, "ShowBubbleWhenMinimising", false, Settings.ConfigFile);
+            if (notifyIcon.Tag?.ToString() == "ShowSystemNotificationWhenMinimising") {
+                Settings.Instance.ShowSystemNotificationWhenMinimising = false;
+                XMLManager.ExportElement(Settings.Instance, "ShowSystemNotificationWhenMinimising", false, Settings.ConfigFile);
                 notifyIcon.Tag = "";
 
-            } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {
+            } else if (notifyIcon.Tag?.ToString() == "OOMsecurity") {
                 Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
                 notifyIcon.Tag = "";
 
@@ -348,15 +349,13 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
-            if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
-                this.icon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
-                this.icon.ShowBalloonTip(
-                    500,
-                    "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
-                    message,
-                    iconType
-                );
-            }
+            this.icon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
+            this.icon.ShowBalloonTip(
+                500,
+                "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
+                message,
+                iconType
+            );
             this.icon.Tag = tagValue;
         }
     }

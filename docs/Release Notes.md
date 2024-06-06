@@ -1,6 +1,37 @@
 | Release Notes |
 |:---|
 
+# v2.10.5.0 - Alpha
+
+**Enhancements**
+- Improved upgrade mechanism (when upgrading from this version) [[#1837](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1837)]
+- Delay immediate scheduled sync when resuming from hibernate [[#1850](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1850)]
+- Increased maximum startup delay to 600s
+- Code refactor in preparation for O365.
+
+**Bugfix**
+- Retain notification tray setting on upgrade through v2.10.4 [[#1841](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1841)]
+- Don't attempt GMeet sync when description type unknown [[#1844](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1844)]
+- Fixed regression of error when syncing too soon after system resume [[#1836](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1836)]
+- Properly restore application when minimised from system tray [[#1847](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1847)]
+- Exclude "Working Location" Google event type during 2-way sync [[#1843](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1843)]
+
+# v2.10.4.0 - Alpha
+
+**Enhancements**
+- New option: only show notifications when changes have been synced [[#1769](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1769)]
+- Re-release of sync for Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+- UI guidance that configured exclusions don't apply to series occurrences [[#1758](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1758)]
+- Added menu option to Sync button for 'Full Sync'
+- Logging improvements
+
+**Bugfix**
+- Empty appointment descriptions broke GMeet details sync [[#1776](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1776),[#1810](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1810)]
+- Finding calendar folders in alternate mailboxes [[#673](https://github.com/phw198/OutlookGoogleCalendarSync/issues/673)]
+- Handle oddly specified annual recurrences in Google [[#1799](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1799)]
+- Exclude Google's new 'Working Location' attribute [[#1817](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1817)]
+- Handle connection issues to alternate mailboxes when refreshing Outlook categories [[#1823](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1823)]
+
 # v2.10.3.0 - Alpha
 
 **Enhancements**

@@ -1,7 +1,7 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -94,14 +94,15 @@ namespace OutlookGoogleCalendarSync {
             Calendars.Add(new SettingsStore.Calendar());
 
             MuteClickSounds = false;
-            ShowBubbleTooltipWhenSyncing = true;
+            ShowSystemNotifications = true;
+            ShowSystemNotificationsIfChange = false;
             StartOnStartup = false;
             StartOnStartupAllUsers = false;
             StartupDelay = 0;
             StartInTray = false;
             MinimiseToTray = false;
             MinimiseNotClose = false;
-            ShowBubbleWhenMinimising = true;
+            ShowSystemNotificationWhenMinimising = true;
 
             CreateCSVFiles = false;
             LoggingLevel = "DEBUG";
@@ -113,7 +114,7 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
-            subscribed = GoogleOgcs.Authenticator.SubscribedNever;
+            subscribed = Ogcs.Google.Authenticator.SubscribedNever;
             donor = false;
             hideSplashScreen = null;
             suppressSocialPopup = false;
@@ -218,14 +219,15 @@ namespace OutlookGoogleCalendarSync {
                 suppressSocialPopup = value;
             }
         }
-        [DataMember] public bool ShowBubbleTooltipWhenSyncing { get; set; }
+        [DataMember] public bool ShowSystemNotifications { get; set; }
+        [DataMember] public bool ShowSystemNotificationsIfChange { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
         [DataMember] public bool StartOnStartupAllUsers { get; set; }
         [DataMember] public Int32 StartupDelay { get; set; }
         [DataMember] public bool StartInTray { get; set; }
         [DataMember] public bool MinimiseToTray { get; set; }
         [DataMember] public bool MinimiseNotClose { get; set; }
-        [DataMember] public bool ShowBubbleWhenMinimising { get; set; }
+        [DataMember] public bool ShowSystemNotificationWhenMinimising { get; set; }
         [DataMember] public bool Portable {
             get { return portable; }
             set {
@@ -240,8 +242,8 @@ namespace OutlookGoogleCalendarSync {
             get { return cloudLogging; }
             set {
                 cloudLogging = value;
-                GoogleOgcs.ErrorReporting.SetThreshold(value ?? false);
-                if (value == null) GoogleOgcs.ErrorReporting.ErrorOccurred = false;
+                Ogcs.Google.ErrorReporting.SetThreshold(value ?? false);
+                if (value == null) Ogcs.Google.ErrorReporting.ErrorOccurred = false;
                 if (!Loading()) XMLManager.ExportElement(this, "CloudLogging", value, ConfigFile);
             }
         }
@@ -269,7 +271,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         public Boolean UserIsBenefactor() {
-            return Subscribed != GoogleOgcs.Authenticator.SubscribedNever || donor;
+            return Subscribed != Ogcs.Google.Authenticator.SubscribedNever || donor;
         }
         [DataMember] public DateTime Subscribed {
             get { return subscribed; }
@@ -322,13 +324,13 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("User settings loaded successfully this time.");
                 } catch (System.Exception ex2) {
                     log.Error("Still failed to load settings!");
-                    OGCSexception.Analyse(ex2);
+                    Ogcs.Exception.Analyse(ex2);
                 }
             }
         }
 
         public static void ResetFile(String XMLfile = null) {
-            System.Windows.Forms.OgcsMessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
+            Ogcs.Extensions.MessageBox.Show("Your OGCS settings appear to be corrupt and will have to be reset.",
                     "Corrupt OGCS Settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
             log.Warn("Resetting settings.xml file to defaults.");
             System.IO.File.Delete(XMLfile ?? ConfigFile);
@@ -375,14 +377,14 @@ namespace OutlookGoogleCalendarSync {
             } 
         
             log.Info("APPLICATION BEHAVIOUR:-");
-            log.Info("  ShowBubbleTooltipWhenSyncing: " + ShowBubbleTooltipWhenSyncing);
+            log.Info("  ShowSystemNotifications: " + ShowSystemNotifications + "; OnlyIfChange: " + ShowSystemNotificationsIfChange);
             log.Info("  StartOnStartup: " + StartOnStartup + "; AllUsers: " + StartOnStartupAllUsers + "; DelayedStartup: " + StartupDelay.ToString());
             log.Info("  HideSplashScreen: " + (UserIsBenefactor() ? HideSplashScreen.ToString() : "N/A"));
             log.Info("  SuppressSocialPopup: " + (UserIsBenefactor() ? SuppressSocialPopup.ToString() : "N/A"));
             log.Info("  StartInTray: " + StartInTray);
             log.Info("  MinimiseToTray: " + MinimiseToTray);
             log.Info("  MinimiseNotClose: " + MinimiseNotClose);
-            log.Info("  ShowBubbleWhenMinimising: " + ShowBubbleWhenMinimising);
+            log.Info("  ShowSystemNotificationWhenMinimising: " + ShowSystemNotificationWhenMinimising);
             log.Info("  Portable: " + Portable);
             log.Info("  CreateCSVFiles: " + CreateCSVFiles);
 
