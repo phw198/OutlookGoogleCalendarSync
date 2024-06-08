@@ -855,15 +855,16 @@ namespace OutlookGoogleCalendarSync {
 
                 foreach (Event gExcp in evExceptions) {
                     System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    System.DateTime? gExcpCurrDate = gExcp.Start == null ? null : gExcp.Start.SafeDateTime();
-                    log.Fine("Found Google exception for original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.ToString() : ""));
+                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
+                    String gExcpDetails = "Google exception with original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : "");
+                    log.Fine("Found "+ gExcpDetails);
 
                     AppointmentItem newAiExcp = null;
                     try {
                         getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
                             if (gExcp.Status != "cancelled") {
-                                log.Warn("Unable to find Outlook exception for " + gExcpOrigDate.ToString() + " now on " + gExcpCurrDate?.Date.ToString());
+                                log.Warn("Unable to find Outlook exception for " + gExcpDetails);
                                 log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
                                 String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync G->O.</i>" : "";
                                 Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(
