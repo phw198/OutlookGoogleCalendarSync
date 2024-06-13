@@ -112,7 +112,6 @@ namespace OutlookGoogleCalendarSync.Google {
         private List<GoogleCalendarListEntry> calendarList = new List<GoogleCalendarListEntry>();
         public List<GoogleCalendarListEntry> CalendarList {
             get { return calendarList; }
-            protected set { calendarList = value; }
         }
 
         public void GetCalendars() {
@@ -163,7 +162,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             } while (pageToken != null);
 
-            this.CalendarList = result;
+            this.calendarList = result;
         }
 
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {

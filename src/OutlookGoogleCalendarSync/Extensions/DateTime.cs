@@ -22,6 +22,14 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
+        /// Parses the DateTimeTimeZone string to a DateTime
+        /// </summary>
+        /// <returns>DateTime</returns>
+        public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
+            return System.DateTime.Parse(evDt.DateTime);
+        }
+
+        /// <summary>
         /// Whether an Event is all day
         /// </summary>
         /// <param name="ev">The Event to check</param>

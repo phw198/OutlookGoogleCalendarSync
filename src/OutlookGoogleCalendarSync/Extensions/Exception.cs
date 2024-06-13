@@ -24,8 +24,14 @@ namespace OutlookGoogleCalendarSync {
                 if (ex is ApplicationException) return;
                 logLevel = Program.MyFailLevel;
             }
-           
-            log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
+
+            if (ex is Microsoft.Graph.ServiceException) {
+                Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
+                log.ErrorOrFail("Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
+                return;
+            } else
+                log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
+
             String errorLocation = "; Location: ";
             try {
                 errorLocation += ex.TargetSite.Name + "() in ";
@@ -114,9 +120,13 @@ namespace OutlookGoogleCalendarSync {
                     return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
                 else
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
-            } else {
-                return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
+
+            } else if (ex is Microsoft.Graph.ServiceException) {
+                Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
+                if (gex.Error != null)
+                    return gex.Error.Message + " [" + gex.Error.Code + "]";
             }
+            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
         }
 
         #region Logging level for exception

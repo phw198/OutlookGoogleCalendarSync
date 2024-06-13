@@ -370,12 +370,14 @@
     <Compile Include="Outlook.Factory\OutlookNew.cs" />
     <Compile Include="Outlook.Factory\OutlookOld.cs" />
     <Compile Include="Outlook.Graph\O365Authenticator.cs" />
+    <Compile Include="Outlook.Graph\O365CustomProperty.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
     <Compile Include="Outlook\GMeet.cs" />
     <Compile Include="Outlook\OutlookCalendar.cs" />
     <Compile Include="Outlook\OutlookCategories.cs" />
     <Compile Include="Outlook\OutlookErrors.cs" />
+    <Compile Include="Outlook.Graph\O365Calendar.cs" />
     <Compile Include="SettingsStore\Calendar.cs" />
     <Compile Include="SettingsStore\Proxy.cs" />
     <Compile Include="SettingsStore\Upgrade.cs" />
@@ -392,6 +394,7 @@
     <Compile Include="EmailAddress.cs" />
     <Compile Include="Extensions\Exception.cs" />
     <Compile Include="Sync\Calendar.cs" />
+    <Compile Include="Sync\CloudCalendar.cs" />
     <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
     <Compile Include="NotificationTray.cs" />
