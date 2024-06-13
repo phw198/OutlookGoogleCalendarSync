@@ -34,10 +34,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Debug("MS Graph service not yet instantiated.");
                     Authenticator = new Ogcs.Outlook.Graph.Authenticator();
                     Authenticator.GetAuthenticated(nonInteractiveAuth: false);
-                    if (!Authenticator.Authenticated) {
-                        graphClient = null;
-                        throw new ApplicationException("Microsoft handshake failed.");
-                    }
+                } else if (Authenticator.AgedAccessToken) {
+                    log.Debug("MS Graph access token expired - refreshing...");
+                    Authenticator.GetAuthenticated(nonInteractiveAuth: false);
+                }
+                if (!Authenticator.Authenticated) {
+                    graphClient = null;
+                    throw new ApplicationException("Microsoft handshake failed.");
                 }
                 return graphClient;
             }

@@ -33,8 +33,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
+        public Boolean AgedAccessToken { 
+            get { return authResult?.ExpiresOn.UtcDateTime < DateTime.UtcNow.AddMinutes(1); } 
+        }
+
         public void GetAuthenticated(Boolean nonInteractiveAuth = false) {
-            if (this.Authenticated && authResult != null) return;
+            if (this.Authenticated && authResult != null && !AgedAccessToken) return;
 
             this.nonInteractiveAuth = nonInteractiveAuth;
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
