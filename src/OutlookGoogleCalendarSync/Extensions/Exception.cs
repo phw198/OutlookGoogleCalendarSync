@@ -29,7 +29,7 @@ namespace OutlookGoogleCalendarSync {
                 Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
                 log.ErrorOrFail("Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
                 return;
-            } else
+            } else                
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
 
             String errorLocation = "; Location: ";
@@ -124,7 +124,7 @@ namespace OutlookGoogleCalendarSync {
             } else if (ex is Microsoft.Graph.ServiceException) {
                 Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
                 if (gex.Error != null)
-                    return gex.Error.Message + " [" + gex.Error.Code + "]";
+                    return gex.Error.Message.Replace("\n", "<br/>") + " [" + gex.Error.Code + "]";
             }
             return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
         }
