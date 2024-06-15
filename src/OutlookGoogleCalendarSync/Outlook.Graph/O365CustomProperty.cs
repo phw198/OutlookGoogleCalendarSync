@@ -86,6 +86,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         private static String calendarKeyName = metadataIdKeyName(MetadataId.gCalendarId);
 
+        private const String extensionName = "Ogcs.Properties";
+
         /// <summary>
         /// These properties can be stored multiple times against a single calendar item.
         /// The first default set is NOT appended with a number
@@ -282,40 +284,34 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static void add(ref Microsoft.Graph.Event ai, MetadataId key, OlUserPropertyType keyType, object keyValue) {
             String addkeyName = metadataIdKeyName(key);
 
-            UserProperties ups = null;
-            /*try {
-                int maxSet;
-                int? keySet = null;
-                String currentKeyName = null;
-                if (!Exists(ai, key, out currentKeyName)) {
-                    keySet = getKeySet(ai, out maxSet);
-                    if (key == MetadataId.gCalendarId && (keySet ?? 0) == 0) //Couldn't find key set for calendar
-                        keySet = maxSet + 1; //So start a new one
-                    else if (key != MetadataId.gCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
-                        keySet = 0; //Add them in to the default key set
+            int maxSet;
+            int? keySet = null;
+            String currentKeyName = null;
+            if (!Exists(ai, key, out currentKeyName)) {
+                keySet = getKeySet(ai, out maxSet);
+                if (key == MetadataId.gCalendarId && (keySet ?? 0) == 0) //Couldn't find key set for calendar
+                    keySet = maxSet + 1; //So start a new one
+                else if (key != MetadataId.gCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
+                    keySet = 0; //Add them in to the default key set
 
-                    if (keySet.HasValue && keySet.Value != 0) addkeyName += "-" + keySet.Value.ToString("D2");
+                if (keySet.HasValue && keySet.Value != 0) addkeyName += "-" + keySet.Value.ToString("D2");
+            } else
+                addkeyName = currentKeyName; //Might be suffixed with "-01"
 
-                    try {
-                        ups = ai.UserProperties;
-                        ups.Add(addkeyName, keyType);
-                    } catch (System.Exception ex) {
-                        Ogcs.Exception.Analyse(ex);
-                        ups.Add(addkeyName, keyType, false);
-                    } finally {
-                        ups = (UserProperties)Calendar.ReleaseObject(ups);
-                    }
-                } else
-                    addkeyName = currentKeyName; //Might be suffixed with "-01"
-                ups = ai.UserProperties;
-                ups[addkeyName].Value = keyValue;
-                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
-                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
-                log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
+            if (ai.Extensions == null)
+                ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
 
-            } finally {
-                ups = (UserProperties)Calendar.ReleaseObject(ups);
-            }*/
+            if (ai.Extensions.Count == 0)
+                ai.Extensions.Add(new Microsoft.Graph.OpenTypeExtension {
+                    ExtensionName = extensionName,
+                    Id = extensionName,
+                    AdditionalData = new Dictionary<String, Object>()
+                });
+            
+            ai.Extensions.Where(e => e.Id == extensionName).First().AdditionalData[addkeyName] = keyValue.ToString();
+            Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
+            Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
+            log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
         }
 
         public static String Get(Microsoft.Graph.Event ai, MetadataId key) {
@@ -443,27 +439,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static void LogProperties(Microsoft.Graph.Event ai, log4net.Core.Level thresholdLevel) {
             if (((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level.Value > thresholdLevel.Value) return;
 
-            UserProperties ups = null;
-            UserProperty up = null;
-            /*try {
+            try {
                 log.Debug(Calendar.GetEventSummary(ai));
-                ups = ai.UserProperties;
-                for (int p = 1; p <= ups.Count; p++) {
-                    try {
-                        up = ups[p];
-                        if (up.Name == metadataIdKeyName(MetadataId.gCalendarId))
-                            log.Debug(up.Name + "=" + EmailAddress.MaskAddress(up.Value.ToString()));
-                        else
-                            log.Debug(up.Name + "=" + up.Value.ToString());
-                    } finally {
-                        up = (UserProperty)Calendar.ReleaseObject(up);
-                    }
+                Microsoft.Graph.Extension ext = ai.Extensions.Where(e => e.Id == extensionName).First();
+                foreach (KeyValuePair<String, Object> prop in ext.AdditionalData) {
+                    if (prop.Key == metadataIdKeyName(MetadataId.gCalendarId))
+                        log.Debug(prop.Key + "=" + EmailAddress.MaskAddress(prop.Value.ToString()));
+                    else
+                        log.Debug(prop.Key + "=" + prop.Value.ToString());
                 }
             } catch (System.Exception ex) {
                 ex.Analyse("Failed to log Appointment UserProperties");
-            } finally {
-                ups = (UserProperties)Calendar.ReleaseObject(ups);
-            }*/
+            }
         }
     }
 

@@ -130,7 +130,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     Int16 pageNum = 1;
                     ICalendarEventsCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request();
-                    
+
                     System.DateTime min = System.DateTime.MinValue;
                     System.DateTime max = System.DateTime.MaxValue;
                     if (!noDateFilter) {
@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                     req.Top(250);
                     //req.OrderBy("start");
-                    
+
                     ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
                     //IUserEventsCollectionPage eventPage = GraphClient.Me.Events.Request().Top(250)..GetAsync().Result;
                     OutlookItems.AddRange(eventPage.CurrentPage);
@@ -421,9 +421,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (profile.AddGMeet && !String.IsNullOrEmpty(ev.HangoutLink)) {
                 ai.GoogleMeet(ev.HangoutLink);
             }
-
+            */
             //Add the Google event IDs into Outlook appointment.
-            CustomProperty.AddGoogleIDs(ref ai, ev);*/
+            O365CustomProperty.AddGoogleIDs(ref ai, ev);
         }
 
         private void createCalendarEntry_save(Microsoft.Graph.Event ai, ref GcalData.Event ev) {
