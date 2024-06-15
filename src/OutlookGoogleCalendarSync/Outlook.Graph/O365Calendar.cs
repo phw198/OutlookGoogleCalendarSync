@@ -144,10 +144,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     req.Filter(filter);
 
                     req.Top(250);
+                    req.Expand("extensions($filter=Id eq '" + O365CustomProperty.ExtensionName() + "')");
                     //req.OrderBy("start");
 
                     ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
-                    //IUserEventsCollectionPage eventPage = GraphClient.Me.Events.Request().Top(250)..GetAsync().Result;
                     OutlookItems.AddRange(eventPage.CurrentPage);
                     while (eventPage.NextPageRequest != null) {
                         pageNum++;
@@ -689,7 +689,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
                 
                 String compare_oEventID = O365CustomProperty.Get(outlook[o], O365CustomProperty.MetadataId.gEventID);
-                /*
                 if (!string.IsNullOrEmpty(compare_oEventID)) {
                     Boolean? googleIDmissing = null;
                     Boolean foundMatch = false;
@@ -697,13 +696,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     for (int g = google.Count - 1; g >= 0; g--) {
                         log.UltraFine("Checking " + Ogcs.Google.Calendar.GetEventSummary(google[g]));
 
-                        if (compare_oEventID == google[g].Id.ToString()) {
-                            if (googleIDmissing == null) googleIDmissing = CustomProperty.GoogleIdMissing(outlook[o]);
+                        if (compare_oEventID == google[g].Id) {
+                            googleIDmissing ??= O365CustomProperty.GoogleIdMissing(outlook[o]);
                             if ((Boolean)googleIDmissing) {
                                 log.Info("Enhancing appointment's metadata...");
-                                AppointmentItem ai = outlook[o];
-                                CustomProperty.AddGoogleIDs(ref ai, google[g]);
-                                CustomProperty.Add(ref ai, CustomProperty.MetadataId.forceSave, "True");
+                                Microsoft.Graph.Event ai = outlook[o];
+                                O365CustomProperty.AddGoogleIDs(ref ai, google[g]);
+                                O365CustomProperty.Add(ref ai, O365CustomProperty.MetadataId.forceSave, "True");
                                 outlook[o] = ai;
                                 metadataEnhanced++;
                             }
@@ -717,14 +716,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         }
                     }
                     if (!foundMatch && profile.MergeItems &&
-                        Outlook.CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
+                        O365CustomProperty.Get(outlook[o], O365CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
                         outlook.Remove(outlook[o]);
 
                 } else if (profile.MergeItems) {
                     //Remove the non-Google item so it doesn't get deleted
                     outlook.Remove(outlook[o]);
                 }
-                */
             }
             if (metadataEnhanced > 0) log.Info(metadataEnhanced + " item's metadata enhanced.");
             /*
@@ -785,6 +783,26 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 Ogcs.Google.Calendar.ExportToCSV("Events for creation in Outlook", "outlook_create.csv", google);
             }
             */
+        }
+
+        public static Boolean ItemIDsMatch(Microsoft.Graph.Event ai, GcalData.Event ev) {
+            log.Fine("Comparing Google Event ID");
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            if (O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gEventID) == ev.Id) {
+                log.Fine("Comparing Google Calendar ID");
+                if (O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gCalendarId) == profile.UseGoogleCalendar.Id)
+                    return true;
+                else {
+                    log.Warn("Could not find Google calendar ID against Outlook appointment item.");
+                    return true;
+                }
+            } else {
+                if (profile.MergeItems)
+                    log.Fine("Could not find Google event ID against Outlook appointment item.");
+                else
+                    log.Warn("Could not find Google event ID against Outlook appointment item.");
+            }
+            return false;
         }
 
         #endregion
