@@ -215,23 +215,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             int? keySet = getKeySet(ai, out maxSet);
             if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
 
-            UserProperties ups = null;
-            UserProperty prop = null;
-            /*try {
-                ups = ai.UserProperties;
-                prop = ups.Find(searchKey);
+            try {
+                Microsoft.Graph.Extension ext = ai.OgcsExtension();
+                Boolean propExists = ext?.AdditionalData.ContainsKey(searchKey) ?? false;
                 if (searchId == MetadataId.gCalendarId)
-                    return (prop != null && prop.Value.ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
-                else {
-                    return (prop != null && Get(ai, MetadataId.gCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
-                }
-            } catch {
+                    return (propExists && ext.AdditionalData[searchKey].ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
+                else
+                    return (propExists && Get(ai, MetadataId.gCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
+
+            } catch (System.Exception ex) {
+                ex.Analyse();
                 return false;
-            } finally {
-                prop = (UserProperty)Calendar.ReleaseObject(prop);
-                ups = (UserProperties)Calendar.ReleaseObject(ups);
-            }*/
-            return false; //Temporary hack
+            }
         }
 
         public static Boolean ExistAnyGoogleIDs(Microsoft.Graph.Event ai) {
@@ -316,7 +311,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     AdditionalData = new Dictionary<String, Object>()
                 });
             
-            ai.Extensions.Where(e => e.Id == extensionName).First().AdditionalData[addkeyName] = keyValue.ToString();
+            ai.OgcsExtension().AdditionalData[addkeyName] = keyValue.ToString();
             Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
             Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
             log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
@@ -325,21 +320,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static String Get(Microsoft.Graph.Event ai, MetadataId key) {
             String retVal = null;
             String searchKey;
-            if (Exists(ai, key, out searchKey)) {
-                /*UserProperties ups = null;
-                UserProperty prop = null;
-                *try {
-                    ups = ai.UserProperties;
-                    prop = ups.Find(searchKey);
-                    if (prop != null) {
-                        if (prop.Type != OlUserPropertyType.olText) log.Warn("Non-string property " + searchKey + " being retrieved as String.");
-                        retVal = prop.Value.ToString();
-            }
-                } finally {
-                    prop = (UserProperty)Calendar.ReleaseObject(prop);
-                    ups = (UserProperties)Calendar.ReleaseObject(ups);
-                }*/
-            }
+            if (Exists(ai, key, out searchKey))
+                retVal = ai.OgcsExtension().AdditionalData[searchKey].ToString();
+
             return retVal;
         }
         private static System.DateTime get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
@@ -449,8 +432,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             try {
                 log.Debug(Calendar.GetEventSummary(ai));
-                Microsoft.Graph.Extension ext = ai.Extensions.Where(e => e.Id == extensionName).First();
-                foreach (KeyValuePair<String, Object> prop in ext.AdditionalData) {
+                Microsoft.Graph.Extension ext = ai.OgcsExtension();
+                foreach (KeyValuePair<String, Object> prop in ext?.AdditionalData) {
                     if (prop.Key == metadataIdKeyName(MetadataId.gCalendarId))
                         log.Debug(prop.Key + "=" + EmailAddress.MaskAddress(prop.Value.ToString()));
                     else
