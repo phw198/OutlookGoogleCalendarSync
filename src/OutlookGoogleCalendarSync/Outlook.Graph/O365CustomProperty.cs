@@ -1,7 +1,8 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using Google.Apis.Calendar.v3.Data;
+﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
+using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,6 +88,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static String calendarKeyName = metadataIdKeyName(MetadataId.gCalendarId);
 
         private const String extensionName = "Ogcs.Properties";
+        /// <summary>
+        /// The name of the OGCS extension property bag
+        /// </summary>
+        /// <param name="prefixWithMsType">Once the Graph Event is saved, Microsoft add a prefix</param>
+        public static String ExtensionName(Boolean prefixWithMsType = false) {
+            return extensionName.Prepend(prefixWithMsType ? "Microsoft.OutlookServices.OpenTypeExtension." : "");
+        }
 
         /// <summary>
         /// These properties can be stored multiple times against a single calendar item.
@@ -278,7 +286,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, String value) {
             add(ref ai, key, OlUserPropertyType.olText, value);
         }
-        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, DateTime value) {
+        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, System.DateTime value) {
             add(ref ai, key, OlUserPropertyType.olDateTime, value);
         }
         private static void add(ref Microsoft.Graph.Event ai, MetadataId key, OlUserPropertyType keyType, object keyValue) {
@@ -326,7 +334,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     if (prop != null) {
                         if (prop.Type != OlUserPropertyType.olText) log.Warn("Non-string property " + searchKey + " being retrieved as String.");
                         retVal = prop.Value.ToString();
-                    }
+            }
                 } finally {
                     prop = (UserProperty)Calendar.ReleaseObject(prop);
                     ups = (UserProperties)Calendar.ReleaseObject(ups);
@@ -334,8 +342,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
             return retVal;
         }
-        private static DateTime get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
-            DateTime retVal = new DateTime();
+        private static System.DateTime get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
+            System.DateTime retVal = new System.DateTime();
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
                 UserProperties ups = null;
@@ -424,11 +432,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return removedProperty;
         }
 
-        public static DateTime GetOGCSlastModified(Microsoft.Graph.Event ai) {
+        public static System.DateTime GetOGCSlastModified(Microsoft.Graph.Event ai) {
             return get_datetime(ai, MetadataId.ogcsModified);
         }
         public static void SetOGCSlastModified(ref Microsoft.Graph.Event ai) {
-            Add(ref ai, MetadataId.ogcsModified, DateTime.Now);
+            Add(ref ai, MetadataId.ogcsModified, System.DateTime.Now);
         }
 
         /// <summary>
