@@ -11,12 +11,14 @@ layout: page
 
 ### :warning: "New Outlook" Preview
 <font color="darkred">The "<a href="https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-windows">New Outlook</a>" preview release is for cloud-only mailboxes and does not support this software.<br/>
-   Work is underway for OGCS to no longer require the Outlook client at all, but it's a significant rewrite. Please be patient :sweat_smile:</font>
+   Work is underway for OGCS to no longer require the Outlook client at all, but it's a significant rewrite. Please be patient :sweat_smile:<br/>
+   <a href="https://github.com/phw198/OutlookGoogleCalendarSync/issues/1881">Development builds are now available</a>!</font>
 
 ## Functionality
 
 - Supports all versions of Outlook from 2003 to 2019 64-bit 
    - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
+   - For "New Outlook", [check the latest developments](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1881)
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
