@@ -50,7 +50,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 List<GcalData.Event> googleEntries = null;
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
-                Outlook.Calendar.Instance.EphemeralProperties.Clear();
+                if (!Ogcs.Outlook.Calendar.IsInstanceNull) 
+                    Outlook.Calendar.Instance.EphemeralProperties.Clear();
+                if (!Ogcs.Outlook.Graph.Calendar.IsInstanceNull)
+                    Outlook.Graph.Calendar.Instance.EphemeralProperties.Clear();
 
                 #region Read Outlook items
                 console.Update("Scanning Outlook calendar...");
