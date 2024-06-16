@@ -319,7 +319,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                     //Mailboxes the user has access to
                     log.Debug("Find calendar folders");
-                    if (Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None || Ogcs.Outlook.Calendar.Instance.Folders.Count == 1) {
+                    if (Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None || 
+                        (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.Folders.Count == 1)) {
                         rbOutlookAltMB.Enabled = false;
                         rbOutlookAltMB.Checked = false;
                     }
@@ -382,7 +383,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         profile.AddColours = false;
                         cbAddColours.Enabled = false;
                     } else {
-                        Outlook.Calendar.Categories.BuildPicker(ref clbCategories);
+                        Outlook.Calendar.Categories?.BuildPicker(ref clbCategories);
                         enableOutlookSettingsUI(true);
                     }
                     cbDeleteWhenCatExcl.Checked = profile.DeleteWhenCategoryExcluded;
@@ -1382,6 +1383,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                 enableOutlookSettingsUI(false);
                 ActiveCalendarProfile.OutlookService = Ogcs.Outlook.Calendar.Service.Graph;
             }
+            
+            //if (rbOutlookOnline.Checked) {
+                /*OutlookOgcs.Calendar.Instance.Reset();
+                //Update available calendars
+                if (LoadingProfileConfig)
+                    cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
+                cbOutlookCalendars.DataSource = new BindingSource(Outlook.Calendar.Instance.CalendarFolders, null);
+                if (LoadingProfileConfig)
+                    cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                refreshCategories();*/
+            //}
         }
 
         private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
@@ -1484,6 +1496,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 c++;
             }
+            //tbClientID.ReadOnly = true;
+            //tbClientSecret.ReadOnly = true;
         }
 
         private void btResetOCal_Click(object sender, EventArgs e) {
@@ -1495,9 +1509,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
                 this.cbOutlookCalendars.DataSource = null;
                 this.cbOutlookCalendars.Items.Clear();
+                //this.tbClientID.ReadOnly = false;
+                //this.tbClientSecret.ReadOnly = false;
                 if (!Outlook.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
                     Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
+                    //Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.MSaccountEmail = "";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Outlook.Graph.Authenticator.TokenFile));
                 }
