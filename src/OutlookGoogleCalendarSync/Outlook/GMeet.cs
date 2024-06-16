@@ -400,7 +400,7 @@ First time using Meet?{\field{\*\fldinst{ HYPERLINK ""https://gsuite.google.com/
                             log.Debug("Appending GMeet RTF HTML body to Outlook");
                             String rtfHtmlBody = ai.RTFBodyAsString();
                             int injectIdx = rtfHtmlBody.LastIndexOf(@"{\*\htmltag58 </BODY>}");
-                            String newRtfHtmlBody = rtfHtmlBody.Substring(0, injectIdx) + RtfHtmlInfo(gMeetUrl, false);
+                            String newRtfHtmlBody = rtfHtmlBody.Substring(0, Math.Max(injectIdx, 0)) + RtfHtmlInfo(gMeetUrl, false);
                             Calendar.Instance.IOutlook.AddRtfBody(ref ai, newRtfHtmlBody);
                         } else {
                             log.Debug("Updating GMeet RTF HTML body in Outlook");
