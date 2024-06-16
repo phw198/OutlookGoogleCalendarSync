@@ -32,16 +32,19 @@ namespace OutlookGoogleCalendarSync {
             } else                
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
 
-            String errorLocation = "; Location: ";
+            String locationDetails = "<Unknown File>";
             try {
-                errorLocation += ex.TargetSite.Name + "() in ";
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
-                String[] frameBits = st.GetFrame(0).ToString().Split('\\');
-                if (frameBits.Count() == 1) throw new System.Exception();
-                errorLocation += frameBits.LastOrDefault().Trim();
+                foreach (System.Diagnostics.StackFrame sf in st.GetFrames()) {
+                    String filename = sf.GetFileName();
+                    if (string.IsNullOrEmpty(filename)) continue;
+                    locationDetails = $"{sf.GetMethod().Name}() at offset {sf.GetNativeOffset()} in {System.IO.Path.GetFileName(filename)}:{sf.GetFileLineNumber()}:{sf.GetFileColumnNumber()}";
+                    break;
+                }
             } catch {
-                errorLocation += "<Unknown File>";
+                log.Error("Unable to parse exception stack.");
             }
+            String errorLocation = "; Location: " + ex.TargetSite?.Name + "() in "+ locationDetails;
             int errorCode = getErrorCode(ex);
             log.ErrorOrFail("Code: 0x" + errorCode.ToString("X8") + "," + errorCode.ToString() + errorLocation, logLevel);
 

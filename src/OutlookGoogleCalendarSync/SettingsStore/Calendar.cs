@@ -263,85 +263,89 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public void LogSettings() {
             log.Info("CALENDAR SYNC SETTINGS");
             log.Info("Profile: " + _ProfileName);
-            log.Info("Last Synced: " + LastSyncDate);
+            try {
+                log.Info("Last Synced: " + LastSyncDate);
 
-            log.Info("OUTLOOK SETTINGS:-");
-            log.Info("  Service: " + OutlookService.ToString());
-            if (OutlookService == Outlook.Calendar.Service.SharedCalendar) {
-                log.Info("  Shared Calendar: " + SharedCalendar);
-            } else if (new Object[] { Ogcs.Outlook.Calendar.Service.DefaultMailbox, Ogcs.Outlook.Calendar.Service.AlternativeMailbox }.Contains(OutlookService)) {
-                log.Info("  Mailbox/FolderStore Name: " + MailboxName);
-            }
-            log.Info("  Calendar: " + (UseOutlookCalendar?.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar?.ToString());
-            log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
-            log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
-            log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
-            log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
-            log.Info("  Filter String: " + OutlookDateFormat);
-            log.Info("  GAL Blocked: " + OutlookGalBlocked);
+                log.Info("OUTLOOK SETTINGS:-");
+                log.Info("  Service: " + OutlookService.ToString());
+                if (OutlookService == Outlook.Calendar.Service.SharedCalendar) {
+                    log.Info("  Shared Calendar: " + SharedCalendar);
+                } else if (new Object[] { Ogcs.Outlook.Calendar.Service.DefaultMailbox, Ogcs.Outlook.Calendar.Service.AlternativeMailbox }.Contains(OutlookService)) {
+                    log.Info("  Mailbox/FolderStore Name: " + MailboxName);
+                }
+                log.Info("  Calendar: " + (UseOutlookCalendar?.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar?.ToString());
+                log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
+                log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
+                log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
+                log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
+                log.Info("  Filter String: " + OutlookDateFormat);
+                log.Info("  GAL Blocked: " + OutlookGalBlocked);
 
-            log.Info("GOOGLE SETTINGS:-");
-            log.Info("  Calendar: " + (UseGoogleCalendar?.Id == null ? "" : UseGoogleCalendar.ToString(true)));
-            log.Info("  Colour Filter: " + ColoursRestrictBy.ToString());
-            log.Info("  Delete When Excluded: " + DeleteWhenColourExcluded);
-            log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
-            log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
-            log.Info("  Exclude Goals: " + ExcludeGoals);
-            log.Info("  Include Google Meet: " + AddGMeet);
-            log.Info("  Cloak Email: " + CloakEmail);
+                log.Info("GOOGLE SETTINGS:-");
+                log.Info("  Calendar: " + (UseGoogleCalendar?.Id == null ? "" : UseGoogleCalendar.ToString(true)));
+                log.Info("  Colour Filter: " + ColoursRestrictBy.ToString());
+                log.Info("  Delete When Excluded: " + DeleteWhenColourExcluded);
+                log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
+                log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
+                log.Info("  Exclude Goals: " + ExcludeGoals);
+                log.Info("  Include Google Meet: " + AddGMeet);
+                log.Info("  Cloak Email: " + CloakEmail);
 
-            log.Info("SYNC OPTIONS:-");
-            if (SimpleMatch) log.Warn("  Simple Matching: " + SimpleMatch);
-            log.Info(" How");
-            log.Info("  SyncDirection: " + SyncDirection.Name);
-            log.Info("  MergeItems: " + MergeItems);
-            log.Info("  DisableDelete: " + DisableDelete);
-            log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
-            log.Info("  SetEntriesPrivate: " + SetEntriesPrivate + (SetEntriesPrivate ? "; " + PrivacyLevel : ""));
-            log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
-            log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
-            if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                log.Info("    TargetCalendar: " + TargetCalendar.Name);
-                log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
-            }
-            if (ColourMaps.Count > 0) {
-                log.Info("  Custom Colour/Category Mapping:-");
-                if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
-                    log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
-                else
+                log.Info("SYNC OPTIONS:-");
+                if (SimpleMatch) log.Warn("  Simple Matching: " + SimpleMatch);
+                log.Info(" How");
+                log.Info("  SyncDirection: " + SyncDirection.Name);
+                log.Info("  MergeItems: " + MergeItems);
+                log.Info("  DisableDelete: " + DisableDelete);
+                log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
+                log.Info("  SetEntriesPrivate: " + SetEntriesPrivate + (SetEntriesPrivate ? "; " + PrivacyLevel : ""));
+                log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
+                log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));
+                if ((SetEntriesPrivate || SetEntriesAvailable || SetEntriesColour) && SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                    log.Info("    TargetCalendar: " + TargetCalendar.Name);
+                    log.Info("    CreatedItemsOnly: " + CreatedItemsOnly);
+                }
+                if (ColourMaps.Count > 0) {
+                    log.Info("  Custom Colour/Category Mapping:-");
+                    if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
+                        log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
+                    else
                     ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
-                        c.Value + ":" + Ogcs.Google.EventColour.Palette.GetColourName(c.Value)));
-            }
-            log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
-            log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
-            if (Obfuscation.Enabled) {
-                if (Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
-                else {
-                    foreach (FindReplace findReplace in Obfuscation.FindReplace) {
-                        log.Info("    " + findReplace.target + ": '" + findReplace.find + "' -> '" + findReplace.replace + "'");
+                            c.Value + ":" + Ogcs.Google.EventColour.Palette.GetColourName(c.Value)));
+                }
+                log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
+                log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
+                if (Obfuscation.Enabled) {
+                    if (Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
+                    else {
+                        foreach (FindReplace findReplace in Obfuscation.FindReplace) {
+                            log.Info("    " + findReplace.target + ": '" + findReplace.find + "' -> '" + findReplace.replace + "'");
+                        }
                     }
                 }
+                log.Info(" When");
+                log.Info("  DaysInThePast: " + DaysInThePast);
+                log.Info("  DaysInTheFuture:" + DaysInTheFuture);
+                log.Info("  SyncInterval: " + SyncInterval);
+                log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
+                log.Info("  Push Changes: " + OutlookPush);
+                log.Info(" What");
+                log.Info("  AddLocation: " + AddLocation);
+                log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
+                log.Info("  AddAttendees: " + AddAttendees + " <" + MaxAttendees);
+                log.Info("  AddColours: " + AddColours);
+                log.Info("  AddReminders: " + AddReminders);
+                log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
+                log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
+                log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
+                log.Info("  ExcludeFree: " + ExcludeFree);
+                log.Info("  ExcludeTentative: " + ExcludeTentative);
+                log.Info("  ExcludePrivate: " + ExcludePrivate);
+                log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
+                log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
+            } catch (System.Exception ex) {
+                ex.Analyse($"Unable to log settings for profile '{_ProfileName}'");
             }
-            log.Info(" When");
-            log.Info("  DaysInThePast: " + DaysInThePast);
-            log.Info("  DaysInTheFuture:" + DaysInTheFuture);
-            log.Info("  SyncInterval: " + SyncInterval);
-            log.Info("  SyncIntervalUnit: " + SyncIntervalUnit);
-            log.Info("  Push Changes: " + OutlookPush);
-            log.Info(" What");
-            log.Info("  AddLocation: " + AddLocation);
-            log.Info("  AddDescription: " + AddDescription + "; OnlyToGoogle: " + AddDescription_OnlyToGoogle);
-            log.Info("  AddAttendees: " + AddAttendees + " <" + MaxAttendees);
-            log.Info("  AddColours: " + AddColours);
-            log.Info("  AddReminders: " + AddReminders);
-            log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
-            log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
-            log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
-            log.Info("  ExcludeFree: " + ExcludeFree);
-            log.Info("  ExcludeTentative: " + ExcludeTentative);
-            log.Info("  ExcludePrivate: " + ExcludePrivate);
-            log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
-            log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
         }
 
         /// <summary>Whether the profile is set to O365/Graph API</summary>
