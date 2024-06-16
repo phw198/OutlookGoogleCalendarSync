@@ -177,13 +177,12 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     if (Sync.Engine.Instance.CancellationPending) return false;
                     #endregion
-                /*
 
                     #region Create Outlook Entries
                     if (outlookEntriesToBeCreated.Count > 0) {
                         console.Update("Creating " + outlookEntriesToBeCreated.Count + " Outlook calendar entries", Console.Markup.h2, newLine: false);
                         try {
-                            Outlook.Calendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
+                            Outlook.Graph.Calendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
                             return false;
@@ -196,25 +195,26 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     if (Sync.Engine.Instance.CancellationPending) return false;
                     #endregion
+                    /*
 
-                    #region Update Outlook Entries
-                    if (entriesToBeCompared.Count > 0) {
-                        console.Update("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries", Console.Markup.h2, newLine: false);
-                        try {
-                            Outlook.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
-                        } catch (UserCancelledSyncException ex) {
-                            log.Info(ex.Message);
-                            return false;
-                        } catch (System.Exception) {
-                            console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
-                            throw;
+                        #region Update Outlook Entries
+                        if (entriesToBeCompared.Count > 0) {
+                            console.Update("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries", Console.Markup.h2, newLine: false);
+                            try {
+                                Outlook.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                            } catch (UserCancelledSyncException ex) {
+                                log.Info(ex.Message);
+                                return false;
+                            } catch (System.Exception) {
+                                console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
+                                throw;
+                            }
+                            console.Update(entriesUpdated + " entries updated.");
                         }
-                        console.Update(entriesUpdated + " entries updated.");
-                    }
 
-                    if (Sync.Engine.Instance.CancellationPending) return false;
-                    #endregion
-                */
+                        if (Sync.Engine.Instance.CancellationPending) return false;
+                        #endregion
+                    */
 
                 } finally {
                     bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +

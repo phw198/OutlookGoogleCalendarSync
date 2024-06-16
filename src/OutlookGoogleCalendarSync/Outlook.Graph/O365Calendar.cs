@@ -59,24 +59,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             calendarFolders = new();
             List<Microsoft.Graph.Calendar> cals = new();
 
-            var graphThread = new System.Threading.Thread(() => {
-                try {
-                    Microsoft.Graph.IUserCalendarsCollectionPage calPage = GraphClient.Me.Calendars.Request().GetAsync().Result;
+            try {
+                Microsoft.Graph.IUserCalendarsCollectionPage calPage = GraphClient.Me.Calendars.Request().GetAsync().Result;
+                cals.AddRange(calPage.CurrentPage);
+                while (calPage.NextPageRequest != null) {
+                    calPage = calPage.NextPageRequest.GetAsync().Result;
                     cals.AddRange(calPage.CurrentPage);
-                    while (calPage.NextPageRequest != null) {
-                        calPage = calPage.NextPageRequest.GetAsync().Result;
-                        cals.AddRange(calPage.CurrentPage);
-                    }
-                } catch (System.Exception ex) {
-                    log.Debug(ex.ToString());
                 }
-            });
-            graphThread.Start();
-            while (graphThread.IsAlive) {
-                System.Windows.Forms.Application.DoEvents();
-                System.Threading.Thread.Sleep(250);
+            } catch (System.Exception ex) {
+                log.Debug(ex.ToString());
             }
-
+            
             foreach (Microsoft.Graph.Calendar cal in cals) {
                 if (cal.AdditionalData.ContainsKey("isDefaultCalendar") && (Boolean)cal.AdditionalData["isDefaultCalendar"])
                     cal.Name = "Default " + cal.Name;
@@ -127,36 +120,32 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //    requestConfiguration.Headers.Add("Prefer", "outlook.timezone=\"Pacific Standard Time\"");
                 //});
 
-                try {
-                    Int16 pageNum = 1;
-                    ICalendarEventsCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request();
+                Int16 pageNum = 1;
+                ICalendarEventsCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request();
 
-                    System.DateTime min = System.DateTime.MinValue;
-                    System.DateTime max = System.DateTime.MaxValue;
-                    if (!noDateFilter) {
-                        min = profile.SyncStart;
-                        max = profile.SyncEnd;
-                    }
+                System.DateTime min = System.DateTime.MinValue;
+                System.DateTime max = System.DateTime.MaxValue;
+                if (!noDateFilter) {
+                    min = profile.SyncStart;
+                    max = profile.SyncEnd;
+                }
 
-                    string filter = "end/dateTime ge '" + min.ToString("yyyy-MM-dd") +
-                        "' and start/dateTime lt '" + max.ToString("yyyy-MM-dd") + "'" + extraFilter;
-                    log.Fine("Filter string: " + filter);
-                    req.Filter(filter);
+                string filter = "end/dateTime ge '" + min.ToString("yyyy-MM-dd") +
+                    "' and start/dateTime lt '" + max.ToString("yyyy-MM-dd") + "'" + extraFilter;
+                log.Fine("Filter string: " + filter);
+                req.Filter(filter);
 
-                    req.Top(250);
-                    req.Expand("extensions($filter=Id eq '" + O365CustomProperty.ExtensionName() + "')");
-                    //req.OrderBy("start");
+                req.Top(250);
+                req.Expand("extensions($filter=Id eq '" + O365CustomProperty.ExtensionName() + "')");
+                //req.OrderBy("start");
 
-                    ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
+                ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
+                OutlookItems.AddRange(eventPage.CurrentPage);
+                while (eventPage.NextPageRequest != null) {
+                    pageNum++;
+                    eventPage = eventPage.NextPageRequest.GetAsync().Result;
+                    log.Debug("Page " + pageNum + " received.");
                     OutlookItems.AddRange(eventPage.CurrentPage);
-                    while (eventPage.NextPageRequest != null) {
-                        pageNum++;
-                        eventPage = eventPage.NextPageRequest.GetAsync().Result;
-                        log.Debug("Page " + pageNum + " received.");
-                        OutlookItems.AddRange(eventPage.CurrentPage);
-                    }
-                } catch (System.Exception ex) {
-                    log.Debug(ex.ToString());
                 }
             } catch {
                 log.Fail("Could not open '" + Settings.Profile.Name(profile) + "' profile calendar folder with ID " + profile.UseOutlookCalendar.Id);
@@ -574,9 +563,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             List<FreeBusyStatus> persistOutlookStatus = new List<FreeBusyStatus> { FreeBusyStatus.Tentative, FreeBusyStatus.Oof, FreeBusyStatus.WorkingElsewhere };
 
-            if (!profile.SetEntriesAvailable)
+            if (!profile.SetEntriesAvailable) 
                 return (gTransparency == "transparent") ? FreeBusyStatus.Free :
-                    persistOutlookStatus.Contains((FreeBusyStatus)oBusyStatus) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
+                    persistOutlookStatus.Contains(oBusyStatus ?? FreeBusyStatus.Busy) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
 
             FreeBusyStatus overrideFbStatus = FreeBusyStatus.Free;
             try {
@@ -591,7 +580,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
                     if (oBusyStatus == null)
                         return (gTransparency == "transparent") ? FreeBusyStatus.Free :
-                            persistOutlookStatus.Contains((FreeBusyStatus)oBusyStatus) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
+                            persistOutlookStatus.Contains(oBusyStatus ?? FreeBusyStatus.Busy) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
                     else
                         return (FreeBusyStatus)oBusyStatus;
                 } else {
@@ -599,7 +588,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         return overrideFbStatus;
                     else
                         return (gTransparency == "transparent") ? FreeBusyStatus.Free :
-                            persistOutlookStatus.Contains((FreeBusyStatus)oBusyStatus) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
+                            persistOutlookStatus.Contains(oBusyStatus ?? FreeBusyStatus.Busy) ? (FreeBusyStatus)oBusyStatus : FreeBusyStatus.Busy;
                 }
             }
         }
