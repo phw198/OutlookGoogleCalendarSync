@@ -37,6 +37,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         public void AddCategoryColours() {
             if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) return;
+            if (Outlook.Calendar.Categories == null) return; //***O365
 
             Items.AddRange(Outlook.Calendar.Categories.DropdownItems().ToArray());
         }

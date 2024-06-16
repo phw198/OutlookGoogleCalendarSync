@@ -31,9 +31,17 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance ??= new Ogcs.Outlook.Calendar();
-                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient())
+                    if (instance == null) {
+                        instance = new Ogcs.Outlook.Calendar();/* {
+                            Authenticator = new Ogcs.Outlook.Graph.Authenticator()
+                        };*/
+                    }
+                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()/* && !Forms.Main.Instance.Visible*/) //Form !visible must be removed, only to initialising app with Outlook client to help with dev work
                         instance.IOutlook.Connect();
+                    /*if (instance.Authenticator == null *//*|| !instance.Authenticator.Authenticated*//*) {
+                        instance.Authenticator = new Ogcs.Outlook.Graph.Authenticator(); 
+                        instance.Authenticator.GetAuthenticated(noInteractiveAuth: true);
+                    }*/
 
                 } catch (System.ApplicationException) {
                     throw;
