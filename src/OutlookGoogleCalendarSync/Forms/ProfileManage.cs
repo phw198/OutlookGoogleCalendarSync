@@ -71,7 +71,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     int idx = ddProfile.SelectedIndex;
                     ddProfile.Items.RemoveAt(idx);
                     ddProfile.Items.Insert(idx, newProfileName);
-                    ddProfile.SelectedIndex = idx;
+                    ddProfile.SelectedItem = newProfileName;
                     log.Info("Renamed calendar settings from '" + currentProfileName + "' to '" + newProfileName + "'.");
 
                 } catch (System.Exception ex) {
