@@ -988,22 +988,24 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (!profile.SetEntriesPrivate)
                 return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-            } else {
+            OlSensitivity overrideSensitivity = OlSensitivity.olNormal;
+            try {
+                Enum.TryParse(profile.PrivacyLevel, out overrideSensitivity);
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not convert string '" + profile.PrivacyLevel + "' to OlSensitivity type. Defaulting override to normal.");
+            }
+
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
                     if (oSensitivity == null)
                         return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                    else if (oSensitivity == OlSensitivity.olPrivate && gVisibility != "private") {
-                        log.Fine("Source of truth for enforced privacy is already set private and target is NOT - so syncing this back.");
-                        return OlSensitivity.olNormal;
-                    } else
+                else
                         return (OlSensitivity)oSensitivity;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
-                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                    else
-                        return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                    return overrideSensitivity;
+                else {
+                    if (profile.CreatedItemsOnly) return (OlSensitivity)oSensitivity;
+                    else return overrideSensitivity;
                 }
             }
         }
@@ -1021,28 +1023,26 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return (gTransparency == "transparent") ? OlBusyStatus.olFree :
                     persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
 
-            OlBusyStatus overrideFbStatus = OlBusyStatus.olFree;
+            OlBusyStatus overrideFbStatus = OlBusyStatus.olBusy;
             try {
                 Enum.TryParse(profile.AvailabilityStatus, out overrideFbStatus);
             } catch (System.Exception ex) {
-                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.");
+                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to busy.");
             }
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return overrideFbStatus;
-            } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
                     if (oBusyStatus == null)
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
-                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
+                    return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                     else
                         return (OlBusyStatus)oBusyStatus;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oBusyStatus == null))
                         return overrideFbStatus;
+                else {
+                    if (profile.CreatedItemsOnly || persistOutlookStatus.Contains(oBusyStatus.ToString()))
+                        return (OlBusyStatus)oBusyStatus;
                     else
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
-                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
+                        return overrideFbStatus;
                 }
             }
         }
@@ -1058,18 +1058,22 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             if (!profile.AddColours && !profile.SetEntriesColour) return "";
 
+            OlCategoryColor outlookColour = OutlookOgcs.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
+            String overrideColour = Categories.FindName(outlookColour, profile.SetEntriesColourName);
+
             if (profile.SetEntriesColour) {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Colour forced to sync in other direction
-                    if (oColour == null) { //Creating item
-                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour, profile.SetEntriesColourName);
-                    } else return oColour;
+                    if (oColour == null) //Creating item
+                        return "";
+                    else return oColour;
 
                 } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null)) {
-                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour, profile.SetEntriesColourName);
-                    } else return oColour;
+                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null))
+                        return overrideColour;
+                    else {
+                        if (profile.CreatedItemsOnly) return oColour;
+                        else return overrideColour;
+                    }
                 }
 
             } else {

@@ -489,14 +489,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
                     cbOfuscate.Checked = profile.Obfuscation.Enabled;
                     howObfuscatePanel.Visible = false;
-                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                        tbCreatedItemsOnly.SelectedIndex = profile.CreatedItemsOnly ? 1 : 0;
-                        if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
-                        if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
-                    } else {
-                        tbCreatedItemsOnly.SelectedIndex = 0;
-                        tbTargetCalendar.SelectedIndex = 2;
-                    }
+
+                    tbCreatedItemsOnly.SelectedIndex = profile.CreatedItemsOnly ? 1 : 0;
+                    if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
+                    if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
                     tbCreatedItemsOnly_SelectedItemChanged(null, null);
                     tbTargetCalendar_SelectedItemChanged(null, null);
 
@@ -1766,11 +1762,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbObfuscateDirection.Enabled = true;
                 cbObfuscateDirection.SelectedIndex = Sync.Direction.OutlookToGoogle.Id - 1;
 
-                tbCreatedItemsOnly.Enabled = true;
-
-                if (tbTargetCalendar.Items.Contains("target calendar"))
-                    tbTargetCalendar.Items.Remove("target calendar");
-                tbTargetCalendar.SelectedIndex = 0;
                 tbTargetCalendar.Enabled = true;
                 cbOutlookPush.Enabled = true;
                 cbReminderDND.Visible = true;
@@ -1785,13 +1776,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
 
-                tbCreatedItemsOnly.Enabled = false;
-                tbCreatedItemsOnly.SelectedIndex = 0;
-
-                if (!tbTargetCalendar.Items.Contains("target calendar"))
-                    tbTargetCalendar.Items.Add("target calendar");
-                if (tbTargetCalendar.SelectedIndex == 2) tbTargetCalendar_SelectedItemChanged(null, null);
-                tbTargetCalendar.SelectedIndex = 2;
+                if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id)
+                    tbTargetCalendar.SelectedIndex = 0;
+                else if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
+                    tbTargetCalendar.SelectedIndex = 1;
                 tbTargetCalendar.Enabled = false;
                 lExcludeItems.Text = "Exclude items. Affects those previously synced:-";
                 lWhatExcludeInfo.Left = 228;
@@ -1907,14 +1895,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             this.cbColour.Checked = false;
                         break;
                     }
-                case "target calendar": {
-                        ActiveCalendarProfile.TargetCalendar = ActiveCalendarProfile.SyncDirection;
-                        if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003
-                            && ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
-                            this.cbColour.Checked = false;
-                        break;
                     }
-            }
             buildAvailabilityDropdown();
         }
 
