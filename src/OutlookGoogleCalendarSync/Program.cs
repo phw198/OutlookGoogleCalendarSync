@@ -71,8 +71,6 @@ namespace OutlookGoogleCalendarSync {
                 Settings.Load();
                 Settings.Instance.Proxy.Configure();
 
-                new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
-                
                 Updater = new Updater();
                 isNewVersion(Program.IsInstalled);
 
