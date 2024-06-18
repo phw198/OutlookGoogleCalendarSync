@@ -1058,7 +1058,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             if (!profile.AddColours && !profile.SetEntriesColour) return "";
 
-            OlCategoryColor outlookColour = OutlookOgcs.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
+            OlCategoryColor outlookColour = Ogcs.Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
             String overrideColour = Categories.FindName(outlookColour, profile.SetEntriesColourName);
 
             if (profile.SetEntriesColour) {
