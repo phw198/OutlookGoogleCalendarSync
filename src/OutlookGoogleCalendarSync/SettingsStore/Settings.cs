@@ -83,8 +83,6 @@ namespace OutlookGoogleCalendarSync {
             PersonalClientSecret = "";
             DisconnectOutlookBetweenSync = false;
             TimezoneMaps = new TimezoneMappingDictionary();
-            DisconnectOutlookBetweenSync = false;
-            TimezoneMaps = new TimezoneMappingDictionary();
 
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
@@ -123,8 +121,8 @@ namespace OutlookGoogleCalendarSync {
             VerboseOutput = true;
         }
 
-        public static Boolean InstanceInitialiased() {
-            return (instance != null);
+        public static Boolean InstanceInitialiased {
+            get { return (instance != null); }
         }
 
         public static Settings Instance {
@@ -383,7 +381,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("PROXY:-");
             log.Info("  Type: " + Proxy.Type);
-            if (Proxy.BrowserUserAgent != Proxy.DefaultBrowserAgent)
+            if (Proxy.BrowserUserAgent != SettingsStore.Proxy.DefaultBrowserAgent)
                 log.Info("  Browser Agent: " + Proxy.BrowserUserAgent);
             if (Proxy.Type == "Custom") {
                 log.Info("  Server Name: " + Proxy.ServerName);

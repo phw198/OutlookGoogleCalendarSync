@@ -2385,7 +2385,7 @@ namespace OutlookGoogleCalendarSync.Google {
         public static Boolean? IsDefaultCalendar() {
             try {
                 SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
+                if (!Settings.InstanceInitialiased || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
                     return null;
 
                 return profile.UseGoogleCalendar.Id == Settings.Instance.GaccountEmail;

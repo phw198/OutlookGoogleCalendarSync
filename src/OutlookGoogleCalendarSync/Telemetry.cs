@@ -83,11 +83,14 @@ namespace OutlookGoogleCalendarSync {
         public String City { get; private set; }
 
         public Telemetry() {
-            getIpGeoData().ConfigureAwait(false);
+            new System.Threading.Thread(() => { _ = getIpGeoData(); }).Start();
         }
 
         private async Task getIpGeoData() {
             try {
+                while (!Settings.AreLoaded) {
+                    System.Threading.Thread.Sleep(1000);
+                }
                 using (Extensions.OgcsWebClient wc = new()) {
                     //https://api.country.is/
                     String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
@@ -105,6 +108,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not get IP geolocation.");
             }
+            new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
         }
 
         /// <summary>
