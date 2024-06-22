@@ -1433,42 +1433,47 @@ namespace OutlookGoogleCalendarSync.Forms {
             log.Debug("List Calendar folders");
 
             cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
-            if (ActiveCalendarProfile.IsOutlookOnline) {
-                if (ActiveCalendarProfile.UseOutlookCalendar == null) {
-                    cbOutlookCalendars.DataSource = null;
-                    cbOutlookCalendars.Items.Clear();
-                    cbOutlookCalendars.Items.Add("");
-                } else if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.CalendarFolders.Count > 0) {
-                    cbOutlookCalendars.DataSource = new BindingSource(Outlook.Graph.Calendar.Instance.CalendarFolders, null);
-                } else {
-                    Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
-                        { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
-                    };
-                    cbOutlookCalendars.DataSource = new BindingSource(ds, null);
-                }
-                cbOutlookCalendars.SelectedIndex = 0;
-
-            } else {
-                if (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count > 0) {
-                    cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
-                    cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
-                } else {
-                    if (ActiveCalendarProfile.UseOutlookCalendar != null) {
+            try {
+                if (ActiveCalendarProfile.IsOutlookOnline) {
+                    if (ActiveCalendarProfile.UseOutlookCalendar?.Name == null) {
+                        cbOutlookCalendars.DataSource = null;
+                        cbOutlookCalendars.Items.Clear();
+                        cbOutlookCalendars.Items.Add("");
+                    } else if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.CalendarFolders.Count > 0) {
+                        cbOutlookCalendars.DataSource = new BindingSource(Outlook.Graph.Calendar.Instance.CalendarFolders, null);
+                    } else {
                         Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
                         { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
                     };
                         cbOutlookCalendars.DataSource = new BindingSource(ds, null);
-                    } else {
-                        cbOutlookCalendars.DataSource = null;
-                        cbOutlookCalendars.Items.Clear();
-                        cbOutlookCalendars.Items.Add("");
                     }
                     cbOutlookCalendars.SelectedIndex = 0;
+
+                } else {
+                    if (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count > 0) {
+                        cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
+                        cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
+                    } else {
+                        if (ActiveCalendarProfile.UseOutlookCalendar != null) {
+                            Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
+                        { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
+                    };
+                            cbOutlookCalendars.DataSource = new BindingSource(ds, null);
+                        } else {
+                            cbOutlookCalendars.DataSource = null;
+                            cbOutlookCalendars.Items.Clear();
+                            cbOutlookCalendars.Items.Add("");
+                        }
+                        cbOutlookCalendars.SelectedIndex = 0;
+                    }
                 }
+            } finally {
+                cbOutlookCalendars.DisplayMember = "Key";
+                cbOutlookCalendars.ValueMember = "Value";
+                cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
             }
-            cbOutlookCalendars.DisplayMember = "Key";
-            cbOutlookCalendars.ValueMember = "Value";
-            cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+
+            if (ActiveCalendarProfile.UseOutlookCalendar?.Name == null) return;
 
             //Select the right calendar
             int c = 0;
@@ -1488,6 +1493,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             {
                 log.Info("User requested reset of Microsoft authentication details.");
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
+                this.cbOutlookCalendars.DataSource = null;
                 this.cbOutlookCalendars.Items.Clear();
                 if (!Outlook.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
                     Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);

@@ -60,8 +60,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
-                    Ogcs.Extensions.MessageBox.Show("Sorry, but this application will not work if you don't allow it access to your Microsoft calendar.",
-                        "Authorisation not provided", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    new Forms.MsOauthConsent().ShowDialog(Forms.Main.Instance);
                 } catch (System.Exception ex) {
                     ex.Analyse();
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft. The following error occurred:", ex);
@@ -122,10 +121,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
-                    if (msalInteractiveEx.Message.Trim() == "User canceled authentication.") {
+                    if (msalInteractiveEx.ErrorCode == "authentication_canceled") {
                         CancelTokenSource.Cancel(true);
                         return false;
-                    } else throw;
+                    } else {
+                        log.Fail("msalInteractiveEx.ErrorCode: " + msalInteractiveEx.ErrorCode);
+                        throw;
+                    }
                 } catch (System.Exception) {
                     log.Fail("Error during AcquireTokenInteractive()");
                     throw;
@@ -168,7 +170,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Settings.Instance.MSaccountEmail = "";
             Authenticated = false;
             try {
-                var accounts = oAuthApp.GetAccountsAsync().Result;
+                var accounts = oAuthApp?.GetAccountsAsync().Result ?? Enumerable.Empty<IAccount>();                
                 log.Debug(accounts.Count() + " account(s) in the MSAL cache.");
                 foreach (IAccount account in accounts) {
                     try {
