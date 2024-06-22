@@ -127,10 +127,10 @@ namespace OutlookGoogleCalendarSync {
         public static void TrackSync() {
             if (Program.InDeveloperMode) return;
             Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
-            Telemetry.GA4Event.Event syncGa4Ev = new(Telemetry.GA4Event.Event.Name.sync);
-            syncGa4Ev.AddParameter(GA4.General.type, "calendar");
-            syncGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
-            syncGa4Ev.Send();
+            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.sync)
+                .AddParameter(GA4.General.type, "calendar")
+                .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
+                .Send();
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace OutlookGoogleCalendarSync {
                     name = eventName.ToString();
                 }
 
-                public void AddParameter(Object parameterName, Object parameterValue) {
+                public Event AddParameter(Object parameterName, Object parameterValue) {
                     if (parameters == null)
                         parameters = new Dictionary<String, Object>();
 
@@ -271,6 +271,7 @@ namespace OutlookGoogleCalendarSync {
                         parameterValue ??= "";
                         parameters[strParamName] = parameterValue.ToString().Substring(0, Math.Min(parameterValue.ToString().Length, 100));
                     }
+                    return this;
                 }
 
                 /// <summary>
