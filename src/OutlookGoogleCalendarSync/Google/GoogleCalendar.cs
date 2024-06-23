@@ -1795,7 +1795,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
                     Setting setting = Service.Settings.Get("timezone").Execute();
                     this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
-                    log.Info("Google account timezone: " + setting.Value);
+                    log.Info($"Google account timezone: {setting.Value} with minute offset {this.UTCoffset}.");
                     stage = "retrieve settings for synced Google calendar";
                     getCalendarSettings();
                     break;
