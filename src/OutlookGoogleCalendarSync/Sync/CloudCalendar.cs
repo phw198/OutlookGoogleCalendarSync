@@ -198,26 +198,24 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     if (Sync.Engine.Instance.CancellationPending) return false;
                     #endregion
-                    /*
 
-                        #region Update Outlook Entries
-                        if (entriesToBeCompared.Count > 0) {
-                            console.Update("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries", Console.Markup.h2, newLine: false);
-                            try {
-                                Outlook.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
-                            } catch (UserCancelledSyncException ex) {
-                                log.Info(ex.Message);
-                                return false;
-                            } catch (System.Exception) {
-                                console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
-                                throw;
-                            }
-                            console.Update(entriesUpdated + " entries updated.");
+                    #region Update Outlook Entries
+                    if (entriesToBeCompared.Count > 0) {
+                        console.Update("Comparing " + entriesToBeCompared.Count + " existing Outlook calendar entries", Console.Markup.h2, newLine: false);
+                        try {
+                            Outlook.Graph.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                        } catch (UserCancelledSyncException ex) {
+                            log.Info(ex.Message);
+                            return false;
+                        } catch (System.Exception) {
+                            console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
+                            throw;
                         }
+                        console.Update(entriesUpdated + " entries updated.");
+                    }
 
-                        if (Sync.Engine.Instance.CancellationPending) return false;
-                        #endregion
-                    */
+                    if (Sync.Engine.Instance.CancellationPending) return false;
+                    #endregion
 
                 } finally {
                     bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +

@@ -2423,7 +2423,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
-            if (cbAddAttendees.Checked && string.IsNullOrEmpty(Outlook.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
+            if (cbAddAttendees.Checked && ActiveCalendarProfile.OutlookService != Outlook.Calendar.Service.Graph &&
+                string.IsNullOrEmpty(Outlook.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
                 Outlook.Calendar.Instance.IOutlook.GetCurrentUser(null);
             }
         }
