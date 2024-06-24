@@ -1,12 +1,12 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class EventColour {
         public class Palette {
             private Boolean UseWebAppColours = true;
@@ -42,7 +42,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             public Color RgbValue {
                 get {
                     if (UseWebAppColours) {
-                        if (rgbConvertedFromHex.IsEmpty && HexValue != null) rgbConvertedFromHex = OutlookOgcs.Categories.Map.RgbColour(HexValue);
+                        if (rgbConvertedFromHex.IsEmpty && HexValue != null) rgbConvertedFromHex = Outlook.Categories.Map.RgbColour(HexValue);
                         return rgbConvertedFromHex;
                     }
                     return rgbValue;
@@ -58,7 +58,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     try {
                         name = GetColourName(Id);
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         name = HexValue;
                     }
                     return name;
@@ -141,7 +141,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 try {
                     id = eventColourNames.First(n => (n.Value as Metadata).Name == name).Key.ToString();
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Could not find colour ID for '" + name + "'.", ex);
+                    ex.Analyse("Could not find colour ID for '" + name + "'.");
                 }
                 return id;
             }
@@ -162,7 +162,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                     else
                         log.Error("GetColourName(): ID '" + id + "' not found.");
                 } catch (System.Exception ex) {
-                    OGCSexception.Analyse("Could not find colour name for '" + id + "'.", ex);
+                    ex.Analyse("Could not find colour name for '" + id + "'.");
                 }
                 return name;
             }
@@ -180,11 +180,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             get {
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 List<Palette> activePalette = new List<Palette>();
-                if (profile.UseGoogleCalendar == null) return activePalette;
+                if (profile.UseGoogleCalendar?.Id == null) return activePalette;
 
                 if (profile.UseGoogleCalendar.ColourId == "0") {
-                    GoogleOgcs.Calendar.Instance.GetCalendars();
-                    profile.UseGoogleCalendar.ColourId = GoogleOgcs.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
+                    Ogcs.Google.Calendar.Instance.GetCalendars();
+                    profile.UseGoogleCalendar.ColourId = Ogcs.Google.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
                 }
 
                 //Palette currentCal = calendarPalette.Find(p => p.Id == profile.UseGoogleCalendar.ColourId);
@@ -215,23 +215,70 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             Colors colours = null;
             calendarPalette = new List<Palette>();
             eventPalette = new List<Palette>();
+            int backoff = 0;
             try {
-                colours = GoogleOgcs.Calendar.Instance.Service.Colors.Get().Execute();
+                while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
+                    try {
+                        colours = Ogcs.Google.Calendar.Instance.Service.Colors.Get().Execute();
+                        break;
+                    } catch (global::Google.GoogleApiException ex) {
+                        switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
+                            case Ogcs.Google.Calendar.ApiException.throwException: throw;
+                            case Ogcs.Google.Calendar.ApiException.freeAPIexhausted:
+                                Ogcs.Exception.LogAsFail(ref ex);
+                                Ogcs.Exception.Analyse(ex);
+                                System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.Instance.SubscriptionInvite, ex);
+                                Ogcs.Exception.LogAsFail(ref aex);
+                                throw aex;
+                            case Ogcs.Google.Calendar.ApiException.backoffThenRetry:
+                                backoff++;
+                                if (backoff == Ogcs.Google.Calendar.BackoffLimit) {
+                                    log.Error("API limit backoff was not successful. Retrieve Event colours failed.");
+                                    throw;
+                                } else {
+                                    int backoffDelay = (int)Math.Pow(2, backoff);
+                                    log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                    System.Threading.Thread.Sleep(backoffDelay * 1000);
+                                }
+                                break;
+                        }
+                    }
+                }
             } catch (System.Exception ex) {
                 log.Error("Failed retrieving calendar Event colours.");
-                OGCSexception.Analyse(ex);
-                return;
+                Ogcs.Exception.Analyse(ex);
+                throw;
             }
 
             if (colours == null) log.Warn("No colours found!");
             else log.Debug(colours.Event__.Count() + " event colours and " + colours.Calendar.Count() + " calendars (with a colour) found.");
 
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Event__) {
-                eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                eventPalette.Add(new Palette(Palette.Type.Event, colour.Key, colour.Value.Background, Outlook.Categories.Map.RgbColour(colour.Value.Background)));
             }
             foreach (KeyValuePair<String, ColorDefinition> colour in colours.Calendar) {
-                calendarPalette.Add(new Palette(Palette.Type.Calendar, colour.Key, colour.Value.Background, OutlookOgcs.Categories.Map.RgbColour(colour.Value.Background)));
+                calendarPalette.Add(new Palette(Palette.Type.Calendar, colour.Key, colour.Value.Background, Outlook.Categories.Map.RgbColour(colour.Value.Background)));
             }
+            Forms.Main.Instance.miColourBuildPicker_Click(null, null);
+        }
+        
+        /// <summary>
+        /// Build colour list from those downloaded from Google.
+        /// </summary>
+        /// <param name="clb">The checklistbox to populate with the colours.</param>
+        public void BuildPicker(System.Windows.Forms.CheckedListBox clb) {
+            clb.BeginUpdate();
+            clb.Items.Clear();
+            clb.Items.Add("<Default calendar colour>");
+            foreach (Palette colour in Ogcs.Google.Calendar.Instance.ColourPalette.eventPalette) {
+                clb.Items.Add(colour.Name);
+            }
+            foreach (String colour in Forms.Main.Instance.ActiveCalendarProfile.Colours) {
+                try {
+                    clb.SetItemChecked(clb.Items.IndexOf(colour), true);
+                } catch { /* Colour "colour" no longer exists */ }
+            }
+            clb.EndUpdate();
         }
 
         /// <summary>
@@ -257,7 +304,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return colourDistance.Find(x => x.Diff == minDistance).Value;
             } catch (System.Exception ex) {
                 log.Warn("Failed to get closest Event colour for " + baseColour.Name);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 return Palette.NullPalette;
             }
         }

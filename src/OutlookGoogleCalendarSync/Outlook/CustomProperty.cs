@@ -1,4 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     public class EphemeralProperties {
 
         private Dictionary<AppointmentItem, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
@@ -95,6 +96,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             gCalendarId,
             ogcsModified,
             forceSave,
+            gMeetUrl,
             locallyCopied,
             originalStartDate
         }
@@ -124,11 +126,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             int? returnVal = null;
             maxSet = 0;
 
-            if (OutlookOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.KeySet) &&
-                OutlookOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.MaxSet))
+            if (Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.KeySet) &&
+                Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.MaxSet))
             {
-                Object ep_keySet = OutlookOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ai, EphemeralProperty.PropertyName.KeySet);
-                Object ep_maxSet = OutlookOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ai, EphemeralProperty.PropertyName.MaxSet);
+                Object ep_keySet = Calendar.Instance.EphemeralProperties.GetProperty(ai, EphemeralProperty.PropertyName.KeySet);
+                Object ep_maxSet = Calendar.Instance.EphemeralProperties.GetProperty(ai, EphemeralProperty.PropertyName.MaxSet);
                 maxSet = Convert.ToInt16(ep_maxSet ?? ep_keySet);
                 if (ep_keySet != null) returnVal = Convert.ToInt16(ep_keySet);
                 return returnVal;
@@ -145,11 +147,11 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         if (up.Name.StartsWith(calendarKeyName))
                             calendarKeys.Add(up.Name, up.Value.ToString());
                     } finally {
-                        up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
+                        up = (UserProperty)Calendar.ReleaseObject(up);
                     }
                 }
             } finally {
-                ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
 
             try {
@@ -178,8 +180,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
             } finally {
-                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
-                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
+                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
+                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
             }
             return returnVal;
         }
@@ -218,12 +220,12 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             } catch {
                 return false;
             } finally {
-                prop = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(prop);
-                ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+                prop = (UserProperty)Calendar.ReleaseObject(prop);
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
         }
 
-        public static Boolean ExistsAny(AppointmentItem ai) {
+        public static Boolean ExistAnyGoogleIDs(AppointmentItem ai) {
             if (Exists(ai, MetadataId.gEventID)) return true;
             if (Exists(ai, MetadataId.gCalendarId)) return true;
             return false;
@@ -264,6 +266,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             LogProperties(ai, log4net.Core.Level.Debug);
         }
 
+        /// <summary>
+        /// Remove the Google event IDs from an Outlook appointment.
+        /// </summary>
+        public static void RemoveGoogleIDs(ref AppointmentItem ai) {
+            Remove(ref ai, MetadataId.gEventID);
+            Remove(ref ai, MetadataId.gCalendarId);
+        }
+
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
             add(ref ai, key, OlUserPropertyType.olText, value);
         }
@@ -291,7 +301,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         ups = ai.UserProperties;
                         ups.Add(addkeyName, keyType);
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse(ex);
+                        Ogcs.Exception.Analyse(ex);
                         ups.Add(addkeyName, keyType, false);
                     } finally {
                         ups = (UserProperties)Calendar.ReleaseObject(ups);
@@ -300,8 +310,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                     addkeyName = currentKeyName; //Might be suffixed with "-01"
                 ups = ai.UserProperties;
                 ups[addkeyName].Value = keyValue;
-                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
-                OutlookOgcs.Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
+                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
+                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
                 log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
 
             } finally {
@@ -323,8 +333,8 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                         retVal = prop.Value.ToString();
                     }
                 } finally {
-                    prop = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(prop);
-                    ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+                    prop = (UserProperty)Calendar.ReleaseObject(prop);
+                    ups = (UserProperties)Calendar.ReleaseObject(ups);
                 }
             }
             return retVal;
@@ -347,7 +357,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                                 retVal = (DateTime)prop.Value;
                         } catch (System.Exception ex) {
                             log.Error("Failed to retrieve DateTime value for property " + searchKey);
-                            OGCSexception.Analyse(ex);
+                            Ogcs.Exception.Analyse(ex);
                         }
                     }
                 } finally {
@@ -391,6 +401,7 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
                 metadataIdKeyName(MetadataId.forceSave),
                 metadataIdKeyName(MetadataId.gCalendarId),
                 metadataIdKeyName(MetadataId.gEventID),
+                metadataIdKeyName(MetadataId.gMeetUrl),
                 metadataIdKeyName(MetadataId.locallyCopied),
                 metadataIdKeyName(MetadataId.ogcsModified),
                 metadataIdKeyName(MetadataId.originalStartDate)
@@ -436,21 +447,52 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
             UserProperties ups = null;
             UserProperty up = null;
             try {
-                log.Debug(OutlookOgcs.Calendar.GetEventSummary(ai));
+                log.Debug(Calendar.GetEventSummary(ai));
                 ups = ai.UserProperties;
                 for (int p = 1; p <= ups.Count; p++) {
                     try {
                         up = ups[p];
-                        log.Debug(up.Name + "=" + up.Value.ToString());
+                        if (up.Name == metadataIdKeyName(MetadataId.gCalendarId))
+                            log.Debug(up.Name + "=" + EmailAddress.MaskAddress(up.Value.ToString()));
+                        else
+                            log.Debug(up.Name + "=" + up.Value.ToString());
                     } finally {
-                        up = (UserProperty)OutlookOgcs.Calendar.ReleaseObject(up);
+                        up = (UserProperty)Calendar.ReleaseObject(up);
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to log Appointment UserProperties", ex);
+                ex.Analyse("Failed to log Appointment UserProperties");
             } finally {
-                ups = (UserProperties)OutlookOgcs.Calendar.ReleaseObject(ups);
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
+        }
+    }
+
+    public static class ReflectionProperties {
+        private static readonly ILog log = LogManager.GetLogger(typeof(ReflectionProperties));
+
+        public static OlBodyFormat BodyFormat(this AppointmentItem ai) {
+            OlBodyFormat format = OlBodyFormat.olFormatUnspecified;
+            try {
+                format = (OlBodyFormat)ai.GetType().InvokeMember("BodyFormat", System.Reflection.BindingFlags.GetProperty, null, ai, null);
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to determine AppointmentItem body format.");
+            }
+            return format;
+        }
+
+        public static String RTFBodyAsString(this AppointmentItem ai) {
+#if DEVELOP_AGAINST_2007
+            return "";
+#else
+            return System.Text.Encoding.ASCII.GetString(ai.RTFBody as byte[]);
+#endif
+        }
+        private static Boolean RTFIsHtml(this AppointmentItem ai) {
+            //RTF Specification: https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxrtfex/4e5f466b-068a-42b2-b3d5-c9b3d5872438
+            String bodyCode = ai.RTFBodyAsString();
+            Regex rgx = new Regex(@"\\rtf1.*?\\fromhtml1.*?\\fonttbl", RegexOptions.IgnoreCase);
+            return rgx.IsMatch(bodyCode);
         }
     }
 }

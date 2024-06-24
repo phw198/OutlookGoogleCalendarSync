@@ -1,5 +1,7 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -7,10 +9,11 @@ namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
         private NotifyIcon icon;
-        public Object Tag {
-            get { return icon.Tag; }
-            set { icon.Tag = value; }
-        }
+        
+        public Timer IconAnimator;
+        private Icon[] animatedIconFrames;
+        private int animatedIconFrame;
+
         private Boolean exitEventFired = false;
         public Boolean Exited {
             get { return this.exitEventFired; }
@@ -28,11 +31,50 @@ namespace OutlookGoogleCalendarSync {
             this.icon.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
             buildMenu();
 
-            if (OutlookOgcs.Calendar.OOMsecurityInfo) {
+            if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
                     "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
                 Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.setting, "OOMsecurity;SyncCount=" + Settings.Instance.CompletedSyncs);
+                Telemetry.GA4Event.Event settingGa4Ev = new(Telemetry.GA4Event.Event.Name.setting);
+                settingGa4Ev.AddParameter("oom_security", true);
+                settingGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
+                settingGa4Ev.Send();
             }
+
+            try {
+                IconAnimator = new Timer();
+                IconAnimator.Tick += Animator_Tick;
+                IconAnimator.Interval = 750;
+
+                Bitmap bmpStrip = new Bitmap(Properties.Resources.animated_tray_icon_strip_64x);
+                int iconSize = 64;
+                // the color from the left bottom pixel will be made transparent
+                bmpStrip.MakeTransparent();
+
+                animatedIconFrames = new Icon[bmpStrip.Width / iconSize];
+                for (int i = 0; i < animatedIconFrames.Length; i++) {
+                    Rectangle rect = new Rectangle(i * iconSize, 0, iconSize, iconSize);
+                    Bitmap bmp = bmpStrip.Clone(rect, bmpStrip.PixelFormat);
+                    animatedIconFrames[i] = Icon.FromHandle(bmp.GetHicon());
+                }
+                animatedIconFrame = 0;
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not set up animated system tray icon.");
+            }
+        }
+
+        private void Animator_Tick(object sender, EventArgs e) {
+            if (animatedIconFrames == null) {
+                IconAnimator.Stop();
+                return;
+            }
+            this.icon.Icon = animatedIconFrames[animatedIconFrame];
+            animatedIconFrame = (animatedIconFrame + 1) % animatedIconFrames.Length;
+        }
+
+        public void IconAnimatorStop() {
+            IconAnimator.Stop();
+            this.icon.Icon = Properties.Resources.icon;
         }
 
         private void buildMenu() {
@@ -91,7 +133,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
@@ -114,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
                     
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RenameProfileItem(String currentText, String newText) {
@@ -133,7 +175,7 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
         public void RemoveProfileItem(String itemText) {
@@ -152,13 +194,16 @@ namespace OutlookGoogleCalendarSync {
 
             } catch (System.Exception ex) {
                 if (Forms.Main.Instance.IsDisposed) return;
-                OGCSexception.Analyse(ex, true);
+                Ogcs.Exception.Analyse(ex, true);
             }
         }
 
+        /// <summary>
+        /// Set menu items to enabled/disabled.
+        /// </summary>
         public void UpdateAutoSyncItems() {
             Boolean autoSyncing = Settings.Instance.Calendars.Any(c =>
-                (c.OgcsTimer != null && c.OgcsTimer.Running()) ||
+                (c.OgcsTimer != null && c.OgcsTimer.IsRunning) ||
                 (c.OgcsTimer == null && (c.SyncInterval != 0 || c.OutlookPush)));
 
             UpdateItem("autoSyncToggle", autoSyncing ? "Disable" : "Enable");
@@ -185,18 +230,22 @@ namespace OutlookGoogleCalendarSync {
 
         private void autoSyncToggle_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            Forms.Main.Instance.Console.Update("Automatic sync(s) " + menuItemText.ToLower() + "d.");
+            int cnt = 0;
             if (menuItemText == "Enable") {
-                int cnt = 0;
                 foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                     if (cal.SyncInterval != 0) {
                         log.Info("Enabled sync for profile: " + cal._ProfileName);
                         cal.OgcsTimer.SetNextSync(1 + (3 * cnt), true);
                     }
                     if (cal.OutlookPush) cal.RegisterForPushSync();
+                    cnt += (cal.SyncInterval != 0 || cal.OutlookPush ? 1 : 0);
                 }
+
+                if (cnt == 0)
+                    Forms.Main.Instance.Console.Update("No Profiles have a schedule configured.<br/>Please first set a schedule under Settings > Sync Options > When.", Console.Markup.config);
+                else
+                    UpdateAutoSyncItems();
                 Forms.Main.Instance.StrikeOutNextSyncVal(false);
-                UpdateAutoSyncItems();
 
             } else {
                 foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
@@ -207,13 +256,22 @@ namespace OutlookGoogleCalendarSync {
                     }
                     cal.OgcsTimer.Activate(false);
                     if (cal.OutlookPush) cal.DeregisterForPushSync();
+                    cnt += (cal.SyncInterval != 0 || cal.OutlookPush ? 1 : 0);
                 }
-                Forms.Main.Instance.StrikeOutNextSyncVal(true);
-                UpdateAutoSyncItems();
+                if (cnt == 0)
+                    Forms.Main.Instance.Console.Update("No Profiles have a schedule configured. 0 automatic syncs disabled.", Console.Markup.config);
+                else {
+                    Forms.Main.Instance.StrikeOutNextSyncVal(true);
+                    UpdateAutoSyncItems();
+                }
             }
+
+            if (cnt != 0)
+                Forms.Main.Instance.Console.Update(cnt + " automatic sync(s) " + menuItemText.ToLower() + "d.", Console.Markup.config);
         }
+
         private void delaySync1Hr_Click(object sender, EventArgs e) {
-            Forms.Main.Instance.Console.Update("Next sync delayed for 1 hour.");
+            Forms.Main.Instance.Console.Update("Next sync delayed for 1 hour.", Console.Markup.config);
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal.OgcsTimer == null) continue;
                 log.Info("Delaying sync for 1 hour: " + cal._ProfileName);
@@ -223,7 +281,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync2Hr_Click(object sender, EventArgs e) {
-            Forms.Main.Instance.Console.Update("Next sync delayed for 2 hours.");
+            Forms.Main.Instance.Console.Update("Next sync delayed for 2 hours.", Console.Markup.config);
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal.OgcsTimer == null) continue;
                 log.Info("Delaying sync for 2 hours: " + cal._ProfileName);
@@ -233,7 +291,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySync4Hr_Click(object sender, EventArgs e) {
-            Forms.Main.Instance.Console.Update("Next sync delayed for 4 hours.");
+            Forms.Main.Instance.Console.Update("Next sync delayed for 4 hours.", Console.Markup.config);
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal.OgcsTimer == null) continue;
                 log.Info("Delaying sync for 4 hours: " + cal._ProfileName);
@@ -243,7 +301,7 @@ namespace OutlookGoogleCalendarSync {
             UpdateItem("delayRemove", enabled: true);
         }
         private void delaySyncRemove_Click(object sender, EventArgs e) {
-            Forms.Main.Instance.Console.Update("Next sync delay removed.");
+            Forms.Main.Instance.Console.Update("Next sync delay removed.", Console.Markup.config);
             foreach (SettingsStore.Calendar cal in Settings.Instance.Calendars) {
                 if (cal.OgcsTimer == null) continue;
                 log.Info("Removing sync delay: " + cal._ProfileName);
@@ -269,12 +327,12 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "ShowBubbleWhenMinimising") {
-                Settings.Instance.ShowBubbleWhenMinimising = false;
-                XMLManager.ExportElement(Settings.Instance, "ShowBubbleWhenMinimising", false, Settings.ConfigFile);
+            if (notifyIcon.Tag?.ToString() == "ShowSystemNotificationWhenMinimising") {
+                Settings.Instance.ShowSystemNotificationWhenMinimising = false;
+                XMLManager.ExportElement(Settings.Instance, "ShowSystemNotificationWhenMinimising", false, Settings.ConfigFile);
                 notifyIcon.Tag = "";
 
-            } else if (notifyIcon.Tag != null && notifyIcon.Tag.ToString() == "OOMsecurity") {
+            } else if (notifyIcon.Tag?.ToString() == "OOMsecurity") {
                 Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
                 notifyIcon.Tag = "";
 
@@ -291,14 +349,13 @@ namespace OutlookGoogleCalendarSync {
         #endregion
 
         public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
-            if (Settings.Instance.ShowBubbleTooltipWhenSyncing) {
-                this.icon.ShowBalloonTip(
-                    500,
-                    "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
-                    message,
-                    iconType
-                );
-            }
+            this.icon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
+            this.icon.ShowBalloonTip(
+                500,
+                "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
+                message,
+                iconType
+            );
             this.icon.Tag = tagValue;
         }
     }

@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -48,13 +49,13 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 String subscribedDate = XMLManager.ImportElement("Subscribed", Settings.ConfigFile);
                 if (!string.IsNullOrEmpty(subscribedDate)) subscribed = DateTime.Parse(subscribedDate); 
-                else subscribed = GoogleOgcs.Authenticator.SubscribedNever;
+                else subscribed = Ogcs.Google.Authenticator.SubscribedNever;
                 
                 Boolean hideSplash = (XMLManager.ImportElement("HideSplashScreen", Settings.ConfigFile) ?? "false") == "true";
                 initialised = true;
 
                 splash.cbHideSplash.Checked = hideSplash;
-                if (subscribed == GoogleOgcs.Authenticator.SubscribedNever && !donor) {
+                if (subscribed == Ogcs.Google.Authenticator.SubscribedNever && !donor) {
                     ToolTips = new ToolTip {
                         AutoPopDelay = 10000,
                         InitialDelay = 500,
@@ -115,7 +116,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbHideSplash_CheckedChanged(object sender, EventArgs e) {
             if (!this.Visible) return;
 
-            if (subscribed == GoogleOgcs.Authenticator.SubscribedNever && !donor) {
+            if (subscribed == Ogcs.Google.Authenticator.SubscribedNever && !donor) {
                 this.cbHideSplash.CheckedChanged -= cbHideSplash_CheckedChanged;
                 cbHideSplash.Checked = false;
                 this.cbHideSplash.CheckedChanged += cbHideSplash_CheckedChanged;
@@ -128,7 +129,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Debug("Waiting for settings and form to initialise in order to save HideSplashScreen preference.");
                     System.Threading.Thread.Sleep(2000);
                 }
-                Settings.Instance.HideSplashScreen = true;
+                Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbHideSplash, "Checked", true);
                 CloseMe();
             }
         }

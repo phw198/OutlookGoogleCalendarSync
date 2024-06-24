@@ -1,4 +1,5 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class EphemeralProperties {
 
         private Dictionary<Event, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
@@ -126,11 +127,11 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             int? returnVal = null;
             maxSet = 0;
 
-            if (GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.KeySet) &&
-                GoogleOgcs.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.MaxSet)) 
+            if (Ogcs.Google.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.KeySet) &&
+                Ogcs.Google.Calendar.Instance.EphemeralProperties.PropertyExists(ev, EphemeralProperty.PropertyName.MaxSet)) 
             {
-                Object ep_keySet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.KeySet);
-                Object ep_maxSet = GoogleOgcs.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.MaxSet);
+                Object ep_keySet = Ogcs.Google.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.KeySet);
+                Object ep_maxSet = Ogcs.Google.Calendar.Instance.EphemeralProperties.GetProperty(ev, EphemeralProperty.PropertyName.MaxSet);
                 maxSet = Convert.ToInt16(ep_maxSet ?? ep_keySet);
                 if (ep_keySet != null) returnVal = Convert.ToInt16(ep_keySet);
                 return returnVal;
@@ -164,8 +165,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
             } finally {
-                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
-                GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
+                Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
+                Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
             }
             return returnVal;
         }
@@ -180,7 +181,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             if (!Exists(ev, MetadataId.oCalendarId)) missingIds += metadataIdKeyName(MetadataId.oCalendarId) + "|";
             if (!Exists(ev, MetadataId.oEntryId)) missingIds += metadataIdKeyName(MetadataId.oEntryId) + "|";
             if (!string.IsNullOrEmpty(missingIds))
-                log.Warn("Found Google item missing Outlook IDs (" + missingIds.TrimEnd('|') + "). " + GoogleOgcs.Calendar.GetEventSummary(ev));
+                log.Warn("Found Google item missing Outlook IDs (" + missingIds.TrimEnd('|') + "). " + Ogcs.Google.Calendar.GetEventSummary(ev));
             return !string.IsNullOrEmpty(missingIds);
         }
 
@@ -203,7 +204,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
                 return ev.ExtendedProperties.Private__.ContainsKey(searchKey) && Get(ev, MetadataId.oCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id;
         }
 
-        public static Boolean ExistsAny(Event ev) {
+        public static Boolean ExistAnyOutlookIDs(Event ev) {
             if (Exists(ev, MetadataId.oEntryId)) return true;
             if (Exists(ev, MetadataId.oGlobalApptId)) return true;
             if (Exists(ev, MetadataId.oCalendarId)) return true;
@@ -216,8 +217,17 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public static void AddOutlookIDs(ref Event ev, AppointmentItem ai) {
             Add(ref ev, MetadataId.oCalendarId, Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
             Add(ref ev, MetadataId.oEntryId, ai.EntryID);
-            Add(ref ev, MetadataId.oGlobalApptId, OutlookOgcs.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
+            Add(ref ev, MetadataId.oGlobalApptId, Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai));
             CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
+        }
+
+        /// <summary>
+        /// Remove the Outlook appointment IDs from a Google event.
+        /// </summary>
+        public static void RemoveOutlookIDs(ref Event ev) {
+            Remove(ref ev, MetadataId.oEntryId);
+            Remove(ref ev, MetadataId.oGlobalApptId);
+            Remove(ref ev, MetadataId.oCalendarId);
         }
 
         public static void Add(ref Event ev, MetadataId key, String value) {
@@ -244,8 +254,8 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             else
                 ev.ExtendedProperties.Private__.Add(keyName, keyValue);
 
-            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
-            GoogleOgcs.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
+            Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
+            Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
             log.Fine("Set extendedproperty " + keyName + "=" + keyValue);
         }
 
@@ -333,13 +343,13 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             try {
                 if (ev.ExtendedProperties != null && ev.ExtendedProperties.Private__ != null) {
-                    log.Debug(GoogleOgcs.Calendar.GetEventSummary(ev));
+                    log.Debug(Ogcs.Google.Calendar.GetEventSummary(ev));
                     foreach (KeyValuePair<String, String> prop in ev.ExtendedProperties.Private__.OrderBy(k => k.Key)) {
                         log.Debug(prop.Key + "=" + prop.Value);
                     }
                 }
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to log Event ExtendedProperties", ex);
+                ex.Analyse("Failed to log Event ExtendedProperties");
             }
         }
     }

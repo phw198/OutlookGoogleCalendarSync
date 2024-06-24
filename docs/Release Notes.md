@@ -1,6 +1,132 @@
 | Release Notes |
 |:---|
 
+# v2.10.5.0 - Alpha
+
+**Enhancements**
+- Improved upgrade mechanism (when upgrading from this version) [[#1837](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1837)]
+- Delay immediate scheduled sync when resuming from hibernate [[#1850](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1850)]
+- Increased maximum startup delay to 600s
+- Code refactor in preparation for O365.
+
+**Bugfix**
+- Retain notification tray setting on upgrade through v2.10.4 [[#1841](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1841)]
+- Don't attempt GMeet sync when description type unknown [[#1844](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1844)]
+- Fixed regression of error when syncing too soon after system resume [[#1836](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1836)]
+- Properly restore application when minimised from system tray [[#1847](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1847)]
+- Exclude "Working Location" Google event type during 2-way sync [[#1843](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1843)]
+
+# v2.10.4.0 - Alpha
+
+**Enhancements**
+- New option: only show notifications when changes have been synced [[#1769](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1769)]
+- Re-release of sync for Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+- UI guidance that configured exclusions don't apply to series occurrences [[#1758](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1758)]
+- Added menu option to Sync button for 'Full Sync'
+- Logging improvements
+
+**Bugfix**
+- Empty appointment descriptions broke GMeet details sync [[#1776](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1776),[#1810](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1810)]
+- Finding calendar folders in alternate mailboxes [[#673](https://github.com/phw198/OutlookGoogleCalendarSync/issues/673)]
+- Handle oddly specified annual recurrences in Google [[#1799](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1799)]
+- Exclude Google's new 'Working Location' attribute [[#1817](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1817)]
+- Handle connection issues to alternate mailboxes when refreshing Outlook categories [[#1823](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1823)]
+
+# v2.10.3.0 - Alpha
+
+**Enhancements**
+- New option to:
+    - Sync Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+    - Anonymise calendar subjects in log file [[#1755](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1755)]
+- Improved efficiency when locating Google recurring series [[#1738](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1738)]
+- Handle poorly configured proxy servers [[#1745](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1745)]
+
+**Bugfix**
+- Failing to delete occurrence of Google series [[#1753](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1753)]
+- Handle Google rate limiting for too many meeting attendees [[#1744](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1744)]
+- Apply existing obfuscation rules against item Subjects [[#1725](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1725)]
+    - Handle items with no Subject text [[#1731](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1731)]
+- Cropped text on Google 'Retrieve Calendars' screen [[#1730](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1730)]
+
+# v2.10.2.0 - Alpha
+
+**Enhancements**
+- New option to:
+    - Exclude Google items based on colour [[#1553](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1553)]
+    - Exclude items based on title/subject [[#1688](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1688)]
+    - Obfuscate any of subject, location, description [[#500](https://github.com/phw198/OutlookGoogleCalendarSync/issues/500)]
+- When deletion prompt is declined, sync item instead [[#1691](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1691)]
+- If Google "Busy" status, persist Outlook statuses of: Out of office, Tentative, Working elsewhere [[#1259](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1259)]
+- Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
+
+**Bugfix**
+- Redirect to the wiki when COM error encountered [[#1710](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1710)]
+- Fix failing check for new ZIP releases [[#1711](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1711)]
+- Detect and remove custom application recurrence rules [[#1712](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1712)]
+- Fix incorrect detection of multiple OGCS instances with same config [[#1717](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1717)]
+- Previously synced exclusion no longer deleted when reinstated [[#1686](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1686)]
+
+# v2.10.1.0 - Alpha
+
+**Enhancements**
+- New options to exclude:
+    - All-day items [[#104](https://github.com/phw198/OutlookGoogleCalendarSync/issues/104)]
+    - Items by availability: free, tentative [[#825](https://github.com/phw198/OutlookGoogleCalendarSync/issues/825)]
+    - Items by privacy: private [[#415](https://github.com/phw198/OutlookGoogleCalendarSync/issues/415)]
+- New option to choose deletion of previously synced Google items, which are now excluded by category [[#1682](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1682)]
+    - NB: The default behaviour is to delete
+- Ability to export/import settings [[#1561](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1561)]
+- Log occurrence deletions to console
+- OGCS logo updated with modernised "G"
+    - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+- Update of third-party DLL files
+
+**Bugfix**
+- Incorrect detection of deleted occurrences within a series [[#1653](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1653)]
+- Handle Outlook recurring series having different start/end time zones, which Google does not allow
+- Better API quota management
+
+# v2.10.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
+- Option to show and sync with hidden Google calendars
+- Option to set synced items as 'public'
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Better UI for colour map configuration
+- Improved UX for category/colour map tests
+- Categories now properly populating for Alternate Mailbox
+- Option to set OGCS to startup for all Windows users, not just current
+- Don't steal focus for messageboxes, flash icon instead
+- Do not delete inaccessible Outlook items from Google
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- 2-way: Don't delete from Google items that were filtered out from Outlook
+
+----
+
+# v2.9.7.0 - Alpha
+
+**Enhancements**
+- Recurring series improvements
+    - When moving occurrence to date of another previously existing occurrence
+    - When moving occurrence multiple times
+- When deletions are disabled, list items intended for deletion
+- Only exclude unresponded invites during creation
+    - Don't delete if rescheduled and not responded to
+- Don't delete from Google items that were filtered out from Outlook
+- Better splash screen hiding; donor details case insensitive
+- Migrated to Google Analytics 4 from deprecated Universal Analytics
+
+**Bugfix**
+- Robust access of Outlook categories
+- If item categories are not accessible, treat as though none exist
+- Handle new type of quota errors properly
+- Check a schedule is configured when enable/disable sync
+
 # v2.9.6.0 - Alpha
 
 **Enhancements**
@@ -54,7 +180,7 @@
 # v2.9.3.0 - Alpha
 
 **Enhancements**
-- The arrival of Profiles brings multi-calendar sync! :tada: 
+- The arrival of _Profiles_ brings multi-calendar sync! :tada: 
 
 **Bugfix**
 - Don't error if Google event has no "popup" notification

@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ using System.Text.RegularExpressions;
  *       sync engine, so that's for another day!
  */
 
-namespace OutlookGoogleCalendarSync.GoogleOgcs {
+namespace OutlookGoogleCalendarSync.Google {
     public class ApiKeyring {
         private static readonly ILog log = LogManager.GetLogger(typeof(ApiKeyring));
-        private const String keyringURL = "https://github.com/phw198/OutlookGoogleCalendarSync/blob/master/docs/keyring.md";
+        private const String keyringURL = "https://github.com/phw198/OutlookGoogleCalendarSync/raw/master/docs/keyring.md";
 
         public enum KeyType {
             Standard,
@@ -95,7 +96,7 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
             } catch (System.Exception ex) {
                 log.Fail("Failed picking "+ keyType.ToString() +" API key. clientID=" + Settings.Instance.AssignedClientIdentifier);
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 log.Debug("Reverting to default key.");
                 Key = new ApiKey.DefaultKey(keyType);
             }
@@ -127,18 +128,20 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
             }
             if (!string.IsNullOrEmpty(html)) {
                 html = html.Replace("\n", "");
-                MatchCollection keyRecords = findText(html, @"<table><thead>.*?<tbody>(<tr>.*?</tr>)</tbody></table>");
+                MatchCollection keyRecords = findText(html, @"\|(?<type>Standard)\|(?<projectName>.*?)\|(?<projectId>[a-z\-\d]+)\|(?<status>[A-Z]+)\|(?<clientId>.+?)\|(?<clientSecret>.*?)\|");
                 if (keyRecords.Count == 0) {
                     log.Warn("Could not find table of keys.");
                     return keyRing;
                 }
-                foreach (String record in keyRecords[0].Captures[0].Value.Split(new string[]{"<tr>"}, StringSplitOptions.None).Skip(2)) {
-                    MatchCollection keyAttributes = findText(record, @"<td.*?>(.*?)</td>");
-                    if (keyAttributes.Count > 0) {
-                        try {
-                            keyRing.Add(new ApiKey(keyAttributes));
-                        } catch { }
-                    }
+                foreach (Match record in keyRecords) {
+                    keyRing.Add(new ApiKey(
+                        type: record.Groups["type"].Value,
+                        projectName: record.Groups["projectName"].Value,
+                        projectId: record.Groups["projectId"].Value,
+                        status: record.Groups["status"].Value,
+                        clientId: record.Groups["clientId"].Value,
+                        clientSecret: record.Groups["clientSecret"].Value
+                    ));
                 }
             }
             log.Debug("There are " + keyRing.Count + " keys.");
@@ -147,10 +150,10 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
 
         public static void ChangeKeys() {
             log.Info("Google API keys and refresh token are being updated.");
-            System.Windows.Forms.OgcsMessageBox.Show("Your Google authorisation token needs updating.\r\n" +
+            Ogcs.Extensions.MessageBox.Show("Your Google authorisation token needs updating.\r\n" +
                 "The process to reauthorise access to your Google account will now begin...",
                 "Authorisation token invalid", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-            GoogleOgcs.Calendar.Instance.Authenticator.Reset();
+            Ogcs.Google.Calendar.Instance.Authenticator.Reset();
         }
 
         private static MatchCollection findText(string source, string pattern) {
@@ -170,26 +173,18 @@ namespace OutlookGoogleCalendarSync.GoogleOgcs {
         public String ClientId { get; protected set; }
         public String ClientSecret { get; protected set; }
 
-        public ApiKey(MatchCollection keyAttributes) {
-            //Table columns
-            const int keyType = 1;
-            const int keyProjectName = 2;
-            const int keyProjectID = 3;
-            const int keyStatus = 4;
-            const int keyClientId = 5;
-            const int keySecret = 6;
-
+        public ApiKey(String type, String projectName, String projectId, String status, String clientId, String clientSecret) {
             try {
-                log.Debug(keyAttributes[keyProjectName - 1].Groups[1] + " = " + keyAttributes[keyStatus - 1].Groups[1]);
-                this.Type = keyAttributes[keyType - 1].Groups[1].ToString();
-                this.ProjectName = keyAttributes[keyProjectName - 1].Groups[1].ToString();
-                this.ProjectID = keyAttributes[keyProjectID - 1].Groups[1].ToString();
-                this.Status = keyAttributes[keyStatus - 1].Groups[1].ToString();
-                this.ClientId = keyAttributes[keyClientId - 1].Groups[1].ToString();
-                this.ClientSecret = keyAttributes[keySecret - 1].Groups[1].ToString();
+                log.Debug(projectName + " = " + status);
+                this.Type = type;
+                this.ProjectName = projectName;
+                this.ProjectID = projectId;
+                this.Status = status;
+                this.ClientId = clientId;
+                this.ClientSecret = clientSecret;
             } catch (System.Exception ex) {
                 log.Error("Failed creating API key.");
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
                 throw;
             }
         }

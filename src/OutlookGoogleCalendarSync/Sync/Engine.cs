@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         Engine.Instance.ActiveProfile = job.Profile;
                         Engine.Instance.Start(manualIgnition: false, updateSyncSchedule: (job.RequestedBy == "AutoSyncTimer"));
                     } catch (System.Exception ex) {
-                        OGCSexception.Analyse("Scheduled sync encountered a problem.", ex, true);
+                        ex.Analyse("Scheduled sync encountered a problem.", true);
                     }
                 }
             }
@@ -158,12 +159,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     log.Info("Manual sync requested.");
                     if (SyncingNow) {
                         log.Info("Already busy syncing, cannot accept another sync request.");
-                        OgcsMessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        Ogcs.Extensions.MessageBox.Show("A sync is already running. Please wait for it to complete and then try again.", "Sync already running", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                         return;
                     }
-                    if (Control.ModifierKeys == Keys.Shift) {
+                    if (Control.ModifierKeys == Keys.Shift || Forms.Main.Instance.bSyncNow.Text == "Start Full Sync") {
                         if (Forms.Main.Instance.ActiveCalendarProfile.SyncDirection == Direction.Bidirectional) {
-                            OgcsMessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
+                            Ogcs.Extensions.MessageBox.Show("Forcing a full sync is not allowed whilst in 2-way sync mode.\r\nPlease temporarily chose a direction to sync in first.",
                                 "2-way full sync not allowed", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                             return;
                         }
@@ -174,7 +175,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Start(manualIgnition: true, updateSyncSchedule: false);
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
-                    GoogleOgcs.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                    Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {
@@ -185,7 +186,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         AbortSync();
                     }
                     if (this.JobQueue.Count() > 0) {
-                        if (OgcsMessageBox.Show("There are " + this.JobQueue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
+                        if (Ogcs.Extensions.MessageBox.Show("There are " + this.JobQueue.Count() + " sync(s) still queued to run. Would you like to cancel these too?",
                             "Clear queued syncs?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                             log.Info("User requested clear down of sync queue.");
                             this.JobQueue.Clear();
@@ -201,7 +202,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 bwSync.Dispose();
                 bwSync = null;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse(ex);
+                Ogcs.Exception.Analyse(ex);
             } finally {
                 log.Warn("Sync thread forcefully aborted!");
             }
@@ -209,9 +210,12 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void Start(Boolean manualIgnition, Boolean updateSyncSchedule) {
             if (Settings.Profile.GetType(this.ActiveProfile) == Settings.Profile.Type.Calendar) {
-                Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Autosyncing calendars: " + (this.ActiveProfile as SettingsStore.Calendar).SyncDirection.Name + "...");
+                Forms.Main.Instance.NotificationTray.IconAnimator.Start();
+                if (Settings.Instance.ShowSystemNotifications && !Settings.Instance.ShowSystemNotificationsIfChange) 
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo((manualIgnition ? "S" : "Autos") + "yncing calendars: " + (this.ActiveProfile as SettingsStore.Calendar).SyncDirection.Name + "...");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
                 Sync.Engine.Calendar.Instance.StartSync(manualIgnition, updateSyncSchedule);
+                Forms.Main.Instance.NotificationTray.IconAnimatorStop();
             }
         }
 

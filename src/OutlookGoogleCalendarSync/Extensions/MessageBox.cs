@@ -1,11 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System;
 using log4net;
 
-namespace System.Windows.Forms {
-    public static class OgcsMessageBox {
-        private static readonly ILog log = LogManager.GetLogger(typeof(OgcsMessageBox));
+namespace OutlookGoogleCalendarSync.Extensions {
+    public static class MessageBox {
+        private static readonly ILog log = LogManager.GetLogger(typeof(MessageBox));
         private static DialogResult dr;
-                
+                        
         #region Window flashing
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -65,23 +67,25 @@ namespace System.Windows.Forms {
         /// <param name="caption">Title of the box</param>
         /// <param name="buttons">Buttons to display</param>
         /// <param name="icon">Icon to display</param>
-        public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon) {
+        /// <param name="logText">Alternative main text to log</param>
+        public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, String logText = null) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
-            log.Debug(caption + ": " + text);
+            log.Debug(caption + ": " + (logText ?? text));
 
-            if (mainFrm == null || mainFrm.IsDisposed)
-                return MessageBox.Show(text, caption, buttons, icon);
+            if (mainFrm == null || mainFrm.IsDisposed) {
+                return System.Windows.Forms.MessageBox.Show(text, caption, buttons, icon, MessageBoxDefaultButton.Button1, options: MessageBoxOptions.DefaultDesktopOnly);
+            }
 
             if (mainFrm.InvokeRequired) {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
                     flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
-                    dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
+                    dr = System.Windows.Forms.MessageBox.Show(mainFrm, text, caption, buttons, icon);
                 }));
             } else {
                 mainFrm.MainFormShow();
                 flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
-                dr = MessageBox.Show(mainFrm, text, caption, buttons, icon);
+                dr = System.Windows.Forms.MessageBox.Show(mainFrm, text, caption, buttons, icon);
             }
             log.Debug("Response: " + dr.ToString());
             return dr;
@@ -106,12 +110,12 @@ namespace System.Windows.Forms {
                 mainFrm.Invoke(new System.Action(() => {
                     mainFrm.MainFormShow();
                     flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
-                    dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
+                    dr = System.Windows.Forms.MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
                 }));
             } else {
                 mainFrm.MainFormShow();
                 flashWindow(mainFrm.Handle, flashMode.FLASHW_ALL | flashMode.FLASHW_TIMERNOFG);
-                dr = MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
+                dr = System.Windows.Forms.MessageBox.Show(mainFrm, text, caption, buttons, icon, defaultButton);
             }
             log.Debug("Response: " + dr.ToString());
             return dr;

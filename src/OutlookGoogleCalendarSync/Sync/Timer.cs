@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Windows.Forms;
 
@@ -50,6 +51,11 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             log.Debug("Scheduled sync triggered for profile: "+ Settings.Profile.Name(this.owningProfile));
 
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) {
+                log.Debug("Too soon after system resume; delaying for 60 seconds...");
+                System.Threading.Thread.Sleep(60 * 1000);
+            }
+
             if (!Sync.Engine.Instance.SyncingNow) {
                 Forms.Main.Instance.Sync_Click(sender, null);
             } else {
@@ -58,6 +64,8 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
         }
 
+        /// <summary>Get the sync interval as configured in Settings.</summary>
+        /// <returns>Minutes between syncs</returns>
         private int getResyncInterval() {
             var profile = (this.owningProfile as SettingsStore.Calendar);
             int min = profile.SyncInterval;
@@ -113,7 +121,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             Activate(true);
         }
-        
+
         public void Activate(Boolean activate) {
             if (Forms.Main.Instance.InvokeRequired) {
                 log.Error("Attempted to " + (activate ? "" : "de") + "activate " + this.Tag + " from non-GUI thread will not work.");
@@ -124,14 +132,14 @@ namespace OutlookGoogleCalendarSync.Sync {
             else if (!activate && this.Enabled) this.Stop();
         }
 
-        public Boolean Running() {
-            return this.Enabled;
+        public Boolean IsRunning {
+            get { return this.Enabled; }
         }
 
         public String Status() {
             var profile = (owningProfile as SettingsStore.Calendar);
-            if (this.Running()) return NextSyncDateText;
-            else if (profile.OgcsPushTimer != null && profile.OgcsPushTimer.Running()) return "Push Sync Active";
+            if (this.IsRunning) return NextSyncDateText;
+            else if (profile.OgcsPushTimer != null && profile.OgcsPushTimer.IsRunning) return "Push Sync Active";
             else return "Inactive";
         }
     }
@@ -159,16 +167,17 @@ namespace OutlookGoogleCalendarSync.Sync {
             this.lastRunTime = DateTime.Now;
             try {
                 log.Fine("Updating calendar item count following Push Sync.");
-                this.lastRunItemCount = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
+                this.lastRunItemCount = Outlook.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
             } catch (System.Exception ex) {
-                OGCSexception.Analyse("Failed to update item count following a Push Sync.", ex);
+                ex.Analyse("Failed to update item count following a Push Sync.");
             }
         }
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            log.UltraFine("Push sync triggered.");
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) return;
             
+            log.UltraFine("Push sync triggered.");
             try {
                 SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
 
@@ -177,14 +186,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                     //Force in the push sync profile
                     Sync.Engine.Calendar.Instance.Profile = profile;
 
-                if (OutlookOgcs.Calendar.Instance.IOutlook.NoGUIexists()) return;
+                if (Outlook.Calendar.Instance.IOutlook.NoGUIexists()) return;
                 log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
-                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = OutlookOgcs.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
+                System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = Outlook.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
                 if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
                     log.Debug("Changes found for Push sync.");
-                        Forms.Main.Instance.Sync_Click(sender, null);
-                    } else {
+                    Forms.Main.Instance.Sync_Click(sender, null);
+                } else {
                     log.Fine("No changes found.");
                 }
                 failures = 0;
@@ -192,21 +201,18 @@ namespace OutlookGoogleCalendarSync.Sync {
                 failures++;
                 log.Warn("Push Sync failed " + failures + " times to check for changed items.");
 
-                String hResult = OGCSexception.GetErrorCode(ex);
-                if ((ex is System.InvalidCastException && hResult == "0x80004002" && ex.Message.Contains("0x800706BA")) || //The RPC server is unavailable
-                    (ex is System.Runtime.InteropServices.COMException && (
-                        ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)") || //The object invoked has disconnected from its clients
-                        hResult == "0x800706BE" || //The remote procedure call failed
-                        hResult == "0x800706BA")) //The RPC server is unavailable
-                    ) {
-                    OGCSexception.Analyse(OGCSexception.LogAsFail(ex));
+                Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                    error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients ||
+                    error == Outlook.Errors.ErrorType.RpcFailed) //
+                {
                     try {
-                        OutlookOgcs.Calendar.Instance.Reset();
+                        Outlook.Calendar.Instance.Reset();
                     } catch (System.Exception ex2) {
-                        OGCSexception.Analyse("Failed resetting Outlook connection.", ex2);
+                        ex2.Analyse("Failed resetting Outlook connection.");
                     }
                 } else
-                    OGCSexception.Analyse(ex);
+                    Ogcs.Exception.Analyse(ex);
                 if (failures == 10)
                     Forms.Main.Instance.Console.UpdateWithError("Push Sync is failing.", ex, notifyBubble: true);
             }
@@ -224,8 +230,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 profile.OgcsTimer.SetNextSync();
             }
         }
-        public Boolean Running() {
-            return this.Enabled;
+        public Boolean IsRunning { 
+            get { return this.Enabled; } 
         }
     }
 }

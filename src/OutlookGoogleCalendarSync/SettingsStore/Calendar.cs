@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using Ogcs = OutlookGoogleCalendarSync;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,11 +34,12 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             _ProfileName = "Default";
 
             //Outlook
-            OutlookService = OutlookOgcs.Calendar.Service.DefaultMailbox;
+            OutlookService = Outlook.Calendar.Service.DefaultMailbox;
             MailboxName = "";
             SharedCalendar = "";
             UseOutlookCalendar = new OutlookCalendarListEntry();
             CategoriesRestrictBy = RestrictBy.Exclude;
+            DeleteWhenCategoryExcluded = true;
             Categories = new List<String>();
             OnlyRespondedInvites = false;
             OutlookDateFormat = "g";
@@ -46,16 +48,38 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             //Google
             UseGoogleCalendar = new GoogleCalendarListEntry();
             CloakEmail = true;
+            ColoursRestrictBy = RestrictBy.Exclude;
+            DeleteWhenColourExcluded = true;
+            Colours = new List<String>();
             ExcludeDeclinedInvites = true;
             ExcludeGoals = true;
+            AddGMeet = true;
 
             //Sync Options
+            //How
+            SimpleMatch = false;
             SyncDirection = Sync.Direction.OutlookToGoogle;
+            MergeItems = true;
+            DisableDelete = true;
+            ConfirmOnDelete = true;
+            TargetCalendar = Sync.Direction.OutlookToGoogle;
+            CreatedItemsOnly = true;
+            SetEntriesPrivate = false;
+            PrivacyLevel = Microsoft.Office.Interop.Outlook.OlSensitivity.olPrivate.ToString();
+            SetEntriesAvailable = false;
+            AvailabilityStatus = Microsoft.Office.Interop.Outlook.OlBusyStatus.olFree.ToString();
+            SetEntriesColour = false;
+            SetEntriesColourValue = Microsoft.Office.Interop.Outlook.OlCategoryColor.olCategoryColorNone.ToString();
+            SetEntriesColourName = "None";
+            SetEntriesColourGoogleId = "0";
+            Obfuscation = new Obfuscate();
+            //When
             DaysInThePast = 1;
             DaysInTheFuture = 60;
             SyncInterval = 0;
             SyncIntervalUnit = "Hours";
             OutlookPush = false;
+            //What
             AddLocation = true;
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
@@ -83,8 +107,14 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             SetEntriesColourName = "None";
             SetEntriesColourGoogleId = "0";
             ColourMaps = new ColourMappingDictionary();
-            Obfuscation = new Obfuscate();
-            
+            ExcludeFree = false;
+            ExcludeTentative = false;
+            ExcludePrivate = false;
+            ExcludeAllDays = false;
+            ExcludeFreeAllDays = false;
+            ExcludeSubject = false;
+            ExcludeSubjectText = "";
+
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
         }
@@ -95,11 +125,12 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public enum RestrictBy {
             Include, Exclude
         }
-        [DataMember] public OutlookOgcs.Calendar.Service OutlookService { get; set; }
+        [DataMember] public Outlook.Calendar.Service OutlookService { get; set; }
         [DataMember] public string MailboxName { get; set; }
         [DataMember] public string SharedCalendar { get; set; }
         [DataMember] public OutlookCalendarListEntry UseOutlookCalendar { get; set; }
         [DataMember] public RestrictBy CategoriesRestrictBy { get; set; }
+        [DataMember] public Boolean DeleteWhenCategoryExcluded { get; set; }
         [DataMember] public List<string> Categories { get; set; }
         /// <summary>Only allow Outlook to have one category assigned</summary>
         [DataMember] public Boolean SingleCategoryOnly { get; set; }
@@ -117,11 +148,38 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         #region Google
         [DataMember] public GoogleCalendarListEntry UseGoogleCalendar { get; set; }
         [DataMember] public Boolean CloakEmail { get; set; }
+        [DataMember] public RestrictBy ColoursRestrictBy { get; set; }
+        [DataMember] public Boolean DeleteWhenColourExcluded { get; set; }
+        [DataMember] public List<string> Colours { get; set; }
         [DataMember] public Boolean ExcludeDeclinedInvites { get; set; }
         [DataMember] public Boolean ExcludeGoals { get; set; }
+        [DataMember] public Boolean AddGMeet { get; set; }
         #endregion
         #region Sync Options
+        /// <summary>For O->G match on signatures. Useful for Appled iCals where immutable Outlook IDs change every sync.</summary>
+        [DataMember] public Boolean SimpleMatch { get; set; }
         //Main
+        #region How
+        [DataMember] public bool MergeItems { get; set; }
+        [DataMember] public bool DisableDelete { get; set; }
+        [DataMember] public bool ConfirmOnDelete { get; set; }
+        [DataMember] public Obfuscate Obfuscation { get; set; }
+        [DataMember] public Sync.Direction TargetCalendar { get; set; }
+        [DataMember] public Boolean CreatedItemsOnly { get; set; }
+        [DataMember] public bool SetEntriesPrivate { get; set; }
+        [DataMember] public String PrivacyLevel { get; set; }
+        [DataMember] public bool SetEntriesAvailable { get; set; }
+        /// <summary>Set availability status for all entries</summary>
+        [DataMember] public String AvailabilityStatus { get; set; }
+        [DataMember] public bool SetEntriesColour { get; set; }
+        /// <summary>Set all Outlook appointments to this OlCategoryColor</summary>
+        [DataMember] public String SetEntriesColourValue { get; set; }
+        /// <summary>Set all Outlook appointments to this custom category name</summary>
+        [DataMember] public String SetEntriesColourName { get; set; }
+        /// <summary>Set all Google events to this colour ID</summary>
+        [DataMember] public String SetEntriesColourGoogleId { get; set; }
+        #endregion
+        #region When
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
         [DataMember] public Sync.Direction SyncDirection { get; set; }
@@ -130,6 +188,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public int SyncInterval { get; set; }
         [DataMember] public String SyncIntervalUnit { get; set; }
         [DataMember] public bool OutlookPush { get; set; }
+        #endregion
+        #region What
         [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
@@ -169,9 +229,14 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync"
         )]
         public class ColourMappingDictionary : Dictionary<String, String> { }
-
-        //Obfuscation
-        [DataMember] public Obfuscate Obfuscation { get; set; }
+        [DataMember] public bool ExcludeFree { get; set; }
+        [DataMember] public bool ExcludeTentative { get; set; }
+        [DataMember] public bool ExcludePrivate { get; set; }        
+        [DataMember] public bool ExcludeAllDays { get; set; }
+        [DataMember] public bool ExcludeFreeAllDays { get; set; }
+        [DataMember] public bool ExcludeSubject { get; set; }
+        [DataMember] public string ExcludeSubjectText { get; set; }
+        #endregion
         #endregion
 
         #region Advanced - Non GUI
@@ -204,7 +269,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Debug("Changing active settings profile: " + this._ProfileName);
             Forms.Main.Instance.ActiveCalendarProfile = this;
 
-            if (Forms.Main.Instance.Visible) 
+            if (Forms.Main.Instance.Visible)
                 Forms.Main.Instance?.UpdateGUIsettings_Profile();
         }
 
@@ -220,13 +285,13 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("Start monitoring for Outlook appointments changes on profile: " + this._ProfileName);
             if (this.OgcsPushTimer == null)
                 this.OgcsPushTimer = new Sync.PushSyncTimer(this);
-            if (!this.OgcsPushTimer.Running())
+            if (!this.OgcsPushTimer.IsRunning)
                 this.OgcsPushTimer.Activate(true);
         }
 
         public void DeregisterForPushSync() {
             log.Info("Stop monitoring for Outlook appointment changes on profile: " + this._ProfileName);
-            if (this.OgcsPushTimer != null && this.OgcsPushTimer.Running())
+            if (this.OgcsPushTimer != null && this.OgcsPushTimer.IsRunning)
                 this.OgcsPushTimer.Activate(false);
         }
         #endregion
@@ -238,25 +303,31 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Service: " + OutlookService.ToString());
-            if (OutlookService == OutlookOgcs.Calendar.Service.SharedCalendar) {
+            if (OutlookService == Outlook.Calendar.Service.SharedCalendar) {
                 log.Info("  Shared Calendar: " + SharedCalendar);
             } else {
                 log.Info("  Mailbox/FolderStore Name: " + MailboxName);
             }
             log.Info("  Calendar: " + (UseOutlookCalendar.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar.ToString());
             log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
+            log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
             log.Info("  Categories: " + String.Join(",", Categories.ToArray()));
             log.Info("  Only Responded Invites: " + OnlyRespondedInvites);
             log.Info("  Filter String: " + OutlookDateFormat);
             log.Info("  GAL Blocked: " + OutlookGalBlocked);
 
             log.Info("GOOGLE SETTINGS:-");
-            log.Info("  Calendar: " + (UseGoogleCalendar == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Calendar: " + (UseGoogleCalendar?.Id == null ? "" : UseGoogleCalendar.ToString(true)));
+            log.Info("  Colour Filter: " + ColoursRestrictBy.ToString());
+            log.Info("  Delete When Excluded: " + DeleteWhenColourExcluded);
+            log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
             log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
             log.Info("  Exclude Goals: " + ExcludeGoals);
+            log.Info("  Include Google Meet: " + AddGMeet);
             log.Info("  Cloak Email: " + CloakEmail);
 
             log.Info("SYNC OPTIONS:-");
+            if (SimpleMatch) log.Warn("  Simple Matching: " + SimpleMatch);
             log.Info(" How");
             log.Info("  SyncDirection: " + SyncDirection.Name);
             log.Info("  MergeItems: " + MergeItems);
@@ -271,11 +342,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             }
             if (ColourMaps.Count > 0) {
                 log.Info("  Custom Colour/Category Mapping:-");
-                if (OutlookOgcs.Factory.OutlookVersionName == OutlookOgcs.Factory.OutlookVersionNames.Outlook2003)
+                if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                     log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                 else
-                    ColourMaps.ToList().ForEach(c => log.Info("    " + OutlookOgcs.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
-                        c.Value + ":" + GoogleOgcs.EventColour.Palette.GetColourName(c.Value)));
+                    ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                        c.Value + ":" + Ogcs.Google.EventColour.Palette.GetColourName(c.Value)));
             }
             log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);
             log.Info("  Obfuscate Words: " + Obfuscation.Enabled);
@@ -283,7 +354,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 if (Obfuscation.FindReplace.Count == 0) log.Info("    No regex defined.");
                 else {
                     foreach (FindReplace findReplace in Obfuscation.FindReplace) {
-                        log.Info("    '" + findReplace.find + "' -> '" + findReplace.replace + "'");
+                        log.Info("    " + findReplace.target + ": '" + findReplace.find + "' -> '" + findReplace.replace + "'");
                     }
                 }
             }
@@ -302,6 +373,11 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             log.Info("    UseGoogleDefaultReminder: " + UseGoogleDefaultReminder);
             log.Info("    UseOutlookDefaultReminder: " + UseOutlookDefaultReminder);
             log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
+            log.Info("  ExcludeFree: " + ExcludeFree);
+            log.Info("  ExcludeTentative: " + ExcludeTentative);
+            log.Info("  ExcludePrivate: " + ExcludePrivate);
+            log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
+            log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
         }
 
         public static SettingsStore.Calendar GetCalendarProfile(Object settingsStore) {

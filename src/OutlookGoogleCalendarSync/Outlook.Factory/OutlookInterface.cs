@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Google.Apis.Calendar.v3.Data;
 using Microsoft.Office.Interop.Outlook;
-using Google.Apis.Calendar.v3.Data;
+using System;
+using System.Collections.Generic;
 
-namespace OutlookGoogleCalendarSync.OutlookOgcs {
+namespace OutlookGoogleCalendarSync.Outlook {
     public interface Interface {
         void Connect();
         void Disconnect(Boolean onlyWhenNoGUI = false);
@@ -36,5 +34,14 @@ namespace OutlookGoogleCalendarSync.OutlookOgcs {
         List<Object> FilterItems(Items outlookItems, String filter);
         MAPIFolder GetFolderByID(String entryID);
         void GetAppointmentByID(String entryID, out AppointmentItem ai);
+        DateTime GetEndInEndTimeZone(AppointmentItem ai);
+        String GetEndTimeZoneID(AppointmentItem ai);
+
+        /// <summary>
+        /// Add a Rich Text Formatted body
+        /// </summary>
+        /// <param name="ai">AppointmentItem to update</param>
+        /// <param name="RtfDocument">The RTF formatted document</param>
+        void AddRtfBody(ref AppointmentItem ai, String RtfDocument);
     }
 }

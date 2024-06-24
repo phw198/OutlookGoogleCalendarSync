@@ -10,10 +10,18 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
-                components.Dispose();
+            if (this.optionChosen == System.Windows.Forms.DialogResult.Yes && !this.AwaitingRestart) {
+                this.Visible = true;
+                disposing = false;
             }
-            base.Dispose(disposing);
+            try {
+                if (disposing && (components != null)) {
+                    components.Dispose();
+                }
+                base.Dispose(disposing);
+            } catch {
+                //WebBrowser COM object is already disposed of, but we don't care at this point.
+            }
         }
 
         #region Windows Form Designer generated code
@@ -27,12 +35,12 @@
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.btUpgrade = new System.Windows.Forms.Button();
             this.wbPanel = new System.Windows.Forms.Panel();
+            this.llViewOnGithub = new System.Windows.Forms.LinkLabel();
             this.btLater = new System.Windows.Forms.Button();
             this.lSummary = new System.Windows.Forms.Label();
             this.lTitle = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btSkipVersion = new System.Windows.Forms.Button();
-            this.llViewOnGithub = new System.Windows.Forms.LinkLabel();
             this.wbPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,18 +54,20 @@
             this.webBrowser.Size = new System.Drawing.Size(465, 166);
             this.webBrowser.TabIndex = 0;
             this.webBrowser.WebBrowserShortcutsEnabled = false;
+            this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser_Navigating);
             // 
             // btUpgrade
             // 
             this.btUpgrade.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btUpgrade.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.btUpgrade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btUpgrade.Location = new System.Drawing.Point(407, 260);
+            this.btUpgrade.Location = new System.Drawing.Point(396, 257);
             this.btUpgrade.Name = "btUpgrade";
-            this.btUpgrade.Size = new System.Drawing.Size(75, 23);
+            this.btUpgrade.Size = new System.Drawing.Size(85, 30);
             this.btUpgrade.TabIndex = 1;
             this.btUpgrade.Text = "Upgrade";
             this.btUpgrade.UseVisualStyleBackColor = true;
+            this.btUpgrade.Click += new System.EventHandler(this.btUpgrade_Click);
             // 
             // wbPanel
             // 
@@ -72,13 +82,28 @@
             this.wbPanel.Size = new System.Drawing.Size(467, 168);
             this.wbPanel.TabIndex = 2;
             // 
+            // llViewOnGithub
+            // 
+            this.llViewOnGithub.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.llViewOnGithub.AutoSize = true;
+            this.llViewOnGithub.BackColor = System.Drawing.Color.White;
+            this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
+            this.llViewOnGithub.Name = "llViewOnGithub";
+            this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
+            this.llViewOnGithub.TabIndex = 9;
+            this.llViewOnGithub.TabStop = true;
+            this.llViewOnGithub.Text = "View Release Notes Online";
+            this.llViewOnGithub.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.llViewOnGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llViewOnGithub_LinkClicked);
+            // 
             // btLater
             // 
             this.btLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btLater.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.btLater.Location = new System.Drawing.Point(326, 260);
+            this.btLater.Location = new System.Drawing.Point(305, 257);
             this.btLater.Name = "btLater";
-            this.btLater.Size = new System.Drawing.Size(75, 23);
+            this.btLater.Size = new System.Drawing.Size(85, 30);
             this.btLater.TabIndex = 3;
             this.btLater.Text = "Later";
             this.btLater.UseVisualStyleBackColor = true;
@@ -116,28 +141,13 @@
             // 
             this.btSkipVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btSkipVersion.DialogResult = System.Windows.Forms.DialogResult.Ignore;
-            this.btSkipVersion.Location = new System.Drawing.Point(16, 260);
+            this.btSkipVersion.Location = new System.Drawing.Point(16, 257);
             this.btSkipVersion.Name = "btSkipVersion";
-            this.btSkipVersion.Size = new System.Drawing.Size(104, 23);
+            this.btSkipVersion.Size = new System.Drawing.Size(104, 30);
             this.btSkipVersion.TabIndex = 7;
             this.btSkipVersion.Text = "Skip This Version";
             this.btSkipVersion.UseVisualStyleBackColor = true;
             this.btSkipVersion.Click += new System.EventHandler(this.btSkipVersion_Click);
-            // 
-            // llViewOnGithub
-            // 
-            this.llViewOnGithub.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.llViewOnGithub.AutoSize = true;
-            this.llViewOnGithub.BackColor = System.Drawing.Color.White;
-            this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
-            this.llViewOnGithub.Name = "llViewOnGithub";
-            this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
-            this.llViewOnGithub.TabIndex = 9;
-            this.llViewOnGithub.TabStop = true;
-            this.llViewOnGithub.Text = "View Release Notes Online";
-            this.llViewOnGithub.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.llViewOnGithub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llViewOnGithub_LinkClicked);
             // 
             // UpdateInfo
             // 
@@ -160,6 +170,8 @@
             this.Name = "UpdateInfo";
             this.Text = "OGCS Update Available";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UpdateInfo_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.UpdateInfo_FormClosed);
             this.wbPanel.ResumeLayout(false);
             this.wbPanel.PerformLayout();
             this.ResumeLayout(false);

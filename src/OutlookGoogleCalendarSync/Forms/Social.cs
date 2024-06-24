@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Forms {
     public partial class Social : Form {
@@ -18,7 +19,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDonateTip.Visible = false;
             } else {
                 toolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
-                if (Settings.Instance.SuppressSocialPopup) Settings.Instance.SuppressSocialPopup = false;
+                if (Settings.Instance.SuppressSocialPopup) 
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbSuppressSocialPopup, "Checked", false);
             }
 
             Int32 syncs = Settings.Instance.CompletedSyncs;
@@ -72,7 +74,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             Helper.OpenBrowser("http://www.facebook.com/sharer/sharer.php?u=http://bit.ly/OGCalSync");
         }
         public static void Facebook_like() {
-            if (OgcsMessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
+            if (Ogcs.Extensions.MessageBox.Show("Please click the 'Like' button on the project website, which will now open in your browser.",
                 "Like on Facebook", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK) {
                 Helper.OpenBrowser("https://phw198.github.io/OutlookGoogleCalendarSync");
             }
@@ -102,7 +104,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbSuppressSocialPopup.CheckedChanged += cbSuppressSocialPopup_CheckedChanged;
                 toolTips.SetToolTip(cbSuppressSocialPopup, "Donate £10 or more to enable this feature.");
             }
-            Settings.Instance.SuppressSocialPopup = cbSuppressSocialPopup.Checked;
+            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.cbSuppressSocialPopup, "Checked", cbSuppressSocialPopup.Checked);
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
