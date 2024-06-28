@@ -312,7 +312,6 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static void Load(String XMLfile = null) {
             try {
-                throw new System.ApplicationException();
                 Settings.Instance = XMLManager.Import<Settings>(XMLfile ?? ConfigFile);
                 log.Fine("User settings loaded.");
                 Settings.AreLoaded = true;
