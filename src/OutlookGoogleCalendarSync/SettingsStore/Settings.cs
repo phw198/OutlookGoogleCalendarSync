@@ -156,7 +156,7 @@ namespace OutlookGoogleCalendarSync {
             set {
                 _GaccountEmail = value;
                 if (!this.Loading())
-                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbGoogleConnectedAcc, "Text", String.IsNullOrEmpty(value) ? "Not connected" : value);
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", String.IsNullOrEmpty(value) ? "Not connected" : value);
             }
         }
         public String GaccountEmail_masked() {
