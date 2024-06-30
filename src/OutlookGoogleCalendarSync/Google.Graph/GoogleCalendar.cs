@@ -3,6 +3,7 @@ using Google.Apis.Calendar.v3.Data;
 using log4net;
 //using Microsoft.Office.Interop.Outlook;
 using OutlookGoogleCalendarSync.Extensions;
+using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -498,23 +499,22 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
             return null;
         }*/
-/*
         #region Create
-        public void CreateCalendarEntries(List<AppointmentItem> appointments) {
-            foreach (AppointmentItem ai in appointments) {
+        public static void CreateCalendarEntries(List<Microsoft.Graph.Event> appointments) {
+            foreach (Microsoft.Graph.Event ai in appointments) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                Event newEvent = new Event();
+                GcalData.Event newEvent = new();
                 try {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
                     if (ex is ApplicationException) {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
+                        String summary = Outlook.Graph.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is global::Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
+                        String summary = Outlook.Graph.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -532,71 +532,65 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;
                     }
-                    Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
+                    Forms.Main.Instance.Console.UpdateWithError(Outlook.Graph.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
-                if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
+                /*if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
                     Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
                     Recurrence.CreateGoogleExceptions(ai, createdEvent.Id);
                     Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
-                }
+                }*/
             }
         }
 
-        private Event createCalendarEntry(AppointmentItem ai) {
+        private static GcalData.Event createCalendarEntry(Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            string itemSummary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
+            string itemSummary = Outlook.Graph.Calendar.GetEventSummary(ai, out String anonSummary);
             log.Debug("Processing >> " + (anonSummary ?? itemSummary));
             Forms.Main.Instance.Console.Update(itemSummary, anonSummary, Console.Markup.calendar, verbose: true);
 
-            Event ev = new Event();
+            GcalData.Event ev = new();
 
-            ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
+            //ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
 
-            if (ai.AllDayEvent) {
-                ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+            if (ai.IsAllDay ?? false) {
+                ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
+                ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTime = ai.Start;
-                ev.End.DateTime = ai.End;
+                ev.Start.DateTime = ai.Start.SafeDateTime();
+                ev.End.DateTime = ai.End.SafeDateTime();
             }
-            ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+            //ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
             ev.Summary = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, null, Sync.Direction.OutlookToGoogle);
-            if (profile.AddDescription) {
-                try {
-                    ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body, null, Sync.Direction.OutlookToGoogle);
-                } catch (System.Exception ex) {
-                    if (ex.GetErrorCode() == "0x80004004") {
-                        Forms.Main.Instance.Console.Update("You do not have the rights to programmatically access Outlook appointment descriptions.<br/>" +
-                            "It may be best to stop syncing the Description attribute.", Console.Markup.warning);
-                    } else throw;
-                }
-            }
+            if (profile.AddDescription)
+                ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body.BodyInnerHtml(), null, Sync.Direction.OutlookToGoogle);
             if (profile.AddLocation)
-                ev.Location = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location, null, Sync.Direction.OutlookToGoogle);
+                ev.Location = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location.DisplayName, null, Sync.Direction.OutlookToGoogle);
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
-            ev.Transparency = getAvailability(ai.BusyStatus, null);
-            ev.ColorId = getColour(ai.Categories, null)?.Id ?? EventColour.Palette.NullPalette.Id;
+            ev.Transparency = getAvailability(ai.ShowAs, null);
+            //ev.ColorId = getColour(ai.Categories, null)?.Id ?? EventColour.Palette.NullPalette.Id;
 
-            ev.Attendees = new List<global::Google.Apis.Calendar.v3.Data.EventAttendee>();
-            if (profile.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) { //Don't add attendees if there's only 1 (me)
-                if (ai.Recipients.Count > profile.MaxAttendees) {
-                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
-                    if (ai.Recipients.Count >= 200) {
+            ev.Attendees = new List<GcalData.EventAttendee>();
+            if (profile.AddAttendees && !Ogcs.Google.Calendar.APIlimitReached_attendee) {
+                if (ai.Attendees.Count() > profile.MaxAttendees) {
+                    log.Warn("This Outlook appointment has " + ai.Attendees.Count() + " attendees, more than the user configured maximum.");
+                    if (ai.Attendees.Count() >= 200) {
                         Forms.Main.Instance.Console.Update("Attendees will not be synced for this meeting as it has " +
                             "more than 200, which Google does not allow.", Console.Markup.warning);
                     }
                 } else {
-                    foreach (Microsoft.Office.Interop.Outlook.Recipient recipient in ai.Recipients) {
-                        global::Google.Apis.Calendar.v3.Data.EventAttendee ea = Ogcs.Google.Calendar.CreateAttendee(recipient, ai.Organizer == recipient.Name);
+                    foreach (Microsoft.Graph.Attendee recipient in ai.Attendees) {
+                        if (Settings.Instance.GaccountEmail.ToLower() == recipient.EmailAddress.Address) continue;
+
+                        GcalData.EventAttendee ea = CreateAttendee(recipient, ai.Organizer.EmailAddress == recipient.EmailAddress);
                         ev.Attendees.Add(ea);
                     }
                 }
@@ -605,8 +599,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             //Reminder alert
             ev.Reminders = new Event.RemindersData();
             if (profile.AddReminders) {
-                if (Outlook.Calendar.Instance.IsOKtoSyncReminder(ai)) {
-                    if (ai.ReminderSet) {
+                if (Outlook.Graph.Calendar.Instance.IsOKtoSyncReminder(ai)) {
+                    if (ai.IsReminderOn ?? false) {
                         ev.Reminders.UseDefault = false;
                         EventReminder reminder = new EventReminder {
                             Method = "popup",
@@ -628,511 +622,515 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return ev;
         }
 
-        private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+        /*
+                private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                log.Debug("Saving timestamp when OGCS created event.");
-                CustomProperty.SetOGCSlastModified(ref ev);
-            }
-            if (Settings.Instance.APIlimit_inEffect) {
-                CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
-            }
-
-            Event createdEvent = new Event();
-            int backoff = 0;
-            while (backoff < BackoffLimit) {
-                try {
-                    EventsResource.InsertRequest request = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
-                    request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
-                    createdEvent = request.Execute();
-                    if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
-                        log.Info("API limit for attendee sync lifted :-)");
-                        Settings.Instance.APIlimit_inEffect = false;
+                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                        log.Debug("Saving timestamp when OGCS created event.");
+                        CustomProperty.SetOGCSlastModified(ref ev);
                     }
-                    break;
-                } catch (global::Google.GoogleApiException ex) {
-                    switch (HandleAPIlimits(ref ex, ev)) {
-                        case ApiException.throwException: throw;
-                        case ApiException.freeAPIexhausted:
-                            Ogcs.Exception.LogAsFail(ref ex);
-                            Ogcs.Exception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                            Ogcs.Exception.LogAsFail(ref aex);
-                            throw aex;
-                        case ApiException.justContinue: break;
-                        case ApiException.backoffThenRetry:
-                            backoff++;
-                            if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Save failed.");
-                                throw;
-                            } else {
-                                int backoffDelay = (int)Math.Pow(2, backoff);
-                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoffDelay * 1000);
+                    if (Settings.Instance.APIlimit_inEffect) {
+                        CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
+                    }
+
+                    Event createdEvent = new Event();
+                    int backoff = 0;
+                    while (backoff < BackoffLimit) {
+                        try {
+                            EventsResource.InsertRequest request = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
+                            request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
+                            createdEvent = request.Execute();
+                            if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                                log.Info("API limit for attendee sync lifted :-)");
+                                Settings.Instance.APIlimit_inEffect = false;
                             }
                             break;
-                    }
-                }
-            }
-
-            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
-                log.Debug("Storing the Google event IDs in Outlook appointment.");
-                Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
-                Outlook.CustomProperty.SetOGCSlastModified(ref ai);
-                ai.Save();
-            }
-
-            if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
-                log.Info("Adding GMeet conference details.");
-                String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
-                Ogcs.Google.GMeet.GoogleMeet(createdEvent, outlookGMeet);
-                createdEvent = patchEvent(createdEvent) ?? createdEvent;
-                log.Fine("Conference data added.");
-            }
-
-            #region DOS ourself by triggering API limit
-            //for (int i = 1; i <= 100; i++) {
-            //    Forms.Main.Instance.Console.Update("Add #" + i, verbose: true);
-            //    Event result = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Execute();
-            //    System.Threading.Thread.Sleep(300);
-            //    Ogcs.Google.Calendar.Instance.deleteCalendarEntry_save(result);
-            //    System.Threading.Thread.Sleep(300);
-            //}
-            #endregion
-
-            return createdEvent;
-        }
-        #endregion
-*/
-/*        #region Update
-        public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
-            for (int i = 0; i < entriesToBeCompared.Count; i++) {
-                if (Sync.Engine.Instance.CancellationPending) return;
-
-                KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
-                int itemModified = 0;
-                Boolean eventExceptionCacheDirty = false;
-                Event ev = new Event();
-                try {
-                    ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
-                } catch (System.Exception ex) {
-                    if (ex is ApplicationException) {
-                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event update skipped.<br/>" + ex.Message, compare.Key, out String anonSummary);
-                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
-                        if (ex.InnerException is global::Google.GoogleApiException) break;
-                        continue;
-                    } else {
-                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
-                        Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
-                        if (ex is System.Runtime.InteropServices.COMException) throw;
-                        Ogcs.Exception.Analyse(ex, true);
-                        if (Ogcs.Extensions.MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            continue;
-                        else
-                            throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
-                }
-
-                if (itemModified > 0) {
-                    try {
-                        UpdateCalendarEntry_save(ref ev);
-                        entriesUpdated++;
-                        eventExceptionCacheDirty = true;
-                    } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
-                        Ogcs.Exception.Analyse(ex, true);
-                        if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            continue;
-                        else
-                            throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
-
-                }
-
-                //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
-
-                if (itemModified == 0) {
-                    if (ev == null) {
-                        if (compare.Value.Updated < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
-                            ev = compare.Value;
-                        else
-                            continue;
-                    }
-                    log.Debug("Doing a dummy update in order to update the last modified date of " +
-                        (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
-                    CustomProperty.SetOGCSlastModified(ref ev);
-                    try {
-                        UpdateCalendarEntry_save(ref ev);
-                        entriesToBeCompared[compare.Key] = ev;
-                    } catch (System.Exception ex) {
-                        Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
-                        Ogcs.Exception.Analyse(ex, true);
-                        if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            continue;
-                        else
-                            throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
-                }
-            }
-        }
-
-        public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-
-            if (!Settings.Instance.APIlimit_inEffect && CustomProperty.Exists(ev, CustomProperty.MetadataId.apiLimitHit)) {
-                log.Fine("Back processing Event affected by attendee API limit.");
-            } else {
-                if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
-                    if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                        if (ev.Updated > ai.LastModificationTime)
-                            return null;
-                    } else {
-                        if (Outlook.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
-                            log.Fine("Outlook last modified by OGCS.");
-                            return null;
-                        }
-                        if (ev.Updated > ai.LastModificationTime)
-                            return null;
-                    }
-                }
-            }
-
-            String aiSummary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
-            log.Debug("Processing >> " + (anonSummary ?? aiSummary));
-
-            if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
-                log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
-                log.Fine("Owner: " + ev.Creator.Email);
-                return ev;
-            }
-
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.AppendLine(aiSummary);
-
-            //Handle an event's all-day attribute being toggled
-            System.DateTime evStart = ev.Start.SafeDateTime();
-            System.DateTime evEnd = ev.End.SafeDateTime();
-            if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
-                ev.Start.DateTime = null;
-                ev.End.DateTime = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
-                    ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
-                    ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-                }
-                //If there was no change in the start/end time, make sure we still have dates populated
-                if (ev.Start.Date == null) ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                if (ev.End.Date == null) ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-
-            } else {
-                //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
-                    sb.AppendLine("All-Day: true => false");
-                    ev.Start.DateTime = ai.Start;
-                    ev.End.DateTime = ai.End;
-                    itemModified++;
-                }
-                ev.Start.Date = null;
-                ev.End.Date = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start, sb, ref itemModified)) {
-                    ev.Start.DateTime = ai.Start;
-                }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
-                    ev.End.DateTime = ai.End;
-                }
-                //If there was no change in the start/end time, make sure we still have dates populated
-                if (ev.Start.DateTime == null) ev.Start.DateTime = ai.Start;
-                if (ev.End.DateTime == null) ev.End.DateTime = ai.End;
-            }
-
-            List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
-            if (ev.Recurrence != null) {
-                for (int r = 0; r < ev.Recurrence.Count; r++) {
-                    String rrule = ev.Recurrence[r];
-                    if (rrule.StartsWith("RRULE:")) {
-                        log.Fine("Google recurrence = " + rrule);
-                        if (oRrules != null) {
-                            String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
-                            String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
-                            if (gRrule_bits.Count() != oRrule_bits.Count()) {
-                                if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                    ev.Recurrence[r] = oRrules.First();
-                                    if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
-                                        //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
-                                        //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
-                                        ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
+                        } catch (global::Google.GoogleApiException ex) {
+                            switch (HandleAPIlimits(ref ex, ev)) {
+                                case ApiException.throwException: throw;
+                                case ApiException.freeAPIexhausted:
+                                    Ogcs.Exception.LogAsFail(ref ex);
+                                    Ogcs.Exception.Analyse(ex);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    Ogcs.Exception.LogAsFail(ref aex);
+                                    throw aex;
+                                case ApiException.justContinue: break;
+                                case ApiException.backoffThenRetry:
+                                    backoff++;
+                                    if (backoff == BackoffLimit) {
+                                        log.Error("API limit backoff was not successful. Save failed.");
+                                        throw;
+                                    } else {
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
                                     }
                                     break;
-                                }
                             }
-                            foreach (String oRrule_bit in oRrule_bits) {
-                                if (!rrule.Contains(oRrule_bit)) {
-                                    if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                        ev.Recurrence[r] = oRrules.First();
-                                        break;
-                                    }
-                                }
-                            }
-                        } else {
-                            log.Debug("Converting to non-recurring event.");
-                            Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, null, sb, ref itemModified);
-                            ev.Recurrence[r] = null;
                         }
-                        break;
                     }
-                }
-            } else {
-                if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
-                        log.Warn("Cannot convert Event organised by another to a recurring series.");
-                    } else {
-                        log.Debug("Converting to recurring event.");
-                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
-                        ev.Recurrence = oRrules;
+
+                    if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
+                        log.Debug("Storing the Google event IDs in Outlook appointment.");
+                        Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                        Outlook.CustomProperty.SetOGCSlastModified(ref ai);
+                        ai.Save();
                     }
-                }
-            }
 
-            //TimeZone
-            if (ev.Start.DateTime != null) {
-                String currentStartTZ = ev.Start.TimeZone;
-                String currentEndTZ = ev.End.TimeZone;
-                ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
-                if (ev.Recurrence != null && ev.Start.TimeZone != ev.End.TimeZone) {
-                    log.Warn("Outlook recurring series has a different start and end timezone, which Google does not allow. Setting both to the start timezone.");
-                    ev.End.TimeZone = ev.Start.TimeZone;
-                }
-                Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, currentStartTZ, ev.Start.TimeZone, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
-            }
-
-            String subjectObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
-            if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
-                ev.Summary = subjectObfuscated;
-            }
-            if (profile.AddDescription) {
-                String outlookBody = ai.Body;
-                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
-                    string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
-                {
-                    log.Warn("Avoided loss of Google description, as none exists in Outlook.");
-                } else {
-                    //Check for Google description truncated @ 8Kb
-                    if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
-                        && ev.Description.Length == 8 * 1024
-                        && outlookBody.Length > 8 * 1024) 
-                    {
-                        outlookBody = outlookBody.Substring(0, 8 * 1024);
+                    if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
+                        log.Info("Adding GMeet conference details.");
+                        String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
+                        Ogcs.Google.GMeet.GoogleMeet(createdEvent, outlookGMeet);
+                        createdEvent = patchEvent(createdEvent) ?? createdEvent;
+                        log.Fine("Conference data added.");
                     }
-                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, outlookBody, ev.Description, Sync.Direction.OutlookToGoogle);
-                    if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, bodyObfuscated, sb, ref itemModified))
-                        ev.Description = bodyObfuscated;
 
-                    if (profile.AddGMeet) {
-                        String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body ?? "")?.Value;
-                        if (Sync.Engine.CompareAttribute("Google Meet", Sync.Direction.OutlookToGoogle, ev.HangoutLink, outlookGMeet, sb, ref itemModified)) {
+                    #region DOS ourself by triggering API limit
+                    //for (int i = 1; i <= 100; i++) {
+                    //    Forms.Main.Instance.Console.Update("Add #" + i, verbose: true);
+                    //    Event result = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Execute();
+                    //    System.Threading.Thread.Sleep(300);
+                    //    Ogcs.Google.Calendar.Instance.deleteCalendarEntry_save(result);
+                    //    System.Threading.Thread.Sleep(300);
+                    //}
+                    #endregion
+
+                    return createdEvent;
+                }
+        */
+        #endregion
+
+        #region Update
+        /*        
+                public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
+                    entriesUpdated = 0;
+                    for (int i = 0; i < entriesToBeCompared.Count; i++) {
+                        if (Sync.Engine.Instance.CancellationPending) return;
+
+                        KeyValuePair<AppointmentItem, Event> compare = entriesToBeCompared.ElementAt(i);
+                        int itemModified = 0;
+                        Boolean eventExceptionCacheDirty = false;
+                        Event ev = new Event();
+                        try {
+                            ev = UpdateCalendarEntry(compare.Key, compare.Value, ref itemModified);
+                        } catch (System.Exception ex) {
+                            if (ex is ApplicationException) {
+                                String summary = Outlook.Calendar.GetEventSummary("<br/>Event update skipped.<br/>" + ex.Message, compare.Key, out String anonSummary);
+                                Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
+                                if (ex.InnerException is global::Google.GoogleApiException) break;
+                                continue;
+                            } else {
+                                String summary = Outlook.Calendar.GetEventSummary("<br/>Event update failed.", compare.Key, out String anonSummary);
+                                Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
+                                if (ex is System.Runtime.InteropServices.COMException) throw;
+                                Ogcs.Exception.Analyse(ex, true);
+                                if (Ogcs.Extensions.MessageBox.Show("Google event update failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                    continue;
+                                else
+                                    throw new UserCancelledSyncException("User chose not to continue sync.");
+                            }
+                        }
+
+                        if (itemModified > 0) {
                             try {
-                                Ogcs.Google.GMeet.GoogleMeet(ev, outlookGMeet);
-                                ev = patchEvent(ev) ?? ev;
-                                log.Fine("Conference data change successfully saved.");
+                                UpdateCalendarEntry_save(ref ev);
+                                entriesUpdated++;
+                                eventExceptionCacheDirty = true;
                             } catch (System.Exception ex) {
-                                ex.Analyse("Could not update conference data in existing Event.");
+                                Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                                Ogcs.Exception.Analyse(ex, true);
+                                if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                    continue;
+                                else
+                                    throw new UserCancelledSyncException("User chose not to continue sync.");
+                            }
+
+                        }
+
+                        //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
+                        Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+
+                        if (itemModified == 0) {
+                            if (ev == null) {
+                                if (compare.Value.Updated < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
+                                    ev = compare.Value;
+                                else
+                                    continue;
+                            }
+                            log.Debug("Doing a dummy update in order to update the last modified date of " +
+                                (ev.RecurringEventId == null && ev.Recurrence != null ? "recurring master event" : "single instance"));
+                            CustomProperty.SetOGCSlastModified(ref ev);
+                            try {
+                                UpdateCalendarEntry_save(ref ev);
+                                entriesToBeCompared[compare.Key] = ev;
+                            } catch (System.Exception ex) {
+                                Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                                Ogcs.Exception.Analyse(ex, true);
+                                if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                    continue;
+                                else
+                                    throw new UserCancelledSyncException("User chose not to continue sync.");
                             }
                         }
                     }
                 }
-            }
 
-            if (profile.AddLocation) {
-                String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location, ev.Location, Sync.Direction.OutlookToGoogle);
-                if (Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, locationObfuscated, sb, ref itemModified))
-                    ev.Location = locationObfuscated;
-            }
+                public Event UpdateCalendarEntry(AppointmentItem ai, Event ev, ref int itemModified, Boolean forceCompare = false) {
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            String gPrivacy = ev.Visibility ?? "default";
-            String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
-            if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
-                ev.Visibility = oPrivacy;
-            }
-
-            String gFreeBusy = ev.Transparency ?? "opaque";
-            String oFreeBusy = getAvailability(ai.BusyStatus, gFreeBusy);
-            if (Sync.Engine.CompareAttribute("Free/Busy", Sync.Direction.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
-                ev.Transparency = oFreeBusy;
-            }
-
-            if (profile.AddColours || profile.SetEntriesColour) {
-                EventColour.Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
-                EventColour.Palette oColour = getColour(ai.Categories, gColour);
-                if (!string.IsNullOrEmpty(ai.Categories) && oColour == null)
-                    log.Warn("Not comparing colour as there is a problem with the mapping.");
-                else {
-                    oColour ??= EventColour.Palette.NullPalette;
-                    if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
-                        ev.ColorId = oColour.Id;
-                    }
-                }
-            }
-
-            if (profile.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
-                if (ai.Recipients.Count > profile.MaxAttendees) {
-                    log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
-                    if (ai.Recipients.Count >= 200) {
-                        Forms.Main.Instance.Console.Update(aiSummary + "<br/>Attendees will not be synced for this meeting as it has " +
-                            "more than 200, which Google does not allow.", anonSummary, Console.Markup.warning);
-                    }
-                } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
-                        ev.Attendees != null && ev.Attendees.Count > profile.MaxAttendees && ai.Recipients.Count <= profile.MaxAttendees) {
-                    log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
-                } else {
-                    try {
-                        CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
-                    } catch (System.Exception ex) {
-                        if (Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
-                            Forms.Main.Instance.Console.Update("Outlook is currently disconnected from Exchange, so it's not possible to sync attendees.<br/>" +
-                                "Please reconnect or do not sync attendees.", Console.Markup.error);
-                            throw new System.Exception("Outlook has disconnected from Exchange.");
-                        } else {
-                            Forms.Main.Instance.Console.UpdateWithError("Unable to sync attendees.", ex);
+                    if (!Settings.Instance.APIlimit_inEffect && CustomProperty.Exists(ev, CustomProperty.MetadataId.apiLimitHit)) {
+                        log.Fine("Back processing Event affected by attendee API limit.");
+                    } else {
+                        if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
+                            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
+                                if (ev.Updated > ai.LastModificationTime)
+                                    return null;
+                            } else {
+                                if (Outlook.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
+                                    log.Fine("Outlook last modified by OGCS.");
+                                    return null;
+                                }
+                                if (ev.Updated > ai.LastModificationTime)
+                                    return null;
+                            }
                         }
                     }
-                }
-            }
 
-            #region Reminders
-            if (profile.AddReminders) {
-                Boolean OKtoSyncReminder = Outlook.Calendar.Instance.IsOKtoSyncReminder(ai);
-                if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
-                    //Find the popup reminder(s) in Google
-                    for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
-                        EventReminder reminder = ev.Reminders.Overrides[r];
-                        if (reminder.Method == "popup") {
-                            if (OKtoSyncReminder) {
-                                if (ai.ReminderSet) {
-                                    if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.OutlookToGoogle, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
-                                        reminder.Minutes = ai.ReminderMinutesBeforeStart;
+                    String aiSummary = Outlook.Calendar.GetEventSummary(ai, out String anonSummary);
+                    log.Debug("Processing >> " + (anonSummary ?? aiSummary));
+
+                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail)) && ev.Recurrence != null) {
+                        log.Debug("Not being the recurring Event owner, comparison for update is futile - changes won't take effect/fail.");
+                        log.Fine("Owner: " + ev.Creator.Email);
+                        return ev;
+                    }
+
+                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                    sb.AppendLine(aiSummary);
+
+                    //Handle an event's all-day attribute being toggled
+                    System.DateTime evStart = ev.Start.SafeDateTime();
+                    System.DateTime evEnd = ev.End.SafeDateTime();
+                    if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
+                        ev.Start.DateTime = null;
+                        ev.End.DateTime = null;
+                        if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
+                            ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                        }
+                        if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
+                            ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+                        }
+                        //If there was no change in the start/end time, make sure we still have dates populated
+                        if (ev.Start.Date == null) ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                        if (ev.End.Date == null) ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+
+                    } else {
+                        //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
+                        if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
+                            sb.AppendLine("All-Day: true => false");
+                            ev.Start.DateTime = ai.Start;
+                            ev.End.DateTime = ai.End;
+                            itemModified++;
+                        }
+                        ev.Start.Date = null;
+                        ev.End.Date = null;
+                        if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start, sb, ref itemModified)) {
+                            ev.Start.DateTime = ai.Start;
+                        }
+                        if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
+                            ev.End.DateTime = ai.End;
+                        }
+                        //If there was no change in the start/end time, make sure we still have dates populated
+                        if (ev.Start.DateTime == null) ev.Start.DateTime = ai.Start;
+                        if (ev.End.DateTime == null) ev.End.DateTime = ai.End;
+                    }
+
+                    List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
+                    if (ev.Recurrence != null) {
+                        for (int r = 0; r < ev.Recurrence.Count; r++) {
+                            String rrule = ev.Recurrence[r];
+                            if (rrule.StartsWith("RRULE:")) {
+                                log.Fine("Google recurrence = " + rrule);
+                                if (oRrules != null) {
+                                    String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
+                                    String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
+                                    if (gRrule_bits.Count() != oRrule_bits.Count()) {
+                                        if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                            ev.Recurrence[r] = oRrules.First();
+                                            if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
+                                                //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
+                                                //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
+                                                ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    foreach (String oRrule_bit in oRrule_bits) {
+                                        if (!rrule.Contains(oRrule_bit)) {
+                                            if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                                ev.Recurrence[r] = oRrules.First();
+                                                break;
+                                            }
+                                        }
                                     }
                                 } else {
-                                    sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
-                                    ev.Reminders.Overrides.Remove(reminder);
-                                    itemModified++;
-                                } //if Outlook reminders set
+                                    log.Debug("Converting to non-recurring event.");
+                                    Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, null, sb, ref itemModified);
+                                    ev.Recurrence[r] = null;
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        if (oRrules != null && ev.RecurringEventId == null) {
+                            if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
+                                log.Warn("Cannot convert Event organised by another to a recurring series.");
                             } else {
-                                sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
-                                ev.Reminders.Overrides.Remove(reminder);
+                                log.Debug("Converting to recurring event.");
+                                Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
+                                ev.Recurrence = oRrules;
+                            }
+                        }
+                    }
+
+                    //TimeZone
+                    if (ev.Start.DateTime != null) {
+                        String currentStartTZ = ev.Start.TimeZone;
+                        String currentEndTZ = ev.End.TimeZone;
+                        ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+                        if (ev.Recurrence != null && ev.Start.TimeZone != ev.End.TimeZone) {
+                            log.Warn("Outlook recurring series has a different start and end timezone, which Google does not allow. Setting both to the start timezone.");
+                            ev.End.TimeZone = ev.Start.TimeZone;
+                        }
+                        Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, currentStartTZ, ev.Start.TimeZone, sb, ref itemModified);
+                        Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
+                    }
+
+                    String subjectObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
+                    if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
+                        ev.Summary = subjectObfuscated;
+                    }
+                    if (profile.AddDescription) {
+                        String outlookBody = ai.Body;
+                        if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                            string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
+                        {
+                            log.Warn("Avoided loss of Google description, as none exists in Outlook.");
+                        } else {
+                            //Check for Google description truncated @ 8Kb
+                            if (!string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description)
+                                && ev.Description.Length == 8 * 1024
+                                && outlookBody.Length > 8 * 1024) 
+                            {
+                                outlookBody = outlookBody.Substring(0, 8 * 1024);
+                            }
+                            String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, outlookBody, ev.Description, Sync.Direction.OutlookToGoogle);
+                            if (Sync.Engine.CompareAttribute("Description", Sync.Direction.OutlookToGoogle, ev.Description, bodyObfuscated, sb, ref itemModified))
+                                ev.Description = bodyObfuscated;
+
+                            if (profile.AddGMeet) {
+                                String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body ?? "")?.Value;
+                                if (Sync.Engine.CompareAttribute("Google Meet", Sync.Direction.OutlookToGoogle, ev.HangoutLink, outlookGMeet, sb, ref itemModified)) {
+                                    try {
+                                        Ogcs.Google.GMeet.GoogleMeet(ev, outlookGMeet);
+                                        ev = patchEvent(ev) ?? ev;
+                                        log.Fine("Conference data change successfully saved.");
+                                    } catch (System.Exception ex) {
+                                        ex.Analyse("Could not update conference data in existing Event.");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (profile.AddLocation) {
+                        String locationObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location, ev.Location, Sync.Direction.OutlookToGoogle);
+                        if (Sync.Engine.CompareAttribute("Location", Sync.Direction.OutlookToGoogle, ev.Location, locationObfuscated, sb, ref itemModified))
+                            ev.Location = locationObfuscated;
+                    }
+
+                    String gPrivacy = ev.Visibility ?? "default";
+                    String oPrivacy = getPrivacy(ai.Sensitivity, gPrivacy);
+                    if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.OutlookToGoogle, gPrivacy, oPrivacy, sb, ref itemModified)) {
+                        ev.Visibility = oPrivacy;
+                    }
+
+                    String gFreeBusy = ev.Transparency ?? "opaque";
+                    String oFreeBusy = getAvailability(ai.BusyStatus, gFreeBusy);
+                    if (Sync.Engine.CompareAttribute("Free/Busy", Sync.Direction.OutlookToGoogle, gFreeBusy, oFreeBusy, sb, ref itemModified)) {
+                        ev.Transparency = oFreeBusy;
+                    }
+
+                    if (profile.AddColours || profile.SetEntriesColour) {
+                        EventColour.Palette gColour = this.ColourPalette.GetColour(ev.ColorId);
+                        EventColour.Palette oColour = getColour(ai.Categories, gColour);
+                        if (!string.IsNullOrEmpty(ai.Categories) && oColour == null)
+                            log.Warn("Not comparing colour as there is a problem with the mapping.");
+                        else {
+                            oColour ??= EventColour.Palette.NullPalette;
+                            if (Sync.Engine.CompareAttribute("Colour", Sync.Direction.OutlookToGoogle, gColour.Name, oColour.Name, sb, ref itemModified)) {
+                                ev.ColorId = oColour.Id;
+                            }
+                        }
+                    }
+
+                    if (profile.AddAttendees && ai.Recipients.Count > 1 && !APIlimitReached_attendee) {
+                        if (ai.Recipients.Count > profile.MaxAttendees) {
+                            log.Warn("This Outlook appointment has " + ai.Recipients.Count + " attendees, more than the user configured maximum.");
+                            if (ai.Recipients.Count >= 200) {
+                                Forms.Main.Instance.Console.Update(aiSummary + "<br/>Attendees will not be synced for this meeting as it has " +
+                                    "more than 200, which Google does not allow.", anonSummary, Console.Markup.warning);
+                            }
+                        } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
+                                ev.Attendees != null && ev.Attendees.Count > profile.MaxAttendees && ai.Recipients.Count <= profile.MaxAttendees) {
+                            log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum. They can't safely be compared.");
+                        } else {
+                            try {
+                                CompareRecipientsToAttendees(ai, ev, sb, ref itemModified);
+                            } catch (System.Exception ex) {
+                                if (Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString().Contains("Disconnected")) {
+                                    Forms.Main.Instance.Console.Update("Outlook is currently disconnected from Exchange, so it's not possible to sync attendees.<br/>" +
+                                        "Please reconnect or do not sync attendees.", Console.Markup.error);
+                                    throw new System.Exception("Outlook has disconnected from Exchange.");
+                                } else {
+                                    Forms.Main.Instance.Console.UpdateWithError("Unable to sync attendees.", ex);
+                                }
+                            }
+                        }
+                    }
+
+                    #region Reminders
+                    if (profile.AddReminders) {
+                        Boolean OKtoSyncReminder = Outlook.Calendar.Instance.IsOKtoSyncReminder(ai);
+                        if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
+                            //Find the popup reminder(s) in Google
+                            for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
+                                EventReminder reminder = ev.Reminders.Overrides[r];
+                                if (reminder.Method == "popup") {
+                                    if (OKtoSyncReminder) {
+                                        if (ai.ReminderSet) {
+                                            if (Sync.Engine.CompareAttribute("Reminder", Sync.Direction.OutlookToGoogle, reminder.Minutes.ToString(), ai.ReminderMinutesBeforeStart.ToString(), sb, ref itemModified)) {
+                                                reminder.Minutes = ai.ReminderMinutesBeforeStart;
+                                            }
+                                        } else {
+                                            sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
+                                            ev.Reminders.Overrides.Remove(reminder);
+                                            itemModified++;
+                                        } //if Outlook reminders set
+                                    } else {
+                                        sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
+                                        ev.Reminders.Overrides.Remove(reminder);
+                                        ev.Reminders.UseDefault = false;
+                                        itemModified++;
+                                    }
+                                } //if Google reminder found
+                            } //foreach reminder
+
+                        } else { //no Google popup reminders set
+                            if (ai.ReminderSet && OKtoSyncReminder) {
+                                sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                                 ev.Reminders.UseDefault = false;
+                                EventReminder newReminder = new EventReminder {
+                                    Method = "popup",
+                                    Minutes = ai.ReminderMinutesBeforeStart
+                                };
+                                ev.Reminders.Overrides = new List<EventReminder> { newReminder };
                                 itemModified++;
+
+                            } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
+                                Boolean newVal = OKtoSyncReminder ? profile.UseGoogleDefaultReminder : false;
+
+                                //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
+                                //Which means it keeps adding the default back in!! Let's stop that:
+                                if (newVal && ev.AllDayEvent()) {
+                                    log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
+                                    newVal = false;
+                                }
+
+                                if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), newVal.ToString(), sb, ref itemModified)) {
+                                    ev.Reminders.UseDefault = newVal;
+                                }
                             }
-                        } //if Google reminder found
-                    } //foreach reminder
-
-                } else { //no Google popup reminders set
-                    if (ai.ReminderSet && OKtoSyncReminder) {
-                        sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
-                        ev.Reminders.UseDefault = false;
-                        EventReminder newReminder = new EventReminder {
-                            Method = "popup",
-                            Minutes = ai.ReminderMinutesBeforeStart
-                        };
-                        ev.Reminders.Overrides = new List<EventReminder> { newReminder };
-                        itemModified++;
-
-                    } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
-                        Boolean newVal = OKtoSyncReminder ? profile.UseGoogleDefaultReminder : false;
-
-                        //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
-                        //Which means it keeps adding the default back in!! Let's stop that:
-                        if (newVal && ev.AllDayEvent()) {
-                            log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
-                            newVal = false;
                         }
-
-                        if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), newVal.ToString(), sb, ref itemModified)) {
-                            ev.Reminders.UseDefault = newVal;
+                    } else {
+                        if (ev.Reminders.Overrides == null) {
+                            if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), profile.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
+                                ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
                         }
                     }
-                }
-            } else {
-                if (ev.Reminders.Overrides == null) {
-                    if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), profile.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
-                        ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
-                }
-            }
-            #endregion
+                    #endregion
 
-            if (itemModified > 0) {
-                Forms.Main.Instance.Console.FormatEventChanges(sb, sb.ToString().Replace(aiSummary, anonSummary));
-                Forms.Main.Instance.Console.Update(itemModified + " attributes updated.", Console.Markup.appointmentEnd, verbose: true, newLine: false);
-                System.Windows.Forms.Application.DoEvents();
-            }
-            return ev;
-        }
-
-        public void UpdateCalendarEntry_save(ref Event ev) {
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                log.Debug("Saving timestamp when OGCS updated event.");
-                CustomProperty.SetOGCSlastModified(ref ev);
-            }
-            if (Settings.Instance.APIlimit_inEffect)
-                CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
-            else
-                CustomProperty.Remove(ref ev, CustomProperty.MetadataId.apiLimitHit);
-
-            CustomProperty.Remove(ref ev, CustomProperty.MetadataId.forceSave);
-
-            int backoff = 0;
-            while (backoff < BackoffLimit) {
-                try {
-                    EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
-                    request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
-                    ev = request.Execute();
-                    if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
-                        log.Info("API limit for attendee sync lifted :-)");
-                        Settings.Instance.APIlimit_inEffect = false;
+                    if (itemModified > 0) {
+                        Forms.Main.Instance.Console.FormatEventChanges(sb, sb.ToString().Replace(aiSummary, anonSummary));
+                        Forms.Main.Instance.Console.Update(itemModified + " attributes updated.", Console.Markup.appointmentEnd, verbose: true, newLine: false);
+                        System.Windows.Forms.Application.DoEvents();
                     }
-                    break;
-                } catch (global::Google.GoogleApiException ex) {
-                    ApiException handled = HandleAPIlimits(ref ex, ev);
-                    switch (handled) {
-                        case ApiException.throwException: throw;
-                        case ApiException.freeAPIexhausted:
-                            Ogcs.Exception.LogAsFail(ref ex);
-                            Ogcs.Exception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                            Ogcs.Exception.LogAsFail(ref aex);
-                            throw aex;
-                        case ApiException.backoffThenRetry:
-                            backoff++;
-                            if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Save failed.");
-                                throw;
-                            } else {
-                                int backoffDelay = (int)Math.Pow(2, backoff);
-                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoffDelay * 1000);
+                    return ev;
+                }
+
+                public void UpdateCalendarEntry_save(ref Event ev) {
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+
+                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                        log.Debug("Saving timestamp when OGCS updated event.");
+                        CustomProperty.SetOGCSlastModified(ref ev);
+                    }
+                    if (Settings.Instance.APIlimit_inEffect)
+                        CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
+                    else
+                        CustomProperty.Remove(ref ev, CustomProperty.MetadataId.apiLimitHit);
+
+                    CustomProperty.Remove(ref ev, CustomProperty.MetadataId.forceSave);
+
+                    int backoff = 0;
+                    while (backoff < BackoffLimit) {
+                        try {
+                            EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
+                            request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
+                            ev = request.Execute();
+                            if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                                log.Info("API limit for attendee sync lifted :-)");
+                                Settings.Instance.APIlimit_inEffect = false;
                             }
                             break;
-                        case ApiException.justContinue:
-                            backoff = BackoffLimit;
-                            break;
-                    }
-                    if (handled != ApiException.justContinue && ex.Error?.Code == 412 && !this.openedIssue1593) { //Precondition failed
-                        Ogcs.Extensions.MessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #1593 on GitHub for further information.",
-                        "PreCondition Failed: Issue #1593", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/1593");
-                        this.openedIssue1593 = true;
+                        } catch (global::Google.GoogleApiException ex) {
+                            ApiException handled = HandleAPIlimits(ref ex, ev);
+                            switch (handled) {
+                                case ApiException.throwException: throw;
+                                case ApiException.freeAPIexhausted:
+                                    Ogcs.Exception.LogAsFail(ref ex);
+                                    Ogcs.Exception.Analyse(ex);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    Ogcs.Exception.LogAsFail(ref aex);
+                                    throw aex;
+                                case ApiException.backoffThenRetry:
+                                    backoff++;
+                                    if (backoff == BackoffLimit) {
+                                        log.Error("API limit backoff was not successful. Save failed.");
+                                        throw;
+                                    } else {
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
+                                    }
+                                    break;
+                                case ApiException.justContinue:
+                                    backoff = BackoffLimit;
+                                    break;
+                            }
+                            if (handled != ApiException.justContinue && ex.Error?.Code == 412 && !this.openedIssue1593) { //Precondition failed
+                                Ogcs.Extensions.MessageBox.Show("A 'PreCondition Failed [412]' error was encountered.\r\nPlease see issue #1593 on GitHub for further information.",
+                                "PreCondition Failed: Issue #1593", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                                Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/issues/1593");
+                                this.openedIssue1593 = true;
+                            }
+                        }
                     }
                 }
-            }
-        }
+        */
         #endregion
-*/
+
         //void ShowError(String message, Window windowToBlock) {
         //    if (this.Dispatcher.CheckAccess())
         //        Ogcs.Extensions.MessageBox.Show(windowToBlock, message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -1143,290 +1141,291 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         //            }));
         //    }
         //}
-/*
+
         #region Delete
-        public void DeleteCalendarEntries(List<Event> events) {
-            for (int g = events.Count - 1; g >= 0; g--) {
-                if (Sync.Engine.Instance.CancellationPending) return;
+        /*
+                public void DeleteCalendarEntries(List<Event> events) {
+                    for (int g = events.Count - 1; g >= 0; g--) {
+                        if (Sync.Engine.Instance.CancellationPending) return;
 
-                Event ev = events[g];
-                Boolean doDelete = false;
-                try {
-                    doDelete = deleteCalendarEntry(ev);
-                } catch (System.Exception ex) {
-                    Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Event deletion failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
-                    Ogcs.Exception.Analyse(ex, true);
-                    if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        continue;
-                    else {
-                        throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
-                }
-
-                try {
-                    if (doDelete) deleteCalendarEntry_save(ev);
-                    else events.Remove(ev);
-                } catch (System.Exception ex) {
-                    if (ex is global::Google.GoogleApiException) {
-                        global::Google.GoogleApiException gex = ex as global::Google.GoogleApiException;
-                        if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
-                            log.Fail("This event is already deleted! Ignoring failed request to delete.");
-                            continue;
-                        }
-                    }
-                    if (ex is ApplicationException) {
-                        String summary = Ogcs.Google.Calendar.GetEventSummary("<br/>Event deletion skipped.<br/>" + ex.Message, ev, out String anonSummary);
-                        Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
-                        if (ex.InnerException is global::Google.GoogleApiException) break;
-                        continue;
-                    } else {
-                        String summary = Ogcs.Google.Calendar.GetEventSummary("<br/>Event deletion failed.", ev, out String anonSummary);
-                        Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
-                        Ogcs.Exception.Analyse(ex, true);
-                        if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            continue;
-                        else
-                            throw new UserCancelledSyncException("User chose not to continue sync.");
-                    }
-                }
-            }
-        }
-
-        private Boolean deleteCalendarEntry(Event ev) {
-            String eventSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary);
-            Boolean doDelete = true;
-
-            if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
-                    doDelete = false;
-                    *//*if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
-                        Ogcs.Google.CustomProperty.RemoveOutlookIDs(ref ev);
-                        UpdateCalendarEntry_save(ref ev);
-                    }*//*
-                    Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
-                } else {
-                    Forms.Main.Instance.Console.Update("Deleted: " + eventSummary, anonSummary?.Prepend("Deleted: "), Console.Markup.calendar);
-                }
-            } else {
-                Forms.Main.Instance.Console.Update(eventSummary, anonSummary, Console.Markup.calendar, verbose: true);
-            }
-            return doDelete;
-        }
-
-        private void deleteCalendarEntry_save(Event ev) {
-            int backoff = 0;
-            while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
-                try {
-                    EventsResource.DeleteRequest request = Ogcs.Google.Calendar.Instance.Service.Events.Delete(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, ev.Id);
-                    request.SendUpdates = EventsResource.DeleteRequest.SendUpdatesEnum.None;
-                    string result = request.Execute();
-                    break;
-                } catch (global::Google.GoogleApiException ex) {
-                    switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, ev)) {
-                        case Ogcs.Google.Calendar.ApiException.throwException: throw;
-                        case Ogcs.Google.Calendar.ApiException.freeAPIexhausted:
-                            Ogcs.Exception.LogAsFail(ref ex);
-                            Ogcs.Exception.Analyse(ex);
-                            System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.SubscriptionInvite, ex);
-                            Ogcs.Exception.LogAsFail(ref aex);
-                            throw aex;
-                        case ApiException.backoffThenRetry:
-                            backoff++;
-                            if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Save failed.");
-                                throw;
-                            } else {
-                                int backoffDelay = (int)Math.Pow(2, backoff);
-                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
-                                System.Threading.Thread.Sleep(backoffDelay * 1000);
+                        Event ev = events[g];
+                        Boolean doDelete = false;
+                        try {
+                            doDelete = deleteCalendarEntry(ev);
+                        } catch (System.Exception ex) {
+                            Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Event deletion failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
+                            Ogcs.Exception.Analyse(ex, true);
+                            if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                continue;
+                            else {
+                                throw new UserCancelledSyncException("User chose not to continue sync.");
                             }
-                            break;
-                    }
-                }
-            }
-        }
-        #endregion
-        */
-/*
-        public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-
-            if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
-
-            if (!neverDelete) Forms.Main.Instance.Console.Update("Checking for orphaned Google items", verbose: true);
-            try {
-                log.Debug("Scanning " + gEvents.Count + " Google events for orphans to reclaim...");
-                String consoleTitle = "Reclaiming Google calendar entries";
-
-                //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
-                List<Event> unclaimedEvents = new List<Event>();
-
-                for (int g = gEvents.Count - 1; g >= 0; g--) {
-                    if (Sync.Engine.Instance.CancellationPending) return;
-                    Event ev = gEvents[g];
-                    CustomProperty.LogProperties(ev, Program.MyFineLevel);
-
-                    //Find entries with no Outlook ID
-                    if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
-
-                        //Use simple matching on start,end,subject,location to pair events
-                        String sigEv = signature(ev);
-                        if (String.IsNullOrEmpty(sigEv)) {
-                            gEvents.Remove(ev);
-                            continue;
                         }
 
-                        unclaimedEvents.Add(ev);
-                        for (int o = oAppointments.Count - 1; o >= 0; o--) {
-                            AppointmentItem ai = oAppointments[o];
-                            if (SignaturesMatch(sigEv, Outlook.Calendar.signature(ai))) {
-                                try {
-                                    Event originalEv = ev;
-                                    CustomProperty.AddOutlookIDs(ref ev, ai);
-                                    UpdateCalendarEntry_save(ref ev);
-                                    unclaimedEvents.Remove(originalEv);
-                                    if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
-                                    consoleTitle = "";
-                                    Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ev, out String anonSummary, appendContext: false), anonSummary, verbose: true);
-                                    gEvents[g] = ev;
-                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai)) {
-                                        log.Debug("Updating the Google event IDs in Outlook appointment.");
-                                        Outlook.CustomProperty.AddGoogleIDs(ref ai, ev);
-                                        ai.Save();
-                                    }
-                                } catch (System.Exception ex) {
-                                    log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
-                                    log.Debug(ex.Message);
-                                    log.Debug("Event status: " + ev.Status);
+                        try {
+                            if (doDelete) deleteCalendarEntry_save(ev);
+                            else events.Remove(ev);
+                        } catch (System.Exception ex) {
+                            if (ex is global::Google.GoogleApiException) {
+                                global::Google.GoogleApiException gex = ex as global::Google.GoogleApiException;
+                                if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
+                                    log.Fail("This event is already deleted! Ignoring failed request to delete.");
+                                    continue;
                                 }
-                                break;
+                            }
+                            if (ex is ApplicationException) {
+                                String summary = Ogcs.Google.Calendar.GetEventSummary("<br/>Event deletion skipped.<br/>" + ex.Message, ev, out String anonSummary);
+                                Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
+                                if (ex.InnerException is global::Google.GoogleApiException) break;
+                                continue;
+                            } else {
+                                String summary = Ogcs.Google.Calendar.GetEventSummary("<br/>Event deletion failed.", ev, out String anonSummary);
+                                Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
+                                Ogcs.Exception.Analyse(ex, true);
+                                if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                    continue;
+                                else
+                                    throw new UserCancelledSyncException("User chose not to continue sync.");
                             }
                         }
                     }
-                    if (Sync.Engine.Instance.CancellationPending) return;
                 }
-                log.Debug(unclaimedEvents.Count + " unclaimed.");
-                if (!neverDelete && unclaimedEvents.Count > 0 &&
-                    (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id ||
-                     profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) 
-                {
-                    log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
-                    if (profile.MergeItems || profile.DisableDelete || profile.ConfirmOnDelete) {
-                        log.Info("These will be kept due to configuration settings.");
-                    } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                        log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
-                    } else {
-                        if (Ogcs.Extensions.MessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
-                            "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
-                            "or you may wish to merge with unmatched events. Continue with deletions?",
-                            "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 
-                            log.Info("User has requested to keep them.");
-                            foreach (Event e in unclaimedEvents) {
-                                gEvents.Remove(e);
-                            }
+                private Boolean deleteCalendarEntry(Event ev) {
+                    String eventSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary);
+                    Boolean doDelete = true;
+
+                    if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
+                        if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
+                            doDelete = false;
+                            *//*if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
+                                Ogcs.Google.CustomProperty.RemoveOutlookIDs(ref ev);
+                                UpdateCalendarEntry_save(ref ev);
+                            }*//*
+                            Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                         } else {
-                            log.Info("User has opted to delete them.");
+                            Forms.Main.Instance.Console.Update("Deleted: " + eventSummary, anonSummary?.Prepend("Deleted: "), Console.Markup.calendar);
+                        }
+                    } else {
+                        Forms.Main.Instance.Console.Update(eventSummary, anonSummary, Console.Markup.calendar, verbose: true);
+                    }
+                    return doDelete;
+                }
+
+                private void deleteCalendarEntry_save(Event ev) {
+                    int backoff = 0;
+                    while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
+                        try {
+                            EventsResource.DeleteRequest request = Ogcs.Google.Calendar.Instance.Service.Events.Delete(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, ev.Id);
+                            request.SendUpdates = EventsResource.DeleteRequest.SendUpdatesEnum.None;
+                            string result = request.Execute();
+                            break;
+                        } catch (global::Google.GoogleApiException ex) {
+                            switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, ev)) {
+                                case Ogcs.Google.Calendar.ApiException.throwException: throw;
+                                case Ogcs.Google.Calendar.ApiException.freeAPIexhausted:
+                                    Ogcs.Exception.LogAsFail(ref ex);
+                                    Ogcs.Exception.Analyse(ex);
+                                    System.ApplicationException aex = new System.ApplicationException(Ogcs.Google.Calendar.SubscriptionInvite, ex);
+                                    Ogcs.Exception.LogAsFail(ref aex);
+                                    throw aex;
+                                case ApiException.backoffThenRetry:
+                                    backoff++;
+                                    if (backoff == BackoffLimit) {
+                                        log.Error("API limit backoff was not successful. Save failed.");
+                                        throw;
+                                    } else {
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
-            } catch (System.Exception) {
-                Forms.Main.Instance.Console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
-                throw;
-            }
-        }
+                */
+        #endregion
+        /*
+                public void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<AppointmentItem> oAppointments, Boolean neverDelete = false) {
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-        public void CleanDuplicateEntries(ref List<Event> google) {
-            //If a recurring series is altered for "this and following events", Google duplicates the original series.
-            //This includes the private ExtendedProperties, containing the Outlook IDs - not good, these need to be detected and removed
+                    if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
 
-            log.Debug("Checking for Events that have been duplicated.");
-
-            try {
-                List<Event> duplicateCheck = google.Where(w => CustomProperty.Exists(w, CustomProperty.MetadataId.oEntryId)).ToList();
-                duplicateCheck = duplicateCheck.
-                    GroupBy(e => new { e.Created, oEntryId = CustomProperty.Get(e, CustomProperty.MetadataId.oEntryId) }).
-                    Where(g => g.Count() > 1).
-                    SelectMany(x => x).ToList();
-                if (duplicateCheck.Count() == 0) return;
-
-                log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
-                duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":" + (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
-                //Skip the first one, the original 
-                System.DateTime? lastSeenDuplicateSet = null;
-                for (int g = 0; g < duplicateCheck.Count(); g++) {
-                    Event ev = duplicateCheck[g];
-                    if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
-                        lastSeenDuplicateSet = ev.Created;
-                        continue;
-                    }
-                    log.Info("Cleaning duplicate metadata from: " + GetEventSummary(ev));
-                    google.Remove(ev);
-                    CustomProperty.RemoveAll(ref ev);
-                    this.UpdateCalendarEntry_save(ref ev);
-                    google.Add(ev);
-                    lastSeenDuplicateSet = ev.Created;
-                }
-            } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse(ex);
-            }
-        }
-
-        public void IdentifyEventDifferences_Simple(
-            SettingsStore.Calendar profile,
-            ref List<AppointmentItem> outlook,  //need creating
-            ref List<Event> google,             //need deleting
-            ref Dictionary<AppointmentItem, Event> compare)
-        {
-            Forms.Main.Instance.Console.Update("Matching calendar items using simple method...");
-
-            //Order by start date (same as Outlook) for quickest matching
-            google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
-
-            // Count backwards so that we can remove found items without affecting the order of remaining items
-            for (int g = google.Count - 1; g >= 0; g--) {
-                if (Sync.Engine.Instance.CancellationPending) return;
-                log.Fine("Checking " + Ogcs.Google.Calendar.GetEventSummary(google[g]));
-
-                //Use simple matching on start,end,subject,location to pair events
-                String sigEv = signature(google[g]);
-                if (String.IsNullOrEmpty(sigEv)) {
-                    google.Remove(google[g]);
-                    continue;
-                }
-
-                Boolean foundMatch = false;
-                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (!neverDelete) Forms.Main.Instance.Console.Update("Checking for orphaned Google items", verbose: true);
                     try {
-                        if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + Outlook.Calendar.GetEventSummary(outlook[o]));
+                        log.Debug("Scanning " + gEvents.Count + " Google events for orphans to reclaim...");
+                        String consoleTitle = "Reclaiming Google calendar entries";
 
-                        if (SignaturesMatch(sigEv, Outlook.Calendar.signature(outlook[o]))) {
-                            foundMatch = true;
-                            compare.Add(outlook[o], google[g]);
-                            outlook.Remove(outlook[o]);
-                            google.Remove(google[g]);
-                            break;
+                        //This is needed for people migrating from other tools, which do not have our OutlookID extendedProperty
+                        List<Event> unclaimedEvents = new List<Event>();
+
+                        for (int g = gEvents.Count - 1; g >= 0; g--) {
+                            if (Sync.Engine.Instance.CancellationPending) return;
+                            Event ev = gEvents[g];
+                            CustomProperty.LogProperties(ev, Program.MyFineLevel);
+
+                            //Find entries with no Outlook ID
+                            if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
+
+                                //Use simple matching on start,end,subject,location to pair events
+                                String sigEv = signature(ev);
+                                if (String.IsNullOrEmpty(sigEv)) {
+                                    gEvents.Remove(ev);
+                                    continue;
+                                }
+
+                                unclaimedEvents.Add(ev);
+                                for (int o = oAppointments.Count - 1; o >= 0; o--) {
+                                    AppointmentItem ai = oAppointments[o];
+                                    if (SignaturesMatch(sigEv, Outlook.Calendar.signature(ai))) {
+                                        try {
+                                            Event originalEv = ev;
+                                            CustomProperty.AddOutlookIDs(ref ev, ai);
+                                            UpdateCalendarEntry_save(ref ev);
+                                            unclaimedEvents.Remove(originalEv);
+                                            if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
+                                            consoleTitle = "";
+                                            Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ev, out String anonSummary, appendContext: false), anonSummary, verbose: true);
+                                            gEvents[g] = ev;
+                                            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai)) {
+                                                log.Debug("Updating the Google event IDs in Outlook appointment.");
+                                                Outlook.CustomProperty.AddGoogleIDs(ref ai, ev);
+                                                ai.Save();
+                                            }
+                                        } catch (System.Exception ex) {
+                                            log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
+                                            log.Debug(ex.Message);
+                                            log.Debug("Event status: " + ev.Status);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            if (Sync.Engine.Instance.CancellationPending) return;
+                        }
+                        log.Debug(unclaimedEvents.Count + " unclaimed.");
+                        if (!neverDelete && unclaimedEvents.Count > 0 &&
+                            (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id ||
+                             profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) 
+                        {
+                            log.Info(unclaimedEvents.Count + " unclaimed orphan events found.");
+                            if (profile.MergeItems || profile.DisableDelete || profile.ConfirmOnDelete) {
+                                log.Info("These will be kept due to configuration settings.");
+                            } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                                log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
+                            } else {
+                                if (Ogcs.Extensions.MessageBox.Show(unclaimedEvents.Count + " Google calendar events can't be matched to Outlook.\r\n" +
+                                    "Remember, it's recommended to have a dedicated Google calendar to sync with, " +
+                                    "or you may wish to merge with unmatched events. Continue with deletions?",
+                                    "Delete unmatched Google events?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+
+                                    log.Info("User has requested to keep them.");
+                                    foreach (Event e in unclaimedEvents) {
+                                        gEvents.Remove(e);
+                                    }
+                                } else {
+                                    log.Info("User has opted to delete them.");
+                                }
+                            }
+                        }
+                    } catch (System.Exception) {
+                        Forms.Main.Instance.Console.Update("Unable to reclaim orphan calendar entries in Google calendar.", Console.Markup.error);
+                        throw;
+                    }
+                }
+
+                public void CleanDuplicateEntries(ref List<Event> google) {
+                    //If a recurring series is altered for "this and following events", Google duplicates the original series.
+                    //This includes the private ExtendedProperties, containing the Outlook IDs - not good, these need to be detected and removed
+
+                    log.Debug("Checking for Events that have been duplicated.");
+
+                    try {
+                        List<Event> duplicateCheck = google.Where(w => CustomProperty.Exists(w, CustomProperty.MetadataId.oEntryId)).ToList();
+                        duplicateCheck = duplicateCheck.
+                            GroupBy(e => new { e.Created, oEntryId = CustomProperty.Get(e, CustomProperty.MetadataId.oEntryId) }).
+                            Where(g => g.Count() > 1).
+                            SelectMany(x => x).ToList();
+                        if (duplicateCheck.Count() == 0) return;
+
+                        log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
+                        duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":" + (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
+                        //Skip the first one, the original 
+                        System.DateTime? lastSeenDuplicateSet = null;
+                        for (int g = 0; g < duplicateCheck.Count(); g++) {
+                            Event ev = duplicateCheck[g];
+                            if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
+                                lastSeenDuplicateSet = ev.Created;
+                                continue;
+                            }
+                            log.Info("Cleaning duplicate metadata from: " + GetEventSummary(ev));
+                            google.Remove(ev);
+                            CustomProperty.RemoveAll(ref ev);
+                            this.UpdateCalendarEntry_save(ref ev);
+                            google.Add(ev);
+                            lastSeenDuplicateSet = ev.Created;
                         }
                     } catch (System.Exception ex) {
-                        if (!log.IsUltraFineEnabled()) {
-                            try {
-                                log.Info(Outlook.Calendar.GetEventSummary(outlook[o]));
-                            } catch { }
-                        }
-                        if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
-                            log.Warn("Item corrupted / inaccessible due to security certificate.");
-                            outlook.Remove(outlook[o]);
-                        } else {
-                            log.Error(ex.Message);
-                        }
+                        Ogcs.Exception.Analyse(ex);
                     }
                 }
-                if (!foundMatch && profile.MergeItems)
-                    google.Remove(google[g]);
-            }
-        }
-*/
+
+                public void IdentifyEventDifferences_Simple(
+                    SettingsStore.Calendar profile,
+                    ref List<AppointmentItem> outlook,  //need creating
+                    ref List<Event> google,             //need deleting
+                    ref Dictionary<AppointmentItem, Event> compare)
+                {
+                    Forms.Main.Instance.Console.Update("Matching calendar items using simple method...");
+
+                    //Order by start date (same as Outlook) for quickest matching
+                    google.Sort((x, y) => (x.Start.DateTimeRaw ?? x.Start.Date).CompareTo((y.Start.DateTimeRaw ?? y.Start.Date)));
+
+                    // Count backwards so that we can remove found items without affecting the order of remaining items
+                    for (int g = google.Count - 1; g >= 0; g--) {
+                        if (Sync.Engine.Instance.CancellationPending) return;
+                        log.Fine("Checking " + Ogcs.Google.Calendar.GetEventSummary(google[g]));
+
+                        //Use simple matching on start,end,subject,location to pair events
+                        String sigEv = signature(google[g]);
+                        if (String.IsNullOrEmpty(sigEv)) {
+                            google.Remove(google[g]);
+                            continue;
+                        }
+
+                        Boolean foundMatch = false;
+                        for (int o = outlook.Count - 1; o >= 0; o--) {
+                            try {
+                                if (log.IsUltraFineEnabled()) log.UltraFine("Checking " + Outlook.Calendar.GetEventSummary(outlook[o]));
+
+                                if (SignaturesMatch(sigEv, Outlook.Calendar.signature(outlook[o]))) {
+                                    foundMatch = true;
+                                    compare.Add(outlook[o], google[g]);
+                                    outlook.Remove(outlook[o]);
+                                    google.Remove(google[g]);
+                                    break;
+                                }
+                            } catch (System.Exception ex) {
+                                if (!log.IsUltraFineEnabled()) {
+                                    try {
+                                        log.Info(Outlook.Calendar.GetEventSummary(outlook[o]));
+                                    } catch { }
+                                }
+                                if (ex.Message == "An error occurred in the underlying security system. An internal error occurred.") {
+                                    log.Warn("Item corrupted / inaccessible due to security certificate.");
+                                    outlook.Remove(outlook[o]);
+                                } else {
+                                    log.Error(ex.Message);
+                                }
+                            }
+                        }
+                        if (!foundMatch && profile.MergeItems)
+                            google.Remove(google[g]);
+                    }
+                }
+        */
         public static void IdentifyEventDifferences_IDs(
             SettingsStore.Calendar profile,
             ref List<Microsoft.Graph.Event> outlook,  //need creating
@@ -1467,14 +1466,14 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             }
 
                             Event evCheck = google[g];
-                            /*if (ItemIDsMatch(ref evCheck, outlook[o])) {
+                            if (ItemIDsMatch(ref evCheck, outlook[o])) {
                                 foundMatch = true;
                                 google[g] = evCheck;
                                 compare.Add(outlook[o], google[g]);
                                 outlook.Remove(outlook[o]);
                                 google.Remove(google[g]);
                                 break;
-                            }*/
+                            }
                         } catch (System.Exception ex) {
                             if (!log.IsUltraFineEnabled()) {
                                 try {
@@ -1518,111 +1517,101 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             /*if (profile.SimpleMatch)
                 IdentifyEventDifferences_Simple(profile, ref outlook, ref google, ref compare);
             else*/
-                IdentifyEventDifferences_IDs(profile, ref outlook, ref google, ref compare);
+            IdentifyEventDifferences_IDs(profile, ref outlook, ref google, ref compare);
 
             if (Sync.Engine.Instance.CancellationPending) return;
-/*
-            if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
-                //Check if Outlook items to be created in Google have invitations not yet responded to
-                int responseFiltered = 0;
-                for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (outlook[o].ResponseStatus == Microsoft.Graph.ResponseStatus) { // OlResponseStatus.olResponseNotResponded) {
-                        outlook.Remove(outlook[o]);
-                        responseFiltered++;
-                    }
-                }
-                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
-            }
+            /*
+                        if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
+                            //Check if Outlook items to be created in Google have invitations not yet responded to
+                            int responseFiltered = 0;
+                            for (int o = outlook.Count - 1; o >= 0; o--) {
+                                if (outlook[o].ResponseStatus == Microsoft.Graph.ResponseStatus) { // OlResponseStatus.olResponseNotResponded) {
+                                    outlook.Remove(outlook[o]);
+                                    responseFiltered++;
+                                }
+                            }
+                            if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
+                        }
 
-            if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory?.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
-                //Check if Google items to be deleted were filtered out from Outlook
-                for (int g = google.Count - 1; g >= 0; g--) {
-                    if (Outlook.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
-                        Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(Ogcs.Google.CustomProperty.Get(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ?? "")) {
-                        google.Remove(google[g]);
-                    }
-                }
-            }
-            if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour?.Count > 0) {
-                //Check if Outlook items to be created were filtered out from Google
-                for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsValue(outlook[o].Id) ||
-                        Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(Outlook.Graph.O365CustomProperty.Get(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID) ?? "")) {
-                        outlook.Remove(outlook[o]);
-                    }
-                }
-            }
+                        if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory?.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
+                            //Check if Google items to be deleted were filtered out from Outlook
+                            for (int g = google.Count - 1; g >= 0; g--) {
+                                if (Outlook.Calendar.Instance.ExcludedByCategory.ContainsValue(google[g].Id) ||
+                                    Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(Ogcs.Google.CustomProperty.Get(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ?? "")) {
+                                    google.Remove(google[g]);
+                                }
+                            }
+                        }
+                        if (outlook.Count > 0 && Ogcs.Google.Calendar.Instance.ExcludedByColour?.Count > 0) {
+                            //Check if Outlook items to be created were filtered out from Google
+                            for (int o = outlook.Count - 1; o >= 0; o--) {
+                                if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsValue(outlook[o].Id) ||
+                                    Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(Outlook.Graph.O365CustomProperty.Get(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID) ?? "")) {
+                                    outlook.Remove(outlook[o]);
+                                }
+                            }
+                        }
 
-            if (profile.DisableDelete) {
-                if (google.Count > 0) {
-                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                    for (int g = 0; g < google.Count; g++)
-                        Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
-                }
-                google = new List<Event>();
-            }
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                //Don't recreate any items that have been deleted in Google
-                for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (Outlook.Graph.O365CustomProperty.Exists(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID))
-                        outlook.Remove(outlook[o]);
-                }
-                //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
-                for (int g = google.Count - 1; g >= 0; g--) {
-                    if (!Ogcs.Google.CustomProperty.Exists(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ||
-                        google[g].Updated > Sync.Engine.Instance.SyncStarted)
-                        google.Remove(google[g]);
-                }
-            }
-            if (Settings.Instance.CreateCSVFiles) {
-                Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
-                Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
-            }*/
+                        if (profile.DisableDelete) {
+                            if (google.Count > 0) {
+                                Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                                for (int g = 0; g < google.Count; g++)
+                                    Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
+                            }
+                            google = new List<Event>();
+                        }
+                        if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                            //Don't recreate any items that have been deleted in Google
+                            for (int o = outlook.Count - 1; o >= 0; o--) {
+                                if (Outlook.Graph.O365CustomProperty.Exists(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID))
+                                    outlook.Remove(outlook[o]);
+                            }
+                            //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
+                            for (int g = google.Count - 1; g >= 0; g--) {
+                                if (!Ogcs.Google.CustomProperty.Exists(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ||
+                                    google[g].Updated > Sync.Engine.Instance.SyncStarted)
+                                    google.Remove(google[g]);
+                            }
+                        }
+                        if (Settings.Instance.CreateCSVFiles) {
+                            Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
+                            Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
+                        }*/
         }
-        /*
-        public static Boolean ItemIDsMatch(ref Event ev, AppointmentItem ai) {
-            //AppointmentItem Entry IDs change when accepting invites; causes item to be recreated if only match on that
-            //So first match on the Global Appointment ID
+        public static Boolean ItemIDsMatch(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            //For format of Entry ID : https://msdn.microsoft.com/en-us/library/ee201952(v=exchg.80).aspx
+            //First match on the Global Appointment ID
             //For format of Global ID: https://msdn.microsoft.com/en-us/library/ee157690%28v=exchg.80%29.aspx
             log.Fine("Comparing Outlook GlobalID");
 
-            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-
-            if (CustomProperty.Exists(ev, CustomProperty.MetadataId.oGlobalApptId)) {
-                String gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oGlobalApptId);
-                String oGlobalID = Outlook.Calendar.Instance.IOutlook.GetGlobalApptID(ai);
+            if (Ogcs.Google.CustomProperty.Exists(ev, Ogcs.Google.CustomProperty.MetadataId.oGlobalApptId)) {
+                String gCompareID = Ogcs.Google.CustomProperty.Get(ev, Ogcs.Google.CustomProperty.MetadataId.oGlobalApptId);
+                String oGlobalID = ai.ICalUId;
 
                 //For items copied from someone elses calendar, it appears the Global ID is generated for each access?! (Creation Time changes)
                 //I guess the copied item doesn't really have its "own" ID. So, we'll just compare
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
-                if ((Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003 && oGlobalID == gCompareID) //Actually simple compare of EntryId for O2003
-                    ||
-                    (Outlook.Factory.OutlookVersionName != Outlook.Factory.OutlookVersionNames.Outlook2003 &&
-                        (
-                            (oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                            gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                            gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
-                            ||
-                            (!oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                            !gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                            gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16)) //Or it's really a Entry ID (failsafe match)
-                        )
+                if (oGlobalID == gCompareID ||
+                    ((oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
+                        ||
+                        (!oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        !gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        gCompareID.Remove(gCompareID.Length - 16) == oGlobalID.Remove(oGlobalID.Length - 16)) //Or it's really a Entry ID (failsafe match)
                     ))
                 {
                     log.Fine("Comparing Outlook CalendarID");
-                    gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oCalendarId);
+                    gCompareID = Ogcs.Google.CustomProperty.Get(ev, Ogcs.Google.CustomProperty.MetadataId.oCalendarId);
                     if (gCompareID == profile.UseOutlookCalendar.Id) {
 
-                        //But...if an appointment is copied within ones own calendar, the DATA part is the same (only the creation time changes)!
-                        //So now compare the Entry ID too.
                         log.Fine("Comparing Outlook EntryID");
-                        gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId);
-                        if (gCompareID == ai.EntryID) {
+                        gCompareID = Ogcs.Google.CustomProperty.Get(ev, Ogcs.Google.CustomProperty.MetadataId.oEntryId);
+                        if (gCompareID == ai.Id) {
                             return true;
-                        } else if (!string.IsNullOrEmpty(gCompareID) &&
+                        } /*else if (!string.IsNullOrEmpty(gCompareID) &&
                             gCompareID.Remove(gCompareID.Length - 16) == ai.EntryID.Remove(ai.EntryID.Length - 16))
                         {
                             //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
@@ -1652,26 +1641,27 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
                                 return true;
-                            }
-                        }
+                            }*/
                     }
-
-                } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
-                    oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                    gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
-                    gCompareID.Substring(72) != oGlobalID.Substring(72) &&
-                    Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID) == ev.Id &&
-                    SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) 
-                {
-                    //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
-                    log.Warn("Appointment GlobalID has completely changed, but Google Event ID matches so relying on that!");
-                    log.Debug("Google's Event Id: " + ev.Id);
-                    log.Debug("Google's Outlook Global Id: " + gCompareID);
-                    log.Debug("Outlook's new Global Id: " + oGlobalID);
-                    CustomProperty.AddOutlookIDs(ref ev, ai); //update GlobalID
-                    CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
-                    return true;
                 }
+
+                /*} else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
+                        oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
+                        gCompareID.Substring(72) != oGlobalID.Substring(72) &&
+                        Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID) == ev.Id &&
+                        SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) 
+                    {
+                        //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
+                        log.Warn("Appointment GlobalID has completely changed, but Google Event ID matches so relying on that!");
+                        log.Debug("Google's Event Id: " + ev.Id);
+                        log.Debug("Google's Outlook Global Id: " + gCompareID);
+                        log.Debug("Outlook's new Global Id: " + oGlobalID);
+                        CustomProperty.AddOutlookIDs(ref ev, ai); //update GlobalID
+                        CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
+                        return true;
+                    }
+                */
             } else {
                 if (profile.MergeItems)
                     log.Fine("Could not find global Appointment ID against Google Event.");
@@ -1681,6 +1671,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return false;
         }
 
+        /*
         public Boolean CompareRecipientsToAttendees(AppointmentItem ai, Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
@@ -1857,35 +1848,36 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             else
                 this.MinDefaultReminder = cal.DefaultReminders.Where(x => x.Method.Equals("popup")).OrderBy(x => x.Minutes.Value).FirstOrDefault()?.Minutes.Value ?? int.MinValue;
         }
-
+        */
         /// <summary>
         /// Determine Event's privacy setting
         /// </summary>
         /// <param name="oSensitivity">Outlook's current setting</param>
         /// <param name="gVisibility">Google's current setting</param>
         /// <param name="direction">Direction of sync</param>
-        private String getPrivacy(OlSensitivity oSensitivity, String gVisibility) {
+        private static String getPrivacy(Microsoft.Graph.Sensitivity? oSensitivity, String gVisibility) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            oSensitivity ??= Microsoft.Graph.Sensitivity.Normal;
 
             if (!profile.SetEntriesPrivate)
-                return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
+                return (profile.PrivacyLevel == Microsoft.Graph.Sensitivity.Private.ToString()) ? "private" : "public";
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
                     if (gVisibility == null)
-                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
-                    else if (gVisibility == "private" && oSensitivity != OlSensitivity.olPrivate) {
+                        return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
+                    else if (gVisibility == "private" && oSensitivity != Microsoft.Graph.Sensitivity.Private) {
                         log.Fine("Source of truth for privacy is already set private and target is NOT - so syncing this back.");
                         return "default";
                     } else
                         return gVisibility;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gVisibility == null))
-                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
+                        return (profile.PrivacyLevel == Microsoft.Graph.Sensitivity.Private.ToString()) ? "private" : "public";
                     else
-                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                        return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
                 }
             }
         }
@@ -1893,22 +1885,23 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         /// <summary>
         /// Determine Event's availability setting
         /// </summary>
-        /// <param name="oSsensitivity">Outlook's current setting</param>
+        /// <param name="oBusyStatus">Outlook's current setting</param>
         /// <param name="gTransparency">Google's current setting</param>
-        private String getAvailability(OlBusyStatus oBusyStatus, String gTransparency) {
+        private static String getAvailability(Microsoft.Graph.FreeBusyStatus? oBusyStatus, String gTransparency) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            oBusyStatus ??= Microsoft.Graph.FreeBusyStatus.Busy;
 
             if (!profile.SetEntriesAvailable)
-                return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
 
             String overrideTransparency = "transparent";
-            OlBusyStatus fbStatus = OlBusyStatus.olFree;
+            Microsoft.Graph.FreeBusyStatus fbStatus = Microsoft.Graph.FreeBusyStatus.Free;
             try {
                 Enum.TryParse(profile.AvailabilityStatus, out fbStatus);
-                if (fbStatus != OlBusyStatus.olFree)
+                if (fbStatus != Microsoft.Graph.FreeBusyStatus.Free)
                     overrideTransparency = "opaque";
             } catch (System.Exception ex) {
-                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.");
+                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to FreeBusyStatus type. Defaulting override to available.");
             }
 
             if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
@@ -1916,18 +1909,19 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Availability enforcement is in other direction
                     if (gTransparency == null)
-                        return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                        return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
                     else
                         return gTransparency;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gTransparency == null))
                         return overrideTransparency;
                     else
-                        return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                        return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
                 }
             }
         }
 
+        /*
         /// <summary>
         /// Get the Google palette colour from a list of Outlook categories
         /// </summary>
@@ -2218,27 +2212,28 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
             return eventSummary;
         }
-
-        public static global::Google.Apis.Calendar.v3.Data.EventAttendee CreateAttendee(Recipient recipient, Boolean isOrganiser) {
+        */
+        public static GcalData.EventAttendee CreateAttendee(Microsoft.Graph.Attendee recipient, Boolean isOrganiser) {
             Ogcs.Google.EventAttendee ea = new Ogcs.Google.EventAttendee();
-            log.Fine("Creating attendee " + recipient.Name);
-            ea.DisplayName = recipient.Name;
-            ea.Email = Outlook.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
-            ea.Optional = (recipient.Type == (int)OlMeetingRecipientType.olOptional);
+            log.Fine("Creating attendee " + (string.IsNullOrEmpty(recipient.EmailAddress.Name) ? recipient.EmailAddress.Address : recipient.EmailAddress.Name));
+            ea.DisplayName = (recipient.EmailAddress.Name != recipient.EmailAddress.Address ? recipient.EmailAddress.Name : null);
+            ea.Email = recipient.EmailAddress.Address;
+            ea.Optional = recipient.Type == Microsoft.Graph.AttendeeType.Optional;
             if (isOrganiser) {
                 //ea.Organizer = true; This is read-only. The best we can do is force them to have accepted the "invite"
                 ea.ResponseStatus = "accepted";
                 return ea;
             }
-            switch (recipient.MeetingResponseStatus) {
-                case OlResponseStatus.olResponseNone: ea.ResponseStatus = "needsAction"; break;
-                case OlResponseStatus.olResponseAccepted: ea.ResponseStatus = "accepted"; break;
-                case OlResponseStatus.olResponseDeclined: ea.ResponseStatus = "declined"; break;
-                case OlResponseStatus.olResponseTentative: ea.ResponseStatus = "tentative"; break;
+            switch (recipient.Status.Response) {
+                case Microsoft.Graph.ResponseType.NotResponded: ea.ResponseStatus = "needsAction"; break;
+                case Microsoft.Graph.ResponseType.None: ea.ResponseStatus = "needsAction"; break;
+                case Microsoft.Graph.ResponseType.Accepted: ea.ResponseStatus = "accepted"; break;
+                case Microsoft.Graph.ResponseType.Declined: ea.ResponseStatus = "declined"; break;
+                case Microsoft.Graph.ResponseType.TentativelyAccepted: ea.ResponseStatus = "tentative"; break;
             }
             return ea;
         }
-
+        /*
         public static ApiException HandleAPIlimits(ref global::Google.GoogleApiException ex, Event ev) {
             //https://developers.google.com/analytics/devguides/reporting/core/v3/coreErrors
 
