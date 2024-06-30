@@ -130,6 +130,7 @@ namespace OutlookGoogleCalendarSync {
             new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.sync)
                 .AddParameter(GA4.General.type, "calendar")
                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
+                .AddParameter("outlook_service", Sync.Engine.Calendar.Instance.Profile.OutlookService.ToString())
                 .Send();
         }
 
