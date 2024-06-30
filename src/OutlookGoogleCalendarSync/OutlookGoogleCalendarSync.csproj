@@ -370,6 +370,8 @@
     <Compile Include="Google\EventColour.cs" />
     <Compile Include="Google\GMeet.cs" />
     <Compile Include="Google\GoogleCalendar.cs" />
+    <Compile Include="Google.Graph\CustomProperty.cs" />
+    <Compile Include="Google.Graph\GoogleCalendar.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Outlook.Factory\OutlookFactory.cs" />
     <Compile Include="Outlook.Factory\OutlookGraph.cs" />
