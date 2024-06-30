@@ -260,7 +260,9 @@ namespace OutlookGoogleCalendarSync {
 
         private static void purgeLogFiles(Int16 retention) {
             log.Info("Purging log files older than " + retention + " days...");
-            foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
+            String[] sizeRoll = System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly);
+            String[] dateRoll = System.IO.Directory.GetFiles(UserFilePath, "*_????-??-??.log", SearchOption.TopDirectoryOnly);
+            foreach (String file in dateRoll.Concat(sizeRoll)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
                     try {
                         System.IO.File.Delete(file);
