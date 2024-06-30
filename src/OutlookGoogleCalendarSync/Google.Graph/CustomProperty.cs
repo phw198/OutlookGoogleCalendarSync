@@ -12,7 +12,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         public static void AddOutlookIDs(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
             Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oCalendarId, Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
             Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oEntryId, ai.Id);
-            Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oGlobalApptId, ai.Id);
+            Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oGlobalApptId, ai.ICalUId);
             Ogcs.Google.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
         }
     }

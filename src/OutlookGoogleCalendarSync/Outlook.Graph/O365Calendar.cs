@@ -1218,6 +1218,24 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return false;
         }
 
+        public Boolean IsOKtoSyncReminder(Microsoft.Graph.Event ai) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+
+            if (profile.ReminderDND) {
+                System.DateTime alarm;
+                if ((bool)ai.IsReminderOn)
+                    alarm = ai.Start.SafeDateTime().AddMinutes((int)-ai.ReminderMinutesBeforeStart);
+                else {
+                    if (profile.UseGoogleDefaultReminder && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
+                        log.Fine("Using default Google reminder value: " + Ogcs.Google.Calendar.Instance.MinDefaultReminder);
+                        alarm = ai.Start.SafeDateTime().AddMinutes(-Ogcs.Google.Calendar.Instance.MinDefaultReminder);
+                    } else
+                        return false;
+                }
+                return Outlook.Calendar.Instance.IsOKtoSyncReminder(alarm);
+            }
+            return true;
+        }
         #endregion
     }
 }
