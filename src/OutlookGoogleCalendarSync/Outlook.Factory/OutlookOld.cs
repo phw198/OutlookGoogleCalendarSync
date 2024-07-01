@@ -760,29 +760,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         #region TimeZone Stuff
         public Event IANAtimezone_set(Event ev, AppointmentItem ai) {
-            ev.Start.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
-            ev.End.TimeZone = IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
+            ev.Start.TimeZone = TimezoneDB.IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
+            ev.End.TimeZone = TimezoneDB.IANAtimezone("UTC", "(UTC) Coordinated Universal Time");
             return ev;
-        }
-
-        private String IANAtimezone(String oTZ_id, String oTZ_name) {
-            //Convert from Windows Timezone to Iana
-            //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
-            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
-            if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
-                return "Etc/UTC";
-            }
-
-            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
-            String retVal = null;
-            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
-                log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
-            else {
-                retVal = tzDBsource.CanonicalIdMap[retVal];
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
-            }
-            return retVal;
         }
 
         public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {
