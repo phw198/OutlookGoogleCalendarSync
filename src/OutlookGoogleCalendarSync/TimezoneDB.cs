@@ -177,6 +177,35 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
+        /// Convert from Windows Timezone to IANA/Olsen
+        /// Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
+        /// </summary>
+        /// <param name="oTZ_id">Timezone ID</param>
+        /// <param name="oTZ_name">Timezone Name</param>
+        /// <returns>IANA/Olsen timezone</returns>
+        public static String IANAtimezone(String oTZ_id, String oTZ_name) {
+            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
+            if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
+                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                return "Etc/UTC";
+            }
+
+            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
+            String retVal = null;
+            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
+                log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
+            else {
+                if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
+                    log.Debug("Continuing to use Kiev instead of Kyiv.");
+                else
+                    retVal = tzDBsource.CanonicalIdMap[retVal];
+                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+            }
+            return retVal;
+        }
+
+
+        /// <summary>
         /// IANA updated in Aug-2022 to Europe/Kyiv, but Google is still on Europe/Kiev.
         /// Once Google catches up, this can be removed.
         /// </summary>
