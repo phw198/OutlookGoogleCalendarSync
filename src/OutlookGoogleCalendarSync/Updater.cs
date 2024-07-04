@@ -38,7 +38,10 @@ namespace OutlookGoogleCalendarSync {
             if (isManualCheck) updateButton.Text = "Checking...";
             
             try {
-                if (!string.IsNullOrEmpty(nonGitHubReleaseUri) || Program.IsInstalled) {
+                if (Program.VersionToInt(Application.ProductVersion) > 3000002) {
+                    devBuildChecker();
+                
+                } else if (!string.IsNullOrEmpty(nonGitHubReleaseUri) || Program.IsInstalled) {
                     try {
                        if (await githubCheck()) {
                            log.Info("Restarting OGCS.");
@@ -525,6 +528,71 @@ namespace OutlookGoogleCalendarSync {
         private static MatchCollection getRelease(string source, string pattern) {
             Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
             return rgx.Matches(source);
+        }
+        #endregion
+
+        #region Development Build
+        private void devBuildChecker() {
+            BackgroundWorker bwUpdater = new BackgroundWorker {
+                WorkerReportsProgress = false,
+                WorkerSupportsCancellation = false
+            };
+            bwUpdater.DoWork += new DoWorkEventHandler(checkForDevBuild);
+            bwUpdater.RunWorkerCompleted += new RunWorkerCompletedEventHandler(checkForDevBuild_completed);
+            bwUpdater.RunWorkerAsync();
+        }
+
+        private void checkForDevBuild(object sender, DoWorkEventArgs e) {
+            string releaseURL = "https://github.com/phw198/OutlookGoogleCalendarSync/discussions/1888";
+            string releaseVersion = null;
+            string releaseType = "Development Build";
+
+            log.Debug($"Checking for {releaseType} ZIP update...");
+            string html = "";
+            String errorDetails = "";
+            try {
+                html = new Extensions.OgcsWebClient().DownloadString(releaseURL);
+            } catch (System.Net.WebException ex) {
+                if (ex.GetErrorCode() == "0x80131509")
+                    log.Warn("Failed to retrieve data (no network?): " + ex.Message);
+                else
+                    ex.Analyse("Failed to retrieve data");
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to retrieve data: ");
+            }
+
+            if (!string.IsNullOrEmpty(html)) {
+                log.Debug($"Finding {releaseType} release...");
+                MatchCollection release = getRelease(html, @"<a href=""(.*?)"" id=""user-content-latestbuild"">(?<version>[\d\.]+)<\/a>");
+                if (release.Count > 0)
+                    releaseVersion = release[0].Groups["version"].Value;
+            }
+
+            if (releaseVersion != null) {
+                Int32 releaseNum = Program.VersionToInt(releaseVersion);
+                Int32 myReleaseNum = Program.VersionToInt(Application.ProductVersion);
+                if (releaseNum > myReleaseNum) {
+                    log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
+                    DialogResult dr = Ogcs.Extensions.MessageBox.Show("A new " + releaseType + " release is available for OGCS.\r\nWould you like to upgrade to v" + releaseVersion + "?", "New OGCS Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dr == DialogResult.Yes) {
+                        Helper.OpenBrowser(releaseURL);
+                    }
+                } else {
+                    log.Info("Already on latest Development Build release.");
+                    if (isManualCheck) {
+                        Ogcs.Extensions.MessageBox.Show($"You are already on the latest {releaseType} release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            } else {
+                log.Info($"Did not find {releaseType} release.");
+                if (isManualCheck) Ogcs.Extensions.MessageBox.Show($"Failed to check for {releaseType} release." + (string.IsNullOrEmpty(errorDetails) ? "" : "\r\n" + errorDetails),
+                    "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void checkForDevBuild_completed(object sender, RunWorkerCompletedEventArgs e) {
+            if (isManualCheck)
+                Forms.Main.Instance.btCheckForUpdate.Text = "Check For Update";
         }
         #endregion
     }
