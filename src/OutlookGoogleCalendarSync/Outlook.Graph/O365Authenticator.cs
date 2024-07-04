@@ -41,6 +41,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (this.Authenticated && authResult != null && !AgedAccessToken) return;
 
             this.nonInteractiveAuth = nonInteractiveAuth;
+            Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
+
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
             oAuth.Start();
             while (oAuth.IsAlive) {
@@ -104,7 +106,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (this.nonInteractiveAuth) return false;
                 new System.Threading.Thread(() => {
                     //Otherwise the subsequent async oAuthApp calls fail!!
-                    Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Microsoft", Console.Markup.h2, newLine: false, verbose: true);
+                    Forms.Main.Instance.Console.Update("Preparing to authenticate with Google.", verbose: true);
                 }).Start();
 
                 try {
@@ -157,6 +159,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 #pragma warning restore 1998
 
             Authenticated = true;
+            Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
             return Authenticated;
         }
 
