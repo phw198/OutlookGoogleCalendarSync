@@ -564,11 +564,15 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTime = ai.Start.SafeDateTime();
-                ev.End.DateTime = ai.End.SafeDateTime();
-            }
-            //ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
+                ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToLocalTime().ToPreciseString();
+                String startTimeZone = string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone;
+                ev.Start.TimeZone = TimezoneDB.IANAtimezone(startTimeZone, startTimeZone);
 
+                ev.End.DateTimeRaw = ai.End.SafeDateTime().ToLocalTime().ToPreciseString();
+                String endTimeZone = string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone;
+                ev.End.TimeZone = startTimeZone == endTimeZone ? ev.Start.TimeZone : TimezoneDB.IANAtimezone(endTimeZone, endTimeZone);
+            }
+            
             ev.Summary = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, null, Sync.Direction.OutlookToGoogle);
             if (profile.AddDescription)
                 ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body.BodyInnerHtml(), null, Sync.Direction.OutlookToGoogle);
@@ -622,83 +626,81 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return ev;
         }
 
-        /*
-                private Event createCalendarEntry_save(Event ev, AppointmentItem ai) {
-                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+        private static Event createCalendarEntry_save(Event ev, Microsoft.Graph.Event ai) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                        log.Debug("Saving timestamp when OGCS created event.");
-                        CustomProperty.SetOGCSlastModified(ref ev);
-                    }
-                    if (Settings.Instance.APIlimit_inEffect) {
-                        CustomProperty.Add(ref ev, CustomProperty.MetadataId.apiLimitHit, "True");
-                    }
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                log.Debug("Saving timestamp when OGCS created event.");
+                Google.CustomProperty.SetOGCSlastModified(ref ev);
+            }
+            if (Settings.Instance.APIlimit_inEffect) {
+                Google.CustomProperty.Add(ref ev, Google.CustomProperty.MetadataId.apiLimitHit, "True");
+            }
 
-                    Event createdEvent = new Event();
-                    int backoff = 0;
-                    while (backoff < BackoffLimit) {
-                        try {
-                            EventsResource.InsertRequest request = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
-                            request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
-                            createdEvent = request.Execute();
-                            if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
-                                log.Info("API limit for attendee sync lifted :-)");
-                                Settings.Instance.APIlimit_inEffect = false;
+            Event createdEvent = new Event();
+            int backoff = 0;
+            while (backoff < Google.Calendar.BackoffLimit) {
+                try {
+                    EventsResource.InsertRequest request = Google.Calendar.Instance.Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
+                    request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
+                    createdEvent = request.Execute();
+                    if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
+                        log.Info("API limit for attendee sync lifted :-)");
+                        Settings.Instance.APIlimit_inEffect = false;
+                    }
+                    break;
+                } catch (global::Google.GoogleApiException ex) {
+                    switch (Google.Calendar.HandleAPIlimits(ref ex, ev)) {
+                        case Google.Calendar.ApiException.throwException: throw;
+                        case Google.Calendar.ApiException.freeAPIexhausted:
+                            Ogcs.Exception.LogAsFail(ref ex);
+                            Ogcs.Exception.Analyse(ex);
+                            System.ApplicationException aex = new System.ApplicationException(Google.Calendar.Instance.SubscriptionInvite, ex);
+                            Ogcs.Exception.LogAsFail(ref aex);
+                            throw aex;
+                        case Google.Calendar.ApiException.justContinue: break;
+                        case Google.Calendar.ApiException.backoffThenRetry:
+                            backoff++;
+                            if (backoff == Google.Calendar.BackoffLimit) {
+                                log.Error("API limit backoff was not successful. Save failed.");
+                                throw;
+                            } else {
+                                int backoffDelay = (int)Math.Pow(2, backoff);
+                                log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
                             break;
-                        } catch (global::Google.GoogleApiException ex) {
-                            switch (HandleAPIlimits(ref ex, ev)) {
-                                case ApiException.throwException: throw;
-                                case ApiException.freeAPIexhausted:
-                                    Ogcs.Exception.LogAsFail(ref ex);
-                                    Ogcs.Exception.Analyse(ex);
-                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
-                                    Ogcs.Exception.LogAsFail(ref aex);
-                                    throw aex;
-                                case ApiException.justContinue: break;
-                                case ApiException.backoffThenRetry:
-                                    backoff++;
-                                    if (backoff == BackoffLimit) {
-                                        log.Error("API limit backoff was not successful. Save failed.");
-                                        throw;
-                                    } else {
-                                        int backoffDelay = (int)Math.Pow(2, backoff);
-                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
-                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
-                                    }
-                                    break;
-                            }
-                        }
                     }
-
-                    if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
-                        log.Debug("Storing the Google event IDs in Outlook appointment.");
-                        Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
-                        Outlook.CustomProperty.SetOGCSlastModified(ref ai);
-                        ai.Save();
-                    }
-
-                    if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
-                        log.Info("Adding GMeet conference details.");
-                        String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
-                        Ogcs.Google.GMeet.GoogleMeet(createdEvent, outlookGMeet);
-                        createdEvent = patchEvent(createdEvent) ?? createdEvent;
-                        log.Fine("Conference data added.");
-                    }
-
-                    #region DOS ourself by triggering API limit
-                    //for (int i = 1; i <= 100; i++) {
-                    //    Forms.Main.Instance.Console.Update("Add #" + i, verbose: true);
-                    //    Event result = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Execute();
-                    //    System.Threading.Thread.Sleep(300);
-                    //    Ogcs.Google.Calendar.Instance.deleteCalendarEntry_save(result);
-                    //    System.Threading.Thread.Sleep(300);
-                    //}
-                    #endregion
-
-                    return createdEvent;
                 }
-        */
+            }
+
+            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.Graph.O365CustomProperty.ExistAnyGoogleIDs(ai))) {
+                log.Debug("Storing the Google event IDs in Outlook appointment.");
+                Outlook.Graph.O365CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                Outlook.Graph.O365CustomProperty.SetOGCSlastModified(ref ai);
+                Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref ai);
+            }
+
+            /*if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
+                log.Info("Adding GMeet conference details.");
+                String outlookGMeet = Outlook.GMeet.RgxGmeetUrl().Match(ai.Body).Value;
+                Ogcs.Google.GMeet.GoogleMeet(createdEvent, outlookGMeet);
+                createdEvent = patchEvent(createdEvent) ?? createdEvent;
+                log.Fine("Conference data added.");
+            }*/
+
+            #region DOS ourself by triggering API limit
+            //for (int i = 1; i <= 100; i++) {
+            //    Forms.Main.Instance.Console.Update("Add #" + i, verbose: true);
+            //    Event result = service.Events.Insert(ev, Settings.Instance.UseGoogleCalendar.Id).Execute();
+            //    System.Threading.Thread.Sleep(300);
+            //    Ogcs.Google.Calendar.Instance.deleteCalendarEntry_save(result);
+            //    System.Threading.Thread.Sleep(300);
+            //}
+            #endregion
+
+            return createdEvent;
+        }
         #endregion
 
         #region Update
@@ -1430,7 +1432,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             SettingsStore.Calendar profile,
             ref List<Microsoft.Graph.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare) 
+            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare)
         {
             Forms.Main.Instance.Console.Update("Matching calendar items...");
 
