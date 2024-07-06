@@ -157,7 +157,7 @@ namespace OutlookGoogleCalendarSync {
         /// Convert IANA timezone to a UTC offset.
         /// </summary>
         /// <param name="IanaTimezone">eg "America/Vancouver"</param>
-        /// <returns>The offset eg -7</returns>
+        /// <returns>The offset in minutes eg -7 hours as -420</returns>
         public static Int16 GetUtcOffset(String IanaTimezone) {
             Int16 utcOffset = 0;
             try {
@@ -168,7 +168,7 @@ namespace OutlookGoogleCalendarSync {
                     NodaTime.DateTimeZone tz = tzProvider[IanaTimezone];
                     NodaTime.Instant instant = NodaTime.Instant.FromDateTimeUtc(DateTime.UtcNow);
                     NodaTime.Offset offset = tz.GetUtcOffset(instant);
-                    utcOffset = Convert.ToInt16(offset.Seconds / 3600);
+                    utcOffset = Convert.ToInt16(offset.Seconds / 60);
                 }
             } catch (System.Exception ex) {
                 ex.Analyse("Not able to convert IANA timezone '" + IanaTimezone + "' to UTC offset.");

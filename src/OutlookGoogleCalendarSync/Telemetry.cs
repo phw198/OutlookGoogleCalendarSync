@@ -83,11 +83,14 @@ namespace OutlookGoogleCalendarSync {
         public String City { get; private set; }
 
         public Telemetry() {
-            getIpGeoData().ConfigureAwait(false);
+            new System.Threading.Thread(() => { _ = getIpGeoData(); }).Start();
         }
 
         private async Task getIpGeoData() {
             try {
+                while (!Settings.AreLoaded) {
+                    System.Threading.Thread.Sleep(1000);
+                }
                 using (Extensions.OgcsWebClient wc = new()) {
                     //https://api.country.is/
                     String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
@@ -105,6 +108,7 @@ namespace OutlookGoogleCalendarSync {
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not get IP geolocation.");
             }
+            new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
         }
 
         /// <summary>
@@ -123,10 +127,10 @@ namespace OutlookGoogleCalendarSync {
         public static void TrackSync() {
             if (Program.InDeveloperMode) return;
             Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
-            Telemetry.GA4Event.Event syncGa4Ev = new(Telemetry.GA4Event.Event.Name.sync);
-            syncGa4Ev.AddParameter(GA4.General.type, "calendar");
-            syncGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
-            syncGa4Ev.Send();
+            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.sync)
+                .AddParameter(GA4.General.type, "calendar")
+                .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
+                .Send();
         }
 
         /// <summary>
@@ -250,7 +254,7 @@ namespace OutlookGoogleCalendarSync {
                     name = eventName.ToString();
                 }
 
-                public void AddParameter(Object parameterName, Object parameterValue) {
+                public Event AddParameter(Object parameterName, Object parameterValue) {
                     if (parameters == null)
                         parameters = new Dictionary<String, Object>();
 
@@ -267,6 +271,7 @@ namespace OutlookGoogleCalendarSync {
                         parameterValue ??= "";
                         parameters[strParamName] = parameterValue.ToString().Substring(0, Math.Min(parameterValue.ToString().Length, 100));
                     }
+                    return this;
                 }
 
                 /// <summary>
