@@ -98,13 +98,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
                 */
                 //Sync
-                /*
                 if (this.Profile.SyncDirection.Id != Direction.GoogleToOutlook.Id) {
                     success = outlookToGoogle(outlookEntries, googleEntries, ref bubbleText);
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                 }
                 if (!success) return SyncResult.Fail;
-                */
                 if (this.Profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) {
                     if (bubbleText != "") bubbleText += "\r\n";
                     success = googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
@@ -117,9 +115,132 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (Settings.Instance.ShowSystemNotifications &&
                         (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
                 }
-                /*
-                */
+
                 return SyncResult.OK;
+            }
+
+            private Boolean outlookToGoogle(List<Microsoft.Graph.Event> outlookEntries, List<GcalData.Event> googleEntries, ref String bubbleText) {
+                log.Debug("Synchronising from Outlook to Google.");
+                if (this.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
+                    Forms.Main.Instance.Console.Update("Syncing " + Sync.Direction.OutlookToGoogle.Name, Console.Markup.syncDirection, newLine: false);
+
+                //  Make copies of each list of events (Not strictly needed)
+                List<Microsoft.Graph.Event> googleEntriesToBeCreated = new(outlookEntries);
+                List<GcalData.Event> googleEntriesToBeDeleted = new(googleEntries);
+                Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared = new();
+
+                Console console = Forms.Main.Instance.Console;
+
+                DateTime timeSection = DateTime.Now;
+                try {
+                    Ogcs.Google.Graph.Calendar.IdentifyEventDifferences(ref googleEntriesToBeCreated, ref googleEntriesToBeDeleted, ref entriesToBeCompared);
+                    if (Sync.Engine.Instance.CancellationPending) return false;
+                } catch (System.Exception) {
+                    console.Update("Unable to identify differences in Google calendar.", Console.Markup.error);
+                    throw;
+                }
+                TimeSpan sectionDuration = DateTime.Now - timeSection;
+                if (sectionDuration.TotalSeconds > 30) {
+                    log.Warn("That step took a long time! Issue #599");
+                    Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Graph.Google.Calendar.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
+                    new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.debug)
+                        .AddParameter(GA4.General.github_issue, 599)
+                        .AddParameter("section", "Ogcs.Google.Calendar.Instance.IdentifyEventDifferences()")
+                        .AddParameter("duration", sectionDuration.TotalSeconds)
+                        .AddParameter("items", entriesToBeCompared.Count)
+                        .Send();
+                }
+
+                StringBuilder sb = new StringBuilder();
+                console.BuildOutput(googleEntriesToBeDeleted.Count + " Google calendar entries to be deleted.", ref sb, false);
+                console.BuildOutput(googleEntriesToBeCreated.Count + " Google calendar entries to be created.", ref sb, false);
+                console.BuildOutput(entriesToBeCompared.Count + " calendar entries to be compared.", ref sb, false);
+                console.Update(sb, Console.Markup.info, logit: true);
+
+                //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
+                if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
+                    googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
+                    if (Ogcs.Extensions.MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
+                        "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+                        googleEntriesToBeDeleted = new();
+
+                    } else if (this.Profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id &&
+                        Ogcs.Extensions.MessageBox.Show("If you are syncing an Apple iCalendar from Outlook and get the 'mass deletion' warning for every sync, " +
+                        "would you like to read up on a potential solution?", "iCal Syncing?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                        Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Syncing-Apple-iCalendar-in-Outlook-causes-'mass-deletion'-warnings");
+                    }
+                }
+
+                int entriesUpdated = 0;
+                try {
+                    #region Delete Google Entries
+                    if (googleEntriesToBeDeleted.Count > 0) {
+                        console.Update("Deleting " + googleEntriesToBeDeleted.Count + " Google calendar entries", Console.Markup.h2, newLine: false);
+                        try {
+                            Ogcs.Google.Calendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
+                        } catch (UserCancelledSyncException ex) {
+                            log.Info(ex.Message);
+                            return false;
+                        } catch (System.Exception ex) {
+                            console.UpdateWithError("Unable to delete obsolete entries in Google calendar.", ex);
+                            throw;
+                        }
+                        log.Info("Done.");
+                    }
+
+                    if (Sync.Engine.Instance.CancellationPending) return false;
+                    #endregion
+
+                    #region Create Google Entries
+                    if (googleEntriesToBeCreated.Count > 0) {
+                        console.Update("Creating " + googleEntriesToBeCreated.Count + " Google calendar entries", Console.Markup.h2, newLine: false);
+                        try {
+                            Ogcs.Google.Graph.Calendar.CreateCalendarEntries(googleEntriesToBeCreated);
+                        } catch (UserCancelledSyncException ex) {
+                            log.Info(ex.Message);
+                            return false;
+                        } catch (System.Exception ex) {
+                            console.UpdateWithError("Unable to add new entries into the Google Calendar.", ex);
+                            throw;
+                        }
+                        log.Info("Done.");
+                    }
+
+                    if (Sync.Engine.Instance.CancellationPending) return false;
+                    #endregion
+
+/*
+                    #region Update Google Entries
+                    if (entriesToBeCompared.Count > 0) {
+                        console.Update("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries", Console.Markup.h2, newLine: false);
+                        try {
+                            Ogcs.Google.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                        } catch (UserCancelledSyncException ex) {
+                            log.Info(ex.Message);
+                            return false;
+                        } catch (System.Exception ex) {
+                            console.UpdateWithError("Unable to update existing entries in the Google calendar.", ex);
+                            throw;
+                        }
+                        console.Update(entriesUpdated + " entries updated.");
+                    }
+
+                    if (Sync.Engine.Instance.CancellationPending) return false;
+                    #endregion*/
+
+                } finally {
+                    bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
+                        googleEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
+
+                    if (this.Profile.SyncDirection.Id == Direction.OutlookToGoogle.Id) {
+                        while (entriesToBeCompared.Count() > 0) {
+                            Outlook.Calendar.ReleaseObject(entriesToBeCompared.Keys.Last());
+                            entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
+                        }
+                    }
+                }
+                return true;
             }
 
             private Boolean googleToOutlook(List<GcalData.Event> googleEntries, List<Microsoft.Graph.Event> outlookEntries, ref String bubbleText) {
@@ -236,8 +357,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 }
                 return true;
             }
-
-
         }
     }
 }

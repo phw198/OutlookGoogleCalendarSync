@@ -26,7 +26,10 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTime</returns>
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
-            return System.DateTime.Parse(evDt.DateTime);
+            if (evDt.TimeZone == "UTC")
+                return System.DateTime.Parse(evDt.DateTime);
+            else
+                throw new ApplicationException($"Unexpected timezone '{evDt.TimeZone}' in Microsoft DateTimeTimeZone. The offset from UTC needs calculating.");
         }
 
         /// <summary>

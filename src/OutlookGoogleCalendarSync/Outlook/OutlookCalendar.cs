@@ -1670,11 +1670,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } else
                         return false;
                 }
-                return isOKtoSyncReminder(alarm);
+                return IsOKtoSyncReminder(alarm);
             }
             return true;
         }
-        private Boolean isOKtoSyncReminder(System.DateTime alarm) {
+        public Boolean IsOKtoSyncReminder(System.DateTime alarm) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.ReminderDNDstart.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {

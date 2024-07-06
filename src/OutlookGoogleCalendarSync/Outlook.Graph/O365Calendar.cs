@@ -1,6 +1,7 @@
 ﻿using log4net;
 using Microsoft.Graph;
 using OutlookGoogleCalendarSync.Extensions;
+using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -336,16 +337,24 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            ai.Start = new DateTimeTimeZone() { DateTime = ev.Start.DateTimeRaw };
+            Int16 offset = 0;
+            ai.Start = new DateTimeTimeZone();
             if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
+                offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
                 log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                 ai.Start.TimeZone = ev.Start.TimeZone;
             }
-            ai.End = new DateTimeTimeZone() { DateTime = ev.End.DateTimeRaw };
+            ai.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+
+            offset = 0;
+            ai.End = new DateTimeTimeZone();
             if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
+                offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
                 log.Fine("Has ending timezone: " + ev.End.TimeZone);
                 ai.End.TimeZone = ev.End.TimeZone;
             }
+            ai.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+            
             ai.IsAllDay = ev.AllDayEvent();
 
             //Recurrence.Instance.BuildOutlookPattern(ev, ai);
@@ -470,7 +479,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 if (itemModified > 0) {
                     try {
-                        updateCalendarEntry_save(ref aiPatch);
+                        UpdateCalendarEntry_save(ref aiPatch);
                         ai = aiPatch;
                         entriesUpdated++;
                     } catch (System.Exception ex) {
@@ -551,13 +560,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean endTzChange = Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.GoogleToOutlook,
                 string.IsNullOrEmpty(ev.End.TimeZone) ? "UTC" : ev.End.TimeZone, string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone, sb, ref itemModified);
 
-            Int16 offset = 0;
             if (startChange || startTzChange || endChange || endTzChange) {
+                Int16 offset = 0;
                 offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
                 aiPatch.Start = ai.Start;
                 aiPatch.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
                 aiPatch.Start.TimeZone = ev.Start.TimeZone;
-            
+
                 offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
                 aiPatch.End = ai.End;
                 aiPatch.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
@@ -627,11 +636,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //String oGMeetUrl = O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gMeetUrl);
 
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
-                    String aiBody = ai.Body.Content.RemoveLineBreaks();
+                    String aiBody = ai.Body.BodyInnerHtml();
                     Boolean descriptionChanged = false;
                     if (!String.IsNullOrEmpty(aiBody)) {
-                        Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
-                        aiBody = htmlBodyTag.Match(aiBody).Groups["body"]?.Value ?? "";
                         /*Regex htmlDataTag = new Regex(@"<data:image.*?>");
                         aiBody = htmlDataTag.Replace(aiBody, "").Trim();
                         OlBodyFormat bodyFormat = ai.BodyFormat();
@@ -851,7 +858,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return true;
         }
 
-        private void updateCalendarEntry_save(ref Microsoft.Graph.Event ai) {
+        public void UpdateCalendarEntry_save(ref Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             /*if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
@@ -1218,6 +1225,24 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return false;
         }
 
+        public Boolean IsOKtoSyncReminder(Microsoft.Graph.Event ai) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+
+            if (profile.ReminderDND) {
+                System.DateTime alarm;
+                if ((bool)ai.IsReminderOn)
+                    alarm = ai.Start.SafeDateTime().AddMinutes((int)-ai.ReminderMinutesBeforeStart);
+                else {
+                    if (profile.UseGoogleDefaultReminder && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
+                        log.Fine("Using default Google reminder value: " + Ogcs.Google.Calendar.Instance.MinDefaultReminder);
+                        alarm = ai.Start.SafeDateTime().AddMinutes(-Ogcs.Google.Calendar.Instance.MinDefaultReminder);
+                    } else
+                        return false;
+                }
+                return Outlook.Calendar.Instance.IsOKtoSyncReminder(alarm);
+            }
+            return true;
+        }
         #endregion
     }
 }

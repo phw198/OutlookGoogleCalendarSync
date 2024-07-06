@@ -784,13 +784,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             try {
                 try {
-                    ev.Start.TimeZone = IANAtimezone(organiserTZid ?? ai.StartTimeZone.ID, organiserTZname ?? ai.StartTimeZone.Name);
+                    ev.Start.TimeZone = TimezoneDB.IANAtimezone(organiserTZid ?? ai.StartTimeZone.ID, organiserTZname ?? ai.StartTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set start timezone. [" + ai.StartTimeZone.ID + ", " + ai.StartTimeZone.Name + "]");
                 }
                 try {
-                    ev.End.TimeZone = IANAtimezone(organiserTZid ?? ai.EndTimeZone.ID, organiserTZname ?? ai.EndTimeZone.Name);
+                    ev.End.TimeZone = TimezoneDB.IANAtimezone(organiserTZid ?? ai.EndTimeZone.ID, organiserTZname ?? ai.EndTimeZone.Name);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                     throw new ApplicationException("Failed to set end timezone. [" + ai.EndTimeZone.ID + ", " + ai.EndTimeZone.Name + "]");
@@ -799,29 +799,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 log.Warn(ex.Message);
             }
             return ev;
-        }
-
-        private String IANAtimezone(String oTZ_id, String oTZ_name) {
-            //Convert from Windows Timezone to Iana
-            //Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
-            //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
-            if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
-                return "Etc/UTC";
-            }
-
-            NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
-            String retVal = null;
-            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
-                log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
-            else {
-                if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
-                    log.Debug("Continuing to use Kiev instead of Kyiv.");
-                else
-                    retVal = tzDBsource.CanonicalIdMap[retVal];
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
-            }
-            return retVal;
         }
 
         public void WindowsTimeZone_get(AppointmentItem ai, out String startTz, out String endTz) {

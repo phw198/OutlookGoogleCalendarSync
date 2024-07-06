@@ -1,4 +1,7 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
+﻿using OutlookGoogleCalendarSync.Extensions;
+using System;
+using System.Text.RegularExpressions;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.GraphExtension {
 
@@ -14,6 +17,12 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
                     return ext;
             }
             return null;
+        }
+
+        /// <summary>Just the HTML within the <body> tags</summary>
+        public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
+            Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
+            return htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
         }
     }
 }
