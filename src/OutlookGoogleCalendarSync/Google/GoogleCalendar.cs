@@ -1897,7 +1897,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <summary>
         /// Determine Event's availability setting
         /// </summary>
-        /// <param name="oSsensitivity">Outlook's current setting</param>
+        /// <param name="oBusyStatus">Outlook's current setting</param>
         /// <param name="gTransparency">Google's current setting</param>
         private String getAvailability(OlBusyStatus oBusyStatus, String gTransparency) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
