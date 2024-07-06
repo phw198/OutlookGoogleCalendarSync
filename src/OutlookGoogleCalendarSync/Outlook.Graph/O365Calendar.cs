@@ -772,11 +772,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 bool gOptional = attendee.Optional ?? false;
                                 if (Sync.Engine.CompareAttribute("Attendee " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address) + " - Optional Check",
                                     Sync.Direction.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
-                                    if (gOptional) {
-                                        recipient.Type = AttendeeType.Optional;
-                                    } else {
-                                        recipient.Type = AttendeeType.Required;
-                                    }
+                                    recipient.Type = gOptional ? AttendeeType.Optional : AttendeeType.Required;
                                 }
                                 //Response status
                                 Attendee compareRecipient = createRecipient(attendee);

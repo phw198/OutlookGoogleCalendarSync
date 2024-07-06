@@ -210,12 +210,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (Sync.Engine.Instance.CancellationPending) return false;
                     #endregion
 
-/*
                     #region Update Google Entries
                     if (entriesToBeCompared.Count > 0) {
                         console.Update("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries", Console.Markup.h2, newLine: false);
                         try {
-                            Ogcs.Google.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                            Ogcs.Google.Graph.Calendar.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
                             return false;
@@ -227,7 +226,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                     if (Sync.Engine.Instance.CancellationPending) return false;
-                    #endregion*/
+                    #endregion
 
                 } finally {
                     bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
