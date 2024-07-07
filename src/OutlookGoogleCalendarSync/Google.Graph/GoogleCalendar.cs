@@ -674,10 +674,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 }
             }
 
-            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.Graph.O365CustomProperty.ExistAnyGoogleIDs(ai))) {
+            if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.Graph.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
-                Outlook.Graph.O365CustomProperty.AddGoogleIDs(ref ai, createdEvent);
-                Outlook.Graph.O365CustomProperty.SetOGCSlastModified(ref ai);
+                Outlook.Graph.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                Outlook.Graph.CustomProperty.SetOGCSlastModified(ref ai);
                 Microsoft.Graph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                 Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                 ai = aiPatch;
@@ -790,7 +790,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         if (ev.Updated > ai.LastModifiedDateTime)
                             return null;
                     } else {
-                        if (Outlook.Graph.O365CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime) {
+                        if (Outlook.Graph.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime) {
                             log.Fine("Outlook last modified by OGCS.");
                             return null;
                         }
@@ -1562,7 +1562,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             //Check if Outlook items to be created were filtered out from Google
                             for (int o = outlook.Count - 1; o >= 0; o--) {
                                 if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsValue(outlook[o].Id) ||
-                                    Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(Outlook.Graph.O365CustomProperty.Get(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID) ?? "")) {
+                                    Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(Outlook.Graph.CustomProperty.Get(outlook[o], Outlook.Graph.CustomProperty.MetadataId.gEventID) ?? "")) {
                                     outlook.Remove(outlook[o]);
                                 }
                             }
@@ -1579,7 +1579,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                             //Don't recreate any items that have been deleted in Google
                             for (int o = outlook.Count - 1; o >= 0; o--) {
-                                if (Outlook.Graph.O365CustomProperty.Exists(outlook[o], Outlook.Graph.O365CustomProperty.MetadataId.gEventID))
+                                if (Outlook.Graph.CustomProperty.Exists(outlook[o], Outlook.Graph.CustomProperty.MetadataId.gEventID))
                                     outlook.Remove(outlook[o]);
                             }
                             //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
