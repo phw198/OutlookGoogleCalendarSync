@@ -2249,7 +2249,7 @@ namespace OutlookGoogleCalendarSync.Google {
             log.Fail(ex.Message);
 
             try {
-                Telemetry.GA4Event.Event apiGa4Ev = new(Telemetry.GA4Event.Event.Name.error);
+                Telemetry.GA4Event.Event apiGa4Ev = new(Telemetry.GA4Event.Event.Name.ogcs_error);
                 apiGa4Ev.AddParameter("api_google_error", ex.Message);
                 apiGa4Ev.AddParameter("code", ex.Error?.Code);
                 apiGa4Ev.AddParameter("domain", ex.Error?.Errors?.First().Domain);

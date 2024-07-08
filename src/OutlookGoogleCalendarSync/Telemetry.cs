@@ -240,7 +240,7 @@ namespace OutlookGoogleCalendarSync {
                     application_started,
                     debug,
                     donate,
-                    error,
+                    ogcs_error,
                     setting,
                     squirrel,
                     sync

@@ -1245,7 +1245,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String wikiUrl = "";
             Regex rgx;
 
-            Telemetry.GA4Event.Event comGa4Ev = new(Telemetry.GA4Event.Event.Name.error);
+            Telemetry.GA4Event.Event comGa4Ev = new(Telemetry.GA4Event.Event.Name.ogcs_error);
             comGa4Ev.AddParameter("com_object", hResult);
             comGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
             comGa4Ev.Send();
