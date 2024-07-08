@@ -606,7 +606,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (bodyFormat != OlBodyFormat.olFormatUnspecified)
                             aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, bodyFormat).RemoveLineBreaks(), "").Trim();
                     }
-                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, Regex.Replace(ev.Description ?? "", @"[\u00A0]", "  "), aiBody, Sync.Direction.GoogleToOutlook);
+                    String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description?.RemoveNBSP(), aiBody, Sync.Direction.GoogleToOutlook);
                     if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
@@ -1245,10 +1245,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String wikiUrl = "";
             Regex rgx;
 
-            Telemetry.GA4Event.Event comGa4Ev = new(Telemetry.GA4Event.Event.Name.ogcs_error);
-            comGa4Ev.AddParameter("com_object", hResult);
-            comGa4Ev.AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs);
-            comGa4Ev.Send();
+            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
+                .AddParameter("com_object", hResult)
+                .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
+                .Send();
 
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);
