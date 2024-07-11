@@ -22,9 +22,9 @@ namespace OutlookGoogleCalendarSync {
         }
 
         [DataMember]
-        private String Name { get; set; }
+        public String Name { get; protected set; }
         [DataMember]
-        public String Id { get; internal set; }
+        public String Id { get; protected set; }
         [DataMember]
         private String AccessRole { get; set; }
         private String colourId = "0";
@@ -85,9 +85,9 @@ namespace OutlookGoogleCalendarSync {
     [DataContract]
     public class OutlookCalendarListEntry {
         [DataMember]
-        public String Name { get; internal set; }
+        public String Name { get; protected set; }
         [DataMember]
-        public String Id { get; internal set; }
+        public String Id { get; protected set; }
 
         public OutlookCalendarListEntry() {
         }
