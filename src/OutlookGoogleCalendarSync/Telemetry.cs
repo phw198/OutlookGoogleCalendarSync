@@ -111,54 +111,13 @@ namespace OutlookGoogleCalendarSync {
             new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
         }
 
-        /// <summary>
-        /// This can just be removed once Universal Analytics dies
-        /// </summary>
-        public static void TrackVersions() {
-            if (Program.InDeveloperMode) return;
-
-            //OUTLOOK CLIENT
-            Send(Analytics.Category.outlook, Analytics.Action.version, Outlook.Factory.OutlookVersionNameFull.Replace("Outlook", ""));
-
-            //OGCS APPLICATION
-            Send(Analytics.Category.ogcs, Analytics.Action.version, System.Windows.Forms.Application.ProductVersion);
-        }
-
         public static void TrackSync() {
             if (Program.InDeveloperMode) return;
-            Send(Analytics.Category.ogcs, Analytics.Action.sync, "calendar");
+
             new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.sync)
                 .AddParameter(GA4.General.type, "calendar")
                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                 .Send();
-        }
-
-        /// <summary>
-        /// Deprecated Universal Analytics (dies in Jul 2023)
-        /// </summary>
-        public static void Send(Analytics.Category category, Analytics.Action action, String label) {
-            try {
-                String cid = Telemetry.Instance.AnonymousUniqueUserId;
-                String baseAnalyticsUrl = "https://www.google-analytics.com/collect?v=1&t=event&tid=UA-19426033-4&aip=1&cid=" + cid;
-
-                if (action == Analytics.Action.debug) {
-                    label = "v" + System.Windows.Forms.Application.ProductVersion + ";" + label;
-                }
-                String analyticsUrl = baseAnalyticsUrl + "&ec=" + category.ToString() + "&ea=" + action.ToString() + "&el=" + System.Net.WebUtility.UrlEncode(label);
-                log.Debug("Retrieving URL: " + analyticsUrl);
-
-                if (Settings.Instance.TelemetryDisabled || Program.InDeveloperMode) {
-                    log.Debug("Telemetry is disabled.");
-                    return;
-                }
-
-                Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
-                wc.UploadStringCompleted += new UploadStringCompletedEventHandler(sendTelemetry_completed);
-                wc.UploadStringAsync(new Uri(analyticsUrl), "");
-
-            } catch (System.Exception ex) {
-                Ogcs.Exception.Analyse(ex);
-            }
         }
 
         public class GA4Event {

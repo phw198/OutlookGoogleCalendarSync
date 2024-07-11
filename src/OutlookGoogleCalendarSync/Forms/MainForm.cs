@@ -47,7 +47,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             Instance = this;
 
             console = new Console(consoleWebBrowser);
-            Telemetry.TrackVersions();
             updateGUIsettings();
             Settings.Instance.LogSettings();
             NotificationTray = new NotificationTray(this.trayIcon);

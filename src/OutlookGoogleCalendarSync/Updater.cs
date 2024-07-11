@@ -196,18 +196,15 @@ namespace OutlookGoogleCalendarSync {
 
                     if (dr == DialogResult.No || dr == DialogResult.Cancel) {
                         log.Info("User chose not to upgrade right now.");
-                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";later");
                         squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Deferred");
                         squirrelGaEv.Send();
 
                     } else if (dr == DialogResult.Ignore) {
-                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, squirrelAnalyticsLabel + ";skipped");
                         squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Skipped");
                         squirrelGaEv.Send();
 
                     } else if (dr == DialogResult.Yes) {
                         try {
-                            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, squirrelAnalyticsLabel + ";successful");
                             squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Upgrade");
 
                             log.Info("Applying the updated release(s)...");
@@ -279,7 +276,6 @@ namespace OutlookGoogleCalendarSync {
                 }
 
             } catch (ApplicationException ex) {
-                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.download, ex.Data["analyticsLabel"] + ";failed");
                 throw;
             } catch (System.AggregateException ae) {
                 log.Fail("Failed checking for update.");
@@ -330,7 +326,6 @@ namespace OutlookGoogleCalendarSync {
                 var migrator = new ClickOnceToSquirrelMigrator.InSquirrelAppMigrator(Application.ProductName);
                 migrator.Execute().Wait();
                 log.Info("ClickOnce install has been removed.");
-                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, "clickonce");
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
                     .AddParameter(GA4.Squirrel.uninstall, "clickonce")
                     .Send();
@@ -355,7 +350,6 @@ namespace OutlookGoogleCalendarSync {
                 log.Error("Problem encountered on initiall install.");
                 Ogcs.Exception.Analyse(ex, true);
             }
-            Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.install, version.ToString());
             new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
                 .AddParameter(GA4.Squirrel.install, version.ToString())
                 .Send();
@@ -384,13 +378,11 @@ namespace OutlookGoogleCalendarSync {
                     log.Debug("Removing registry uninstall keys.");
                     mgr.RemoveUninstallerRegistryEntry();
                 }
-                Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, version.ToString());
                 Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
                 squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString());
                 if (Ogcs.Extensions.MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     log.Debug("User opted to give feedback.");
-                    Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.uninstall, Application.ProductVersion + "-feedback");
                     squirrelGaEv.AddParameter(GA4.Squirrel.feedback, true);
                     Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
                 } else {
