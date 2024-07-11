@@ -90,6 +90,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Sync.Engine.SyncResult syncResult = Sync.Engine.SyncResult.Fail;
                     int failedAttempts = 0;
                     Telemetry.TrackSync();
+                    System.Diagnostics.Stopwatch stopwatch = new();
+                    stopwatch.Start();
 
                     while ((syncResult == Sync.Engine.SyncResult.Fail || syncResult == Sync.Engine.SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                         if (failedAttempts > (syncResult == Sync.Engine.SyncResult.ReconnectThenRetry ? 1 : 0)) {
@@ -193,6 +195,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             failedAttempts += (syncResult != SyncResult.OK) ? 1 : 0;
                         }
                     }
+                    stopwatch.Stop();
 
                     if (syncResult == SyncResult.OK) {
                         Settings.Instance.CompletedSyncs++;
@@ -200,6 +203,22 @@ namespace OutlookGoogleCalendarSync.Sync {
                         mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
                         mainFrm.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null, false);
                         mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null, false);
+
+                        String syncStats = $"<div style='color: grey; font-size: 11px'>Duration: " +
+                            (stopwatch.Elapsed.TotalMinutes >= 1 ? $"{stopwatch.Elapsed.Minutes}m" : "") + stopwatch.Elapsed.Seconds + "s<br/>" +
+                            $"Syncs completed: {Settings.Instance.CompletedSyncs}";
+                        if (!Settings.Instance.UserIsBenefactor()) {
+                            syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
+                                Settings.Instance.GaccountEmail + "' target='_blank' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
+                            Telemetry.GA4Event donateEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate);
+                            donateEvent.events[0]
+                                .AddParameter("source", "console")
+                                .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
+                                .AddParameter("account_present", true);
+                            mainFrm.Console.Update("<script>var donateEvent = JSON.stringify(" + Newtonsoft.Json.JsonConvert.SerializeObject(donateEvent).Replace("parameters", "params") + ");</script>", newLine: false);
+                        }
+                        mainFrm.Console.Update(syncStats, newLine: false);
+
                     } else if (syncResult == SyncResult.AutoRetry) {
                         this.consecutiveSyncFails++;
                         mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + this.consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);

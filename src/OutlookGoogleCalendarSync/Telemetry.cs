@@ -211,6 +211,7 @@ namespace OutlookGoogleCalendarSync {
 
                 public Event(Name eventName) {
                     name = eventName.ToString();
+                    AddParameter("engagement_time_msec", 1);
                 }
 
                 public Event AddParameter(Object parameterName, Object parameterValue) {
@@ -259,27 +260,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
             }
-        }
-    }
-
-    public class Analytics {
-        private static readonly ILog log = LogManager.GetLogger(typeof(Analytics));
-
-        public enum Category {
-            ogcs,
-            outlook,
-            squirrel
-        }
-        public enum Action {
-            debug,      //ogcs
-            donate,     //ogcs
-            download,   //squirrel
-            install,    //squirrel
-            setting,    //ogcs
-            sync,       //ogcs
-            uninstall,  //squirrel
-            upgrade,    //squirrel
-            version     //outlook,ogcs
         }
     }
 
