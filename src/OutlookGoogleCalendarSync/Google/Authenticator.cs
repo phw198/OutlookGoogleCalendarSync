@@ -199,7 +199,6 @@ namespace OutlookGoogleCalendarSync.Google {
             log.Info("Resetting Google Calendar authentication details.");
             Settings.Instance.AssignedClientIdentifier = "";
             Settings.Instance.GaccountEmail = "";
-            Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", "Not connected");
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
             if (!Ogcs.Google.Calendar.IsInstanceNull) {
@@ -226,7 +225,6 @@ namespace OutlookGoogleCalendarSync.Google {
                     if (!String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                         log.Debug("Looks like the Google account username value has been tampering with? :-O");
                     Settings.Instance.GaccountEmail = email;
-                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", email);
                     log.Debug("Updating Google account username: " + Settings.Instance.GaccountEmail_masked());
                 }
                 getEmailAttempts = 0;

@@ -83,8 +83,6 @@ namespace OutlookGoogleCalendarSync {
             PersonalClientSecret = "";
             DisconnectOutlookBetweenSync = false;
             TimezoneMaps = new TimezoneMappingDictionary();
-            DisconnectOutlookBetweenSync = false;
-            TimezoneMaps = new TimezoneMappingDictionary();
 
             apiLimit_inEffect = false;
             apiLimit_lastHit = DateTime.Parse("01-Jan-2000");
@@ -123,8 +121,8 @@ namespace OutlookGoogleCalendarSync {
             VerboseOutput = true;
         }
 
-        public static Boolean InstanceInitialiased() {
-            return (instance != null);
+        public static Boolean InstanceInitialiased {
+            get { return (instance != null); }
         }
 
         public static Settings Instance {
@@ -152,6 +150,19 @@ namespace OutlookGoogleCalendarSync {
         public class TimezoneMappingDictionary : Dictionary<String, String> { }
         #endregion
         #region Google
+        private String _GaccountEmail;
+        [DataMember] public String GaccountEmail {
+            get { return _GaccountEmail; }
+            set {
+                _GaccountEmail = value;
+                if (!this.Loading())
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tbConnectedAcc, "Text", String.IsNullOrEmpty(value) ? "Not connected" : value);
+            }
+        }
+        public String GaccountEmail_masked() {
+            if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
+            return EmailAddress.MaskAddress(GaccountEmail);
+        }
         [DataMember] public String AssignedClientIdentifier {
             get { return assignedClientIdentifier; }
             set {
@@ -192,11 +203,6 @@ namespace OutlookGoogleCalendarSync {
                 apiLimit_lastHit = value;
                 if (!Loading()) XMLManager.ExportElement(this, "APIlimit_lastHit", value, ConfigFile);
             }
-        }
-        [DataMember] public String GaccountEmail { get; set; }
-        public String GaccountEmail_masked() {
-            if (string.IsNullOrWhiteSpace(GaccountEmail)) return "<null>";
-            return EmailAddress.MaskAddress(GaccountEmail);
         }
         #endregion
         #region App behaviour
@@ -356,7 +362,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public Boolean Loading() {
-            return Program.CalledByProcess("Load,isNewVersion");
+            return Program.CalledByProcess("Load,isNewVersion,parseArgumentsAndInitialise");
         }
 
         public void LogSettings() {
@@ -379,7 +385,7 @@ namespace OutlookGoogleCalendarSync {
         
             log.Info("PROXY:-");
             log.Info("  Type: " + Proxy.Type);
-            if (Proxy.BrowserUserAgent != Proxy.DefaultBrowserAgent)
+            if (Proxy.BrowserUserAgent != SettingsStore.Proxy.DefaultBrowserAgent)
                 log.Info("  Browser Agent: " + Proxy.BrowserUserAgent);
             if (Proxy.Type == "Custom") {
                 log.Info("  Server Name: " + Proxy.ServerName);

@@ -2257,13 +2257,13 @@ namespace OutlookGoogleCalendarSync.Google {
             log.Fail(ex.Message);
 
             try {
-                Telemetry.GA4Event.Event apiGa4Ev = new(Telemetry.GA4Event.Event.Name.error);
-                apiGa4Ev.AddParameter("api_google_error", ex.Message);
-                apiGa4Ev.AddParameter("code", ex.Error?.Code);
-                apiGa4Ev.AddParameter("domain", ex.Error?.Errors?.First().Domain);
-                apiGa4Ev.AddParameter("reason", ex.Error?.Errors?.First().Reason);
-                apiGa4Ev.AddParameter("message", ex.Error?.Errors?.First().Message);
-                apiGa4Ev.Send();
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.error)
+                    .AddParameter("api_google_error", ex.Message)
+                    .AddParameter("code", ex.Error?.Code)
+                    .AddParameter("domain", ex.Error?.Errors?.First().Domain)
+                    .AddParameter("reason", ex.Error?.Errors?.First().Reason)
+                    .AddParameter("message", ex.Error?.Errors?.First().Message)
+                    .Send();
             } catch (System.Exception gaEx) {
                 Ogcs.Exception.Analyse(gaEx);
             }
@@ -2394,7 +2394,7 @@ namespace OutlookGoogleCalendarSync.Google {
         public static Boolean? IsDefaultCalendar() {
             try {
                 SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-                if (!Settings.InstanceInitialiased() || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
+                if (!Settings.InstanceInitialiased || (profile?.UseGoogleCalendar?.Id == null || string.IsNullOrEmpty(Settings.Instance.GaccountEmail)))
                     return null;
 
                 return profile.UseGoogleCalendar.Id == Settings.Instance.GaccountEmail;

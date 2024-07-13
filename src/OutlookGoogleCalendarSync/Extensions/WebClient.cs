@@ -7,7 +7,10 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
         protected override WebRequest GetWebRequest(Uri address) {
             HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
-            request.UserAgent = Settings.Instance.Proxy.BrowserUserAgent;
+            if (Settings.InstanceInitialiased)
+                request.UserAgent = Settings.Instance.Proxy.BrowserUserAgent;
+            else
+                request.UserAgent = SettingsStore.Proxy.DefaultBrowserAgent;
             return request;
         }
     }

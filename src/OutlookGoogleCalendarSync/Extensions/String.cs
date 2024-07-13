@@ -13,5 +13,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static String RemoveLineBreaks(this String input) {
             return input?.Replace("\r", "").Replace("\n", "");
         }
+
+        public static String RemoveNBSP(this String input) {
+            return System.Text.RegularExpressions.Regex.Replace(input ?? "", @"[\u00A0]", " ");
+        }
     }
 }

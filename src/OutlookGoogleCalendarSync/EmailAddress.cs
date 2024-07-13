@@ -68,6 +68,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String MaskAddressWithinText(String sourceContainingEmailAddress) {
+            if (string.IsNullOrEmpty(sourceContainingEmailAddress)) return "";
             try {
                 MatchCollection matches = System.Text.RegularExpressions.Regex.Matches(sourceContainingEmailAddress, @"([\w\.]+)@");
                 if (matches.Count >= 1 && matches[0].Groups.Count >= 2) {
