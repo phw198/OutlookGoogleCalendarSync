@@ -1142,7 +1142,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
 
                             if (aex.InnerException.Message.Contains("CO_E_SERVER_EXEC_FAILURE"))
-                                message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator'.";
+                                message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator' or if Outlook's stuck loading, eg. waiting for an Outlook profile to be chosen.";
 
                             throw new ApplicationException(message);
                         }
@@ -1249,10 +1249,32 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String wikiUrl = "";
             Regex rgx;
 
-            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.error)
+            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
                 .AddParameter("com_object", hResult)
                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                 .Send();
+
+            if (hResult == "0x80040154") {
+                String regkey = @"SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages";
+                try {
+                    Microsoft.Win32.RegistryKey openedKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(regkey, false);
+                    if (openedKey != null) {
+                        String[] subkeys = openedKey.GetSubKeyNames();
+                        if (subkeys.Where(k => k.StartsWith("Microsoft.OutlookForWindows_")).Count() > 0) {
+                            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/discussions/1888");
+                            throw new ApplicationException("This version of OGCS requires the classic Outlook client to be installed.\r\n\r\n" +
+                                "The next major release of OGCS does not require an Outlook client - further details have opened in your browser.");
+                        } else
+                            log.Debug("Found " + subkeys.Count() + " subkeys, but none started with 'Microsoft.OutlookForWindows_'");
+                    } else {
+                        log.Warn("Could not open registry key: " + regkey);
+                    }
+                } catch (System.ApplicationException) {
+                    throw;
+                } catch (System.Exception reg) {
+                    reg.Analyse("Unable to check if New Outlook is installed.");
+                }
+            }
 
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);

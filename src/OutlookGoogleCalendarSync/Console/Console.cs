@@ -138,9 +138,24 @@ namespace OutlookGoogleCalendarSync {
             -->
         </style>
         <script>
-          function scrollToBottom() {
-            window.scrollTo(0,document.body.scrollHeight);
-          }
+            function scrollToBottom() {
+                window.scrollTo(0,document.body.scrollHeight);
+            }
+        </script>
+        <script>
+            function mp(payload) {
+                fetch('https://www.google-analytics.com/mp/collect?api_secret=kWOsAm2tQny1xOjiwMyC5Q&measurement_id=G-S6RMS8GHEE', {
+                    mode: 'no-cors',
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: payload
+                    })
+               .then(response => response.json())
+               .then(response => console.log(JSON.stringify(response)));
+            }
         </script>
     </head>
     <body onLoad='scrollToBottom();'>

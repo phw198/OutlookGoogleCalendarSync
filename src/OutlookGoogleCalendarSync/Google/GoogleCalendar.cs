@@ -1903,7 +1903,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <summary>
         /// Determine Event's availability setting
         /// </summary>
-        /// <param name="oSsensitivity">Outlook's current setting</param>
+        /// <param name="oBusyStatus">Outlook's current setting</param>
         /// <param name="gTransparency">Google's current setting</param>
         private String getAvailability(OlBusyStatus oBusyStatus, String gTransparency) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
@@ -2257,7 +2257,7 @@ namespace OutlookGoogleCalendarSync.Google {
             log.Fail(ex.Message);
 
             try {
-                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.error)
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
                     .AddParameter("api_google_error", ex.Message)
                     .AddParameter("code", ex.Error?.Code)
                     .AddParameter("domain", ex.Error?.Errors?.First().Domain)
