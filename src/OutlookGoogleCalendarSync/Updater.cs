@@ -275,7 +275,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 }
 
-            } catch (ApplicationException ex) {
+            } catch (ApplicationException) {
                 throw;
             } catch (System.AggregateException ae) {
                 log.Fail("Failed checking for update.");
