@@ -36,6 +36,36 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.10.6.0 - Alpha
+
+:high_brightness: **Enhancements**
+- For one-way sync attribute overrides, also allow for newly created item only [[#1859](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1859)]
+- Backup corrupted settings file before reset [[#1867](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1867)]
+- Added description of what _Profiles_ are [[#1872](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1872)]
+- Notify and redirect on `0x80040154` (class not registred / no client) to [#1888](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888).
+- Change log roller to daily, not file size
+- Removed legacy UA telemetry
+
+:beetle: **Bugfix**
+- Upgrade freezes; properly close old version [[#1861](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1861)]
+- Deselect read-only calendar when selected as a target/two-way [[#1877](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1877)]
+- Resolved non-delivery of GA4 errors
+- Miscellaneous bugfixes
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.10.5.0 - Alpha
 
 :high_brightness: **Enhancements**
