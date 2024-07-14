@@ -15,11 +15,15 @@ p {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap" rel="stylesheet">
 
-<p style="font-family: 'Kalam', cursive; font-size: 19px; text-indent: -24px; color: royalblue;">:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
+<div style="font-family: 'Kalam', cursive; font-size: 19px; text-indent: -24px; color: royalblue;">
+<p>:bulb: Fun fact: Simply clicking an advert helps support OGCS!</p>
+<br style="padding-top: 1px">
+<p>:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
   <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
-    <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="padding-top:4px; position: relative; top: 8px;">
+    <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
   </a></nobr>
 </p>
+</div>
 <br/>&nbsp;<br/>
 
 <script>
