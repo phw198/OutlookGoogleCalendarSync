@@ -11,8 +11,8 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             if (ai.Extensions == null) return null;
 
             foreach (Microsoft.Graph.Extension ext in ai.Extensions) {
-                if (ext.Id == Ogcs.Outlook.Graph.O365CustomProperty.ExtensionName()
-                 || ext.Id == Ogcs.Outlook.Graph.O365CustomProperty.ExtensionName(prefixWithMsType: true)
+                if (ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName()
+                 || ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName(prefixWithMsType: true)
                 )
                     return ext;
             }

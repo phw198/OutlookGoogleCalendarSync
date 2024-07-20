@@ -32,6 +32,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.panelDonationNote = new System.Windows.Forms.Panel();
             this.tbDonate = new System.Windows.Forms.RichTextBox();
+            this.tbProfileInfo = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             this.panelDonationNote.SuspendLayout();
             this.SuspendLayout();
@@ -57,7 +58,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.btOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btOK.Location = new System.Drawing.Point(403, 182);
+            this.btOK.Location = new System.Drawing.Point(403, 237);
             this.btOK.Name = "btOK";
             this.btOK.Size = new System.Drawing.Size(91, 23);
             this.btOK.TabIndex = 2;
@@ -68,7 +69,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             // 
             this.btCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btCancel.Location = new System.Drawing.Point(308, 182);
+            this.btCancel.Location = new System.Drawing.Point(308, 237);
             this.btCancel.Name = "btCancel";
             this.btCancel.Size = new System.Drawing.Size(89, 23);
             this.btCancel.TabIndex = 3;
@@ -89,11 +90,11 @@ namespace OutlookGoogleCalendarSync.Forms {
             // 
             // panelDonationNote
             // 
-            this.panelDonationNote.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.panelDonationNote.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.panelDonationNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.panelDonationNote.Controls.Add(this.pbDonate);
             this.panelDonationNote.Controls.Add(this.tbDonate);
-            this.panelDonationNote.Location = new System.Drawing.Point(29, 57);
+            this.panelDonationNote.Location = new System.Drawing.Point(29, 112);
             this.panelDonationNote.Name = "panelDonationNote";
             this.panelDonationNote.Padding = new System.Windows.Forms.Padding(10);
             this.panelDonationNote.Size = new System.Drawing.Size(451, 113);
@@ -116,13 +117,27 @@ namespace OutlookGoogleCalendarSync.Forms {
     "t OCGCS. The aim has always been to keep it free...though you can show your appr" +
     "eciation via donation!";
             // 
+            // tbProfileInfo
+            // 
+            this.tbProfileInfo.BackColor = System.Drawing.SystemColors.Control;
+            this.tbProfileInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbProfileInfo.Location = new System.Drawing.Point(51, 55);
+            this.tbProfileInfo.Multiline = true;
+            this.tbProfileInfo.Name = "tbProfileInfo";
+            this.tbProfileInfo.Size = new System.Drawing.Size(416, 42);
+            this.tbProfileInfo.TabIndex = 37;
+            this.tbProfileInfo.Text = "Each Profile will store the configuration defined under the \"Sync Settings\" tab.\r" +
+    "\n\r\nThis allows for more than one calendar to be synced, each with their own sche" +
+    "dule.";
+            // 
             // ProfileManage
             // 
             this.AcceptButton = this.btOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btCancel;
-            this.ClientSize = new System.Drawing.Size(506, 217);
+            this.ClientSize = new System.Drawing.Size(506, 272);
+            this.Controls.Add(this.tbProfileInfo);
             this.Controls.Add(this.panelDonationNote);
             this.Controls.Add(this.btCancel);
             this.Controls.Add(this.btOK);
@@ -152,5 +167,6 @@ namespace OutlookGoogleCalendarSync.Forms {
         private System.Windows.Forms.PictureBox pbDonate;
         private System.Windows.Forms.Panel panelDonationNote;
         private System.Windows.Forms.RichTextBox tbDonate;
+        private System.Windows.Forms.TextBox tbProfileInfo;
     }
 }

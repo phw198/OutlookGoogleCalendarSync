@@ -1009,22 +1009,24 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (!profile.SetEntriesPrivate)
                 return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-            } else {
+            OlSensitivity overrideSensitivity = OlSensitivity.olNormal;
+            try {
+                Enum.TryParse(profile.PrivacyLevel, out overrideSensitivity);
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not convert string '" + profile.PrivacyLevel + "' to OlSensitivity type. Defaulting override to normal.");
+            }
+
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
                     if (oSensitivity == null)
                         return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                    else if (oSensitivity == OlSensitivity.olPrivate && gVisibility != "private") {
-                        log.Fine("Source of truth for enforced privacy is already set private and target is NOT - so syncing this back.");
-                        return OlSensitivity.olNormal;
-                    } else
+                else
                         return (OlSensitivity)oSensitivity;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
-                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
-                    else
-                        return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+                    return overrideSensitivity;
+                else {
+                    if (profile.CreatedItemsOnly) return (OlSensitivity)oSensitivity;
+                    else return overrideSensitivity;
                 }
             }
         }
@@ -1042,28 +1044,26 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return (gTransparency == "transparent") ? OlBusyStatus.olFree :
                     persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
 
-            OlBusyStatus overrideFbStatus = OlBusyStatus.olFree;
+            OlBusyStatus overrideFbStatus = OlBusyStatus.olBusy;
             try {
                 Enum.TryParse(profile.AvailabilityStatus, out overrideFbStatus);
             } catch (System.Exception ex) {
-                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.");
+                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to busy.");
             }
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return overrideFbStatus;
-            } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
                     if (oBusyStatus == null)
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
-                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
+                    return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
                     else
                         return (OlBusyStatus)oBusyStatus;
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oBusyStatus == null))
                         return overrideFbStatus;
+                else {
+                    if (profile.CreatedItemsOnly || persistOutlookStatus.Contains(oBusyStatus.ToString()))
+                        return (OlBusyStatus)oBusyStatus;
                     else
-                        return (gTransparency == "transparent") ? OlBusyStatus.olFree :
-                            persistOutlookStatus.Contains(oBusyStatus.ToString()) ? (OlBusyStatus)oBusyStatus : OlBusyStatus.olBusy;
+                        return overrideFbStatus;
                 }
             }
         }
@@ -1079,18 +1079,22 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             if (!profile.AddColours && !profile.SetEntriesColour) return "";
 
+            OlCategoryColor outlookColour = Ogcs.Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
+            String overrideColour = Categories.FindName(outlookColour, profile.SetEntriesColourName);
+
             if (profile.SetEntriesColour) {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Colour forced to sync in other direction
-                    if (oColour == null) { //Creating item
-                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour, profile.SetEntriesColourName);
-                    } else return oColour;
+                    if (oColour == null) //Creating item
+                        return "";
+                    else return oColour;
 
                 } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null)) {
-                        OlCategoryColor outlookColour = Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
-                        return Categories.FindName(outlookColour, profile.SetEntriesColourName);
-                    } else return oColour;
+                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null))
+                        return overrideColour;
+                    else {
+                        if (profile.CreatedItemsOnly) return oColour;
+                        else return overrideColour;
+                    }
                 }
 
             } else {
@@ -1159,7 +1163,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
 
                             if (aex.InnerException.Message.Contains("CO_E_SERVER_EXEC_FAILURE"))
-                                message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator'.";
+                                message += "\nAlso check that one of OGCS and Outlook are not running 'as Administrator' or if Outlook's stuck loading, eg. waiting for an Outlook profile to be chosen.";
 
                             throw new ApplicationException(message);
                         }
@@ -1266,10 +1270,32 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String wikiUrl = "";
             Regex rgx;
 
-            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.error)
+            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
                 .AddParameter("com_object", hResult)
                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                 .Send();
+
+            if (hResult == "0x80040154") {
+                String regkey = @"SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages";
+                try {
+                    Microsoft.Win32.RegistryKey openedKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(regkey, false);
+                    if (openedKey != null) {
+                        String[] subkeys = openedKey.GetSubKeyNames();
+                        if (subkeys.Where(k => k.StartsWith("Microsoft.OutlookForWindows_")).Count() > 0) {
+                            Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/discussions/1888");
+                            throw new ApplicationException("This version of OGCS requires the classic Outlook client to be installed.\r\n\r\n" +
+                                "The next major release of OGCS does not require an Outlook client - further details have opened in your browser.");
+                        } else
+                            log.Debug("Found " + subkeys.Count() + " subkeys, but none started with 'Microsoft.OutlookForWindows_'");
+                    } else {
+                        log.Warn("Could not open registry key: " + regkey);
+                    }
+                } catch (System.ApplicationException) {
+                    throw;
+                } catch (System.Exception reg) {
+                    reg.Analyse("Unable to check if New Outlook is installed.");
+                }
+            }
 
             if (hResult == "0x80004002" && (ex is System.InvalidCastException || ex is System.Runtime.InteropServices.COMException)) {
                 log.Warn(ex.Message);

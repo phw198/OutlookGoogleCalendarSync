@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
         private static Boolean? isInstalled = null;
         public static Boolean IsInstalled {
             get {
-                isInstalled = isInstalled ?? Updater.IsSquirrelInstall();
+                isInstalled ??= Updater.IsSquirrelInstall();
                 return (Boolean)isInstalled;
             }
         }
@@ -143,6 +143,9 @@ namespace OutlookGoogleCalendarSync {
             }
 
             Dictionary<String, String> loggingArg = parseArgument(args, 'l');
+            if (loggingArg["Directory"] == ".") {
+                loggingArg["Directory"] = Application.StartupPath;
+            }
             initialiseLogger(loggingArg["Filename"], loggingArg["Directory"], bootstrap: true);
 
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
@@ -258,7 +261,9 @@ namespace OutlookGoogleCalendarSync {
 
         private static void purgeLogFiles(Int16 retention) {
             log.Info("Purging log files older than " + retention + " days...");
-            foreach (String file in System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly)) {
+            String[] sizeRoll = System.IO.Directory.GetFiles(UserFilePath, "*.log.????-??-??", SearchOption.TopDirectoryOnly);
+            String[] dateRoll = System.IO.Directory.GetFiles(UserFilePath, "*_????-??-??.log", SearchOption.TopDirectoryOnly);
+            foreach (String file in dateRoll.Concat(sizeRoll)) {
                 if (System.IO.File.GetLastWriteTime(file) < DateTime.Now.AddDays(-retention)) {
                     try {
                         System.IO.File.Delete(file);
@@ -462,11 +467,15 @@ namespace OutlookGoogleCalendarSync {
             WorkingFilesDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {
-                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file.EndsWith(".json") || file == Ogcs.Google.Authenticator.TokenFile) {
-                    dstFile = Path.Combine(dstDir, Path.GetFileName(file));
+                String filename = Path.GetFileName(file);
+                if (filename.StartsWith("OGcalsync.log") //Might end with log rolled dates, eg: OGcalsync.log.2024-01-30                             
+                    || file.EndsWith(".log") || file.EndsWith(".csv") || file.EndsWith(".json")
+                    || file == Ogcs.Google.Authenticator.TokenFile || file == Ogcs.Outlook.Graph.Authenticator.TokenFile) //
+                {
+                    dstFile = Path.Combine(dstDir, filename);
                     File.Delete(dstFile);
-                    log.Debug("  " + Path.GetFileName(file));
-                    if (file.EndsWith(".log")) {
+                    log.Debug("  " + filename);
+                    if (filename == log4net.GlobalContext.Properties["LogFilename"].ToString()) {
                         log.Logger.Repository.Shutdown();
                         log4net.LogManager.Shutdown();
                         LogManager.GetRepository().ResetConfiguration();
@@ -520,7 +529,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                     Helper.OpenBrowser(OgcsWebsite + releaseNotesUrl);
                     if (isSquirrelInstall) {
-                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                         new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
                             .AddParameter(GA4.Squirrel.upgraded_from, settingsVersion)
                             .Send();
@@ -567,15 +575,11 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Donate(String source) {
             try {
-                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
-                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
-
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate)
                     .AddParameter("source", source)
                     .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                     .AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                     .Send();
-
             } finally {
                 Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
             }

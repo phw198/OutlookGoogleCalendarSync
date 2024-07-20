@@ -82,7 +82,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
     }
     
-    class O365CustomProperty {
+    class CustomProperty {
         private static readonly ILog log = LogManager.GetLogger(typeof(CustomProperty));
 
         private static String calendarKeyName = metadataIdKeyName(MetadataId.gCalendarId);

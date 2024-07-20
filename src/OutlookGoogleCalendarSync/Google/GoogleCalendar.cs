@@ -1873,22 +1873,28 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!profile.SetEntriesPrivate)
                 return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
+            String overridePrivacy = "public";
+            try {
+                Enum.TryParse(profile.PrivacyLevel,  out OlSensitivity olOverridePrivacy);
+                overridePrivacy = olOverridePrivacy == OlSensitivity.olPrivate ? "private" : "public";
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not convert string '" + profile.PrivacyLevel + "' to OlSensitivity type. Defaulting override to normal.");
+            }
+
+            if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
+                if (gVisibility == null)
+                    return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                else if (gVisibility == "private" && oSensitivity != OlSensitivity.olPrivate) {
+                    log.Fine("Source of truth for privacy is already set private and target is NOT - so syncing this back.");
+                    return "default";
+                } else
+                    return gVisibility;
             } else {
-                if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
-                    if (gVisibility == null)
-                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
-                    else if (gVisibility == "private" && oSensitivity != OlSensitivity.olPrivate) {
-                        log.Fine("Source of truth for privacy is already set private and target is NOT - so syncing this back.");
-                        return "default";
-                    } else
-                        return gVisibility;
-                } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gVisibility == null))
-                        return (profile.PrivacyLevel == OlSensitivity.olPrivate.ToString()) ? "private" : "public";
-                    else
-                        return (oSensitivity == OlSensitivity.olNormal) ? "default" : "private";
+                if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gVisibility == null))
+                    return overridePrivacy;
+                else {
+                    if (profile.CreatedItemsOnly) return gVisibility;
+                    else return overridePrivacy;
                 }
             }
         }
@@ -1896,7 +1902,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <summary>
         /// Determine Event's availability setting
         /// </summary>
-        /// <param name="oSsensitivity">Outlook's current setting</param>
+        /// <param name="oBusyStatus">Outlook's current setting</param>
         /// <param name="gTransparency">Google's current setting</param>
         private String getAvailability(OlBusyStatus oBusyStatus, String gTransparency) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
@@ -1904,19 +1910,16 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!profile.SetEntriesAvailable)
                 return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
 
-            String overrideTransparency = "transparent";
-            OlBusyStatus fbStatus = OlBusyStatus.olFree;
+            String overrideTransparency = "opaque";
+            OlBusyStatus fbStatus = OlBusyStatus.olBusy;
             try {
                 Enum.TryParse(profile.AvailabilityStatus, out fbStatus);
-                if (fbStatus != OlBusyStatus.olFree)
-                    overrideTransparency = "opaque";
+                if (fbStatus == OlBusyStatus.olFree)
+                    overrideTransparency = "transparent";
             } catch (System.Exception ex) {
-                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to available.");
+                ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to busy.");
             }
 
-            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                return overrideTransparency;
-            } else {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Availability enforcement is in other direction
                     if (gTransparency == null)
                         return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
@@ -1925,8 +1928,9 @@ namespace OutlookGoogleCalendarSync.Google {
                 } else {
                     if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gTransparency == null))
                         return overrideTransparency;
-                    else
-                        return (oBusyStatus == OlBusyStatus.olFree) ? "transparent" : "opaque";
+                else {
+                    if (profile.CreatedItemsOnly) return gTransparency;
+                    else return overrideTransparency;
                 }
             }
         }
@@ -1943,22 +1947,26 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!profile.AddColours && !profile.SetEntriesColour) return EventColour.Palette.NullPalette;
 
             OlCategoryColor? categoryColour = null;
+            EventColour.Palette overrideColour = this.ColourPalette.ActivePalette[Convert.ToInt16(profile.SetEntriesColourGoogleId)];
 
             if (profile.SetEntriesColour) {
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Colour forced to sync in other direction
                     if (gColour == null) //Creating item
-                        return this.ColourPalette.ActivePalette[Convert.ToInt16(profile.SetEntriesColourGoogleId)];
+                        return EventColour.Palette.NullPalette;
                     else return gColour;
 
                 } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gColour == null)) {
-                        return this.ColourPalette.ActivePalette[Convert.ToInt16(profile.SetEntriesColourGoogleId)];
-                    } else return gColour;
+                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && gColour == null))
+                        return overrideColour;
+                    else {
+                        if (profile.CreatedItemsOnly) return gColour;
+                        else return overrideColour;
+                    }
                 }
-
             } else {
                 getOutlookCategoryColour(aiCategories, ref categoryColour);
             }
+
             if (categoryColour == null)
                 return null;
             else if (categoryColour == OlCategoryColor.olCategoryColorNone)
@@ -2248,7 +2256,7 @@ namespace OutlookGoogleCalendarSync.Google {
             log.Fail(ex.Message);
 
             try {
-                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.error)
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
                     .AddParameter("api_google_error", ex.Message)
                     .AddParameter("code", ex.Error?.Code)
                     .AddParameter("domain", ex.Error?.Errors?.First().Domain)

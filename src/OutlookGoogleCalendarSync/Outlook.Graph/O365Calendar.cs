@@ -139,7 +139,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 req.Filter(filter);
 
                 req.Top(250);
-                req.Expand("extensions($filter=Id eq '" + O365CustomProperty.ExtensionName() + "')");
+                req.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
                 //req.OrderBy("start");
 
                 ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
@@ -407,7 +407,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
             */
             //Add the Google event IDs into Outlook appointment.
-            O365CustomProperty.AddGoogleIDs(ref ai, ev);
+            CustomProperty.AddGoogleIDs(ref ai, ev);
         }
 
         private Microsoft.Graph.Attendee createRecipient(GcalData.EventAttendee ea) {
@@ -429,7 +429,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
-                O365CustomProperty.SetOGCSlastModified(ref ai);
+                CustomProperty.SetOGCSlastModified(ref ai);
             }
 
             try {
@@ -633,7 +633,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 aiPatch.Subject = summaryObfuscated;
             }
             if (profile.AddDescription) {
-                //String oGMeetUrl = O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gMeetUrl);
+                //String oGMeetUrl = CustomProperty.Get(ai, CustomProperty.MetadataId.gMeetUrl);
 
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
                     String aiBody = ai.Body.BodyInnerHtml();
@@ -772,11 +772,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 bool gOptional = attendee.Optional ?? false;
                                 if (Sync.Engine.CompareAttribute("Attendee " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address) + " - Optional Check",
                                     Sync.Direction.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
-                                    if (gOptional) {
-                                        recipient.Type = AttendeeType.Optional;
-                                    } else {
-                                        recipient.Type = AttendeeType.Required;
-                                    }
+                                    recipient.Type = gOptional ? AttendeeType.Optional : AttendeeType.Required;
                                 }
                                 //Response status
                                 Attendee compareRecipient = createRecipient(attendee);
@@ -864,7 +860,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
             }*/
-            O365CustomProperty.Remove(ref ai, O365CustomProperty.MetadataId.forceSave);
+            CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
 
             try {
                 ai = GraphClient.Me.Events[ai.Id].Request().UpdateAsync(ai).Result;
@@ -930,8 +926,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
-                    if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && O365CustomProperty.ExistAnyGoogleIDs(ai)) {
-                        O365CustomProperty.RemoveGoogleIDs(ref ai);
+                    if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
+                        CustomProperty.RemoveGoogleIDs(ref ai);
                         //ai.Save();
                     }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
@@ -1108,7 +1104,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (Sync.Engine.Instance.CancellationPending) return;
                 log.Fine("Checking " + GetEventSummary(outlook[o]));
                 
-                String compare_oEventID = O365CustomProperty.Get(outlook[o], O365CustomProperty.MetadataId.gEventID);
+                String compare_oEventID = CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gEventID);
                 if (!string.IsNullOrEmpty(compare_oEventID)) {
                     Boolean? googleIDmissing = null;
                     Boolean foundMatch = false;
@@ -1117,12 +1113,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.UltraFine("Checking " + Ogcs.Google.Calendar.GetEventSummary(google[g]));
 
                         if (compare_oEventID == google[g].Id) {
-                            googleIDmissing ??= O365CustomProperty.GoogleIdMissing(outlook[o]);
+                            googleIDmissing ??= CustomProperty.GoogleIdMissing(outlook[o]);
                             if ((Boolean)googleIDmissing) {
                                 log.Info("Enhancing appointment's metadata...");
                                 Microsoft.Graph.Event ai = outlook[o];
-                                O365CustomProperty.AddGoogleIDs(ref ai, google[g]);
-                                O365CustomProperty.Add(ref ai, O365CustomProperty.MetadataId.forceSave, "True");
+                                CustomProperty.AddGoogleIDs(ref ai, google[g]);
+                                CustomProperty.Add(ref ai, CustomProperty.MetadataId.forceSave, "True");
                                 outlook[o] = ai;
                                 metadataEnhanced++;
                             }
@@ -1136,7 +1132,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         }
                     }
                     if (!foundMatch && profile.MergeItems &&
-                        O365CustomProperty.Get(outlook[o], O365CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
+                        CustomProperty.Get(outlook[o], CustomProperty.MetadataId.gCalendarId) != profile.UseGoogleCalendar.Id)
                         outlook.Remove(outlook[o]);
 
                 } else if (profile.MergeItems) {
@@ -1208,9 +1204,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static Boolean ItemIDsMatch(Microsoft.Graph.Event ai, GcalData.Event ev) {
             log.Fine("Comparing Google Event ID");
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            if (O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gEventID) == ev.Id) {
+            if (CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) == ev.Id) {
                 log.Fine("Comparing Google Calendar ID");
-                if (O365CustomProperty.Get(ai, O365CustomProperty.MetadataId.gCalendarId) == profile.UseGoogleCalendar.Id)
+                if (CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) == profile.UseGoogleCalendar.Id)
                     return true;
                 else {
                     log.Warn("Could not find Google calendar ID against Outlook appointment item.");

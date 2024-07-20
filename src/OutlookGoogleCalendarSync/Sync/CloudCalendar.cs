@@ -142,7 +142,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 TimeSpan sectionDuration = DateTime.Now - timeSection;
                 if (sectionDuration.TotalSeconds > 30) {
                     log.Warn("That step took a long time! Issue #599");
-                    Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Graph.Google.Calendar.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
                     new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.debug)
                         .AddParameter(GA4.General.github_issue, 599)
                         .AddParameter("section", "Ogcs.Google.Calendar.Instance.IdentifyEventDifferences()")
@@ -210,12 +209,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (Sync.Engine.Instance.CancellationPending) return false;
                     #endregion
 
-/*
                     #region Update Google Entries
                     if (entriesToBeCompared.Count > 0) {
                         console.Update("Comparing " + entriesToBeCompared.Count + " existing Google calendar entries", Console.Markup.h2, newLine: false);
                         try {
-                            Ogcs.Google.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
+                            Ogcs.Google.Graph.Calendar.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
                             return false;
@@ -227,7 +225,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                     if (Sync.Engine.Instance.CancellationPending) return false;
-                    #endregion*/
+                    #endregion
 
                 } finally {
                     bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
