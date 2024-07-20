@@ -29,11 +29,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                     //Stop the program continuing until splash screen has finished accessing settings.xml
                     Thread.Sleep(50);
                 }
+            } else {
+                splash.Dispose();
+                doShowSplash();
             }
         }
         private static void doShowSplash() {
             try {
-                if (splash == null)
+                if (splash == null || splash.IsDisposed)
                     splash = new Splash();
 
                 splash.lVersion.Text = "v" + Application.ProductVersion;
@@ -71,7 +74,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 splash.TopLevel = true;
                 splash.TopMost = true;
                 log.Debug("Showing splash screen.");
-                Application.Run(splash);
+                splash.ShowDialog();
                 log.Debug("Disposed of splash screen.");
                 splashThread.Abort();
             } finally {
@@ -92,13 +95,28 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbDonate_Click(object sender, EventArgs e) {
+            animateClick(this.pbDonate);
             Program.Donate("Splash");
-            this.Close();
         }
 
         private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
+            animateClick(this.pbSocialTwitterFollow);
             Social.Twitter_follow();
-            this.Close();
+        }
+
+        private void animateClick(Control button) {
+            button.Enabled = false;
+            for (int y = 0; y < button.Height * 0.9; y++) {
+                button.Top += 2;
+                Thread.Sleep(1);
+                Application.DoEvents();
+                y++;
+            }
+            for (int y = button.Height; y > button.Height * 0.50; y--) {
+                button.Top--;
+                Thread.Sleep(1);
+                Application.DoEvents();
+            }
         }
 
         private void Splash_Shown(object sender, EventArgs e) {

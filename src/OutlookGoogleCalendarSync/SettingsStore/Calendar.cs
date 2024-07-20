@@ -310,7 +310,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                     if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                         log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                     else
-                    ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
+                        ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
                             c.Value + ":" + Ogcs.Google.EventColour.Palette.GetColourName(c.Value)));
                 }
                 log.Info("  SingleCategoryOnly: " + SingleCategoryOnly);

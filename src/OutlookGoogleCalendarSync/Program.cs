@@ -529,7 +529,6 @@ namespace OutlookGoogleCalendarSync {
                     }
                     Helper.OpenBrowser(OgcsWebsite + releaseNotesUrl);
                     if (isSquirrelInstall) {
-                        Telemetry.Send(Analytics.Category.squirrel, Analytics.Action.upgrade, "from=" + settingsVersion + ";to=" + Application.ProductVersion);
                         new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
                             .AddParameter(GA4.Squirrel.upgraded_from, settingsVersion)
                             .Send();
@@ -576,15 +575,11 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Donate(String source) {
             try {
-                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, source);
-                Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.donate, Application.ProductVersion);
-
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.donate)
                     .AddParameter("source", source)
                     .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                     .AddParameter("account_present", !String.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                     .Send();
-
             } finally {
                 Helper.OpenBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " + Settings.Instance.GaccountEmail);
             }
