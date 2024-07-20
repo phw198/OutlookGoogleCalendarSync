@@ -39,7 +39,7 @@ namespace OutlookGoogleCalendarSync {
         private static Boolean? isInstalled = null;
         public static Boolean IsInstalled {
             get {
-                isInstalled = isInstalled ?? Updater.IsSquirrelInstall();
+                isInstalled ??= Updater.IsSquirrelInstall();
                 return (Boolean)isInstalled;
             }
         }
@@ -143,6 +143,9 @@ namespace OutlookGoogleCalendarSync {
             }
 
             Dictionary<String, String> loggingArg = parseArgument(args, 'l');
+            if (loggingArg["Directory"] == ".") {
+                loggingArg["Directory"] = Application.StartupPath;
+            }
             initialiseLogger(loggingArg["Filename"], loggingArg["Directory"], bootstrap: true);
 
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
@@ -464,11 +467,15 @@ namespace OutlookGoogleCalendarSync {
             WorkingFilesDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {
-                if (Path.GetFileName(file).StartsWith("OGcalsync.log") || file.EndsWith(".csv") || file.EndsWith(".json") || file == Ogcs.Google.Authenticator.TokenFile) {
-                    dstFile = Path.Combine(dstDir, Path.GetFileName(file));
+                String filename = Path.GetFileName(file);
+                if (filename.StartsWith("OGcalsync.log") //Might end with log rolled dates, eg: OGcalsync.log.2024-01-30                             
+                    || file.EndsWith(".log") || file.EndsWith(".csv") || file.EndsWith(".json")
+                    || file == Ogcs.Google.Authenticator.TokenFile || file == Ogcs.Outlook.Graph.Authenticator.TokenFile) //
+                {
+                    dstFile = Path.Combine(dstDir, filename);
                     File.Delete(dstFile);
-                    log.Debug("  " + Path.GetFileName(file));
-                    if (file.EndsWith(".log")) {
+                    log.Debug("  " + filename);
+                    if (filename == log4net.GlobalContext.Properties["LogFilename"].ToString()) {
                         log.Logger.Repository.Shutdown();
                         log4net.LogManager.Shutdown();
                         LogManager.GetRepository().ResetConfiguration();

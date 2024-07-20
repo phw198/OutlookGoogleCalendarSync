@@ -1379,8 +1379,11 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             if (rbOutlookOnline.Checked) {
                 this.rbOutlookDefaultMB.Checked = false;
-                enableOutlookSettingsUI(false);
+                enableOutlookSettingsUI(true);
                 ActiveCalendarProfile.OutlookService = Ogcs.Outlook.Calendar.Service.Graph;
+                cbOutlookCalendars_BuildList();
+                //***refreshCategories();
+                this.clbCategories.Enabled = false; //***
             }
         }
 
@@ -1435,17 +1438,18 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
             try {
                 if (ActiveCalendarProfile.IsOutlookOnline) {
-                    if (ActiveCalendarProfile.UseOutlookCalendar?.Name == null) {
-                        cbOutlookCalendars.DataSource = null;
-                        cbOutlookCalendars.Items.Clear();
-                        cbOutlookCalendars.Items.Add("");
-                    } else if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.CalendarFolders.Count > 0) {
+                    if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.CalendarFolders.Count > 0) {
                         cbOutlookCalendars.DataSource = new BindingSource(Outlook.Graph.Calendar.Instance.CalendarFolders, null);
                     } else {
-                        Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
-                        { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
-                    };
-                        cbOutlookCalendars.DataSource = new BindingSource(ds, null);
+                        Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>();
+                        if (ActiveCalendarProfile.UseOutlookCalendar?.Name != null) {
+                            ds.Add(ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar);
+                            cbOutlookCalendars.DataSource = new BindingSource(ds, null);
+                        } else {
+                            cbOutlookCalendars.DataSource = null;
+                            cbOutlookCalendars.Items.Clear();
+                            cbOutlookCalendars.Items.Add("");
+                        }
                     }
                     cbOutlookCalendars.SelectedIndex = 0;
 
@@ -1456,8 +1460,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     } else {
                         if (ActiveCalendarProfile.UseOutlookCalendar != null) {
                             Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
-                        { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
-                    };
+                                { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
+                            };
                             cbOutlookCalendars.DataSource = new BindingSource(ds, null);
                         } else {
                             cbOutlookCalendars.DataSource = null;
