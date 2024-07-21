@@ -56,7 +56,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Outlook.Graph.Calendar.Instance.EphemeralProperties.Clear();
 
                 #region Read Outlook items
-                console.Update("Scanning Outlook calendar...");
+                console.Update($"Scanning Outlook calendar '{Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}'...");
                 outlookEntries = Outlook.Graph.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                 console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
@@ -71,15 +71,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                 
                 Boolean success = true;
                 String bubbleText = "";
-                /*
-                if (this.Profile.ExtirpateOgcsMetadata) {
+                
+                /*if (this.Profile.ExtirpateOgcsMetadata) {
                     return extirpateCustomProperties(outlookEntries, googleEntries);
-                }
+                }*/
 
                 //Reclaim orphans
-                Ogcs.Google.Calendar.Instance.ReclaimOrphanCalendarEntries(ref googleEntries, ref outlookEntries);
+                Ogcs.Google.Graph.Calendar.ReclaimOrphanCalendarEntries(ref googleEntries, ref outlookEntries);
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 
+                /*
                 Outlook.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 

@@ -856,14 +856,22 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public void UpdateCalendarEntry_save(ref Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            /*if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+            if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
-            }*/
+            }
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
 
             try {
+                Extension ogcsExtension = ai.OgcsExtension();
+                if (ogcsExtension != null) 
+                    ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().UpdateAsync(ogcsExtension).Result;
+                
                 ai = GraphClient.Me.Events[ai.Id].Request().UpdateAsync(ai).Result;
+                
+                if (ogcsExtension != null)
+                    ai = ai.UpdateOgcsExtension(ogcsExtension);
+
             } catch (System.AggregateException ex) {
                 if (ex.InnerException is Microsoft.Graph.ServiceException) throw ex.InnerException;
                 //*** Need API handling
@@ -1022,6 +1030,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
 
         #region STATIC functions
+        public static string Signature(Microsoft.Graph.Event ai) {
+            return (ai.Subject + ";" + ai.Start.SafeDateTime().ToPreciseString() + ";" + ai.End.SafeDateTime().ToPreciseString()).Trim();
+        }
+
         /// <summary>
         /// Get the anonymised summary of an appointment item, else standard summary.
         /// </summary>

@@ -301,8 +301,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } else
                 addkeyName = currentKeyName; //Might be suffixed with "-01"
 
-            if (ai.Extensions == null)
-                ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
+            ai.Extensions ??= new Microsoft.Graph.EventExtensionsCollectionPage();
 
             if (ai.Extensions.Count == 0)
                 ai.Extensions.Add(new Microsoft.Graph.OpenTypeExtension {
