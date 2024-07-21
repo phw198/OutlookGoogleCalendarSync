@@ -71,10 +71,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 
                 Boolean success = true;
                 String bubbleText = "";
-                
-                /*if (this.Profile.ExtirpateOgcsMetadata) {
+
+                if (this.Profile.ExtirpateOgcsMetadata) {
                     return extirpateCustomProperties(outlookEntries, googleEntries);
-                }*/
+                }
 
                 //Reclaim orphans
                 Ogcs.Google.Graph.Calendar.ReclaimOrphanCalendarEntries(ref googleEntries, ref outlookEntries);
@@ -356,6 +356,53 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }*/
                 }
                 return true;
+            }
+
+            private SyncResult extirpateCustomProperties(List<Microsoft.Graph.Event> outlookEntries, List<GcalData.Event> googleEntries) {
+                SyncResult returnVal = SyncResult.Fail;
+                Console console = Forms.Main.Instance.Console;
+                try {
+                    console.Update("Cleansing OGCS metadata from Outlook items...", Console.Markup.h2, newLine: false);
+                    for (int o = 0; o < outlookEntries.Count; o++) {
+                        Microsoft.Graph.Event ai = outlookEntries[o];
+                        Outlook.Graph.CustomProperty.LogProperties(ai, log4net.Core.Level.Debug);
+                        if (Outlook.Graph.CustomProperty.Extirpate(ref ai)) {
+                            console.Update(Outlook.Graph.Calendar.GetEventSummary(ai, out String anonSummary), anonSummary, Console.Markup.calendar);
+                        }
+                        if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
+                    }
+
+                    console.Update("Cleansing OGCS metadata from Google items...", Console.Markup.h2, newLine: false);
+                    for (int g = 0; g < googleEntries.Count; g++) {
+                        GcalData.Event ev = googleEntries[g];
+                        Ogcs.Google.CustomProperty.LogProperties(ev, log4net.Core.Level.Debug);
+                        if (Ogcs.Google.CustomProperty.Extirpate(ref ev)) {
+                            console.Update(Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary), anonSummary, Console.Markup.calendar);
+                            Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                        }
+                        if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
+                    }
+                    returnVal = SyncResult.OK;
+                    return returnVal;
+
+                } catch (System.Exception ex) {
+                    ex.Analyse("Failed to fully cleanse metadata!");
+                    console.UpdateWithError(null, ex);
+                    returnVal = SyncResult.Fail;
+                    return returnVal;
+
+                } finally {
+                    if (Sync.Engine.Instance.CancellationPending) {
+                        console.Update("Not letting this process run to completion is <b>strongly discouraged</b>.<br>" +
+                            "If you are two-way syncing and use OGCS for normal syncing again, unexpected behaviour will ensue.<br>" +
+                            "It is recommended to rerun the metadata cleanse to completion.", Console.Markup.warning);
+                    } else if (returnVal == SyncResult.Fail) {
+                        console.Update(
+                            "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>" +
+                            "If this is not possible and you wish to continue using OGCS, please " +
+                            "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues' target='_blank'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
+                    }
+                }
             }
         }
     }

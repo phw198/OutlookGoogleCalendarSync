@@ -382,36 +382,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="ai">The Graph Event to strip attributes from</param>
         /// <returns>Whether any properties were removed</returns>
         public static Boolean Extirpate(ref Microsoft.Graph.Event ai) {
-            List<String> keyNames = new List<String>() {
-                metadataIdKeyName(MetadataId.forceSave),
-                metadataIdKeyName(MetadataId.gCalendarId),
-                metadataIdKeyName(MetadataId.gEventID),
-                metadataIdKeyName(MetadataId.gMeetUrl),
-                //metadataIdKeyName(MetadataId.locallyCopied),
-                metadataIdKeyName(MetadataId.ogcsModified),
-                //metadataIdKeyName(MetadataId.originalStartDate)
-            };
-            Boolean removedProperty = false;
-            UserProperties ups = null;
-            /*try {
-                ups = ai.UserProperties;
-                for (int p = ups.Count; p > 0; p--) {
-                    UserProperty prop = null;
-                    try {
-                        prop = ups[p];
-                        if (keyNames.Exists(k => prop.Name.StartsWith(k))) {
-                            log.Fine("Removed " + prop.Name);
-                            prop.Delete();
-                            removedProperty = true;
-                        }
-                    } finally {
-                        prop = (UserProperty)Calendar.ReleaseObject(prop);
-                    }
-                }
-            } finally {
-                ups = (UserProperties)Calendar.ReleaseObject(ups);
-            }*/
-            return removedProperty;
+            Microsoft.Graph.Extension ogcsExt = ai.OgcsExtension();
+            if (ogcsExt == null) return false;
+
+            Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().DeleteAsync().Wait();
+            return true;
         }
 
         public static System.DateTime GetOGCSlastModified(Microsoft.Graph.Event ai) {
