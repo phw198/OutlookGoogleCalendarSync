@@ -80,10 +80,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Ogcs.Google.Graph.Calendar.ReclaimOrphanCalendarEntries(ref googleEntries, ref outlookEntries);
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 
-                /*
-                Outlook.Calendar.Instance.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
+                Outlook.Graph.Calendar.ReclaimOrphanCalendarEntries(ref outlookEntries, ref googleEntries);
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 
+                /*
                 if (this.Profile.AddColours || this.Profile.SetEntriesColour) {
                     Outlook.Calendar.Categories.ValidateCategories();
 

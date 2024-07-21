@@ -33,7 +33,9 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
         /// <summary>Just the HTML within the <body> tags</summary>
         public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
-            return htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
+            String bodyInnerHtml = htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
+            if (bodyInnerHtml == "<div></div>") return "";
+            else return bodyInnerHtml;
         }
     }
 }
