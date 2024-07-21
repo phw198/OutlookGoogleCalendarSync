@@ -554,7 +554,7 @@ namespace OutlookGoogleCalendarSync {
                     }
                 } else {
                     log.Debug("Event \"" + ev.Summary + "\" does not have Outlook EntryID stored.");
-                    if (Ogcs.Google.Calendar.SignaturesMatch(Ogcs.Google.Calendar.signature(ev), Outlook.Calendar.signature(ai))) {
+                    if (Ogcs.Google.Calendar.SignaturesMatch(Ogcs.Google.Calendar.Signature(ev), Outlook.Calendar.signature(ai))) {
                         log.Debug("Master event matched on simple signatures.");
                         return ev;
                     }
