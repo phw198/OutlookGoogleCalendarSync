@@ -1465,7 +1465,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
                         cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
                     } else {
-                        if (ActiveCalendarProfile.UseOutlookCalendar != null) {
+                        if (ActiveCalendarProfile.UseOutlookCalendar?.Id != null) {
                             Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
                                 { ActiveCalendarProfile.UseOutlookCalendar.Name, ActiveCalendarProfile.UseOutlookCalendar }
                             };

@@ -19,10 +19,23 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return null;
         }
 
+        public static Microsoft.Graph.Event UpdateOgcsExtension(this Microsoft.Graph.Event ai, Microsoft.Graph.Extension updatedExt) {
+            if (ai.Extensions == null) {
+                ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
+            } else {
+                Microsoft.Graph.Extension staleExt = ai.OgcsExtension();
+                ai.Extensions.Remove(staleExt);
+            }
+            ai.Extensions.Add(updatedExt);
+            return ai;
+        }
+
         /// <summary>Just the HTML within the <body> tags</summary>
         public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
-            return htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
+            String bodyInnerHtml = htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
+            if (bodyInnerHtml == "<div></div>") return "";
+            else return bodyInnerHtml;
         }
     }
 }

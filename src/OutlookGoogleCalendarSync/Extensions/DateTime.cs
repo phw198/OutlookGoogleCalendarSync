@@ -22,12 +22,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
-        /// Parses the DateTimeTimeZone string to a DateTime
+        /// Parses the DateTimeTimeZone string to a local DateTime
         /// </summary>
-        /// <returns>DateTime</returns>
+        /// <returns>Local DateTime</returns>
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
             if (evDt.TimeZone == "UTC")
-                return System.DateTime.Parse(evDt.DateTime);
+                return System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
             else
                 throw new ApplicationException($"Unexpected timezone '{evDt.TimeZone}' in Microsoft DateTimeTimeZone. The offset from UTC needs calculating.");
         }

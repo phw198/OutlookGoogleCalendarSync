@@ -519,13 +519,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                 if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                    if (ai.LastModifiedDateTime > ev.Updated)
+                    if (ai.LastModifiedDateTime?.ToLocalTime() > ev.Updated)
                         return false;
                 } else {
                     if (Ogcs.Google.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
                         //Google last modified by OGCS
                         return false;
-                    if (ai.LastModifiedDateTime > ev.Updated)
+                    if (ai.LastModifiedDateTime?.ToLocalTime() > ev.Updated)
                         return false;
                 }
             }
@@ -552,8 +552,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             //Doesn't match their documentation at all, but hey ho.
             //https://learn.microsoft.com/en-us/graph/api/resources/event?view=graph-rest-1.0#properties
 
-            Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, ev.Start.SafeDateTime().ToUniversalTime(), ai.Start.SafeDateTime(), sb, ref itemModified);
-            Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, ev.End.SafeDateTime().ToUniversalTime(), ai.End.SafeDateTime(), sb, ref itemModified);
+            Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, ev.Start.SafeDateTime(), ai.Start.SafeDateTime(), sb, ref itemModified);
+            Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, ev.End.SafeDateTime(), ai.End.SafeDateTime(), sb, ref itemModified);
 
             Boolean startTzChange = Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.GoogleToOutlook,
                 string.IsNullOrEmpty(ev.Start.TimeZone) ? "UTC" : ev.Start.TimeZone, string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone, sb, ref itemModified);
@@ -856,14 +856,22 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public void UpdateCalendarEntry_save(ref Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            /*if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+            if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
-            }*/
+            }
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
 
             try {
+                Extension ogcsExtension = ai.OgcsExtension();
+                if (ogcsExtension != null) 
+                    ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().UpdateAsync(ogcsExtension).Result;
+                
                 ai = GraphClient.Me.Events[ai.Id].Request().UpdateAsync(ai).Result;
+                
+                if (ogcsExtension != null)
+                    ai = ai.UpdateOgcsExtension(ogcsExtension);
+
             } catch (System.AggregateException ex) {
                 if (ex.InnerException is Microsoft.Graph.ServiceException) throw ex.InnerException;
                 //*** Need API handling
@@ -950,6 +958,98 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
         #endregion
 
+        public static void ReclaimOrphanCalendarEntries(ref List<Microsoft.Graph.Event> oAppointments, ref List<GcalData.Event> gEvents) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+
+            if (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id) return;
+
+            if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
+                Forms.Main.Instance.Console.Update("Checking for orphaned Outlook items...", verbose: true);
+
+            try {
+                log.Debug("Scanning " + oAppointments.Count + " Outlook appointments for orphans to reclaim...");
+                String consoleTitle = "Reclaiming Outlook calendar entries";
+
+                //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
+                List<Microsoft.Graph.Event> unclaimedAi = new();
+
+                for (int o = oAppointments.Count - 1; o >= 0; o--) {
+                    if (Sync.Engine.Instance.CancellationPending) return;
+                    Microsoft.Graph.Event ai = oAppointments[o];
+                    try {
+                        CustomProperty.LogProperties(ai, Program.MyFineLevel);
+
+                        //Find entries with no Google ID
+                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
+                            String sigAi = Signature(ai);
+                            unclaimedAi.Add(ai);
+
+                            for (int g = gEvents.Count - 1; g >= 0; g--) {
+                                GcalData.Event ev = gEvents[g];
+                                String sigEv = Ogcs.Google.Calendar.Signature(ev);
+                                if (String.IsNullOrEmpty(sigEv)) {
+                                    gEvents.Remove(ev);
+                                    continue;
+                                }
+
+                                if (Ogcs.Google.Calendar.SignaturesMatch(sigEv, sigAi)) {
+                                    CustomProperty.AddGoogleIDs(ref ai, ev);
+                                    Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                                    Instance.UpdateCalendarEntry_save(ref aiPatch);
+                                    unclaimedAi.Remove(ai);
+                                    ai = aiPatch;
+                                    if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
+                                    consoleTitle = "";
+                                    Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ai, out String anonSummary, appendContext: false), anonSummary, verbose: true);
+                                    oAppointments[o] = ai;
+
+                                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
+                                        log.Debug("Updating the Outlook appointment IDs in Google event.");
+                                        Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, ai);
+                                        Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                                        gEvents[g] = ev;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (System.Exception) {
+                        Forms.Main.Instance.Console.Update(GetEventSummary("Failure processing Outlook item:-<br/>", ai, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning);
+                        throw;
+                    }
+                    if (Sync.Engine.Instance.CancellationPending) return;
+                }
+                log.Debug(unclaimedAi.Count + " unclaimed.");
+                if (unclaimedAi.Count > 0 &&
+                    (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id ||
+                     profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)) //
+                {
+                    log.Info(unclaimedAi.Count + " unclaimed orphan appointments found.");
+                    if (profile.MergeItems || profile.DisableDelete || profile.ConfirmOnDelete) {
+                        log.Info("These will be kept due to configuration settings.");
+                    } else if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                        log.Debug("These 'orphaned' items must not be deleted - they need syncing up.");
+                    } else {
+                        if (Ogcs.Extensions.MessageBox.Show(unclaimedAi.Count + " Outlook calendar items can't be matched to Google.\r\n" +
+                            "Remember, it's recommended to have a dedicated Outlook calendar to sync with, " +
+                            "or you may wish to merge with unmatched events. Continue with deletions?",
+                            "Delete unmatched Outlook items?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+
+                            log.Info("User has requested to keep them.");
+                            foreach (Event ai in unclaimedAi) {
+                                oAppointments.Remove(ai);
+                            }
+                        } else {
+                            log.Info("User has opted to delete them.");
+                        }
+                    }
+                }
+            } catch (System.Exception) {
+                Forms.Main.Instance.Console.Update("Unable to reclaim orphan calendar entries in Outlook calendar.", Console.Markup.error);
+                throw;
+            }
+        }
+
         /// <summary>
         /// Determine Appointment Item's privacy setting
         /// </summary>
@@ -1022,6 +1122,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
 
         #region STATIC functions
+        public static string Signature(Microsoft.Graph.Event ai) {
+            return (ai.Subject + ";" + ai.Start.SafeDateTime().ToPreciseString() + ";" + ai.End.SafeDateTime().ToPreciseString()).Trim();
+        }
+
         /// <summary>
         /// Get the anonymised summary of an appointment item, else standard summary.
         /// </summary>

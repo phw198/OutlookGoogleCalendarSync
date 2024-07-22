@@ -920,7 +920,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             for (int g = gEvents.Count - 1; g >= 0; g--) {
                                 Event ev = gEvents[g];
-                                String sigEv = Ogcs.Google.Calendar.signature(ev);
+                                String sigEv = Ogcs.Google.Calendar.Signature(ev);
                                 if (String.IsNullOrEmpty(sigEv)) {
                                     gEvents.Remove(ev);
                                     continue;

@@ -1269,7 +1269,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     if (!CustomProperty.Exists(ev, CustomProperty.MetadataId.oEntryId)) {
 
                         //Use simple matching on start,end,subject,location to pair events
-                        String sigEv = signature(ev);
+                        String sigEv = Signature(ev);
                         if (String.IsNullOrEmpty(sigEv)) {
                             gEvents.Remove(ev);
                             continue;
@@ -1388,7 +1388,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Fine("Checking " + Ogcs.Google.Calendar.GetEventSummary(google[g]));
 
                 //Use simple matching on start,end,subject,location to pair events
-                String sigEv = signature(google[g]);
+                String sigEv = Signature(google[g]);
                 if (String.IsNullOrEmpty(sigEv)) {
                     google.Remove(google[g]);
                     continue;
@@ -1651,7 +1651,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                         } else {
                             log.Fine("EntryID has changed - invite accepted?");
-                            if (SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) {
+                            if (SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
                                 return true;
@@ -1664,7 +1664,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                     gCompareID.Substring(72) != oGlobalID.Substring(72) &&
                     Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID) == ev.Id &&
-                    SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) 
+                    SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) 
                 {
                     //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
                     log.Warn("Appointment GlobalID has completely changed, but Google Event ID matches so relying on that!");
@@ -2014,7 +2014,7 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         #region STATIC FUNCTIONS
-        public static string signature(Event ev) {
+        public static string Signature(Event ev) {
             String signature = "";
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
