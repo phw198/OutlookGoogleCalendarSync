@@ -59,7 +59,7 @@ namespace OutlookGoogleCalendarSync {
         private void buildOutlookPattern(Event ev, AppointmentItem ai, out RecurrencePattern oPattern) {
             if (ev.Recurrence == null) { oPattern = null; return; }
 
-            Dictionary<String, String> ruleBook = explodeRrule(ev.Recurrence);
+            Dictionary<String, String> ruleBook = ExplodeRrule(ev.Recurrence);
             if (ruleBook == null) {
                 throw new ApplicationException("WARNING: The recurrence pattern is not compatible with Outlook. This event cannot be synced.");
             }
@@ -143,15 +143,9 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
                     oPattern.NoEndDate = true;
                 } else {
-                    System.DateTime endDate;
-                    if (ruleBook["UNTIL"].Length == 8 && !ruleBook["UNTIL"].EndsWith("Z"))
-                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                    else {
-                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                        endDate = endDate.AddHours(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
-                    }
+                    System.DateTime endDate = GoogleRecurrenceEndDate(ruleBook["UNTIL"], ev.End.TimeZone);
                     if (endDate < oPattern.PatternStartDate) {
-                    log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
+                        log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
                         log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
                         String summary = Ogcs.Google.Calendar.GetEventSummary("The recurring Google event has an end date <i>before</i> the start date, which Outlook doesn't allow.<br/>" +
                             "The synced Outlook recurrence has been changed to a single occurrence.", ev, out String anonSummary, onlyIfNotVerbose: true);
@@ -165,6 +159,15 @@ namespace OutlookGoogleCalendarSync {
                 oPattern.NoEndDate = true;
             }
             #endregion
+        }
+
+        public static System.DateTime GoogleRecurrenceEndDate(String rruleUntil, String endTimeZone) {
+            if (rruleUntil.Length == 8 && !rruleUntil.EndsWith("Z"))
+                return System.DateTime.ParseExact(rruleUntil, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            else {
+                System.DateTime endDate = System.DateTime.ParseExact(rruleUntil, "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
+                return endDate.AddHours(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
+            }
         }
 
         public void CompareOutlookPattern(Event ev, ref RecurrencePattern aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
@@ -305,7 +308,7 @@ namespace OutlookGoogleCalendarSync {
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
         }
 
-        private Dictionary<String, String> explodeRrule(IList<String> allRules) {
+        public static Dictionary<String, String> ExplodeRrule(IList<String> allRules) {
             log.Fine("Analysing Event RRULEs...");
             foreach (String aRule in allRules) {
                 String rrule = null;
