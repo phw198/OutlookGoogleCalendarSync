@@ -109,6 +109,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     success = googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                 }
+                if (!success) return SyncResult.Fail;
                 if (bubbleText != "") {
                     log.Info(bubbleText.Replace("\r\n", ". "));
                     System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");

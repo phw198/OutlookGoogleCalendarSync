@@ -2,6 +2,29 @@
 using System;
 
 namespace OutlookGoogleCalendarSync.Extensions {
+    public class OgcsDateTime {
+        private System.DateTime baseDateTime;
+        private Boolean dateOnly;
+        
+        /// <summary>
+        /// Extends System.DateTime with date/time precision.
+        /// Helps to differentiate a date vs a midnight time.
+        /// </summary>
+        /// <param name="baseDateTime">The System.DateTime</param>
+        /// <param name="dateOnly">Whether the time element should be ignored</param>
+        public OgcsDateTime(System.DateTime baseDateTime, Boolean dateOnly = false) {
+            this.baseDateTime = baseDateTime;
+            this.dateOnly = dateOnly;
+        }
+
+        public override string ToString() {
+            if (this.dateOnly)
+                return this.baseDateTime.ToShortDateString();
+            else
+                return this.baseDateTime.ToString();
+        }
+    }
+
     public static class DateTime {
         /// <summary>
         /// Returns the DateTime with time and GMT offset.
@@ -26,10 +49,20 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>Local DateTime</returns>
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
-            if (evDt.TimeZone == "UTC")
-                return System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
-            else
-                throw new ApplicationException($"Unexpected timezone '{evDt.TimeZone}' in Microsoft DateTimeTimeZone. The offset from UTC needs calculating.");
+            System.DateTime safeDate;
+            if (evDt.TimeZone == "UTC") {
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
+                if (safeDate.ToUniversalTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
+                    safeDate = safeDate.Date;
+                    safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Unspecified);
+                }
+            } else {
+                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
+                safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Utc);
+                safeDate = safeDate.ToLocalTime();
+            }
+            return safeDate;
         }
 
         /// <summary>
@@ -58,6 +91,21 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 return true;
             if (logicallyEquivalent)
                 return (ai.Start.TimeOfDay == new TimeSpan(0, 0, 0) && ai.Start.TimeOfDay == ai.End.TimeOfDay);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Whether a Graph Event is all day
+        /// </summary>
+        /// <param name="ai">The Graph Event to check</param>
+        /// <param name="logicallyEquivalent">Midnight to midnight Events treated as all day</param>
+        /// <returns></returns>
+        public static Boolean AllDayEvent(this Microsoft.Graph.Event ai, Boolean logicallyEquivalent = false) {
+            if ((bool)ai.IsAllDay)
+                return true;
+            if (logicallyEquivalent)
+                return (ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0) && ai.End.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0));
             else
                 return false;
         }
