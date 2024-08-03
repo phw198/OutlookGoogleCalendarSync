@@ -520,12 +520,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(evSummary);
 
+            Boolean aiAllDay = ai.AllDayEvent;
             if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) {
-                if (ai.AllDayEvent != ev.AllDayEvent()) {
-                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + ev.AllDayEvent());
+                if (Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, ev.AllDayEvent(), aiAllDay, sb, ref itemModified))
                     ai.AllDayEvent = ev.AllDayEvent();
-                    itemModified++;
-                }
             }
 
             #region TimeZone
@@ -541,12 +539,19 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #endregion
 
             #region Start/End & Recurrence
+            Boolean startChange = false;
+            Boolean endChange = false;
+            OgcsDateTime aiStart = new(ai.Start, aiAllDay);
+            OgcsDateTime aiEnd = new(ai.End, aiAllDay);
             System.DateTime evStartParsedDate = ev.Start.SafeDateTime();
-            Boolean startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, evStartParsedDate, ai.Start, sb, ref itemModified);
-
             System.DateTime evEndParsedDate = ev.End.SafeDateTime();
-            Boolean endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, evEndParsedDate, ai.End, sb, ref itemModified);
-
+            if (ev.AllDayEvent()) {
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evStartParsedDate, true), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evEndParsedDate, true), aiEnd, sb, ref itemModified);
+            } else {
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evStartParsedDate, false), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evEndParsedDate, false), aiEnd, sb, ref itemModified);
+            }
             RecurrencePattern oPattern = null;
             try {
                 if (startChange || endChange || startTzChange || endTzChange) {
