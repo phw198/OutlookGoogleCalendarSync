@@ -568,11 +568,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             OgcsDateTime aiStart = new(ai.Start.SafeDateTime(), aiAllDay);
             OgcsDateTime aiEnd = new(ai.End.SafeDateTime(), aiAllDay);
             if (ev.AllDayEvent()) {
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true.ToString(), aiAllDay.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true, aiAllDay, sb, ref itemModified);
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), true), aiStart, sb, ref itemModified);
                 endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), true), aiEnd, sb, ref itemModified);
             } else {
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, false.ToString(), aiAllDay.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, false, aiAllDay, sb, ref itemModified);
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), false), aiStart, sb, ref itemModified);
                 endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), false), aiEnd, sb, ref itemModified);
             }

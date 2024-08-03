@@ -822,7 +822,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay.ToString(), true.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
                 Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTime(ai.Start.SafeDateTime(), true), sb, ref itemModified);
                 Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), true), sb, ref itemModified);
             } else {
@@ -830,7 +830,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.End.Date = null;
                 ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToPreciseString();
                 ev.End.DateTimeRaw = ai.End.SafeDateTime().ToPreciseString();
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay.ToString(), false.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
                 Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTime(ai.Start.SafeDateTime(), false), sb, ref itemModified);
                 Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), false), sb, ref itemModified) ;
             }

@@ -192,15 +192,20 @@ namespace OutlookGoogleCalendarSync {
 
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             String retVal = null;
-            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null)
-                log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
-            else {
-                if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
-                    log.Debug("Continuing to use Kiev instead of Kyiv.");
-                else
-                    retVal = tzDBsource.CanonicalIdMap[retVal];
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null) {
+                NodaTime.DateTimeZone dtz = tzDBsource.ForId(oTZ_id);
+                if (dtz == null) {
+                    log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
+                    return null;
+                } else
+                    retVal = oTZ_id;
             }
+            if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
+                log.Debug("Continuing to use Kiev instead of Kyiv.");
+            else
+                retVal = tzDBsource.CanonicalIdMap[retVal];
+            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+
             return retVal;
         }
 
