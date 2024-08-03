@@ -564,11 +564,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToLocalTime().ToPreciseString();
+                ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToPreciseString();
                 String startTimeZone = string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone;
                 ev.Start.TimeZone = TimezoneDB.IANAtimezone(startTimeZone, startTimeZone);
 
-                ev.End.DateTimeRaw = ai.End.SafeDateTime().ToLocalTime().ToPreciseString();
+                ev.End.DateTimeRaw = ai.End.SafeDateTime().ToPreciseString();
                 String endTimeZone = string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone;
                 ev.End.TimeZone = startTimeZone == endTimeZone ? ev.Start.TimeZone : TimezoneDB.IANAtimezone(endTimeZone, endTimeZone);
             }
@@ -814,39 +814,25 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
             #region Date/Time & Time Zone
             //Handle an event's all-day attribute being toggled
-            System.DateTime evStart = ev.Start.SafeDateTime();
-            System.DateTime evEnd = ev.End.SafeDateTime();
-            if ((bool)ai.IsAllDay && ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
+            Boolean evAllDay = ev.AllDayEvent();
+            OgcsDateTime evStart = new(ev.Start.SafeDateTime(), evAllDay);
+            OgcsDateTime evEnd = new(ev.End.SafeDateTime(), evAllDay);
+            if ((bool)ai.IsAllDay) {
+                ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
+                ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
                 ev.Start.DateTime = null;
                 ev.End.DateTime = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.SafeDateTime().Date, sb, ref itemModified)) {
-                    ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.SafeDateTime().Date, sb, ref itemModified)) {
-                    ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
-                }
-                //If there was no change in the start/end time, make sure we still have dates populated
-                ev.Start.Date ??= ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                ev.End.Date ??= ai.End.SafeDateTime().ToString("yyyy-MM-dd");
-
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay.ToString(), true.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTime(ai.Start.SafeDateTime(), true), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), true), sb, ref itemModified);
             } else {
-                //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.AllDayEvent() && evStart == ai.Start.SafeDateTime() && evEnd == ai.End.SafeDateTime()) {
-                    sb.AppendLine("All-Day: true => false");
-                    ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToLocalTime().ToPreciseString();
-                    itemModified++;
-                }
                 ev.Start.Date = null;
                 ev.End.Date = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.SafeDateTime(), sb, ref itemModified))
-                    ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToLocalTime().ToPreciseString();
-                
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.SafeDateTime(), sb, ref itemModified))
-                    ev.End.DateTimeRaw = ai.End.SafeDateTime().ToLocalTime().ToPreciseString();
-                
-                //If there was no change in the start/end time, make sure we still have dates populated
-                ev.Start.DateTime ??= ai.Start.SafeDateTime();
-                ev.End.DateTime ??= ai.End.SafeDateTime();
+                ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToPreciseString();
+                ev.End.DateTimeRaw = ai.End.SafeDateTime().ToPreciseString();
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay.ToString(), false.ToString(), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTime(ai.Start.SafeDateTime(), false), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), false), sb, ref itemModified) ;
             }
 
             /*

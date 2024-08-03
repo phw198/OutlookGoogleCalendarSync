@@ -26,10 +26,20 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>Local DateTime</returns>
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
-            if (evDt.TimeZone == "UTC")
-                return System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
-            else
-                throw new ApplicationException($"Unexpected timezone '{evDt.TimeZone}' in Microsoft DateTimeTimeZone. The offset from UTC needs calculating.");
+            System.DateTime safeDate;
+            if (evDt.TimeZone == "UTC") {
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
+                if (safeDate.ToUniversalTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
+                    safeDate = safeDate.Date;
+                    safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Unspecified);
+                }
+            } else {
+                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
+                safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Utc);
+                safeDate = safeDate.ToLocalTime();
+            }
+            return safeDate;
         }
 
         /// <summary>
@@ -58,6 +68,21 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 return true;
             if (logicallyEquivalent)
                 return (ai.Start.TimeOfDay == new TimeSpan(0, 0, 0) && ai.Start.TimeOfDay == ai.End.TimeOfDay);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Whether a Graph Event is all day
+        /// </summary>
+        /// <param name="ai">The Graph Event to check</param>
+        /// <param name="logicallyEquivalent">Midnight to midnight Events treated as all day</param>
+        /// <returns></returns>
+        public static Boolean AllDayEvent(this Microsoft.Graph.Event ai, Boolean logicallyEquivalent = false) {
+            if ((bool)ai.IsAllDay)
+                return true;
+            if (logicallyEquivalent)
+                return (ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0) && ai.End.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0));
             else
                 return false;
         }
