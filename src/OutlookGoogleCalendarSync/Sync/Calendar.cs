@@ -424,7 +424,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
                                     if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
                                 }
-                                Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                                Event masterEv = Google.Recurrence.GetGoogleMasterEvent(ai);
                                 if (masterEv != null && masterEv.Status != "cancelled") {
                                     Event cachedEv = googleEntries.Find(x => x.Id == masterEv.Id);
                                     if (cachedEv == null) {
@@ -557,10 +557,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ex.Data["OGCS"] += " Please try again.";
                     throw;
                 }
-                Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
-                if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) {
+                Google.Recurrence.SeparateGoogleExceptions(googleEntries);
+                if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0) {
                     console.Update(googleEntries.Count + " Google calendar entries found.");
-                    console.Update(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
+                    console.Update(Google.Recurrence.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
                 } else
                     console.Update(googleEntries.Count + " Google calendar entries found.", Console.Markup.sectionEnd, newLine: false);
 
