@@ -572,7 +572,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
-                if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
+                if (ai.IsRecurring && Outlook.Recurrence.HasExceptions(ai) && createdEvent != null) {
                     Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
                     Recurrence.CreateGoogleExceptions(ai, createdEvent.Id);
                     Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
@@ -589,7 +589,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             Event ev = new Event();
 
-            ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
+            ev.Recurrence = Recurrence.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
 
@@ -870,7 +870,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new Extensions.OgcsDateTime(ai.End, false), sb, ref itemModified);
             }
 
-            List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
+            List<String> oRrules = Recurrence.BuildGooglePattern(ai, ev);
             if (ev.Recurrence != null) {
                 for (int r = 0; r < ev.Recurrence.Count; r++) {
                     String rrule = ev.Recurrence[r];

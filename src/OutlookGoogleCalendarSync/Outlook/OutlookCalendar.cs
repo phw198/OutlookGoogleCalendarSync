@@ -349,9 +349,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
 
-                    if (ev.Recurrence != null && ev.RecurringEventId == null && Recurrence.Instance.HasExceptions(ev)) {
+                    if (ev.Recurrence != null && ev.RecurringEventId == null && Google.Recurrence.HasExceptions(ev)) {
                         Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
-                        Recurrence.Instance.CreateOutlookExceptions(ref newAi, ev);
+                        Recurrence.CreateOutlookExceptions(ref newAi, ev);
                         Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
                     }
                 } finally {
@@ -371,7 +371,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             ai.End = new System.DateTime();
             ai.AllDayEvent = ev.AllDayEvent();
             ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
-            Recurrence.Instance.BuildOutlookPattern(ev, ai);
+            Recurrence.BuildOutlookPattern(ev, ai);
 
             ai.Subject = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, null, Sync.Direction.GoogleToOutlook);
             if (profile.AddDescription && ev.Description != null) ai.Body = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, null, Sync.Direction.GoogleToOutlook);
@@ -472,13 +472,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (ai.IsRecurring) {
                             if (!aiWasRecurring) log.Debug("Appointment has changed from single instance to recurring.");
                             log.Debug("Recurring master appointment has been updated, so now checking if exceptions need reinstating.");
-                            Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: true);
+                            Recurrence.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: true);
                         }
 
                     } else {
                         if (ai.RecurrenceState == OlRecurrenceState.olApptMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
                             log.Debug(Ogcs.Google.Calendar.GetEventSummary(compare.Value));
-                            Recurrence.Instance.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
+                            Recurrence.UpdateOutlookExceptions(ref ai, compare.Value, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
                             if (ai.LastModificationTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
@@ -561,7 +561,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             ai.ClearRecurrencePattern();
                             ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
                             ai.Save();
-                            Recurrence.Instance.BuildOutlookPattern(ev, ai);
+                            Recurrence.BuildOutlookPattern(ev, ai);
                             ai.Save(); //Explicit save required to make ai.IsRecurring true again
                         } else {
                             oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
@@ -583,7 +583,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
                 if (oPattern != null) {
                     oPattern.Duration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
-                    Recurrence.Instance.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
+                    Recurrence.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
                 }
             } finally {
                 oPattern = (RecurrencePattern)ReleaseObject(oPattern);
@@ -598,8 +598,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
                 if (!ai.IsRecurring && ev.Recurrence != null && ev.RecurringEventId == null) {
                     log.Debug("Converting to recurring appointment.");
-                    Recurrence.Instance.BuildOutlookPattern(ev, ai);
-                    Recurrence.Instance.CreateOutlookExceptions(ref ai, ev);
+                    Recurrence.BuildOutlookPattern(ev, ai);
+                    Recurrence.CreateOutlookExceptions(ref ai, ev);
                     itemModified++;
                 }
             }
