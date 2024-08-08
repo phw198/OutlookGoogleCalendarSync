@@ -261,7 +261,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);
-            if (googleAttr != outlookAttr) {
+            if (!googleAttr.Equals(outlookAttr)) {
                 if (fromTo == Direction.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
                 } else {
