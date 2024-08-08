@@ -21,7 +21,18 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (this.dateOnly)
                 return this.baseDateTime.ToShortDateString();
             else
-                return this.baseDateTime.ToString();
+                return this.baseDateTime.ToString("g");
+        }
+
+        public override bool Equals(Object obj) {
+            if (obj is OgcsDateTime)
+                return this.baseDateTime == (obj as OgcsDateTime).baseDateTime;
+            else
+                return false;
+        }
+
+        public override int GetHashCode() {
+            return this.baseDateTime.GetHashCode() + this.dateOnly.GetHashCode();
         }
     }
 

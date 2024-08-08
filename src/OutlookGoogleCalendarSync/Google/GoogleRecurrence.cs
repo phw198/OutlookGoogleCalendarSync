@@ -117,7 +117,7 @@ namespace OutlookGoogleCalendarSync.Google {
             #region RECURRENCE RANGE
             if (!oPattern.NoEndDate) {
                 log.Fine("Checking end date.");
-                addRule(rrule, "UNTIL", recurrenceEndUtc.ToPreciseString());
+                addRule(rrule, "UNTIL", IANAdate(recurrenceEndUtc));
             }
             #endregion
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
@@ -176,6 +176,9 @@ namespace OutlookGoogleCalendarSync.Google {
             return byDay;
         }
 
+        public static String IANAdate(System.DateTime dt) {
+            return dt.ToString("yyyyMMddTHHmmssZ");
+        }
 
         #region Exceptions
         private static List<Event> googleExceptions;
