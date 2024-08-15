@@ -22,7 +22,7 @@ In terms of functionality, both versions are the same, but here's a quick compar
 
 |  | Installed | Portable |
 | :--- | :--- | :--- |
-| Set Up | Download the `Setup.exe` file, double-click it to execute, and OGCS will start. | Download the `Portable ZIP` file and then extract the compressed files to a location of your choosing. Double-click the `OutlookGoogleCalendarSync.exe` executable file to start OGCS. |
+| Set Up | Download the `OGCS_Setup.exe` file, double-click it to execute, and OGCS will start. | Download the `Portable ZIP` file and then extract the compressed files to a location of your choosing. Double-click the `OutlookGoogleCalendarSync.exe` executable file to start OGCS. |
 | Application Location | The local `APPDATA` folder for the user. | Anywhere, possibly a USB drive. |
 | Upgrading OGCS | Simply accept the upgrade prompt when a newer version is detected. | The newer ZIP file will need manually downloading, either to replace the existing location of OGCS, or a new location. |
 | OS Permissions Required | None. | None. |

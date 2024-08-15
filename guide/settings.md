@@ -18,7 +18,7 @@ Remember the settings do not automatically save and will only persist through a 
 
 ![Profiles Screenshot](profiles.png)
 
-All of the configuration under the `Sync Settings` tab is assigned to a _Profile_. To sync more than one calendar, each should be configured in their own _Profile_. Each _Profile_ also has its own [schedule](https://www.outlookgooglecalendarsync.com/guide/syncoptions#when) that needs setting for it to be automatically synced.
+All of the configuration under the `Sync Settings` tab is assigned to a _Profile_. To sync more than one calendar, each should be configured in their own _Profile_. Each _Profile_ also has its own [schedule](syncoptions-when) that needs setting for it to be automatically synced.
 
 <p>&nbsp;</p>
 {% include navigation-buttons.html %}
