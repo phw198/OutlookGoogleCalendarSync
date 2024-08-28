@@ -42,7 +42,7 @@ Under the GDPR your rights are as follows. You can read more about your rights i
 * the right to object; and
 * the right not to be subject to automated decision-making including profiling.
 
-You also have the right to complain to the [ICO](www.ico.org.uk) if you feel there is a problem with the way we are handling your data.
+You also have the right to complain to the [ICO](https://www.ico.org.uk) if you feel there is a problem with the way we are handling your data.
 
 We handle subject access requests in accordance with the GDPR.
 
