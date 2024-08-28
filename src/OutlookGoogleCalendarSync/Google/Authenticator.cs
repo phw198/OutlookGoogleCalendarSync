@@ -20,7 +20,7 @@ namespace OutlookGoogleCalendarSync.Google {
         private Boolean authenticated = false;
         public Boolean Authenticated { get { return authenticated; } }
 
-        public const String TokenFile = "global::Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
+        public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
         private String tokenFullPath;
         private Boolean tokenFileExists { get { return File.Exists(tokenFullPath); } }
 
