@@ -1536,8 +1536,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
+            Boolean successfulRetrieval = false;
             try {
                 Ogcs.Google.Calendar.Instance.GetCalendars();
+                successfulRetrieval = true;
             } catch (AggregateException agex) {
                 agex.AnalyseAggregate(false);
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -1549,12 +1551,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
-                console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
-                if (ex is ApplicationException && ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException) {
+                console.BuildOutput("Unable to get the list of Google calendars.", ref sb, false);
+                if (ex is ApplicationException) {
                     console.BuildOutput(ex.Message, ref sb, false);
                     console.Update(sb, Console.Markup.fail, logit: true);
                 } else {
-                    console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
+                    console.BuildOutput(" The following error occurred: " + ex.FriendlyMessage(), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
                         if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
@@ -1567,7 +1569,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
 
-            cbGoogleCalendars_BuildList();
+            if (successfulRetrieval)
+                cbGoogleCalendars_BuildList();
 
             bGetGoogleCalendars.Enabled = true;
             cbGoogleCalendars.Enabled = true;
