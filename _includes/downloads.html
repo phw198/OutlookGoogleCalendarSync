@@ -15,6 +15,14 @@
   </div>
 </div>
 
+<script>
+function googlePermissions() {
+  if ("{{ site.beta-version }}" == "2.11.0") {
+    window.location = '{{ site.baseurl }}{% post_url 2024-09-01-2-11-0-beta-google-permissions %}';
+  }
+}
+</script>
+
 <h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Downloads</h1>
 
 <div style="margin-top: -18px; margin-bottom: 10px; text-align: center;"><a href="{{site.url}}{{site.baseurl}}/guide/install">Which version?</a></div>
@@ -28,7 +36,7 @@
   <tr>
     <td colspan="2" style="text-align:left">
       <b>Stable version:</b> {{ site.beta-release-date }}
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe');">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe"" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe'); googlePermissions();">
         <small>Download Install File</small>
         Setup.exe
       </a>
@@ -36,10 +44,10 @@
   </tr>
    <tr>
     <td colspan="2">
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/Portable_OGCS_v{{ site.beta-version }}.zip" class="button" onClick="handleClickEvent('download', 'Beta Zip');">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/Portable_OGCS_v{{ site.beta-version }}.zip" class="button" onClick="handleClickEvent('download', 'Beta Zip'); googlePermissions();">
         <small>Download File</small>
         Portable Zip
-      </a>          
+      </a>
     </td>
   </tr>
 </table>
