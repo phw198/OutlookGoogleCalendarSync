@@ -36,7 +36,7 @@ function googlePermissions() {
   <tr>
     <td colspan="2" style="text-align:left">
       <b>Stable version:</b> {{ site.beta-release-date }}
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe"" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe'); googlePermissions();">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe"" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe'); const delay = setTimeout(googlePermissions, 1000);">
         <small>Download Install File</small>
         Setup.exe
       </a>
@@ -44,7 +44,7 @@ function googlePermissions() {
   </tr>
    <tr>
     <td colspan="2">
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/Portable_OGCS_v{{ site.beta-version }}.zip" class="button" onClick="handleClickEvent('download', 'Beta Zip'); googlePermissions();">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/Portable_OGCS_v{{ site.beta-version }}.zip" class="button" onClick="handleClickEvent('download', 'Beta Zip'); const delay = setTimeout(googlePermissions, 1000);">
         <small>Download File</small>
         Portable Zip
       </a>
