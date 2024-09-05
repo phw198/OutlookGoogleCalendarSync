@@ -13,7 +13,34 @@ namespace OutlookGoogleCalendarSync {
 
         private WebBrowser wb;
         private Boolean awaitingRefresh;
-        private String content = "";
+        private String _content = "";
+        private String content {
+            get { return _content; }
+            set {
+                do {
+                    _content = value;
+                    try {
+                        if (this.wb.InvokeRequired) {
+                            this.wb.Invoke((MethodInvoker)(() => {
+                                wb.DocumentText = _content;
+                            }));
+                        } else
+                            this.wb.DocumentText = _content;
+                    } catch (System.Exception ex) {
+                        Ogcs.Exception.Analyse(ex);
+                    }
+
+                    System.Windows.Forms.Application.DoEvents();
+                    while (navigationStatus != NavigationStatus.completed) {
+                        System.Threading.Thread.Sleep(250);
+                        System.Windows.Forms.Application.DoEvents();
+                    }
+                    System.Threading.Thread.Sleep(15);
+                } while (this.DocumentText != _content);
+
+                System.Windows.Forms.Application.DoEvents();
+            }
+        }
         public String DocumentText {
             get {
                 String documentText = "";
@@ -233,7 +260,6 @@ namespace OutlookGoogleCalendarSync {
             if (isCleared()) return;
 
             content = header + footer;
-            this.wb.DocumentText = content;
             awaitingRefresh = true;
             wb.Refresh(WebBrowserRefreshOption.Completely);
             awaitRefresh();
@@ -314,25 +340,9 @@ namespace OutlookGoogleCalendarSync {
                 //Don't add append line break to Markup that's already wrapped in <div> tags
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
+                
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
-
                 content = header + contentInnerHtml + footer;
-                try {
-                    if (this.wb.InvokeRequired) {
-                        this.wb.Invoke((MethodInvoker)(() => {
-                            wb.DocumentText = content;
-                        }));
-                    } else
-                        this.wb.DocumentText = content;
-                } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse(ex);
-                }
-
-                while (navigationStatus != NavigationStatus.completed) {
-                    System.Threading.Thread.Sleep(250);
-                    System.Windows.Forms.Application.DoEvents();
-                }
-                System.Windows.Forms.Application.DoEvents();
 
                 if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
