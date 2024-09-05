@@ -54,13 +54,12 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
 
-        public Authenticator() {
-            CancelTokenSource = new System.Threading.CancellationTokenSource();
-        }
+        public Authenticator() { }
 
         public void GetAuthenticated() {
             if (this.authenticated) return;
 
+            CancelTokenSource = new System.Threading.CancellationTokenSource();
             Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Google", Console.Markup.h2, newLine: false, verbose: true);
 
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
@@ -120,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Google {
             
             UserCredential credential = null;
             try {
-                if (!SufficientPermissions) File.Delete(tokenFullPath);
+                if (authenticated && !SufficientPermissions) File.Delete(tokenFullPath);
 
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, requiredScopes, "user", CancelTokenSource.Token, tokenStore);
