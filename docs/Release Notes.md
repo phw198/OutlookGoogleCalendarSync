@@ -1,6 +1,48 @@
 | Release Notes |
 |:---|
 
+# v2.11.0.0 - Beta
+
+**Enhancements** rolled in from Alpha releases
+- New option to:
+    - Exclude Google items based on colour [[#1553](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1553)]
+    - Exclude items based on title/subject [[#1688](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1688)]
+    - Obfuscate any of subject, location, description [[#500](https://github.com/phw198/OutlookGoogleCalendarSync/issues/500)]
+    - Only show notifications when changes have been synced [[#1769](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1769)]
+    - Sync Google Meet conference details [[#1076](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1076)]
+    - Anonymise calendar subjects in log file [[#1755](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1755)]
+    - Choose deletion of previously synced Google items, which are now excluded by category [[#1682](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1682)]
+        - NB: The default behaviour is to delete
+- New options to exclude:
+    - All-day items [[#104](https://github.com/phw198/OutlookGoogleCalendarSync/issues/104)]
+    - Items by availability: free, tentative [[#825](https://github.com/phw198/OutlookGoogleCalendarSync/issues/825)]
+    - Items by privacy: private [[#415](https://github.com/phw198/OutlookGoogleCalendarSync/issues/415)]
+- Sync Engine
+    - For one-way sync attribute overrides, also allow for newly created item only [[#1859](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1859)]
+    - Delay immediate scheduled sync when resuming from hibernate [[#1850](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1850)]
+    - Added menu option to Sync button for 'Full Sync'
+    - Improved efficiency when locating Google recurring series [[#1738](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1738)]
+    - When deletion prompt is declined, sync item instead [[#1691](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1691)]
+    - For Google "Busy" status, persist Outlook statuses of: Out of office, Tentative, Working elsewhere [[#1259](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1259)]
+    - Only sync Google Event types: default, focus time, out of office [[#1843](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1843)]
+    - Log occurrence deletions to console
+- Application
+    - Ability to export/import settings [[#1561](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1561)]
+    - Backup corrupted settings file before reset [[#1867](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1867)]
+    - Notify and redirect on `0x80040154` (class not registred / no client) to [#1888](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888).
+    - Increased maximum startup delay to 600s
+    - Change log roller to daily, not file size
+    - Removed legacy UA telemetry
+    - Improved upgrade mechanism (when upgrading from this version) [[#1837](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1837)]
+    - Handle poorly configured proxy servers [[#1745](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1745)]
+    - UI guidance that configured exclusions don't apply to series occurrences [[#1758](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1758)]
+    - Added description of what _Profiles_ are [[#1872](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1872)]
+    - Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
+    - OGCS logo updated with modernised "G"
+        - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+
+----
+
 # v2.10.6.0 - Alpha
 
 **Enhancements**
@@ -12,7 +54,6 @@
 - Removed legacy UA telemetry
 
 **Bugfix**
-
 - Upgrade freezes; properly close old version [[#1861](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1861)]
 - Deselect read-only calendar when selected as a target/two-way [[#1877](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1877)]
 - Resolved non-delivery of GA4 errors
