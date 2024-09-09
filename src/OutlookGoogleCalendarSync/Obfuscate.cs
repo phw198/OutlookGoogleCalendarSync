@@ -113,7 +113,7 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                 } else {
-                    retStr = target ?? source;
+                    retStr = target ?? retStr;
                 }
             }
             return retStr;
