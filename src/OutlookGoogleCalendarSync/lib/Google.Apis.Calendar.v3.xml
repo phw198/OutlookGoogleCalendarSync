@@ -1186,7 +1186,10 @@
             <summary>Initializes Delete parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.Get(System.String,System.String)">
-            <summary>Returns an event.</summary>
+            <summary>
+            Returns an event based on its Google Calendar ID. To retrieve an event using its iCalendar ID, call the
+            events.list method using the iCalUID parameter.
+            </summary>
             <param name="calendarId">
             Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want to access the
             primary calendar of the currently logged in user, use the "primary" keyword.
@@ -1194,7 +1197,10 @@
             <param name="eventId">Event identifier.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.EventsResource.GetRequest">
-            <summary>Returns an event.</summary>
+            <summary>
+            Returns an event based on its Google Calendar ID. To retrieve an event using its iCalendar ID, call the
+            events.list method using the iCalUID parameter.
+            </summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.GetRequest.#ctor(Google.Apis.Services.IClientService,System.String,System.String)">
             <summary>Constructs a new Get request.</summary>
@@ -1240,7 +1246,10 @@
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.Import(Google.Apis.Calendar.v3.Data.Event,System.String)">
             <summary>
-            Imports an event. This operation is used to add a private copy of an existing event to a calendar.
+            Imports an event. This operation is used to add a private copy of an existing event to a calendar. Only
+            events with an eventType of default may be imported. Deprecated behavior: If a non-default event is
+            imported, its type will be changed to default and any event-type-specific properties it may have will be
+            dropped.
             </summary>
             <param name="body">The body of the request.</param>
             <param name="calendarId">
@@ -1250,7 +1259,10 @@
         </member>
         <member name="T:Google.Apis.Calendar.v3.EventsResource.ImportRequest">
             <summary>
-            Imports an event. This operation is used to add a private copy of an existing event to a calendar.
+            Imports an event. This operation is used to add a private copy of an existing event to a calendar. Only
+            events with an eventType of default may be imported. Deprecated behavior: If a non-default event is
+            imported, its type will be changed to default and any event-type-specific properties it may have will be
+            dropped.
             </summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.ImportRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.Event,System.String)">
@@ -1354,8 +1366,9 @@
         </member>
         <member name="F:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SendUpdatesEnum.None">
             <summary>
-            No notifications are sent. For calendar migration tasks, consider using the Events.import method
-            instead.
+            No notifications are sent. Warning: Using the value none can have significant adverse effects,
+            including events not syncing to external calendars or events being lost altogether for some users.
+            For calendar migration tasks, consider using the events.import method instead.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InsertRequest.SupportsAttachments">
@@ -1435,16 +1448,38 @@
             recurring events will still be included if singleEvents is False. Optional. The default is False.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMax">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMaxDateTimeOffset">
             <summary>
             Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter
             by start time. Must be an RFC3339 timestamp with mandatory time zone offset.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMin">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMaxRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMaxDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMax">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMaxDateTimeOffset"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMinDateTimeOffset">
             <summary>
             Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to filter by
             end time. Must be an RFC3339 timestamp with mandatory time zone offset.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMinRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMinDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMin">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeMinDateTimeOffset"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.InstancesRequest.TimeZone">
@@ -1484,14 +1519,57 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.AlwaysIncludeEmail">
+            <summary>Deprecated and ignored.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypes">
             <summary>
-            Deprecated and ignored. A value will always be returned in the email field for the organizer, creator
-            and attendees, even if no real email address is available (i.e. a generated, non-working value will be
-            provided).
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
+            </summary>
+            <remarks>
+            Use this property to set a single value for the parameter, or <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesList"/> to set
+            multiple values. Do not set both properties.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesList">
+            <summary>
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
+            </summary>
+            <remarks>
+            Use this property to set one or more values for the parameter. Do not set both this property and
+            <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypes"/>.
+            </remarks>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum">
+            <summary>
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
             </summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.Birthday">
+            <summary>Special all-day events with an annual recurrence.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.Default__">
+            <summary>Regular events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.FocusTime">
+            <summary>Focus time events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.FromGmail">
+            <summary>Events from Gmail.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.OutOfOffice">
+            <summary>Out of office events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.ListRequest.EventTypesEnum.WorkingLocation">
+            <summary>Working location events.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.ICalUID">
-            <summary>Specifies event ID in the iCalendar format to be included in the response. Optional.</summary>
+            <summary>
+            Specifies an event ID in the iCalendar format to be provided in the response. Optional. Use this if you
+            want to search for an event by its iCalendar ID.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxAttendees">
             <summary>
@@ -1537,8 +1615,14 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.Q">
             <summary>
-            Free text search terms to find events that match these terms in any field, except for extended
-            properties. Optional.
+            Free text search terms to find events that match these terms in the following fields:  - summary  -
+            description  - location  - attendee's displayName  - attendee's email  - organizer's displayName  -
+            organizer's email  - workingLocationProperties.officeLocation.buildingId  -
+            workingLocationProperties.officeLocation.deskId  - workingLocationProperties.officeLocation.label  -
+            workingLocationProperties.customLocation.label  These search terms also match predefined keywords
+            against all display title translations of working location, out-of-office, and focus-time events. For
+            example, searching for "Office" or "Bureau" returns working location events of type officeLocation,
+            whereas searching for "Out of office" or "Abwesend" returns out-of-office events. Optional.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.SharedExtendedProperty">
@@ -1571,13 +1655,14 @@
             events deleted since the previous list request will always be in the result set and it is not allowed to
             set showDeleted to False. There are several query parameters that cannot be specified together with
             nextSyncToken to ensure consistency of the client state.  These are:  - iCalUID  - orderBy  -
-            privateExtendedProperty  - q  - sharedExtendedProperty  - timeMin  - timeMax  - updatedMin If the
-            syncToken expires, the server will respond with a 410 GONE response code and the client should clear its
-            storage and perform a full synchronization without any syncToken. Learn more about incremental
+            privateExtendedProperty  - q  - sharedExtendedProperty  - timeMin  - timeMax  - updatedMin All other
+            query parameters should be the same as for the initial synchronization to avoid undefined behavior. If
+            the syncToken expires, the server will respond with a 410 GONE response code and the client should clear
+            its storage and perform a full synchronization without any syncToken. Learn more about incremental
             synchronization. Optional. The default is to return all entries.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMaxDateTimeOffset">
             <summary>
             Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter
             by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
@@ -1585,7 +1670,18 @@
             timeMin is set, timeMax must be greater than timeMin.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMin">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMaxRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMaxDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMax">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMaxDateTimeOffset"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMinDateTimeOffset">
             <summary>
             Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by
             end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
@@ -1593,16 +1689,38 @@
             timeMax is set, timeMin must be smaller than timeMax.
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMinRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMinDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMin">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeMinDateTimeOffset"/>.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.TimeZone">
             <summary>
             Time zone used in the response. Optional. The default is the time zone of the calendar.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMin">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMinDateTimeOffset">
             <summary>
             Lower bound for an event's last modification time (as a RFC3339 timestamp) to filter by. When specified,
             entries deleted since this time will always be included regardless of showDeleted. Optional. The default
             is not to filter by last modification time.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMinRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMinDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMin">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.UpdatedMinDateTimeOffset"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MethodName">
@@ -1618,7 +1736,10 @@
             <summary>Initializes List parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.Move(System.String,System.String,System.String)">
-            <summary>Moves an event to another calendar, i.e. changes an event's organizer.</summary>
+            <summary>
+            Moves an event to another calendar, i.e. changes an event's organizer. Note that only default events can be
+            moved; birthday, focusTime, fromGmail, outOfOffice and workingLocation events cannot be moved.
+            </summary>
             <param name="calendarId">Calendar identifier of the source calendar where the event currently is on.</param>
             <param name="eventId">Event identifier.</param>
             <param name="destination">
@@ -1626,7 +1747,10 @@
             </param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.EventsResource.MoveRequest">
-            <summary>Moves an event to another calendar, i.e. changes an event's organizer.</summary>
+            <summary>
+            Moves an event to another calendar, i.e. changes an event's organizer. Note that only default events can be
+            moved; birthday, focusTime, fromGmail, outOfOffice and workingLocation events cannot be moved.
+            </summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.EventsResource.MoveRequest.#ctor(Google.Apis.Services.IClientService,System.String,System.String,System.String)">
             <summary>Constructs a new Move request.</summary>
@@ -1952,14 +2076,57 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.AlwaysIncludeEmail">
+            <summary>Deprecated and ignored.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypes">
             <summary>
-            Deprecated and ignored. A value will always be returned in the email field for the organizer, creator
-            and attendees, even if no real email address is available (i.e. a generated, non-working value will be
-            provided).
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
+            </summary>
+            <remarks>
+            Use this property to set a single value for the parameter, or <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesList"/> to set
+            multiple values. Do not set both properties.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesList">
+            <summary>
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
+            </summary>
+            <remarks>
+            Use this property to set one or more values for the parameter. Do not set both this property and
+            <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypes"/>.
+            </remarks>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum">
+            <summary>
+            Event types to return. Optional. This parameter can be repeated multiple times to return events of
+            different types. If unset, returns all event types.
             </summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.Birthday">
+            <summary>Special all-day events with an annual recurrence.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.Default__">
+            <summary>Regular events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.FocusTime">
+            <summary>Focus time events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.FromGmail">
+            <summary>Events from Gmail.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.OutOfOffice">
+            <summary>Out of office events.</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.EventsResource.WatchRequest.EventTypesEnum.WorkingLocation">
+            <summary>Working location events.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.ICalUID">
-            <summary>Specifies event ID in the iCalendar format to be included in the response. Optional.</summary>
+            <summary>
+            Specifies an event ID in the iCalendar format to be provided in the response. Optional. Use this if you
+            want to search for an event by its iCalendar ID.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.MaxAttendees">
             <summary>
@@ -2005,8 +2172,14 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.Q">
             <summary>
-            Free text search terms to find events that match these terms in any field, except for extended
-            properties. Optional.
+            Free text search terms to find events that match these terms in the following fields:  - summary  -
+            description  - location  - attendee's displayName  - attendee's email  - organizer's displayName  -
+            organizer's email  - workingLocationProperties.officeLocation.buildingId  -
+            workingLocationProperties.officeLocation.deskId  - workingLocationProperties.officeLocation.label  -
+            workingLocationProperties.customLocation.label  These search terms also match predefined keywords
+            against all display title translations of working location, out-of-office, and focus-time events. For
+            example, searching for "Office" or "Bureau" returns working location events of type officeLocation,
+            whereas searching for "Out of office" or "Abwesend" returns out-of-office events. Optional.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.SharedExtendedProperty">
@@ -2039,13 +2212,14 @@
             events deleted since the previous list request will always be in the result set and it is not allowed to
             set showDeleted to False. There are several query parameters that cannot be specified together with
             nextSyncToken to ensure consistency of the client state.  These are:  - iCalUID  - orderBy  -
-            privateExtendedProperty  - q  - sharedExtendedProperty  - timeMin  - timeMax  - updatedMin If the
-            syncToken expires, the server will respond with a 410 GONE response code and the client should clear its
-            storage and perform a full synchronization without any syncToken. Learn more about incremental
+            privateExtendedProperty  - q  - sharedExtendedProperty  - timeMin  - timeMax  - updatedMin All other
+            query parameters should be the same as for the initial synchronization to avoid undefined behavior. If
+            the syncToken expires, the server will respond with a 410 GONE response code and the client should clear
+            its storage and perform a full synchronization without any syncToken. Learn more about incremental
             synchronization. Optional. The default is to return all entries.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMax">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMaxDateTimeOffset">
             <summary>
             Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter
             by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
@@ -2053,7 +2227,18 @@
             timeMin is set, timeMax must be greater than timeMin.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMin">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMaxRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMaxDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMax">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMaxDateTimeOffset"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMinDateTimeOffset">
             <summary>
             Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by
             end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example,
@@ -2061,16 +2246,38 @@
             timeMax is set, timeMin must be smaller than timeMax.
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMinRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMinDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMin">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeMinDateTimeOffset"/>.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.TimeZone">
             <summary>
             Time zone used in the response. Optional. The default is the time zone of the calendar.
             </summary>
         </member>
-        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMin">
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMinDateTimeOffset">
             <summary>
             Lower bound for an event's last modification time (as a RFC3339 timestamp) to filter by. When specified,
             entries deleted since this time will always be included regardless of showDeleted. Optional. The default
             is not to filter by last modification time.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMinRaw">
+            <summary>
+            String representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMinDateTimeOffset"/>, formatted for inclusion in the HTTP
+            request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMin">
+            <summary>
+            <seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.UpdatedMinDateTimeOffset"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.Body">
@@ -2543,6 +2750,9 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedRaw">
             <summary>Last modification time of the color palette (as a RFC3339 timestamp). Read-only.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Colors.Updated">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Colors.UpdatedRaw"/>.</summary>
         </member>
@@ -2591,9 +2801,8 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.ConferenceData.Signature">
             <summary>
-            The signature of the conference data. Generated on server side. Must be preserved while copying the
-            conference data between events, otherwise the conference data will not be copied. Unset for a conference
-            with a failed create request. Optional for a conference with a pending create request.
+            The signature of the conference data. Generated on server side. Unset for a conference with a failed create
+            request. Optional for a conference with a pending create request.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.ConferenceData.ETag">
@@ -2766,9 +2975,8 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Attachments">
             <summary>
-            File attachments for the event. Currently only Google Drive attachments are supported. In order to modify
-            attachments the supportsAttachments request parameter should be set to true. There can be at most 25
-            attachments per event,
+            File attachments for the event. In order to modify attachments the supportsAttachments request parameter
+            should be set to true. There can be at most 25 attachments per event,
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Attendees">
@@ -2801,6 +3009,9 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw">
             <summary>Creation time of the event (as a RFC3339 timestamp). Read-only.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatedDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Created">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw"/>.</summary>
         </member>
@@ -2826,12 +3037,18 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.EventType">
             <summary>
-            Specific type of the event. Read-only. Possible values are:   - "default" - A regular event or not further
-            specified.  - "outOfOffice" - An out-of-office event.
+            Specific type of the event. This cannot be modified after the event is created. Possible values are:   -
+            "birthday" - A special all-day event with an annual recurrence.  - "default" - A regular event or not
+            further specified.  - "focusTime" - A focus-time event.  - "fromGmail" - An event from Gmail. This type of
+            event cannot be created.  - "outOfOffice" - An out-of-office event.  - "workingLocation" - A working
+            location event.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.ExtendedProperties">
             <summary>Extended properties of the event.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.FocusTimeProperties">
+            <summary>Focus Time event data. Used if eventType is focusTime.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Gadget">
             <summary>
@@ -2864,10 +3081,11 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Event.ICalUID">
             <summary>
             Event unique identifier as defined in RFC5545. It is used to uniquely identify events accross calendaring
-            systems and must be supplied when importing events via the import method. Note that the icalUID and the id
+            systems and must be supplied when importing events via the import method. Note that the iCalUID and the id
             are not identical and only one of them should be supplied at event creation time. One difference in their
             semantics is that in recurring events, all occurrences of one event have different ids while they all share
-            the same icalUIDs.
+            the same iCalUIDs. To retrieve an event using its iCalUID, call the events.list method using the iCalUID
+            parameter. To retrieve an event using its id, call the events.get method.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Id">
@@ -2910,6 +3128,9 @@
             within the recurring event series even if the instance was moved to a different time. Immutable.
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.OutOfOfficeProperties">
+            <summary>Out of office event data. Used if eventType is outOfOffice.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.PrivateCopy">
             <summary>
             If set to True, Event propagation is disabled. Note that it is not the same thing as Private event
@@ -2930,7 +3151,10 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Reminders">
-            <summary>Information about the event's reminders for the authenticated user.</summary>
+            <summary>
+            Information about the event's reminders for the authenticated user. Note that changing reminders does not
+            also change the updated property of the enclosing event.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Sequence">
             <summary>Sequence number as per iCalendar.</summary>
@@ -2980,7 +3204,13 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.UpdatedRaw">
-            <summary>Last modification time of the event (as a RFC3339 timestamp). Read-only.</summary>
+            <summary>
+            Last modification time of the main event data (as a RFC3339 timestamp). Updating event reminders will not
+            cause this to change. Read-only.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.UpdatedDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.UpdatedRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.Updated">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Event.UpdatedRaw"/>.</summary>
@@ -2993,6 +3223,9 @@
             view event details.  - "confidential" - The event is private. This value is provided for compatibility
             reasons.
             </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.WorkingLocationProperties">
+            <summary>Working location event data.</summary>
         </member>
         <member name="T:Google.Apis.Calendar.v3.Data.Event.CreatorData">
             <summary>The creator of the event. Read-only.</summary>
@@ -3083,7 +3316,10 @@
             </summary>
         </member>
         <member name="T:Google.Apis.Calendar.v3.Data.Event.RemindersData">
-            <summary>Information about the event's reminders for the authenticated user.</summary>
+            <summary>
+            Information about the event's reminders for the authenticated user. Note that changing reminders does not
+            also change the updated property of the enclosing event.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.RemindersData.Overrides">
             <summary>
@@ -3120,7 +3356,9 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttachment.IconLink">
-            <summary>URL link to the attachment's icon. Read-only.</summary>
+            <summary>
+            URL link to the attachment's icon. This field can only be modified for custom third-party attachments.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttachment.MimeType">
             <summary>Internet media type (MIME type) of the attachment.</summary>
@@ -3164,8 +3402,12 @@
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.ResponseStatus">
             <summary>
             The attendee's response status. Possible values are:   - "needsAction" - The attendee has not responded to
-            the invitation.  - "declined" - The attendee has declined the invitation.  - "tentative" - The attendee has
-            tentatively accepted the invitation.  - "accepted" - The attendee has accepted the invitation.
+            the invitation (recommended for new events).  - "declined" - The attendee has declined the invitation.  -
+            "tentative" - The attendee has tentatively accepted the invitation.  - "accepted" - The attendee has
+            accepted the invitation.  Warning: If you add an event using the values declined, tentative, or accepted,
+            attendees with the "Add invitations to my calendar" setting set to "When I respond to invitation in email"
+            won't see an event on their calendar unless they choose to change their invitation response in the event
+            invitation email.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Self">
@@ -3186,6 +3428,9 @@
             unless a time zone is explicitly specified in timeZone.
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTimeDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTimeRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTime">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.EventDateTime.DateTimeRaw"/>.</summary>
         </member>
@@ -3198,6 +3443,45 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventFocusTimeProperties.AutoDeclineMode">
+            <summary>
+            Whether to decline meeting invitations which overlap Focus Time events. Valid values are declineNone,
+            meaning that no meeting invitations are declined; declineAllConflictingInvitations, meaning that all
+            conflicting meeting invitations that conflict with the event are declined; and
+            declineOnlyNewConflictingInvitations, meaning that only new conflicting meeting invitations which arrive
+            while the Focus Time event is present are to be declined.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventFocusTimeProperties.ChatStatus">
+            <summary>
+            The status to mark the user in Chat and related products. This can be available or doNotDisturb.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventFocusTimeProperties.DeclineMessage">
+            <summary>
+            Response message to set if an existing event or new invitation is automatically declined by Calendar.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventFocusTimeProperties.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventOutOfOfficeProperties.AutoDeclineMode">
+            <summary>
+            Whether to decline meeting invitations which overlap Out of office events. Valid values are declineNone,
+            meaning that no meeting invitations are declined; declineAllConflictingInvitations, meaning that all
+            conflicting meeting invitations that conflict with the event are declined; and
+            declineOnlyNewConflictingInvitations, meaning that only new conflicting meeting invitations which arrive
+            while the Out of office event is present are to be declined.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventOutOfOfficeProperties.DeclineMessage">
+            <summary>
+            Response message to set if an existing event or new invitation is automatically declined by Calendar.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventOutOfOfficeProperties.ETag">
             <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.Method">
@@ -3214,6 +3498,56 @@
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventReminder.ETag">
             <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.CustomLocation">
+            <summary>If present, specifies that the user is working from a custom location.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.HomeOffice">
+            <summary>If present, specifies that the user is working at home.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocation">
+            <summary>If present, specifies that the user is working from an office.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.Type">
+            <summary>
+            Type of the working location. Possible values are:   - "homeOffice" - The user is working at home.  -
+            "officeLocation" - The user is working from an office.  - "customLocation" - The user is working from a
+            custom location.  Any details are specified in a sub-field of the specified name, but this field may be
+            missing if empty. Any other fields are ignored. Required when adding working location properties.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.CustomLocationData">
+            <summary>If present, specifies that the user is working from a custom location.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.CustomLocationData.Label">
+            <summary>An optional extra label for additional information.</summary>
+        </member>
+        <member name="T:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData">
+            <summary>If present, specifies that the user is working from an office.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData.BuildingId">
+            <summary>
+            An optional building identifier. This should reference a building ID in the organization's Resources
+            database.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData.DeskId">
+            <summary>An optional desk identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData.FloorId">
+            <summary>An optional floor identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData.FloorSectionId">
+            <summary>An optional floor section identifier.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventWorkingLocationProperties.OfficeLocationData.Label">
+            <summary>
+            The office name that's displayed in Calendar Web and Mobile clients. We recommend you reference a
+            building name in the organization's Resources database.
+            </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.AccessRole">
             <summary>
@@ -3265,6 +3599,9 @@
         <member name="P:Google.Apis.Calendar.v3.Data.Events.UpdatedRaw">
             <summary>Last modification time of the calendar (as a RFC3339 timestamp). Read-only.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Events.UpdatedDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Events.UpdatedRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.Updated">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.Events.UpdatedRaw"/>.</summary>
         </member>
@@ -3303,11 +3640,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw">
             <summary>The end of the interval for the query formatted as per RFC3339.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMax">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMaxRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw">
             <summary>The start of the interval for the query formatted as per RFC3339.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMin">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyRequest.TimeMinRaw"/>.</summary>
@@ -3336,11 +3679,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxRaw">
             <summary>The end of the interval.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMax">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMaxRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinRaw">
             <summary>The start of the interval.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMin">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.FreeBusyResponse.TimeMinRaw"/>.</summary>
@@ -3387,11 +3736,17 @@
         <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndRaw">
             <summary>The (exclusive) end of the time period.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndRaw"/>.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.End">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.EndRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartRaw">
             <summary>The (inclusive) start of the time period.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartDateTimeOffset">
+            <summary><seealso cref="T:System.DateTimeOffset"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartRaw"/>.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.TimePeriod.Start">
             <summary><seealso cref="T:System.DateTime"/> representation of <see cref="P:Google.Apis.Calendar.v3.Data.TimePeriod.StartRaw"/>.</summary>
