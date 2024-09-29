@@ -4,6 +4,36 @@
         <name>Google.Api.Gax</name>
     </assembly>
     <members>
+        <member name="T:Google.Api.Gax.ActivitySources">
+            <summary>
+            Helper methods for obtaining <see cref="T:System.Diagnostics.ActivitySource"/> values.
+            Note that while some conventions suggest a single activity source per assembly, libraries for Google Cloud APIs
+            use an activity source per client type, for simpler filtering. These can easily be obtained via the static
+            properties on the client type itself, but this class allows a more generic approach where necessary.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.ActivitySources.FromType(System.Type)">
+            <summary>
+            Returns an <see cref="T:System.Diagnostics.ActivitySource"/> named after the given type (typically an API client).
+            </summary>
+            <remarks>
+            Multiple calls to this method (or <see cref="M:Google.Api.Gax.ActivitySources.FromType``1"/>) for the same
+            type will return the same cached activity source.
+            </remarks>
+            <param name="type">The client type to obtain an activity source for. Must not be null.</param>
+            <returns>An <see cref="T:System.Diagnostics.ActivitySource"/> named after the given client type.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ActivitySources.FromType``1">
+            <summary>
+            Returns an <see cref="T:System.Diagnostics.ActivitySource"/> named after the given type (typically an API client).
+            </summary>
+            <remarks>
+            Multiple calls to this method (or <see cref="M:Google.Api.Gax.ActivitySources.FromType(System.Type)"/>) for the same
+            type will return the same cached activity source.
+            </remarks>
+            <typeparam name="T">The type to obtain an activity source for.</typeparam>
+            <returns>An <see cref="T:System.Diagnostics.ActivitySource"/> named after the given type.</returns>
+        </member>
         <member name="T:Google.Api.Gax.ApiTransports">
             <summary>
             The transports that can be used to make calls to an API.
@@ -2854,6 +2884,11 @@
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.IsHeaderNameValueValid(System.String)">
             <summary>
             Whether the name or value that are supposed to be included in a header are valid
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.FormatAssemblyVersion(System.Type)">
+            <summary>
+            Formats the version of the assembly containing the specified type, in a "generally informative" way.
             </summary>
         </member>
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.FormatInformationalVersion(System.String)">
