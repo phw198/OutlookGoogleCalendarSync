@@ -1,0 +1,1890 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.LongRunning</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Cloud.ExtendedOperationsReflection">
+            <summary>Holder for reflection information generated from google/cloud/extended_operations.proto</summary>
+        </member>
+        <member name="P:Google.Cloud.ExtendedOperationsReflection.Descriptor">
+            <summary>File descriptor for google/cloud/extended_operations.proto</summary>
+        </member>
+        <member name="T:Google.Cloud.ExtendedOperationsExtensions">
+            <summary>Holder for extension identifiers generated from the top level of google/cloud/extended_operations.proto</summary>
+        </member>
+        <member name="F:Google.Cloud.ExtendedOperationsExtensions.OperationField">
+            <summary>
+            A field annotation that maps fields in an API-specific Operation object to
+            their standard counterparts in google.longrunning.Operation. See
+            OperationResponseMapping enum definition.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.ExtendedOperationsExtensions.OperationRequestField">
+            <summary>
+            A field annotation that maps fields in the initial request message
+            (the one which started the LRO) to their counterparts in the polling
+            request message. For non-standard LRO, the polling response may be missing
+            some of the information needed to make a subsequent polling request. The
+            missing information (for example, project or region ID) is contained in the
+            fields of the initial request message that this annotation must be applied
+            to. The string value of the annotation corresponds to the name of the
+            counterpart field in the polling request message that the annotated field's
+            value will be copied to.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.ExtendedOperationsExtensions.OperationResponseField">
+            <summary>
+            A field annotation that maps fields in the polling request message to their
+            counterparts in the initial and/or polling response message. The initial
+            and the polling methods return an API-specific Operation object. Some of
+            the fields from that response object must be reused in the subsequent
+            request (like operation name/ID) to fully identify the polled operation.
+            This annotation must be applied to the fields in the polling request
+            message, the string value of the annotation must correspond to the name of
+            the counterpart field in the Operation response object whose value will be
+            copied to the annotated field.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.ExtendedOperationsExtensions.OperationService">
+            <summary>
+            A method annotation that maps an LRO method (the one which starts an LRO)
+            to the service, which will be used to poll for the operation status. The
+            annotation must be applied to the method which starts an LRO, the string
+            value of the annotation must correspond to the name of the service used to
+            poll for the operation status.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.ExtendedOperationsExtensions.OperationPollingMethod">
+            <summary>
+            A method annotation that marks methods that can be used for polling
+            operation status (e.g. the MyPollingService.Get(MyPollingRequest) method).
+            </summary>
+        </member>
+        <member name="T:Google.Cloud.OperationResponseMapping">
+            <summary>
+            An enum to be used to mark the essential (for polling) fields in an
+            API-specific Operation object. A custom Operation object may contain many
+            different fields, but only few of them are essential to conduct a successful
+            polling process.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.OperationResponseMapping.Undefined">
+            <summary>
+            Do not use.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.OperationResponseMapping.Name">
+            <summary>
+            A field in an API-specific (custom) Operation object which carries the same
+            meaning as google.longrunning.Operation.name.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.OperationResponseMapping.Status">
+            <summary>
+            A field in an API-specific (custom) Operation object which carries the same
+            meaning as google.longrunning.Operation.done. If the annotated field is of
+            an enum type, `annotated_field_name == EnumType.DONE` semantics should be
+            equivalent to `Operation.done == true`. If the annotated field is of type
+            boolean, then it should follow the same semantics as Operation.done.
+            Otherwise, a non-empty value should be treated as `Operation.done == true`.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.OperationResponseMapping.ErrorCode">
+            <summary>
+            A field in an API-specific (custom) Operation object which carries the same
+            meaning as google.longrunning.Operation.error.code.
+            </summary>
+        </member>
+        <member name="F:Google.Cloud.OperationResponseMapping.ErrorMessage">
+            <summary>
+            A field in an API-specific (custom) Operation object which carries the same
+            meaning as google.longrunning.Operation.error.message.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.Operation`2">
+            <summary>
+            A long-running operation with an associated client, and which knows the expected response type.
+            </summary>
+            <remarks>
+            <para>
+            For simplicity, no methods on this type modify the proto message. Instead, to get up-to-date
+            information you can use Refresh to obtain a new instance.
+            </para>
+            <para>
+            If the operation was created with a different major version of the service API than expected,
+            the metadata and response values may not be of the expected type. There are three approaches to handling this:
+            <list type="bullet">
+              <item>
+                <description>To fail with an exception if an unexpected type of value is present, use the <see cref="P:Google.LongRunning.Operation`2.Result"/>
+                and <see cref="P:Google.LongRunning.Operation`2.Metadata"/> properties.</description>
+              </item>
+              <item>
+                <description>To receive a null reference if an unexpected type of value is present, use the <see cref="M:Google.LongRunning.Operation`2.GetResultOrNull"/>
+                and <see cref="M:Google.LongRunning.Operation`2.GetMetadataOrNull"/> methods. You can then check the returned value and ignore nulls.</description>
+              </item>
+              <item>
+                <description>To handle multiple types, use the <see cref="P:Google.LongRunning.Operation`2.RpcMessage"/> property and its <see cref="P:Google.LongRunning.Operation.Response"/> and <see cref="P:Google.LongRunning.Operation.Metadata"/>
+                properties, of type <see cref="T:Google.Protobuf.WellKnownTypes.Any"/>. You can then use <see cref="P:Google.Protobuf.WellKnownTypes.Any.TypeUrl"/> to determine the type of the value to unpack, or
+                <see cref="M:Google.Protobuf.WellKnownTypes.Any.TryUnpack``1(``0@)"/> with each type you support.</description>
+              </item>
+            </list>
+            </para>
+            </remarks>
+            <typeparam name="TResponse">The response message type.</typeparam>
+            <typeparam name="TMetadata">The metata message type.</typeparam>
+        </member>
+        <member name="F:Google.LongRunning.Operation`2.s_defaultPollSettings">
+            <summary>
+            The poll settings to use if the neither the OperationsClient nor the caller provides anything.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.RpcMessage">
+            <summary>
+            The protobuf message associated with the long-running operation, containing the name (for
+            further retrieval) and any error/result already computed. This should not be mutated.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.Client">
+            <summary>
+            The client to use when making RPCs.
+            </summary>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.#ctor(Google.LongRunning.Operation,Google.LongRunning.OperationsClient)">
+            <summary>
+            Constructs a new instance from the given RPC message.
+            </summary>
+            <param name="rpcMessage">The RPC message describing the operation. Must not be null.</param>
+            <param name="client">The client to use for further calls. Must not be null.</param>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.Name">
+            <summary>
+            Returns the name of the operation, which can be persisted and used to poll for the latest
+            results at a later time or in a different program.
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.IsCompleted">
+            <summary>
+            Whether the operation has completed, where "complete" can include "failed".
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.IsFaulted">
+            <summary>
+            Whether the operation has completed with a failure.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.Exception">
+            <summary>
+            The error associated with the operation, as an <see cref="T:Google.LongRunning.OperationFailedException"/>, or <c>null</c>
+            if the operation is not in an error state (either because it completed successfully, or because it
+            has not yet completed).
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.Metadata">
+            <summary>
+            Retrieves the metadata associated with this operation, or <c>null</c> if there is no
+            metadata in the underlying response message.
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            See the <see cref="T:Google.LongRunning.Operation"/> documentation for information about dealing with different metadata type versions.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">Metadata is present, but is not of the expected type.</exception>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.GetMetadataOrNull">
+            <summary>
+            Retrieves the metadata associated with this operation, or <c>null</c> if either there is no
+            metadata in the underlying response message, or it does not have the expected type.
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            See the <see cref="T:Google.LongRunning.Operation"/> documentation for information about dealing with different metadata type versions.
+            </remarks>
+            <returns>The metadata of the operation if possible, or null otherwise.</returns>
+        </member>
+        <member name="P:Google.LongRunning.Operation`2.Result">
+            <summary>
+            Retrieves the result of the operation, throwing an exception if the operation failed, hasn't completed,
+            or has an unexpected result type. Unlike <see cref="P:System.Threading.Tasks.Task`1.Result"/>, this does not block.
+            If the operation has completed but the result is not present (for example due to being excluded by
+            a field mask) this returns null.
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            See the <see cref="T:Google.LongRunning.Operation"/> documentation for information about dealing with different response type versions.
+            </remarks>
+            <exception cref="T:Google.LongRunning.OperationFailedException">The operation completed with an error.</exception>
+            <exception cref="T:System.InvalidOperationException">The operation has not completed yet, or the result is present but
+            not of the expected result type.</exception>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.GetResultOrNull">
+            <summary>
+            Retrieves the result of the operation, or null if the operation failed, hasn't completed, has an
+            unexpected result type, or didn't contain a result at all.
+            </summary>
+            <remarks>
+            Only the in-memory representation of the operation (this object) is consulted for its state.
+            See the <see cref="T:Google.LongRunning.Operation"/> documentation for information about dealing with different response type versions.
+            </remarks>
+            <returns>The result of the operation if possible, or null otherwise.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollUntilCompleted(Google.Api.Gax.PollSettings,Google.Api.Gax.Grpc.CallSettings,System.Action{`1})">
+            <summary>
+            Polls the operation until it is complete, returning the completed operation.
+            </summary>
+            <remarks>
+            <para>
+            If this object already represents a completed operation, it is returned with no further RPCs.
+            If <paramref name="metadataCallback"/> is non-null, the callback will be called with any metadata
+            present before the result is returned.
+            </para>
+            <para>
+            Each callback is performed synchronously: this method waits for the callback to complete before the operation is next polled.
+            This guarantees that for a single call, metadata callbacks will never occur in parallel.
+            </para>
+            </remarks>
+            <param name="pollSettings">The settings to use for repeated polling, or null
+            to use the default poll settings (poll once every 10 seconds, forever).</param>
+            <param name="callSettings">The call settings to apply on each call, or null for default settings.</param>
+            <param name="metadataCallback">The callback to invoke with the metadata from each poll operation, even if the metadata is null.</param>
+            <returns>The completed operation, which can then be checked for errors or a result.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollUntilCompletedAsync(Google.Api.Gax.PollSettings,Google.Api.Gax.Grpc.CallSettings,System.Action{`1})">
+            <summary>
+            Asynchronously polls the operation until it is complete, returning the completed operation.
+            </summary>
+            <remarks>
+            <para>
+            If this object already represents a completed operation, it is returned with no further RPCs.
+            If <paramref name="metadataCallback"/> is non-null, the callback will be called with any metadata
+            present before the result is returned.
+            </para>
+            <para>
+            No guarantee is made as to which thread is used for metadata callbacks. However, each callback is
+            performed synchronously: this method waits for the callback to complete before the operation is next polled.
+            This guarantees that for a single call, metadata callbacks will never occur in parallel.
+            </para>
+            </remarks>
+            <param name="pollSettings">The settings to use for repeated polling, or null
+            to use the default poll settings (poll once every 10 seconds, forever).</param>
+            <param name="callSettings">The call settings to apply on each call, or null for default settings.</param>
+            <param name="metadataCallback">The callback to invoke with the metadata from each poll operation, even if the metadata is null.</param>
+            <returns>The completed operation, which can then be checked for errors or a result.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnce(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Returns a new instance reflecting the most recent state of the operation.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+            <returns>The most recent state of the operation, or a reference to the same
+            object if the operation has already completed.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnceAsync(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Asynchronously returns a new instance reflecting the most recent state of the operation.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+            <returns>A task representing the asynchronous poll operation. The result of the task is
+            the most recent state of the operation, or a reference to the same
+            object if the operation has already completed.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnceAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously returns a new instance reflecting the most recent state of the operation.
+            </summary>
+            <param name="cancellationToken">A cancellation token for the poll operation.</param>
+            <returns>A task representing the asynchronous poll operation. The result of the task is
+            the most recent state of the operation, or a reference to the same
+            object if the operation has already completed.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.Cancel(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Attempts to cancel the long-running operation.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.CancelAsync(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Asynchronously attempts to cancel the long-running operation.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+            <returns>A task representing the asynchronous cancel operation.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.CancelAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously attempts to cancel the long-running operation.
+            </summary>
+            <param name="cancellationToken">A cancellation token for the cancel RPC.
+            Note that this is not a cancellation token for the long-running operation itself.</param>
+            <returns>A task representing the asynchronous cancel operation.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.Delete(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes the long-running operation. This does not cancel it; it
+            only indicates that the client is no longer interested in the result.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.DeleteAsync(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Asynchronously deletes the long-running operation. This does not cancel it; it
+            only indicates that the client is no longer interested in the result.
+            </summary>
+            <param name="callSettings">Any overriding call settings to apply to the RPC.</param>
+            <returns>A task representing the asynchronous deletion operation.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.DeleteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously deletes the long-running operation. This does not cancel it; it
+            only indicates that the client is no longer interested in the result.
+            </summary>
+            <param name="cancellationToken">A cancellation token for the cancel RPC.
+            Note that this is not a cancellation token for the long-running operation itself.</param>
+            <returns>A task representing the asynchronous deletion operation.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnceFromName(System.String,Google.LongRunning.OperationsClient,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Creates a new instance reflecting the most recent state of the operation with the specified name.
+            </summary>
+            <param name="name">The name of the operation, as returned when it was created. Must not be null.</param>
+            <param name="client">The client to make the RPC call.</param>
+            <param name="callSettings">Any overriding call settings to apply to the RPC. May be null, in which case
+            the default settings are used.</param>
+            <returns>The current state of the operation identified by <paramref name="name"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnceFromNameAsync(System.String,Google.LongRunning.OperationsClient,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Asynchronously creates a new instance reflecting the most recent state of the operation with the specified name.
+            </summary>
+            <param name="name">The name of the operation, as returned when it was created. Must not be null.</param>
+            <param name="client">The client to make the RPC call.</param>
+            <param name="callSettings">Any overriding call settings to apply to the RPC. May be null, in which case
+            the default settings are used.</param>
+            <returns>A task representing the asynchronous "fetch" operation. The result of the task is
+            the current state of the operation identified by <paramref name="name"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operation`2.PollOnceFromNameAsync(System.String,Google.LongRunning.OperationsClient,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously creates a new instance reflecting the most recent state of the operation with the specified name.
+            </summary>
+            <param name="name">The name of the operation, as returned when it was created. Must not be null.</param>
+            <param name="client">The client to make the RPC call.</param>
+            <param name="cancellationToken">A cancellation token for the "fetch" operation.</param>
+            <returns>A task representing the asynchronous "fetch" operation. The result of the task is
+            the current state of the operation identified by <paramref name="name"/>.</returns>
+        </member>
+        <member name="T:Google.LongRunning.OperationFailedException">
+            <summary>
+            An exception to indicate that a long-running operation failed.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationFailedException.Operation">
+            <summary>
+            The operation message containing the original error.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationFailedException.Status">
+            <summary>
+            The status message within the operation's error field.
+            </summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationFailedException.#ctor(Google.LongRunning.Operation)">
+            <summary>
+            Constructs an exception based on a protobuf message representing a failed operation.
+            </summary>
+            <param name="operation">The failed operation. Must not be null, and must have an error.</param>
+        </member>
+        <member name="T:Google.LongRunning.OperationsReflection">
+            <summary>Holder for reflection information generated from google/longrunning/operations.proto</summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsReflection.Descriptor">
+            <summary>File descriptor for google/longrunning/operations.proto</summary>
+        </member>
+        <member name="T:Google.LongRunning.OperationsExtensions">
+            <summary>Holder for extension identifiers generated from the top level of google/longrunning/operations.proto</summary>
+        </member>
+        <member name="F:Google.LongRunning.OperationsExtensions.OperationInfo">
+             <summary>
+             Additional information regarding long-running operations.
+             In particular, this specifies the types that are returned from
+             long-running operations.
+            
+             Required for methods that return `google.longrunning.Operation`; invalid
+             otherwise.
+             </summary>
+        </member>
+        <member name="T:Google.LongRunning.Operation">
+            <summary>
+            This resource represents a long-running operation that is the result of a
+            network API call.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.Operation.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation.Name">
+            <summary>
+            The server-assigned name, which is only unique within the same service that
+            originally returns it. If you use the default HTTP mapping, the
+            `name` should be a resource name ending with `operations/{unique_id}`.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.Operation.MetadataFieldNumber">
+            <summary>Field number for the "metadata" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation.Metadata">
+            <summary>
+            Service-specific metadata associated with the operation.  It typically
+            contains progress information and common metadata such as create time.
+            Some services might not provide such metadata.  Any method that returns a
+            long-running operation should document the metadata type, if any.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.Operation.DoneFieldNumber">
+            <summary>Field number for the "done" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation.Done">
+            <summary>
+            If the value is `false`, it means the operation is still in progress.
+            If `true`, the operation is completed, and either `error` or `response` is
+            available.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.Operation.ErrorFieldNumber">
+            <summary>Field number for the "error" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation.Error">
+            <summary>
+            The error result of the operation in case of failure or cancellation.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.Operation.ResponseFieldNumber">
+            <summary>Field number for the "response" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.Operation.Response">
+            <summary>
+            The normal response of the operation in case of success.  If the original
+            method returns no data on success, such as `Delete`, the response is
+            `google.protobuf.Empty`.  If the original method is standard
+            `Get`/`Create`/`Update`, the response should be the resource.  For other
+            methods, the response should have the type `XxxResponse`, where `Xxx`
+            is the original method name.  For example, if the original method name
+            is `TakeSnapshot()`, the inferred response type is
+            `TakeSnapshotResponse`.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.Operation.ResultOneofCase">
+            <summary>Enum of possible cases for the "result" oneof.</summary>
+        </member>
+        <member name="T:Google.LongRunning.GetOperationRequest">
+            <summary>
+            The request message for [Operations.GetOperation][google.longrunning.Operations.GetOperation].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.GetOperationRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.GetOperationRequest.Name">
+            <summary>
+            The name of the operation resource.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.ListOperationsRequest">
+            <summary>
+            The request message for [Operations.ListOperations][google.longrunning.Operations.ListOperations].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsRequest.Name">
+            <summary>
+            The name of the operation's parent resource.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsRequest.FilterFieldNumber">
+            <summary>Field number for the "filter" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsRequest.Filter">
+            <summary>
+            The standard list filter.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsRequest.PageSizeFieldNumber">
+            <summary>Field number for the "page_size" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsRequest.PageSize">
+            <summary>
+            The standard list page size.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsRequest.PageTokenFieldNumber">
+            <summary>Field number for the "page_token" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsRequest.PageToken">
+            <summary>
+            The standard list page token.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.ListOperationsResponse">
+            <summary>
+            The response message for [Operations.ListOperations][google.longrunning.Operations.ListOperations].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsResponse.OperationsFieldNumber">
+            <summary>Field number for the "operations" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsResponse.Operations">
+            <summary>
+            A list of operations that matches the specified filter in the request.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.ListOperationsResponse.NextPageTokenFieldNumber">
+            <summary>Field number for the "next_page_token" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.ListOperationsResponse.NextPageToken">
+            <summary>
+            The standard List next-page token.
+            </summary>
+        </member>
+        <member name="M:Google.LongRunning.ListOperationsResponse.GetEnumerator">
+            <summary>Returns an enumerator that iterates through the resources in this response.</summary>
+        </member>
+        <member name="T:Google.LongRunning.CancelOperationRequest">
+            <summary>
+            The request message for [Operations.CancelOperation][google.longrunning.Operations.CancelOperation].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.CancelOperationRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.CancelOperationRequest.Name">
+            <summary>
+            The name of the operation resource to be cancelled.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.DeleteOperationRequest">
+            <summary>
+            The request message for [Operations.DeleteOperation][google.longrunning.Operations.DeleteOperation].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.DeleteOperationRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.DeleteOperationRequest.Name">
+            <summary>
+            The name of the operation resource to be deleted.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.WaitOperationRequest">
+            <summary>
+            The request message for [Operations.WaitOperation][google.longrunning.Operations.WaitOperation].
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.WaitOperationRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.WaitOperationRequest.Name">
+            <summary>
+            The name of the operation resource to wait on.
+            </summary>
+        </member>
+        <member name="F:Google.LongRunning.WaitOperationRequest.TimeoutFieldNumber">
+            <summary>Field number for the "timeout" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.WaitOperationRequest.Timeout">
+            <summary>
+            The maximum duration to wait before timing out. If left blank, the wait
+            will be at most the time permitted by the underlying HTTP/RPC protocol.
+            If RPC context deadline is also specified, the shorter one will be used.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.OperationInfo">
+             <summary>
+             A message representing the message types used by a long-running operation.
+            
+             Example:
+            
+               rpc LongRunningRecognize(LongRunningRecognizeRequest)
+                   returns (google.longrunning.Operation) {
+                 option (google.longrunning.operation_info) = {
+                   response_type: "LongRunningRecognizeResponse"
+                   metadata_type: "LongRunningRecognizeMetadata"
+                 };
+               }
+             </summary>
+        </member>
+        <member name="F:Google.LongRunning.OperationInfo.ResponseTypeFieldNumber">
+            <summary>Field number for the "response_type" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationInfo.ResponseType">
+             <summary>
+             Required. The message name of the primary return type for this
+             long-running operation.
+             This type will be used to deserialize the LRO's response.
+            
+             If the response is in a different package from the rpc, a fully-qualified
+             message name must be used (e.g. `google.protobuf.Struct`).
+            
+             Note: Altering this value constitutes a breaking change.
+             </summary>
+        </member>
+        <member name="F:Google.LongRunning.OperationInfo.MetadataTypeFieldNumber">
+            <summary>Field number for the "metadata_type" field.</summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationInfo.MetadataType">
+             <summary>
+             Required. The message name of the metadata type for this long-running
+             operation.
+            
+             If the response is in a different package from the rpc, a fully-qualified
+             message name must be used (e.g. `google.protobuf.Struct`).
+            
+             Note: Altering this value constitutes a breaking change.
+             </summary>
+        </member>
+        <member name="T:Google.LongRunning.OperationsSettings">
+            <summary>Settings for <see cref="T:Google.LongRunning.OperationsClient"/> instances.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsSettings.GetDefault">
+            <summary>Get a new instance of the default <see cref="T:Google.LongRunning.OperationsSettings"/>.</summary>
+            <returns>A new instance of the default <see cref="T:Google.LongRunning.OperationsSettings"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsSettings.#ctor">
+            <summary>Constructs a new <see cref="T:Google.LongRunning.OperationsSettings"/> object with default settings.</summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.ListOperationsSettings">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for synchronous and asynchronous calls to
+            <c>OperationsClient.ListOperations</c> and <c>OperationsClient.ListOperationsAsync</c>.
+            </summary>
+            <remarks>
+            <list type="bullet">
+            <item><description>Initial retry delay: 500 milliseconds.</description></item>
+            <item><description>Retry delay multiplier: 2</description></item>
+            <item><description>Retry maximum delay: 10000 milliseconds.</description></item>
+            <item><description>Maximum attempts: 5</description></item>
+            <item>
+            <description>Retriable status codes: <see cref="F:Grpc.Core.StatusCode.Unavailable"/>.</description>
+            </item>
+            <item><description>Timeout: 10 seconds.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.GetOperationSettings">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for synchronous and asynchronous calls to
+            <c>OperationsClient.GetOperation</c> and <c>OperationsClient.GetOperationAsync</c>.
+            </summary>
+            <remarks>
+            <list type="bullet">
+            <item><description>Initial retry delay: 500 milliseconds.</description></item>
+            <item><description>Retry delay multiplier: 2</description></item>
+            <item><description>Retry maximum delay: 10000 milliseconds.</description></item>
+            <item><description>Maximum attempts: 5</description></item>
+            <item>
+            <description>Retriable status codes: <see cref="F:Grpc.Core.StatusCode.Unavailable"/>.</description>
+            </item>
+            <item><description>Timeout: 10 seconds.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.DeleteOperationSettings">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for synchronous and asynchronous calls to
+            <c>OperationsClient.DeleteOperation</c> and <c>OperationsClient.DeleteOperationAsync</c>.
+            </summary>
+            <remarks>
+            <list type="bullet">
+            <item><description>Initial retry delay: 500 milliseconds.</description></item>
+            <item><description>Retry delay multiplier: 2</description></item>
+            <item><description>Retry maximum delay: 10000 milliseconds.</description></item>
+            <item><description>Maximum attempts: 5</description></item>
+            <item>
+            <description>Retriable status codes: <see cref="F:Grpc.Core.StatusCode.Unavailable"/>.</description>
+            </item>
+            <item><description>Timeout: 10 seconds.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.CancelOperationSettings">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for synchronous and asynchronous calls to
+            <c>OperationsClient.CancelOperation</c> and <c>OperationsClient.CancelOperationAsync</c>.
+            </summary>
+            <remarks>
+            <list type="bullet">
+            <item><description>Initial retry delay: 500 milliseconds.</description></item>
+            <item><description>Retry delay multiplier: 2</description></item>
+            <item><description>Retry maximum delay: 10000 milliseconds.</description></item>
+            <item><description>Maximum attempts: 5</description></item>
+            <item>
+            <description>Retriable status codes: <see cref="F:Grpc.Core.StatusCode.Unavailable"/>.</description>
+            </item>
+            <item><description>Timeout: 10 seconds.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.WaitOperationSettings">
+            <summary>
+            <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> for synchronous and asynchronous calls to
+            <c>OperationsClient.WaitOperation</c> and <c>OperationsClient.WaitOperationAsync</c>.
+            </summary>
+            <remarks>
+            <list type="bullet">
+            <item><description>This call will not be retried.</description></item>
+            <item><description>No timeout is applied.</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:Google.LongRunning.OperationsSettings.Clone">
+            <summary>Creates a deep clone of this object, with all the same property values.</summary>
+            <returns>A deep clone of this <see cref="T:Google.LongRunning.OperationsSettings"/> object.</returns>
+        </member>
+        <member name="P:Google.LongRunning.OperationsSettings.DefaultPollSettings">
+            <summary>
+            The poll settings used by default for repeated polling operations.
+            </summary>
+        </member>
+        <member name="T:Google.LongRunning.OperationsClientBuilder">
+            <summary>
+            Builder class for <see cref="T:Google.LongRunning.OperationsClient"/> to provide simple configuration of credentials, endpoint etc.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClientBuilder.Settings">
+            <summary>The settings to use for RPCs, or <c>null</c> for the default settings.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientBuilder.#ctor">
+            <summary>Creates a new builder with default settings.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientBuilder.Build">
+            <summary>Builds the resulting client.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientBuilder.BuildAsync(System.Threading.CancellationToken)">
+            <summary>Builds the resulting client asynchronously.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientBuilder.GetChannelPool">
+            <summary>Returns the channel pool to use when no other options are specified.</summary>
+        </member>
+        <member name="T:Google.LongRunning.OperationsClient">
+            <summary>Operations client wrapper, for convenient use.</summary>
+            <remarks>
+            Manages long-running operations with an API service.
+            
+            When an API method normally takes long time to complete, it can be designed
+            to return [Operation][google.longrunning.Operation] to the client, and the client can use this
+            interface to receive the real response asynchronously by polling the
+            operation resource, or pass the operation resource to another API (such as
+            Google Cloud Pub/Sub API) to receive the response.  Any API service that
+            returns long-running operations should implement the `Operations` interface
+            so developers can have a consistent client experience.
+            </remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.DefaultEndpoint">
+            <summary>
+            The default endpoint for the Operations service, which is a host of "longrunning.googleapis.com" and a port
+            of 443.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.DefaultScopes">
+            <summary>The default Operations scopes.</summary>
+            <remarks>The default Operations scopes are:<list type="bullet"></list></remarks>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.ServiceMetadata">
+            <summary>The service metadata associated with this client type.</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CreateAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously creates a <see cref="T:Google.LongRunning.OperationsClient"/> using the default credentials, endpoint and
+            settings. To specify custom credentials or other settings, use <see cref="T:Google.LongRunning.OperationsClientBuilder"/>.
+            </summary>
+            <param name="cancellationToken">
+            The <see cref="T:System.Threading.CancellationToken"/> to use while creating the client.
+            </param>
+            <returns>The task representing the created <see cref="T:Google.LongRunning.OperationsClient"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.Create">
+            <summary>
+            Synchronously creates a <see cref="T:Google.LongRunning.OperationsClient"/> using the default credentials, endpoint and settings.
+            To specify custom credentials or other settings, use <see cref="T:Google.LongRunning.OperationsClientBuilder"/>.
+            </summary>
+            <returns>The created <see cref="T:Google.LongRunning.OperationsClient"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.Create(Grpc.Core.CallInvoker,Google.LongRunning.OperationsSettings,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Creates a <see cref="T:Google.LongRunning.OperationsClient"/> which uses the specified call invoker for remote operations.
+            </summary>
+            <param name="callInvoker">
+            The <see cref="T:Grpc.Core.CallInvoker"/> for remote operations. Must not be null.
+            </param>
+            <param name="settings">Optional <see cref="T:Google.LongRunning.OperationsSettings"/>.</param>
+            <param name="logger">Optional <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</param>
+            <returns>The created <see cref="T:Google.LongRunning.OperationsClient"/>.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.ShutdownDefaultChannelsAsync">
+            <summary>
+            Shuts down any channels automatically created by <see cref="M:Google.LongRunning.OperationsClient.Create"/> and
+            <see cref="M:Google.LongRunning.OperationsClient.CreateAsync(System.Threading.CancellationToken)"/>. Channels which weren't automatically created are not
+            affected.
+            </summary>
+            <remarks>
+            After calling this method, further calls to <see cref="M:Google.LongRunning.OperationsClient.Create"/> and
+            <see cref="M:Google.LongRunning.OperationsClient.CreateAsync(System.Threading.CancellationToken)"/> will create new channels, which could in turn be shut down
+            by another call to this method.
+            </remarks>
+            <returns>A task representing the asynchronous shutdown operation.</returns>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.GrpcClient">
+            <summary>The underlying gRPC Operations client</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.ListOperations(Google.LongRunning.ListOperationsRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.ListOperationsAsync(Google.LongRunning.ListOperationsRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable asynchronous sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.ListOperations(System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="name">
+            The name of the operation's parent resource.
+            </param>
+            <param name="filter">
+            The standard list filter.
+            </param>
+            <param name="pageToken">
+            The token returned from the previous request. A value of <c>null</c> or an empty string retrieves the first
+            page.
+            </param>
+            <param name="pageSize">
+            The size of page to request. The response will not be larger than this, but may be smaller. A value of
+            <c>null</c> or <c>0</c> uses a server-defined page size.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.ListOperationsAsync(System.String,System.String,System.String,System.Nullable{System.Int32},Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="name">
+            The name of the operation's parent resource.
+            </param>
+            <param name="filter">
+            The standard list filter.
+            </param>
+            <param name="pageToken">
+            The token returned from the previous request. A value of <c>null</c> or an empty string retrieves the first
+            page.
+            </param>
+            <param name="pageSize">
+            The size of page to request. The response will not be larger than this, but may be smaller. A value of
+            <c>null</c> or <c>0</c> uses a server-defined page size.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable asynchronous sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperation(Google.LongRunning.GetOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperationAsync(Google.LongRunning.GetOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperationAsync(Google.LongRunning.GetOperationRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperation(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="name">
+            The name of the operation resource.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperationAsync(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="name">
+            The name of the operation resource.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetOperationAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="name">
+            The name of the operation resource.
+            </param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperation(Google.LongRunning.DeleteOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperationAsync(Google.LongRunning.DeleteOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperationAsync(Google.LongRunning.DeleteOperationRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperation(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be deleted.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperationAsync(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be deleted.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.DeleteOperationAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be deleted.
+            </param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperation(Google.LongRunning.CancelOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperationAsync(Google.LongRunning.CancelOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperationAsync(Google.LongRunning.CancelOperationRequest,System.Threading.CancellationToken)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperation(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be cancelled.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperationAsync(System.String,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be cancelled.
+            </param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.CancelOperationAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="name">
+            The name of the operation resource to be cancelled.
+            </param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.WaitOperation(Google.LongRunning.WaitOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.WaitOperationAsync(Google.LongRunning.WaitOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.WaitOperationAsync(Google.LongRunning.WaitOperationRequest,System.Threading.CancellationToken)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to use for this RPC.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.Clock">
+            <summary>
+            The clock used for timeouts, retries and polling.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.Scheduler">
+            <summary>
+            The scheduler used for timeouts, retries and polling.
+            </summary>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClient.DefaultPollSettings">
+            <summary>
+            The poll settings used by default for repeated polling operations.
+            May be null if no defaults have been set.
+            </summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClient.GetEffectiveCallSettingsForGetOperation(Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Return the <see cref="T:Google.Api.Gax.Grpc.CallSettings"/> that would be used by a call to
+            <see cref="M:Google.LongRunning.OperationsClient.GetOperation(Google.LongRunning.GetOperationRequest,Google.Api.Gax.Grpc.CallSettings)"/>, using the base
+            settings of this client and the specified per-call overrides.
+            </summary>
+            <remarks>
+            This method is used when polling, to determine the appropriate timeout and cancellation
+            token to use for each call.
+            </remarks>
+            <param name="callSettings">The per-call override, if any.</param>
+            <returns>The effective call settings for a GetOperation RPC.</returns>
+        </member>
+        <member name="T:Google.LongRunning.OperationsClientImpl">
+            <summary>Operations client wrapper implementation, for convenient use.</summary>
+            <remarks>
+            Manages long-running operations with an API service.
+            
+            When an API method normally takes long time to complete, it can be designed
+            to return [Operation][google.longrunning.Operation] to the client, and the client can use this
+            interface to receive the real response asynchronously by polling the
+            operation resource, or pass the operation resource to another API (such as
+            Google Cloud Pub/Sub API) to receive the response.  Any API service that
+            returns long-running operations should implement the `Operations` interface
+            so developers can have a consistent client experience.
+            </remarks>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.#ctor(Google.LongRunning.Operations.OperationsClient,Google.LongRunning.OperationsSettings,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Constructs a client wrapper for the Operations service, with the specified gRPC client and settings.
+            </summary>
+            <param name="grpcClient">The underlying gRPC client.</param>
+            <param name="settings">The base <see cref="T:Google.LongRunning.OperationsSettings"/> used within this client.</param>
+            <param name="logger">Optional <see cref="T:Microsoft.Extensions.Logging.ILogger"/> to use within this client.</param>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClientImpl.GrpcClient">
+            <summary>The underlying gRPC Operations client</summary>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.ListOperations(Google.LongRunning.ListOperationsRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.ListOperationsAsync(Google.LongRunning.ListOperationsRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Lists operations that match the specified filter in the request. If the
+            server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+            NOTE: the `name` binding allows API services to override the binding
+            to use different resource name schemes, such as `users/*/operations`. To
+            override the binding, API services can add a binding such as
+            `"/v1/{name=users/*}/operations"` to their service configuration.
+            For backwards compatibility, the default name includes the operations
+            collection id, however overriding users must ensure the name binding
+            is the parent resource, without the operations collection id.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A pageable asynchronous sequence of <see cref="T:Google.LongRunning.Operation"/> resources.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.GetOperation(Google.LongRunning.GetOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.GetOperationAsync(Google.LongRunning.GetOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.DeleteOperation(Google.LongRunning.DeleteOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.DeleteOperationAsync(Google.LongRunning.DeleteOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.CancelOperation(Google.LongRunning.CancelOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.CancelOperationAsync(Google.LongRunning.CancelOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.WaitOperation(Google.LongRunning.WaitOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>The RPC response.</returns>
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.WaitOperationAsync(Google.LongRunning.WaitOperationRequest,Google.Api.Gax.Grpc.CallSettings)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request object containing all of the parameters for the API call.</param>
+            <param name="callSettings">If not null, applies overrides to this RPC call.</param>
+            <returns>A Task containing the RPC response.</returns>
+        </member>
+        <member name="P:Google.LongRunning.OperationsClientImpl.Clock">
+            <inheritdoc />
+        </member>
+        <member name="P:Google.LongRunning.OperationsClientImpl.Scheduler">
+            <inheritdoc />
+        </member>
+        <member name="P:Google.LongRunning.OperationsClientImpl.DefaultPollSettings">
+            <inheritdoc />
+        </member>
+        <member name="M:Google.LongRunning.OperationsClientImpl.GetEffectiveCallSettingsForGetOperation(Google.Api.Gax.Grpc.CallSettings)">
+            <inheritdoc />
+        </member>
+        <member name="T:Google.LongRunning.Operations">
+             <summary>
+             Manages long-running operations with an API service.
+            
+             When an API method normally takes long time to complete, it can be designed
+             to return [Operation][google.longrunning.Operation] to the client, and the client can use this
+             interface to receive the real response asynchronously by polling the
+             operation resource, or pass the operation resource to another API (such as
+             Google Cloud Pub/Sub API) to receive the response.  Any API service that
+             returns long-running operations should implement the `Operations` interface
+             so developers can have a consistent client experience.
+             </summary>
+        </member>
+        <member name="P:Google.LongRunning.Operations.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Google.LongRunning.Operations.OperationsBase">
+            <summary>Base class for server-side implementations of Operations</summary>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsBase.ListOperations(Google.LongRunning.ListOperationsRequest,Grpc.Core.ServerCallContext)">
+             <summary>
+             Lists operations that match the specified filter in the request. If the
+             server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+             NOTE: the `name` binding allows API services to override the binding
+             to use different resource name schemes, such as `users/*/operations`. To
+             override the binding, API services can add a binding such as
+             `"/v1/{name=users/*}/operations"` to their service configuration.
+             For backwards compatibility, the default name includes the operations
+             collection id, however overriding users must ensure the name binding
+             is the parent resource, without the operations collection id.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsBase.GetOperation(Google.LongRunning.GetOperationRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsBase.DeleteOperation(Google.LongRunning.DeleteOperationRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsBase.CancelOperation(Google.LongRunning.CancelOperationRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsBase.WaitOperation(Google.LongRunning.WaitOperationRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Google.LongRunning.Operations.OperationsClient">
+            <summary>Client for Operations</summary>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Operations</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Operations that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.ListOperations(Google.LongRunning.ListOperationsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Lists operations that match the specified filter in the request. If the
+             server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+             NOTE: the `name` binding allows API services to override the binding
+             to use different resource name schemes, such as `users/*/operations`. To
+             override the binding, API services can add a binding such as
+             `"/v1/{name=users/*}/operations"` to their service configuration.
+             For backwards compatibility, the default name includes the operations
+             collection id, however overriding users must ensure the name binding
+             is the parent resource, without the operations collection id.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.ListOperations(Google.LongRunning.ListOperationsRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Lists operations that match the specified filter in the request. If the
+             server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+             NOTE: the `name` binding allows API services to override the binding
+             to use different resource name schemes, such as `users/*/operations`. To
+             override the binding, API services can add a binding such as
+             `"/v1/{name=users/*}/operations"` to their service configuration.
+             For backwards compatibility, the default name includes the operations
+             collection id, however overriding users must ensure the name binding
+             is the parent resource, without the operations collection id.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.ListOperationsAsync(Google.LongRunning.ListOperationsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Lists operations that match the specified filter in the request. If the
+             server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+             NOTE: the `name` binding allows API services to override the binding
+             to use different resource name schemes, such as `users/*/operations`. To
+             override the binding, API services can add a binding such as
+             `"/v1/{name=users/*}/operations"` to their service configuration.
+             For backwards compatibility, the default name includes the operations
+             collection id, however overriding users must ensure the name binding
+             is the parent resource, without the operations collection id.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.ListOperationsAsync(Google.LongRunning.ListOperationsRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Lists operations that match the specified filter in the request. If the
+             server doesn't support this method, it returns `UNIMPLEMENTED`.
+            
+             NOTE: the `name` binding allows API services to override the binding
+             to use different resource name schemes, such as `users/*/operations`. To
+             override the binding, API services can add a binding such as
+             `"/v1/{name=users/*}/operations"` to their service configuration.
+             For backwards compatibility, the default name includes the operations
+             collection id, however overriding users must ensure the name binding
+             is the parent resource, without the operations collection id.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.GetOperation(Google.LongRunning.GetOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.GetOperation(Google.LongRunning.GetOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.GetOperationAsync(Google.LongRunning.GetOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.GetOperationAsync(Google.LongRunning.GetOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Gets the latest state of a long-running operation.  Clients can use this
+            method to poll the operation result at intervals as recommended by the API
+            service.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.DeleteOperation(Google.LongRunning.DeleteOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.DeleteOperation(Google.LongRunning.DeleteOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.DeleteOperationAsync(Google.LongRunning.DeleteOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.DeleteOperationAsync(Google.LongRunning.DeleteOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Deletes a long-running operation. This method indicates that the client is
+            no longer interested in the operation result. It does not cancel the
+            operation. If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.CancelOperation(Google.LongRunning.CancelOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.CancelOperation(Google.LongRunning.CancelOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.CancelOperationAsync(Google.LongRunning.CancelOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.CancelOperationAsync(Google.LongRunning.CancelOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Starts asynchronous cancellation on a long-running operation.  The server
+            makes a best effort to cancel the operation, but success is not
+            guaranteed.  If the server doesn't support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+            [Operations.GetOperation][google.longrunning.Operations.GetOperation] or
+            other methods to check whether the cancellation succeeded or whether the
+            operation completed despite cancellation. On successful cancellation,
+            the operation is not deleted; instead, it becomes an operation with
+            an [Operation.error][google.longrunning.Operation.error] value with a [google.rpc.Status.code][google.rpc.Status.code] of 1,
+            corresponding to `Code.CANCELLED`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.WaitOperation(Google.LongRunning.WaitOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.WaitOperation(Google.LongRunning.WaitOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.WaitOperationAsync(Google.LongRunning.WaitOperationRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.WaitOperationAsync(Google.LongRunning.WaitOperationRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Waits until the specified long-running operation is done or reaches at most
+            a specified timeout, returning the latest state.  If the operation is
+            already done, the latest state is immediately returned.  If the timeout
+            specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+            timeout is used.  If the server does not support this method, it returns
+            `google.rpc.Code.UNIMPLEMENTED`.
+            Note that this method is on a best-effort basis.  It may return the latest
+            state before the specified timeout (including immediately), meaning even an
+            immediate response is no guarantee that the operation is done.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Google.LongRunning.Operations.OperationsClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Google.LongRunning.Operations.BindService(Google.LongRunning.Operations.OperationsBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Google.LongRunning.Operations.BindService(Grpc.Core.ServiceBinderBase,Google.LongRunning.Operations.OperationsBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="T:Google.LongRunning.PackageApiMetadata">
+            <summary>Static class to provide common access to package-wide API metadata.</summary>
+        </member>
+        <member name="P:Google.LongRunning.PackageApiMetadata.ApiMetadata">
+            <summary>The <see cref="T:Google.Api.Gax.Grpc.ApiMetadata"/> for services in this package.</summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
+            <summary>Static class to provide extension methods to configure API clients.</summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddOperationsClient(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Google.LongRunning.OperationsClientBuilder})">
+            <summary>Adds a singleton <see cref="T:Google.LongRunning.OperationsClient"/> to <paramref name="services"/>.</summary>
+            <param name="services">
+            The service collection to add the client to. The services are used to configure the client when requested.
+            </param>
+            <param name="action">
+            An optional action to invoke on the client builder. This is invoked before services from
+            <paramref name="services"/> are used.
+            </param>
+        </member>
+    </members>
+</doc>

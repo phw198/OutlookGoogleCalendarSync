@@ -18,12 +18,25 @@
             <param name="credential">The credential to use to obtain access tokens.</param>
             <returns>The interceptor.</returns>
         </member>
+        <member name="M:Grpc.Auth.GoogleAuthInterceptors.FromCredential(Google.Apis.Auth.OAuth2.ITokenAccessWithHeaders)">
+            <summary>
+            Creates an <see cref="T:Grpc.Core.AsyncAuthInterceptor"/> that will obtain access token and associated information
+            from any credential type that implements <see cref="T:Google.Apis.Auth.OAuth2.ITokenAccessWithHeaders"/>
+            </summary>
+            <param name="credential">The credential to use to obtain access tokens.</param>
+            <returns>The interceptor.</returns>
+        </member>
         <member name="M:Grpc.Auth.GoogleAuthInterceptors.FromAccessToken(System.String)">
             <summary>
             Creates an <see cref="T:Grpc.Core.AsyncAuthInterceptor"/> that will use given access token as authorization.
             </summary>
             <param name="accessToken">OAuth2 access token.</param>
             <returns>The interceptor.</returns>
+        </member>
+        <member name="M:Grpc.Auth.GoogleAuthInterceptors.GetCompletedTask">
+            <summary>
+            Framework independent equivalent of <c>Task.CompletedTask</c>.
+            </summary>
         </member>
         <member name="T:Grpc.Auth.GoogleGrpcCredentials">
             <summary>
@@ -45,7 +58,7 @@
             with a gRPC service.
             </summary>
             <param name="accessToken">OAuth2 access token.</param>
-            /// <returns>The <c>MetadataCredentials</c> instance.</returns>
+            <returns>The <c>CallCredentials</c> instance.</returns>
         </member>
         <member name="M:Grpc.Auth.GoogleGrpcCredentials.ToCallCredentials(Google.Apis.Auth.OAuth2.ITokenAccess)">
             <summary>
