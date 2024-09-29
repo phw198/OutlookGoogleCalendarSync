@@ -4,6 +4,26 @@
         <name>Google.Api.Gax</name>
     </assembly>
     <members>
+        <member name="T:Google.Api.Gax.ApiTransports">
+            <summary>
+            The transports that can be used to make calls to an API.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ApiTransports.None">
+            <summary>
+            No transports specified.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ApiTransports.Grpc">
+            <summary>
+            Native gRPC support via binary protobuf serialization.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.ApiTransports.Rest">
+            <summary>
+            "REST"-like support via JSON.
+            </summary>
+        </member>
         <member name="T:Google.Api.Gax.BatchingSettings">
             <summary>
             Batching settings used to specify the conditions under which a batch of data
@@ -112,6 +132,41 @@
             Gets a cached empty <see cref="T:System.Collections.Generic.IDictionary`2"/>. The returned dictionary is read-only.
             </summary>
         </member>
+        <member name="T:Google.Api.Gax.EmulatorDetection">
+            <summary>
+            Specifies whether or not an emulator configuration should be present and 
+            whether or not it should be used. Emulator configuration is usually specified
+            through environment variables.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.EmulatorDetection.None">
+            <summary>
+            Ignores the presence or absence of emulator configuration.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.EmulatorDetection.ProductionOnly">
+            <summary>
+            Always connect to the production servers, but throw an exception if
+            an emulator configuration is detected that would suggest connecting to
+            an emulator is expected.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.EmulatorDetection.EmulatorOnly">
+            <summary>
+            Always connect to the emulator, throwing an exception if no emulator
+            configuration is detected.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.EmulatorDetection.EmulatorOrProduction">
+            <summary>
+            Connect to the emulator if an emulator configuration is detected,
+            or production otherwise. This is a convenient option, but risks damage to
+            production databases or running up unexpected bills if tests are accidentally
+            run in production due to the emulator configuration being absent unexpectedly.
+            (Using separate projects for production and testing is a best practice for
+            preventing the first issue, but may be unrealistic for small or hobby projects.)
+            </summary>
+        </member>
         <member name="T:Google.Api.Gax.ExpirationType">
             <summary>
             The type of <see cref="T:Google.Api.Gax.Expiration"/>; none, timeout or deadline.
@@ -193,10 +248,28 @@
             <param name="clock"><see cref="T:Google.Api.Gax.IClock"/> to use for deadline calculation.</param>
             <returns>The calculated absolute deadline, or null if no deadline should be used.</returns>
         </member>
+        <member name="T:Google.Api.Gax.FieldFormats">
+            <summary>
+            Convenience methods for handling field formats documented in https://google.aip.dev/202.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.FieldFormats.GenerateUuid4">
+            <summary>
+            Generates a UUID v4 value and formats it as xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,
+            using lower-case letters for hex digits.
+            </summary>
+        </member>
         <member name="T:Google.Api.Gax.FlowControlSettings">
             <summary>
             Settings used to control data flow.
             </summary>
+            <remarks>
+            The precise meaning of the settings in this class
+            is context-sensitive. For example, when used by a library which creates multiple
+            streams of data, the flow control settings may restrict flow on a per-stream basis,
+            or on an aggregate basis. Please consult the documentation of the library that consumes
+            these settings for more details on how they're used in that context.
+            </remarks>
         </member>
         <member name="M:Google.Api.Gax.FlowControlSettings.#ctor(System.Nullable{System.Int64},System.Nullable{System.Int64})">
             <summary>
@@ -229,7 +302,7 @@
             Construct details of Google App Engine
             </summary>
             <param name="gcloudProject">The Project ID associated with your application,
-            which is visible in the Google Cloud Platform Console. Must not be <c>null</c>.</param>
+            which is visible in the Google Cloud Console. Must not be <c>null</c>.</param>
             <param name="gaeInstance">The name of the current instance. Must not be <c>null</c>.</param>
             <param name="gaeService">The service name specified in your application's app.yaml file,
             or if no service name is specified, it is set to default. Must not be <c>null</c>.</param>
@@ -237,7 +310,7 @@
         </member>
         <member name="P:Google.Api.Gax.GaePlatformDetails.ProjectId">
             <summary>
-            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            The Project ID associated with your application, which is visible in the Google Cloud Console.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GaePlatformDetails.InstanceId">
@@ -273,7 +346,7 @@
         </member>
         <member name="M:Google.Api.Gax.GaxEqualityHelpers.GetListHashCode``1(System.Collections.Generic.IReadOnlyList{``0})">
             <summary>
-            Computes an ordering-sensitive hash code for a list, using the given equality comparer.
+            Computes an ordering-sensitive hash code for a list, using the default equality comparer for the type.
             </summary>
             <param name="list">The list to compute a hash code for. May be null.</param>
             <returns>The computed hash code.</returns>
@@ -667,15 +740,6 @@
             Lines from /proc/self/mountinfo
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String)">
-            <summary>
-            Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata.
-            This metadata is normally retrieved from the GCE metadata server.
-            </summary>
-            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.</param>
-            <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
-            <c>null</c> otherwise.</returns>
-        </member>
         <member name="M:Google.Api.Gax.GkePlatformDetails.TryLoad(System.String,Google.Api.Gax.GkePlatformDetails.KubernetesData)">
             <summary>
             Builds a <see cref="T:Google.Api.Gax.GkePlatformDetails"/> from the given metadata and kubernetes data.
@@ -693,17 +757,7 @@
             <returns>A populated <see cref="T:Google.Api.Gax.GkePlatformDetails"/> if the metadata represents and GKE instance;
             <c>null</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Construct details of Google Container (Kubernetes) Engine
-            </summary>
-            <param name="metadataJson">The full JSON string retrieved from the metadata server. Must not be <c>null</c>.</param>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
-            <param name="clusterName">The cluster name. Must not be <c>null</c>.</param>
-            <param name="location">The location. Must not be <c>null</c>.</param>
-            <param name="hostName">The instance host name. Must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Google.Api.Gax.GkePlatformDetails.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
             <summary>
             Construct details of Google Container (Kubernetes) Engine
             </summary>
@@ -717,6 +771,7 @@
             <param name="namespaceId">The kubernetes namespace ID. Must not be <c>null</c>.</param>
             <param name="podId">The kubernetes pod ID. Must not be <c>null</c>.</param>
             <param name="containerName">The container name. Must not be <c>null</c>.</param>
+            <param name="clusterLocation">The location of the cluster. Must not be null.</param>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.MetadataJson">
             <summary>
@@ -725,17 +780,17 @@
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.ProjectId">
             <summary>
-            The Project ID associated with your application, which is visible in the Google Cloud Platform Console.
+            The Project ID associated with your application, which is visible in the Google Cloud Console.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.ClusterName">
             <summary>
-            The cluster name, which is visible in the Google Cloud Platform Console.
+            The cluster name, which is visible in the Google Cloud Console.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.GkePlatformDetails.Location">
             <summary>
-            The cluster location, which is visible in the Google Cloud Platform Console.
+            The cluster location, which is visible in the Google Cloud Console.
             This is equivalent to the value of the <code>&lt;zone-name&gt;</code> part in
             <see cref="P:Google.Api.Gax.GkePlatformDetails.Zone"/>
             </summary>
@@ -771,6 +826,12 @@
             The name of the container.
             </summary>
         </member>
+        <member name="P:Google.Api.Gax.GkePlatformDetails.ClusterLocation">
+            <summary>
+            The location of the cluster.
+            May be different from node / pod location.
+            </summary>
+        </member>
         <member name="M:Google.Api.Gax.GkePlatformDetails.ToString">
             <inheritdoc/>
         </member>
@@ -797,9 +858,9 @@
             A resource name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.IResourceName.Kind">
+        <member name="P:Google.Api.Gax.IResourceName.IsKnownPattern">
             <summary>
-            The kind of resource name.
+            Whether this instance contains a resource name with a known pattern.
             </summary>
         </member>
         <member name="M:Google.Api.Gax.IResourceName.ToString">
@@ -1235,7 +1296,7 @@
             <param name="cancellationToken">A token to cancel the operation.</param>
             <returns>An asynchronous operation, the result of which is a page of resources.</returns>
         </member>
-        <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.GetEnumerator">
+        <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.GetAsyncEnumerator(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:Google.Api.Gax.PagedEnumerable`2">
@@ -1453,6 +1514,16 @@
             </summary>
             <returns>Execution platform information.</returns>
         </member>
+        <member name="M:Google.Api.Gax.Platform.GetEffectiveMetadataHost">
+            <summary>
+            Determine the metadata host to use. In order of priority, this will use:
+            - GCE_METADATA_HOST environment variable, if set and non-empty
+            - METADATA_EMULATOR_HOST environment variable, if set and non-empty.
+              This is the undocumented but the de-facto mechanism for using an emulator.
+            - The hard-coded IP address of "169.254.169.254". We use the IP address rather
+              than the IP name to avoid a DNS lookup, which can cause intermittent failures.
+            </summary>
+        </member>
         <member name="M:Google.Api.Gax.Platform.#ctor">
             <summary>
             Construct with no details.
@@ -1658,36 +1729,6 @@
             </summary>
             <param name="message">The error message for the exception.</param>
         </member>
-        <member name="T:Google.Api.Gax.ResourceNameKind">
-            <summary>
-            The kind of resource name.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.ResourceNameKind.Simple">
-            <summary>
-            A simple, well-typed, resource name. 
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.ResourceNameKind.Oneof">
-            <summary>
-            One of a selection of resource names.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.ResourceNameKind.Fixed">
-            <summary>
-            A fixed string instead of a resource name.
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.ResourceNameKind.Templated">
-            <summary>
-            A <see cref="T:Google.Api.Gax.TemplatedResourceName"/>.  
-            </summary>
-        </member>
-        <member name="F:Google.Api.Gax.ResourceNameKind.Unknown">
-            <summary>
-            An <see cref="T:Google.Api.Gax.UnknownResourceName"/>. 
-            </summary>
-        </member>
         <member name="T:Google.Api.Gax.ResourceNameList`1">
             <summary>
             A list of resource names of a specific type, that delegates all operations to an
@@ -1750,345 +1791,799 @@
         </member>
         <member name="T:Google.Api.Gax.ResourceNames.BillingAccountName">
             <summary>
-            Resource name for the 'billing account' resource which is widespread across Google Cloud Platform.
+            Resource name for the 'billing account' resource which is widespread across Google Cloud.
             While most resource names are generated on a per-API basis, many APIs use a billing account resource, and it's
             useful to be able to pass values from one API to another.
             </summary>
         </member>
+        <member name="T:Google.Api.Gax.ResourceNames.BillingAccountName.ResourceNameType">
+            <summary>The possible contents of <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.BillingAccountName.ResourceNameType.Unparsed">
+            <summary>An unparsed resource name.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.BillingAccountName.ResourceNameType.BillingAccount">
+            <summary>A resource name with pattern <c>billingAccounts/{billing_account}</c>.</summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.FromUnparsed(Google.Api.Gax.UnparsedResourceName)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> containing an unparsed resource name.</summary>
+            <param name="unparsedResourceName">The unparsed resource name. Must not be <c>null</c>.</param>
+            <returns>
+            A new instance of <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> containing the provided
+            <paramref name="unparsedResourceName"/>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.FromBillingAccount(System.String)">
+            <summary>
+            Creates a <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> with the pattern <c>billingAccounts/{billing_account}</c>.
+            </summary>
+            <param name="billingAccountId">The <c>BillingAccount</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>A new instance of <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> constructed from the provided ids.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Format(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> with pattern
+            <c>billingAccounts/{billing_account}</c>.
+            </summary>
+            <param name="billingAccountId">The <c>BillingAccount</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> with pattern
+            <c>billingAccounts/{billing_account}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.FormatBillingAccount(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> with pattern
+            <c>billingAccounts/{billing_account}</c>.
+            </summary>
+            <param name="billingAccountId">The <c>BillingAccount</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> with pattern
+            <c>billingAccounts/{billing_account}</c>.
+            </returns>
+        </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Parse(System.String)">
             <summary>
-            Parses the given billing resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
             </summary>
-            <param name="BillingAccountName">The billing resource name in string form. Must not be <c>null</c>.</param>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>billingAccounts/{billing_account}</c></description></item></list>
+            </remarks>
+            <param name="billingAccountName">The resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Parse(System.String,System.Boolean)">
+            <summary>
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>billingAccounts/{billing_account}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="billingAccountName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.BillingAccountName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.TryParse(System.String,Google.Api.Gax.ResourceNames.BillingAccountName@)">
             <summary>
-            Tries to parse the given billing resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance.
             </summary>
             <remarks>
-            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="BillingAccountName"/> is null,
-            as this would usually indicate a programming error rather than a data error.
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>billingAccounts/{billing_account}</c></description></item></list>
             </remarks>
-            <param name="BillingAccountName">The billing resource name in string form. Must not be <c>null</c>.</param>
-            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>,
-            or <c>null</c> if parsing fails.</param>
+            <param name="billingAccountName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>, or <c>null</c> if parsing failed.
+            </param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Format(System.String)">
-            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>.</summary>
-            <param name="billingAccountId">The <c>billingAccount</c> ID. Must not be <c>null</c>.</param>
-            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>.</returns>
+        <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.TryParse(System.String,System.Boolean,Google.Api.Gax.ResourceNames.BillingAccountName@)">
+            <summary>
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> instance;
+            optionally allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>billingAccounts/{billing_account}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="billingAccountName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.BillingAccountName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/>, or <c>null</c> if parsing failed.
+            </param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.#ctor(System.String)">
             <summary>
-            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> resource name class
-            from its component parts.
+            Constructs a new instance of a <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName"/> class from the component parts of pattern
+            <c>billingAccounts/{billing_account}</c>
             </summary>
-            <param name="billingAccountId">The billingAccount ID. Must not be <c>null</c>.</param>
+            <param name="billingAccountId">The <c>BillingAccount</c> ID. Must not be <c>null</c> or empty.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.Type">
+            <summary>The <see cref="T:Google.Api.Gax.ResourceNames.BillingAccountName.ResourceNameType"/> of the contained resource name.</summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.UnparsedResource">
+            <summary>
+            The contained <see cref="T:Google.Api.Gax.UnparsedResourceName"/>. Only non-<c>null</c>if this instance contains an
+            unparsed resource name.
+            </summary>
         </member>
         <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.BillingAccountId">
             <summary>
-            The billingAccount ID. Never <c>null</c>.
+            The <c>BillingAccount</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource
+            name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.Kind">
-            <inheritdoc />
+        <member name="P:Google.Api.Gax.ResourceNames.BillingAccountName.IsKnownPattern">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.ToString">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.GetHashCode">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Equals(System.Object)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.Equals(Google.Api.Gax.ResourceNames.BillingAccountName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.op_Equality(Google.Api.Gax.ResourceNames.BillingAccountName,Google.Api.Gax.ResourceNames.BillingAccountName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.BillingAccountName.op_Inequality(Google.Api.Gax.ResourceNames.BillingAccountName,Google.Api.Gax.ResourceNames.BillingAccountName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.ResourceNames.FolderName">
             <summary>
-            Resource name for the 'folder' resource which is widespread across Google Cloud Platform.
+            Resource name for the 'folder' resource which is widespread across Google Cloud.
             While most resource names are generated on a per-API basis, many APIs use a folder resource, and it's
             useful to be able to pass values from one API to another.
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Parse(System.String)">
+        <member name="T:Google.Api.Gax.ResourceNames.FolderName.ResourceNameType">
+            <summary>The possible contents of <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.FolderName.ResourceNameType.Unparsed">
+            <summary>An unparsed resource name.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.FolderName.ResourceNameType.Folder">
+            <summary>A resource name with pattern <c>folders/{folder}</c>.</summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.FromUnparsed(Google.Api.Gax.UnparsedResourceName)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> containing an unparsed resource name.</summary>
+            <param name="unparsedResourceName">The unparsed resource name. Must not be <c>null</c>.</param>
+            <returns>
+            A new instance of <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> containing the provided <paramref name="unparsedResourceName"/>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.FromFolder(System.String)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> with the pattern <c>folders/{folder}</c>.</summary>
+            <param name="folderId">The <c>Folder</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>A new instance of <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> constructed from the provided ids.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Format(System.String)">
             <summary>
-            Parses the given folder resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> with pattern
+            <c>folders/{folder}</c>.
             </summary>
-            <param name="folderName">The folder resource name in string form. Must not be <c>null</c>.</param>
+            <param name="folderId">The <c>Folder</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> with pattern <c>folders/{folder}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.FormatFolder(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> with pattern
+            <c>folders/{folder}</c>.
+            </summary>
+            <param name="folderId">The <c>Folder</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> with pattern <c>folders/{folder}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Parse(System.String)">
+            <summary>Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.</summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>folders/{folder}</c></description></item></list>
+            </remarks>
+            <param name="folderName">The resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Parse(System.String,System.Boolean)">
+            <summary>
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance; optionally allowing an
+            unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>folders/{folder}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="folderName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.FolderName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.TryParse(System.String,Google.Api.Gax.ResourceNames.FolderName@)">
             <summary>
-            Tries to parse the given folder resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance.
             </summary>
             <remarks>
-            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="folderName"/> is null,
-            as this would usually indicate a programming error rather than a data error.
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>folders/{folder}</c></description></item></list>
             </remarks>
-            <param name="folderName">The folder resource name in string form. Must not be <c>null</c>.</param>
-            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>,
-            or <c>null</c> if parsing fails.</param>
+            <param name="folderName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>, or <c>null</c> if parsing failed.
+            </param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.FolderName.Format(System.String)">
-            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>.</summary>
-            <param name="folderId">The <c>folder</c> ID. Must not be <c>null</c>.</param>
-            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>.</returns>
+        <member name="M:Google.Api.Gax.ResourceNames.FolderName.TryParse(System.String,System.Boolean,Google.Api.Gax.ResourceNames.FolderName@)">
+            <summary>
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>folders/{folder}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="folderName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.FolderName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/>, or <c>null</c> if parsing failed.
+            </param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.#ctor(System.String)">
             <summary>
-            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> resource name class
-            from its component parts.
+            Constructs a new instance of a <see cref="T:Google.Api.Gax.ResourceNames.FolderName"/> class from the component parts of pattern
+            <c>folders/{folder}</c>
             </summary>
-            <param name="folderId">The folder ID. Must not be <c>null</c>.</param>
+            <param name="folderId">The <c>Folder</c> ID. Must not be <c>null</c> or empty.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.FolderName.Type">
+            <summary>The <see cref="T:Google.Api.Gax.ResourceNames.FolderName.ResourceNameType"/> of the contained resource name.</summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.FolderName.UnparsedResource">
+            <summary>
+            The contained <see cref="T:Google.Api.Gax.UnparsedResourceName"/>. Only non-<c>null</c>if this instance contains an
+            unparsed resource name.
+            </summary>
         </member>
         <member name="P:Google.Api.Gax.ResourceNames.FolderName.FolderId">
             <summary>
-            The folder ID. Never <c>null</c>.
+            The <c>Folder</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.FolderName.Kind">
-            <inheritdoc />
+        <member name="P:Google.Api.Gax.ResourceNames.FolderName.IsKnownPattern">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.ToString">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.GetHashCode">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.Equals(System.Object)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.Equals(Google.Api.Gax.ResourceNames.FolderName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.op_Equality(Google.Api.Gax.ResourceNames.FolderName,Google.Api.Gax.ResourceNames.FolderName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.FolderName.op_Inequality(Google.Api.Gax.ResourceNames.FolderName,Google.Api.Gax.ResourceNames.FolderName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.ResourceNames.LocationName">
             <summary>
-            Resource name for the 'location' resource which is widespread across Google Cloud Platform.
+            Resource name for the 'location' resource which is widespread across Google Cloud.
             While most resource names are generated on a per-API basis, many APIs use a location resource, and it's
             useful to be able to pass values from one API to another.
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Parse(System.String)">
+        <member name="T:Google.Api.Gax.ResourceNames.LocationName.ResourceNameType">
+            <summary>The possible contents of <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.LocationName.ResourceNameType.Unparsed">
+            <summary>An unparsed resource name.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.LocationName.ResourceNameType.ProjectLocation">
+            <summary>A resource name with pattern <c>projects/{project}/locations/{location}</c>.</summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.FromUnparsed(Google.Api.Gax.UnparsedResourceName)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> containing an unparsed resource name.</summary>
+            <param name="unparsedResourceName">The unparsed resource name. Must not be <c>null</c>.</param>
+            <returns>
+            A new instance of <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> containing the provided <paramref name="unparsedResourceName"/>
+            .
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.FromProjectLocation(System.String,System.String)">
             <summary>
-            Parses the given location resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.
+            Creates a <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> with the pattern <c>projects/{project}/locations/{location}</c>.
             </summary>
-            <param name="locationName">The location resource name in string form. Must not be <c>null</c>.</param>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <param name="locationId">The <c>Location</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>A new instance of <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> constructed from the provided ids.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Format(System.String,System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> with pattern
+            <c>projects/{project}/locations/{location}</c>.
+            </summary>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <param name="locationId">The <c>Location</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> with pattern
+            <c>projects/{project}/locations/{location}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.FormatProjectLocation(System.String,System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> with pattern
+            <c>projects/{project}/locations/{location}</c>.
+            </summary>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <param name="locationId">The <c>Location</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> with pattern
+            <c>projects/{project}/locations/{location}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Parse(System.String)">
+            <summary>Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.</summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet">
+            <item><description><c>projects/{project}/locations/{location}</c></description></item>
+            </list>
+            </remarks>
+            <param name="locationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Parse(System.String,System.Boolean)">
+            <summary>
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance; optionally allowing an
+            unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet">
+            <item><description><c>projects/{project}/locations/{location}</c></description></item>
+            </list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="locationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.LocationName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.TryParse(System.String,Google.Api.Gax.ResourceNames.LocationName@)">
             <summary>
-            Tries to parse the given location resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance.
             </summary>
             <remarks>
-            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="locationName"/> is null,
-            as this would usually indicate a programming error rather than a data error.
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet">
+            <item><description><c>projects/{project}/locations/{location}</c></description></item>
+            </list>
             </remarks>
-            <param name="locationName">The location resource name in string form. Must not be <c>null</c>.</param>
-            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>,
-            or <c>null</c> if parsing fails.</param>
+            <param name="locationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>, or <c>null</c> if parsing failed.
+            </param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.LocationName.Format(System.String,System.String)">
-            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>.</summary>
-            <param name="projectId">The <c>project</c> ID. Must not be <c>null</c>.</param>
-            <param name="locationId">The <c>location</c> ID. Must not be <c>null</c>.</param>
-            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>.</returns>
+        <member name="M:Google.Api.Gax.ResourceNames.LocationName.TryParse(System.String,System.Boolean,Google.Api.Gax.ResourceNames.LocationName@)">
+            <summary>
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet">
+            <item><description><c>projects/{project}/locations/{location}</c></description></item>
+            </list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="locationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.LocationName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/>, or <c>null</c> if parsing failed.
+            </param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.#ctor(System.String,System.String)">
             <summary>
-            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> resource name class
-            from its component parts.
+            Constructs a new instance of a <see cref="T:Google.Api.Gax.ResourceNames.LocationName"/> class from the component parts of pattern
+            <c>projects/{project}/locations/{location}</c>
             </summary>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
-            <param name="locationId">The location ID. Must not be <c>null</c>.</param>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <param name="locationId">The <c>Location</c> ID. Must not be <c>null</c> or empty.</param>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.LocationName.ProjectId">
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.Type">
+            <summary>The <see cref="T:Google.Api.Gax.ResourceNames.LocationName.ResourceNameType"/> of the contained resource name.</summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.UnparsedResource">
             <summary>
-            The project ID. Never <c>null</c>.
+            The contained <see cref="T:Google.Api.Gax.UnparsedResourceName"/>. Only non-<c>null</c>if this instance contains an
+            unparsed resource name.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.ResourceNames.LocationName.LocationId">
             <summary>
-            The location ID. Never <c>null</c>.
+            The <c>Location</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.LocationName.Kind">
-            <inheritdoc />
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.ProjectId">
+            <summary>
+            The <c>Project</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource name.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.LocationName.IsKnownPattern">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.ToString">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.GetHashCode">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.Equals(System.Object)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.Equals(Google.Api.Gax.ResourceNames.LocationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.op_Equality(Google.Api.Gax.ResourceNames.LocationName,Google.Api.Gax.ResourceNames.LocationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.LocationName.op_Inequality(Google.Api.Gax.ResourceNames.LocationName,Google.Api.Gax.ResourceNames.LocationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.ResourceNames.OrganizationName">
             <summary>
-            Resource name for the 'organization' resource which is widespread across Google Cloud Platform.
+            Resource name for the 'organization' resource which is widespread across Google Cloud.
             While most resource names are generated on a per-API basis, many APIs use an organization resource, and it's
             useful to be able to pass values from one API to another.
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Parse(System.String)">
+        <member name="T:Google.Api.Gax.ResourceNames.OrganizationName.ResourceNameType">
+            <summary>The possible contents of <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.OrganizationName.ResourceNameType.Unparsed">
+            <summary>An unparsed resource name.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.OrganizationName.ResourceNameType.Organization">
+            <summary>A resource name with pattern <c>organizations/{organization}</c>.</summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.FromUnparsed(Google.Api.Gax.UnparsedResourceName)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> containing an unparsed resource name.</summary>
+            <param name="unparsedResourceName">The unparsed resource name. Must not be <c>null</c>.</param>
+            <returns>
+            A new instance of <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> containing the provided
+            <paramref name="unparsedResourceName"/>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.FromOrganization(System.String)">
             <summary>
-            Parses the given organization resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.
+            Creates a <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> with the pattern <c>organizations/{organization}</c>.
             </summary>
-            <param name="organizationName">The organization resource name in string form. Must not be <c>null</c>.</param>
+            <param name="organizationId">The <c>Organization</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>A new instance of <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> constructed from the provided ids.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Format(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> with pattern
+            <c>organizations/{organization}</c>.
+            </summary>
+            <param name="organizationId">The <c>Organization</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> with pattern
+            <c>organizations/{organization}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.FormatOrganization(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> with pattern
+            <c>organizations/{organization}</c>.
+            </summary>
+            <param name="organizationId">The <c>Organization</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> with pattern
+            <c>organizations/{organization}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Parse(System.String)">
+            <summary>Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.</summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>organizations/{organization}</c></description></item></list>
+            </remarks>
+            <param name="organizationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Parse(System.String,System.Boolean)">
+            <summary>
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>organizations/{organization}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="organizationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.OrganizationName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.TryParse(System.String,Google.Api.Gax.ResourceNames.OrganizationName@)">
             <summary>
-            Tries to parse the given organization resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance.
             </summary>
             <remarks>
-            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="organizationName"/> is null,
-            as this would usually indicate a programming error rather than a data error.
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>organizations/{organization}</c></description></item></list>
             </remarks>
-            <param name="organizationName">The organization resource name in string form. Must not be <c>null</c>.</param>
-            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>,
-            or <c>null</c> if parsing fails.</param>
+            <param name="organizationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>, or <c>null</c> if parsing failed.
+            </param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Format(System.String)">
-            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>.</summary>
-            <param name="organizationId">The <c>organization</c> ID. Must not be <c>null</c>.</param>
-            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>.</returns>
+        <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.TryParse(System.String,System.Boolean,Google.Api.Gax.ResourceNames.OrganizationName@)">
+            <summary>
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>organizations/{organization}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="organizationName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.OrganizationName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/>, or <c>null</c> if parsing failed.
+            </param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.#ctor(System.String)">
             <summary>
-            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> resource name class
-            from its component parts.
+            Constructs a new instance of a <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName"/> class from the component parts of pattern
+            <c>organizations/{organization}</c>
             </summary>
-            <param name="organizationId">The organization ID. Must not be <c>null</c>.</param>
+            <param name="organizationId">The <c>Organization</c> ID. Must not be <c>null</c> or empty.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.Type">
+            <summary>The <see cref="T:Google.Api.Gax.ResourceNames.OrganizationName.ResourceNameType"/> of the contained resource name.</summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.UnparsedResource">
+            <summary>
+            The contained <see cref="T:Google.Api.Gax.UnparsedResourceName"/>. Only non-<c>null</c>if this instance contains an
+            unparsed resource name.
+            </summary>
         </member>
         <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.OrganizationId">
             <summary>
-            The organization ID. Never <c>null</c>.
+            The <c>Organization</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource
+            name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.Kind">
-            <inheritdoc />
+        <member name="P:Google.Api.Gax.ResourceNames.OrganizationName.IsKnownPattern">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.ToString">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.GetHashCode">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Equals(System.Object)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.Equals(Google.Api.Gax.ResourceNames.OrganizationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.op_Equality(Google.Api.Gax.ResourceNames.OrganizationName,Google.Api.Gax.ResourceNames.OrganizationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.OrganizationName.op_Inequality(Google.Api.Gax.ResourceNames.OrganizationName,Google.Api.Gax.ResourceNames.OrganizationName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.ResourceNames.ProjectName">
             <summary>
-            Resource name for the 'project' resource which is widespread across Google Cloud Platform.
+            Resource name for the 'project' resource which is widespread across Google Cloud.
             While most resource names are generated on a per-API basis, many APIs use a project resource, and it's
             useful to be able to pass values from one API to another.
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Parse(System.String)">
+        <member name="T:Google.Api.Gax.ResourceNames.ProjectName.ResourceNameType">
+            <summary>The possible contents of <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.ProjectName.ResourceNameType.Unparsed">
+            <summary>An unparsed resource name.</summary>
+        </member>
+        <member name="F:Google.Api.Gax.ResourceNames.ProjectName.ResourceNameType.Project">
+            <summary>A resource name with pattern <c>projects/{project}</c>.</summary>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.FromUnparsed(Google.Api.Gax.UnparsedResourceName)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> containing an unparsed resource name.</summary>
+            <param name="unparsedResourceName">The unparsed resource name. Must not be <c>null</c>.</param>
+            <returns>
+            A new instance of <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> containing the provided <paramref name="unparsedResourceName"/>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.FromProject(System.String)">
+            <summary>Creates a <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> with the pattern <c>projects/{project}</c>.</summary>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>A new instance of <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> constructed from the provided ids.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Format(System.String)">
             <summary>
-            Parses the given project resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> with pattern
+            <c>projects/{project}</c>.
             </summary>
-            <param name="projectName">The project resource name in string form. Must not be <c>null</c>.</param>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> with pattern <c>projects/{project}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.FormatProject(System.String)">
+            <summary>
+            Formats the IDs into the string representation of this <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> with pattern
+            <c>projects/{project}</c>.
+            </summary>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+            <returns>
+            The string representation of this <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> with pattern <c>projects/{project}</c>.
+            </returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Parse(System.String)">
+            <summary>Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.</summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>projects/{project}</c></description></item></list>
+            </remarks>
+            <param name="projectName">The resource name in string form. Must not be <c>null</c>.</param>
+            <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> if successful.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Parse(System.String,System.Boolean)">
+            <summary>
+            Parses the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance; optionally allowing an
+            unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>projects/{project}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="projectName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.ProjectName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
             <returns>The parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> if successful.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.TryParse(System.String,Google.Api.Gax.ResourceNames.ProjectName@)">
             <summary>
-            Tries to parse the given project resource name in string form into a new
-            <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance.
             </summary>
             <remarks>
-            This method still throws <see cref="T:System.ArgumentNullException"/> if <paramref name="projectName"/> is null,
-            as this would usually indicate a programming error rather than a data error.
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>projects/{project}</c></description></item></list>
             </remarks>
-            <param name="projectName">The project resource name in string form. Must not be <c>null</c>.</param>
-            <param name="result">When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>,
-            or <c>null</c> if parsing fails.</param>
+            <param name="projectName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>, or <c>null</c> if parsing failed.
+            </param>
             <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
-        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Format(System.String)">
-            <summary>Formats the IDs into the string representation of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>.</summary>
-            <param name="projectId">The <c>project</c> ID. Must not be <c>null</c>.</param>
-            <returns>The string representation of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>.</returns>
+        <member name="M:Google.Api.Gax.ResourceNames.ProjectName.TryParse(System.String,System.Boolean,Google.Api.Gax.ResourceNames.ProjectName@)">
+            <summary>
+            Tries to parse the given resource name string into a new <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> instance; optionally
+            allowing an unparseable resource name.
+            </summary>
+            <remarks>
+            To parse successfully, the resource name must be formatted as one of the following:
+            <list type="bullet"><item><description><c>projects/{project}</c></description></item></list>
+            Or may be in any format if <paramref name="allowUnparsed"/> is <c>true</c>.
+            </remarks>
+            <param name="projectName">The resource name in string form. Must not be <c>null</c>.</param>
+            <param name="allowUnparsed">
+            If <c>true</c> will successfully store an unparseable resource name into the <see cref="P:Google.Api.Gax.ResourceNames.ProjectName.UnparsedResource"/>
+            property; otherwise will throw an <see cref="T:System.ArgumentException"/> if an unparseable resource name is
+            specified.
+            </param>
+            <param name="result">
+            When this method returns, the parsed <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/>, or <c>null</c> if parsing failed.
+            </param>
+            <returns><c>true</c> if the name was parsed successfully; <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.#ctor(System.String)">
             <summary>
-            Constructs a new instance of the <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> resource name class
-            from its component parts.
+            Constructs a new instance of a <see cref="T:Google.Api.Gax.ResourceNames.ProjectName"/> class from the component parts of pattern
+            <c>projects/{project}</c>
             </summary>
-            <param name="projectId">The project ID. Must not be <c>null</c>.</param>
+            <param name="projectId">The <c>Project</c> ID. Must not be <c>null</c> or empty.</param>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.Type">
+            <summary>The <see cref="T:Google.Api.Gax.ResourceNames.ProjectName.ResourceNameType"/> of the contained resource name.</summary>
+        </member>
+        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.UnparsedResource">
+            <summary>
+            The contained <see cref="T:Google.Api.Gax.UnparsedResourceName"/>. Only non-<c>null</c>if this instance contains an
+            unparsed resource name.
+            </summary>
         </member>
         <member name="P:Google.Api.Gax.ResourceNames.ProjectName.ProjectId">
             <summary>
-            The project ID. Never <c>null</c>.
+            The <c>Project</c> ID. Will not be <c>null</c>, unless this instance contains an unparsed resource name.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.Kind">
-            <inheritdoc />
+        <member name="P:Google.Api.Gax.ResourceNames.ProjectName.IsKnownPattern">
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.ToString">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.GetHashCode">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Equals(System.Object)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.Equals(Google.Api.Gax.ResourceNames.ProjectName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.op_Equality(Google.Api.Gax.ResourceNames.ProjectName,Google.Api.Gax.ResourceNames.ProjectName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="M:Google.Api.Gax.ResourceNames.ProjectName.op_Inequality(Google.Api.Gax.ResourceNames.ProjectName,Google.Api.Gax.ResourceNames.ProjectName)">
-            <inheritdoc />
+            <inheritdoc/>
         </member>
         <member name="T:Google.Api.Gax.SystemClock">
             <summary>
@@ -2249,7 +2744,7 @@
             Private constructor used by internal code to avoid repeated cloning and validation.
             </summary>
         </member>
-        <member name="P:Google.Api.Gax.TemplatedResourceName.Kind">
+        <member name="P:Google.Api.Gax.TemplatedResourceName.IsKnownPattern">
             <inheritdoc />
         </member>
         <member name="M:Google.Api.Gax.TemplatedResourceName.ToString">
@@ -2274,56 +2769,56 @@
         <member name="M:Google.Api.Gax.TemplatedResourceName.op_Inequality(Google.Api.Gax.TemplatedResourceName,Google.Api.Gax.TemplatedResourceName)">
             <inheritdoc />
         </member>
-        <member name="T:Google.Api.Gax.UnknownResourceName">
+        <member name="T:Google.Api.Gax.UnparsedResourceName">
             <summary>
             A resource name in which nothing is known about the name structure.
             </summary>
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.Parse(System.String)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.Parse(System.String)">
             <summary>
-            Parse a resource name into an <see cref="T:Google.Api.Gax.UnknownResourceName"/>.
-            Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
+            Parse a resource name into an <see cref="T:Google.Api.Gax.UnparsedResourceName"/>.
+            Only minimal verification is carried out that <paramref name="name"/> is a valid resource name string.
             </summary>
             <param name="name">A resource name.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="name"/> is an invalid resource name.</exception>
-            <returns>An <see cref="T:Google.Api.Gax.UnknownResourceName"/> representing the given string.</returns>
+            <returns>An <see cref="T:Google.Api.Gax.UnparsedResourceName"/> representing the given string.</returns>
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.TryParse(System.String,Google.Api.Gax.UnknownResourceName@)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.TryParse(System.String,Google.Api.Gax.UnparsedResourceName@)">
             <summary>
-            Tries to parse the given resource name into an <see cref="T:Google.Api.Gax.UnknownResourceName"/>.
+            Tries to parse the given resource name into an <see cref="T:Google.Api.Gax.UnparsedResourceName"/>.
             Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
             </summary>
             <param name="name">A resource name.</param>
-            <param name="result">The <see cref="T:Google.Api.Gax.UnknownResourceName"/> result if parsing is successful, otherwise <c>null</c>.</param>
+            <param name="result">The <see cref="T:Google.Api.Gax.UnparsedResourceName"/> result if parsing is successful, otherwise <c>null</c>.</param>
             <returns><c>true</c> if <paramref name="name"/> was successfully parsed, otherwise <c>false</c>.</returns>
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.#ctor(System.String)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.#ctor(System.String)">
             <summary>
             Creates an unkown resource name from the given resource name string.
             Only minimal verification is carried out that <paramref name="name"/> is a value resource name string.
             </summary>
             <param name="name"></param>
         </member>
-        <member name="P:Google.Api.Gax.UnknownResourceName.Kind">
+        <member name="P:Google.Api.Gax.UnparsedResourceName.IsKnownPattern">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.ToString">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.GetHashCode">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.Equals(System.Object)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.Equals(Google.Api.Gax.UnknownResourceName)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.Equals(Google.Api.Gax.UnparsedResourceName)">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.op_Equality(Google.Api.Gax.UnknownResourceName,Google.Api.Gax.UnknownResourceName)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.op_Equality(Google.Api.Gax.UnparsedResourceName,Google.Api.Gax.UnparsedResourceName)">
             <inheritdoc />
         </member>
-        <member name="M:Google.Api.Gax.UnknownResourceName.op_Inequality(Google.Api.Gax.UnknownResourceName,Google.Api.Gax.UnknownResourceName)">
+        <member name="M:Google.Api.Gax.UnparsedResourceName.op_Inequality(Google.Api.Gax.UnparsedResourceName,Google.Api.Gax.UnparsedResourceName)">
             <inheritdoc />
         </member>
         <member name="T:Google.Api.Gax.VersionHeaderBuilder">
@@ -2354,6 +2849,17 @@
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.AppendDotNetEnvironment">
             <summary>
             Appends the .NET environment information to the list.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.IsHeaderNameValueValid(System.String)">
+            <summary>
+            Whether the name or value that are supposed to be included in a header are valid
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.VersionHeaderBuilder.FormatInformationalVersion(System.String)">
+            <summary>
+            Formats an AssemblyInformationalVersionAttribute value to avoid losing useful information,
+            but also avoid including unnecessary hex that is appended automatically.
             </summary>
         </member>
         <member name="M:Google.Api.Gax.VersionHeaderBuilder.ToString">
