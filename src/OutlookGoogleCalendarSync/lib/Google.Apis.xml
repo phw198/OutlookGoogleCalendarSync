@@ -4,6 +4,19 @@
         <name>Google.Apis</name>
     </assembly>
     <members>
+        <member name="T:Google.Apis.Download.DownloadProgress">
+            <summary>
+            Extension methods for <see cref="T:Google.Apis.Download.IDownloadProgress"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Download.DownloadProgress.ThrowOnFailure(Google.Apis.Download.IDownloadProgress)">
+            <summary>
+            Throws the exception from <paramref name="progress"/> if it represents a failure with an exception.
+            The thrown exception will contain a more useful stack trace than just <see cref="P:Google.Apis.Download.IDownloadProgress.Exception"/>
+            where this is available.
+            </summary>
+            <param name="progress">The upload progress to check for failure. Must not be null.</param>
+        </member>
         <member name="T:Google.Apis.Download.DownloadStatus">
             <summary>Enum which represents the status of the current download.</summary>
         </member>
@@ -113,6 +126,12 @@
         </member>
         <member name="P:Google.Apis.Download.MediaDownloader.DownloadProgress.Exception">
             <summary>Gets or sets the exception which occurred during the download or <c>null</c>.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.DownloadProgress.ExceptionDispatchInfo">
+            <summary>
+            The original dispatch information for <see cref="P:Google.Apis.Download.MediaDownloader.DownloadProgress.Exception"/>. This is null
+            if and only if <see cref="P:Google.Apis.Download.MediaDownloader.DownloadProgress.Exception"/> is null.
+            </summary>
         </member>
         <member name="M:Google.Apis.Download.MediaDownloader.UpdateProgress(Google.Apis.Download.IDownloadProgress)">
             <summary>
@@ -234,23 +253,6 @@
             A request sent with an "If-None-Match" header will only succeed if ETags are not identical.
             </summary>
         </member>
-        <member name="T:Google.Apis.Media.MediaApiErrorHandling">
-            <summary>
-            Common error handling code for the Media API.
-            </summary>
-        </member>
-        <member name="M:Google.Apis.Media.MediaApiErrorHandling.ExceptionForResponseAsync(Google.Apis.Services.IClientService,System.Net.Http.HttpResponseMessage)">
-            <summary>
-            Creates a suitable exception for an HTTP response, attempting to parse the body as
-            JSON but falling back to just using the text as the message.
-            </summary>
-        </member>
-        <member name="M:Google.Apis.Media.MediaApiErrorHandling.ExceptionForResponseAsync(Google.Apis.ISerializer,System.String,System.Net.Http.HttpResponseMessage)">
-            <summary>
-            Creates a suitable exception for an HTTP response, attempting to parse the body as
-            JSON but falling back to just using the text as the message.
-            </summary>
-        </member>
         <member name="T:Google.Apis.Requests.BatchRequest">
             <summary>
             A batch request which represents individual requests to Google servers. You should add a single service 
@@ -266,8 +268,9 @@
         <member name="T:Google.Apis.Requests.BatchRequest.OnResponse`1">
             <summary>A concrete type callback for an individual response.</summary>
             <typeparam name="TResponse">The response type.</typeparam>
-            <param name="content">The content response or <c>null</c> if the request failed.</param>
-            <param name="error">Error or <c>null</c> if the request succeeded.</param>
+            <param name="content">The parsed content response or <c>null</c> if the request failed or the response
+            could not be parsed using the associated <see cref="P:Google.Apis.Services.IClientService.Serializer"/>.</param>
+            <param name="error">Error or <c>null</c> if the request succeeded and response content was parsed succesfully.</param>
             <param name="index">The request index.</param>
             <param name="message">The HTTP individual response.</param>
         </member>
@@ -282,8 +285,9 @@
         </member>
         <member name="M:Google.Apis.Requests.BatchRequest.InnerRequest.OnResponse(System.Object,Google.Apis.Requests.RequestError,System.Int32,System.Net.Http.HttpResponseMessage)">
             <summary>A callback method which will be called after an individual response was parsed.</summary>
-            <param name="content">The content response or <c>null</c> if the request failed.</param>
-            <param name="error">Error or <c>null</c> if the request succeeded.</param>
+            <param name="content">The parsed content response or <c>null</c> if the request failed or the response
+            could not be parsed using the associated <see cref="P:Google.Apis.Services.IClientService.Serializer"/>.</param>
+            <param name="error">Error or <c>null</c> if the request succeeded and response content was parsed succesfully.</param>
             <param name="index">The request index.</param>
             <param name="message">The HTTP individual response.</param>
         </member>
@@ -353,7 +357,7 @@
             <summary>Exception handlers for this request only.</summary>
         </member>
         <member name="F:Google.Apis.Requests.ClientServiceRequest._executeInterceptors">
-            <summary>Unsuccessful response handlers for this request only.</summary>
+            <summary>Execute interceptors for this request only.</summary>
         </member>
         <member name="P:Google.Apis.Requests.ClientServiceRequest.Credential">
             <summary>
@@ -376,9 +380,10 @@
         </member>
         <member name="M:Google.Apis.Requests.ClientServiceRequest.AddExecuteInterceptor(Google.Apis.Http.IHttpExecuteInterceptor)">
             <summary>
-            Add an unsuccessful response handler for this request only.
+            Add an execute interceptor for this request only.
+            If the request is retried, the interceptor will be called on each attempt.
             </summary>
-            <param name="handler">The unsuccessful response handler. Must not be <c>null</c>.</param>
+            <param name="handler">The execute interceptor. Must not be <c>null</c>.</param>
         </member>
         <member name="T:Google.Apis.Requests.ClientServiceRequest`1">
             <summary>
@@ -407,6 +412,13 @@
             If this is null (the default) then the value from the service initializer is used to determine
             whether or not parameters should be validated client-side. If this is non-null, it overrides
             whatever value is specified in the service.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.ApiVersion">
+            <summary>
+            The precise API version represented by this request.
+            Subclasses generated from a specific known version should override this property,
+            which will result in an x-api-version header being sent on the HTTP request.
             </summary>
         </member>
         <member name="P:Google.Apis.Requests.ClientServiceRequest`1.MethodName">
@@ -687,6 +699,17 @@
             Appends the .NET environment information to the list.
             </summary>
         </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.IsHeaderNameValueValid(System.String)">
+            <summary>
+            Whether the name or value that are supposed to be included in a header are valid
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.VersionHeaderBuilder.FormatInformationalVersion(System.String)">
+            <summary>
+            Formats an AssemblyInformationalVersionAttribute value to avoid losing useful information,
+            but also avoid including unnecessary hex that is appended automatically.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Requests.VersionHeaderBuilder.ToString">
             <inheritdoc />
         </member>
@@ -695,6 +718,22 @@
             Clones this VersionHeaderBuilder, creating an independent copy with the same names/values.
             </summary>
             <returns>A clone of this builder.</returns>
+        </member>
+        <member name="M:Google.Apis.Responses.HttpResponseMessageExtensions.DeserializeErrorAsync(System.Net.Http.HttpResponseMessage,System.String,Google.Apis.ISerializer)">
+            <summary>
+            Attempts to deserialize a <see cref="T:Google.Apis.Requests.RequestError"/> from the <paramref name="response"/>.
+            </summary>
+            <remarks>
+            This method will throw a <see cref="T:Google.GoogleApiException"/> if:
+            <list type="bullet">
+            <item>The <paramref name="response"/> or its <see cref="P:System.Net.Http.HttpResponseMessage.Content"/> are null.</item>
+            <item>Or the deserialization attempt throws a <see cref="T:Newtonsoft.Json.JsonException"/>.</item>
+            <item>Or the deserilization attempt returns null.</item>
+            </list>
+            Any exception thrown while reading the <paramref name="response"/> <see cref="P:System.Net.Http.HttpResponseMessage.Content"/>
+            will be bubbled up.
+            Otherwie this method will returned the deserialized <see cref="T:Google.Apis.Requests.RequestError"/>.
+            </remarks>
         </member>
         <member name="T:Google.Apis.Services.BaseClientService">
             <summary>
@@ -771,6 +810,19 @@
             the default base URI for the service is used.
             </summary>
         </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.UniverseDomain">
+            <summary>
+            The universe domain to connect to, or null to use the default universe domain <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/>.
+            </summary>
+            <remarks>
+            <para>
+            <see cref="P:Google.Apis.Services.BaseClientService.Initializer.UniverseDomain"/> is used to build the endpoint to connect to, unless <see cref="P:Google.Apis.Services.BaseClientService.Initializer.BaseUri"/>
+            is set, in which case <see cref="P:Google.Apis.Services.BaseClientService.Initializer.BaseUri"/> will be used without further modification.
+            <see cref="P:Google.Apis.Services.BaseClientService.Initializer.UniverseDomain"/> may also be used by the credential, if any, to validate against its
+            own universe domain.
+            </para>
+            </remarks>
+        </member>
         <member name="P:Google.Apis.Services.BaseClientService.Initializer.VersionHeaderBuilder">
             <summary>
             Builder for the x-goog-api-client header, collecting version information.
@@ -802,6 +854,17 @@
             The BaseUri provided in the initializer, which may be null.
             </summary>
         </member>
+        <member name="P:Google.Apis.Services.BaseClientService.UniverseDomain">
+            <summary>
+            The universe domain to connect to, or null to use the default universe domain <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/>.
+            </summary>
+            <remarks>
+            <para>
+            <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/> is used to build the endpoint to connect to, unless <see cref="P:Google.Apis.Services.BaseClientService.BaseUriOverride"/>
+            is set, in which case <see cref="P:Google.Apis.Services.BaseClientService.BaseUriOverride"/> will be used without further modification.
+            </para>
+            </remarks>
+        </member>
         <member name="M:Google.Apis.Services.BaseClientService.HasFeature(Google.Apis.Discovery.Features)">
             <summary>Returns <c>true</c> if this service contains the specified feature.</summary>
         </member>
@@ -812,6 +875,24 @@
             waited request's time span, or create a back-off handler with you own implementation of 
             <see cref="T:Google.Apis.Util.IBackOff"/>).
             </summary>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.GetEffectiveUri(System.String,System.String)">
+            <summary>
+            Gets the effective URI taking into account the <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/>.
+            </summary>
+            <param name="explicitUri">An explicit URI. May be null.</param>
+            <param name="defaultUri">A default URI. May be null.</param>
+            <returns>
+            <list type="bullet">
+            <item><paramref name="explicitUri"/> if not null.</item>
+            <item>
+            Otherwise, if <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/> is not null, the result of replacing
+            <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/> with <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/>
+            in <paramref name="defaultUri"/>.
+            </item>
+            Otherwise <paramref name="defaultUri"/>.
+            </list>
+            </returns>
         </member>
         <member name="P:Google.Apis.Services.BaseClientService.HttpClient">
             <inheritdoc/>
@@ -1136,6 +1217,12 @@
             </summary>
             <param name="exception">An exception that occurred during the upload.</param>
             <param name="bytesSent">The number of bytes sent before this exception occurred.</param>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress.ExceptionDispatchInfo">
+            <summary>
+            The original dispatch information for <see cref="P:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress.Exception"/>. This is null
+            if and only if <see cref="P:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress.Exception"/> is null.
+            </summary>
         </member>
         <member name="P:Google.Apis.Upload.ResumableUpload.Progress">
             <summary>
@@ -1575,6 +1662,42 @@
             <summary>
             Gets the <see cref="P:Google.Apis.Upload.ResumableUploadOptions.HttpClient"/> as a <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> if it is an instance of one.
             </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.UploadProgress">
+            <summary>
+            Extension methods for <see cref="T:Google.Apis.Upload.IUploadProgress"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.UploadProgress.ThrowOnFailure(Google.Apis.Upload.IUploadProgress)">
+            <summary>
+            Throws the exception from <paramref name="progress"/> if it represents a failure with an exception.
+            The thrown exception will contain a more useful stack trace than just <see cref="P:Google.Apis.Upload.IUploadProgress.Exception"/>
+            where this is available.
+            </summary>
+            <param name="progress">The upload progress to check for failure. Must not be null.</param>
+        </member>
+        <member name="T:Google.Apis.Util.HttpRequestMessageExtensions">
+            <summary>
+            Extension methods for <see cref="T:System.Net.Http.HttpRequestMessage"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.HttpRequestMessageExtensions.SetOption``1(System.Net.Http.HttpRequestMessage,System.String,``0)">
+            <summary>
+            Sets the given key/value pair as a request option.
+            </summary>
+            <remarks>
+            This method exist mostly to handle the fact that HttpRequestMessage.Options are only available
+            from .NET 5 and up.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Util.HttpRequestMessageExtensions.TryGetOption``1(System.Net.Http.HttpRequestMessage,System.String,``0@)">
+            <summary>
+            Gets the value associated with the given key on the request options.
+            </summary>
+            <remarks>
+            This method exist mostly to handle the fact that HttpRequestMessage.Options are only available
+            from .NET 5 and up.
+            </remarks>
         </member>
         <member name="T:Google.Apis.Util.Store.FileDataStore">
             <summary>

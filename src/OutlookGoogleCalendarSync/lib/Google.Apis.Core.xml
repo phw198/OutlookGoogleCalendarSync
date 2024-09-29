@@ -198,27 +198,37 @@
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.UnsuccessfulResponseHandlerKey">
             <summary>
-            Key for unsuccessful response handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for unsuccessful response handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ExceptionHandlerKey">
             <summary>
-            Key for exception handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for exception handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ExecuteInterceptorKey">
             <summary>
-            Key for execute handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for execute handlers in an <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ResponseStreamInterceptorProviderKey">
             <summary>
-            Key for a stream response interceptor provider in an <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for a stream response interceptor provider in an <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.CredentialKey">
             <summary>
-            Key for a credential in a <see cref="T:System.Net.Http.HttpRequestMessage"/> properties.
+            Key for a credential in a <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Http.ConfigurableMessageHandler.UniverseDomainKey">
+            <summary>
+            Key for a universe domain in a <see cref="T:System.Net.Http.HttpRequestMessage"/> options.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Http.ConfigurableMessageHandler.MaxRetriesKey">
+            <summary>
+            Key for request specific max retries.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ConfigurableMessageHandler.ApiVersion">
@@ -390,6 +400,13 @@
             unless theres a specific call credential set.
             If <see cref="P:Google.Apis.Http.ConfigurableMessageHandler.Credential"/> implements <see cref="T:Google.Apis.Http.IHttpUnsuccessfulResponseHandler"/>
             then it will also be included as a handler of an unsuccessful response.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Http.ConfigurableMessageHandler.UniverseDomain">
+            <summary>
+            The universe domain to include as an option in the request.
+            This may be used by the <see cref="P:Google.Apis.Http.ConfigurableMessageHandler.Credential"/> to validate against its own universe domain.
+            May be null, in which case no universe domain will be included in the request.
             </summary>
         </member>
         <member name="M:Google.Apis.Http.ConfigurableMessageHandler.#ctor(System.Net.Http.HttpMessageHandler)">
@@ -640,6 +657,25 @@
         <member name="M:Google.Apis.Http.HttpExtenstions.SetEmptyContent(System.Net.Http.HttpRequestMessage)">
             <summary>A Google.Apis utility method for setting an empty HTTP content.</summary>
         </member>
+        <member name="M:Google.Apis.Http.HttpExtenstions.ToDelegatingHandler(Google.Apis.Http.IHttpExecuteInterceptor,System.Net.Http.HttpMessageHandler)">
+            <summary>
+            Creates a <see cref="T:System.Net.Http.DelegatingHandler"/> which applies the execution interceptor
+            in <paramref name="interceptor"/> (usually a credential) before delegating onwards.
+            </summary>
+            <param name="interceptor">The interceptor to execute before the remainder of the handler chain. Must not be null.</param>
+            <param name="innerHandler">The initial inner handler.</param>
+            <returns>A delegating HTTP message handler.</returns>
+        </member>
+        <member name="M:Google.Apis.Http.HttpExtenstions.ToDelegatingHandler(Google.Apis.Http.IHttpExecuteInterceptor)">
+            <summary>
+            Creates a <see cref="T:System.Net.Http.DelegatingHandler"/> which applies the execution interceptor
+            in <paramref name="interceptor"/> (usually a credential) before delegating onwards.
+            The <see cref="P:System.Net.Http.DelegatingHandler.InnerHandler"/> of the returned handler must be specified before
+            the first request is made.
+            </summary>
+            <param name="interceptor">The interceptor to execute before the remainder of the handler chain. Must not be null.</param>
+            <returns>A delegating HTTP message handler.</returns>
+        </member>
         <member name="T:Google.Apis.Http.IConfigurableHttpClientInitializer">
             <summary> 
             HTTP client initializer for changing the default behavior of HTTP client. 
@@ -659,6 +695,13 @@
         </member>
         <member name="P:Google.Apis.Http.CreateHttpClientArgs.ApplicationName">
             <summary>Gets or sets the application name that is sent in the User-Agent header.</summary>
+        </member>
+        <member name="P:Google.Apis.Http.CreateHttpClientArgs.UniverseDomain">
+            <summary>
+            The universe domain that will be included as part of <see cref="T:System.Net.Http.HttpRequestMessage"/> options
+            that may be used by the credential, if any, to validate against its own universe domain.
+            May be null in which case no universe domain will be included in the request.
+            </summary>
         </member>
         <member name="P:Google.Apis.Http.CreateHttpClientArgs.Initializers">
             <summary>Gets a list of initializers to initialize the HTTP client instance.</summary>
@@ -762,6 +805,12 @@
             Handle response argument which contains properties such as the request, response, current failed try.
             </param>
             <returns>Whether this handler has made a change that requires the request to be resent.</returns>
+        </member>
+        <member name="T:Google.Apis.Http.InterceptorDelegatingHandler">
+            <summary>
+            A <see cref="T:System.Net.Http.DelegatingHandler"/> which executes an <see cref="T:Google.Apis.Http.IHttpExecuteInterceptor"/> before
+            delegating onwards.
+            </summary>
         </member>
         <member name="T:Google.Apis.Http.MaxUrlLengthInterceptor">
             <summary>
@@ -1474,6 +1523,64 @@
             <code>[assembly: InternalsVisibleTo("Full.Name.Of.Testing.Assembly")]</code>
             </summary>
         </member>
+        <member name="T:Google.Apis.Util.DiscoveryFormat">
+            <summary>
+            Utility methods to convert to/from Discovery API formats.
+            See https://developers.google.com/discovery/v1/type-format
+            </summary>
+            <remarks>
+            Methods starting "Parse" are for parsing the Discovery format to a .NET type.
+            Methods starting "Format" are for formatting .NET types to Discovery formats.
+            This class does not provide methods for <see cref="T:System.DateTime" /> and <see cref="T:System.Object"/>
+            conversions; properties with a type of DateTime or object are marked as obsolete in the generated code,
+            and have legacy behavior which cannot reasonably be changed for backward compatibility reasons.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.ParseDateTimeToDateTimeOffset(System.String)">
+            <summary>
+            Parses a Discovery "date-time" format value to <see cref="T:System.DateTimeOffset"/>.
+            The value must start in the format "yyyy-MM-ddTHH:mm:ss", with optional milliseconds,
+            microseconds and nanoseconds. A UTC offset may be provided with up to second precision
+            (e.g. +01, -02:30, +03:45:12), or "Z" for UTC. If nanosecond precision is provided,
+            the value is truncated to .NET "tick" precision (100ns). If the UTC offset has a non-zero
+            seconds component, a value is returned which preserves the instant in time, but truncates
+            the UTC offset to the minute.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.ParseGoogleDateTimeToDateTimeOffset(System.String)">
+            <summary>
+            Parses a Discovery "google-datetime" format value to <see cref="T:System.DateTimeOffset"/>.
+            The value must start in the format "yyyy-MM-ddTHH:mm:ss", with optional milliseconds,
+            microseconds and nanoseconds, and a trailing 'Z' to indicate UTC.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.FormatDateTimeOffsetToDateTime(System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Formats a <see cref="T:System.DateTime"/> value appropriately for a Discovery "date-time" value.
+            This does not automatically convert the given value to UTC; some services require values
+            to be presented in UTC, in which case user code should ensure that only UTC values are
+            specified.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.FormatDateTimeOffsetToGoogleDateTime(System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Formats a <see cref="T:System.DateTime"/> value appropriately for a Discovery "google-datetime" value.
+            This automatically converts the given value to UTC before formatting.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.ParseLocalDateTime(System.String)">
+            <summary>
+            Parses the "local" part of a date-time/google-datetime value. This is expected to be in the format
+            yyyy-MM-ddTHH:mm:ss with optional millisecond, microsecond or nanosecond precision.
+            The returned DateTime has a Kind of Unspecified.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.DiscoveryFormat.ParseUtcOffset(System.String)">
+            <summary>
+            Parses the UTC offset part of a date-time value. This may be "Z" (for UTC) or a string of the format
+            +HH, +HH:mm, +HH:mm:ss where "+" can actually be + or -.
+            </summary>
+        </member>
         <member name="T:Google.Apis.Util.ExponentialBackOff">
             <summary>
             Implementation of <see cref="T:Google.Apis.Util.IBackOff"/> that increases the back-off period for each retry attempt using a 
@@ -1636,6 +1743,7 @@
         <member name="T:Google.Apis.Util.Store.IDataStore">
             <summary>
             Stores and manages data objects, where the key is a string and the value is an object.
+            The store will use <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/> for serialization.
             <para>
             <c>null</c> keys are not allowed.
             </para>
@@ -1645,7 +1753,7 @@
             <summary>Asynchronously stores the given value for the given key (replacing any existing value).</summary>
             <typeparam name="T">The type to store in the data store.</typeparam>
             <param name="key">The key.</param>
-            <param name="value">The value to store.</param>
+            <param name="value">The value to store. Will be serialized using <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/>.</param>
         </member>
         <member name="M:Google.Apis.Util.Store.IDataStore.DeleteAsync``1(System.String)">
             <summary>
@@ -1659,7 +1767,7 @@
             <summary>Asynchronously returns the stored value for the given key or <c>null</c> if not found.</summary>
             <typeparam name="T">The type to retrieve from the data store.</typeparam>
             <param name="key">The key to retrieve its value.</param>
-            <returns>The stored object.</returns>
+            <returns>The stored object deserialized using <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/>.</returns>
         </member>
         <member name="M:Google.Apis.Util.Store.IDataStore.ClearAsync">
             <summary>Asynchronously clears all values in the data store.</summary>
@@ -1800,6 +1908,60 @@
         <member name="M:Google.Apis.Util.Utilities.GetStringFromDateTime(System.Nullable{System.DateTime})">
             <summary>Returns a string (by RFC3339) form the input <see cref="T:System.DateTime"/> instance.</summary>
         </member>
+        <member name="M:Google.Apis.Util.Utilities.GetDateTimeOffsetFromString(System.String)">
+            <summary>
+            Parses the input string and returns <see cref="T:System.DateTimeOffset"/> if the input is
+            of the format "yyyy-MM-ddTHH:mm:ss.FFFZ" or "yyyy-MM-ddTHH:mm:ssZ". If the input is null,
+            this method returns <c>null</c>. Otherwise, <see cref="T:System.FormatException"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.Utilities.GetStringFromDateTimeOffset(System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Returns a string from the input <see cref="T:System.DateTimeOffset"/> instance, or <c>null</c> if
+            <paramref name="date"/> is null. The string is always in the format "yyyy-MM-ddTHH:mm:ss.fffZ" or
+            "yyyy-MM-ddTHH:mm:ssZ" - always UTC, always either second or millisecond precision, and always using the
+            invariant culture.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.Utilities.DeserializeForGoogleFormat(System.String)">
+            <summary>
+            Deserializes the given raw value to an object using <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/>,
+            as if it were a JSON string value.
+            </summary>
+            <param name="rawValue">The string value to deserialize. May be null, in which case null is returned.</param>
+            <returns>The deserialized value.</returns>
+        </member>
+        <member name="M:Google.Apis.Util.Utilities.SerializeForGoogleFormat(System.Object)">
+            <summary>
+            Serializes the given value using <see cref="P:Google.Apis.Json.NewtonsoftJsonSerializer.Instance"/>.
+            </summary>
+            <param name="value">The value to serialize. May be null, in which case null is returned.</param>
+            <returns>The string representation of the object.</returns>
+            <exception cref="T:System.ArgumentException">The value does not serialize to a JSON string.</exception>
+        </member>
+        <member name="T:Google.Apis.Core.Util.HttpRequestMessageExtensions">
+            <summary>
+            Extension methods for <see cref="T:System.Net.Http.HttpRequestMessage"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Core.Util.HttpRequestMessageExtensions.SetOption``1(System.Net.Http.HttpRequestMessage,System.String,``0)">
+            <summary>
+            Sets the given key/value pair as a request option.
+            </summary>
+            <remarks>
+            This method exist mostly to handle the fact that HttpRequestMessage.Options are only available
+            from .NET 5 and up.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Core.Util.HttpRequestMessageExtensions.TryGetOption``1(System.Net.Http.HttpRequestMessage,System.String,``0@)">
+            <summary>
+            Gets the value associated with the given key on the request options.
+            </summary>
+            <remarks>
+            This method exist mostly to handle the fact that HttpRequestMessage.Options are only available
+            from .NET 5 and up.
+            </remarks>
+        </member>
         <member name="T:Google.GoogleApiException">
             <summary>Represents an exception thrown by an API Service.</summary>
         </member>
@@ -1812,11 +1974,23 @@
         <member name="M:Google.GoogleApiException.#ctor(System.String,System.String)">
             <summary>Creates an API Service exception.</summary>
         </member>
+        <member name="M:Google.GoogleApiException.#ctor(System.String)">
+            <summary>
+            Creates an API Service exception with no message.
+            </summary>
+            <remarks>
+            <see cref="P:Google.GoogleApiException.Message"/> may still contain useful information if the
+            <see cref="P:Google.GoogleApiException.Error"/> and/or <see cref="P:Google.GoogleApiException.HttpStatusCode"/> properties are set.
+            </remarks>
+        </member>
         <member name="P:Google.GoogleApiException.Error">
             <summary>The Error which was returned from the server, or <c>null</c> if unavailable.</summary>
         </member>
         <member name="P:Google.GoogleApiException.HttpStatusCode">
             <summary>The HTTP status code which was returned along with this error, or 0 if unavailable.</summary>
+        </member>
+        <member name="P:Google.GoogleApiException.Message">
+            <inheritdoc/>
         </member>
         <member name="M:Google.GoogleApiException.ToString">
             <summary>
