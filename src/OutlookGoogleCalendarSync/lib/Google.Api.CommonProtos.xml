@@ -1160,6 +1160,35 @@
             Some settings.
             </summary>
         </member>
+        <member name="F:Google.Api.PythonSettings.ExperimentalFeaturesFieldNumber">
+            <summary>Field number for the "experimental_features" field.</summary>
+        </member>
+        <member name="P:Google.Api.PythonSettings.ExperimentalFeatures">
+            <summary>
+            Experimental features to be included during client library generation.
+            </summary>
+        </member>
+        <member name="T:Google.Api.PythonSettings.Types">
+            <summary>Container for nested types declared in the PythonSettings message type.</summary>
+        </member>
+        <member name="T:Google.Api.PythonSettings.Types.ExperimentalFeatures">
+            <summary>
+            Experimental features to be included during client library generation.
+            These fields will be deprecated once the feature graduates and is enabled
+            by default.
+            </summary>
+        </member>
+        <member name="F:Google.Api.PythonSettings.Types.ExperimentalFeatures.RestAsyncIoEnabledFieldNumber">
+            <summary>Field number for the "rest_async_io_enabled" field.</summary>
+        </member>
+        <member name="P:Google.Api.PythonSettings.Types.ExperimentalFeatures.RestAsyncIoEnabled">
+            <summary>
+            Enables generation of asynchronous REST clients if `rest` transport is
+            enabled. By default, asynchronous REST clients will not be generated.
+            This feature will be enabled by default 1 month after launching the
+            feature in preview packages.
+            </summary>
+        </member>
         <member name="T:Google.Api.NodeSettings">
             <summary>
             Settings for Node client libraries.
@@ -1276,10 +1305,17 @@
             <summary>Field number for the "selector" field.</summary>
         </member>
         <member name="P:Google.Api.MethodSettings.Selector">
-            <summary>
-            The fully qualified name of the method, for which the options below apply.
-            This is used to find the method to apply the options.
-            </summary>
+             <summary>
+             The fully qualified name of the method, for which the options below apply.
+             This is used to find the method to apply the options.
+            
+             Example:
+            
+                publishing:
+                  method_settings:
+                  - selector: google.storage.control.v2.StorageControl.CreateFolder
+                    # method settings for CreateFolder...
+             </summary>
         </member>
         <member name="F:Google.Api.MethodSettings.LongRunningFieldNumber">
             <summary>Field number for the "long_running" field.</summary>
@@ -1292,17 +1328,14 @@
             
              Example of a YAML configuration::
             
-              publishing:
-                method_settings:
+                publishing:
+                  method_settings:
                   - selector: google.cloud.speech.v2.Speech.BatchRecognize
                     long_running:
-                      initial_poll_delay:
-                        seconds: 60 # 1 minute
+                      initial_poll_delay: 60s # 1 minute
                       poll_delay_multiplier: 1.5
-                      max_poll_delay:
-                        seconds: 360 # 6 minutes
-                      total_poll_timeout:
-                         seconds: 54000 # 90 minutes
+                      max_poll_delay: 360s # 6 minutes
+                      total_poll_timeout: 54000s # 90 minutes
              </summary>
         </member>
         <member name="F:Google.Api.MethodSettings.AutoPopulatedFieldsFieldNumber">
@@ -1316,8 +1349,8 @@
             
              Example of a YAML configuration:
             
-              publishing:
-                method_settings:
+                publishing:
+                  method_settings:
                   - selector: google.example.v1.ExampleService.CreateExample
                     auto_populated_fields:
                     - request_id
@@ -1666,7 +1699,8 @@
         </member>
         <member name="P:Google.Api.ContextRule.Requested">
             <summary>
-            A list of full type names of requested contexts.
+            A list of full type names of requested contexts, only the requested context
+            will be made available to the backend.
             </summary>
         </member>
         <member name="F:Google.Api.ContextRule.ProvidedFieldNumber">
@@ -1674,7 +1708,8 @@
         </member>
         <member name="P:Google.Api.ContextRule.Provided">
             <summary>
-            A list of full type names of provided contexts.
+            A list of full type names of provided contexts. It is used to support
+            propagating HTTP headers and ETags from the response extension.
             </summary>
         </member>
         <member name="F:Google.Api.ContextRule.AllowedRequestExtensionsFieldNumber">
@@ -2312,15 +2347,11 @@
             <summary>Field number for the "aliases" field.</summary>
         </member>
         <member name="P:Google.Api.Endpoint.Aliases">
-             <summary>
-             Unimplemented. Dot not use.
-            
-             DEPRECATED: This field is no longer supported. Instead of using aliases,
-             please specify multiple [google.api.Endpoint][google.api.Endpoint] for each
-             of the intended aliases.
-            
-             Additional names that this endpoint will be hosted on.
-             </summary>
+            <summary>
+            Aliases for this endpoint, these will be served by the same UrlMap as the
+            parent endpoint, and will be provisioned in the GCP stack for the Regional
+            Endpoints.
+            </summary>
         </member>
         <member name="F:Google.Api.Endpoint.TargetFieldNumber">
             <summary>Field number for the "target" field.</summary>
@@ -3106,12 +3137,19 @@
             
              Examples:
             
-               string request_id = 1 [(google.api.field_info).format = UUID4];
-               string old_ip_address = 2 [(google.api.field_info).format = IPV4];
-               string new_ip_address = 3 [(google.api.field_info).format = IPV6];
-               string actual_ip_address = 4 [
-                 (google.api.field_info).format = IPV4_OR_IPV6
-               ];
+                 string request_id = 1 [(google.api.field_info).format = UUID4];
+                 string old_ip_address = 2 [(google.api.field_info).format = IPV4];
+                 string new_ip_address = 3 [(google.api.field_info).format = IPV6];
+                 string actual_ip_address = 4 [
+                   (google.api.field_info).format = IPV4_OR_IPV6
+                 ];
+                 google.protobuf.Any generic_field = 5 [
+                   (google.api.field_info).referenced_types = {type_name: "ActualType"},
+                   (google.api.field_info).referenced_types = {type_name: "OtherType"},
+                 ];
+                 google.protobuf.Any generic_user_input = 5 [
+                   (google.api.field_info).referenced_types = {type_name: "*"},
+                 ];
              </summary>
         </member>
         <member name="T:Google.Api.FieldInfo">
@@ -3128,6 +3166,17 @@
             any API consumer, just documents the API's format for the field it is
             applied to.
             </summary>
+        </member>
+        <member name="F:Google.Api.FieldInfo.ReferencedTypesFieldNumber">
+            <summary>Field number for the "referenced_types" field.</summary>
+        </member>
+        <member name="P:Google.Api.FieldInfo.ReferencedTypes">
+             <summary>
+             The type(s) that the annotated, generic field may represent.
+            
+             Currently, this must only be used on fields of type `google.protobuf.Any`.
+             Supporting other generic types may be considered in the future.
+             </summary>
         </member>
         <member name="T:Google.Api.FieldInfo.Types">
             <summary>Container for nested types declared in the FieldInfo message type.</summary>
@@ -3176,6 +3225,27 @@
             allowed normalizations of each.
             </summary>
         </member>
+        <member name="T:Google.Api.TypeReference">
+            <summary>
+            A reference to a message type, for use in [FieldInfo][google.api.FieldInfo].
+            </summary>
+        </member>
+        <member name="F:Google.Api.TypeReference.TypeNameFieldNumber">
+            <summary>Field number for the "type_name" field.</summary>
+        </member>
+        <member name="P:Google.Api.TypeReference.TypeName">
+             <summary>
+             The name of the type that the annotated, generic field may represent.
+             If the type is in the same protobuf package, the value can be the simple
+             message name e.g., `"MyMessage"`. Otherwise, the value must be the
+             fully-qualified message name e.g., `"google.library.v1.Book"`.
+            
+             If the type(s) are unknown to the service (e.g. the field accepts generic
+             user input), use the wildcard `"*"` to denote this behavior.
+            
+             See [AIP-202](https://google.aip.dev/202#type-references) for more details.
+             </summary>
+        </member>
         <member name="T:Google.Api.HttpReflection">
             <summary>Holder for reflection information generated from google/api/http.proto</summary>
         </member>
@@ -3214,7 +3284,7 @@
         </member>
         <member name="T:Google.Api.HttpRule">
              <summary>
-             # gRPC Transcoding
+             gRPC Transcoding
             
              gRPC Transcoding is a feature for mapping between a gRPC method and one or
              more HTTP REST endpoints. It allows developers to build a single API service
@@ -3255,9 +3325,8 @@
             
              This enables an HTTP REST to gRPC mapping as below:
             
-             HTTP | gRPC
-             -----|-----
-             `GET /v1/messages/123456`  | `GetMessage(name: "messages/123456")`
+             - HTTP: `GET /v1/messages/123456`
+             - gRPC: `GetMessage(name: "messages/123456")`
             
              Any fields in the request message which are not bound by the path template
              automatically become HTTP query parameters if there is no HTTP request body.
@@ -3281,11 +3350,9 @@
             
              This enables a HTTP JSON to RPC mapping as below:
             
-             HTTP | gRPC
-             -----|-----
-             `GET /v1/messages/123456?revision=2&amp;sub.subfield=foo` |
-             `GetMessage(message_id: "123456" revision: 2 sub: SubMessage(subfield:
-             "foo"))`
+             - HTTP: `GET /v1/messages/123456?revision=2&amp;sub.subfield=foo`
+             - gRPC: `GetMessage(message_id: "123456" revision: 2 sub:
+             SubMessage(subfield: "foo"))`
             
              Note that fields which are mapped to URL query parameters must have a
              primitive type or a repeated primitive type or a non-repeated message type.
@@ -3315,10 +3382,8 @@
              representation of the JSON in the request body is determined by
              protos JSON encoding:
             
-             HTTP | gRPC
-             -----|-----
-             `PATCH /v1/messages/123456 { "text": "Hi!" }` | `UpdateMessage(message_id:
-             "123456" message { text: "Hi!" })`
+             - HTTP: `PATCH /v1/messages/123456 { "text": "Hi!" }`
+             - gRPC: `UpdateMessage(message_id: "123456" message { text: "Hi!" })`
             
              The special name `*` can be used in the body mapping to define that
              every field not bound by the path template should be mapped to the
@@ -3340,10 +3405,8 @@
             
              The following HTTP JSON to RPC mapping is enabled:
             
-             HTTP | gRPC
-             -----|-----
-             `PATCH /v1/messages/123456 { "text": "Hi!" }` | `UpdateMessage(message_id:
-             "123456" text: "Hi!")`
+             - HTTP: `PATCH /v1/messages/123456 { "text": "Hi!" }`
+             - gRPC: `UpdateMessage(message_id: "123456" text: "Hi!")`
             
              Note that when using `*` in the body mapping, it is not possible to
              have HTTP parameters, as all fields not bound by the path end in
@@ -3371,13 +3434,13 @@
             
              This enables the following two alternative HTTP JSON to RPC mappings:
             
-             HTTP | gRPC
-             -----|-----
-             `GET /v1/messages/123456` | `GetMessage(message_id: "123456")`
-             `GET /v1/users/me/messages/123456` | `GetMessage(user_id: "me" message_id:
-             "123456")`
+             - HTTP: `GET /v1/messages/123456`
+             - gRPC: `GetMessage(message_id: "123456")`
             
-             ## Rules for HTTP mapping
+             - HTTP: `GET /v1/users/me/messages/123456`
+             - gRPC: `GetMessage(user_id: "me" message_id: "123456")`
+            
+             Rules for HTTP mapping
             
              1. Leaf request fields (recursive expansion nested messages in the request
                 message) are classified into three categories:
@@ -3396,7 +3459,7 @@
               request body, all
                  fields are passed via URL path and URL query parameters.
             
-             ### Path template syntax
+             Path template syntax
             
                  Template = "/" Segments [ Verb ] ;
                  Segments = Segment { "/" Segment } ;
@@ -3435,7 +3498,7 @@
              Document](https://developers.google.com/discovery/v1/reference/apis) as
              `{+var}`.
             
-             ## Using gRPC API Service Configuration
+             Using gRPC API Service Configuration
             
              gRPC API Service Configuration (service config) is a configuration language
              for configuring a gRPC service to become a user-facing product. The
@@ -3450,15 +3513,14 @@
              specified in the service config will override any matching transcoding
              configuration in the proto.
             
-             Example:
+             The following example selects a gRPC method and applies an `HttpRule` to it:
             
                  http:
                    rules:
-                     # Selects a gRPC method and applies HttpRule to it.
                      - selector: example.v1.Messaging.GetMessage
                        get: /v1/messages/{message_id}/{sub.subfield}
             
-             ## Special notes
+             Special notes
             
              When gRPC Transcoding is used to map a gRPC to JSON REST endpoints, the
              proto to JSON conversion must follow the [proto3
@@ -5131,8 +5193,13 @@
              <summary>
              The plural name used in the resource name and permission names, such as
              'projects' for the resource name of 'projects/{project}' and the permission
-             name of 'cloudresourcemanager.googleapis.com/projects.get'. It is the same
-             concept of the `plural` field in k8s CRD spec
+             name of 'cloudresourcemanager.googleapis.com/projects.get'. One exception
+             to this is for Nested Collections that have stuttering names, as defined
+             in [AIP-122](https://google.aip.dev/122#nested-collections), where the
+             collection ID in the resource name pattern does not necessarily directly
+             match the `plural` value.
+            
+             It is the same concept of the `plural` field in k8s CRD spec
              https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
             
              Note: The plural form is required even for singleton resources. See

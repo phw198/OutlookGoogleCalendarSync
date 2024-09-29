@@ -111,6 +111,11 @@
             <param name="extractor">The <see cref="T:Google.Api.Gax.Grpc.RoutingHeaderExtractor`1"/> that extracts the value of the routing header from a request.</param>
             <returns>>A new <see cref="T:Google.Api.Gax.Grpc.ApiCall`2"/> which applies the header on each request.</returns>
         </member>
+        <member name="T:Google.Api.Gax.Grpc.ApiCallTracingExtensions">
+            <summary>
+            Extension methods to provide tracing via <see cref="T:System.Diagnostics.ActivitySource"/>.
+            </summary>
+        </member>
         <member name="T:Google.Api.Gax.Grpc.ApiClientStreamingCall`2">
             <summary>
             Bridge between a client streaming RPC method and higher level
@@ -1195,9 +1200,11 @@
             Returns the effective settings for this builder, taking into account API keys and any other properties
             which may require additional settings (typically via <see cref="P:Google.Api.Gax.Grpc.ServiceSettingsBase.CallSettings"/>).
             </summary>
-            <remarks>This method only needs to be called if the concrete builder type knows that the settings may
-            need to be modified (e.g. if the API supports API keys). It should typically be called as
-            <c>GetEffectiveSettings(Settings?.Clone())</c>.</remarks>
+            <remarks>This method must be called as part of <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.Build"/> and
+            <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.BuildAsync(System.Threading.CancellationToken)"/> in
+            order to support API keys. It should typically be called as
+            <c>GetEffectiveSettings(Settings?.Clone())</c>.
+            </remarks>
             <typeparam name="T">The concrete settings type, derived from <see cref="T:Google.Api.Gax.Grpc.ServiceSettingsBase"/>, with a
             parameterless constructor that can be used to construct a new default instance.</typeparam>
             <param name="settings">A clone of the existing settings specified in the concrete builder type. May be null.</param>
@@ -1510,6 +1517,13 @@
         <member name="P:Google.Api.Gax.Grpc.ClientHelper.Options.ApiVersion">
             <summary>
             The API version to send in the x-goog-api-version header, if any. This may be null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientHelper.Options.ActivitySource">
+            <summary>
+            The activity source to use for tracing, if any. This may be null. This is ignored
+            if <see cref="P:Google.Api.Gax.Grpc.ClientHelper.Options.Settings"/> specifies an activity source.
+            Note: currently internal until we're ready to roll out OpenTelemetry support "properly".
             </summary>
         </member>
         <member name="T:Google.Api.Gax.Grpc.ClientStreamingBase`2">
@@ -3429,6 +3443,24 @@
             <returns>The <see cref="T:Google.Rpc.ErrorInfo"/> message specified in the exception, or null
             if there is no such information.</returns>
         </member>
+        <member name="M:Google.Api.Gax.Grpc.RpcExceptionExtensions.GetHelp(Grpc.Core.RpcException)">
+            <summary>
+            Retrieves the <see cref="T:Google.Rpc.Help"/> message containing extended error information
+            from the trailers in an <see cref="T:Grpc.Core.RpcException"/>, if present.
+            </summary>
+            <param name="ex">The RPC exception to retrieve details from. Must not be null.</param>
+            <returns>The <see cref="T:Google.Rpc.Help"/> message specified in the exception, or null
+            if there is no such information.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RpcExceptionExtensions.GetLocalizedMessage(Grpc.Core.RpcException)">
+            <summary>
+            Retrieves the <see cref="T:Google.Rpc.LocalizedMessage"/> message containing extended error information
+            from the trailers in an <see cref="T:Grpc.Core.RpcException"/>, if present.
+            </summary>
+            <param name="ex">The RPC exception to retrieve details from. Must not be null.</param>
+            <returns>The <see cref="T:Google.Rpc.Help"/> message specified in the exception, or null
+            if there is no such information.</returns>
+        </member>
         <member name="M:Google.Api.Gax.Grpc.RpcExceptionExtensions.GetStatusDetail``1(Grpc.Core.RpcException)">
             <summary>
             Retrieves the error details of type <typeparamref name="T"/> from the <see cref="T:Google.Rpc.Status"/>
@@ -3599,6 +3631,13 @@
             An optional gRPC interceptor to perform arbitrary interception tasks (such as logging) on gRPC calls.
             Note that this property is not used by code generated before August 2nd 2018: only packages created
             on or after that date are aware of this property.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ServiceSettingsBase.ActivitySource">
+            <summary>
+            An optional <see cref="P:Google.Api.Gax.Grpc.ServiceSettingsBase.ActivitySource"/>, which can override the default activity source used for tracing
+            calls from this client.
+            Note: currently internal until we're ready to roll out OpenTelemetry support "properly".
             </summary>
         </member>
         <member name="M:Google.Api.Gax.Grpc.TaskExtensions.WithCancellationToken``1(System.Threading.Tasks.Task{``0},System.Threading.CancellationToken)">

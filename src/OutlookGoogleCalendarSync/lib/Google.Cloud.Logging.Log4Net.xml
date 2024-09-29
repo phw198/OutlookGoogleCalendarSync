@@ -110,7 +110,7 @@
         <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisableResourceTypeDetection">
             <summary>
             If set, disables resource-type detection based on platform,
-            so ResourceType will default to "global" if not manually set. 
+            so ResourceType will default to "global" if not manually set.
             </summary>
         </member>
         <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.ResourceType">
@@ -249,8 +249,14 @@
         </member>
         <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.DisposeTimeoutSeconds">
             <summary>
-            The maximum time the <c>Dispose()</c> call of <see cref="T:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender"/> may take. 
+            The maximum time the <c>Dispose()</c> call of <see cref="T:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender"/> may take.
             Default value is 30 seconds.
+            </summary>
+        </member>
+        <member name="P:Google.Cloud.Logging.Log4Net.GoogleStackdriverAppender.JsonLayout">
+            <summary>
+            A "layout" to use to convert each logging event into a JSON payload. If this is null (the default),
+            or if it returns a null JSON payload for a particular logging event, a text payload is used instead.
             </summary>
         </member>
         <member name="T:Google.Cloud.Logging.Log4Net.MetaDataType">
@@ -303,7 +309,7 @@
         </member>
         <member name="T:Google.Cloud.Logging.Log4Net.LocalQueueType">
             <summary>
-            Whether log events are queued in memory or to disk. Only in-memory is currently supported. 
+            Whether log events are queued in memory or to disk. Only in-memory is currently supported.
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Log4Net.LocalQueueType.Memory">
@@ -311,6 +317,20 @@
             Queue log events in memory before sending to Cloud Logging.
             Unsent log events will be lost on program crash.
             </summary>
+        </member>
+        <member name="T:Google.Cloud.Logging.Log4Net.IJsonLayout">
+            <summary>
+            The equivalent to <see cref="T:log4net.Layout.ILayout"/>, but for converting
+            a <see cref="T:log4net.Core.LoggingEvent"/> to a JSON payload in the form of
+            a <see cref="T:Google.Protobuf.WellKnownTypes.Struct"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Cloud.Logging.Log4Net.IJsonLayout.Format(log4net.Core.LoggingEvent)">
+            <summary>
+            Formats the given logging event as a JSON logging payload.
+            </summary>
+            <param name="loggingEvent">The event to format. This will never be null.</param>
+            <returns>The JSON payload to log, or null to log a text payload instead.</returns>
         </member>
         <member name="M:Google.Cloud.Logging.Log4Net.ILogQueue.GetPreviousExecutionIdAsync">
             <summary>
@@ -371,8 +391,8 @@
             LogUploader waits for log entries to be available in the queue, then retrieves a batch of log entries
             from the queue and attempts to upload them to Google Logging. When it is confirmed that these entries
             have been uploaded successfully, the entries are removed from the queue.
-            If Google Logging is unavailable for any reason, upload is retried indefinitely will exponential
-            backoff up to a configured maxmimum.
+            If Google Logging is unavailable for any reason, upload is retried indefinitely with exponential
+            backoff up to a configured maximum.
             </remarks>
         </member>
     </members>
