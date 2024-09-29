@@ -8,8 +8,6 @@
     <RootNamespace>OutlookGoogleCalendarSync</RootNamespace>
     <AssemblyName>OutlookGoogleCalendarSync</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SourceAnalysisOverrideSettingsFile>C:\Users\ZSIANTI\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -23,8 +21,6 @@
     <DelaySign>False</DelaySign>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <LangVersion>latest</LangVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>false</Install>
@@ -45,6 +41,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -145,7 +142,7 @@
     <Reference Include="Google.Apis.Auth, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Auth.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.60.0.3088, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.68.0.3536, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Calendar.v3.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Core, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
