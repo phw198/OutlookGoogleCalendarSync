@@ -865,6 +865,32 @@
             Converts a <see cref="T:System.DateTime"/> to and from Unix epoch time
             </summary>
         </member>
+        <member name="P:Newtonsoft.Json.Converters.UnixDateTimeConverter.AllowPreEpoch">
+            <summary>
+            Gets or sets a value indicating whether the dates before Unix epoch
+            should converted to and from JSON.
+            </summary>
+            <value>
+            <c>true</c> to allow converting dates before Unix epoch to and from JSON;
+            <c>false</c> to throw an exception when a date being converted to or from JSON
+            occurred before Unix epoch. The default value is <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Newtonsoft.Json.Converters.UnixDateTimeConverter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.Converters.UnixDateTimeConverter"/> class.
+            </summary>
+        </member>
+        <member name="M:Newtonsoft.Json.Converters.UnixDateTimeConverter.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.Converters.UnixDateTimeConverter"/> class.
+            </summary>
+            <param name="allowPreEpoch">
+            <c>true</c> to allow converting dates before Unix epoch to and from JSON;
+            <c>false</c> to throw an exception when a date being converted to or from JSON
+            occurred before Unix epoch. The default value is <c>false</c>.
+            </param>
+        </member>
         <member name="M:Newtonsoft.Json.Converters.UnixDateTimeConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
             <summary>
             Writes the JSON representation of the object.
@@ -2554,7 +2580,7 @@
             <summary>
             Gets or sets the maximum depth allowed when reading JSON. Reading past this depth will throw a <see cref="T:Newtonsoft.Json.JsonReaderException"/>.
             A null value means there is no maximum. 
-            The default value is <c>128</c>.
+            The default value is <c>64</c>.
             </summary>
         </member>
         <member name="P:Newtonsoft.Json.JsonReader.TokenType">
@@ -3014,7 +3040,7 @@
             <summary>
             Gets or sets the maximum depth allowed when reading JSON. Reading past this depth will throw a <see cref="T:Newtonsoft.Json.JsonReaderException"/>.
             A null value means there is no maximum.
-            The default value is <c>128</c>.
+            The default value is <c>64</c>.
             </summary>
         </member>
         <member name="P:Newtonsoft.Json.JsonSerializer.CheckAdditionalContent">
@@ -3330,7 +3356,7 @@
             <summary>
             Gets or sets the maximum depth allowed when reading JSON. Reading past this depth will throw a <see cref="T:Newtonsoft.Json.JsonReaderException"/>.
             A null value means there is no maximum.
-            The default value is <c>128</c>.
+            The default value is <c>64</c>.
             </summary>
         </member>
         <member name="P:Newtonsoft.Json.JsonSerializerSettings.Formatting">
@@ -3395,6 +3421,12 @@
         <member name="M:Newtonsoft.Json.JsonSerializerSettings.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonSerializerSettings"/> class.
+            </summary>
+        </member>
+        <member name="M:Newtonsoft.Json.JsonSerializerSettings.#ctor(Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonSerializerSettings"/> class
+            using values copied from the passed in <see cref="T:Newtonsoft.Json.JsonSerializerSettings"/>.
             </summary>
         </member>
         <member name="T:Newtonsoft.Json.JsonTextReader">
@@ -7031,6 +7063,25 @@
             <param name="reader">The reader.</param>
             <returns>An instance of <see cref="T:Newtonsoft.Json.Linq.JRaw"/> with the content of the reader's current token.</returns>
         </member>
+        <member name="T:Newtonsoft.Json.Linq.JsonCloneSettings">
+            <summary>
+            Specifies the settings used when cloning JSON.
+            </summary>
+        </member>
+        <member name="M:Newtonsoft.Json.Linq.JsonCloneSettings.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Newtonsoft.Json.Linq.JsonCloneSettings"/> class.
+            </summary>
+        </member>
+        <member name="P:Newtonsoft.Json.Linq.JsonCloneSettings.CopyAnnotations">
+            <summary>
+            Gets or sets a flag that indicates whether to copy annotations when cloning a <see cref="T:Newtonsoft.Json.Linq.JToken"/>.
+            The default value is <c>true</c>.
+            </summary>
+            <value>
+            A flag that indicates whether to copy annotations when cloning a <see cref="T:Newtonsoft.Json.Linq.JToken"/>.
+            </value>
+        </member>
         <member name="T:Newtonsoft.Json.Linq.JsonLoadSettings">
             <summary>
             Specifies the settings used when loading JSON.
@@ -8069,6 +8120,13 @@
             <summary>
             Creates a new instance of the <see cref="T:Newtonsoft.Json.Linq.JToken"/>. All child tokens are recursively cloned.
             </summary>
+            <returns>A new instance of the <see cref="T:Newtonsoft.Json.Linq.JToken"/>.</returns>
+        </member>
+        <member name="M:Newtonsoft.Json.Linq.JToken.DeepClone(Newtonsoft.Json.Linq.JsonCloneSettings)">
+            <summary>
+            Creates a new instance of the <see cref="T:Newtonsoft.Json.Linq.JToken"/>. All child tokens are recursively cloned.
+            </summary>
+            <param name="settings">A <see cref="T:Newtonsoft.Json.Linq.JsonCloneSettings"/> object to configure cloning settings.</param>
             <returns>A new instance of the <see cref="T:Newtonsoft.Json.Linq.JToken"/>.</returns>
         </member>
         <member name="M:Newtonsoft.Json.Linq.JToken.AddAnnotation(System.Object)">
