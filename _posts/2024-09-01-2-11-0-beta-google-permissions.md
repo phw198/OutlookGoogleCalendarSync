@@ -9,6 +9,6 @@ Since the v2.11.0 beta release of Outlook Google Calendar Sync (OGCS), Google ha
 
 Whilst you now have the ability to choose which permission(s) to grant, OGCS will not behave properly without them. 
 
-Although [resolved in v2.11.0.3](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937#issuecomment-2323488980), it is also not possible to access the permission screen again unless manually deleting the file `Google.Apis.Auth.OAuth2.Responses.TokenResponse-user` - so please be sure to select the top checkbox when first prompted:-
+Although [resolved in v2.11.0.6](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937#issuecomment-2332495706), it is also not possible to access the permission screen again unless manually deleting the file `Google.Apis.Auth.OAuth2.Responses.TokenResponse-user` - so please be sure to select the top checkbox when first prompted:-
 
 ![Google Permissions]({{ site.baseurl }}/images/posts/2-11-0_permissions.png)
