@@ -517,7 +517,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             if (!haveMatchingEv) {
-                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
+                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1), true);
                 if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
                     List<AppointmentItem> ais = new List<AppointmentItem>();
                     ais.Add(ai);

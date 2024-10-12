@@ -282,20 +282,19 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         result.Add(ai);
                     }
                 }
-                if (!suppressAdvisories) {
-                    if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
-                    if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
-                    if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
-                    if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
-                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
+                if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
+                if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
+                if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
+                if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                    if ((availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered) > 0) {
-                        if (result.Count == 0)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
-                        else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, Outlook items have been filtered out. " +
-                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.config);
-                    }
+                Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
+                if (!suppressAdvisories && allExcluded > 0) {
+                    String duplicateWarning = "If they exist in Google, they may be synced and appear as \"duplicates\".";
+                    if (result.Count == 0)
+                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out! " + duplicateWarning, Console.Markup.config, newLine: false, notifyBubble: true);
+                    else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
+                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, " + allExcluded + " Outlook items have been filtered out." + duplicateWarning, Console.Markup.config, newLine: false);
                 }
             }
             log.Fine("Filtered down to " + result.Count);

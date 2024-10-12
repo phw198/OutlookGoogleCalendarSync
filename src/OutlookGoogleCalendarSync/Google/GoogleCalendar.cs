@@ -283,7 +283,7 @@ namespace OutlookGoogleCalendarSync.Google {
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd);
         }
 
-        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to) {
+        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false) {
             List<Event> result = new List<Event>();
             ExcludedByColour = new Dictionary<String, String>();
             Events request = null;
@@ -357,13 +357,13 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            List<Event> colour = new();
             List<Event> availability = new();
             List<Event> allDays = new();
             List<Event> privacy = new();
-            List<Event> declined = new();
             List<Event> subject = new();
+            List<Event> declined = new();
             List<Event> goals = new();
-            List<Event> colour = new();
 
             //Colours
             if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
@@ -387,7 +387,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             result = result.Except(colour).ToList();
 
-            //Availability, Privacy
+            //Availability, All-Days, Privacy, Subject
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
                     availability = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.Transparency == "transparent").ToList();
@@ -440,8 +440,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
+            List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
                 for (int g = 0; g < allExcluded.Count(); g++) {
                     Event ev = allExcluded[g];
                     if (CustomProperty.ExistAnyOutlookIDs(ev)) {
@@ -451,7 +451,15 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             }
+            if (!suppressAdvisories && allExcluded.Count > 0) {
+                String duplicateWarning = " If they exist in Outlook, they may be synced and appear as \"duplicates\".";
+                if (result.Count == 0)
+                    Forms.Main.Instance.Console.Update("Due to your OGCS Google settings, all Google items have been filtered out!" + duplicateWarning, Console.Markup.config, newLine: false, notifyBubble: true);
+                else if (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id)
+                    Forms.Main.Instance.Console.Update("Due to your OGCS Google settings, " + allExcluded.Count + " Google items have been filtered out." + duplicateWarning, Console.Markup.config, newLine: false);
+            }
 
+            log.Fine("Filtered down to " + result.Count);
             return result;
         }
 
