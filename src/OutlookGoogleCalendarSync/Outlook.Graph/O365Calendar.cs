@@ -29,6 +29,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
         public Calendar() { }
 
+        public enum ApiException {
+            justContinue,
+            backoffThenRetry,
+            throwException
+        }
+
         public Ogcs.Outlook.Graph.Authenticator Authenticator;
         private GraphServiceClient graphClient;
         public GraphServiceClient GraphClient {
@@ -70,7 +76,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     cals.AddRange(calPage.CurrentPage);
                 }
             } catch (System.Exception ex) {
-                log.Debug(ex.ToString());
+                switch (HandleAPIlimits(ref ex)) {
+                    case ApiException.throwException: throw ex;
+                }
+                ex.Analyse();
+                throw;
             }
 
             foreach (Microsoft.Graph.Calendar cal in cals) {
@@ -1214,6 +1224,54 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 }
             }
             return eventSummary;
+        }
+
+        public static ApiException HandleAPIlimits(ref System.Exception ex) {
+            if (ex is ServiceException sex)
+                return HandleAPIlimits(ref sex);
+
+            if (ex is AggregateException aex) {
+                sex = aex.InnerExceptions.FirstOrDefault(ie => ie is ServiceException) as ServiceException;
+                if (sex != null) {
+                    //Analyse the Graph Service exception and then replace the aggregate exception with it
+                    ApiException retVal = HandleAPIlimits(ref sex);
+                    ex = sex;
+                    return retVal;
+                } else
+                    aex.AnalyseAggregate();
+            } else {
+                ex.Analyse();
+            }
+         
+            log.Warn("Unhandled API exception.");
+            return ApiException.throwException;
+        }
+
+        public static ApiException HandleAPIlimits(ref Microsoft.Graph.ServiceException ex/*, Event ev*/) {
+            log.Fail(ex.FriendlyMessage());
+
+            try {
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
+                    .AddParameter("api_graph_error", ex.Message)
+                    .AddParameter("reason", ex.StatusCode)
+                    .AddParameter("code", ex.Error?.Code)
+                    .AddParameter("message", ex.Error?.Message)
+                    .Send();
+            } catch (System.Exception gaEx) {
+                Ogcs.Exception.Analyse(gaEx);
+            }
+
+            if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden) {
+                if (ex.Message.Contains("Check credentials and try again")) {
+                    Forms.Main.Instance.Console.Update("You are not properly authenticated to Microsoft.<br/>" +
+                        "On the Settings > Outlook tab, please disconnect and re-authenticate your account.", Console.Markup.error);
+                    ex.Data.Add("OGCS", "Unauthenticated access to Microsoft account attempted. Authentication required.");
+                }
+                return ApiException.throwException;
+            }
+
+            log.Warn("Unhandled API exception.");
+            return ApiException.throwException;
         }
 
         public static void IdentifyEventDifferences(

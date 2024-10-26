@@ -1401,11 +1401,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
                 console.BuildOutput("Unable to get the list of Outlook calendars. The following error occurred:", ref sb, false);
-                if (ex is ApplicationException && ex.InnerException != null /*&& ex.InnerException is Google.GoogleApiException*/) {
-                    console.BuildOutput(ex.Message, ref sb, false);
+                console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
+                if (ex is Microsoft.Graph.ServiceException ||
+                    ex is ApplicationException && ex.InnerException != null && ex.InnerException is Microsoft.Graph.ServiceException) {
                     console.Update(sb, Console.Markup.fail, logit: true);
                 } else {
-                    console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
                         if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
@@ -1494,7 +1494,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
                 this.cbOutlookCalendars.DataSource = null;
                 this.cbOutlookCalendars.Items.Clear();
-                if (!Outlook.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
+                if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
                     Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
                     Settings.Instance.MSaccountEmail = "";

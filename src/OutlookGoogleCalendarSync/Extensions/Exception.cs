@@ -129,7 +129,7 @@ namespace OutlookGoogleCalendarSync {
                 if (gex.Error != null)
                     return gex.Error.Message.Replace("\n", "<br/>") + " [" + gex.Error.Code + "]";
             }
-            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException) ? "<br/>" + ex.InnerException.Message : "");
+            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Graph.ServiceException) ? "<br/>" + ex.InnerException.Message : "");
         }
 
         #region Logging level for exception
