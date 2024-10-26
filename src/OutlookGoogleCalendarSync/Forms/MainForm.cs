@@ -1494,6 +1494,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
                 this.cbOutlookCalendars.DataSource = null;
                 this.cbOutlookCalendars.Items.Clear();
+                //Hacky workaround to reset the size of the dropdown. MS bug fixed in .NetCore 3.0
+                this.cbOutlookCalendars.Items.Add(new Dictionary<string, OutlookCalendarListEntry>());
+                this.cbOutlookCalendars.Items.Clear();
                 if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
                     Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
@@ -1798,6 +1801,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
                 log.Info("User requested reset of Google authentication details.");
                 ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry();
+                this.cbGoogleCalendars.Items.Clear();
+                //Hacky workaround to reset the size of the dropdown. MS bug fixed in .NetCore 3.0
+                this.cbGoogleCalendars.Items.Add(new Dictionary<String, GoogleCalendarListEntry>());
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
