@@ -513,6 +513,9 @@ namespace OutlookGoogleCalendarSync {
                         events.Add(ev);
                         haveMatchingEv = true;
                         log.Fine("Found single hard-matched Event.");
+                    } else if (Ogcs.Google.Calendar.Instance.ExcludedByConfig.Contains(googleIdValue)) {
+                        log.Debug("The master Google Event has been excluded by config.");
+                        return null;
                     }
                 }
             }

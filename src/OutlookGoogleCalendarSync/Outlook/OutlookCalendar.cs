@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Outlook.EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId, Event.Id></Appt.EntryId></summary>
-        public Dictionary<String, String> ExcludedByCategory { get; private set; }
+        public Dictionary<String, String> ExcludedByCategory { get; set; }
 
         public Calendar() {
             InstanceConnect = true;
@@ -144,7 +144,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             List<AppointmentItem> result = new List<AppointmentItem>();
             Items OutlookItems = null;
-            ExcludedByCategory = new();
 
             if (profile is null)
                 profile = Settings.Profile.InPlay();
@@ -274,6 +273,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } finally {
                             if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
                                 log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
+                                //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
                                 CustomProperty.RemoveGoogleIDs(ref ai);
                                 ai.Save();
                             }
@@ -289,12 +289,23 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
                 Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
-                if (!suppressAdvisories && allExcluded > 0) {
-                    String duplicateWarning = "If they exist in Google, they may be synced and appear as \"duplicates\".";
-                    if (result.Count == 0)
-                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out! " + duplicateWarning, Console.Markup.config, newLine: false, notifyBubble: true);
-                    else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
-                        Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, " + allExcluded + " Outlook items have been filtered out." + duplicateWarning, Console.Markup.config, newLine: false);
+                if (allExcluded > 0 && !suppressAdvisories) {
+                    String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : result.Count) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+
+                    filterWarning = "";
+                    if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ExcludedByCategory.Count > 0 && profile.DeleteWhenCategoryExcluded) {
+                        filterWarning = "If they exist in Google, they may get deleted. To avoid deletion, uncheck \"Delete synced items if excluded\".";
+                        if (!profile.DisableDelete) {
+                            filterWarning += " Recover unintentional deletions from the <a href='https://calendar.google.com/calendar/u/0/r/trash'>Google 'Bin'</a>.";
+                            if (profile.ConfirmOnDelete)
+                                filterWarning += "<p style='margin-top: 8px;'>If prompted to confirm deletion and you opt <i>not</i> to delete them, this will reoccur every sync. " +
+                                    "Consider assigning an excluded colour to those items in Google.</p>" +
+                                    "<p style='margin-top: 8px;'>See the wiki for tips if needing to <a href='https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs#duplicates-due-to-colourcategory-exclusion'>resolve duplicates</a>.</p>";
+                        }
+                    }
+                    if (!String.IsNullOrEmpty(filterWarning))
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.warning, newLine: false);
                 }
             }
             log.Fine("Filtered down to " + result.Count);
