@@ -1237,8 +1237,12 @@ namespace OutlookGoogleCalendarSync.Google {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
-                        CustomProperty.RemoveOutlookIDs(ref ev);
-                        UpdateCalendarEntry_save(ref ev);
+                        if (Ogcs.Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId))) {
+                            log.Fine("Refrained from removing Outlook metadata from Event; avoids duplication back into Outlook.");
+                        } else {
+                            CustomProperty.RemoveOutlookIDs(ref ev);
+                            UpdateCalendarEntry_save(ref ev);
+                        }
                     }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                 } else {
