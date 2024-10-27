@@ -364,7 +364,7 @@ namespace OutlookGoogleCalendarSync.Google {
             List<Event> allExcluded = applyExclusions(ref result, profile);
             if (allExcluded.Count > 0) {
                 if (!suppressAdvisories) {
-                    String filterWarning = "Due to your OGCS Google settings, " + (result.Count == 0 ? "all" : result.Count) + " Google items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                    String filterWarning = "Due to your OGCS Google settings, " + (result.Count == 0 ? "all" : allExcluded.Count) + " Google items have been filtered out" + (result.Count == 0 ? "!" : ".");
                     Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
 
                     filterWarning = "";

@@ -290,7 +290,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                 Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
                 if (allExcluded > 0 && !suppressAdvisories) {
-                    String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : result.Count) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                    String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : allExcluded) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
                     Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
 
                     filterWarning = "";
