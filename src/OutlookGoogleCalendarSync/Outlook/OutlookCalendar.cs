@@ -119,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Ogcs.Exception.LogAsFail(ref ex);
                     String wikiURL = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Resolving-Outlook-Error-Messages#one-or-more-items-in-the-folder-you-synchronized-do-not-match";
                     ex.Data.Add("OGCS", ex.Message + "<br/>Please view the wiki for suggestions on " +
-                        "<a href='" + wikiURL + "' target='_blank'>how to resolve conflicts</a> within your Outlook account.");
+                        "<a href='" + wikiURL + "'>how to resolve conflicts</a> within your Outlook account.");
                     if (!suppressAdvisories && Ogcs.Extensions.MessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?",
                         "Outlook conflicts exist", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         Helper.OpenBrowser(wikiURL);
