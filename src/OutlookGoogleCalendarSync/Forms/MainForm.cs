@@ -1670,6 +1670,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             CheckedListBox clb = GetControlThreadSafe(clbColours) as CheckedListBox;
             Ogcs.Google.Calendar.Instance.ColourPalette.BuildPicker(clb);
             SetControlPropertyThreadSafe(clbColours, "Items", clb.Items);
+            //Setting Items property only adds new ones, doesn't remove old.
+            //Hijack Event to fire on main UI thread and dedupe Items
+            SetControlPropertyThreadSafe(clbColours, "CausesValidation", false);
         }
         private void miColourSelectNone_Click(object sender, EventArgs e) {
             for (int i = 0; i < clbColours.Items.Count; i++) {
@@ -1689,6 +1692,26 @@ namespace OutlookGoogleCalendarSync.Forms {
                 clbColours.SetItemChecked(i, !clbColours.CheckedIndices.Contains(i));
             }
             clbColours_SelectedIndexChanged(null, null);
+        }
+        private void clbColours_CausesValidationChanged(object sender, EventArgs e) {
+            //Dedupe any items with the same value in the checkboxlist
+            CheckedListBox clb = sender as CheckedListBox;
+            if (clb.CausesValidation) return;
+            try {
+                for (int i = clb.Items.Count - 1; i > 0; i--) {
+                    String checking = clb.Items[i].ToString();
+                    for (int j = i - 1; j >= 0; j--) {
+                        String preExisting = clb.Items[j].ToString();
+                        if (checking == preExisting) {
+                            clb.Items.Remove(clb.Items[j]);
+                            i--;
+                            break;
+                        }
+                    }
+                }
+            } finally {
+                clb.CausesValidation = true;
+            }
         }
         #endregion
 

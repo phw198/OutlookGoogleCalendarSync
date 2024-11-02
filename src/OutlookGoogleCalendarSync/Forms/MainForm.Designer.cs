@@ -1382,6 +1382,7 @@
             this.clbColours.Sorted = true;
             this.clbColours.TabIndex = 50;
             this.clbColours.SelectedIndexChanged += new System.EventHandler(this.clbColours_SelectedIndexChanged);
+            this.clbColours.CausesValidationChanged += new System.EventHandler(this.clbColours_CausesValidationChanged);
             // 
             // msColours
             // 
