@@ -967,7 +967,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Recipient recipient = null;
                 try {
                     recipient = recipients.Add(ea.DisplayName + "<" + ea.Email + ">");
-                    recipient.Resolve();
+                    try {
+                        recipient.Resolve();
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        ex.LogAsFail().Analyse("Unable to resolve recipient against address book.");
+                        log.Debug($"Resolved: {recipient.Resolved.ToString()}; Address: {recipient.Address}; Name: {recipient.Name};");
+                    }
                     //ReadOnly: recipient.Type = (int)((bool)ea.Organizer ? OlMeetingRecipientType.olOrganizer : OlMeetingRecipientType.olRequired);
                     recipient.Type = (int)(ea.Optional == null ? OlMeetingRecipientType.olRequired : ((bool)ea.Optional ? OlMeetingRecipientType.olOptional : OlMeetingRecipientType.olRequired));
                     //ReadOnly: ea.ResponseStatus
