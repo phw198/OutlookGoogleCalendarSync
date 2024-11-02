@@ -27,17 +27,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     instance = new Ogcs.Google.Calendar {
                         Authenticator = new Ogcs.Google.Authenticator()
                     };
-                    instance.Authenticator.GetAuthenticated();
-                    if (instance.Authenticator.Authenticated) {
-                        instance.Authenticator.OgcsUserStatus();
-                        _ = instance.ColourPalette;
-                    } else {
-                        instance = null;
-                        if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException();
-                        else
-                            throw new ApplicationException("Google handshake failed.");
-                    }
+                    _ = instance.Service;
                 }
                 return instance;
             }
@@ -67,13 +57,20 @@ namespace OutlookGoogleCalendarSync.Google {
             get {
                 if (service == null) {
                     log.Debug("Google service not yet instantiated.");
-                    Authenticator = new Ogcs.Google.Authenticator();
                     Authenticator.GetAuthenticated();
-                    if (Authenticator.Authenticated)
+                    if (Authenticator?.Authenticated ?? false) {
                         Authenticator.OgcsUserStatus();
-                    else {
-                        service = null;
-                        throw new ApplicationException("Google handshake failed.");
+                        _ = ColourPalette;
+                    } else {
+                        if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
+                            throw new OperationCanceledException();
+                        else if (Authenticator != null && !Authenticator.SufficientPermissions) {
+                            throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
+                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.");
+                        } else {
+                            instance = null;
+                            throw new ApplicationException("Google handshake failed.");
+                        }
                     }
                 }
                 return service;
