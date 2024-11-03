@@ -14,6 +14,15 @@ function getCRC($data) {
 }
 
 if ($BuildType -eq "Release") {
+    $pinFile = "C:\temp\pin.txt"
+    if (Test-Path $pinFile) {
+        Write-Host (Get-Content $pinFile)
+    } else {
+        Write-Host "Create a file containing the PIN in $pinFile"
+    }
+
+    & '..\..\..\..\src\packages\squirrel.windows.1.9.0\tools\signtool.exe' sign /a /n "Open Source Developer, Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v OutlookGoogleCalendarSync.exe
+    
 	$version = (Get-Item OutlookGoogleCalendarSync.exe).VersionInfo.FileVersion
 	if ($version -notmatch "\.0$") {
 		$zipFile = "v$version.zip"
