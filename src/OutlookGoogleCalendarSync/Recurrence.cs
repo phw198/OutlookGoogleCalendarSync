@@ -744,7 +744,7 @@ namespace OutlookGoogleCalendarSync {
                                         try {
                                             aiExcp = oExcp.AppointmentItem;
                                             //Force a compare of the exception if both G and O have been modified in last 24 hours
-                                            TimeSpan modifiedDiff = (TimeSpan)(gExcp.Updated - aiExcp.LastModificationTime);
+                                            TimeSpan modifiedDiff = (TimeSpan)(gExcp.UpdatedDateTimeOffset - aiExcp.LastModificationTime);
                                             log.Fine("Modification time difference (in days) between G and O exception: " + modifiedDiff);
                                             Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
                                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);

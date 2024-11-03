@@ -472,7 +472,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     if (cachedEv == null) {
                                         googleEntries.Add(masterEv);
                                     } else {
-                                        if (masterEv.Updated > cachedEv.Updated) {
+                                        if (masterEv.UpdatedDateTimeOffset > cachedEv.UpdatedDateTimeOffset) {
                                             log.Debug("Refreshing cache for this Event.");
                                             googleEntries.Remove(cachedEv);
                                             googleEntries.Add(masterEv);
