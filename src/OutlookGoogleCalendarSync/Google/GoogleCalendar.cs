@@ -1596,14 +1596,6 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            if (profile.DisableDelete) {
-                if (google.Count > 0) {
-                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                    for (int g = 0; g < google.Count; g++)
-                        Forms.Main.Instance.Console.Update(GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
-                }
-                google = new List<Event>();
-            }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -1616,6 +1608,14 @@ namespace OutlookGoogleCalendarSync.Google {
                         google[g].Updated > Sync.Engine.Instance.SyncStarted)
                         google.Remove(google[g]);
                 }
+            }
+            if (profile.DisableDelete) {
+                if (google.Count > 0) {
+                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int g = 0; g < google.Count; g++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
+                }
+                google = new List<Event>();
             }
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Events for deletion in Google", "google_delete.csv", google);

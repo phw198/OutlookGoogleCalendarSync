@@ -1612,14 +1612,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 }
             }
 
-            if (profile.DisableDelete) {
-                if (outlook.Count > 0) {
-                    Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                    for (int o = 0; o < outlook.Count; o++)
-                        Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o], out String anonSummary), anonSummary, verbose: true);
-                }
-                outlook = new List<AppointmentItem>();
-            }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
@@ -1632,6 +1624,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         CustomProperty.GetOGCSlastModified(outlook[o]) > Sync.Engine.Instance.SyncStarted)
                         outlook.Remove(outlook[o]);
                 }
+            }
+            if (profile.DisableDelete) {
+                if (outlook.Count > 0) {
+                    Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int o = 0; o < outlook.Count; o++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o], out String anonSummary), anonSummary, verbose: true);
+                }
+                outlook = new List<AppointmentItem>();
             }
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Appointments for deletion in Outlook", "outlook_delete.csv", outlook);
