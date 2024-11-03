@@ -88,7 +88,11 @@ namespace OutlookGoogleCalendarSync.Google {
             throwException
         }
 
-        private static String[] permittedEventTypes = new String[] { "default", "focusTime", "outOfOffice" }; //Excluding workingLocation
+        private static List<EventsResource.ListRequest.EventTypesEnum> permittedEventTypes = new() {
+            EventsResource.ListRequest.EventTypesEnum.Default__,
+            EventsResource.ListRequest.EventTypesEnum.FocusTime,
+            EventsResource.ListRequest.EventTypesEnum.OutOfOffice
+        };
         
         private static Random random = new Random();
         public int MinDefaultReminder = int.MinValue;
@@ -233,10 +237,16 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < BackoffLimit) {
                     try {
                         request = gr.Execute();
-                        if (!permittedEventTypes.Contains(request.EventType)) {
+                        EventsResource.ListRequest.EventTypesEnum eventType;
+                        if (Enum.TryParse(request.EventType.Replace("__", ""), true, out eventType)) {
+                            if (!permittedEventTypes.Contains(eventType)) {
                                 log.Warn($"Non-consumer version of EventType '{request.EventType}' found - excluding.");
                                 return null;
                             }
+                        } else {
+                            log.Error($"Unrecognised EventType '{request.EventType}' found - excluding.");
+                            return null;
+                        }
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         if (ex.Error.Code == 404) { //Not found
@@ -302,7 +312,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
-                lr.EventTypes = permittedEventTypes;
+                lr.EventTypesList = permittedEventTypes;
 
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
