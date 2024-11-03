@@ -513,11 +513,14 @@ namespace OutlookGoogleCalendarSync {
                         events.Add(ev);
                         haveMatchingEv = true;
                         log.Fine("Found single hard-matched Event.");
+                    } else if (Ogcs.Google.Calendar.Instance.ExcludedByConfig.Contains(googleIdValue)) {
+                        log.Debug("The master Google Event has been excluded by config.");
+                        return null;
                     }
                 }
             }
             if (!haveMatchingEv) {
-                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
+                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1), true);
                 if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
                     List<AppointmentItem> ais = new List<AppointmentItem>();
                     ais.Add(ai);

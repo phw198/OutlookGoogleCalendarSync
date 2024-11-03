@@ -231,6 +231,12 @@ namespace OutlookGoogleCalendarSync {
         private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
             if (!Forms.Main.Instance.Visible) return;
 
+            if (e.Url.Scheme != "about") {
+                Helper.OpenBrowser(e.Url.OriginalString);
+                e.Cancel = true;
+                return;
+            }
+
             navigationStatus = NavigationStatus.navigating;
             log.UltraFine("Console navigating.");
         }

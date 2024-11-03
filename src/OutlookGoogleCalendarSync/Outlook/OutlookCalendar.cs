@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Outlook.EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId, Event.Id></Appt.EntryId></summary>
-        public Dictionary<String, String> ExcludedByCategory { get; private set; }
+        public Dictionary<String, String> ExcludedByCategory { get; set; }
 
         public Calendar() {
             InstanceConnect = true;
@@ -119,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Ogcs.Exception.LogAsFail(ref ex);
                     String wikiURL = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Resolving-Outlook-Error-Messages#one-or-more-items-in-the-folder-you-synchronized-do-not-match";
                     ex.Data.Add("OGCS", ex.Message + "<br/>Please view the wiki for suggestions on " +
-                        "<a href='" + wikiURL + "' target='_blank'>how to resolve conflicts</a> within your Outlook account.");
+                        "<a href='" + wikiURL + "'>how to resolve conflicts</a> within your Outlook account.");
                     if (!suppressAdvisories && Ogcs.Extensions.MessageBox.Show("Your Outlook calendar contains conflicts that need resolving in order to sync successfully.\r\nView the wiki for advice?",
                         "Outlook conflicts exist", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         Helper.OpenBrowser(wikiURL);
@@ -144,7 +144,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             List<AppointmentItem> result = new List<AppointmentItem>();
             Items OutlookItems = null;
-            ExcludedByCategory = new();
 
             if (profile is null)
                 profile = Settings.Profile.InPlay();
@@ -274,6 +273,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } finally {
                             if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
                                 log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
+                                //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
                                 CustomProperty.RemoveGoogleIDs(ref ai);
                                 ai.Save();
                             }
@@ -282,20 +282,30 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         result.Add(ai);
                     }
                 }
-                if (!suppressAdvisories) {
-                    if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
-                    if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
-                    if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
-                    if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
-                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
+                if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
+                if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
+                if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
+                if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                    if ((availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered) > 0) {
-                        if (result.Count == 0)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
-                        else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, Outlook items have been filtered out. " +
-                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.config);
+                Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
+                if (allExcluded > 0 && !suppressAdvisories) {
+                    String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : allExcluded) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+
+                    filterWarning = "";
+                    if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ExcludedByCategory.Count > 0 && profile.DeleteWhenCategoryExcluded) {
+                        filterWarning = "If they exist in Google, they may get deleted. To avoid deletion, uncheck \"Delete synced items if excluded\".";
+                        if (!profile.DisableDelete) {
+                            filterWarning += " Recover unintentional deletions from the <a href='https://calendar.google.com/calendar/u/0/r/trash'>Google 'Bin'</a>.";
+                            if (profile.ConfirmOnDelete)
+                                filterWarning += "<p style='margin-top: 8px;'>If prompted to confirm deletion and you opt <i>not</i> to delete them, this will reoccur every sync. " +
+                                    "Consider assigning an excluded colour to those items in Google.</p>" +
+                                    "<p style='margin-top: 8px;'>See the wiki for tips if needing to <a href='https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs#duplicates-due-to-colourcategory-exclusion'>resolve duplicates</a>.</p>";
+                        }
                     }
+                    if (!String.IsNullOrEmpty(filterWarning))
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.warning, newLine: false);
                 }
             }
             log.Fine("Filtered down to " + result.Count);
@@ -853,8 +863,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
-                        CustomProperty.RemoveGoogleIDs(ref ai);
-                        ai.Save();
+                        if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID))) {
+                            log.Fine("Refrained from removing Google metadata from Appointment; avoids duplication back into Google.");
+                        } else {
+                            CustomProperty.RemoveGoogleIDs(ref ai);
+                            ai.Save();
+                        }
                     }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                 } else {

@@ -209,7 +209,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             $"Syncs completed: {Settings.Instance.CompletedSyncs}";
                         if (!Settings.Instance.UserIsBenefactor()) {
                             syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
-                                Settings.Instance.GaccountEmail + "' target='_blank' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
+                                Settings.Instance.GaccountEmail + "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
                             Telemetry.GA4Event donateEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate);
                             donateEvent.events[0]
                                 .AddParameter("source", "console")
@@ -315,6 +315,9 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 List<AppointmentItem> outlookEntries = null;
                 List<Event> googleEntries = null;
+                Ogcs.Outlook.Calendar.Instance.ExcludedByCategory = new Dictionary<String, String>();
+                Ogcs.Google.Calendar.Instance.ExcludedByColour = new Dictionary<String, String>();
+                Ogcs.Google.Calendar.Instance.ExcludedByConfig = new List<String>();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
                 Outlook.Calendar.Instance.EphemeralProperties.Clear();
@@ -838,7 +841,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         console.Update(
                             "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>" +
                             "If this is not possible and you wish to continue using OGCS, please " +
-                            "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues' target='_blank'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
+                            "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
                     }
                 }
             }
