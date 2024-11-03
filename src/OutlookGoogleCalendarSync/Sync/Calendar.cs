@@ -315,7 +315,6 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 List<AppointmentItem> outlookEntries = null;
                 List<Event> googleEntries = null;
-                Ogcs.Outlook.Calendar.Instance.ExcludedByCategory = new Dictionary<String, String>();
                 Ogcs.Google.Calendar.Instance.ExcludedByColour = new Dictionary<String, String>();
                 Ogcs.Google.Calendar.Instance.ExcludedByConfig = new List<String>();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)

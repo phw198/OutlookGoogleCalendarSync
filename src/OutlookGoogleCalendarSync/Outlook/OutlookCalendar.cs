@@ -63,7 +63,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Outlook.EphemeralProperties EphemeralProperties = new EphemeralProperties();
 
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId, Event.Id></Appt.EntryId></summary>
-        public Dictionary<String, String> ExcludedByCategory { get; set; }
+        public Dictionary<String, String> ExcludedByCategory { get; private set; }
 
         public Calendar() {
             InstanceConnect = true;
@@ -144,6 +144,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             List<AppointmentItem> result = new List<AppointmentItem>();
             Items OutlookItems = null;
+            ExcludedByCategory = new();
 
             if (profile is null)
                 profile = Settings.Profile.InPlay();
