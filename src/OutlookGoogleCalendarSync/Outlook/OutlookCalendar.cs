@@ -1009,13 +1009,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 ex.Analyse("Could not convert string '" + profile.PrivacyLevel + "' to OlSensitivity type. Defaulting override to normal.");
             }
 
-                if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
-                    if (oSensitivity == null)
-                        return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
+            if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Privacy enforcement is in other direction
+                if (oSensitivity == null)
+                    return (gVisibility == "private") ? OlSensitivity.olPrivate : OlSensitivity.olNormal;
                 else
-                        return (OlSensitivity)oSensitivity;
-                } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
+                    return (OlSensitivity)oSensitivity;
+            } else {
+                if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oSensitivity == null))
                     return overrideSensitivity;
                 else {
                     if (profile.CreatedItemsOnly) return (OlSensitivity)oSensitivity;
@@ -1044,14 +1044,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 ex.Analyse("Could not convert string '" + profile.AvailabilityStatus + "' to OlBusyStatus type. Defaulting override to busy.");
             }
 
-                if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
-                    if (oBusyStatus == null)
+            if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Availability enforcement is in other direction
+                if (oBusyStatus == null)
                     return (gTransparency == "transparent") ? OlBusyStatus.olFree : OlBusyStatus.olBusy;
-                    else
-                        return (OlBusyStatus)oBusyStatus;
-                } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oBusyStatus == null))
-                        return overrideFbStatus;
+                else
+                    return (OlBusyStatus)oBusyStatus;
+            } else {
+                if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oBusyStatus == null))
+                    return overrideFbStatus;
                 else {
                     if (profile.CreatedItemsOnly || persistOutlookStatus.Contains(oBusyStatus.ToString()))
                         return (OlBusyStatus)oBusyStatus;

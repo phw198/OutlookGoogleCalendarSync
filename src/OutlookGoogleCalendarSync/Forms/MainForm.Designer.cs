@@ -190,6 +190,7 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.label36 = new System.Windows.Forms.Label();
             this.tbExcludeSubjectText = new System.Windows.Forms.TextBox();
             this.cbExcludeSubject = new System.Windows.Forms.CheckBox();
             this.cbExcludePrivate = new System.Windows.Forms.CheckBox();
@@ -316,7 +317,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.label36 = new System.Windows.Forms.Label();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1383,6 +1383,7 @@
             this.clbColours.Sorted = true;
             this.clbColours.TabIndex = 50;
             this.clbColours.SelectedIndexChanged += new System.EventHandler(this.clbColours_SelectedIndexChanged);
+            this.clbColours.CausesValidationChanged += new System.EventHandler(this.clbColours_CausesValidationChanged);
             // 
             // msColours
             // 
@@ -2294,6 +2295,16 @@
             this.gbSyncOptions_What.TabIndex = 39;
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
+            // 
+            // label36
+            // 
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label36.Location = new System.Drawing.Point(7, 167);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(279, 14);
+            this.label36.TabIndex = 59;
+            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
             // 
             // tbExcludeSubjectText
             // 
@@ -3922,16 +3933,6 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // label36
-            // 
-            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label36.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label36.Location = new System.Drawing.Point(7, 167);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(279, 14);
-            this.label36.TabIndex = 59;
-            this.label36.Text = "Individual and entire series. Not for occurrences of series.";
             // 
             // Main
             // 
