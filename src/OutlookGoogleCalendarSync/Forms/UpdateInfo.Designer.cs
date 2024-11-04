@@ -51,7 +51,7 @@
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.ScriptErrorsSuppressed = true;
-            this.webBrowser.Size = new System.Drawing.Size(465, 166);
+            this.webBrowser.Size = new System.Drawing.Size(575, 238);
             this.webBrowser.TabIndex = 0;
             this.webBrowser.WebBrowserShortcutsEnabled = false;
             this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser_Navigating);
@@ -61,7 +61,7 @@
             this.btUpgrade.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btUpgrade.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.btUpgrade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btUpgrade.Location = new System.Drawing.Point(396, 257);
+            this.btUpgrade.Location = new System.Drawing.Point(506, 329);
             this.btUpgrade.Name = "btUpgrade";
             this.btUpgrade.Size = new System.Drawing.Size(85, 30);
             this.btUpgrade.TabIndex = 1;
@@ -79,7 +79,7 @@
             this.wbPanel.Controls.Add(this.webBrowser);
             this.wbPanel.Location = new System.Drawing.Point(15, 80);
             this.wbPanel.Name = "wbPanel";
-            this.wbPanel.Size = new System.Drawing.Size(467, 168);
+            this.wbPanel.Size = new System.Drawing.Size(577, 240);
             this.wbPanel.TabIndex = 2;
             // 
             // llViewOnGithub
@@ -88,7 +88,7 @@
             this.llViewOnGithub.AutoSize = true;
             this.llViewOnGithub.BackColor = System.Drawing.Color.White;
             this.llViewOnGithub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llViewOnGithub.Location = new System.Drawing.Point(121, 38);
+            this.llViewOnGithub.Location = new System.Drawing.Point(176, 38);
             this.llViewOnGithub.Name = "llViewOnGithub";
             this.llViewOnGithub.Size = new System.Drawing.Size(201, 20);
             this.llViewOnGithub.TabIndex = 9;
@@ -101,7 +101,7 @@
             // 
             this.btLater.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btLater.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.btLater.Location = new System.Drawing.Point(305, 257);
+            this.btLater.Location = new System.Drawing.Point(415, 329);
             this.btLater.Name = "btLater";
             this.btLater.Size = new System.Drawing.Size(85, 30);
             this.btLater.TabIndex = 3;
@@ -141,7 +141,7 @@
             // 
             this.btSkipVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btSkipVersion.DialogResult = System.Windows.Forms.DialogResult.Ignore;
-            this.btSkipVersion.Location = new System.Drawing.Point(16, 257);
+            this.btSkipVersion.Location = new System.Drawing.Point(16, 329);
             this.btSkipVersion.Name = "btSkipVersion";
             this.btSkipVersion.Size = new System.Drawing.Size(104, 30);
             this.btSkipVersion.TabIndex = 7;
@@ -155,7 +155,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btLater;
-            this.ClientSize = new System.Drawing.Size(494, 295);
+            this.ClientSize = new System.Drawing.Size(604, 367);
             this.Controls.Add(this.btSkipVersion);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lTitle);

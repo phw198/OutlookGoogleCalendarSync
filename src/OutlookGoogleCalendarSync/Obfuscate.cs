@@ -60,20 +60,22 @@ namespace OutlookGoogleCalendarSync {
             }
 
             foreach (DataGridViewRow row in data.Rows) {
-                if (row.Cells[((int)Columns.find)].Value != null) {
-                    this.findReplace.Add(
-                        new FindReplace(
-                            row.Cells[((int)Columns.find)].Value.ToString(), 
-                            row.Cells[((int)Columns.replace)].Value == null ? "" : row.Cells[((int)Columns.replace)].Value.ToString(),
-                            String.IsNullOrEmpty(row.Cells[((int)Columns.target)].Value?.ToString().Trim()) ? "S" : row.Cells[((int)Columns.target)].Value.ToString()
-                        ));
-                }
+                if (String.IsNullOrEmpty(row.Cells[((int)Columns.find)].Value?.ToString())) continue;
+
+                this.findReplace.Add(
+                    new FindReplace(
+                        row.Cells[((int)Columns.find)].Value.ToString(),
+                        row.Cells[((int)Columns.replace)].Value == null ? "" : row.Cells[((int)Columns.replace)].Value.ToString(),
+                        String.IsNullOrEmpty(row.Cells[((int)Columns.target)].Value?.ToString().Trim()) ? "S" : row.Cells[((int)Columns.target)].Value.ToString()
+                    ));
             }
         }
 
         public void LoadRegex(DataGridView data) {
             int dataRow = 0;
             foreach (FindReplace regex in findReplace) {
+                if (String.IsNullOrEmpty(regex.find)) continue;
+
                 data.Rows[dataRow].Cells[((int)Columns.find)].Value = regex.find;
                 data.Rows[dataRow].Cells[((int)Columns.replace)].Value = regex.replace;
                 data.Rows[dataRow].Cells[((int)Columns.target)].Value = String.IsNullOrEmpty(regex.target) ? "S" : regex.target;
@@ -98,6 +100,8 @@ namespace OutlookGoogleCalendarSync {
             if (profile.Obfuscation.Enabled) {
                 if (direction.Id == profile.Obfuscation.Direction.Id) {
                     foreach (FindReplace regex in profile.Obfuscation.FindReplace) {
+                        if (String.IsNullOrEmpty(regex.find)) continue;
+
                         if (property == Property.Subject && regex.target.Contains("S") ||
                             property == Property.Location && regex.target.Contains("L") ||
                             property == Property.Description && regex.target.Contains("D")
@@ -113,7 +117,7 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
                 } else {
-                    retStr = target ?? source;
+                    retStr = target ?? retStr;
                 }
             }
             return retStr;

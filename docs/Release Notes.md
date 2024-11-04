@@ -1,6 +1,27 @@
 | Release Notes |
 |:---|
 
+# v2.11.1.0 - Alpha
+
+**Enhancements**
+- Sync Engine
+    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+
+**Bugfix**
+- Application
+    - Handle insufficient Google calendar permissions better [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Properly disconnect from Google account [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Ensure Console content is always visible [[#1958](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1958)]
+    - Remember choice to skip release upgrade [[#1951](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1951)]
+    - Default obfuscation to subject property; handle null in settings [[#1997](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1997)]
+    - Dedupe Google colour list
+    - Open default system browser for OGCS links
+- Sync Engine
+    - Optimise exclusion of Outlook categories [[#1929](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1929)]
+    - Handle empty appointment bodies when obfuscating [[#1959](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1959)]
+    - Fixed premature deletion warnings in two-way sync [[#1999](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1999)]
+
 # v2.11.0.0 - Beta
 
 **Enhancements** rolled in from Alpha releases
