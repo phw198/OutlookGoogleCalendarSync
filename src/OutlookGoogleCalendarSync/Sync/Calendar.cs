@@ -211,20 +211,20 @@ namespace OutlookGoogleCalendarSync.Sync {
                         mainFrm.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null, false);
                         mainFrm.SyncNote(Forms.Main.SyncNotes.QuotaExceededInfo, null, false);
 
-                        String syncStats = $"<div style='color: grey; font-size: 11px'>Duration: " +
-                            (stopwatch.Elapsed.TotalMinutes >= 1 ? $"{stopwatch.Elapsed.Minutes}m" : "") + stopwatch.Elapsed.Seconds + "s<br/>" +
-                            $"Syncs completed: {Settings.Instance.CompletedSyncs}";
+                        String duration = "Duration: " + (stopwatch.Elapsed.TotalMinutes >= 1 ? $"{stopwatch.Elapsed.Minutes}m" : "") + stopwatch.Elapsed.Seconds + "s";
+                        log.Info(duration);
+                        String syncStats = $"<div style='color: grey; font-size: 11px'>{duration}<br/>Syncs completed: {Settings.Instance.CompletedSyncs}";
                         if (!Settings.Instance.UserIsBenefactor()) {
                             syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
-                                Settings.Instance.GaccountEmail + "' target='_blank' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
+                                Settings.Instance.GaccountEmail + "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
                             Telemetry.GA4Event donateEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate);
                             donateEvent.events[0]
                                 .AddParameter("source", "console")
                                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                                 .AddParameter("account_present", true);
-                            mainFrm.Console.Update("<script>var donateEvent = JSON.stringify(" + Newtonsoft.Json.JsonConvert.SerializeObject(donateEvent).Replace("parameters", "params") + ");</script>", newLine: false);
+                            mainFrm.Console.Update("<script>var donateEvent = JSON.stringify(" + Newtonsoft.Json.JsonConvert.SerializeObject(donateEvent).Replace("parameters", "params") + ");</script>", newLine: false, logit: false);
                         }
-                        mainFrm.Console.Update(syncStats, newLine: false);
+                        mainFrm.Console.Update(syncStats, newLine: false, logit: false);
 
                     } else if (syncResult == SyncResult.AutoRetry) {
                         this.consecutiveSyncFails++;
@@ -322,6 +322,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 List<AppointmentItem> outlookEntries = null;
                 List<Event> googleEntries = null;
+                Ogcs.Google.Calendar.Instance.ExcludedByColour = new Dictionary<String, String>();
+                Ogcs.Google.Calendar.Instance.ExcludedByConfig = new List<String>();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
                 Outlook.Calendar.Instance.EphemeralProperties.Clear();
@@ -852,7 +854,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         console.Update(
                             "It is recommended to rerun the metadata cleanse to <b>successful completion</b> before using OGCS for normal syncing again.<br>" +
                             "If this is not possible and you wish to continue using OGCS, please " +
-                            "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues' target='_blank'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
+                            "<a href='https://github.com/phw198/OutlookGoogleCalendarSync/issues'>raise an issue</a> on the GitHub project.", Console.Markup.warning);
                     }
                 }
             }

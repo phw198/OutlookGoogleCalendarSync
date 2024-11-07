@@ -454,6 +454,7 @@ namespace OutlookGoogleCalendarSync {
             string releaseURL = null;
             string releaseVersion = null;
             string releaseType = null;
+            Int32 myReleaseNum = Program.VersionToInt(Application.ProductVersion);
 
             log.Debug("Checking for ZIP update...");
             string html = "";
@@ -480,7 +481,7 @@ namespace OutlookGoogleCalendarSync {
                 if (Settings.Instance.AlphaReleases) {
                     log.Debug("Finding Alpha release...");
                     release = getRelease(html, @"\*\*Alpha\*\*: \[v([\d\.]+)\]\((.*?)\)");
-                    if (release.Count > 0) {
+                    if (release.Count > 0 && Program.VersionToInt(release[0].Result("$1")) > myReleaseNum) {
                         releaseType = "Alpha";
                         releaseURL = release[0].Result("$2");
                         releaseVersion = release[0].Result("$1");
@@ -490,7 +491,6 @@ namespace OutlookGoogleCalendarSync {
 
             if (releaseVersion != null) {
                 Int32 releaseNum = Program.VersionToInt(releaseVersion);
-                Int32 myReleaseNum = Program.VersionToInt(Application.ProductVersion);
                 if (releaseNum > myReleaseNum) {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
                     DialogResult dr = Ogcs.Extensions.MessageBox.Show("A new " + releaseType + " release is available for OGCS. Would you like to upgrade to v" + releaseVersion + "?", "New OGCS Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

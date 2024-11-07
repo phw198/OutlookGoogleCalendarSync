@@ -13,7 +13,34 @@ namespace OutlookGoogleCalendarSync {
 
         private WebBrowser wb;
         private Boolean awaitingRefresh;
-        private String content = "";
+        private String _content = "";
+        private String content {
+            get { return _content; }
+            set {
+                do {
+                    _content = value;
+                    try {
+                        if (this.wb.InvokeRequired) {
+                            this.wb.Invoke((MethodInvoker)(() => {
+                                wb.DocumentText = _content;
+                            }));
+                        } else
+                            this.wb.DocumentText = _content;
+                    } catch (System.Exception ex) {
+                        Ogcs.Exception.Analyse(ex);
+                    }
+
+                    System.Windows.Forms.Application.DoEvents();
+                    while (navigationStatus != NavigationStatus.completed) {
+                        System.Threading.Thread.Sleep(250);
+                        System.Windows.Forms.Application.DoEvents();
+                    }
+                    System.Threading.Thread.Sleep(15);
+                } while (this.DocumentText != _content);
+
+                System.Windows.Forms.Application.DoEvents();
+            }
+        }
         public String DocumentText {
             get {
                 String documentText = "";
@@ -204,6 +231,12 @@ namespace OutlookGoogleCalendarSync {
         private void console_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
             if (!Forms.Main.Instance.Visible) return;
 
+            if (e.Url.Scheme != "about") {
+                Helper.OpenBrowser(e.Url.OriginalString);
+                e.Cancel = true;
+                return;
+            }
+
             navigationStatus = NavigationStatus.navigating;
             log.UltraFine("Console navigating.");
         }
@@ -233,7 +266,6 @@ namespace OutlookGoogleCalendarSync {
             if (isCleared()) return;
 
             content = header + footer;
-            this.wb.DocumentText = content;
             awaitingRefresh = true;
             wb.Refresh(WebBrowserRefreshOption.Completely);
             awaitRefresh();
@@ -314,25 +346,9 @@ namespace OutlookGoogleCalendarSync {
                 //Don't add append line break to Markup that's already wrapped in <div> tags
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
+                
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
-
                 content = header + contentInnerHtml + footer;
-                try {
-                    if (this.wb.InvokeRequired) {
-                        this.wb.Invoke((MethodInvoker)(() => {
-                            wb.DocumentText = content;
-                        }));
-                    } else
-                        this.wb.DocumentText = content;
-                } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse(ex);
-                }
-
-                while (navigationStatus != NavigationStatus.completed) {
-                    System.Threading.Thread.Sleep(250);
-                    System.Windows.Forms.Application.DoEvents();
-                }
-                System.Windows.Forms.Application.DoEvents();
 
                 if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
                     Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
@@ -419,7 +435,7 @@ namespace OutlookGoogleCalendarSync {
             table.Append("<tr><th class='eventChanges'>Attribute</th><th class='eventChanges'>Change</th></tr>");
             for (int l = 1; l < lines.Count(); l++) {
                 String newRow = "<tr>";
-                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/-]\w+|Attendee (added|updated|removed|.*?Status|.*?Optional Check)):\s*", "<td class='eventChanges'>$1</td><td>");
+                newRow += Regex.Replace(lines[l], @"^(\w+|\w+[\s/-]\w+|(Attendee|Organiser) (added|updated|removed|.*?Status|.*?Optional Check)):\s*", "<td class='eventChanges'>$1</td><td>");
                 newRow = newRow.Replace("=>", "→");
                 table.Append(newRow + "</td></tr>");
             }

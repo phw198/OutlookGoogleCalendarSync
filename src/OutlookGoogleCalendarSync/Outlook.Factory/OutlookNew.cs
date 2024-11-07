@@ -94,7 +94,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 explorerWatcher = new ExplorerWatcher(oApp);
 
             } catch (System.Runtime.InteropServices.COMException ex) {
-                if (ex.GetErrorCode() == "0x84120009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
+                if (ex.GetErrorCode(0x0000FFFF) == "0x00000009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
                     throw new ApplicationException("A problem was encountered with your Office install.\r\n" +
                             "Please perform an Office Repair or reinstall Outlook and then try running OGCS again.");

@@ -27,17 +27,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     instance = new Ogcs.Google.Calendar {
                         Authenticator = new Ogcs.Google.Authenticator()
                     };
-                    instance.Authenticator.GetAuthenticated();
-                    if (instance.Authenticator.Authenticated) {
-                        instance.Authenticator.OgcsUserStatus();
-                        _ = instance.ColourPalette;
-                    } else {
-                        instance = null;
-                        if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException();
-                        else
-                            throw new ApplicationException("Google handshake failed.");
-                    }
+                    _ = instance.Service;
                 }
                 return instance;
             }
@@ -47,7 +37,9 @@ namespace OutlookGoogleCalendarSync.Google {
         public Ogcs.Google.Authenticator Authenticator;
 
         /// <summary>Google Events excluded through user config <Event.Id, Appt.EntryId></summary>
-        public Dictionary<String, String> ExcludedByColour { get; private set; }
+        public List<String> ExcludedByConfig { get; set; }
+        /// <summary>Google Events excluded by colour through user config <Event.Id, Appt.EntryId></summary>
+        public Dictionary<String, String> ExcludedByColour { get; set; }
 
         private Ogcs.Google.EventColour colourPalette;
 
@@ -67,13 +59,20 @@ namespace OutlookGoogleCalendarSync.Google {
             get {
                 if (service == null) {
                     log.Debug("Google service not yet instantiated.");
-                    Authenticator = new Ogcs.Google.Authenticator();
                     Authenticator.GetAuthenticated();
-                    if (Authenticator.Authenticated)
+                    if (Authenticator?.Authenticated ?? false) {
                         Authenticator.OgcsUserStatus();
-                    else {
-                        service = null;
-                        throw new ApplicationException("Google handshake failed.");
+                        _ = ColourPalette;
+                    } else {
+                        if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
+                            throw new OperationCanceledException();
+                        else if (Authenticator != null && !Authenticator.SufficientPermissions) {
+                            throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
+                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.");
+                        } else {
+                            instance = null;
+                            throw new ApplicationException("Google handshake failed.");
+                        }
                     }
                 }
                 return service;
@@ -266,9 +265,12 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
 
-                if (request != null)
-                    return request;
-                else
+                if (request != null) {
+                    SettingsStore.Calendar profile = Settings.Profile.InPlay();
+                    List<Event> evList = new List<Event>() { request };
+                    applyExclusions(ref evList, profile);
+                    return evList.FirstOrDefault();
+                } else
                     throw new System.Exception("Returned null");
             } catch (System.Exception ex) {
                 if (ex is ApplicationException) throw;
@@ -282,9 +284,8 @@ namespace OutlookGoogleCalendarSync.Google {
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd);
         }
 
-        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to) {
+        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false) {
             List<Event> result = new List<Event>();
-            ExcludedByColour = new Dictionary<String, String>();
             Events request = null;
             String pageToken = null;
             Int16 pageNum = 1;
@@ -356,13 +357,51 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
+            List<Event> allExcluded = applyExclusions(ref result, profile);
+            if (allExcluded.Count > 0) {
+                if (!suppressAdvisories) {
+                    String filterWarning = "Due to your OGCS Google settings, " + (result.Count == 0 ? "all" : allExcluded.Count) + " Google items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+
+                    filterWarning = "";
+                    if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id && ExcludedByColour.Count > 0 && profile.DeleteWhenColourExcluded) {
+                        filterWarning = "If they exist in Outlook, they may get deleted. To avoid deletion, uncheck \"Delete synced items if excluded\".";
+                        if (!profile.DisableDelete) {
+                            filterWarning += " Recover unintentional deletions from the Outlook 'Deleted Items' folder.";
+                            if (profile.ConfirmOnDelete)
+                                filterWarning += "<p style='margin-top: 8px;'>If prompted to confirm deletion and you opt <i>not</i> to delete them, this will reoccur every sync. " +
+                                    "Consider assigning an excluded category to those items in Outlook.</p>" +
+                                    "<p style='margin-top: 8px;'>See the wiki for tips if needing to <a href='https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs#duplicates-due-to-colourcategory-exclusion'>resolve duplicates</a>.</p>";
+                        }
+                    }
+                    if (!String.IsNullOrEmpty(filterWarning))
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.warning, newLine: false);
+                }
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                    for (int g = 0; g < allExcluded.Count; g++) {
+                        Event ev = allExcluded[g];
+                        if (CustomProperty.ExistAnyOutlookIDs(ev)) {
+                            log.Debug("Previously synced Google item is now excluded. Removing Outlook metadata.");
+                            //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
+                            CustomProperty.RemoveOutlookIDs(ref ev);
+                            UpdateCalendarEntry_save(ref ev);
+                        }
+                    }
+                }
+            }
+
+            log.Fine("Filtered down to " + result.Count);
+            return result;
+        }
+
+        private List<Event> applyExclusions(ref List<Event> result, SettingsStore.Calendar profile) {
+            List<Event> colour = new();
             List<Event> availability = new();
             List<Event> allDays = new();
             List<Event> privacy = new();
-            List<Event> declined = new();
             List<Event> subject = new();
+            List<Event> declined = new();
             List<Event> goals = new();
-            List<Event> colour = new();
 
             //Colours
             if (profile.ColoursRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
@@ -382,11 +421,12 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Debug(colour.Count + " Google items contain a colour that is filtered out.");
             }
             foreach (Event ev in colour) {
-                ExcludedByColour.Add(ev.Id, CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId));
+                if (!ExcludedByColour.ContainsKey(ev.Id))
+                    ExcludedByColour.Add(ev.Id, CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId));
             }
             result = result.Except(colour).ToList();
 
-            //Availability, Privacy
+            //Availability, All-Days, Privacy, Subject
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
                 if (profile.ExcludeFree) {
                     availability = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.Transparency == "transparent").ToList();
@@ -439,19 +479,12 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
-                for (int g = 0; g < allExcluded.Count(); g++) {
-                    Event ev = allExcluded[g];
-                    if (CustomProperty.ExistAnyOutlookIDs(ev)) {
-                        log.Debug("Previously synced Google item is now excluded. Removing Outlook metadata.");
-                        CustomProperty.RemoveOutlookIDs(ref ev);
-                        UpdateCalendarEntry_save(ref ev);
-                    }
-                }
+            List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
+            foreach (Event ev in allExcluded) {
+                if (!ExcludedByConfig.Contains(ev.Id))
+                    ExcludedByConfig.Add(ev.Id);
             }
-
-            return result;
+            return allExcluded;
         }
 
         /// <summary>
@@ -741,6 +774,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -768,6 +802,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Outlook.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -1187,8 +1222,12 @@ namespace OutlookGoogleCalendarSync.Google {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
-                        CustomProperty.RemoveOutlookIDs(ref ev);
-                        UpdateCalendarEntry_save(ref ev);
+                        if (Ogcs.Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId))) {
+                            log.Fine("Refrained from removing Outlook metadata from Event; avoids duplication back into Outlook.");
+                        } else {
+                            CustomProperty.RemoveOutlookIDs(ref ev);
+                            UpdateCalendarEntry_save(ref ev);
+                        }
                     }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                 } else {
@@ -1543,14 +1582,6 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            if (profile.DisableDelete) {
-                if (google.Count > 0) {
-                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                    for (int g = 0; g < google.Count; g++)
-                        Forms.Main.Instance.Console.Update(GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
-                }
-                google = new List<Event>();
-            }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -1563,6 +1594,14 @@ namespace OutlookGoogleCalendarSync.Google {
                         google[g].Updated > Sync.Engine.Instance.SyncStarted)
                         google.Remove(google[g]);
                 }
+            }
+            if (profile.DisableDelete) {
+                if (google.Count > 0) {
+                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int g = 0; g < google.Count; g++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
+                }
+                google = new List<Event>();
             }
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
