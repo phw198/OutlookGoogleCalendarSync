@@ -16,7 +16,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public const String TokenFile = "Microsoft.Identity.Client.Extensions.Msal.TokenResponse-user";
         private String tokenFullPath;
         private Boolean tokenFileExists { get { return System.IO.File.Exists(tokenFullPath); } }
-        private static readonly String _clientId = "3f85f044-607a-4139-bb2e-e12eac105f14";
+        private static readonly String _clientId = "9db47d88-54c2-4c48-b961-0f4adb402eb5";
         private static String clientId {
             get {
                 //if (Settings.Instance.UsingPersonalAPIkeys()) { //***
@@ -66,7 +66,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     task.Wait(CancelTokenSource.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
-                    new Forms.MsOauthConsent().ShowDialog(Forms.Main.Instance);
+                    if (Forms.Main.Instance.InvokeRequired)
+                        Forms.Main.Instance.Invoke(new System.Action(() => { new Forms.MsOauthConsent().ShowDialog(Forms.Main.Instance); }));
+                    else
+                        new Forms.MsOauthConsent().ShowDialog(Forms.Main.Instance);
                 } catch (System.Exception ex) {
                     ex.Analyse();
                     Forms.Main.Instance.Console.UpdateWithError("Unable to authenticate with Microsoft. The following error occurred:", ex);
@@ -95,7 +98,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
             cacheHelper.RegisterCache(oAuthApp.UserTokenCache);
 
-            String[] scopes = new string[] { "user.read", "Calendars.ReadWrite.Shared" };
+            String[] scopes = new string[] { "user.read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared" };
 
             IAccount firstAccount = (await oAuthApp.GetAccountsAsync()).FirstOrDefault();
             if (firstAccount == null)
@@ -110,13 +113,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (this.nonInteractiveAuth) return false;
                 new System.Threading.Thread(() => {
                     //Otherwise the subsequent async oAuthApp calls fail!!
-                    Forms.Main.Instance.Console.Update("Preparing to authenticate with Google.", verbose: true);
+                    Forms.Main.Instance.Console.Update("Preparing to authenticate with Microsoft.", verbose: true);
                 }).Start();
 
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
-                        .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
+                        .WithPrompt(Microsoft.Identity.Client.Prompt.Consent)
                         .ExecuteAsync();
 
                     if (tokenFileExists)
@@ -182,7 +185,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 foreach (IAccount account in accounts) {
                     try {
                         log.Debug("Removing account from MSAL cache: " + EmailAddress.MaskAddress(account.Username));
-                        oAuthApp.RemoveAsync(account).RunSynchronously();
+                        oAuthApp.RemoveAsync(account);
                     } catch (MsalException ex) {
                         ex.Analyse($"Could not remove Microsoft account '{EmailAddress.MaskAddress(account.Username)}' from MSAL cache.");
                     }
@@ -191,7 +194,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ex.Analyse("Failed to sign out of Microsoft account.");
             }
             if (tokenFileExists) System.IO.File.Delete(tokenFullPath);
-            if (!Ogcs.Outlook.Calendar.IsInstanceNull) {
+            if (!Ogcs.Outlook.Graph.Calendar.IsInstanceNull) {
                 Ogcs.Outlook.Graph.Calendar.Instance.Authenticator = null;
                 Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = null;
                 if (reauthorise) {
