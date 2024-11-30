@@ -556,7 +556,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
             GcalData.Event ev = new();
 
-            //ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
+            ev.Recurrence = Recurrence.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
 
