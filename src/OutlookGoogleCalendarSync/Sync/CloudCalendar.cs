@@ -144,7 +144,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 TimeSpan sectionDuration = DateTime.Now - timeSection;
                 if (sectionDuration.TotalSeconds > 30) {
                     log.Warn("That step took a long time! Issue #599");
-                    Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Graph.Google.Calendar.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
                     new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.debug)
                         .AddParameter(GA4.General.github_issue, 599)
                         .AddParameter("section", "Ogcs.Google.Calendar.Instance.IdentifyEventDifferences()")

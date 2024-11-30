@@ -436,12 +436,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
             log.Debug("Finding default Mailbox calendar folders");
             try {
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
-                Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile);
+                Boolean updateGUI = profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) & !profile.IsOutlookOnline;
                 if (updateGUI) {
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged -= Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
                     Forms.Main.Instance.rbOutlookDefaultMB.Checked = true;
                 }
-                profile.OutlookService = Outlook.Calendar.Service.DefaultMailbox;
+                if (!profile.IsOutlookOnline)
+                    profile.OutlookService = Outlook.Calendar.Service.DefaultMailbox;
                 if (updateGUI)
                     Forms.Main.Instance.rbOutlookDefaultMB.CheckedChanged += Forms.Main.Instance.rbOutlookDefaultMB_CheckedChanged;
 

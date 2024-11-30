@@ -31,7 +31,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance ??= new Ogcs.Outlook.Calendar();
+                    instance ??= new Ogcs.Outlook.Calendar();
                     if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient())
                         instance.IOutlook.Connect();
 
