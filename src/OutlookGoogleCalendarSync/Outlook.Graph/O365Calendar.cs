@@ -112,14 +112,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public List<Microsoft.Graph.Event> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
-
+            
             List<Microsoft.Graph.Event> result = new List<Microsoft.Graph.Event>();
             //Items OutlookItems = null;
             List<Microsoft.Graph.Event> OutlookItems = new();
             //ExcludedByCategory = new();
 
             profile ??= Settings.Profile.InPlay();
-
+            
             try {
                 //MAPIFolder thisUseOutlookCalendar = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
                 //OutlookItems = thisUseOutlookCalendar.Items;
@@ -173,20 +173,20 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 Int32 privacyFiltered = 0;
                 Int32 subjectFiltered = 0;
                 Int32 responseFiltered = 0;
-
-                foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
-                    AppointmentItem ai;
-                    try {
-                        ai = obj as AppointmentItem;
-                    } catch {
-                        log.Warn("Encountered a non-appointment item in the calendar.");
-                        if (obj is MeetingItem) log.Debug("It is a meeting item.");
-                        else if (obj is MailItem) log.Debug("It is a mail item.");
-                        else if (obj is ContactItem) log.Debug("It is a contact item.");
-                        else if (obj is TaskItem) log.Debug("It is a task item.");
-                        else log.Debug("WTF is this item?!");
-                        continue;
-                    }
+                
+                                foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
+                                    AppointmentItem ai;
+                                    try {
+                                        ai = obj as AppointmentItem;
+                                    } catch {
+                                        log.Warn("Encountered a non-appointment item in the calendar.");
+                                        if (obj is MeetingItem) log.Debug("It is a meeting item.");
+                                        else if (obj is MailItem) log.Debug("It is a mail item.");
+                                        else if (obj is ContactItem) log.Debug("It is a contact item.");
+                                        else if (obj is TaskItem) log.Debug("It is a task item.");
+                                        else log.Debug("WTF is this item?!");
+                                        continue;
+                                    }
                     try {
                         if (ai.End == min) continue; //Required for midnight to midnight events 
                     } catch (System.NullReferenceException) {
@@ -207,90 +207,102 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         continue;
                     }
 
-                    if (!filterBySettings) result.Add(ai);
-                    else {
-                        Boolean filtered = false;
+                                    if (!filterBySettings) result.Add(ai);
+                                    else {
+                                        Boolean filtered = false;
 
-                        try {
-                            //Categories
-                            try {
-                                if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                                    filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
+                                        try {
+                                            //Categories
+                                            try {
+                                                if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
+                                                    filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
+                                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
 
-                                } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                                    filtered = (profile.Categories.Count() > 0 && (ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0));
-                                }
-                            } catch (System.Runtime.InteropServices.COMException ex) {
-                                if (ex.TargetSite.Name == "get_Categories") {
-                                    log.Warn("Could not access Categories property for " + GetEventSummary(ai));
-                                    filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
-                                } else throw;
-                            }
-                            if (filtered) { ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue; }
+                                                } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
+                                                    filtered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
+                                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
+                                                }
+                                            } catch (System.Runtime.InteropServices.COMException ex) {
+                                                if (ex.TargetSite.Name == "get_Categories") {
+                                                    log.Warn("Could not access Categories property for " + GetEventSummary(ai));
+                                                    filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
+                                                        (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
+                                                } else throw;
+                                            }
+                                            if (filtered) { ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue; }
 
-                            //Availability, Privacy, Subject
-                            if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
-                                if (filtered = ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
-                                    (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree))) {
-                                    availabilityFiltered++; continue;
-                                }
+                                            //Availability, Privacy, Subject
+                                            if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
+                                                if (filtered = ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
+                                                    (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree))) {
+                                                    availabilityFiltered++; continue;
+                                                }
 
-                                if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
-                                    if (profile.ExcludeFreeAllDays)
-                                        filtered = (ai.BusyStatus == OlBusyStatus.olFree);
-                                    else
-                                        filtered = true;
-                                    if (filtered) { allDayFiltered++; continue; }
-                                }
+                                                if (profile.ExcludeAllDays && ai.AllDayEvent(true)) {
+                                                    if (profile.ExcludeFreeAllDays)
+                                                        filtered = (ai.BusyStatus == OlBusyStatus.olFree);
+                                                    else
+                                                        filtered = true;
+                                                    if (filtered) { allDayFiltered++; continue; }
+                                                }
 
-                                if (filtered = profile.ExcludePrivate && ai.Sensitivity == OlSensitivity.olPrivate) {
-                                    privacyFiltered++; continue;
-                                }
+                                                if (filtered = profile.ExcludePrivate && ai.Sensitivity == OlSensitivity.olPrivate) {
+                                                    privacyFiltered++; continue;
+                                                }
 
-                                if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
-                                    Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
-                                    if (rgx.IsMatch(ai.Subject ?? "")) {
-                                        log.Fine("Regex has matched subject string: " + profile.ExcludeSubjectText);
-                                        subjectFiltered++; continue;
+                                                if (profile.ExcludeSubject && !String.IsNullOrEmpty(profile.ExcludeSubjectText)) {
+                                                    Regex rgx = new Regex(profile.ExcludeSubjectText, RegexOptions.IgnoreCase);
+                                                    if (rgx.IsMatch(ai.Subject ?? "")) {
+                                                        log.Fine("Regex has matched subject string: " + profile.ExcludeSubjectText);
+                                                        subjectFiltered++; continue;
+                                                    }
+                                                }
+                                            }
+
+                                            //Invitation
+                                            if (profile.OnlyRespondedInvites) {
+                                                //These are actually filtered out later on when identifying differences
+                                                if (filtered = ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
+                                                    responseFiltered++;
+                                            }
+                                        } finally {
+                                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
+                                                log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
+                                                //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
+                                                CustomProperty.RemoveGoogleIDs(ref ai);
+                                                ai.Save();
+                                            }
+                                        }
+
+                                        result.Add(ai);
                                     }
                                 }
-                            }
+                                if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
+                                if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
+                                if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
+                                if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
+                                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
 
-                            //Invitation
-                            if (profile.OnlyRespondedInvites) {
-                                //These are actually filtered out later on when identifying differences
-                                if (filtered = ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
-                                    responseFiltered++;
-                            }
-                        } finally {
-                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
-                                log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
-                                CustomProperty.RemoveGoogleIDs(ref ai);
-                                ai.Save();
-                            }
-                        }
+                                Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
 
-                        result.Add(ai);
-                    }
-                }
-                if (!suppressAdvisories) {
-                    if (availabilityFiltered > 0) log.Info(availabilityFiltered + " Outlook items excluded due to availability.");
-                    if (allDayFiltered > 0) log.Info(allDayFiltered + " Outlook all day items excluded.");
-                    if (ExcludedByCategory.Count > 0) log.Info(ExcludedByCategory.Count + " Outlook items contain a category that is filtered out.");
-                    if (subjectFiltered > 0) log.Info(subjectFiltered + " Outlook items with subject containing '" + profile.ExcludeSubjectText + "' filtered out.");
-                    if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items are invites not yet responded to.");
+                                if (allExcluded > 0 && !suppressAdvisories) {
+                                    String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : allExcluded) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
+                                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
 
-                    if ((availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered) > 0) {
-                        if (result.Count == 0)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, all Outlook items have been filtered out!", Console.Markup.config, notifyBubble: true);
-                        else if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id)
-                            Forms.Main.Instance.Console.Update("Due to your OGCS Outlook settings, Outlook items have been filtered out. " +
-                                "If they exist in Google, they may be synced and appear as \"duplicates\".", Console.Markup.config);
-                    }
-                }*/
+                                    filterWarning = "";
+                                    if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ExcludedByCategory.Count > 0 && profile.DeleteWhenCategoryExcluded) {
+                                        filterWarning = "If they exist in Google, they may get deleted. To avoid deletion, uncheck \"Delete synced items if excluded\".";
+                                        if (!profile.DisableDelete) {
+                                            filterWarning += " Recover unintentional deletions from the <a href='https://calendar.google.com/calendar/u/0/r/trash'>Google 'Bin'</a>.";
+                                            if (profile.ConfirmOnDelete)
+                                                filterWarning += "<p style='margin-top: 8px;'>If prompted to confirm deletion and you opt <i>not</i> to delete them, this will reoccur every sync. " +
+                                                    "Consider assigning an excluded colour to those items in Google.</p>" +
+                                                    "<p style='margin-top: 8px;'>See the wiki for tips if needing to <a href='https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs#duplicates-due-to-colourcategory-exclusion'>resolve duplicates</a>.</p>";
+                                        }
+                                    }
+                                    if (!String.IsNullOrEmpty(filterWarning))
+                                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.warning, newLine: false);
+                                }*/
             }
             log.Fine("Filtered down to " + result.Count);
             return OutlookItems; // result;
@@ -683,7 +695,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             aiBody = aiBody.Replace(GMeet.PlainInfo(oGMeetUrl, bodyFormat).RemoveLineBreaks(), "").Trim();*/
                     }
                     String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description?.RemoveNBSP(), aiBody, Sync.Direction.GoogleToOutlook);
-                    if (bodyObfuscated.Length == 8 * 1024 && aiBody.Length > 8 * 1024) {
+                    if (bodyObfuscated.Length == 8 * 1024 && aiBody?.Length > 8 * 1024) {
                         log.Warn("Event description has been truncated, so will not be synced to Outlook.");
                     } else {
                         String evBodyForCompare = bodyObfuscated;
@@ -972,8 +984,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
-                        CustomProperty.RemoveGoogleIDs(ref ai);
-                        //ai.Save();
+                        if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID))) {
+                            log.Fine("Refrained from removing Google metadata from Appointment; avoids duplication back into Google.");
+                        } else {
+                            CustomProperty.RemoveGoogleIDs(ref ai);
+                            UpdateCalendarEntry_save(ref ai);
+                        }
                     }
                     Forms.Main.Instance.Console.Update("Not deleted: " + eventSummary, anonSummary?.Prepend("Not deleted: "), Console.Markup.calendar);
                 } else {
@@ -1361,15 +1377,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 }
             }
-
-            if (profile.DisableDelete) {
-                if (outlook.Count > 0) {
-                    Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                    for (int o = 0; o < outlook.Count; o++)
-                        Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o], out String anonSummary), anonSummary, verbose: true);
-                }
-                outlook = new List<AppointmentItem>();
-            }
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
@@ -1383,6 +1390,15 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         outlook.Remove(outlook[o]);
                 }
             }
+            */
+            if (profile.DisableDelete) {
+                if (outlook.Count > 0) {
+                    Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int o = 0; o < outlook.Count; o++)
+                        Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o], out String anonSummary), anonSummary, verbose: true);
+                }
+                outlook = new();
+            }/*
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Appointments for deletion in Outlook", "outlook_delete.csv", outlook);
                 Ogcs.Google.Calendar.ExportToCSV("Events for creation in Outlook", "outlook_create.csv", google);

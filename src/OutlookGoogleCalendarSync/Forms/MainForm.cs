@@ -1508,6 +1508,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.UseOutlookCalendar = new OutlookCalendarListEntry();
                 this.cbOutlookCalendars.DataSource = null;
                 this.cbOutlookCalendars.Items.Clear();
+                //Hacky workaround to reset the size of the dropdown. MS bug fixed in .NetCore 3.0
+                this.cbOutlookCalendars.Items.Add(new Dictionary<string, OutlookCalendarListEntry>());
+                this.cbOutlookCalendars.Items.Clear();
                 //this.tbClientID.ReadOnly = false;
                 //this.tbClientSecret.ReadOnly = false;
                 if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
@@ -1735,8 +1738,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             log.Debug("Retrieving Google calendar list.");
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
+            Boolean successfulRetrieval = false;
             try {
                 Ogcs.Google.Calendar.Instance.GetCalendars();
+                successfulRetrieval = true;
             } catch (AggregateException agex) {
                 agex.AnalyseAggregate(false);
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -1748,12 +1753,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                     "Please check the output on the Sync tab for more details.", "Google calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
-                console.BuildOutput("Unable to get the list of Google calendars. The following error occurred:", ref sb, false);
-                if (ex is ApplicationException && ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException) {
+                console.BuildOutput("Unable to get the list of Google calendars.", ref sb, false);
+                if (ex is ApplicationException) {
                     console.BuildOutput(ex.Message, ref sb, false);
                     console.Update(sb, Console.Markup.fail, logit: true);
                 } else {
-                    console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
+                    console.BuildOutput(" The following error occurred: " + ex.FriendlyMessage(), ref sb, false);
                     console.Update(sb, Console.Markup.error, logit: true);
                     if (Settings.Instance.Proxy.Type == "IE") {
                         if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
@@ -1766,7 +1771,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
             }
 
-            cbGoogleCalendars_BuildList();
+            if (successfulRetrieval)
+                cbGoogleCalendars_BuildList();
 
             bGetGoogleCalendars.Enabled = true;
             cbGoogleCalendars.Enabled = true;
@@ -1815,6 +1821,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
                 log.Info("User requested reset of Google authentication details.");
                 ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry();
+                this.cbGoogleCalendars.Items.Clear();
+                //Hacky workaround to reset the size of the dropdown. MS bug fixed in .NetCore 3.0
+                this.cbGoogleCalendars.Items.Add(new Dictionary<String, GoogleCalendarListEntry>());
                 this.cbGoogleCalendars.Items.Clear();
                 this.tbClientID.ReadOnly = false;
                 this.tbClientSecret.ReadOnly = false;
@@ -1869,6 +1878,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             CheckedListBox clb = GetControlThreadSafe(clbColours) as CheckedListBox;
             Ogcs.Google.Calendar.Instance.ColourPalette.BuildPicker(clb);
             SetControlPropertyThreadSafe(clbColours, "Items", clb.Items);
+            //Setting Items property only adds new ones, doesn't remove old.
+            //Hijack Event to fire on main UI thread and dedupe Items
+            SetControlPropertyThreadSafe(clbColours, "CausesValidation", false);
         }
         private void miColourSelectNone_Click(object sender, EventArgs e) {
             for (int i = 0; i < clbColours.Items.Count; i++) {
@@ -1888,6 +1900,26 @@ namespace OutlookGoogleCalendarSync.Forms {
                 clbColours.SetItemChecked(i, !clbColours.CheckedIndices.Contains(i));
             }
             clbColours_SelectedIndexChanged(null, null);
+        }
+        private void clbColours_CausesValidationChanged(object sender, EventArgs e) {
+            //Dedupe any items with the same value in the checkboxlist
+            CheckedListBox clb = sender as CheckedListBox;
+            if (clb.CausesValidation) return;
+            try {
+                for (int i = clb.Items.Count - 1; i > 0; i--) {
+                    String checking = clb.Items[i].ToString();
+                    for (int j = i - 1; j >= 0; j--) {
+                        String preExisting = clb.Items[j].ToString();
+                        if (checking == preExisting) {
+                            clb.Items.Remove(clb.Items[j]);
+                            i--;
+                            break;
+                        }
+                    }
+                }
+            } finally {
+                clb.CausesValidation = true;
+            }
         }
         #endregion
 

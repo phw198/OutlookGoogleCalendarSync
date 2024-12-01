@@ -104,7 +104,7 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release-clean\</OutputPath>
+    <OutputPath>bin\Release-v3\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <FileAlignment>4096</FileAlignment>
@@ -372,6 +372,8 @@
     <Compile Include="Google\GoogleCalendar.cs" />
     <Compile Include="Google.Graph\CustomProperty.cs" />
     <Compile Include="Google.Graph\GoogleCalendar.cs" />
+    <Compile Include="Google.Graph\GoogleRecurrence.cs" />
+    <Compile Include="Google\GoogleRecurrence.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Outlook.Factory\OutlookFactory.cs" />
     <Compile Include="Outlook.Factory\OutlookGraph.cs" />
@@ -383,6 +385,7 @@
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
     <Compile Include="Outlook\GMeet.cs" />
+    <Compile Include="Outlook\OutlookRecurrence.cs" />
     <Compile Include="Outlook\OutlookCalendar.cs" />
     <Compile Include="Outlook\OutlookCategories.cs" />
     <Compile Include="Outlook\OutlookErrors.cs" />
@@ -408,7 +411,6 @@
     <Compile Include="TimezoneDB.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
-    <Compile Include="Recurrence.cs" />
     <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>

@@ -58,6 +58,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean portable;
         private Boolean alphaReleases;
         private String version;
+        private String skipVersion;
         private Boolean donor;
         private DateTime subscribed;
         private bool? hideSplashScreen;
@@ -313,7 +314,13 @@ namespace OutlookGoogleCalendarSync {
         }
         [DataMember] public bool VerboseOutput { get; set; }
         [DataMember] public bool MuteClickSounds { get; set; }
-        [DataMember] public String SkipVersion { get; set; }
+        [DataMember] public String SkipVersion {
+            get { return skipVersion; }
+            set {
+                skipVersion = value;
+                if (!Loading()) XMLManager.ExportElement(this, "SkipVersion", value, ConfigFile);
+            }
+        }
 
         public static Boolean AreLoaded { get; protected set; }
 

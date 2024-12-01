@@ -17,8 +17,22 @@ namespace OutlookGoogleCalendarSync.Google {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
+        private string[] requiredScopes = new[] {
+                CalendarService.ScopeConstants.Calendar,
+                "email" };
+
         private Boolean authenticated = false;
         public Boolean Authenticated { get { return authenticated; } }
+        private String GrantedScopes;
+        public Boolean SufficientPermissions {
+            get {
+                if (string.IsNullOrEmpty(GrantedScopes)) return false;
+                foreach (String s in requiredScopes) {
+                    if (!GrantedScopes.Contains(s)) return false;
+                }
+                return true; 
+            }
+        }
 
         public const String TokenFile = "Google.Apis.Auth.OAuth2.Responses.TokenResponse-user";
         private String tokenFullPath;
@@ -40,13 +54,12 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
 
-        public Authenticator() {
-            CancelTokenSource = new System.Threading.CancellationTokenSource();
-        }
+        public Authenticator() { }
 
         public void GetAuthenticated() {
             if (this.authenticated) return;
 
+            CancelTokenSource = new System.Threading.CancellationTokenSource();
             Forms.Main.Instance.Console.Update("<span class='em em-key'></span>Authenticating with Google", Console.Markup.h2, newLine: false, verbose: true);
 
             System.Threading.Thread oAuth = new System.Threading.Thread(() => { spawnOauth(); });
@@ -104,14 +117,24 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!tokenFileExists)
                 log.Info("No Google credentials file available - need user authorisation for OGCS to manage their calendar.");
             
-            string[] scopes = new[] { "https://www.googleapis.com/auth/calendar", "email" };
-
             UserCredential credential = null;
             try {
+                if (authenticated && !SufficientPermissions) File.Delete(tokenFullPath);
+
                 //This will open the authorisation process in a browser, if required
-                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, scopes, "user", CancelTokenSource.Token, tokenStore);
-                if (tokenFileExists)
-                    log.Debug("User has provided Google authorisation and credential file saved.");
+                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, requiredScopes, "user", CancelTokenSource.Token, tokenStore);
+                if (tokenFileExists) {
+                    log.Debug("User has completed Google authorisation and credential file saved. Checking granular permissions...");
+
+                    GrantedScopes = credential.Token.Scope;
+                    if (!SufficientPermissions) {
+                        log.Warn("They have not granted permission to the calendar.");
+
+                        String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
+                        Ogcs.Extensions.MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        throw new ApplicationException(noAuthGiven);
+                    }
+                }
 
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 //Ogcs.Exception.AnalyseTokenResponse(ex);
@@ -126,6 +149,10 @@ namespace OutlookGoogleCalendarSync.Google {
 
             } catch (OperationCanceledException) {
                 Forms.Main.Instance.Console.Update("Unable to authenticate with Google. The operation was cancelled.", Console.Markup.warning);
+
+            } catch (ApplicationException ex) {
+                Forms.Main.Instance.Console.UpdateWithError(null, ex.LogAsFail());
+                return false;
 
             } catch (System.Exception ex) {
                 Ogcs.Exception.Analyse(ex);
