@@ -15,7 +15,6 @@ namespace OutlookGoogleCalendarSync.Google {
          */
         private static readonly ILog log = LogManager.GetLogger(typeof(Recurrence));
 
-        private static Dictionary<String, String> rrule = new Dictionary<String, String>();
         public static List<String> BuildGooglePattern(AppointmentItem ai, Event ev) {
             if (!ai.IsRecurring || ai.RecurrenceState != OlRecurrenceState.olApptMaster) return null;
 
@@ -41,31 +40,32 @@ namespace OutlookGoogleCalendarSync.Google {
 
         private static String buildRrule(RecurrencePattern oPattern, System.DateTime recurrenceEndUtc) {
             log.Fine("Building RRULE");
-            rrule = new Dictionary<String, String>();
+            Dictionary<String, String> rrule = new Dictionary<String, String>();
+            
             #region RECURRENCE PATTERN
             log.Fine("Determining pattern for frequency " + oPattern.RecurrenceType.ToString() + ".");
 
             switch (oPattern.RecurrenceType) {
                 case OlRecurrenceType.olRecursDaily: {
                         addRule(rrule, "FREQ", "DAILY");
-                        setInterval(oPattern.Interval);
+                        setInterval(rrule, oPattern.Interval);
                         break;
                     }
 
                 case OlRecurrenceType.olRecursWeekly: {
                         addRule(rrule, "FREQ", "WEEKLY");
-                        setInterval(oPattern.Interval);
+                        setInterval(rrule, oPattern.Interval);
                         if ((oPattern.DayOfWeekMask & (oPattern.DayOfWeekMask - 1)) != 0) { //is not a power of 2 (i.e. not just a single day) 
                             // Need to work out "BY" pattern
                             // Eg "BYDAY=MO,TU,WE,TH,FR"
-                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
+                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         }
                         break;
                     }
 
                 case OlRecurrenceType.olRecursMonthly: {
                         addRule(rrule, "FREQ", "MONTHLY");
-                        setInterval(oPattern.Interval);
+                        setInterval(rrule, oPattern.Interval);
                         //Outlook runs on last day of month if day doesn't exist; Google doesn't run at all - so fix
                         if (oPattern.PatternStartDate.Day > 28) {
                             addRule(rrule, "BYDAY", "SU,MO,TU,WE,TH,FR,SA");
@@ -76,8 +76,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
-                        setInterval(oPattern.Interval);
-                        addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
+                        setInterval(rrule, oPattern.Interval);
+                        addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
                         break;
                     }
@@ -106,7 +106,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         */
                         if (oPattern.DayOfWeekMask != (OlDaysOfWeek)127) { //If not every day of week, define which ones
-                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask).ToArray()));
+                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         }
                         addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
                         break;
@@ -120,6 +120,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 addRule(rrule, "UNTIL", IANAdate(recurrenceEndUtc));
             }
             #endregion
+
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
         }
 
@@ -153,12 +154,12 @@ namespace OutlookGoogleCalendarSync.Google {
             return null;
         }
 
-        private static void addRule(Dictionary<string, string> ruleBook, string key, string value) {
+        internal static void addRule(Dictionary<string, string> ruleBook, string key, string value) {
             ruleBook.Add(key, value);
             log.Fine(ruleBook.Last().Value);
         }
 
-        private static void setInterval(int interval) {
+        internal static void setInterval(Dictionary<String, String> rrule, int interval) {
             if (interval > 1) addRule(rrule, "INTERVAL", interval.ToString());
         }
 
@@ -176,7 +177,7 @@ namespace OutlookGoogleCalendarSync.Google {
             return byDay;
         }
 
-        public static String IANAdate(System.DateTime dt) {
+        internal static String IANAdate(System.DateTime dt) {
             return dt.ToString("yyyyMMddTHHmmssZ");
         }
 
@@ -209,8 +210,8 @@ namespace OutlookGoogleCalendarSync.Google {
         public static void SeparateGoogleExceptions(List<Event> allEvents) {
             googleExceptions = new List<Event>();
             if (allEvents.Count == 0) return;
+            
             log.Debug("Identifying exceptions in recurring Google events.");
-            googleExceptions = new List<Event>();
             for (int g = allEvents.Count - 1; g >= 0; g--) {
                 if (!string.IsNullOrEmpty(allEvents[g].RecurringEventId)) {
                     googleExceptions.Add(allEvents[g]);
