@@ -281,11 +281,14 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         events.Add(ev);
                         haveMatchingEv = true;
                         log.Fine("Found single hard-matched Event.");
+                    } else if (Ogcs.Google.Calendar.Instance.ExcludedByConfig.Contains(googleIdValue)) {
+                        log.Debug("The master Google Event has been excluded by config.");
+                        return null;
                     }
                 }
             }
             if (!haveMatchingEv) {
-                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1));
+                events = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange(ai.Start.Date, ai.Start.Date.AddDays(1), true);
                 if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) {
                     List<AppointmentItem> ais = new List<AppointmentItem>();
                     ais.Add(ai);
@@ -533,6 +536,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
+                                            log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gExcp));
                                             Ogcs.Exception.Analyse(ex, true);
                                             if (Ogcs.Extensions.MessageBox.Show("Updated Google event exception failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                                 continue;

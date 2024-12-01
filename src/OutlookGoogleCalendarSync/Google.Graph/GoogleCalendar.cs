@@ -742,6 +742,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         eventExceptionCacheDirty = true;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Outlook.Graph.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -769,6 +770,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         entriesToBeCompared[compare.Key] = ev;
                     } catch (System.Exception ex) {
                         Forms.Main.Instance.Console.UpdateWithError(Outlook.Graph.Calendar.GetEventSummary("Updated event failed to save.", compare.Key, out String anonSummary, true), ex, logEntry: anonSummary);
+                        log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Updated Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             continue;
@@ -1556,15 +1558,6 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                 }
                             }
                         }
-
-                        if (profile.DisableDelete) {
-                            if (google.Count > 0) {
-                                Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                                for (int g = 0; g < google.Count; g++)
-                                    Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
-                            }
-                            google = new List<Event>();
-                        }
                         if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                             //Don't recreate any items that have been deleted in Google
                             for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -1578,6 +1571,16 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                     google.Remove(google[g]);
                             }
                         }
+            */
+                        if (profile.DisableDelete) {
+                            if (google.Count > 0) {
+                                Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                                for (int g = 0; g < google.Count; g++)
+                                    Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
+                            }
+                            google = new List<Event>();
+                        }
+                        /*
                         if (Settings.Instance.CreateCSVFiles) {
                             Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
                             Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
