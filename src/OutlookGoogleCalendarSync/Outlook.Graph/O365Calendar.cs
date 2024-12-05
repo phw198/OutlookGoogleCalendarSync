@@ -389,7 +389,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ai.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
             }
 
-            //Recurrence.Instance.BuildOutlookPattern(ev, ai);
+            ai.Recurrence = Recurrence.BuildOutlookPattern(ev);
 
             ai.Subject = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, null, Sync.Direction.GoogleToOutlook);
             if (profile.AddDescription && ev.Description != null) {
