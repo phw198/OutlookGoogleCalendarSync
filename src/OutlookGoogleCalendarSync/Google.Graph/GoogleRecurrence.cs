@@ -93,7 +93,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             #endregion
 
             #region RECURRENCE RANGE
-            if (oPattern.Range.Type == RecurrenceRangeType.EndDate && recurrenceEndUtc != null) {
+            if (oPattern.Range.Type == RecurrenceRangeType.Numbered) {
+                Google.Recurrence.addRule(rrule, "COUNT", oPattern.Range.NumberOfOccurrences.ToString());
+
+            } else if (oPattern.Range.Type == RecurrenceRangeType.EndDate && recurrenceEndUtc != null) {
                 log.Fine("Checking end date.");
                 Google.Recurrence.addRule(rrule, "UNTIL", Google.Recurrence.IANAdate((System.DateTime)recurrenceEndUtc));
             }
