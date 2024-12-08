@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 case WeekIndex.Second: byDay = "2"; break;
                 case WeekIndex.Third: byDay = "3"; break;
                 case WeekIndex.Fourth: byDay = "4"; break;
-                case WeekIndex.Last: Google.Recurrence.addRule(rrule, "BYSETPOS", "-1"); break;
+                case WeekIndex.Last: byDay = "-1"; break;
             }
             byDay += getByDay(oPattern.DaysOfWeek.ToList()).First();
             return byDay;
