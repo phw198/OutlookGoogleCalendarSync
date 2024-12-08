@@ -837,55 +837,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), false), sb, ref itemModified) ;
             }
 
-            /*
-            List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
-            if (ev.Recurrence != null) {
-                for (int r = 0; r < ev.Recurrence.Count; r++) {
-                    String rrule = ev.Recurrence[r];
-                    if (rrule.StartsWith("RRULE:")) {
-                        log.Fine("Google recurrence = " + rrule);
-                        if (oRrules != null) {
-                            String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
-                            String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
-                            if (gRrule_bits.Count() != oRrule_bits.Count()) {
-                                if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                    ev.Recurrence[r] = oRrules.First();
-                                    if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
-                                        //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
-                                        //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
-                                        ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
-                                    }
-                                    break;
-                                }
-                            }
-                            foreach (String oRrule_bit in oRrule_bits) {
-                                if (!rrule.Contains(oRrule_bit)) {
-                                    if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                        ev.Recurrence[r] = oRrules.First();
-                                        break;
-                                    }
-                                }
-                            }
-                        } else {
-                            log.Debug("Converting to non-recurring event.");
-                            Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, null, sb, ref itemModified);
-                            ev.Recurrence[r] = null;
-                        }
-                        break;
-                    }
-                }
-            } else {
-                if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
-                        log.Warn("Cannot convert Event organised by another to a recurring series.");
-                    } else {
-                        log.Debug("Converting to recurring event.");
-                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
-                        ev.Recurrence = oRrules;
-                    }
-                }
-            }
-            */
+            List<String> oRrules = Recurrence.BuildGooglePattern(ai, ev);
+            Google.Recurrence.CompareGooglePattern(oRrules, ev, sb, ref itemModified);
 
             //TimeZone
             if (ev.Start.DateTime != null) {
