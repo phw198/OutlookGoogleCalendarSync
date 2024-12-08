@@ -66,10 +66,13 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthly: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        //Outlook runs on last day of month if day doesn't exist; Google doesn't run at all - so fix
+                        //Outlook and Google interpret days of month that don't alway exist, eg 31st, differently - though it's not explicitly defined
+                        //Outlook: Picks last day of month (SKIP=BACKWARD); Google: Skips that month (SKIP=OMIT)
+                        //We'll adopt Outlook's definition
                         if (oPattern.PatternStartDate.Day > 28) {
-                            addRule(rrule, "BYDAY", "SU,MO,TU,WE,TH,FR,SA");
-                            addRule(rrule, "BYSETPOS", "-1");
+                            Google.Recurrence.addRule(rrule, "RSCALE", "GREGORIAN");
+                            Google.Recurrence.addRule(rrule, "BYMONTHDAY", oPattern.PatternStartDate.Day.ToString());
+                            Google.Recurrence.addRule(rrule, "SKIP", "BACKWARD");
                         }
                         break;
                     }
@@ -77,8 +80,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
-                        addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         break;
                     }
 
@@ -105,10 +108,8 @@ namespace OutlookGoogleCalendarSync.Google {
                             addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
                         addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         */
-                        if (oPattern.DayOfWeekMask != (OlDaysOfWeek)127) { //If not every day of week, define which ones
-                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
-                        }
-                        addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         break;
                     }
             }
@@ -119,6 +120,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Fine("Checking end date.");
                 addRule(rrule, "UNTIL", IANAdate(recurrenceEndUtc));
             }
+            //Outlook converts numbered occurrences to an end date, so there is never a need to sync a COUNT RRule.
             #endregion
 
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
