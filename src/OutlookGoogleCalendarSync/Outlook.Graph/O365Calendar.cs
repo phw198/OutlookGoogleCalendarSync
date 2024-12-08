@@ -93,6 +93,25 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return calendarFolders;
         }
 
+        public Event GetCalendarEntry(String eventId) {
+            Event ai = null;
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
+
+            try {
+                log.Debug("Retrieving specific Graph Event with ID " + eventId);
+                IEventRequest er = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[eventId].Request();
+                er.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
+                ai = er.GetAsync().Result;               
+                if (ai != null)
+                    return ai;
+                else
+                    throw new System.Exception("Returned null");
+            } catch (System.Exception) {
+                Forms.Main.Instance.Console.Update("Failed to retrieve Graph event.", Console.Markup.error);
+                return null;
+            }
+        }
+
         /// <summary>
         /// Get all calendar entries within the defined date-range for sync
         /// </summary>
@@ -111,21 +130,24 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public List<Microsoft.Graph.Event> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) {
-            //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
             
-            List<Microsoft.Graph.Event> result = new List<Microsoft.Graph.Event>();
-            //Items OutlookItems = null;
-            List<Microsoft.Graph.Event> OutlookItems = new();
+            List<Microsoft.Graph.Event> result = new();
             //ExcludedByCategory = new();
 
             profile ??= Settings.Profile.InPlay();
             
+            System.DateTime min = System.DateTime.MinValue;
+            System.DateTime max = System.DateTime.MaxValue;
+            if (!noDateFilter) {
+                min = profile.SyncStart;
+                max = profile.SyncEnd;
+            }
+
             try {
                 //MAPIFolder thisUseOutlookCalendar = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
                 //OutlookItems = thisUseOutlookCalendar.Items;
 
                 // Code snippets are only available for the latest version. Current version is 5.x
-
                 // To initialize your graphClient, see https://learn.microsoft.com/en-us/graph/sdks/create-client?from=snippets&tabs=csharp
                 //.e.Events.GetAsync((requestConfiguration) =>
                 //{
@@ -133,47 +155,57 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //    requestConfiguration.Headers.Add("Prefer", "outlook.timezone=\"Pacific Standard Time\"");
                 //});
 
-                Int16 pageNum = 1;
-                ICalendarEventsCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request();
-
-                System.DateTime min = System.DateTime.MinValue;
-                System.DateTime max = System.DateTime.MaxValue;
-                if (!noDateFilter) {
-                    min = profile.SyncStart;
-                    max = profile.SyncEnd;
-                }
-
-                string filter = "end/dateTime ge '" + min.ToString("yyyy-MM-dd") +
-                    "' and start/dateTime lt '" + max.ToString("yyyy-MM-dd") + "'" + extraFilter;
-                log.Fine("Filter string: " + filter);
-                req.Filter(filter);
+                //A master series may span the sync date range but have no exceptions - this isn't returned by /calendar/events end-point.
+                //To get these master series, /calendarView end-point needs to be used
+                //1. Get all single instances, occurrences and exceptions within date range
+                //2. Get distinct list of series IDs for which there is no master series
+                //3. Get the specific missing master event(s)
+                List<QueryOption> queryOptions = new List<QueryOption>() {
+                    new QueryOption("startDateTime", min.ToString("yyyy-MM-dd")),
+                    new QueryOption("endDateTime", max.ToString("yyyy-MM-dd"))
+                };
+                ICalendarCalendarViewCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView.Request(queryOptions);
 
                 req.Top(250);
                 req.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
-                //req.OrderBy("start");
+                log.Fine(req.GetHttpRequestMessage().RequestUri.ToString());
 
-                ICalendarEventsCollectionPage eventPage = req.GetAsync().Result;
-                OutlookItems.AddRange(eventPage.CurrentPage);
+                Int16 pageNum = 1;
+                ICalendarCalendarViewCollectionPage eventPage = req.GetAsync().Result;
+                result.AddRange(eventPage.CurrentPage);
                 while (eventPage.NextPageRequest != null) {
                     pageNum++;
                     eventPage = eventPage.NextPageRequest.GetAsync().Result;
                     log.Debug("Page " + pageNum + " received.");
-                    OutlookItems.AddRange(eventPage.CurrentPage);
+                    result.AddRange(eventPage.CurrentPage);
                 }
+
             } catch {
                 log.Fail("Could not open '" + Settings.Profile.Name(profile) + "' profile calendar folder with ID " + profile.UseOutlookCalendar.Id);
                 throw;
             }
 
-            if (OutlookItems != null) {
-                log.Fine(OutlookItems.Count + " calendar items exist.");
-/*              
+            if (result != null) {
+                log.Fine(result.Count + " calendar items exist.");
+
+                Recurrence.GetOutlookMasterEvent(result);
+                List<Event> seriesOccurrences = result.Where(ai => ai.Type == EventType.Occurrence).ToList();
+                result = result.Except(seriesOccurrences).ToList();
+                result.Sort((x, y) => x.Start.SafeDateTime().CompareTo(y.Start.SafeDateTime()));
+                log.Fine(seriesOccurrences + " standard series occurrences removed.");
+
                 Int32 allDayFiltered = 0;
                 Int32 availabilityFiltered = 0;
                 Int32 privacyFiltered = 0;
                 Int32 subjectFiltered = 0;
                 Int32 responseFiltered = 0;
                 
+                List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == min)).ToList();
+                if (endsOnSyncStart.Count > 0) {
+                    log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
+                    result = result.Except(endsOnSyncStart).ToList();
+                }
+                /*              
                                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                                     AppointmentItem ai;
                                     try {
@@ -187,25 +219,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                         else log.Debug("WTF is this item?!");
                                         continue;
                                     }
-                    try {
-                        if (ai.End == min) continue; //Required for midnight to midnight events 
-                    } catch (System.NullReferenceException) {
-                        log.Debug("NullReferenceException accessing ai.End");
-                        try {
-                            System.DateTime start = ai.Start;
-                        } catch (System.NullReferenceException) {
-                            try { log.Debug("Subject: " + ai.Subject); } catch { }
-                            log.Fail("Appointment item seems unusable - no Start or End date! Discarding.");
-                            continue;
-                        }
-                        log.Debug("Unable to get End date for: " + GetEventSummary(ai));
-                        continue;
-
-                    } catch (System.Exception ex) {
-                        Ogcs.Exception.Analyse(ex, true);
-                        log.Debug("Unable to get End date for: " + GetEventSummary(ai));
-                        continue;
-                    }
 
                                     if (!filterBySettings) result.Add(ai);
                                     else {
@@ -305,7 +318,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 }*/
             }
             log.Fine("Filtered down to " + result.Count);
-            return OutlookItems; // result;
+            return result;
         }
 
         #region Create
@@ -626,37 +639,37 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             #region Recurrence
             /*RecurrencePattern oPattern = null;
             try {
-                if (startChange || endChange || startTzChange || endTzChange) {
-                    if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
-                        if (startTzChange || endTzChange) {
-                            oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
-                            ai.ClearRecurrencePattern();
-                            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
-                            ai.Save();
-                            Recurrence.Instance.BuildOutlookPattern(ev, ai);
-                            ai.Save(); //Explicit save required to make ai.IsRecurring true again
-                        } else {
-                            oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
-                            if (startChange) {
-                                oPattern.PatternStartDate = evStartParsedDate;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
-                            }
-                            if (endChange) {
-                                oPattern.PatternEndDate = evEndParsedDate;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
-                            }
-                        }
+            if (startChange || endChange || startTzChange || endTzChange) {
+                if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+                    if (startTzChange || endTzChange) {
+                        oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
+                        ai.ClearRecurrencePattern();
+                        ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
+                        ai.Save();
+                        Recurrence.Instance.BuildOutlookPattern(ev, ai);
+                        ai.Save(); //Explicit save required to make ai.IsRecurring true again
                     } else {
-                        ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+                        oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
+                        if (startChange) {
+                            oPattern.PatternStartDate = evStartParsedDate;
+                            oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                        }
+                        if (endChange) {
+                            oPattern.PatternEndDate = evEndParsedDate;
+                            oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                        }
                     }
+                } else {
+                    ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
                 }
+            }
 
-                if (oPattern == null)
-                    oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
-                if (oPattern != null) {
-                    oPattern.Duration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
-                    Recurrence.Instance.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
-                }
+            if (oPattern == null)
+                oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
+            if (oPattern != null) {
+                oPattern.Duration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
+                Recurrence.Instance.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
+            }
             } finally {
                 oPattern = (RecurrencePattern)ReleaseObject(oPattern);
             }
@@ -674,7 +687,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     Recurrence.Instance.CreateOutlookExceptions(ref ai, ev);
                     itemModified++;
                 }
-            }*/
+                }*/
             #endregion
 
             String summaryObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, ai.Subject, Sync.Direction.GoogleToOutlook);

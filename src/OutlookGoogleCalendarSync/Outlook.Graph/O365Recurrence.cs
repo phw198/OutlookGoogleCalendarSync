@@ -257,18 +257,25 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Debug("Found " + outlookExceptions.Count + " exceptions.");
         }
 
+        /// <summary>
+        /// Get missing series master Events that pre-date the sync start date.
+        /// </summary>
+        /// <param name="allAppointments">Single instance, occurences and exceptions.</param>
         public static void GetOutlookMasterEvent(List<Event> allAppointments) {
             List<String> seriesMasterIds = allAppointments.Where(ai => ai.Type == EventType.SeriesMaster).Select(ai => ai.Id).ToList();
             List<String> seriesInstanceIds = allAppointments.Where(ai => ai.SeriesMasterId != null).Select(ai => ai.SeriesMasterId).Distinct().ToList();
             int newMasterEvents = 0;
-            foreach (String masterId in seriesInstanceIds.Except(seriesMasterIds)) {
-                Event ai = Calendar.Instance.GetCalendarEntry(masterId);
-                if (ai != null) {
-                    allAppointments.Add(ai);
-                    newMasterEvents++;
+            if (seriesInstanceIds.Count > 0) {
+                log.Info("Retrieving master series appointments that pre-date sync start date.");
+                foreach (String masterId in seriesInstanceIds.Except(seriesMasterIds)) {
+                    Event ai = Calendar.Instance.GetCalendarEntry(masterId);
+                    if (ai != null) {
+                        allAppointments.Add(ai);
+                        newMasterEvents++;
+                    }
                 }
+                log.Debug(newMasterEvents + " master Graph Events retrieved that exist prior to sync window.");
             }
-            log.Debug(newMasterEvents + " master Graph Events retrieved that exist prior to sync window.");
         }
 
         /*
