@@ -125,6 +125,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
                 throw;
             }
+            Recurrence.SeparateOutlookExceptions(filtered);
             return filtered;
         }
 
@@ -637,57 +638,38 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             #endregion
 
             #region Recurrence
-            /*RecurrencePattern oPattern = null;
-            try {
-            if (startChange || endChange || startTzChange || endTzChange) {
-                if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+            aiPatch.Recurrence = ai.Recurrence;
+
+            if (startChange || startTzChange || endTzChange) {
+                if (ai.Type == EventType.SeriesMaster) {
                     if (startTzChange || endTzChange) {
-                        oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
-                        ai.ClearRecurrencePattern();
-                        ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev, onlyTZattribute: false);
-                        ai.Save();
-                        Recurrence.Instance.BuildOutlookPattern(ev, ai);
-                        ai.Save(); //Explicit save required to make ai.IsRecurring true again
-                    } else {
-                        oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
-                        if (startChange) {
-                            oPattern.PatternStartDate = evStartParsedDate;
-                            oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
-                        }
-                        if (endChange) {
-                            oPattern.PatternEndDate = evEndParsedDate;
-                            oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
-                        }
+                        aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
-                } else {
-                    ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+                    if (startChange) {
+                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTime().ToGraphDate();
+                    }
                 }
             }
 
-            if (oPattern == null)
-                oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
-            if (oPattern != null) {
-                oPattern.Duration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
-                Recurrence.Instance.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
-            }
-            } finally {
-                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
-            }
-
-            if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+            if (ai.Type == EventType.SeriesMaster) {
                 if (ev.Recurrence == null || ev.RecurringEventId != null) {
-                    log.Debug("Converting to non-recurring events.");
-                    ai.ClearRecurrencePattern();
+                    log.Debug("Converting to non-recurring appointment.");
+                    aiPatch.AdditionalData = new Dictionary<String, Object>();
+                    aiPatch.AdditionalData.Add("Recurrence", null);
+                    sb.Append("Recurrence: Removed.");
                     itemModified++;
+                } else {
+                    aiPatch.Recurrence = Recurrence.CompareOutlookPattern(ev, ai.Recurrence, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
                 }
-            } else if (ai.RecurrenceState == OlRecurrenceState.olApptNotRecurring) {
-                if (!ai.IsRecurring && ev.Recurrence != null && ev.RecurringEventId == null) {
+            } else if (ai.Type == EventType.SingleInstance) {
+                if (ev.Recurrence != null && ev.RecurringEventId == null) {
                     log.Debug("Converting to recurring appointment.");
-                    Recurrence.Instance.BuildOutlookPattern(ev, ai);
-                    Recurrence.Instance.CreateOutlookExceptions(ref ai, ev);
+                    aiPatch.Recurrence = Recurrence.BuildOutlookPattern(ev);
+                    //***Recurrence.Instance.CreateOutlookExceptions(ref ai, ev);
+                    sb.Append("Recurrence: Added.");
                     itemModified++;
                 }
-                }*/
+            }
             #endregion
 
             String summaryObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, ai.Subject, Sync.Direction.GoogleToOutlook);

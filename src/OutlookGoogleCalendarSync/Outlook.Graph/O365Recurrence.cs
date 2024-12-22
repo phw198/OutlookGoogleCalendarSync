@@ -1,6 +1,7 @@
 ﻿using log4net;
 using Microsoft.Graph;
 using OutlookGoogleCalendarSync.Extensions;
+using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Recurrence {
         private static readonly ILog log = LogManager.GetLogger(typeof(Recurrence));
 
-       /* public static void BuildOutlookPattern(GcalData.Event ev, Event ai) {
-            buildOutlookPattern(ev, ai, out PatternedRecurrence ignore);
+        /*public static PatternedRecurrence BuildOutlookPattern(GcalData.Event ev) {
+            return buildOutlookPattern(ev, out PatternedRecurrence ignore);
         }*/
 
-        public static PatternedRecurrence BuildOutlookPattern(GcalData.Event ev/*, Event ai, out PatternedRecurrence oPattern*/) {
+        public static PatternedRecurrence BuildOutlookPattern(GcalData.Event ev) {
             if (ev.Recurrence == null) { return null; }
 
             Dictionary<String, String> ruleBook = Google.Recurrence.ExplodeRrule(ev.Recurrence);
@@ -138,62 +139,65 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             return oPattern;
         }
-        
-        /*
-                public static void CompareOutlookPattern(Event ev, ref RecurrencePattern aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
-                    if (ev.Recurrence == null) return;
 
-                    log.Fine("Building a temporary recurrent Appointment generated from Event");
-                    AppointmentItem evAI = Ogcs.Outlook.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id).Items.Add() as AppointmentItem;
-                    evAI.Start = ev.Start.SafeDateTime();
+        public static PatternedRecurrence CompareOutlookPattern(GcalData.Event ev, PatternedRecurrence aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
+            if (ev.Recurrence == null) return null;
+            
+            log.Fine("Building a temporary recurrent Appointment generated from Event");
+            PatternedRecurrence evOpattern = BuildOutlookPattern(ev);
+            
+            log.Fine("Comparing Google recurrence to Outlook equivalent");
+            #region Recurrence Pattern
+            //Set defaults to avoid false changes
+            evOpattern.Pattern.FirstDayOfWeek ??= Microsoft.Graph.DayOfWeek.Sunday;
+            evOpattern.Pattern.Index ??= WeekIndex.First;
 
-                    RecurrencePattern evOpattern = null;
-                    try {
-                        buildOutlookPattern(ev, evAI, out evOpattern);
-                        log.Fine("Comparing Google recurrence to Outlook equivalent");
+            if (Sync.Engine.CompareAttribute("Recurrence Type", syncDirection,
+                evOpattern.Pattern.Type.ToString(), aiOpattern.Pattern.Type.ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.Type = evOpattern.Pattern.Type;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence Interval", syncDirection,
+                evOpattern.Pattern.Interval.ToString(), aiOpattern.Pattern.Interval.ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.Interval = evOpattern.Pattern.Interval;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence Index", syncDirection,
+                evOpattern.Pattern.Index?.ToString(), aiOpattern.Pattern.Index?.ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.Index = evOpattern.Pattern.Index;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence DoW", syncDirection,
+                string.Join(",", evOpattern.Pattern.DaysOfWeek ?? new List<Microsoft.Graph.DayOfWeek>()),
+                string.Join(",", aiOpattern.Pattern.DaysOfWeek ?? new List<Microsoft.Graph.DayOfWeek>()), sb, ref itemModified)) {
+                aiOpattern.Pattern.DaysOfWeek = evOpattern.Pattern.DaysOfWeek;
 
-                        //Some versions of Outlook are erroring when 2-way syncing weekday recurring series.
-                        //Even though Outlook has Interval of zero, which is illegal, when this is updated, it won't save. Issue #398
-                        Boolean skipIntervalCheck = false;
-                        if (aiOpattern.RecurrenceType == OlRecurrenceType.olRecursWeekly && aiOpattern.DayOfWeekMask == getDOWmask("BYDAY=MO,TU,WE,TH,FR") && aiOpattern.Interval == 0 &&
-                            evOpattern.RecurrenceType == aiOpattern.RecurrenceType && evOpattern.DayOfWeekMask == aiOpattern.DayOfWeekMask && evOpattern.Interval == 1)
-                            skipIntervalCheck = true;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence MoY", syncDirection,
+                convertEquivalenceToNull(evOpattern.Pattern.Month).ToString(), convertEquivalenceToNull(aiOpattern.Pattern.Month).ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.Month = evOpattern.Pattern.Month ?? 0;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence 1stDoW", syncDirection,
+                evOpattern.Pattern.FirstDayOfWeek?.ToString(), aiOpattern.Pattern.FirstDayOfWeek?.ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.FirstDayOfWeek = evOpattern.Pattern.FirstDayOfWeek;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence DoM", syncDirection,
+                convertEquivalenceToNull(evOpattern.Pattern.DayOfMonth).ToString(), convertEquivalenceToNull(aiOpattern.Pattern.DayOfMonth).ToString(), sb, ref itemModified)) {
+                aiOpattern.Pattern.DayOfMonth = evOpattern.Pattern.DayOfMonth ?? 0;
+            }
+            #endregion
+            #region Range
+            if (Sync.Engine.CompareAttribute("Recurrence EndDate", syncDirection,
+                convertEquivalenceToNull(evOpattern.Range.EndDate, new(1, 1, 1))?.ToString(), convertEquivalenceToNull(aiOpattern.Range.EndDate, new Date(1, 1, 1))?.ToString(), sb, ref itemModified)) {
+                aiOpattern.Range.EndDate = evOpattern.Range.EndDate ?? new(1, 1, 1);
+                aiOpattern.Range.Type = evOpattern.Range.Type;
+            }
+            if (Sync.Engine.CompareAttribute("Recurrence Occurences", syncDirection,
+                convertEquivalenceToNull(evOpattern.Range.NumberOfOccurrences).ToString(), convertEquivalenceToNull(aiOpattern.Range.NumberOfOccurrences).ToString(), sb, ref itemModified)) {
+                aiOpattern.Range.NumberOfOccurrences = evOpattern.Range.NumberOfOccurrences ?? 0;
+                aiOpattern.Range.Type = evOpattern.Range.Type;
+            }
+            #endregion
 
-                        if (Sync.Engine.CompareAttribute("Recurrence Type", syncDirection,
-                            evOpattern.RecurrenceType.ToString(), aiOpattern.RecurrenceType.ToString(), sb, ref itemModified)) {
-                            aiOpattern.RecurrenceType = evOpattern.RecurrenceType;
-                        }
-                        if (!skipIntervalCheck && Sync.Engine.CompareAttribute("Recurrence Interval", syncDirection,
-                            evOpattern.Interval.ToString(), aiOpattern.Interval.ToString(), sb, ref itemModified)) {
-                            aiOpattern.Interval = evOpattern.Interval;
-                        }
-                        if (Sync.Engine.CompareAttribute("Recurrence Instance", syncDirection,
-                            evOpattern.Instance.ToString(), aiOpattern.Instance.ToString(), sb, ref itemModified)) {
-                            aiOpattern.Instance = evOpattern.Instance;
-                        }
-                        if (Sync.Engine.CompareAttribute("Recurrence DoW", syncDirection,
-                            evOpattern.DayOfWeekMask.ToString(), aiOpattern.DayOfWeekMask.ToString(), sb, ref itemModified)) {
-                            aiOpattern.DayOfWeekMask = evOpattern.DayOfWeekMask;
-                        }
-                        if (Sync.Engine.CompareAttribute("Recurrence MoY", syncDirection,
-                            evOpattern.MonthOfYear.ToString(), aiOpattern.MonthOfYear.ToString(), sb, ref itemModified)) {
-                            aiOpattern.MonthOfYear = evOpattern.MonthOfYear;
-                        }
-                        if (Sync.Engine.CompareAttribute("Recurrence NoEndDate", syncDirection,
-                            evOpattern.NoEndDate, aiOpattern.NoEndDate, sb, ref itemModified)) {
-                            aiOpattern.NoEndDate = evOpattern.NoEndDate;
-                        }
-                        if (Sync.Engine.CompareAttribute("Recurrence Occurences", syncDirection,
-                            evOpattern.Occurrences.ToString(), aiOpattern.Occurrences.ToString(), sb, ref itemModified)) {
-                            aiOpattern.Occurrences = evOpattern.Occurrences;
-                        }
-                    } finally {
-                        evOpattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(evOpattern);
-                        evAI.Delete();
-                        evAI = (AppointmentItem)Outlook.Calendar.ReleaseObject(evAI);
-                    }
-                }
-        */
+            return aiOpattern;
+        }
 
         private static List<Microsoft.Graph.DayOfWeek> getDoW(String byDay) {
             List<Microsoft.Graph.DayOfWeek> daysOfWeek = new();
@@ -219,6 +223,20 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
             return null;
         }
+
+        #region NULL helper functions
+        /// <summary>Return null if the two parameter int values are equivalent</summary>
+        private static int? convertEquivalenceToNull(int? value, int nullValue = 0) {
+            return ((value ?? nullValue) == nullValue ? null : value);
+        }
+        /// <summary>Return null if the two parameter Date values are equivalent</summary>
+        #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        private static Date? convertEquivalenceToNull(Date? value, Date nullValue) {
+            return ((value ?? nullValue).Compare(nullValue) ? null : value);
+        }
+        #pragma warning restore CS8632
+        #endregion
+
         #region Exceptions
         private static List<Event> outlookExceptions;
         public static List<Event> OutlookExceptions {
@@ -258,7 +276,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         /// <summary>
-        /// Get missing series master Events that pre-date the sync start date.
+        /// Get missing series master Events for occurrences falling within the sync window.
         /// </summary>
         /// <param name="allAppointments">Single instance, occurences and exceptions.</param>
         public static void GetOutlookMasterEvent(List<Event> allAppointments) {
@@ -266,7 +284,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             List<String> seriesInstanceIds = allAppointments.Where(ai => ai.SeriesMasterId != null).Select(ai => ai.SeriesMasterId).Distinct().ToList();
             int newMasterEvents = 0;
             if (seriesInstanceIds.Count > 0) {
-                log.Info("Retrieving master series appointments that pre-date sync start date.");
+                log.Info("Retrieving master series appointments for occurrences falling within the sync window.");
                 foreach (String masterId in seriesInstanceIds.Except(seriesMasterIds)) {
                     Event ai = Calendar.Instance.GetCalendarEntry(masterId);
                     if (ai != null) {
@@ -274,7 +292,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         newMasterEvents++;
                     }
                 }
-                log.Debug(newMasterEvents + " master Graph Events retrieved that exist prior to sync window.");
+                log.Debug(newMasterEvents + " master Graph Events retrieved for occurrences falling within the sync window.");
             }
         }
 
