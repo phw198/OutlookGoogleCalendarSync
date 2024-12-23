@@ -66,10 +66,13 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthly: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        //Outlook runs on last day of month if day doesn't exist; Google doesn't run at all - so fix
+                        //Outlook and Google interpret days of month that don't alway exist, eg 31st, differently - though it's not explicitly defined
+                        //Outlook: Picks last day of month (SKIP=BACKWARD); Google: Skips that month (SKIP=OMIT)
+                        //We'll adopt Outlook's definition
                         if (oPattern.PatternStartDate.Day > 28) {
-                            addRule(rrule, "BYDAY", "SU,MO,TU,WE,TH,FR,SA");
-                            addRule(rrule, "BYSETPOS", "-1");
+                            Google.Recurrence.addRule(rrule, "RSCALE", "GREGORIAN");
+                            Google.Recurrence.addRule(rrule, "BYMONTHDAY", oPattern.PatternStartDate.Day.ToString());
+                            Google.Recurrence.addRule(rrule, "SKIP", "BACKWARD");
                         }
                         break;
                     }
@@ -77,8 +80,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
-                        addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         break;
                     }
 
@@ -105,10 +108,8 @@ namespace OutlookGoogleCalendarSync.Google {
                             addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
                         addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         */
-                        if (oPattern.DayOfWeekMask != (OlDaysOfWeek)127) { //If not every day of week, define which ones
-                            addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.DayOfWeekMask)));
-                        }
-                        addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
                         break;
                     }
             }
@@ -119,9 +120,59 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Fine("Checking end date.");
                 addRule(rrule, "UNTIL", IANAdate(recurrenceEndUtc));
             }
+            //Outlook converts numbered occurrences to an end date, so there is never a need to sync a COUNT RRule.
             #endregion
 
             return string.Join(";", rrule.Select(x => x.Key + "=" + x.Value).ToArray());
+        }
+
+        public static void CompareGooglePattern(List<String> oRrules, Event ev, System.Text.StringBuilder sb, ref int itemModified) {
+            if (ev.Recurrence != null) {
+                for (int r = 0; r < ev.Recurrence.Count; r++) {
+                    String rrule = ev.Recurrence[r];
+                    if (rrule.StartsWith("RRULE:")) {
+                        log.Fine("Google recurrence = " + rrule);
+                        if (oRrules != null) {
+                            String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
+                            String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
+                            if (gRrule_bits.Count() != oRrule_bits.Count()) {
+                                if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                    ev.Recurrence[r] = oRrules.First();
+                                    if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
+                                        //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
+                                        //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
+                                        ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
+                                    }
+                                    break;
+                                }
+                            }
+                            foreach (String oRrule_bit in oRrule_bits) {
+                                if (!rrule.Contains(oRrule_bit)) {
+                                    if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
+                                        ev.Recurrence[r] = oRrules.First();
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            log.Debug("Converting to non-recurring event.");
+                            Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, null, sb, ref itemModified);
+                            ev.Recurrence[r] = null;
+                        }
+                        break;
+                    }
+                }
+            } else {
+                if (oRrules != null && ev.RecurringEventId == null) {
+                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
+                        log.Warn("Cannot convert Event organised by another to a recurring series.");
+                    } else {
+                        log.Debug("Converting to recurring event.");
+                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
+                        ev.Recurrence = oRrules;
+                    }
+                }
+            }
         }
 
         public static Dictionary<String, String> ExplodeRrule(IList<String> allRules) {

@@ -56,6 +56,14 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
+        /// Returns the DateTime for a Graph Date
+        /// </summary>
+        /// <returns>DateTime</returns>
+        public static System.DateTime SafeDateTime(this Microsoft.Graph.Date graphDate) {
+            return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day);
+        }
+
+        /// <summary>
         /// Parses the DateTimeTimeZone string to a local DateTime
         /// </summary>
         /// <returns>Local DateTime</returns>
@@ -74,6 +82,14 @@ namespace OutlookGoogleCalendarSync.Extensions {
                 safeDate = safeDate.ToLocalTime();
             }
             return safeDate;
+        }
+
+        /// <summary>
+        /// Converts a System.DateTime to a Graph.Date
+        /// </summary>
+        /// <returns>Graph.Date</returns>
+        public static Microsoft.Graph.Date ToGraphDate(this System.DateTime dt) {
+            return new Microsoft.Graph.Date(dt.Year, dt.Month, dt.Day);
         }
 
         /// <summary>

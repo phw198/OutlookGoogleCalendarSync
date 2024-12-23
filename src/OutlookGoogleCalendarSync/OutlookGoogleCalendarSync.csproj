@@ -382,6 +382,7 @@
     <Compile Include="Outlook.Factory\OutlookOld.cs" />
     <Compile Include="Outlook.Graph\O365Authenticator.cs" />
     <Compile Include="Outlook.Graph\O365CustomProperty.cs" />
+    <Compile Include="Outlook.Graph\O365Recurrence.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
     <Compile Include="Outlook\GMeet.cs" />

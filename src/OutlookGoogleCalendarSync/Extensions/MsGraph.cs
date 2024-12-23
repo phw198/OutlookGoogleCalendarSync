@@ -30,6 +30,10 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return ai;
         }
 
+        public static Boolean Compare(this Microsoft.Graph.Date date, Microsoft.Graph.Date otherDate) {
+            return (date.Day == otherDate.Day && date.Month == otherDate.Month && date.Year == otherDate.Year);
+        }
+
         /// <summary>Just the HTML within the <body> tags</summary>
         public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");

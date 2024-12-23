@@ -93,7 +93,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             #endregion
 
             #region RECURRENCE RANGE
-            if (oPattern.Range.Type == RecurrenceRangeType.EndDate && recurrenceEndUtc != null) {
+            if (oPattern.Range.Type == RecurrenceRangeType.Numbered) {
+                Google.Recurrence.addRule(rrule, "COUNT", oPattern.Range.NumberOfOccurrences.ToString());
+
+            } else if (oPattern.Range.Type == RecurrenceRangeType.EndDate && recurrenceEndUtc != null) {
                 log.Fine("Checking end date.");
                 Google.Recurrence.addRule(rrule, "UNTIL", Google.Recurrence.IANAdate((System.DateTime)recurrenceEndUtc));
             }
@@ -149,7 +152,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 case WeekIndex.Second: byDay = "2"; break;
                 case WeekIndex.Third: byDay = "3"; break;
                 case WeekIndex.Fourth: byDay = "4"; break;
-                case WeekIndex.Last: Google.Recurrence.addRule(rrule, "BYSETPOS", "-1"); break;
+                case WeekIndex.Last: byDay = "-1"; break;
             }
             byDay += getByDay(oPattern.DaysOfWeek.ToList()).First();
             return byDay;
