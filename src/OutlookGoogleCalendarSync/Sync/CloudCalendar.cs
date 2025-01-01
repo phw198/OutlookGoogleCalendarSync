@@ -48,6 +48,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 List<Microsoft.Graph.Event> outlookEntries = null;
                 List<GcalData.Event> googleEntries = null;
+                Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences = new();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
                 if (!Ogcs.Outlook.Calendar.IsInstanceNull) 
@@ -58,7 +59,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                 #region Read Outlook items
                 console.Update($"Scanning Outlook calendar '{Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}'...");
                 outlookEntries = Outlook.Graph.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
-                console.Update(outlookEntries.Count + " Outlook calendar entries found.", Console.Markup.sectionEnd, newLine: false);
+                String consoleOutput = outlookEntries.Count + " Outlook calendar entries found.";
+                if (Outlook.Graph.Recurrence.OutlookExceptions != null && Outlook.Graph.Recurrence.OutlookExceptions.Count > 0)
+                    consoleOutput += "<br/>"+ (Outlook.Graph.Recurrence.OutlookExceptions.Count + Outlook.Graph.Calendar.Instance.CancelledOccurrences.Count) + " additional exceptions to recurring events.";
+                console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
 
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                 #endregion
@@ -144,7 +148,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 TimeSpan sectionDuration = DateTime.Now - timeSection;
                 if (sectionDuration.TotalSeconds > 30) {
                     log.Warn("That step took a long time! Issue #599");
-                    Telemetry.Send(Analytics.Category.ogcs, Analytics.Action.debug, "Duration;Graph.Google.Calendar.IdentifyEventDifferences=" + sectionDuration.TotalSeconds);
                     new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.debug)
                         .AddParameter(GA4.General.github_issue, 599)
                         .AddParameter("section", "Ogcs.Google.Calendar.Instance.IdentifyEventDifferences()")

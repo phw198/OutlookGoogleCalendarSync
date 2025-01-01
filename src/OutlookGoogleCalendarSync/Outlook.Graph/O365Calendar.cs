@@ -58,6 +58,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public Graph.EphemeralProperties EphemeralProperties = new Graph.EphemeralProperties();
 
+        /// <summary>
+        /// Graph API v1.0 doesn't properly surface cancelled series occurrences as of Jan-2025
+        /// Therefore home-brewing our own dictionary workaround.
+        /// </summary>
+        public Dictionary<String, List<System.DateTime>> CancelledOccurrences { get; set; }
+
         private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
         public Dictionary<String, OutlookCalendarListEntry> CalendarFolders {
             get { return calendarFolders; }
@@ -101,12 +107,26 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Debug("Retrieving specific Graph Event with ID " + eventId);
                 IEventRequest er = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[eventId].Request();
                 er.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
-                ai = er.GetAsync().Result;               
+                er.Select("*"); //This returns undocumented "hidden" beta property cancelledOccurrences
+                System.Net.Http.HttpRequestMessage httpMessage = er.GetHttpRequestMessage().AddAuthorisation();
+                System.Net.Http.HttpResponseMessage response = graphClient.HttpProvider.SendAsync(httpMessage).Result;
+                String jsonContent = response.Content.ReadAsStringAsync().Result;
+                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None } );
+                Newtonsoft.Json.Linq.JToken tk = Newtonsoft.Json.Linq.JObject.Parse(jsonContent).SelectToken("cancelledOccurrences");
+                foreach (String cancelledOccurrence in tk) {
+                    System.DateTime cancelledDate = System.DateTime.ParseExact(cancelledOccurrence.Replace($"OID.{eventId}.", ""), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    if (CancelledOccurrences.ContainsKey(eventId))
+                        CancelledOccurrences[eventId].Add(cancelledDate);
+                    else
+                        CancelledOccurrences.Add(eventId, new List<System.DateTime>() { cancelledDate });
+                }
+
                 if (ai != null)
                     return ai;
                 else
                     throw new System.Exception("Returned null");
-            } catch (System.Exception) {
+            } catch (System.Exception ex) {
+                ex.Analyse();
                 Forms.Main.Instance.Console.Update("Failed to retrieve Graph event.", Console.Markup.error);
                 return null;
             }
@@ -169,6 +189,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 req.Top(250);
                 req.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
+                req.Select("*"); //Otherwise OriginalStart is always null
                 log.Fine(req.GetHttpRequestMessage().RequestUri.ToString());
 
                 Int16 pageNum = 1;
