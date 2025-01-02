@@ -2192,7 +2192,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
-                    if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
+                    if ((ev.Recurrence != null && ev.RecurringEventId == null))
                         eventSummary += " (R)";
 
                     if (Settings.Instance.AnonymiseLogs)
