@@ -397,7 +397,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            Recurrence.SeparateGoogleExceptions(result);
+            Recurrence.Instance.SeparateGoogleExceptions(result);
 
             log.Fine("Filtered down to " + result.Count);
             return result;
