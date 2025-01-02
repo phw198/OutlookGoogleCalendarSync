@@ -164,6 +164,7 @@ namespace OutlookGoogleCalendarSync.Google {
             this.calendarList = result;
         }
 
+        /// <summary>Retrieve all instances for a recurring series.</summary>
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
             List<Event> result = new List<Event>();
             Events request = null;
@@ -279,12 +280,16 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
 
-        public List<Event> GetCalendarEntriesInRange() {
+        /// <summary>Get calendar Events occurring between the sync date ranges</summary>
+        /// <returns>Single events, recurring master and exceptions</returns>
+        public List<Event> GetCalendarEntriesInRange(String recurringId = null) {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
-            return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd);
+            return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd, false, recurringId);
         }
 
-        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false) {
+        /// <summary>Get calendar Events occurring between the specified dates</summary>
+        /// <returns>Single events, recurring master and exceptions</returns>
+        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false, String recurringId = null) {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -302,6 +307,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
                 lr.EventTypes = permittedEventTypes;
+                if (!string.IsNullOrEmpty(recurringId)) lr.ICalUID = recurringId + "@google.com";
 
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
@@ -389,6 +395,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             }
+
+            Recurrence.SeparateGoogleExceptions(result);
 
             log.Fine("Filtered down to " + result.Count);
             return result;
