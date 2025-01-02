@@ -754,7 +754,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                //Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
                     if (ev == null) {

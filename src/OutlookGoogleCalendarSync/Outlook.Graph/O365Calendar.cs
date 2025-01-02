@@ -115,6 +115,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 Newtonsoft.Json.Linq.JToken tk = Newtonsoft.Json.Linq.JObject.Parse(jsonContent).SelectToken("cancelledOccurrences");
                 foreach (String cancelledOccurrence in tk) {
                     System.DateTime cancelledDate = System.DateTime.ParseExact(cancelledOccurrence.Replace($"OID.{eventId}.", ""), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    if (cancelledDate < profile.SyncStart.Date || cancelledDate > profile.SyncEnd.Date) {
+                        log.Fine("Exception is deleted and outside date range being synced: " + cancelledDate.Date.ToString("dd/MM/yyyy"));
+                        continue;
+                    }
                     if (CancelledOccurrences.ContainsKey(eventId))
                         CancelledOccurrences[eventId].Add(cancelledDate);
                     else
