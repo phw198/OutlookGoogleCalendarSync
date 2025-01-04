@@ -181,7 +181,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     while (backoff < BackoffLimit) {
                         try {
                             request = ir.Execute();
-                            log.Debug("Page " + pageNum + " received.");
+                            log.Fine("Page " + pageNum + " received.");
                             break;
                         } catch (global::Google.GoogleApiException ex) {
                             switch (HandleAPIlimits(ref ex, null)) {
@@ -213,7 +213,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
-                log.Fine(request.Items.Count + " recurring event instances found.");
+                log.Debug(request.Items.Count + " recurring event instances found.");
                 return result;
 
             } catch (System.Exception ex) {
@@ -308,7 +308,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < BackoffLimit) {
                     try {
                         request = lr.Execute();
-                        log.Debug("Page " + pageNum + " received.");
+                        log.Fine("Page " + pageNum + " received.");
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         switch (HandleAPIlimits(ref ex, null)) {
@@ -342,6 +342,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     if (request.Items != null) result.AddRange(request.Items);
                 }
             } while (pageToken != null);
+
+            log.Fine(result.Count + " calendar items exist.");
 
             //Remove cancelled non-recurring Events - don't know how these exist, but some users have them!
             List<Event> cancelled = result.Where(ev =>
@@ -391,7 +393,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            log.Fine("Filtered down to " + result.Count);
+            log.Debug("Filtered down to " + result.Count);
             return result;
         }
 
