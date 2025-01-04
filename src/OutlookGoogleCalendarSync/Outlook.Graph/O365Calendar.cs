@@ -142,9 +142,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
         /// <returns></returns>
         public List<Microsoft.Graph.Event> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories) {
-            List<Microsoft.Graph.Event> filtered = new List<Microsoft.Graph.Event>();
+            List<Microsoft.Graph.Event> filtered;
             try {
-                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
+                filtered = filterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
             } catch (System.Exception) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
                 throw;
@@ -153,7 +153,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return filtered;
         }
 
-        public List<Microsoft.Graph.Event> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
+        private List<Microsoft.Graph.Event> filterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
             Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) {
             
             List<Microsoft.Graph.Event> result = new();
@@ -202,7 +202,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 while (eventPage.NextPageRequest != null) {
                     pageNum++;
                     eventPage = eventPage.NextPageRequest.GetAsync().Result;
-                    log.Debug("Page " + pageNum + " received.");
+                    log.Fine("Page " + pageNum + " received.");
                     result.AddRange(eventPage.CurrentPage);
                 }
 
@@ -343,7 +343,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                         Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.warning, newLine: false);
                                 }*/
             }
-            log.Fine("Filtered down to " + result.Count);
+            log.Debug("Filtered down to " + result.Count);
             return result;
         }
 
