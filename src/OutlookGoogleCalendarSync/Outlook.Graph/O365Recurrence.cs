@@ -242,24 +242,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static List<Event> OutlookExceptions {
             get { return outlookExceptions; }
         }
-        /*public enum DeletionState {
+        /*
+        public enum DeletionState {
             Inaccessible,
             Deleted,
             NotDeleted
         }
-        public static Boolean HasExceptions(AppointmentItem ai) {
-            RecurrencePattern rp = null;
-            Exceptions excps = null;
-            try {
-                rp = ai.GetRecurrencePattern();
-                excps = rp.Exceptions;
-                return excps.Count != 0;
-            } finally {
-                excps = (Exceptions)Outlook.Calendar.ReleaseObject(excps);
-                rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
-            }
-        }
         */
+        public static List<Event> GetExceptions(Event ai) {
+            return outlookExceptions.Where(aiExcp => aiExcp.SeriesMasterId == ai.Id).ToList();
+        }
         public static void SeparateOutlookExceptions(List<Event> allAppointments) {
             outlookExceptions = new List<Event>();
             if (allAppointments.Count == 0) return;

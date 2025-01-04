@@ -40,6 +40,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public Boolean AgedAccessToken { 
             get { return authResult?.ExpiresOn.UtcDateTime < DateTime.UtcNow.AddMinutes(1); } 
         }
+        public String AccessToken {
+            get { return authResult.AccessToken; }
+        }
 
         public void GetAuthenticated(Boolean nonInteractiveAuth = false) {
             if (this.Authenticated && authResult != null && !AgedAccessToken) return;

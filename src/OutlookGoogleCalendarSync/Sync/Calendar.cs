@@ -559,12 +559,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                         ex.Data["OGCS"] += " Please try again.";
                     throw;
                 }
-                Google.Recurrence.SeparateGoogleExceptions(googleEntries);
-                if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0) {
-                    console.Update(googleEntries.Count + " Google calendar entries found.");
-                    console.Update(Google.Recurrence.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
-                } else
-                    console.Update(googleEntries.Count + " Google calendar entries found.", Console.Markup.sectionEnd, newLine: false);
+                String consoleOutput = googleEntries.Count + " Google calendar entries found.";
+                if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0)
+                    consoleOutput += "<br/>" + Google.Recurrence.GoogleExceptions.Count + " additional exceptions to recurring events.";
+                console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
 
                 return SyncResult.OK;
             }

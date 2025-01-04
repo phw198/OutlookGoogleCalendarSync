@@ -539,11 +539,12 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
-                /*if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
+                List<Microsoft.Graph.Event> aiExcps;
+                if (createdEvent != null && ai.Recurrence != null && (aiExcps = Outlook.Graph.Recurrence.GetExceptions(ai)).Count > 0) {
                     Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
-                    Recurrence.CreateGoogleExceptions(ai, createdEvent.Id);
+                    Recurrence.CreateGoogleExceptions(aiExcps, createdEvent.Id);
                     Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
-                }*/
+                }
             }
         }
 
@@ -753,7 +754,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                //Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
                     if (ev == null) {
