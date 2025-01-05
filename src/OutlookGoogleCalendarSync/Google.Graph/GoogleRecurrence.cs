@@ -22,7 +22,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 utcEnd = System.DateTime.Parse(ai.Recurrence.Range.EndDate.ToString());
                 if (!(ai.IsAllDay ?? false)) {
                     System.DateTime localEnd = (System.DateTime)utcEnd + ai.End.SafeDateTime().TimeOfDay;
-                    utcEnd = localEnd.ToUniversalTime();
+                    utcEnd = localEnd.ToUniversalTime(); // TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(Outlook.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
                 }
             } else if (ai.Recurrence.Range.Type != Microsoft.Graph.RecurrenceRangeType.NoEnd) {
                 log.Warn($"Series range type of '{ai.Recurrence.Range.Type}' is not handled.");
@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 case WeekIndex.Second: byDay = "2"; break;
                 case WeekIndex.Third: byDay = "3"; break;
                 case WeekIndex.Fourth: byDay = "4"; break;
-                case WeekIndex.Last: byDay = "-1"; break;
+                case WeekIndex.Last: byDay = "-1"; break; // Google.Recurrence.addRule(rrule, "BYSETPOS", "-1"); break;
             }
             byDay += getByDay(oPattern.DaysOfWeek.ToList()).First();
             return byDay;
@@ -309,13 +309,19 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
         */
 
-        public static void CreateGoogleExceptions(List<Event> aiExcps, String recurringEventId) {
-            List<System.DateTime> cancelledDates = new();
-            Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(aiExcps.FirstOrDefault().SeriesMasterId, out cancelledDates);
-            if (aiExcps.Count + cancelledDates.Count == 0) return;
+        public static void CreateGoogleExceptions(Event aiMaster, ref GcalData.Event createdEvent) {
+            if (createdEvent == null || aiMaster.Type != EventType.SeriesMaster) return;
 
+            List<Microsoft.Graph.Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(aiMaster);
+            List<System.DateTime> cancelledDates;
+            Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(aiMaster.Id, out cancelledDates);
+            cancelledDates ??= new();
+            if (aiExcps.Count + cancelledDates.Count == 0) return;
+            
+            Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
+            
             log.Debug("Creating Google recurrence exceptions.");
-            List<GcalData.Event> gRecurrences = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(recurringEventId);
+            List<GcalData.Event> gRecurrences = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(createdEvent.Id);
             if (gRecurrences == null) return;
 
             try {
@@ -341,48 +347,53 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ex.Analyse("Could not process cancelled occurrences.");
             }
             try {
-                foreach (Event oExcp in aiExcps) {
-                    System.DateTime? oOriginalStart = null;
-                    try {
-                        oOriginalStart = (oExcp.OriginalStart?.DateTime ?? oExcp.Start.SafeDateTime()).ToLocalTime();
-                        GcalData.Event ev = gRecurrences.Where(ev => ev.OriginalStartTime.SafeDateTime() == oOriginalStart).FirstOrDefault();
-                        if (ev == null) {
-                            log.Warn($"Could not find an occurrence originally starting on {oOriginalStart}");
-                        } else {
-                            int exceptionItemsModified = 0;
-                            GcalData.Event modifiedEv = Calendar.UpdateCalendarEntry(oExcp, ev, ref exceptionItemsModified, forceCompare: true);
-                            if (exceptionItemsModified > 0) {
-                                Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref modifiedEv);
-                                if (oExcp.OriginalStart?.Date != oExcp.Start.SafeDateTime().Date) {
-                                    log.Fine("Double checking there is no other Google item on " + oExcp.Start.SafeDateTime().Date.ToString("dd-MMM-yyyy") + " that " + oExcp.OriginalStart?.Date.ToString("dd-MMM-yyyy") + " was moved to - we don't want a duplicate.");
-                                    GcalData.Event duplicate = gRecurrences.FirstOrDefault(g => oExcp.Start.SafeDateTime().Date == g.OriginalStartTime.SafeDateTime().Date);
-                                    if (duplicate != null && duplicate.Status != "cancelled") {
-                                        log.Warn("Determined a 'duplicate' exists on that date - this will be deleted.");
-                                        duplicate.Status = "cancelled";
-                                        Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref duplicate);
+                if (aiExcps.Count > 0) {
+                    log.Debug($"Modifying {aiExcps.Count} occurrences.");
+                    foreach (Event oExcp in aiExcps) {
+                        log.Fine("Modified occurrence on " + oExcp.Start.SafeDateTime().ToString("dd/MM/yyyy"));
+                        System.DateTime? oOriginalStart = null;
+                        try {
+                            oOriginalStart = (oExcp.OriginalStart?.DateTime ?? oExcp.Start.SafeDateTime()).ToLocalTime();
+                            GcalData.Event ev = gRecurrences.Where(ev => ev.OriginalStartTime.SafeDateTime() == oOriginalStart).FirstOrDefault();
+                            if (ev == null) {
+                                log.Warn($"Could not find an occurrence originally starting on {oOriginalStart}");
+                            } else {
+                                int exceptionItemsModified = 0;
+                                GcalData.Event modifiedEv = Calendar.UpdateCalendarEntry(oExcp, ev, ref exceptionItemsModified, forceCompare: true);
+                                if (exceptionItemsModified > 0) {
+                                    Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref modifiedEv);
+                                    if (oExcp.OriginalStart?.Date != oExcp.Start.SafeDateTime().Date) {
+                                        log.Fine("Double checking there is no other Google item on " + oExcp.Start.SafeDateTime().Date.ToString("dd-MMM-yyyy") + " that " + oExcp.OriginalStart?.Date.ToString("dd-MMM-yyyy") + " was moved to - we don't want a duplicate.");
+                                        GcalData.Event duplicate = gRecurrences.FirstOrDefault(g => oExcp.Start.SafeDateTime().Date == g.OriginalStartTime.SafeDateTime().Date);
+                                        if (duplicate != null && duplicate.Status != "cancelled") {
+                                            log.Warn("Determined a 'duplicate' exists on that date - this will be deleted.");
+                                            duplicate.Status = "cancelled";
+                                            Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref duplicate);
+                                        }
                                     }
                                 }
                             }
+                        } catch (System.Exception ex) {
+                            ex.Analyse($"Failed to process modified occurrence on {oOriginalStart}");
                         }
-                    } catch (System.Exception ex) {
-                        ex.Analyse($"Failed to process modified occurrence on {oOriginalStart}");
                     }
                 }
             } catch (System.Exception ex) {
                 ex.Analyse("Could not process modified occurrences.");
             }
+            Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
         }
 
-        public static void UpdateGoogleExceptions(Event seriesMaster, GcalData.Event ev, Boolean dirtyCache) {
-            if (seriesMaster.Type != Microsoft.Graph.EventType.SeriesMaster) return;
+        public static void UpdateGoogleExceptions(Event aiMaster, GcalData.Event ev, Boolean dirtyCache) {
+            if (aiMaster.Type != Microsoft.Graph.EventType.SeriesMaster) return;
 
-            List<Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(seriesMaster);
+            List<Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(aiMaster);
             List<System.DateTime> cancelledDates;
-            Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(seriesMaster.Id, out cancelledDates);
+            Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(aiMaster.Id, out cancelledDates);
             cancelledDates ??= new();
             if (aiExcps.Count + cancelledDates.Count == 0) return;
 
-            log.Debug(Outlook.Graph.Calendar.GetEventSummary(seriesMaster));
+            log.Debug(Outlook.Graph.Calendar.GetEventSummary(aiMaster));
             log.Debug("This is a recurring appointment with " + (aiExcps.Count + cancelledDates.Count) + " exceptions that will now be iteratively compared.");
             
             #region Cancelled occurrences
@@ -407,7 +418,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             log.Fine("Checking if we have another Google instance that /is/ cancelled on " + movedToStartDate.ToString("dd-MMM-yyyy") + " that this one has been moved to.");
                             GcalData.Event duplicate = Google.Recurrence.GetGoogleInstance(gExcp.RecurringEventId, movedToStartDate);
                             DialogResult dr = DialogResult.Yes;
-                            String summary = Outlook.Graph.Calendar.GetEventSummary(seriesMaster, out String anonSummary);
+                            String summary = Outlook.Graph.Calendar.GetEventSummary(aiMaster, out String anonSummary);
                             if (duplicate?.Status == "cancelled") {
                                 log.Warn("Another deleted occurrence on the same date " + movedToStartDate.ToString("dd-MMM-yyyy") + " found, so this Google item that has moved to that date cannot be safely deleted automatically.");
                                 String msg = summary + "\r\n\r\nAn occurrence on " + movedToStartDate.ToString("dd-MMM-yyyy") + " was previously deleted, before another occurrence on " + ((System.DateTimeOffset)aiExcp.OriginalStart).ToString("dd-MMM-yyyy") +
