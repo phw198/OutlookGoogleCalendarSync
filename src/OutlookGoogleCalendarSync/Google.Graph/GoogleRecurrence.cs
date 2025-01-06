@@ -322,7 +322,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             
             log.Debug("Creating Google recurrence exceptions.");
             List<GcalData.Event> gRecurrences = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(createdEvent.Id);
-            if (gRecurrences == null) return;
+            if ((gRecurrences?.Count ?? 0) == 0) return;
 
             try {
                 if (cancelledDates.Count > 0) {
@@ -334,7 +334,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         } else {
                             gRecurrences.Remove(ev);
                             if (ev.Status == "cancelled") {
-                                log.Warn($"Outlook occurrence already deleted on {cancelledDate}");
+                                log.Warn($"Google occurrence already deleted on {cancelledDate}");
                             } else {
                                 Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary("<br/>Occurrence deleted.", ev, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                                 ev.Status = "cancelled";
@@ -356,7 +356,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             oOriginalStart = (oExcp.OriginalStart?.DateTime ?? oExcp.Start.SafeDateTime()).ToLocalTime();
                             GcalData.Event ev = gRecurrences.Where(ev => ev.OriginalStartTime.SafeDateTime() == oOriginalStart).FirstOrDefault();
                             if (ev == null) {
-                                log.Warn($"Could not find an occurrence originally starting on {oOriginalStart}");
+                                log.Error($"Could not find a Google occurrence for Outlook's exception starting on {oOriginalStart}");
                             } else {
                                 int exceptionItemsModified = 0;
                                 GcalData.Event modifiedEv = Calendar.UpdateCalendarEntry(oExcp, ev, ref exceptionItemsModified, forceCompare: true);

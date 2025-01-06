@@ -242,13 +242,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static List<Event> OutlookExceptions {
             get { return outlookExceptions; }
         }
-        /*
-        public enum DeletionState {
-            Inaccessible,
-            Deleted,
-            NotDeleted
-        }
-        */
         public static List<Event> GetExceptions(Event ai) {
             return outlookExceptions.Where(aiExcp => aiExcp.SeriesMasterId == ai.Id).ToList();
         }
@@ -308,46 +301,92 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
             }
         }
+        */
+        public static void CreateOutlookExceptions(GcalData.Event ev, Event createdAi) {
+            if (ev.Recurrence == null || ev.RecurringEventId != null) return;
 
-        public static void CreateOutlookExceptions(ref AppointmentItem ai, Event ev) {
-            processOutlookExceptions(ref ai, ev, forceCompare: true);
-        }
-        public static void UpdateOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
-            processOutlookExceptions(ref ai, ev, forceCompare);
-        }
-
-        private static void processOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
-            if (!Google.Recurrence.HasExceptions(ev, checkLocalCacheOnly: true)) return;
-
-            List<Event> gExcps = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
-
-            //Process deleted exceptions first
-            List<Event> gCancelledExcps = gExcps.Where(exp => exp.Status == "cancelled").ToList();
-            processOutlookExceptions(ref ai, gCancelledExcps, forceCompare, true);
-
-            //Then process everything else
-            gExcps = gExcps.Except(gCancelledExcps).ToList();
-            processOutlookExceptions(ref ai, gExcps, forceCompare, false);
-        }
-
-        private static void processOutlookExceptions(ref AppointmentItem ai, List<Event> evExceptions, Boolean forceCompare, Boolean processingDeletions) {
-            if (evExceptions.Count == 0) return;
-
-            RecurrencePattern oPattern = null;
             try {
-                oPattern = ai.GetRecurrencePattern();
+                List<GcalData.Event> evExceptions = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
+                if (evExceptions.Count == 0) return;
 
-                foreach (Event gExcp in evExceptions) {
+                Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
+
+                log.Debug("Creating Google recurrence exceptions.");
+                List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(createdAi.Id);
+                if ((oRecurrences?.Count ?? 0) == 0) return;
+
+                log.Debug($"Modifying {evExceptions.Count} occurrences.");
+                foreach (GcalData.Event gExcp in evExceptions) {
                     System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
                     System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
-                    String gExcpDetails = "Google exception with original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : "");
+                    log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : ""));
+
+                    try {
+                        Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
+                        if (newAiExcp == null) {
+                            if (gExcp.Status == "cancelled") {
+                                log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
+                            } else {
+                                log.Error($"Could not find Outlook occurrence for Google's exception on {gExcpCurrDate?.ToString("dd-MM-yyyy")}");
+                            }
+                            continue;
+                        }
+                        if (gExcp.Status == "cancelled") {
+                            Forms.Main.Instance.Console.Update(Outlook.Graph.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                            oRecurrences.Remove(newAiExcp);
+                            Calendar.Instance.DeleteCalendarEntry_save(newAiExcp);
+                        /*
+                        } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
+                            Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                            newAiExcp.Delete();
+                        */
+                        } else {
+                            int itemModified = 0;
+                            Event aiPatch = new();
+                            if (Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch, true)) {
+                                try {
+                                    Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
+                                } catch (Microsoft.Graph.ServiceException ex) {
+                                    if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
+                                        Forms.Main.Instance.Console.Update(
+                                            Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                                "You may have two occurences on the same day, which it doesn't allow even if the original occurrence has been deleted.",
+                                                newAiExcp, out String anonSummary, true)
+                                            , anonSummary, Console.Markup.warning);
+                                    } else
+                                        ex.Analyse();
+                                }
+                            }
+                        }
+                    } catch (System.Exception ex) {
+                        ex.Analyse($"Failed to process modified Google occurrence on {gExcpOrigDate} for new Outlook series.");
+                    }
+                }
+            } catch (System.Exception ex2) {
+                ex2.Analyse("Failed to process modified Google occurrences on new Outlook series.");
+            }
+            Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
+        }
+
+        public static void UpdateOutlookExceptions(GcalData.Event ev, Event ai, Boolean forceCompare) {
+            if (evExceptions.Count == 0) return;
+
+            List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id); //Move this out to calling func
+            try {
+                foreach (GcalData.Event gExcp in evExceptions) {
+                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
+                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
+                    String gExcpDetails = $"Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : "");
                     log.Fine("Found " + gExcpDetails);
 
-                    AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
+                        Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
-                            if (gExcp.Status != "cancelled") {
+                            //Check if already deleted
+                            if (gExcp.Status == "cancelled") {
+                                log.Warn($"Could not find Outlook occurrence for cancelled date {gExcpOrigDate.ToString("dd-MM-yyyy")}");
+                                /*
+                            } else {
                                 log.Warn("Unable to find Outlook exception for " + gExcpDetails);
                                 log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
                                 String syncDirectionTip = (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) ? "<br/><i>Ensure you <b>first</b> set OGCS to one-way sync G->O.</i>" : "";
@@ -356,45 +395,49 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                         "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
                                         "<u>Suggested fix</u>: delete the entire series in Google and let OGCS recreate it." + syncDirectionTip, gExcp, out String anonSummary),
                                     anonSummary, Console.Markup.warning);
+                                */
                             }
                             continue;
                         }
-
                         if (gExcp.Status == "cancelled") {
-                            Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
-                            newAiExcp.Delete();
+                            Forms.Main.Instance.Console.Update(Outlook.Graph.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                            oRecurrences.Remove(newAiExcp);
+                            Calendar.Instance.DeleteCalendarEntry_save(newAiExcp);
 
-                        } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
-                            Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
-                            newAiExcp.Delete();
-
-                        } else {
+                            /*
+                            } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
+                                Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
+                                newAiExcp.Delete();
+                            */
+                        } /*else {
                             int itemModified = 0;
-                            Outlook.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified,
-                                forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.Date);
+                            Event aiPatch = new();
+                            Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch,
+                                forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.SafeDateTime().Date);
                             if (itemModified > 0) {
                                 try {
-                                    newAiExcp.Save();
-                                } catch (System.Exception ex) {
-                                    Ogcs.Exception.Analyse(ex);
-                                    if (ex.Message == "Cannot save this item.") {
+                                    Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
+                                } catch (Microsoft.Graph.ServiceException ex) {
+                                    if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
-                                            Outlook.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
-                                                "You may have two occurences on the same day, which it doesn't allow.", newAiExcp, out String anonSummary, true)
+                                            Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
+                                                "You may have two occurences on the same day, which it doesn't allow even if the original occurrence has been deleted.", 
+                                                newAiExcp, out String anonSummary, true)
                                             , anonSummary, Console.Markup.warning);
-                                    }
+                                    } else
+                                        ex.Analyse();
                                 }
                             }
-                        }
-                    } finally {
-                        newAiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(newAiExcp);
+                        }*/
+                    } catch (System.Exception ex) {
+                        ex.Analyse($"Failed to process modified occurrence on {gExcpOrigDate}");
                     }
                 }
             } finally {
-                oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
+            //    oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
             }
         }
-
+        /*
         private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
