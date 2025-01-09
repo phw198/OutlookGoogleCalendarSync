@@ -328,27 +328,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             System.DateTime retVal = new System.DateTime();
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
-                UserProperties ups = null;
-                UserProperty prop = null;
-                /*try {
-                    ups = ai.UserProperties;
-                    prop = ups.Find(searchKey);
-                    if (prop != null) {
-                        try {
-                            if (prop.Type != OlUserPropertyType.olDateTime) {
-                                log.Warn("Non-datetime property " + searchKey + " being retrieved as DateTime.");
-                                retVal = DateTime.Parse(prop.Value.ToString());
-                            } else
-                                retVal = (DateTime)prop.Value;
-                        } catch (System.Exception ex) {
-                            log.Error("Failed to retrieve DateTime value for property " + searchKey);
-                            Ogcs.Exception.Analyse(ex);
-                        }
-                    }
-                } finally {
-                    prop = (UserProperty)Calendar.ReleaseObject(prop);
-                    ups = (UserProperties)Calendar.ReleaseObject(ups);
-                }*/
+                if (!System.DateTime.TryParse(ai.OgcsExtension().AdditionalData[searchKey].ToString(), out retVal))
+                    log.Error("Could not parse OgcsExtension value of " + ai.OgcsExtension().AdditionalData[searchKey].ToString());
             }
             return retVal;
         }
@@ -407,7 +388,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             try {
                 log.Debug(Calendar.GetEventSummary(ai));
                 Microsoft.Graph.Extension ext = ai.OgcsExtension();
-                foreach (KeyValuePair<String, Object> prop in ext?.AdditionalData) {
+                if (ext == null) return;
+
+                foreach (KeyValuePair<String, Object> prop in ext.AdditionalData) {
                     if (prop.Key == metadataIdKeyName(MetadataId.gCalendarId))
                         log.Debug(prop.Key + "=" + EmailAddress.MaskAddress(prop.Value.ToString()));
                     else
