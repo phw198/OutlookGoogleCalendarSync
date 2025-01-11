@@ -368,7 +368,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     try {
                         Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
-                            //Check if already deleted
                             if (gExcp.Status == "cancelled") {
                                 log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
 
@@ -381,7 +380,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                         "This can happen if, for example, the occurrence has been rearranged to different days more than once.<br/>" +
                                         "<u>Suggested fix</u>: delete the entire series in Outlook and let OGCS recreate it." + syncDirectionTip, gExcp, out String anonSummary),
                                     anonSummary, Console.Markup.warning);
-
                             }
                             continue;
                         }

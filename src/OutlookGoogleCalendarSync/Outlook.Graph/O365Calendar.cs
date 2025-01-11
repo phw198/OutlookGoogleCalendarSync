@@ -978,9 +978,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             try {
                 Extension ogcsExtension = ai.OgcsExtension();
-                if (ogcsExtension != null) 
-                    ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().UpdateAsync(ogcsExtension).Result;
-                
+                if (ogcsExtension != null) {
+                    Boolean patchExtension = false;
+                    if (patchExtension = CustomProperty.Exists(ai, CustomProperty.MetadataId.requiresPatch)) {
+                        ai.OgcsExtension().AdditionalData.Remove(CustomProperty.MetadataId.requiresPatch.ToString());
+                    }
+                    //Graph doesn't support removing properties via PATCH with null values. Have to manually delete and recreate
+                    List<KeyValuePair<String, Object>> deletedProperties = ogcsExtension.AdditionalData.Where(prop => prop.Value == null).ToList();
+                    if (deletedProperties.Count > 0) {
+                        GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().DeleteAsync().Wait();
+                        ogcsExtension.AdditionalData = ogcsExtension.AdditionalData.Except(deletedProperties).ToDictionary(k => k.Key, k => k.Value);
+                        patchExtension = true;
+                    }
+                    if (patchExtension) 
+                        ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().UpdateAsync(ogcsExtension).Result;
+                }
                 ai = GraphClient.Me.Events[ai.Id].Request().UpdateAsync(ai).Result;
                 
                 if (ogcsExtension != null)
@@ -1115,7 +1127,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                     Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                                     Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     unclaimedAi.Remove(ai);
-                                    ai = aiPatch;
                                     if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
                                     consoleTitle = "";
                                     Forms.Main.Instance.Console.Update(GetEventSummary("Reclaimed: ", ai, out String anonSummary, appendContext: false), anonSummary, verbose: true);

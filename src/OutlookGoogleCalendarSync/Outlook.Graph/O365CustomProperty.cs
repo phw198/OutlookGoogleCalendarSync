@@ -1,6 +1,5 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using log4net;
-using Microsoft.Office.Interop.Outlook;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
@@ -106,9 +105,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             gCalendarId,
             ogcsModified,
             forceSave,
-            gMeetUrl/*,
-            locallyCopied,
-            originalStartDate*/
+            gMeetUrl,
+            requiresPatch
         }
 
         /// <summary>
@@ -121,7 +119,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 case MetadataId.gEventID: return "googleEventID";
                 case MetadataId.gCalendarId: return "googleCalendarID";
                 case MetadataId.ogcsModified: return "OGCSmodified";
-                case MetadataId.forceSave: return "forceSave";
                 default: return Id.ToString();
             }
         }
@@ -279,12 +276,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, String value) {
-            add(ref ai, key, OlUserPropertyType.olText, value);
+            add(ref ai, key, value);
         }
         public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, System.DateTime value) {
-            add(ref ai, key, OlUserPropertyType.olDateTime, value);
+            add(ref ai, key, value.ToPreciseString());
         }
-        private static void add(ref Microsoft.Graph.Event ai, MetadataId key, OlUserPropertyType keyType, object keyValue) {
+        private static void add(ref Microsoft.Graph.Event ai, MetadataId key, String keyValue) {
             String addkeyName = metadataIdKeyName(key);
 
             int maxSet;
@@ -314,6 +311,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
             Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
             log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
+
+            ai.OgcsExtension().AdditionalData[metadataIdKeyName(MetadataId.requiresPatch)] = "true";
         }
 
         public static String Get(Microsoft.Graph.Event ai, MetadataId key) {
@@ -338,24 +337,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Remove(ref ai, MetadataId.gEventID);
             Remove(ref ai, MetadataId.gCalendarId);
             Remove(ref ai, MetadataId.forceSave);
-            //Remove(ref ai, MetadataId.locallyCopied);
             Remove(ref ai, MetadataId.ogcsModified);
+            Remove(ref ai, MetadataId.requiresPatch);
         }
         public static void Remove(ref Microsoft.Graph.Event ai, MetadataId key) {
             String searchKey;
-            if (Exists(ai, key, out searchKey)) {
-                UserProperties ups = null;
-                UserProperty prop = null;
-                /*try {
-                    ups = ai.UserProperties;
-                    prop = ups.Find(searchKey);
-                    prop.Delete();
-                    log.Debug("Removed " + searchKey + " property.");
-                } finally {
-                    prop = (UserProperty)Calendar.ReleaseObject(prop);
-                    ups = (UserProperties)Calendar.ReleaseObject(ups);
-                }*/
-            }
+            if (Exists(ai, key, out searchKey))
+                ai.OgcsExtension().AdditionalData[searchKey] = null;
         }
         /// <summary>
         /// Completely remove all OGCS custom properties
