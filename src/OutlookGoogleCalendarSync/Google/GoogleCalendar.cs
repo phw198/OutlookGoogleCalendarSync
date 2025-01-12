@@ -354,7 +354,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(cancelled).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from && ev.Recurrence == null)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
