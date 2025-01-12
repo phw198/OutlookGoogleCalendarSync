@@ -238,28 +238,33 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public static void CreateOutlookExceptions(ref AppointmentItem ai, Event ev) {
-            processOutlookExceptions(ref ai, ev, forceCompare: true);
+        public static void CreateOutlookExceptions(Event ev, ref AppointmentItem createdAi) {
+            processOutlookExceptions(ev, ref createdAi, forceCompare: true);
         }
-        public static void UpdateOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
-            processOutlookExceptions(ref ai, ev, forceCompare);
+        public static void UpdateOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
+            processOutlookExceptions(ev, ref ai, forceCompare);
         }
 
-        private static void processOutlookExceptions(ref AppointmentItem ai, Event ev, Boolean forceCompare) {
+        private static void processOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
             if (!Google.Recurrence.HasExceptions(ev, checkLocalCacheOnly: true)) return;
 
             List<Event> gExcps = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
+            if (gExcps.Count == 0) return;
+
+            log.Debug($"{gExcps.Count} Google recurrence exceptions within sync range to be compared.");
 
             //Process deleted exceptions first
             List<Event> gCancelledExcps = gExcps.Where(exp => exp.Status == "cancelled").ToList();
-            processOutlookExceptions(ref ai, gCancelledExcps, forceCompare, true);
+            log.Fine($"{gCancelledExcps.Count} Google cancelled occurrences.");
+            processOutlookExceptions(gCancelledExcps, ref ai, forceCompare, true);
 
             //Then process everything else
             gExcps = gExcps.Except(gCancelledExcps).ToList();
-            processOutlookExceptions(ref ai, gExcps, forceCompare, false);
+            log.Fine($"{gExcps.Count} Google modified exceptions.");
+            processOutlookExceptions(gExcps, ref ai, forceCompare, false);
         }
 
-        private static void processOutlookExceptions(ref AppointmentItem ai, List<Event> evExceptions, Boolean forceCompare, Boolean processingDeletions) {
+        private static void processOutlookExceptions(List<Event> evExceptions, ref AppointmentItem ai, Boolean forceCompare, Boolean processingDeletions) {
             if (evExceptions.Count == 0) return;
 
             RecurrencePattern oPattern = null;
