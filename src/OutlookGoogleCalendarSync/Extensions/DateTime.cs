@@ -9,7 +9,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <param name="dt">Date-time valule</param>
         /// <returns>Formatted string</returns>
-        public static String ToPreciseString(this System.DateTime dt) {
+        public static String ToPreciseString(this System.DateTimeOffset dt) {
             return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
         }
 
@@ -18,7 +18,15 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTime</returns>
         public static System.DateTime SafeDateTime(this EventDateTime evDt) {
-            return evDt.DateTime ?? System.DateTime.Parse(evDt.Date);
+            return SafeDateTimeOffset(evDt).DateTime;
+        }
+
+        /// <summary>
+        /// Returns the non-null Date or DateTime properties as a DateTimeOffset
+        /// </summary>
+        /// <returns>DateTimeOffset</returns>
+        public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
+            return evDt.DateTimeDateTimeOffset ?? System.DateTimeOffset.Parse(evDt.Date);
         }
 
         /// <summary>
@@ -31,7 +39,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (ev.Start?.Date != null)
                 return true;
             if (logicallyEquivalent)
-                return (ev.Start?.DateTime?.TimeOfDay == new TimeSpan(0, 0, 0) && ev.Start?.DateTime?.TimeOfDay == ev.End?.DateTime?.TimeOfDay);
+                return (ev.Start?.DateTimeDateTimeOffset?.TimeOfDay == new TimeSpan(0, 0, 0) && ev.Start?.DateTimeDateTimeOffset?.TimeOfDay == ev.End?.DateTimeDateTimeOffset?.TimeOfDay);
             else
                 return false;
         }

@@ -88,7 +88,11 @@ namespace OutlookGoogleCalendarSync.Google {
             throwException
         }
 
-        private static String[] permittedEventTypes = new String[] { "default", "focusTime", "outOfOffice" }; //Excluding workingLocation
+        private static List<EventsResource.ListRequest.EventTypesEnum> permittedEventTypes = new() {
+            EventsResource.ListRequest.EventTypesEnum.Default__,
+            EventsResource.ListRequest.EventTypesEnum.FocusTime,
+            EventsResource.ListRequest.EventTypesEnum.OutOfOffice
+        };
         
         private static Random random = new Random();
         public int MinDefaultReminder = int.MinValue;
@@ -234,8 +238,14 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < BackoffLimit) {
                     try {
                         request = gr.Execute();
-                        if (!permittedEventTypes.Contains(request.EventType)) {
-                            log.Warn($"Non-consumer version of EventType '{request.EventType}' found - excluding.");
+                        EventsResource.ListRequest.EventTypesEnum eventType;
+                        if (Enum.TryParse(request.EventType.Replace("__", ""), true, out eventType)) {
+                            if (!permittedEventTypes.Contains(eventType)) {
+                                log.Warn($"Non-consumer version of EventType '{request.EventType}' found - excluding.");
+                                return null;
+                            }
+                        } else {
+                            log.Error($"Unrecognised EventType '{request.EventType}' found - excluding.");
                             return null;
                         }
                         break;
@@ -302,13 +312,13 @@ namespace OutlookGoogleCalendarSync.Google {
             do {
                 EventsResource.ListRequest lr = Service.Events.List(profile.UseGoogleCalendar.Id);
 
-                lr.TimeMin = from;
-                lr.TimeMax = to;
+                lr.TimeMinDateTimeOffset = from;
+                lr.TimeMaxDateTimeOffset = to;
                 lr.TimeZone = "UTC";
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
-                lr.EventTypes = permittedEventTypes;
+                lr.EventTypesList = permittedEventTypes;
                 if (!string.IsNullOrEmpty(recurringId)) lr.ICalUID = recurringId + "@google.com";
 
                 int backoff = 0;
@@ -606,8 +616,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTime = ai.Start;
-                ev.End.DateTime = ai.End;
+                ev.Start.DateTimeDateTimeOffset = ai.Start;
+                ev.End.DateTimeDateTimeOffset = ai.End;
             }
             ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
 
@@ -799,7 +809,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 if (itemModified == 0) {
                     if (ev == null) {
-                        if (compare.Value.Updated < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
+                        if (compare.Value.UpdatedDateTimeOffset < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
                             ev = compare.Value;
                         else
                             continue;
@@ -831,14 +841,14 @@ namespace OutlookGoogleCalendarSync.Google {
             } else {
                 if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                     if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                        if (ev.Updated > ai.LastModificationTime)
+                        if (ev.UpdatedDateTimeOffset > ai.LastModificationTime)
                             return null;
                     } else {
                         if (Outlook.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModificationTime) {
                             log.Fine("Outlook last modified by OGCS.");
                             return null;
                         }
-                        if (ev.Updated > ai.LastModificationTime)
+                        if (ev.UpdatedDateTimeOffset > ai.LastModificationTime)
                             return null;
                     }
                 }
@@ -857,11 +867,11 @@ namespace OutlookGoogleCalendarSync.Google {
             sb.AppendLine(aiSummary);
 
             //Handle an event's all-day attribute being toggled
-            System.DateTime evStart = ev.Start.SafeDateTime();
-            System.DateTime evEnd = ev.End.SafeDateTime();
+            System.DateTimeOffset evStart = ev.Start.SafeDateTime();
+            System.DateTimeOffset evEnd = ev.End.SafeDateTime();
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
-                ev.Start.DateTime = null;
-                ev.End.DateTime = null;
+                ev.Start.DateTimeDateTimeOffset = null;
+                ev.End.DateTimeDateTimeOffset = null;
                 if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
                     ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 }
@@ -876,21 +886,21 @@ namespace OutlookGoogleCalendarSync.Google {
                 //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
                 if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
                     sb.AppendLine("All-Day: true => false");
-                    ev.Start.DateTime = ai.Start;
-                    ev.End.DateTime = ai.End;
+                    ev.Start.DateTimeDateTimeOffset = ai.Start;
+                    ev.End.DateTimeDateTimeOffset = ai.End;
                     itemModified++;
                 }
                 ev.Start.Date = null;
                 ev.End.Date = null;
                 if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start, sb, ref itemModified)) {
-                    ev.Start.DateTime = ai.Start;
+                    ev.Start.DateTimeDateTimeOffset = ai.Start;
                 }
                 if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
-                    ev.End.DateTime = ai.End;
+                    ev.End.DateTimeDateTimeOffset = ai.End;
                 }
                 //If there was no change in the start/end time, make sure we still have dates populated
-                if (ev.Start.DateTime == null) ev.Start.DateTime = ai.Start;
-                if (ev.End.DateTime == null) ev.End.DateTime = ai.End;
+                if (ev.Start.DateTimeDateTimeOffset == null) ev.Start.DateTimeDateTimeOffset = ai.Start;
+                if (ev.End.DateTimeDateTimeOffset == null) ev.End.DateTimeDateTimeOffset = ai.End;
             }
 
             List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
@@ -942,7 +952,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
 
             //TimeZone
-            if (ev.Start.DateTime != null) {
+            if (ev.Start.DateTimeDateTimeOffset != null) {
                 String currentStartTZ = ev.Start.TimeZone;
                 String currentEndTZ = ev.End.TimeZone;
                 ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
@@ -1393,7 +1403,7 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 List<Event> duplicateCheck = google.Where(w => CustomProperty.Exists(w, CustomProperty.MetadataId.oEntryId)).ToList();
                 duplicateCheck = duplicateCheck.
-                    GroupBy(e => new { e.Created, oEntryId = CustomProperty.Get(e, CustomProperty.MetadataId.oEntryId) }).
+                    GroupBy(e => new { e.CreatedDateTimeOffset, oEntryId = CustomProperty.Get(e, CustomProperty.MetadataId.oEntryId) }).
                     Where(g => g.Count() > 1).
                     SelectMany(x => x).ToList();
                 if (duplicateCheck.Count() == 0) return;
@@ -1401,11 +1411,11 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Warn(duplicateCheck.Count() + " Events found with same creation date and Outlook EntryID.");
                 duplicateCheck.Sort((x, y) => (x.CreatedRaw + ":" + (x.Sequence ?? 0)).CompareTo(y.CreatedRaw + ":" + (y.Sequence ?? 0)));
                 //Skip the first one, the original 
-                System.DateTime? lastSeenDuplicateSet = null;
+                System.DateTimeOffset? lastSeenDuplicateSet = null;
                 for (int g = 0; g < duplicateCheck.Count(); g++) {
                     Event ev = duplicateCheck[g];
-                    if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.Created) {
-                        lastSeenDuplicateSet = ev.Created;
+                    if (lastSeenDuplicateSet == null || lastSeenDuplicateSet != ev.CreatedDateTimeOffset) {
+                        lastSeenDuplicateSet = ev.CreatedDateTimeOffset;
                         continue;
                     }
                     log.Info("Cleaning duplicate metadata from: " + GetEventSummary(ev));
@@ -1413,7 +1423,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     CustomProperty.RemoveAll(ref ev);
                     this.UpdateCalendarEntry_save(ref ev);
                     google.Add(ev);
-                    lastSeenDuplicateSet = ev.Created;
+                    lastSeenDuplicateSet = ev.CreatedDateTimeOffset;
                 }
             } catch (System.Exception ex) {
                 Ogcs.Exception.Analyse(ex);
@@ -1614,7 +1624,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (!CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) ||
-                        google[g].Updated > Sync.Engine.Instance.SyncStarted)
+                        google[g].UpdatedDateTimeOffset > Sync.Engine.Instance.SyncStarted)
                         google.Remove(google[g]);
                 }
             }
@@ -2068,20 +2078,20 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
                     signature += (ev.Summary ?? "[cancelled]");
-                    signature += ";" + ev.OriginalStartTime.SafeDateTime().ToPreciseString();
+                    signature += ";" + ev.OriginalStartTime.SafeDateTimeOffset().ToPreciseString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + ev.Start.SafeDateTime().ToPreciseString() + ";";
+                    signature += ";" + ev.Start.SafeDateTimeOffset().ToPreciseString() + ";";
                     if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += ev.End.SafeDateTime().ToPreciseString();
+                        signature += ev.End.SafeDateTimeOffset().ToPreciseString();
                     }
                 }
             } catch {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -2160,8 +2170,8 @@ namespace OutlookGoogleCalendarSync.Google {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append((ev.Start == null ? "null" : (string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)) + ",");
-            csv.Append((ev.End == null ? "null" : (string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)) + ",");
+            csv.Append((ev.Start == null ? "null" : (string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)) + ",");
+            csv.Append((ev.End == null ? "null" : (string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");
@@ -2254,9 +2264,9 @@ namespace OutlookGoogleCalendarSync.Google {
             eventSummaryAnonymised = null;
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
-                    if (ev.Start.DateTime != null) {
-                        System.DateTime gDate = (System.DateTime)ev.Start.DateTime;
-                        eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
+                    if (ev.Start.DateTimeDateTimeOffset != null) {
+                        System.DateTimeOffset gDate = (System.DateTimeOffset)ev.Start.DateTimeDateTimeOffset;
+                        eventSummary += gDate.DateTime.ToShortDateString() + " " + gDate.DateTime.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
                     if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
@@ -2270,8 +2280,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
                     try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTime.ToString() : ev.Start.Date)); } catch { }
-                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTime.ToString() : ev.End.Date)); } catch { }
+                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
+                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
                     try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                     try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 }
