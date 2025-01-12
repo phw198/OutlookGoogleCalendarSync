@@ -1,7 +1,10 @@
 [CmdletBinding()]
 param(
-	[String]$BuildType
+	[String]$BuildType,
+	[String]$TargetName
 )
+
+Write-Host "TargetName: $TargetName"
 
 function getCRC($data) {
 	[String]$regex = "^CRC32  for data:\s+(\w+)$"
@@ -21,17 +24,17 @@ if ($BuildType -eq "Release") {
         Write-Host "Create a file containing the PIN in $pinFile"
     }
 
-    & '..\..\..\..\src\packages\squirrel.windows.1.9.0\tools\signtool.exe' sign /a /n "Open Source Developer, Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v OutlookGoogleCalendarSync.exe
+    & '..\..\..\..\src\packages\squirrel.windows.1.9.0\tools\signtool.exe' sign /a /n "Open Source Developer, Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v "$($TargetName).exe"
     
-	$version = (Get-Item OutlookGoogleCalendarSync.exe).VersionInfo.FileVersion
+	$version = (Get-Item "$($TargetName).exe").VersionInfo.FileVersion
 	if ($version -notmatch "\.0$") {
 		$zipFile = "v$version.zip"
-		& 'C:\Program Files\7-Zip\7z.exe' a $zipFile OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.pdb
+		& 'C:\Program Files\7-Zip\7z.exe' a $zipFile "$($TargetName).exe" "$($TargetName).pdb"
 		Copy-Item $zipFile Z:\
 
 		$output = & 'C:\Program Files\7-Zip\7z.exe' h $zipFile
 		$zipCRC = getCRC $output
-		$output = & 'C:\Program Files\7-Zip\7z.exe' t $zipFile -scrc OutlookGoogleCalendarSync.exe
+		$output = & 'C:\Program Files\7-Zip\7z.exe' t $zipFile -scrc "$($TargetName).exe"
 		$exeCRC = getCRC $output
 
 		Write-Host "Zip = ``$zipCRC`` Exe = ``$exeCrc``"
