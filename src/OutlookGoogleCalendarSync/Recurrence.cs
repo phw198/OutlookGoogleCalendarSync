@@ -428,7 +428,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
-        /// Get occurrence that originally started on a particular date
+        /// Search cached exceptions for occurrence that originally started on a particular date
         /// </summary>
         /// <param name="recurringEventId">The recurring series to search within</param>
         /// <param name="originalInstanceDate">The date to search for</param>
@@ -462,29 +462,27 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             if (dirtyCache) {
-                log.Debug("Google exception cache not being used. Retrieving all recurring instances afresh...");
+                log.Debug("Google exception cache not being used. Retrieving all recurring exceptions afresh...");
                 //Remove dirty items
                 googleExceptions.RemoveAll(ev => ev.RecurringEventId == gRecurringEventID);
-            } else {
-                foreach (Event gExcp in googleExceptions) {
-                    if (gExcp.RecurringEventId == gRecurringEventID) {
-                        if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
-                            && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
-                            ) ||
-                            (oIsDeleted == DeletionState.Deleted &&
-                            oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime().Date
-                            )) {
-                            return gExcp;
-                        }
+                Google.Calendar.Instance.GetCalendarEntriesInRange(gRecurringEventID);
+            }
+            foreach (Event gExcp in googleExceptions) {
+                if (gExcp.RecurringEventId == gRecurringEventID) {
+                    if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
+                        && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
+                        ) ||
+                        (oIsDeleted == DeletionState.Deleted &&
+                        oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime().Date
+                        )) {
+                        return gExcp;
                     }
                 }
-                log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
             }
+            log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
             List<Event> gInstances = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID);
             if (gInstances == null) return null;
 
-            //Add any new exceptions to local cache
-            googleExceptions = googleExceptions.Union(gInstances.Where(ev => !String.IsNullOrEmpty(ev.RecurringEventId))).ToList();
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
                     if (((oIsDeleted == DeletionState.NotDeleted || (oIsDeleted == DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */

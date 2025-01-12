@@ -373,12 +373,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                             ex.Data["OGCS"] += " Please try again.";
                         throw;
                     }
-                    Recurrence.Instance.SeparateGoogleExceptions(googleEntries);
-                    if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0) {
-                        console.Update(googleEntries.Count + " Google calendar entries found.");
-                        console.Update(Recurrence.Instance.GoogleExceptions.Count + " are exceptions to recurring events.", Console.Markup.sectionEnd, newLine: false);
-                    } else
-                        console.Update(googleEntries.Count + " Google calendar entries found.", Console.Markup.sectionEnd, newLine: false);
+                    String consoleOutput = googleEntries.Count + " Google calendar entries found.";
+                    if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0)
+                        consoleOutput += "<br/>" + Recurrence.Instance.GoogleExceptions.Count + " additional exceptions to recurring events.";
+                    console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
 
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     #endregion
