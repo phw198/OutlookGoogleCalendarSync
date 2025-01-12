@@ -350,7 +350,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 List<GcalData.Event> evExceptions = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
                 if (evExceptions.Count == 0) return;
 
-                log.Fine($"{evExceptions.Count} Google recurrence exceptions within sync range to be compared.");
+                log.Debug($"{evExceptions.Count} Google recurrence exceptions within sync range to be compared.");
+
+                List<GcalData.Event> gCancelledExcps = evExceptions.Where(exp => exp.Status == "cancelled").ToList();
+                log.Fine($"{gCancelledExcps.Count} Google cancelled occurrences.");
+                log.Fine($"{evExceptions.Count - gCancelledExcps.Count} Google modified exceptions.");
+
                 List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id);
                 if ((oRecurrences?.Count ?? 0) == 0) return;
 

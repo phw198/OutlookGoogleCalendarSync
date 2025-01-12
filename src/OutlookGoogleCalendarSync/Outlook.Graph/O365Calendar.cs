@@ -1294,7 +1294,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.Fine("GetSummary - not all day event");
                         eventSummary += ai.Start.SafeDateTime().ToShortDateString() + " " + ai.Start.SafeDateTime().ToShortTimeString();
                     }
-                    eventSummary += " " + (ai.Recurrence != null ? "(R) " : "") + "=> ";
+                    eventSummary += " " + (ai.Recurrence != null ? "(R) " : (!string.IsNullOrEmpty(ai.SeriesMasterId) ? "(R1) " : "")) + "=> ";
 
                     if (Settings.Instance.AnonymiseLogs)
                         eventSummaryAnonymised = eventSummary + '"' + Ogcs.Google.Authenticator.GetMd5(ai.Subject, silent: true) + '"' + (onlyIfNotVerbose ? "<br/>" : "");
