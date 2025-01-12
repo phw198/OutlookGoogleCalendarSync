@@ -647,22 +647,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 }
             }
 
-            //if (ai.RecurrenceState == OlRecurrenceState.olApptMaster || ai.RecurrenceState == OlRecurrenceState.olApptException)
-            //    log.Debug("Processing recurring " + (ai.RecurrenceState == OlRecurrenceState.olApptMaster ? "master" : "exception") + " appointment.");
-
             String evSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary);
             log.Debug("Processing >> " + (anonSummary ?? evSummary));
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(evSummary);
-
-            /*if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) {
-                if (ai.AllDayEvent != ev.AllDayEvent()) {
-                    sb.AppendLine("All-Day: " + ai.AllDayEvent + " => " + ev.AllDayEvent());
-                    ai.AllDayEvent = ev.AllDayEvent();
-                    itemModified++;
-                }
-            }*/
 
             #region Start/End & TimeZone
             //Microsoft always convert Start/End.TimeZone to UTC and store the actual timezone in OriginalStart/EndTimeZone

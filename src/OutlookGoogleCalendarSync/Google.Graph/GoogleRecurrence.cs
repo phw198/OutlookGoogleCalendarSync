@@ -387,10 +387,14 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         public static void UpdateGoogleExceptions(Event aiMaster, GcalData.Event ev, Boolean dirtyCache) {
             if (aiMaster.Type != Microsoft.Graph.EventType.SeriesMaster) return;
 
-            List<Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(aiMaster);
             List<System.DateTime> cancelledDates;
             Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(aiMaster.Id, out cancelledDates);
             cancelledDates ??= new();
+            log.Fine($"{cancelledDates.Count} cancelled occurrences in range.");
+            
+            List<Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(aiMaster);
+            log.Fine($"{aiExcps.Count} modified exceptions in range.");
+            
             if (aiExcps.Count + cancelledDates.Count == 0) return;
 
             log.Debug(Outlook.Graph.Calendar.GetEventSummary(aiMaster));

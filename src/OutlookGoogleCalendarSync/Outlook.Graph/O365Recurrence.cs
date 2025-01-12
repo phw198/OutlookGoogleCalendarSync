@@ -348,18 +348,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             try {
                 List<GcalData.Event> evExceptions = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
-                log.Fine($"{evExceptions.Count} Google recurrence exceptions with sync range.");
-                if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) {
-                    System.DateTime evMasterLastModified = CustomProperty.GetOGCSlastModified(ai);
-                    evExceptions = evExceptions.Where(exp => exp.Updated > evMasterLastModified).ToList();
-                }
                 if (evExceptions.Count == 0) return;
 
-                log.Fine($"{evExceptions.Count} Google recurrence exceptions to be compared.");
+                log.Fine($"{evExceptions.Count} Google recurrence exceptions within sync range to be compared.");
                 List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id);
                 if ((oRecurrences?.Count ?? 0) == 0) return;
 
-                Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
                 foreach (GcalData.Event gExcp in evExceptions) {
                     System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
                     System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
@@ -369,8 +363,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
-                                log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
-
+                                if (Calendar.Instance.CancelledOccurrences[ai.Id]?.Contains(gExcpOrigDate.Date) ?? false)
+                                    log.Fine($"Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")} already deleted.");
+                                else
+                                    log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
                             } else {
                                 log.Warn("Unable to find Outlook exception for " + gExcpCurrDate);
                                 log.Warn("Google is NOT deleted though - a mismatch has occurred somehow!");
@@ -416,15 +412,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         ex.Analyse($"Failed to process modified Google occurrence on {gExcpOrigDate} for new Outlook series.");
                     }
                 }
-
-                log.Debug("Updating the last modified date of the series master.");
-                CustomProperty.SetOGCSlastModified(ref ai);
-                Calendar.Instance.UpdateCalendarEntry_save(ref ai);
-
             } catch (System.Exception ex2) {
                 ex2.Analyse("Failed to process modified Google occurrences on new Outlook series.");
             }
-            Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
         }
         #endregion
     }
