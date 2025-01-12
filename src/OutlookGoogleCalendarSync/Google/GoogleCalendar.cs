@@ -2194,8 +2194,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
-                    if ((ev.Recurrence != null && ev.RecurringEventId == null))
+                    if (ev.Recurrence != null)
                         eventSummary += " (R)";
+                    else if (ev.RecurringEventId != null)
+                        eventSummary += " (R1)";
 
                     if (Settings.Instance.AnonymiseLogs)
                         eventSummaryAnonymised = eventSummary + " => \"" + Authenticator.GetMd5(ev.Summary, silent: true) + "\"" + (onlyIfNotVerbose ? "<br/>" : "");

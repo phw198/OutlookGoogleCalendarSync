@@ -108,6 +108,9 @@
 .em-repeat {
   background-image: url('emoji/repeat.png');
 }
+.em-repeat-one {
+  background-image: url('emoji/repeat_one.png');
+}
 .em-warning {
   background-image: url('emoji/warning.png');
 }
