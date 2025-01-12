@@ -299,6 +299,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 lr.TimeMin = from;
                 lr.TimeMax = to;
+                lr.TimeZone = "UTC";
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
