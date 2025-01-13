@@ -332,52 +332,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #endregion
 
                     #region Read Google items
-                    console.Update($"Scanning Google calendar '{Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}'...");
-                    try {
-                        Ogcs.Google.Calendar.Instance.GetSettings();
-                        googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
-                    } catch (AggregateException agex) {
-                        agex.AnalyseAggregate();
-                    } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
-                        ex.AnalyseTokenResponse(false);
-                        return SyncResult.Fail;
-                    } catch (System.Net.Http.HttpRequestException ex) {
-                        if (ex.InnerException != null && ex.InnerException is System.Net.WebException && ex.InnerException.GetErrorCode() == "0x80131509") {
-                            ex = Ogcs.Exception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
-                        }
-                        Ogcs.Exception.Analyse(ex);
-                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
-                        throw;
-                    } catch (System.ApplicationException ex) {
-                        if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
-                            (ex.Message.Contains("daily Calendar quota has been exhausted") || ex.InnerException.GetErrorCode() == "0x80131500")) {
-                            Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
-                            DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
-                            String tryAfter = "08:00 GMT.";
-                            if (newQuota < DateTime.UtcNow) {
-                                newQuota = newQuota.AddDays(1);
-                                tryAfter = newQuota.ToLocalTime().ToShortTimeString() + " tomorrow.";
-                            } else
-                                tryAfter = newQuota.ToLocalTime().ToShortTimeString() + ".";
-
-                            //Already rescheduled to run again once new quota available, so just set to retry.
-                            ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar" +
-                                (this.Profile.SyncInterval == 0 ? ". Please try again after " + tryAfter : ", but OGCS is all set to automatically try again after " + tryAfter));
-                            Ogcs.Exception.LogAsFail(ref ex);
-                        }
-                        throw;
-                    } catch (System.Exception ex) {
-                        Ogcs.Exception.Analyse(ex);
-                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
-                        if (ex.GetErrorCode() == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
-                            ex.Data["OGCS"] += " Please try again.";
-                        throw;
-                    }
-                    String consoleOutput = googleEntries.Count + " Google calendar entries found.";
-                    if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0)
-                        consoleOutput += "<br/>" + Google.Recurrence.GoogleExceptions.Count + " additional exceptions to recurring events.";
-                    console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
-
+                    SyncResult gotItems = ReadGoogleItems(ref googleEntries);
+                    if (gotItems != SyncResult.OK) return gotItems;
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     #endregion
 
@@ -552,6 +508,57 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
                     }
                 }
+            }
+
+            public SyncResult ReadGoogleItems(ref List<Event> googleEntries) {
+                Console console = Forms.Main.Instance.Console;
+                console.Update($"Scanning Google calendar '{Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}'...");
+                try {
+                    Ogcs.Google.Calendar.Instance.GetSettings();
+                    googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
+                } catch (AggregateException agex) {
+                    agex.AnalyseAggregate();
+                } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
+                    ex.AnalyseTokenResponse(false);
+                    return SyncResult.Fail;
+                } catch (System.Net.Http.HttpRequestException ex) {
+                    if (ex.InnerException != null && ex.InnerException is System.Net.WebException && ex.InnerException.GetErrorCode() == "0x80131509") {
+                        ex = Ogcs.Exception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
+                    }
+                    Ogcs.Exception.Analyse(ex);
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
+                    throw;
+                } catch (System.ApplicationException ex) {
+                    if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
+                        (ex.Message.Contains("daily Calendar quota has been exhausted") || ex.InnerException.GetErrorCode() == "0x80131500")) {
+                        Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
+                        DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
+                        String tryAfter = "08:00 GMT.";
+                        if (newQuota < DateTime.UtcNow) {
+                            newQuota = newQuota.AddDays(1);
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + " tomorrow.";
+                        } else
+                            tryAfter = newQuota.ToLocalTime().ToShortTimeString() + ".";
+
+                        //Already rescheduled to run again once new quota available, so just set to retry.
+                        ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar" +
+                            (this.Profile.SyncInterval == 0 ? ". Please try again after " + tryAfter : ", but OGCS is all set to automatically try again after " + tryAfter));
+                        Ogcs.Exception.LogAsFail(ref ex);
+                    }
+                    throw;
+                } catch (System.Exception ex) {
+                    Ogcs.Exception.Analyse(ex);
+                    ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
+                    if (ex.GetErrorCode() == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
+                        ex.Data["OGCS"] += " Please try again.";
+                    throw;
+                }
+                String consoleOutput = googleEntries.Count + " Google calendar entries found.";
+                if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0)
+                    consoleOutput += "<br/>" + Google.Recurrence.GoogleExceptions.Count + " additional exceptions to recurring events.";
+                console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
+
+                return SyncResult.OK;
             }
 
             private Boolean outlookToGoogle(List<AppointmentItem> outlookEntries, List<Event> googleEntries, ref String bubbleText) {
