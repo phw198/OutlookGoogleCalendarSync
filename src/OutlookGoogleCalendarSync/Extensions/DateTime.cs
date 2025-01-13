@@ -2,6 +2,40 @@
 using System;
 
 namespace OutlookGoogleCalendarSync.Extensions {
+    public class OgcsDateTime {
+        private System.DateTime baseDateTime;
+        private Boolean dateOnly;
+        
+        /// <summary>
+        /// Extends System.DateTime with date/time precision.
+        /// Helps to differentiate a date vs a midnight time.
+        /// </summary>
+        /// <param name="baseDateTime">The System.DateTime</param>
+        /// <param name="dateOnly">Whether the time element should be ignored</param>
+        public OgcsDateTime(System.DateTime baseDateTime, Boolean dateOnly = false) {
+            this.baseDateTime = baseDateTime;
+            this.dateOnly = dateOnly;
+        }
+
+        public override string ToString() {
+            if (this.dateOnly)
+                return this.baseDateTime.ToShortDateString();
+            else
+                return this.baseDateTime.ToString("g");
+        }
+
+        public override bool Equals(Object obj) {
+            if (obj is OgcsDateTime)
+                return this.baseDateTime == (obj as OgcsDateTime).baseDateTime;
+            else
+                return false;
+        }
+
+        public override int GetHashCode() {
+            return this.baseDateTime.GetHashCode() + this.dateOnly.GetHashCode();
+        }
+    }
+
     public static class DateTime {
         /// <summary>
         /// Returns the DateTime with time and GMT offset.

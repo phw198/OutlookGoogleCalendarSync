@@ -186,7 +186,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     while (backoff < BackoffLimit) {
                         try {
                             request = ir.Execute();
-                            log.Debug("Page " + pageNum + " received.");
+                            log.Fine("Page " + pageNum + " received.");
                             break;
                         } catch (global::Google.GoogleApiException ex) {
                             switch (HandleAPIlimits(ref ex, null)) {
@@ -218,7 +218,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
-                log.Fine(request.Items.Count + " recurring event instances found.");
+                log.Debug(request.Items.Count + " recurring event instances found.");
                 return result;
 
             } catch (System.Exception ex) {
@@ -325,7 +325,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < BackoffLimit) {
                     try {
                         request = lr.Execute();
-                        log.Debug("Page " + pageNum + " received.");
+                        log.Fine("Page " + pageNum + " received.");
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         switch (HandleAPIlimits(ref ex, null)) {
@@ -360,6 +360,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             } while (pageToken != null);
 
+            log.Fine(result.Count + " calendar items exist.");
+
             //Remove cancelled non-recurring Events - don't know how these exist, but some users have them!
             List<Event> cancelled = result.Where(ev =>
                 ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
@@ -369,7 +371,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(cancelled).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from && ev.Recurrence == null)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -408,9 +410,9 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            Recurrence.Instance.SeparateGoogleExceptions(result);
+            Recurrence.SeparateGoogleExceptions(result);
 
-            log.Fine("Filtered down to " + result.Count);
+            log.Debug("Filtered down to " + result.Count);
             return result;
         }
 
@@ -591,7 +593,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
-                if (ai.IsRecurring && Recurrence.HasExceptions(ai) && createdEvent != null) {
+                if (ai.IsRecurring && Outlook.Recurrence.HasExceptions(ai) && createdEvent != null) {
                     Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
                     Recurrence.CreateGoogleExceptions(ai, createdEvent.Id);
                     Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
@@ -608,7 +610,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             Event ev = new Event();
 
-            ev.Recurrence = Recurrence.Instance.BuildGooglePattern(ai, ev);
+            ev.Recurrence = Recurrence.BuildGooglePattern(ai, ev);
             ev.Start = new EventDateTime();
             ev.End = new EventDateTime();
 
@@ -866,90 +868,31 @@ namespace OutlookGoogleCalendarSync.Google {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine(aiSummary);
 
+            #region Date/Time & Time Zone
             //Handle an event's all-day attribute being toggled
-            System.DateTimeOffset evStart = ev.Start.SafeDateTime();
-            System.DateTimeOffset evEnd = ev.End.SafeDateTime();
+            Boolean evAllDay = ev.AllDayEvent();
+            Extensions.OgcsDateTime evStart = new OgcsDateTime(ev.Start.SafeDateTime(), evAllDay);
+            Extensions.OgcsDateTime evEnd = new OgcsDateTime(ev.End.SafeDateTime(), evAllDay);
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
+                ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                ev.End.Date = ai.End.ToString("yyyy-MM-dd");
                 ev.Start.DateTimeDateTimeOffset = null;
                 ev.End.DateTimeDateTimeOffset = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start.Date, sb, ref itemModified)) {
-                    ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End.Date, sb, ref itemModified)) {
-                    ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-                }
-                //If there was no change in the start/end time, make sure we still have dates populated
-                if (ev.Start.Date == null) ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                if (ev.End.Date == null) ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
+                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new Extensions.OgcsDateTime(ai.Start, true), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new Extensions.OgcsDateTime(ai.End, true), sb, ref itemModified);
             } else {
-                //Handle: Google = all-day; Outlook = not all day, but midnight values (so effectively all day!)
-                if (ev.AllDayEvent() && evStart == ai.Start && evEnd == ai.End) {
-                    sb.AppendLine("All-Day: true => false");
-                    ev.Start.DateTimeDateTimeOffset = ai.Start;
-                    ev.End.DateTimeDateTimeOffset = ai.End;
-                    itemModified++;
-                }
                 ev.Start.Date = null;
                 ev.End.Date = null;
-                if (Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, ai.Start, sb, ref itemModified)) {
-                    ev.Start.DateTimeDateTimeOffset = ai.Start;
-                }
-                if (Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, ai.End, sb, ref itemModified)) {
-                    ev.End.DateTimeDateTimeOffset = ai.End;
-                }
-                //If there was no change in the start/end time, make sure we still have dates populated
-                if (ev.Start.DateTimeDateTimeOffset == null) ev.Start.DateTimeDateTimeOffset = ai.Start;
-                if (ev.End.DateTimeDateTimeOffset == null) ev.End.DateTimeDateTimeOffset = ai.End;
+                ev.Start.DateTimeDateTimeOffset = ai.Start;
+                ev.End.DateTimeDateTimeOffset = ai.End;
+                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
+                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new Extensions.OgcsDateTime(ai.Start, false), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new Extensions.OgcsDateTime(ai.End, false), sb, ref itemModified);
             }
 
-            List<String> oRrules = Recurrence.Instance.BuildGooglePattern(ai, ev);
-            if (ev.Recurrence != null) {
-                for (int r = 0; r < ev.Recurrence.Count; r++) {
-                    String rrule = ev.Recurrence[r];
-                    if (rrule.StartsWith("RRULE:")) {
-                        log.Fine("Google recurrence = " + rrule);
-                        if (oRrules != null) {
-                            String[] gRrule_bits = rrule.TrimStart("RRULE:".ToCharArray()).Split(';');
-                            String[] oRrule_bits = oRrules.First().TrimStart("RRULE:".ToCharArray()).Split(';');
-                            if (gRrule_bits.Count() != oRrule_bits.Count()) {
-                                if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                    ev.Recurrence[r] = oRrules.First();
-                                    if (gRrule_bits.Contains("FREQ=YEARLY") && gRrule_bits.Contains("INTERVAL=1")) {
-                                        //Some applications can put in superflous yearly interval, which when removed does not save, resulting in repeated "updates"
-                                        //Workaround is to convert to 12 monthly; subquent sync would then revert back to yearly without unnecessary interval
-                                        ev.Recurrence[r] = ev.Recurrence[r].Replace("YEARLY", "MONTHLY") + ";INTERVAL=12";
-                                    }
-                                    break;
-                                }
-                            }
-                            foreach (String oRrule_bit in oRrule_bits) {
-                                if (!rrule.Contains(oRrule_bit)) {
-                                    if (Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, oRrules.First(), sb, ref itemModified)) {
-                                        ev.Recurrence[r] = oRrules.First();
-                                        break;
-                                    }
-                                }
-                            }
-                        } else {
-                            log.Debug("Converting to non-recurring event.");
-                            Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, rrule, null, sb, ref itemModified);
-                            ev.Recurrence[r] = null;
-                        }
-                        break;
-                    }
-                }
-            } else {
-                if (oRrules != null && ev.RecurringEventId == null) {
-                    if (!(ev.Creator.Self ?? (ev.Creator.Email == Settings.Instance.GaccountEmail))) {
-                        log.Warn("Cannot convert Event organised by another to a recurring series.");
-                    } else {
-                        log.Debug("Converting to recurring event.");
-                        Sync.Engine.CompareAttribute("Recurrence", Sync.Direction.OutlookToGoogle, null, oRrules.First(), sb, ref itemModified);
-                        ev.Recurrence = oRrules;
-                    }
-                }
-            }
+            List<String> oRrules = Recurrence.BuildGooglePattern(ai, ev);
+            Recurrence.CompareGooglePattern(oRrules, ev, sb, ref itemModified);
 
             //TimeZone
             if (ev.Start.DateTimeDateTimeOffset != null) {
@@ -963,6 +906,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, currentStartTZ, ev.Start.TimeZone, sb, ref itemModified);
                 Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, currentEndTZ, ev.End.TimeZone, sb, ref itemModified);
             }
+            #endregion
 
             String subjectObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, ev.Summary, Sync.Direction.OutlookToGoogle);
             if (Sync.Engine.CompareAttribute("Subject", Sync.Direction.OutlookToGoogle, ev.Summary, subjectObfuscated, sb, ref itemModified)) {
@@ -2269,8 +2213,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventSummary += gDate.DateTime.ToShortDateString() + " " + gDate.DateTime.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
-                    if ((ev.Recurrence != null && ev.RecurringEventId == null) || ev.RecurringEventId != null)
+                    if (ev.Recurrence != null)
                         eventSummary += " (R)";
+                    else if (ev.RecurringEventId != null)
+                        eventSummary += " (R1)";
 
                     if (Settings.Instance.AnonymiseLogs)
                         eventSummaryAnonymised = eventSummary + " => \"" + Authenticator.GetMd5(ev.Summary, silent: true) + "\"" + (onlyIfNotVerbose ? "<br/>" : "");

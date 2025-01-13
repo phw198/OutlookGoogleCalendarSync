@@ -374,8 +374,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         throw;
                     }
                     String consoleOutput = googleEntries.Count + " Google calendar entries found.";
-                    if (Recurrence.Instance.GoogleExceptions != null && Recurrence.Instance.GoogleExceptions.Count > 0)
-                        consoleOutput += "<br/>" + Recurrence.Instance.GoogleExceptions.Count + " additional exceptions to recurring events.";
+                    if (Google.Recurrence.GoogleExceptions != null && Google.Recurrence.GoogleExceptions.Count > 0)
+                        consoleOutput += "<br/>" + Google.Recurrence.GoogleExceptions.Count + " additional exceptions to recurring events.";
                     console.Update(consoleOutput, Console.Markup.sectionEnd, newLine: false);
 
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
@@ -464,7 +464,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     log.Fine("Found it to be " + (monthInSyncRange ? "inside" : "outside") + " sync range.");
                                     if (!monthInSyncRange) { outlookEntries.Remove(ai); log.Fine("Removed."); continue; }
                                 }
-                                Event masterEv = Recurrence.Instance.GetGoogleMasterEvent(ai);
+                                Event masterEv = Google.Recurrence.GetGoogleMasterEvent(ai);
                                 if (masterEv != null && masterEv.Status != "cancelled") {
                                     Event cachedEv = googleEntries.Find(x => x.Id == masterEv.Id);
                                     if (cachedEv == null) {
@@ -534,6 +534,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         success = googleToOutlook(googleEntries, outlookEntries, ref bubbleText);
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     }
+                    if (!success) return SyncResult.Fail;
                     if (bubbleText != "") {
                         log.Info(bubbleText.Replace("\r\n", ". "));
                         System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");

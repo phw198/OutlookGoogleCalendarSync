@@ -367,6 +367,7 @@
     <Compile Include="Google\EventColour.cs" />
     <Compile Include="Google\GMeet.cs" />
     <Compile Include="Google\GoogleCalendar.cs" />
+    <Compile Include="Google\GoogleRecurrence.cs" />
     <Compile Include="Outlook.Factory\OutlookFactory.cs" />
     <Compile Include="Outlook.Factory\OutlookInterface.cs" />
     <Compile Include="Outlook.Factory\OutlookNew.cs" />
@@ -375,6 +376,7 @@
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
     <Compile Include="Outlook\GMeet.cs" />
+    <Compile Include="Outlook\OutlookRecurrence.cs" />
     <Compile Include="Outlook\OutlookCalendar.cs" />
     <Compile Include="Outlook\OutlookCategories.cs" />
     <Compile Include="Outlook\OutlookErrors.cs" />
@@ -398,7 +400,6 @@
     <Compile Include="TimezoneDB.cs" />
     <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
-    <Compile Include="Recurrence.cs" />
     <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
@@ -672,6 +673,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Console\emoji\repeat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Console\emoji\repeat_one.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Console\emoji\warning.png">
