@@ -239,7 +239,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     try {
                         request = gr.Execute();
                         EventsResource.ListRequest.EventTypesEnum eventType;
-                        if (Enum.TryParse(request.EventType.Replace("__", ""), true, out eventType)) {
+                        if (Enum.TryParse(request.EventType.Replace("default", "Default__"), true, out eventType)) {
                             if (!permittedEventTypes.Contains(eventType)) {
                                 log.Warn($"Non-consumer version of EventType '{request.EventType}' found - excluding.");
                                 return null;
