@@ -36,7 +36,7 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
-## v2.11.1.0 - Alpha
+## v2.11.2.0 - Alpha
 
 :high_brightness: **Enhancements**
 - Sync Engine
