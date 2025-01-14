@@ -40,6 +40,37 @@ p {
 
 :high_brightness: **Enhancements**
 - Sync Engine
+    - Improved monthly recurrence on day >28th
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - New emoji for recurring series exception
+
+:beetle: **Bugfix**
+- Application
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include all-day series master ending on sync window start date
+    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+- Sync Engine
+    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
+## v2.11.1.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Sync Engine
     - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
         - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
 
