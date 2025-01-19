@@ -18,7 +18,7 @@ function getCRC($data) {
 
 if ($BuildType -eq "Release") {
 	# Clean up third-party documentation and debug files
-	Get-ChildItem -Name -Include "*.xml", "*.pdb", "*.application", "*.exe.manifest" -Exclude "logger.xml", "OutlookGoogleCalendarSync.pdb" | Remove-Item;
+	Get-ChildItem -Name -Include "*.xml", "*.pdb", "*.application", "*.exe.manifest" -Exclude "logger.xml", "$($TargetName).pdb" | Remove-Item;
 
     $pinFile = "C:\temp\pin.txt"
     if (Test-Path $pinFile) {

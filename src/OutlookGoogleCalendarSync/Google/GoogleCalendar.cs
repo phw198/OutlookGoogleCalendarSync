@@ -65,10 +65,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         _ = ColourPalette;
                     } else {
                         if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException();
+                            throw new OperationCanceledException().LogAsFail();
                         else if (Authenticator != null && !Authenticator.SufficientPermissions) {
                             throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
-                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.");
+                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.").LogAsFail();
                         } else {
                             instance = null;
                             throw new ApplicationException("Google handshake failed.");
@@ -314,7 +314,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 lr.TimeMinDateTimeOffset = from;
                 lr.TimeMaxDateTimeOffset = to;
-                lr.TimeZone = "UTC";
+                //lr.TimeZone = "UTC";
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
@@ -872,7 +872,7 @@ namespace OutlookGoogleCalendarSync.Google {
             //Handle an event's all-day attribute being toggled
             Boolean evAllDay = ev.AllDayEvent();
             Extensions.OgcsDateTime evStart = new OgcsDateTime(ev.Start.SafeDateTime(), evAllDay);
-            Extensions.OgcsDateTime evEnd = new OgcsDateTime(ev.End.SafeDateTime(), evAllDay);
+            Extensions.OgcsDateTime evEnd = new OgcsDateTime(ev.End.SafeDateTime(), evAllDay); 
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.ToString("yyyy-MM-dd");
@@ -2034,8 +2034,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -2114,8 +2114,8 @@ namespace OutlookGoogleCalendarSync.Google {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append((ev.Start == null ? "null" : (string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)) + ",");
-            csv.Append((ev.End == null ? "null" : (string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)) + ",");
+            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTime().ToString()) + ",");
+            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTime().ToString()) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");
@@ -2226,8 +2226,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
                     try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
-                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
+                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
+                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
                     try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                     try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 }
