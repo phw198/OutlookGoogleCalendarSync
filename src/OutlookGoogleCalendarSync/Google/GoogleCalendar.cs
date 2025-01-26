@@ -169,8 +169,12 @@ namespace OutlookGoogleCalendarSync.Google {
             this.CalendarList = result;
         }
 
+        List<Event> instancesFromMasterSeries = null;
+
         /// <summary>Retrieve all instances for a recurring series.</summary>
-        public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
+        public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId, Boolean filterToSyncDates = false) {
+            if (filterToSyncDates && instancesFromMasterSeries?.FirstOrDefault().RecurringEventId == recurringEventId) return instancesFromMasterSeries;
+
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -179,8 +183,16 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 log.Debug("Retrieving all recurring event instances from Google for " + recurringEventId);
                 do {
-                    EventsResource.InstancesRequest ir = Service.Events.Instances(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, recurringEventId);
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+                    EventsResource.InstancesRequest ir = Service.Events.Instances(profile.UseGoogleCalendar.Id, recurringEventId);
                     ir.ShowDeleted = true;
+                    ir.TimeZone = "UTC";
+                    ir.MaxResults = 2500;
+                    if (filterToSyncDates) {
+                        ir.TimeMinDateTimeOffset = profile.SyncStart;
+                        ir.TimeMaxDateTimeOffset = profile.SyncEnd;
+                        ir.MaxResults = 730; //2 years of daily
+                    }
                     ir.PageToken = pageToken;
                     int backoff = 0;
                     while (backoff < BackoffLimit) {
@@ -218,14 +230,17 @@ namespace OutlookGoogleCalendarSync.Google {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
-                log.Debug(request.Items.Count + " recurring event instances found.");
-                return result;
+                log.Debug(result.Count + " recurring event instances found.");
+
+                if (!filterToSyncDates) return result; //Don't cache when creating a series
+                else instancesFromMasterSeries = result;
 
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", Ogcs.Exception.LogAsFail(ex));
                 ex.Analyse("recurringEventId: " + recurringEventId);
-                return null;
+                instancesFromMasterSeries = null;
             }
+            return instancesFromMasterSeries;
         }
 
         public Event GetCalendarEntry(String eventId) {
