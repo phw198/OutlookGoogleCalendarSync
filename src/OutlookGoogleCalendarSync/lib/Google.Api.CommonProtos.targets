@@ -1,0 +1,22 @@
+﻿<?xml version="1.0"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- This targets file allows the common protos, which are bundled in the NuGet package, to be included in Grpc.Tools compilation. -->
+  <!-- This saves the developer having to find and copy these files to the right location. -->
+  <PropertyGroup>
+    <!-- The path of the proto files. Content from the nupkg. -->
+    <GoogleApiCommonProtos_ProtosPath>$( [System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)../content/protos) )</GoogleApiCommonProtos_ProtosPath>
+  </PropertyGroup>
+
+  <!-- Run immediately before the Protobuf_BeforeCompile extension point. -->
+  <!-- Only include protos if project has set <IncludeGoogleApiCommonProtos> property to true. -->
+  <Target Name="GoogleApiCommonProtos_BeforeCompile"
+          BeforeTargets="Protobuf_BeforeCompile"
+          Condition=" '$(IncludeGoogleApiCommonProtos)' == 'true' ">
+    <PropertyGroup>
+      <!-- Add nupkg proto files by including path in Protobuf_StandardImportsPath. -->
+      <Protobuf_StandardImportsPath>$(Protobuf_StandardImportsPath);$(GoogleApiCommonProtos_ProtosPath)</Protobuf_StandardImportsPath>
+    </PropertyGroup>
+    <Message Text="Included proto files at $(GoogleApiCommonProtos_ProtosPath) in import path." Importance="high" />
+    <Message Text="Updated proto imports path: $(Protobuf_StandardImportsPath)" Importance="high" />
+  </Target>
+</Project>

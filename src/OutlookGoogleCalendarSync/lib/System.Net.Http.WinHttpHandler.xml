@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>System.Net.Http.WinHttpHandler</name>
+  </assembly>
+  <members>
+    <member name="T:System.Net.Http.CookieUsePolicy">
+      <summary>This enumeration allows control of HTTP cookies when communicating with the server.</summary>
+    </member>
+    <member name="F:System.Net.Http.CookieUsePolicy.IgnoreCookies">
+      <summary>This value indicates that no cookies are sent to the server by the client.</summary>
+    </member>
+    <member name="F:System.Net.Http.CookieUsePolicy.UseInternalCookieStoreOnly">
+      <summary>This value indicates that cookies are handled internally which optimizes performance. Accessing, adding and deleting cookies is not allowed when this value is used.</summary>
+    </member>
+    <member name="F:System.Net.Http.CookieUsePolicy.UseSpecifiedCookieContainer">
+      <summary>This value indicates that cookies are managed manually using a <see cref="T:System.Net.CookieContainer" /> type.</summary>
+    </member>
+    <member name="T:System.Net.Http.WindowsProxyUsePolicy">
+      <summary>This enumeration provides available options for the proxy settings used by an <see cref="T:System.Net.Http.HttpClient" /> when running on Windows.</summary>
+    </member>
+    <member name="F:System.Net.Http.WindowsProxyUsePolicy.DoNotUseProxy">
+      <summary>This value indicates that a proxy will not be used.</summary>
+    </member>
+    <member name="F:System.Net.Http.WindowsProxyUsePolicy.UseCustomProxy">
+      <summary>This value indicates that a custom proxy is used by specifying an object that implements the <see cref="T:System.Net.IWebProxy" /> interface.</summary>
+    </member>
+    <member name="F:System.Net.Http.WindowsProxyUsePolicy.UseWinHttpProxy">
+      <summary>This value indicates that the current proxy configuration of the WinHTTP API on the machine is used.</summary>
+    </member>
+    <member name="F:System.Net.Http.WindowsProxyUsePolicy.UseWinInetProxy">
+      <summary>This value indicates that the current proxy configuration of the WinINet API on the machine is used. The proxy settings can be configured using the Internet Explorer Options and supports WPAD and PAC files.</summary>
+    </member>
+    <member name="T:System.Net.Http.WinHttpHandler">
+      <summary>
+      Handles messages based on the WinHTTP interface of Windows. This class is intended for use in server environments.</summary>
+    </member>
+    <member name="M:System.Net.Http.WinHttpHandler.#ctor">
+      <summary>Initializes a new instance of the <see cref="T:System.Net.Http.WinHttpHandler" /> class.</summary>
+    </member>
+    <member name="M:System.Net.Http.WinHttpHandler.Dispose(System.Boolean)">
+      <summary>Releases the unmanaged resources used by the <see cref="T:System.Net.Http.WinHttpHandler" />, and optionally disposes of the managed resources.</summary>
+      <param name="disposing">
+        <see langword="true" /> to release both managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.</param>
+    </member>
+    <member name="M:System.Net.Http.WinHttpHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+      <summary>Sends an HTTP request as an asynchronous operation.</summary>
+      <param name="request">The HTTP request message to send.</param>
+      <param name="cancellationToken">The cancellation token.</param>
+      <returns>The task object representing the asynchronous operation.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.AutomaticDecompression">
+      <summary>Gets or sets the type of decompression method used by the handler for automatic decompression of the HTTP content response.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.AutomaticRedirection">
+      <summary>Gets or sets a value that indicates whether the handler should follow HTTP redirection responses.</summary>
+      <returns>
+        <see langword="true" /> to follow HTTP redirection responses; otherwise, <see langword="false" />. The default is <see langword="true" />.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.CheckCertificateRevocationList">
+      <summary>Gets or sets a value that indicates whether to check the revocation list of certificates during SSL certificate validation.</summary>
+      <returns>
+        <see langword="true" /> to check the revocation list of certificates during SSL certificate validation; otherwise, <see langword="false" />. The default is <see langword="false" />.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ClientCertificateOption">
+      <summary>Gets or sets a value that indicates if the certificate is automatically picked from the certificate store or if the caller is allowed to pass in a specific client certificate.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ClientCertificates">
+      <summary>Gets a collection of client authentication SSL certificates that are used for client authentication by the handler if the <see cref="P:System.Net.Http.WinHttpHandler.ClientCertificateOption" /> property is set to <see langword="Manual" />.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.CookieContainer">
+      <summary>Gets or sets the managed cookie container object. This property is only used when the <see cref="P:System.Net.Http.WinHttpHandler.CookieUsePolicy" /> property is set to UseSpecifiedCookieContainer. Otherwise, the <see cref="M:System.Net.Http.WinHttpHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)" /> method will throw an exception.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.CookieUsePolicy">
+      <summary>Gets or sets a value that indicates how cookies should be managed and used. Developers can choose to ignore cookies, allow the handler to automatically manage them or manually handle them using a <see cref="T:System.Net.CookieContainer" /> object.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.DefaultProxyCredentials">
+      <summary>Gets or sets the credentials used to authenticate the user to an authenticating proxy.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.EnableMultipleHttp2Connections">
+      <summary>Gets or sets a value that indicates whether additional HTTP/2 connections can be established to the same server when the maximum number of concurrent streams is reached on all existing connections.</summary>
+      <returns>
+        <see langword="true" /> if additional HTTP/2 connections are allowed to be created; otherwise, <see langword="false" />.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.MaxAutomaticRedirections">
+      <summary>Gets or sets the maximum number of allowed HTTP redirects.</summary>
+      <returns>The maximum number of allowed HTTP redirects.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.MaxConnectionsPerServer">
+      <summary>Gets or sets the maximum number of TCP connections allowed to a single server.</summary>
+      <returns>The maximum number of TCP connections allowed to a single server.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.MaxResponseDrainSize">
+      <summary>Gets or sets the maximum amount of data that can be drained from responses in bytes.</summary>
+      <returns>The maximum amount of data that can be drained from responses in bytes.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.MaxResponseHeadersLength">
+      <summary>Gets or sets the maximum size of the header portion from the server response in bytes.</summary>
+      <returns>The maximum size of the header portion from the server response in bytes.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.PreAuthenticate">
+      <summary>Gets or sets a value that indicates whether the handler sends an Authorization header with the request.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.Properties">
+      <summary>Gets a writable dictionary (that is, a map) of custom properties for the <see cref="T:System.Net.Http.HttpClient" /> requests. The dictionary is initialized empty; you can insert and query key-value pairs for your custom handlers and special processing.</summary>
+      <returns>A writable dictionary of custom properties.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.Proxy">
+      <summary>Gets or sets the custom proxy when the <see cref="P:System.Net.Http.WinHttpHandler.WindowsProxyUsePolicy" /> property is set to use a custom proxy.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ReceiveDataTimeout">
+      <summary>Gets or sets the timeout for receiving the data portion of a response from the server.</summary>
+      <returns>The timeout for receiving the data portion of a response from the server.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ReceiveHeadersTimeout">
+      <summary>Gets or sets the timeout for receiving the headers of a response from the server.</summary>
+      <returns>The timeout for receiving the headers of a response from the server.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.SendTimeout">
+      <summary>Gets or sets the timeout for sending a request.</summary>
+      <returns>The timeout for sending a request.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ServerCertificateValidationCallback">
+      <summary>Gets or sets a callback method to validate the server certificate. This callback is part of the SSL handshake.</summary>
+      <returns>The callback should return <see langword="true" /> if the server certificate is considered valid and the request should be sent. Otherwise, return <see langword="false" />.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.ServerCredentials">
+      <summary>Gets or sets the credentials to be used by the client to authenticate to the server.</summary>
+      <returns>The credentials to be used by the client to authenticate to the server.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.SslProtocols">
+      <summary>Gets or sets the collection of TLS/SSL protocols supported by the client.</summary>
+      <returns>The collection of TLS/SSL protocols supported by the client.</returns>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.TcpKeepAliveEnabled">
+      <summary>Gets or sets a value indicating whether TCP keep-alive is enabled.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.TcpKeepAliveInterval">
+      <summary>Gets or sets the TCP keep-alive interval.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.TcpKeepAliveTime">
+      <summary>Gets or sets the TCP keep-alive timeout.</summary>
+    </member>
+    <member name="P:System.Net.Http.WinHttpHandler.WindowsProxyUsePolicy">
+      <summary>Gets or sets the proxy setting. This property can be set to disable the proxy, use a custom proxy, or use the proxy settings of WinHTTP or WinInet on the machine.</summary>
+    </member>
+  </members>
+</doc>

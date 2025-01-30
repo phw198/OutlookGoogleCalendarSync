@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.10.6-alpha</version>
+    <version>2.11.2-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,23 +12,26 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.10.6?
+# What's New In v2.11.2?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- For one-way sync attribute overrides, also allow for newly created item only [[#1859](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1859)]
-- Backup corrupted settings file before reset [[#1867](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1867)]
-- Added description of what Profiles are [[#1872](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1872)]
-- Notify and redirect on `0x80040154` (class not registred / no client) to [#1888](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888).
-- Change log roller to daily, not file size
+- Sync Engine
+    - Improved monthly recurrence on day >28th
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - New emoji for recurring series exception
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Upgrade freezes; properly close old version [[#1861](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1861)]
-- Deselect read-only calendar when selected as a target/two-way [[#1877](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1877)]
-- Miscellaneous bugfixes
+- Application
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include all-day series master ending on sync window start date
+    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+- Sync Engine
+    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
     </releaseNotes>
-    <copyright>Copyright 2024</copyright>
+    <copyright>Copyright 2025</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>

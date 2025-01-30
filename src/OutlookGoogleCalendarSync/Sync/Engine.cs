@@ -257,11 +257,11 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             return false;
         }
-        public static Boolean CompareAttribute(String attrDesc, Direction fromTo, DateTime googleAttr, DateTime outlookAttr, StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareAttribute(String attrDesc, Direction fromTo, Extensions.OgcsDateTime googleAttr, Extensions.OgcsDateTime outlookAttr, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);
-            if (googleAttr != outlookAttr) {
+            if (!googleAttr.Equals(outlookAttr)) {
                 if (fromTo == Direction.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
                 } else {

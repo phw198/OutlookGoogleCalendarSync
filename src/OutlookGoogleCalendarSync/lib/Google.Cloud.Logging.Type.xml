@@ -78,7 +78,8 @@
         <member name="P:Google.Cloud.Logging.Type.HttpRequest.RemoteIp">
             <summary>
             The IP address (IPv4 or IPv6) of the client that issued the HTTP
-            request. Examples: `"192.168.1.1"`, `"FE80::0202:B3FF:FE1E:8329"`.
+            request. This field can include port information. Examples:
+            `"192.168.1.1"`, `"10.0.0.1:80"`, `"FE80::0202:B3FF:FE1E:8329"`.
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Type.HttpRequest.ServerIpFieldNumber">
@@ -87,7 +88,8 @@
         <member name="P:Google.Cloud.Logging.Type.HttpRequest.ServerIp">
             <summary>
             The IP address (IPv4 or IPv6) of the origin server that the request was
-            sent to.
+            sent to. This field can include port information. Examples:
+            `"192.168.1.1"`, `"10.0.0.1:80"`, `"FE80::0202:B3FF:FE1E:8329"`.
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Type.HttpRequest.RefererFieldNumber">
@@ -97,7 +99,7 @@
             <summary>
             The referer URL of the request, as defined in
             [HTTP/1.1 Header Field
-            Definitions](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
+            Definitions](https://datatracker.ietf.org/doc/html/rfc2616#section-14.36).
             </summary>
         </member>
         <member name="F:Google.Cloud.Logging.Type.HttpRequest.LatencyFieldNumber">
