@@ -319,7 +319,6 @@ namespace OutlookGoogleCalendarSync.Google {
                 lr.SingleEvents = false;
                 lr.EventTypesList = permittedEventTypes;
                 if (!string.IsNullOrEmpty(recurringId)) lr.ICalUID = recurringId + "@google.com";
-                if (!string.IsNullOrEmpty(recurringId)) lr.ICalUID = recurringId + "@google.com";
 
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
