@@ -378,7 +378,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if ((ev.Recurrence?.Count() ?? 0) == 0) continue;
                 Dictionary<String, String> rules = Recurrence.ExplodeRrule(ev.Recurrence);
                 if (rules.ContainsKey("UNTIL")) {
-                    System.DateTime endDate = Recurrence.GoogleRecurrenceEndDate(rules["UNTIL"], ev.End.TimeZone);
+                    System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
                     if (endDate < to)
                         historicRecurring.Add(ev);
                 }
