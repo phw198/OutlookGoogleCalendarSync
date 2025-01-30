@@ -1,6 +1,23 @@
 | Release Notes |
 |:---|
 
+# v2.11.2.0 - Alpha
+
+**Enhancements**
+- Sync Engine
+    - Improved monthly recurrence on day >28th
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - New emoji for recurring series exception
+
+**Bugfix**
+- Application
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include all-day series master ending on sync window start date
+    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+- Sync Engine
+    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+
 # v2.11.1.0 - Alpha
 
 **Enhancements**

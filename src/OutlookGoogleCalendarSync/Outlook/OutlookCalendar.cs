@@ -499,7 +499,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
-                            if (ai.LastModificationTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                            if (ai.LastModificationTime > compare.Value.UpdatedDateTimeOffset && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
                                 continue;
 
                             log.Debug("Doing a dummy update in order to update the last modified date.");
@@ -518,13 +518,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                 if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                    if (ai.LastModificationTime > ev.Updated)
+                    if (ai.LastModificationTime > ev.UpdatedDateTimeOffset)
                         return false;
                 } else {
-                    if (Ogcs.Google.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
+                    if (Ogcs.Google.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.UpdatedDateTimeOffset)
                         //Google last modified by OGCS
                         return false;
-                    if (ai.LastModificationTime > ev.Updated)
+                    if (ai.LastModificationTime > ev.UpdatedDateTimeOffset)
                         return false;
                 }
             }
@@ -1388,7 +1388,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static string signature(AppointmentItem ai) {
-            return (ai.Subject + ";" + ai.Start.ToPreciseString() + ";" + ai.End.ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ((DateTimeOffset)ai.Start).ToPreciseString() + ";" + ((DateTimeOffset)ai.End).ToPreciseString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
@@ -1446,8 +1446,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static string exportToCSV(AppointmentItem ai) {
             StringBuilder csv = new StringBuilder();
 
-            csv.Append(ai.Start.ToPreciseString() + ",");
-            csv.Append(ai.End.ToPreciseString() + ",");
+            csv.Append(((DateTimeOffset)ai.Start).ToPreciseString() + ",");
+            csv.Append(((DateTimeOffset)ai.End).ToPreciseString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");
