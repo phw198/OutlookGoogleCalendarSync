@@ -340,7 +340,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return retVal;
         }
         private static DateTime get_datetime(AppointmentItem ai, MetadataId key) {
-            DateTime retVal = new DateTime();
+            DateTime retVal = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
                 UserProperties ups = null;

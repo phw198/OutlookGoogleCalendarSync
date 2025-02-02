@@ -326,7 +326,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             } else {
-                return new DateTime();
+                return new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             }
         }
         public static void SetOGCSlastModified(ref Event ev) {
