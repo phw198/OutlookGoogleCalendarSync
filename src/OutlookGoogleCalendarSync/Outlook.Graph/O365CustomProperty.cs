@@ -324,7 +324,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return retVal;
         }
         private static System.DateTime get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
-            System.DateTime retVal = new System.DateTime();
+            System.DateTime retVal = new System.DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
                 if (!System.DateTime.TryParse(ai.OgcsExtension().AdditionalData[searchKey].ToString(), out retVal))
