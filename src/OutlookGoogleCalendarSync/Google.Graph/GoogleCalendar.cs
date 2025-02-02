@@ -785,21 +785,16 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 log.Fine("Back processing Event affected by attendee API limit.");
             } else {
                 if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
-                    try {
-                        if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                            if (ev.Updated > ai.LastModifiedDateTime?.ToLocalTime())
-                                return null;
-                        } else {
-                            if (Outlook.Graph.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime?.ToLocalTime()) {
-                                log.Fine("Outlook last modified by OGCS.");
-                                return null;
-                            }
-                            if (ev.Updated > ai.LastModifiedDateTime?.ToLocalTime())
-                                return null;
+                    if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
+                        if (ev.Updated > ai.LastModifiedDateTime?.ToLocalTime())
+                            return null;
+                    } else {
+                        if (Outlook.Graph.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime?.ToLocalTime()) {
+                            log.Fine("Outlook last modified by OGCS.");
+                            return null;
                         }
-                    } catch (System.Exception ex) {
-                        log.Debug("ai.LastModifiedDateTime: " + ai.LastModifiedDateTime?.ToString());
-                        throw;
+                        if (ev.Updated > ai.LastModifiedDateTime?.ToLocalTime())
+                            return null;
                     }
                 }
             }
