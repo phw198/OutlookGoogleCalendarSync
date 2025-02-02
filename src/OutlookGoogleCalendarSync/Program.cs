@@ -461,9 +461,11 @@ namespace OutlookGoogleCalendarSync {
             if (!Directory.Exists(dstDir)) Directory.CreateDirectory(dstDir);
 
             string dstFile = Path.Combine(dstDir, Settings.ConfigFilename);
-            File.Delete(dstFile);
-            log.Debug("  " + Settings.ConfigFilename);
-            File.Move(Settings.ConfigFile, dstFile);
+            if (dstFile != Settings.ConfigFile) {
+                File.Delete(dstFile);
+                log.Debug("  " + Settings.ConfigFilename);
+                File.Move(Settings.ConfigFile, dstFile);
+            }
             WorkingFilesDirectory = dstDir;
 
             foreach (string file in Directory.GetFiles(srcDir)) {

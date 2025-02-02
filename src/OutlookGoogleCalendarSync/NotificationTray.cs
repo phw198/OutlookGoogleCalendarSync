@@ -33,7 +33,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
-                    "Click here for further details.", ToolTipIcon.Warning, "OOMsecurity");
+                    "Click to view 'Why am I getting Outlook security pop-ups' in the GitHub project wiki.", ToolTipIcon.Warning, "OOMsecurity");
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.setting)
                     .AddParameter("oom_security", true)
                     .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)

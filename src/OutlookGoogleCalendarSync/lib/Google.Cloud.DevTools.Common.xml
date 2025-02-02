@@ -67,7 +67,7 @@
             When writing a Stackdriver Logging entry, the user should add this custom label,
             with a value of the git revision id for the source code.
             This enables Google Cloud Tools for Visual Studio to locate the source file revision
-            of the log entry. 
+            of the log entry.
             </summary>
         </member>
         <member name="P:Google.Cloud.DevTools.Source.V1.SourceContext.AppSourceContext">

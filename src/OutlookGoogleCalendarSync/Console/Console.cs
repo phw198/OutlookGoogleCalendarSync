@@ -91,7 +91,7 @@ namespace OutlookGoogleCalendarSync {
                 padding-right: 9px;
                 margin-left: -30px;
             }
-            .em-repeat {
+            .em-repeat, .em-repeat-one {
                 padding-right: 0px;
                 margin-left: 0px;
             }
@@ -416,6 +416,7 @@ namespace OutlookGoogleCalendarSync {
                 
                 output = output.Replace(":calendar:", "<span class='em em-date' style='margin-top:5px'></span>");
                 output = output.Replace("(R)", "<span class='em em-repeat'></span>");
+                output = output.Replace("(R1)", "<span class='em em-repeat-one'></span>");
                 output = output.Replace("=> ", "");
 
             } catch (System.Exception ex) {
