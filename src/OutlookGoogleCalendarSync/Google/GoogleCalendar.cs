@@ -2208,8 +2208,8 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
                     if (ev.Start.DateTimeDateTimeOffset != null) {
-                        System.DateTimeOffset gDate = (System.DateTimeOffset)ev.Start.DateTimeDateTimeOffset;
-                        eventSummary += gDate.DateTime.ToShortDateString() + " " + gDate.DateTime.ToShortTimeString();
+                        System.DateTime gDate = ev.Start.SafeDateTime();
+                        eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
                     if (ev.Recurrence != null)
