@@ -146,16 +146,22 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return byDay;
         }
         private static String getByDayRelative(Dictionary<String, String> rrule, Microsoft.Graph.RecurrencePattern oPattern) {
-            String byDay = "";
+            String byDayRel = "";
             switch (oPattern.Index) {
-                case WeekIndex.First: byDay = "1"; break;
-                case WeekIndex.Second: byDay = "2"; break;
-                case WeekIndex.Third: byDay = "3"; break;
-                case WeekIndex.Fourth: byDay = "4"; break;
-                case WeekIndex.Last: byDay = "-1"; break; // Google.Recurrence.addRule(rrule, "BYSETPOS", "-1"); break;
+                case WeekIndex.First: byDayRel = "1"; break;
+                case WeekIndex.Second: byDayRel = "2"; break;
+                case WeekIndex.Third: byDayRel = "3"; break;
+                case WeekIndex.Fourth: byDayRel = "4"; break;
+                case WeekIndex.Last: byDayRel = "-1"; break;
             }
-            byDay += getByDay(oPattern.DaysOfWeek.ToList()).First();
-            return byDay;
+            List<String> byDay = getByDay(oPattern.DaysOfWeek.ToList());
+            if (byDay.Count == 1) {
+                byDayRel += string.Join(",", byDay);
+            } else {
+                byDayRel = string.Join(",", byDay);
+                Google.Recurrence.addRule(rrule, "BYSETPOS", byDayRel);
+            }
+            return byDayRel;
         }
 
         #region Exceptions
