@@ -368,6 +368,7 @@ namespace OutlookGoogleCalendarSync {
         private void logLinesSansHtml(String htmlOutput, Markup? markupPrefix = null, Boolean verbose = false) {
             String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
             tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
+            tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat-one'></span>", "(R1)");
             tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
             String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (markupPrefix == Markup.warning)

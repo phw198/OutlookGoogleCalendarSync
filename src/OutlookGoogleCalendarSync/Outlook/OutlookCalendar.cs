@@ -31,12 +31,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static Calendar Instance {
             get {
                 try {
-                    if (instance == null) {
-                        instance = new Ogcs.Outlook.Calendar();/* {
-                            Authenticator = new Ogcs.Outlook.Graph.Authenticator()
-                        };*/
-                    }
-                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()/* && !Forms.Main.Instance.Visible*/) //Form !visible must be removed, only to initialising app with Outlook client to help with dev work
+                    instance ??= new Ogcs.Outlook.Calendar();
+                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient())
                         instance.IOutlook.Connect();
                     /*if (instance.Authenticator == null *//*|| !instance.Authenticator.Authenticated*//*) {
                         instance.Authenticator = new Ogcs.Outlook.Graph.Authenticator(); 
@@ -507,7 +503,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
-                            if (ai.LastModificationTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                            if (ai.LastModificationTime > compare.Value.UpdatedDateTimeOffset && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
                                 continue;
 
                             log.Debug("Doing a dummy update in order to update the last modified date.");
@@ -526,13 +522,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                 if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
-                    if (ai.LastModificationTime > ev.Updated)
+                    if (ai.LastModificationTime > ev.UpdatedDateTimeOffset)
                         return false;
                 } else {
-                    if (Ogcs.Google.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.Updated)
+                    if (Ogcs.Google.CustomProperty.GetOGCSlastModified(ev).AddSeconds(5) >= ev.UpdatedDateTimeOffset)
                         //Google last modified by OGCS
                         return false;
-                    if (ai.LastModificationTime > ev.Updated)
+                    if (ai.LastModificationTime > ev.UpdatedDateTimeOffset)
                         return false;
                 }
             }
@@ -1396,7 +1392,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static string signature(AppointmentItem ai) {
-            return (ai.Subject + ";" + ai.Start.ToPreciseString() + ";" + ai.End.ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ((DateTimeOffset)ai.Start).ToPreciseString() + ";" + ((DateTimeOffset)ai.End).ToPreciseString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {
@@ -1454,8 +1450,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static string exportToCSV(AppointmentItem ai) {
             StringBuilder csv = new StringBuilder();
 
-            csv.Append(ai.Start.ToPreciseString() + ",");
-            csv.Append(ai.End.ToPreciseString() + ",");
+            csv.Append(((DateTimeOffset)ai.Start).ToPreciseString() + ",");
+            csv.Append(((DateTimeOffset)ai.End).ToPreciseString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");
