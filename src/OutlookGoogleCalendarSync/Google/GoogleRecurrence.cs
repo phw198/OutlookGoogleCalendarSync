@@ -80,8 +80,14 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
-                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
+                        List<String> byDay = getByDay(oPattern.DayOfWeekMask);
+                        if (byDay.Count == 1) {
+                            String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                            addRule(rrule, "BYDAY", byDayRelative + string.Join(",", byDay));
+                        } else {
+                            addRule(rrule, "BYDAY", string.Join(",", byDay));
+                            addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        }
                         break;
                     }
 
@@ -108,8 +114,15 @@ namespace OutlookGoogleCalendarSync.Google {
                             addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
                         addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         */
-                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
-                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
+                        List<String> byDay = getByDay(oPattern.DayOfWeekMask);
+                        if (byDay.Count == 1) {
+                            String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                            addRule(rrule, "BYDAY", byDayRelative + string.Join(",", byDay));
+                        } else {
+                            if (byDay.Count != 7) //If not every day of week, define which ones
+                                addRule(rrule, "BYDAY", string.Join(",", byDay));
+                            addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        }
                         break;
                     }
             }
