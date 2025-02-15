@@ -1487,10 +1487,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String eventSummary = GetEventSummary(ai, out String anonymisedSummary, onlyIfNotVerbose);
             if (appendContext) {
                 eventSummary = eventSummary + context;
-                eventSummaryAnonymised = anonymisedSummary + context;
+                eventSummaryAnonymised = string.IsNullOrEmpty(anonymisedSummary) ? null : (anonymisedSummary + context);
             } else {
                 eventSummary = context + eventSummary;
-                eventSummaryAnonymised = context + anonymisedSummary;
+                eventSummaryAnonymised = string.IsNullOrEmpty(anonymisedSummary) ? null : (context + anonymisedSummary);
             }
             return eventSummary;
         }
