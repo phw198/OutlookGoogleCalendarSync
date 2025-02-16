@@ -2,6 +2,7 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace OutlookGoogleCalendarSync {
 
         /// <summary>MD5 hash to identify distinct, anonymous user</summary>
         private String uuId;
+        private Boolean geoDataLoaded = false;
         public String AnonymousUniqueUserId {
             get { return uuId; }
         }
@@ -91,6 +93,8 @@ namespace OutlookGoogleCalendarSync {
                 while (!Settings.AreLoaded) {
                     System.Threading.Thread.Sleep(1000);
                 }
+                if (Program.InDeveloperMode) return;
+
                 using (Extensions.OgcsWebClient wc = new()) {
                     //https://api.country.is/
                     String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
@@ -107,6 +111,8 @@ namespace OutlookGoogleCalendarSync {
                 }
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not get IP geolocation.");
+            } finally {
+                geoDataLoaded = true;
             }
             new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
         }
@@ -258,6 +264,93 @@ namespace OutlookGoogleCalendarSync {
                         System.IO.StreamReader sr = new System.IO.StreamReader(stream);
                         log.Fail(sr.ReadToEnd());
                     }
+                }
+            }
+        }
+
+        public class NewsStand {
+            private static NewsStand instance;
+            public static NewsStand Instance {
+                get {
+                    return instance ??= new NewsStand();
+                }
+            }
+            private NewsJson newsStand;
+
+            public void Get() {
+                new System.Threading.Thread(() => { _ = requestNews(); }).Start();
+            }
+
+            private async Task requestNews() {
+                try {
+                    if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) return;
+
+                    while (!Telemetry.Instance.geoDataLoaded) {
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    if (Program.InDeveloperMode) return;
+
+                    String payload = "{ \"usernameId\": \"" + Telemetry.Instance.uuId + "\", " +
+                        "\"version\": \"" + Program.VersionToInt(System.Windows.Forms.Application.ProductVersion) + "\", " +
+                        "\"country\": \"" + Telemetry.Instance.Country + "\", " +
+                        "\"isBenefactor\": \"" + Settings.Instance.UserIsBenefactor() + "\", " +
+                        "\"profiles\": \"" + Settings.Instance.Calendars.Count() + "\", " +
+                        "\"outlookOnline\": \"" + 0
+                        + "\" }";
+                    String target = "https://script.google.com/macros/s/AKfycbyWxklvELJDC6vb4b4wwgUxVgEN-utvB6ZCj6HDamKK76xyJVfVr_VgYJEWzTm9kTkVMA/exec";
+
+                    using (Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient()) {
+                        wc.Headers.Add(System.Net.HttpRequestHeader.Accept, "application/json");
+                        wc.Headers.Add(System.Net.HttpRequestHeader.ContentType, "application/json");
+                        if (Program.InDeveloperMode) {
+                            target = "https://script.google.com/macros/s/AKfycbzrIYvZSgJLEtVb3y1mjtzUpUlj1768l9IvgoVgnCDF/dev";
+                            wc.Headers.Add(System.Net.HttpRequestHeader.Cookie, @"HSID=...");
+                        }
+                        String jsonResponse = await wc.UploadStringTaskAsync(target, payload);
+                        newsStand = Newtonsoft.Json.JsonConvert.DeserializeObject<NewsJson>(jsonResponse);
+                    }
+                } catch (System.Exception ex) {
+                    ex.Analyse();
+                }
+            }
+
+            public void Distribute() {
+                try {
+                    if (newsStand == null || newsStand.News.Count() == 0) return;
+
+                    Boolean showNews = newsStand.News.Exists(n => n.PublishDate > Settings.Instance.HideNews);
+
+                    System.Text.StringBuilder newsHeader = new();
+                    newsHeader.Append("<h2 class='sectionHeader'><span class='em em-newspaper'></span>News<span style='float: right; cursor: pointer; font-weight: 100; padding-top: 5px;' onClick='javascript:toggle();' id='newsToggleText'>");
+                    if (showNews)
+                        newsHeader.Append("<a href='#hidenews' class='no-decoration'>[&#8211] Hide</a>");
+                    else
+                        newsHeader.Append("<a href='#shownews' class='no-decoration'>[+] Show</a>");
+                    newsHeader.Append("</span>");
+                    Forms.Main.Instance.Console.Update(newsHeader);
+
+                    Forms.Main.Instance.Console.Update("<span id='news' style='display: " + (showNews ? "block" : "none") + "'>", newLine: false, logit: false);
+
+                    foreach (News news in newsStand.News) {
+                        Forms.Main.Instance.Console.Update(news.Publish(), newLine: false);
+                    }
+                    Forms.Main.Instance.Console.Update("</span>", newLine: false, logit: false);
+
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to distribute news.");
+                }
+            }
+
+            public class NewsJson {
+                public List<News> News { get; set; }
+            }
+            public class News {
+                public DateTime PublishDate;
+                public String Alert;
+
+                public String Publish() {
+                    String printedNews = ":newspaper:" + this.Alert + $"<br/><div style='font-size: 11px; color: grey; padding-top: 5px;'>{ this.PublishDate.ToString("dd-MMM-yyyy") }</div>";
+                    return printedNews;
                 }
             }
         }

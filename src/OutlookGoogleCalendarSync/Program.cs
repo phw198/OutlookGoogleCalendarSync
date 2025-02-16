@@ -75,6 +75,7 @@ namespace OutlookGoogleCalendarSync {
                 isNewVersion(Program.IsInstalled);
 
                 TimezoneDB.Instance.CheckForUpdate();
+                Telemetry.NewsStand.Instance.Get();
 
                 try {
                     String startingTab = Settings.Instance.CompletedSyncs == 0 ? "Help" : null;

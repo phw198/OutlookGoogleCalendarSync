@@ -57,7 +57,7 @@ namespace OutlookGoogleCalendarSync {
                 return documentText;
             }
         }
-        
+
         #region Notes
         //If we don't want to depend on the emoji-css project, we could store the images as resources and reference as:
         //  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='file:///C:\Users\Paul\Git\OutlookGoogleCalendarSync\src\OutlookGoogleCalendarSync\bin\Debug\images\warning.png', sizingMethod='scale');
@@ -77,6 +77,9 @@ namespace OutlookGoogleCalendarSync {
         <!--- <link href='https://afeld.github.io/emoji-css/emoji.css' rel='stylesheet'> -->
         <link href='"+ System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) + @"\Console\emoji.css' rel='stylesheet'>
         <style> 
+            a.no-decoration {
+                text-decoration: none; color: black;
+            }
             p {
                 margin: auto;
             }
@@ -95,7 +98,7 @@ namespace OutlookGoogleCalendarSync {
                 padding-right: 0px;
                 margin-left: 0px;
             }
-            .config, .info, .error, .warning {
+            .config, .info, .error, .warning, .news {
                 margin-top: 8px;
                 padding-bottom: 4px;
                 margin-bottom: 10px;
@@ -109,6 +112,10 @@ namespace OutlookGoogleCalendarSync {
             .config {
                 background-color: lightgray;
                 border-left-color: yellow;
+            }
+            .news {
+                background-color: #b5f9b5;
+                border-left-color: darkseagreen;
             }
             .info {
                 background-color: lightblue;
@@ -184,6 +191,20 @@ namespace OutlookGoogleCalendarSync {
                .then(response => console.log(JSON.stringify(response)));
             }
         </script>
+        <script>
+            function toggle() {
+                var news = document.getElementById('news');
+                var newsText = document.getElementById('newsToggleText');
+                if (news.style.display == 'block') {
+                    news.style.display = 'none';
+                    newsText.innerHTML = ""<a href='#shownews' class='no-decoration'>[+] Show</a>"";
+                } else {
+                    news.style.display = 'block';
+                    newsText.innerHTML = ""<a href='#hidenews' class='no-decoration'>[&#8211] Hide</a>"";
+                    scrollToBottom();
+                }
+            }
+        </script>
     </head>
     <body onLoad='scrollToBottom();'>
         <div id='content'>";
@@ -198,7 +219,7 @@ namespace OutlookGoogleCalendarSync {
             completed,
             cleared
         }
-        
+
         public Console(WebBrowser wb) {
             if (this.wb != null) return;
             this.wb = wb;
@@ -216,7 +237,7 @@ namespace OutlookGoogleCalendarSync {
             wb.DocumentCompleted += console_DocumentCompleted;
             wb.Navigated += console_Navigated;
             wb.Navigating += console_Navigating;
-            
+
             awaitRefresh();
             disableClickSounds();
             log.Fine("Console initialised.");
@@ -235,6 +256,11 @@ namespace OutlookGoogleCalendarSync {
                 Helper.OpenBrowser(e.Url.OriginalString);
                 e.Cancel = true;
                 return;
+            }
+            if (e.Url.Fragment == "#hidenews") {
+                Settings.Instance.HideNews = DateTime.UtcNow;
+            } else if (e.Url.Fragment == "#shownews") {
+                Settings.Instance.HideNews = new DateTime();
             }
 
             navigationStatus = NavigationStatus.navigating;
@@ -325,7 +351,7 @@ namespace OutlookGoogleCalendarSync {
             ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
             ///HtmlElement element = doc.GetElementById("content");
             ///HtmlElement element = doc.All["content"]; //Slightly faster
-            
+
             if (Forms.Main.Instance.IsDisposed) return;
 
             if ((verbose && Settings.Instance.VerboseOutput) || !verbose) {
@@ -341,12 +367,12 @@ namespace OutlookGoogleCalendarSync {
                 moreOutput = moreOutput.Replace("\r\n", "<br/>");
                 String htmlOutput = parseEmoji(moreOutput, markupPrefix);
 
-                if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose);               
+                if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose);
 
                 //Don't add append line break to Markup that's already wrapped in <div> tags
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
                     newLine = false;
-                
+
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
                 content = header + contentInnerHtml + footer;
 
@@ -392,6 +418,7 @@ namespace OutlookGoogleCalendarSync {
                 output = Regex.Replace(output, ":warning:(<p>)*", "<div class='warning'>$1<span class='em em-warning'></span>");
                 output = Regex.Replace(output, ":(error|fail):(<p>)*", "<div class='error'>$2<span class='em em-collision'></span>");
                 output = Regex.Replace(output, ":config:(<p>)*", "<div class='config'>$1<span class='em em-gear'></span>");
+                output = Regex.Replace(output, ":newspaper:(<p>)*", "<div class='news'>$1<span class='em'></span>");
                 if (output.StartsWith("<div")) output += "</div>";
 
                 Regex rgx = new Regex(":clock(\\d{1,4}):<p>", RegexOptions.IgnoreCase);
@@ -414,7 +441,7 @@ namespace OutlookGoogleCalendarSync {
 
                 output = output.Replace(":appointmentEnd:", "<p class='appointmentEnd'>");
                 if (output.StartsWith("<p")) output += "</p>";
-                
+
                 output = output.Replace(":calendar:", "<span class='em em-date' style='margin-top:5px'></span>");
                 output = output.Replace("(R)", "<span class='em em-repeat'></span>");
                 output = output.Replace("(R1)", "<span class='em em-repeat-one'></span>");

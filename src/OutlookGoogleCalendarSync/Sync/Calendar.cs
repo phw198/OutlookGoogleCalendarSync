@@ -230,6 +230,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         this.consecutiveSyncFails += failedAttempts;
                         mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == Sync.Engine.SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
                     }
+                    Telemetry.NewsStand.Instance.Distribute();
 
                     this.setNextSync(syncResult == Sync.Engine.SyncResult.OK, updateSyncSchedule);
                     this.Profile.OgcsTimer.CalculateInterval();
