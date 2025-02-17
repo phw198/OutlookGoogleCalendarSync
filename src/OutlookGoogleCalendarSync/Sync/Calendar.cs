@@ -89,6 +89,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     Sync.Engine.SyncResult syncResult = Sync.Engine.SyncResult.Fail;
                     int failedAttempts = 0;
+                    Telemetry.NewsStand.Instance.Get();
                     Telemetry.TrackSync();
                     System.Diagnostics.Stopwatch stopwatch = new();
                     stopwatch.Start();

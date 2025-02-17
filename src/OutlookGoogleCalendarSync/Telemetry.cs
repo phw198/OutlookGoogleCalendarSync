@@ -276,8 +276,10 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
             private NewsJson newsStand;
+            private DateTime restocked = new DateTime();
 
             public void Get() {
+                if ((DateTime.UtcNow - restocked).TotalDays < 1) return;
                 new System.Threading.Thread(() => { _ = requestNews(); }).Start();
             }
 
@@ -309,6 +311,8 @@ namespace OutlookGoogleCalendarSync {
                         String jsonResponse = await wc.UploadStringTaskAsync(target, payload);
                         newsStand = Newtonsoft.Json.JsonConvert.DeserializeObject<NewsJson>(jsonResponse);
                     }
+                    restocked = DateTime.UtcNow;
+
                 } catch (System.Exception ex) {
                     ex.Analyse();
                 }
