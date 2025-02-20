@@ -37,11 +37,11 @@ google_ad_client: ca-pub-5710461137665920
 google_ad_testing: "off"
 
 # Current software releases
-show_alpha_downloads: false
+show_alpha_downloads: true
 beta-version: 2.11.0
 beta-release-date: Aug-2024
-alpha-version: 2.10.6
-alpha-release-date: Jul-2024
+alpha-version: 2.11.2
+alpha-release-date: Jan-2025
 # Forcing build
 
 # Build settings
@@ -68,3 +68,5 @@ exclude:
   - jekyll-architect-theme.gemspec
   - src
   - _posts/2014-04-06-welcome-to-jekyll.markdown
+include:
+  - .well-known

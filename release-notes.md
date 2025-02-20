@@ -36,6 +36,72 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.11.2.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Sync Engine
+    - Improved monthly recurrence on day >28th
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - New emoji for recurring series exception
+
+:beetle: **Bugfix**
+- Application
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include all-day series master ending on sync window start date
+    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+- Sync Engine
+    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
+## v2.11.1.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Sync Engine
+    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+
+:beetle: **Bugfix**
+- Application
+    - Handle insufficient Google calendar permissions better [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Properly disconnect from Google account [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Ensure Console content is always visible [[#1958](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1958)]
+    - Remember choice to skip release upgrade [[#1951](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1951)]
+    - Default obfuscation to subject property; handle null in settings [[#1997](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1997)]
+    - Dedupe Google colour list
+    - Open default system browser for OGCS links
+- Sync Engine
+    - Optimise exclusion of Outlook categories [[#1929](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1929)]
+    - Handle empty appointment bodies when obfuscating [[#1959](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1959)]
+    - Fixed premature deletion warnings in two-way sync [[#1999](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1999)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.11.0.0 - Beta
 
 :high_brightness: **Enhancements**
