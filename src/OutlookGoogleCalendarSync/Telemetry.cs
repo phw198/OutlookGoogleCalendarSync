@@ -349,8 +349,10 @@ namespace OutlookGoogleCalendarSync {
                 public List<News> News { get; set; }
             }
             public class News {
+#pragma warning disable 0649
                 public DateTime PublishDate;
                 public String Alert;
+#pragma warning restore 0649
 
                 public String Publish() {
                     String printedNews = ":newspaper:" + this.Alert + $"<br/><div style='font-size: 11px; color: grey; padding-top: 5px;'>{ this.PublishDate.ToString("dd-MMM-yyyy") }</div>";

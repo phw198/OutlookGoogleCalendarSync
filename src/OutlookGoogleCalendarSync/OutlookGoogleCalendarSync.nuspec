@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.11.2-alpha</version>
+    <version>2.11.3-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,37 +12,39 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.11.2?
+# What's New In v2.11.3?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
+- Application
+    - Added a "news" service that surfaces messages, eg critical bugs and hotfixes
+    - Miscellenous logging improvements
 - Sync Engine
-    - Improved monthly recurrence on day >28th
-    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
-    - New emoji for recurring series exception
+    - Further optimisation retrieving Google recurring series and its instances
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Update of third-party DLL files
-        - Now requires .NET Framework 4.6.2
-    - Include all-day series master ending on sync window start date
-    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+    - Improvements dropdown refresh for Google default calendar colour.
 - Sync Engine
-    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
+        - Fixed logging of Google Event summary local time
+    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
+    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
+    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
     </releaseNotes>
     <copyright>Copyright 2025</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>
     <!--<file src="bin\Release\*.*" target="lib\net45\" />-->
-		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
-		<file src="bin\Release\OutlookGoogleCalendarSync.pdb" target="lib\net45\" />
-		<file src="bin\Release\*.dll" target="lib\net45\" />
-		<file src="bin\Release\ErrorReportingTemplate.json" target="lib\net45\" />
-		<file src="bin\Release\logger.xml" target="lib\net45\" />
-		<file src="bin\Release\tzdb.nzd" target="lib\net45\" />
-		<file src="bin\Release\Console\*.*" target="lib\net45\Console\" />
-		<file src="bin\Release\Console\emoji\*.*" target="lib\net45\Console\emoji\" />
+        <file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
+        <file src="bin\Release\OutlookGoogleCalendarSync.pdb" target="lib\net45\" />
+        <file src="bin\Release\*.dll" target="lib\net45\" />
+        <file src="bin\Release\ErrorReportingTemplate.json" target="lib\net45\" />
+        <file src="bin\Release\logger.xml" target="lib\net45\" />
+        <file src="bin\Release\tzdb.nzd" target="lib\net45\" />
+        <file src="bin\Release\Console\*.*" target="lib\net45\Console\" />
+        <file src="bin\Release\Console\emoji\*.*" target="lib\net45\Console\emoji\" />
   </files>
 </package>
