@@ -65,10 +65,10 @@ namespace OutlookGoogleCalendarSync.Google {
                         _ = ColourPalette;
                     } else {
                         if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException();
+                            throw new OperationCanceledException().LogAsFail();
                         else if (Authenticator != null && !Authenticator.SufficientPermissions) {
                             throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
-                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.");
+                                "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.").LogAsFail();
                         } else {
                             instance = null;
                             throw new ApplicationException("Google handshake failed.");
@@ -169,8 +169,12 @@ namespace OutlookGoogleCalendarSync.Google {
             this.CalendarList = result;
         }
 
+        List<Event> instancesFromMasterSeries = null;
+
         /// <summary>Retrieve all instances for a recurring series.</summary>
-        public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId) {
+        public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId, Boolean filterToSyncDates = false) {
+            if (filterToSyncDates && instancesFromMasterSeries?.FirstOrDefault().RecurringEventId == recurringEventId) return instancesFromMasterSeries;
+
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -179,8 +183,16 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 log.Debug("Retrieving all recurring event instances from Google for " + recurringEventId);
                 do {
-                    EventsResource.InstancesRequest ir = Service.Events.Instances(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, recurringEventId);
+                    SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+                    EventsResource.InstancesRequest ir = Service.Events.Instances(profile.UseGoogleCalendar.Id, recurringEventId);
                     ir.ShowDeleted = true;
+                    ir.TimeZone = "UTC";
+                    ir.MaxResults = 2500;
+                    if (filterToSyncDates) {
+                        ir.TimeMinDateTimeOffset = profile.SyncStart;
+                        ir.TimeMaxDateTimeOffset = profile.SyncEnd;
+                        ir.MaxResults = 730; //2 years of daily
+                    }
                     ir.PageToken = pageToken;
                     int backoff = 0;
                     while (backoff < BackoffLimit) {
@@ -218,14 +230,17 @@ namespace OutlookGoogleCalendarSync.Google {
                         if (request.Items != null) result.AddRange(request.Items);
                     }
                 } while (pageToken != null);
-                log.Debug(request.Items.Count + " recurring event instances found.");
-                return result;
+                log.Debug(result.Count + " recurring event instances found.");
+
+                if (!filterToSyncDates) return result; //Don't cache when creating a series
+                else instancesFromMasterSeries = result;
 
             } catch (System.Exception ex) {
                 Forms.Main.Instance.Console.UpdateWithError("Failed to retrieve recurring events.", Ogcs.Exception.LogAsFail(ex));
                 ex.Analyse("recurringEventId: " + recurringEventId);
-                return null;
+                instancesFromMasterSeries = null;
             }
+            return instancesFromMasterSeries;
         }
 
         public Event GetCalendarEntry(String eventId) {
@@ -314,7 +329,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 lr.TimeMinDateTimeOffset = from;
                 lr.TimeMaxDateTimeOffset = to;
-                lr.TimeZone = "UTC";
+                //lr.TimeZone = "UTC";
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
@@ -872,7 +887,7 @@ namespace OutlookGoogleCalendarSync.Google {
             //Handle an event's all-day attribute being toggled
             Boolean evAllDay = ev.AllDayEvent();
             Extensions.OgcsDateTime evStart = new OgcsDateTime(ev.Start.SafeDateTime(), evAllDay);
-            Extensions.OgcsDateTime evEnd = new OgcsDateTime(ev.End.SafeDateTime(), evAllDay);
+            Extensions.OgcsDateTime evEnd = new OgcsDateTime(ev.End.SafeDateTime(), evAllDay); 
             if (ai.AllDayEvent && ai.Start.TimeOfDay == new TimeSpan(0, 0, 0)) {
                 ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.ToString("yyyy-MM-dd");
@@ -2034,8 +2049,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -2114,8 +2129,8 @@ namespace OutlookGoogleCalendarSync.Google {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append((ev.Start == null ? "null" : (string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)) + ",");
-            csv.Append((ev.End == null ? "null" : (string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)) + ",");
+            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTime().ToString()) + ",");
+            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTime().ToString()) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");
@@ -2226,8 +2241,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
                     try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : string.IsNullOrEmpty(ev.Start.Date) ? ev.Start.DateTimeDateTimeOffset.ToString() : ev.Start.Date)); } catch { }
-                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : string.IsNullOrEmpty(ev.End.Date) ? ev.End.DateTimeDateTimeOffset.ToString() : ev.End.Date)); } catch { }
+                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
+                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
                     try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                     try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 }

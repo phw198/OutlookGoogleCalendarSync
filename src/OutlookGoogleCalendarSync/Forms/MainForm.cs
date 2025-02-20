@@ -1609,8 +1609,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
             cbExcludeGoals.Enabled = Ogcs.Google.Calendar.IsDefaultCalendar() ?? true;
-            if (sender != null)
+            if (sender != null) {
                 log.Warn("Google calendar selection changed to: " + (ActiveCalendarProfile.UseGoogleCalendar?.ToString(true) ?? "<None>"));
+                ddGoogleColour.Rebuild(true);
+            }
         }
 
         private void btResetGCal_Click(object sender, EventArgs e) {
@@ -1976,7 +1978,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     if (ddGoogleColour.Items.Count != Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette.Count)
                         ddGoogleColour.AddPaletteColours();
                     palette = Ogcs.Google.Calendar.Instance.GetColour(ddOutlookColour.SelectedItem.OutlookCategory);
-                    ddGoogleColour.SelectedIndex = Convert.ToInt16(palette.Id);
+                    ddGoogleColour.SelectedIndex = Convert.ToInt16(palette.Id); 
                 }
 
                 if (ddGoogleColour.SelectedIndex == -1)

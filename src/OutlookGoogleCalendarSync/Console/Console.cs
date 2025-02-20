@@ -319,8 +319,13 @@ namespace OutlookGoogleCalendarSync {
             syncDirection
         }
 
-        public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, bool notifyBubble = false, Boolean logit = false) {
-            Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, notifyBubble: notifyBubble, logit: logit);
+        public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, bool notifyBubble = false, Boolean logit = false,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
+            Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, notifyBubble: notifyBubble, logit: logit, 
+                memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
         }
 
         /// <summary>
@@ -328,12 +333,16 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         /// <param name="moreOutput">Console output</param>
         /// <param name="logEntry">Log output</param>
-        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false) {
+        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
             if (string.IsNullOrEmpty(logEntry))
-                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble);
+                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
             else {
                 Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, logit: false);
-                logLinesSansHtml(logEntry, markupPrefix, verbose);
+                logLinesSansHtml(logEntry, markupPrefix, verbose, $"{sourceFilePath}:{sourceLineNumber}");
             }
         }
 
@@ -346,7 +355,11 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="verbose">Only output if verbose is set 'On'</param>
         /// <param name="notifyBubble">Trigger a system bubble for notification</param>
         /// <param name="logit">Send the text to logfile</param>
-        public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true) {
+        public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
             ///Accessing the DOM is terribly slow, so not using this method.
             ///HtmlDocument doc = Forms.Main.Instance.GetControlPropertyThreadSafe(this.wb, "Document") as HtmlDocument;
             ///HtmlElement element = doc.GetElementById("content");
@@ -367,7 +380,7 @@ namespace OutlookGoogleCalendarSync {
                 moreOutput = moreOutput.Replace("\r\n", "<br/>");
                 String htmlOutput = parseEmoji(moreOutput, markupPrefix);
 
-                if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose);
+                if (logit) logLinesSansHtml(htmlOutput, markupPrefix, verbose, $"{sourceFilePath}:{sourceLineNumber}");
 
                 //Don't add append line break to Markup that's already wrapped in <div> tags
                 if (markupPrefix != null && (new Markup[] { Markup.info, Markup.warning, Markup.fail, Markup.error }.ToList()).Contains((Markup)markupPrefix))
@@ -391,11 +404,12 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>Log the output sans HTML tags.</summary>
-        private void logLinesSansHtml(String htmlOutput, Markup? markupPrefix = null, Boolean verbose = false) {
+        private void logLinesSansHtml(String htmlOutput, Markup? markupPrefix = null, Boolean verbose = false, String caller = "") {
             String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
             tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
             tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat-one'></span>", "(R1)");
             tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
+            tagsStripped = Regex.Replace(caller, ".*OutlookGoogleCalendarSync\\\\(.*.cs)", "<$1") + "> " + tagsStripped;
             String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (markupPrefix == Markup.warning)
                 logLines.ToList().ForEach(l => log.Warn(l));

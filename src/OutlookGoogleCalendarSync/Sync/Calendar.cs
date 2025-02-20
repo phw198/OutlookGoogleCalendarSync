@@ -113,21 +113,21 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                        mainFrm.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb);
-                        mainFrm.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb);
+                        mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb, false);
+                        mainFrm.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb, false);
+                        mainFrm.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb, false);
                         mainFrm.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
-                            " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
-                        mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
+                            " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb, false);
+                        mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb, false);
                         if (Sync.Engine.Calendar.Instance.Profile.OutlookGalBlocked) 
                             mainFrm.Console.BuildOutput("<div style='font-size:11px; padding-top:5px'>Corporate policy/anti-virus is restricting certain functionality. "+
-                                "This may prevent proper detection of meeting organiser time zones, resulting in incorrect local start times due to DST.</div>", ref sb);
+                                "This may prevent proper detection of meeting organiser time zones, resulting in incorrect local start times due to DST.</div>", ref sb, false);
 
                         //Make the clock emoji show the right time
                         int minsPastHour = DateTime.Now.Minute;
                         minsPastHour = (int)minsPastHour - (minsPastHour % 30);
                         sb.Insert(0, ":clock" + DateTime.Now.ToString("hh").TrimStart('0') + (minsPastHour == 00 ? "" : "30") + ":");
-                        mainFrm.Console.Update(sb);
+                        mainFrm.Console.Update(sb, logit: true);
 
                         //Kick off the sync in the background thread
                         Sync.Engine.Instance.bwSync.DoWork += new DoWorkEventHandler(
