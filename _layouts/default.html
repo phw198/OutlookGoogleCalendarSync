@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="shortcut icon" type="image/jpg" href="{{ site.baseurl }}/images/ogcs128x128.png" />
+    <link rel="shortcut icon" type="image/png" href="{{ site.baseurl }}/images/ogcs128x128.png" />
+    <link rel="icon" type="image/png" sizes="128x128" href="{{ site.baseurl }}/images/ogcs128x128.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ site.baseurl }}/images/ogcs64x64.png" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/stylesheets/print.css" media="print" />
@@ -31,6 +33,19 @@
       }
     </script>
     {% endif %}
+    
+    <script type="application/ld+json"> {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Outlook Google Calendar Sync",
+      "operatingSystem": "Windows",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": 0
+      }
+    }
+    </script>
     
     {% if site.google_ad_client %}
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
@@ -69,7 +84,7 @@
         
         <aside id="sidebar">
           
-          {% include downloads.html %}          
+          {% include downloads.html %}
           
           <br/>
 
@@ -100,6 +115,14 @@
             {% endif %}
           </div>
           
+          <br/>
+          <hr/>
+          <br/>
+          <p align="center">This page was generated<br/>by <a href="https://pages.github.com">GitHub Pages</a>.</p>
+          <br/>
+          <hr/>
+          <br/>
+          
           <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
           <!-- Side bar - fixed square -->
           <ins class="adsbygoogle"
@@ -126,30 +149,10 @@
                (adsbygoogle = window.adsbygoogle || []).push({});
           </script>
           
-          <script type='text/javascript'>
-            function _dmBootstrap(file) {
-                var _dma = document.createElement('script');
-                _dma.type = 'text/javascript';
-                _dma.async = true;
-                _dma.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + file;
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(_dma);
-            }
-            function _dmFollowup(file) { if (typeof DMAds === 'undefined') _dmBootstrap('cdn2.DeveloperMedia.com/a.min.js'); }
-            (function () { _dmBootstrap('cdn1.DeveloperMedia.com/a.min.js'); setTimeout(_dmFollowup, 2000); })();
-          </script> 
-
-          <div data-type="ad" data-publisher="github.OutlookGoogleCalendarSync" data-zone="ros" data-format="160x600" style="width: 160px; height: 600px; margin: 0px auto; padding-top: 10px;"></div>
-          
-          <br/>
-          <hr/>
-          <br/>
-          
-          <p align="center">This page was generated<br/>by <a href="https://pages.github.com">GitHub Pages</a>.</p>
         </aside>
       </div>
     </div>
 
-    <div align="center" data-type="ad" data-publisher="github.OutlookGoogleCalendarSync" data-format="728x90" data-zone="ros" ></div>
     <br/>
     <div align="center" style="font-size:small">
       <a href="{{ site.baseurl }}/privacy-policy.html">Privacy Policy</a>
