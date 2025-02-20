@@ -36,6 +36,39 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.11.3.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Application
+    - Added a "news" service that surfaces messages, eg critical bugs and hotfixes
+    - Miscellenous logging improvements
+- Sync Engine
+    - Further optimisation retrieving Google recurring series and its instances
+
+:beetle: **Bugfix**
+- Application
+    - Improvements dropdown refresh for Google default calendar colour.
+- Sync Engine
+    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
+        - Fixed logging of Google Event summary local time
+    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
+    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
+    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.11.2.0 - Alpha
 
 :high_brightness: **Enhancements**
