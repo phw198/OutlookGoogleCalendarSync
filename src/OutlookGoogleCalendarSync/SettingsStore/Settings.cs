@@ -235,6 +235,7 @@ namespace OutlookGoogleCalendarSync {
                 suppressSocialPopup = value;
             }
         }
+        [DataMember] public DateTime HideNews { get; set; }
         [DataMember] public bool ShowSystemNotifications { get; set; }
         [DataMember] public bool ShowSystemNotificationsIfChange { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }

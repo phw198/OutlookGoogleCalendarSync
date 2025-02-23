@@ -80,8 +80,14 @@ namespace OutlookGoogleCalendarSync.Google {
                 case OlRecurrenceType.olRecursMonthNth: {
                         addRule(rrule, "FREQ", "MONTHLY");
                         setInterval(rrule, oPattern.Interval);
-                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
-                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
+                        List<String> byDay = getByDay(oPattern.DayOfWeekMask);
+                        if (byDay.Count == 1) {
+                            String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                            addRule(rrule, "BYDAY", byDayRelative + string.Join(",", byDay));
+                        } else {
+                            addRule(rrule, "BYDAY", string.Join(",", byDay));
+                            addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        }
                         break;
                     }
 
@@ -108,8 +114,15 @@ namespace OutlookGoogleCalendarSync.Google {
                             addRule(rrule, "INTERVAL", (oPattern.Interval / 12).ToString());
                         addRule(rrule, "BYMONTH", oPattern.MonthOfYear.ToString());
                         */
-                        String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
-                        addRule(rrule, "BYDAY", byDayRelative + string.Join(",", getByDay(oPattern.DayOfWeekMask)));
+                        List<String> byDay = getByDay(oPattern.DayOfWeekMask);
+                        if (byDay.Count == 1) {
+                            String byDayRelative = (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString();
+                            addRule(rrule, "BYDAY", byDayRelative + string.Join(",", byDay));
+                        } else {
+                            if (byDay.Count != 7) //If not every day of week, define which ones
+                                addRule(rrule, "BYDAY", string.Join(",", byDay));
+                            addRule(rrule, "BYSETPOS", (oPattern.Instance == 5) ? "-1" : oPattern.Instance.ToString());
+                        }
                         break;
                     }
             }
@@ -325,7 +338,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
             log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
-            List<Event> gInstances = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID);
+            List<Event> gInstances = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID, true);
             if (gInstances == null) return null;
 
             foreach (Event gInst in gInstances) {
@@ -414,6 +427,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!ai.IsRecurring) return;
 
             log.Debug("Creating Google recurrence exceptions.");
+            //Sync all exceptions regardless whether within synced date range; otherwise exceptions that come in scope later but have not been recently modified will not be compared
             List<Event> gRecurrences = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(recurringEventId);
             if (gRecurrences == null) return;
 
@@ -422,6 +436,7 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 rp = ai.GetRecurrencePattern();
                 excps = rp.Exceptions;
+                log.Debug(excps.Count + " recurring exceptions to be created.");
                 for (int e = 1; e <= excps.Count; e++) {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
@@ -520,7 +535,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     excps = rp.Exceptions;
                     if (excps.Count > 0) {
                         log.Debug(Outlook.Calendar.GetEventSummary(ai));
-                        log.Debug("This is a recurring appointment with " + excps.Count + " exceptions that will now be iteratively compared.");
+                        log.Debug("This is a recurring appointment with " + excps.Count + " exceptions that will now be iteratively compared, if inside synced date range.");
                         for (int e = 1; e <= excps.Count; e++) {
                             Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                             AppointmentItem aiExcp = null;

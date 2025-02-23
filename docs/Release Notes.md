@@ -1,6 +1,25 @@
 | Release Notes |
 |:---|
 
+# v2.11.3.0 - Alpha
+
+**Enhancements**
+- Application
+    - Added a "news" service that surfaces messages, eg critical bugs and hotfixes
+    - Miscellenous logging improvements
+- Sync Engine
+    - Further optimisation retrieving Google recurring series and its instances
+
+**Bugfix**
+- Application
+    - Improvements dropdown refresh for Google default calendar colour.
+- Sync Engine
+    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
+        - Fixed logging of Google Event summary local time
+    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
+    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
+    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
+
 # v2.11.2.0 - Alpha
 
 **Enhancements**
