@@ -118,7 +118,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
-                        .WithPrompt(Microsoft.Identity.Client.Prompt.Consent)
+                        .WithPrompt(!tokenFileExists ? Microsoft.Identity.Client.Prompt.SelectAccount : Microsoft.Identity.Client.Prompt.Consent)
                         .ExecuteAsync();
 
                     if (tokenFileExists)
@@ -129,7 +129,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
-                    if (msalInteractiveEx.ErrorCode == "authentication_canceled") {
+                    if (new String[] { "access_denied", "authentication_canceled" }.Contains(msalInteractiveEx.ErrorCode)) {
                         CancelTokenSource.Cancel(true);
                         return false;
                     } else {
