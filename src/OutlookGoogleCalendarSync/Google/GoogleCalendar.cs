@@ -1213,7 +1213,11 @@ namespace OutlookGoogleCalendarSync.Google {
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
-                        if (Ogcs.Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId))) {
+                        if ((Sync.Engine.Calendar.Instance.Profile.OutlookService != Outlook.Calendar.Service.Graph && 
+                            Ogcs.Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId))) ||
+                            (Sync.Engine.Calendar.Instance.Profile.OutlookService == Outlook.Calendar.Service.Graph &&
+                            Ogcs.Outlook.Graph.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId)))) //
+                        {
                             log.Fine("Refrained from removing Outlook metadata from Event; avoids duplication back into Outlook.");
                         } else {
                             CustomProperty.RemoveOutlookIDs(ref ev);

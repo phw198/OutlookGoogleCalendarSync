@@ -1329,6 +1329,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                 }
                             }
                         }
+            */
                         if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                             //Don't recreate any items that have been deleted in Google
                             for (int o = outlook.Count - 1; o >= 0; o--) {
@@ -1338,11 +1339,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                             for (int g = google.Count - 1; g >= 0; g--) {
                                 if (!Ogcs.Google.CustomProperty.Exists(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ||
-                                    google[g].Updated > Sync.Engine.Instance.SyncStarted)
+                                    google[g].UpdatedDateTimeOffset > Sync.Engine.Instance.SyncStarted)
                                     google.Remove(google[g]);
                             }
                         }
-            */
                         if (profile.DisableDelete) {
                             if (google.Count > 0) {
                                 Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);

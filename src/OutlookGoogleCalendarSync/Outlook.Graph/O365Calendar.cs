@@ -556,11 +556,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //*** Need API handling
             }
 
-            /*if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
+            if (createdAi != null && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev))) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
-                Ogcs.Google.CustomProperty.AddOutlookIDs(ref ev, ai);
+                Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, createdAi);
                 Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
-            }*/
+            }
 
             return createdAi;
         }
@@ -1442,6 +1442,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 }
             }
+            */
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Outlook
                 for (int g = google.Count - 1; g >= 0; g--) {
@@ -1455,7 +1456,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         outlook.Remove(outlook[o]);
                 }
             }
-            */
             if (profile.DisableDelete) {
                 if (outlook.Count > 0) {
                     Forms.Main.Instance.Console.Update(outlook.Count + " Outlook items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
