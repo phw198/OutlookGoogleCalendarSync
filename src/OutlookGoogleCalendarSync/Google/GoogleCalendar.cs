@@ -173,9 +173,10 @@ namespace OutlookGoogleCalendarSync.Google {
 
         /// <summary>Retrieve all instances for a recurring series.</summary>
         public List<Event> GetCalendarEntriesInRecurrence(String recurringEventId, Boolean filterToSyncDates = false) {
-            if (filterToSyncDates && instancesFromMasterSeries?.FirstOrDefault().RecurringEventId == recurringEventId) return instancesFromMasterSeries;
+            if (filterToSyncDates && (instancesFromMasterSeries?.Any() ?? false) && 
+                instancesFromMasterSeries.FirstOrDefault().RecurringEventId == recurringEventId) return instancesFromMasterSeries;
 
-            List<Event> result = new List<Event>();
+            List<Event> result = new List<Event>();            
             Events request = null;
             String pageToken = null;
             Int16 pageNum = 1;
