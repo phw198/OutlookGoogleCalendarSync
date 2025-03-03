@@ -450,7 +450,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         #region Update
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
             foreach (KeyValuePair<AppointmentItem, Event> compare in entriesToBeCompared) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
@@ -486,17 +485,17 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (ai.IsRecurring) {
                             if (!aiWasRecurring) {
                                 log.Debug("Appointment has changed from single instance to recurring.");
-                                Recurrence.CreateOutlookExceptions(compare.Value, ref ai);
+                                entriesUpdated += Recurrence.CreateOutlookExceptions(compare.Value, ref ai);
                             } else {
                                 log.Debug("Recurring master appointment has been updated, so now checking if exceptions need reinstating.");
-                                Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: true);
+                                entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: true);
                             }
                         }
 
                     } else {
                         if (ai.RecurrenceState == OlRecurrenceState.olApptMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
                             log.Debug(Ogcs.Google.Calendar.GetEventSummary(compare.Value));
-                            Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: false);
+                            entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: false);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
                             if (ai.LastModificationTime > compare.Value.UpdatedDateTimeOffset && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))

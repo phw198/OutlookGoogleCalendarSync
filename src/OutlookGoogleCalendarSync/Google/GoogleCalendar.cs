@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync.Google {
         private Boolean openedIssue1593 = false;
         public Ogcs.Google.Authenticator Authenticator;
 
-        /// <summary>Google Events excluded through user config <Event.Id, Appt.EntryId></summary>
+        /// <summary>Google Events excluded through user config <Event.Id></summary>
         public List<String> ExcludedByConfig { get; set; }
         /// <summary>Google Events excluded by colour through user config <Event.Id, Appt.EntryId></summary>
         public Dictionary<String, String> ExcludedByColour { get; set; }
@@ -775,7 +775,6 @@ namespace OutlookGoogleCalendarSync.Google {
 
         #region Update
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
@@ -821,9 +820,9 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+                entriesUpdated += Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
-                if (itemModified == 0) {
+                if (itemModified  == 0) {
                     if (ev == null) {
                         if (compare.Value.UpdatedDateTimeOffset < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
                             ev = compare.Value;
@@ -928,7 +927,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             if (profile.AddDescription) {
                 String outlookBody = ai.Body;
-                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && profile.AddDescription_OnlyToGoogle &&
                     string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {
                     log.Warn("Avoided loss of Google description, as none exists in Outlook.");
