@@ -138,8 +138,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true,
-            Boolean noDateFilter = false, String extraFilter = "", Boolean suppressAdvisories = false) {
+        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true, Boolean suppressAdvisories = false) {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
 
             List<AppointmentItem> result = new List<AppointmentItem>();
@@ -165,13 +164,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                 System.DateTime min = System.DateTime.MinValue;
                 System.DateTime max = System.DateTime.MaxValue;
-                if (!noDateFilter) {
-                    min = profile.SyncStart;
-                    max = profile.SyncEnd;
-                }
+                min = profile.SyncStart;
+                max = profile.SyncEnd;
 
                 string filter = "[End] >= '" + min.ToString(profile.OutlookDateFormat) +
-                    "' AND [Start] < '" + max.ToString(profile.OutlookDateFormat) + "'" + extraFilter;
+                    "' AND [Start] < '" + max.ToString(profile.OutlookDateFormat) + "'";
                 log.Fine("Filter string: " + filter);
 
                 Int32 allDayFiltered = 0;
