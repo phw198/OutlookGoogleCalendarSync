@@ -540,7 +540,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
 
-                Recurrence.CreateGoogleExceptions(ai, ref createdEvent);
+                //Recurrence.CreateGoogleExceptions(ai, ref createdEvent);
             }
         }
 
@@ -1286,7 +1286,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         public static void IdentifyEventDifferences(
             ref List<Microsoft.Graph.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare)
+            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare) //
         {
             log.Debug("Comparing Outlook items to Google events...");
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
@@ -1297,19 +1297,20 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             IdentifyEventDifferences_IDs(profile, ref outlook, ref google, ref compare);
 
             if (Sync.Engine.Instance.CancellationPending) return;
-            /*
-                        if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
-                            //Check if Outlook items to be created in Google have invitations not yet responded to
-                            int responseFiltered = 0;
-                            for (int o = outlook.Count - 1; o >= 0; o--) {
-                                if (outlook[o].ResponseStatus == Microsoft.Graph.ResponseStatus) { // OlResponseStatus.olResponseNotResponded) {
-                                    outlook.Remove(outlook[o]);
-                                    responseFiltered++;
-                                }
-                            }
-                            if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
-                        }
 
+            if (outlook.Count > 0 && profile.OnlyRespondedInvites) {
+                //Check if Outlook items to be created in Google have invitations not yet responded to
+                int responseFiltered = 0;
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (outlook[o].ResponseStatus.Response == Microsoft.Graph.ResponseType.NotResponded) {
+                        outlook.Remove(outlook[o]);
+                        responseFiltered++;
+                    }
+                }
+                if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be created due to only syncing invites that have been responded to.");
+            }
+
+            /*
                         if (google.Count > 0 && Outlook.Calendar.Instance.ExcludedByCategory?.Count > 0 && !profile.DeleteWhenCategoryExcluded) {
                             //Check if Google items to be deleted were filtered out from Outlook
                             for (int g = google.Count - 1; g >= 0; g--) {
@@ -1329,32 +1330,32 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             }
                         }
             */
-                        if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                            //Don't recreate any items that have been deleted in Google
-                            for (int o = outlook.Count - 1; o >= 0; o--) {
-                                if (Outlook.Graph.CustomProperty.Exists(outlook[o], Outlook.Graph.CustomProperty.MetadataId.gEventID))
-                                    outlook.Remove(outlook[o]);
-                            }
-                            //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
-                            for (int g = google.Count - 1; g >= 0; g--) {
-                                if (!Ogcs.Google.CustomProperty.Exists(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ||
-                                    google[g].UpdatedDateTimeOffset > Sync.Engine.Instance.SyncStarted)
-                                    google.Remove(google[g]);
-                            }
-                        }
-                        if (profile.DisableDelete) {
-                            if (google.Count > 0) {
-                                Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
-                                for (int g = 0; g < google.Count; g++)
-                                    Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
-                            }
-                            google = new List<Event>();
-                        }
-                        /*
-                        if (Settings.Instance.CreateCSVFiles) {
-                            Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
-                            Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
-                        }*/
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                //Don't recreate any items that have been deleted in Google
+                for (int o = outlook.Count - 1; o >= 0; o--) {
+                    if (Outlook.Graph.CustomProperty.Exists(outlook[o], Outlook.Graph.CustomProperty.MetadataId.gEventID))
+                        outlook.Remove(outlook[o]);
+                }
+                //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
+                for (int g = google.Count - 1; g >= 0; g--) {
+                    if (!Ogcs.Google.CustomProperty.Exists(google[g], Ogcs.Google.CustomProperty.MetadataId.oEntryId) ||
+                        google[g].UpdatedDateTimeOffset > Sync.Engine.Instance.SyncStarted)
+                        google.Remove(google[g]);
+                }
+            }
+            if (profile.DisableDelete) {
+                if (google.Count > 0) {
+                    Forms.Main.Instance.Console.Update(google.Count + " Google items would have been deleted, but you have deletions disabled.", Console.Markup.warning);
+                    for (int g = 0; g < google.Count; g++)
+                        Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary(google[g], out String anonSummary), anonSummary, verbose: true);
+                }
+                google = new List<Event>();
+            }
+            /*
+            if (Settings.Instance.CreateCSVFiles) {
+                Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
+                Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
+            }*/
         }
         public static Boolean ItemIDsMatch(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
