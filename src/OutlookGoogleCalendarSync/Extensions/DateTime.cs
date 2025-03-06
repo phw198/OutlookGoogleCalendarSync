@@ -71,7 +71,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTimeOffset</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
-            return evDt.DateTimeDateTimeOffset?.ToLocalTime() ?? System.DateTimeOffset.Parse(evDt.Date);
+            return evDt.DateTimeDateTimeOffset?.ToLocalTime() ?? System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
         }
 
         /// <summary>

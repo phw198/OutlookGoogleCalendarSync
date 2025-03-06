@@ -861,7 +861,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
             if (profile.AddDescription) {
                 String outlookBody = ai.Body.BodyInnerHtml();
-                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && profile.AddDescription_OnlyToGoogle &&
                     string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {
                     log.Warn("Avoided loss of Google description, as none exists in Outlook.");

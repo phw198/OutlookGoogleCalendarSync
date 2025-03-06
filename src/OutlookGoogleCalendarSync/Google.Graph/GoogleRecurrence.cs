@@ -215,8 +215,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         /// <returns></returns>
         private static GcalData.Event getGoogleInstance(Event oExcp, String gRecurringEventID, Boolean dirtyCache, Boolean isDeleted) {
             log.Debug("Finding Google instance for " + (isDeleted ? "deleted " : "") + "Outlook exception:-");
-            if (oExcp.OriginalStart != null) 
-                log.Debug("  Original date: " + ((System.DateTimeOffset)oExcp.OriginalStart).UtcDateTime.ToString("dd/MM/yyyy"));
+            if (oExcp.OriginalStart != null)
+                log.Debug("  Original date: " + ((System.DateTimeOffset)oExcp.OriginalStart).Date.ToString("dd/MM/yyyy"));
+            
             if (!isDeleted)
                 log.Debug("  Current  date: " + oExcp.Start.SafeDateTime().ToString("dd/MM/yyyy"));
             
@@ -227,8 +228,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 Google.Calendar.Instance.GetCalendarEntriesInRange(gRecurringEventID);
             }
             foreach (GcalData.Event gExcp in Google.Recurrence.GoogleExceptions.Where(g => g.RecurringEventId == gRecurringEventID).ToList()) {
-                if ((isDeleted && oExcp.OriginalStart == gExcp.OriginalStartTime.SafeDateTime().Date)
-                    || (!isDeleted && oExcp.OriginalStart == gExcp.OriginalStartTime.SafeDateTime())) {
+                if ((isDeleted && oExcp.OriginalStart?.Date == gExcp.OriginalStartTime.SafeDateTimeOffset().Date)
+                    || (!isDeleted && oExcp.OriginalStart == gExcp.OriginalStartTime.SafeDateTimeOffset())) {
                     return gExcp;
                 }
             }
@@ -238,8 +239,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             if (gInstances == null) return null;
 
             foreach (GcalData.Event gInst in gInstances) {
-                if ((isDeleted && oExcp.OriginalStart == gInst.OriginalStartTime.SafeDateTime().Date)
-                    || (!isDeleted && oExcp.OriginalStart == gInst.OriginalStartTime.SafeDateTime())) {
+                if ((isDeleted && oExcp.OriginalStart?.Date == gInst.OriginalStartTime.SafeDateTimeOffset().Date)
+                    || (!isDeleted && oExcp.OriginalStart == gInst.OriginalStartTime.SafeDateTimeOffset())) {
                     return gInst;
                 }
             }
@@ -485,11 +486,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             int excp_itemModified = 0;
                             try {
                                 //Force a compare of the exception if both G and O have been modified within 24 hours
-                                TimeSpan modifiedDiff = (TimeSpan)(gExcp.Updated - aiExcp.LastModifiedDateTime?.ToLocalTime());
+                                TimeSpan modifiedDiff = (TimeSpan)(gExcp.UpdatedDateTimeOffset - aiExcp.LastModifiedDateTime);
                                 log.Fine("Modification time difference (in days) between G and O exception: " + modifiedDiff);
                                 Boolean forceCompare = modifiedDiff < TimeSpan.FromDays(1);
                                 Calendar.UpdateCalendarEntry(aiExcp, gExcp, ref excp_itemModified, forceCompare);
-                                if (forceCompare && excp_itemModified == 0) {
+                                if (forceCompare && excp_itemModified == 0 && System.DateTime.Now > aiExcp.LastModifiedDateTime?.AddDays(1)) {
                                     Ogcs.Google.CustomProperty.SetOGCSlastModified(ref gExcp);
                                     try {
                                         log.Debug("Doing a dummy update in order to update the last modified date of Google recurring series exception.");
