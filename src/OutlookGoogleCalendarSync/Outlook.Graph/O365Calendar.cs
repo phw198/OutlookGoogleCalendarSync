@@ -4,6 +4,7 @@ using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -799,7 +800,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 }
             }
-            if (ai.Recurrence == null /*|| ai.RecurrenceState == OlRecurrenceState.olApptMaster*/) {
+            if (ai.Recurrence == null || ai.Type == EventType.SeriesMaster) {
                 Sensitivity gPrivacy = getPrivacy(ev.Visibility, ai.Sensitivity);
                 if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.GoogleToOutlook, gPrivacy.ToString(), ai.Sensitivity.ToString(), sb, ref itemModified)) {
                     aiPatch.Sensitivity = gPrivacy;
@@ -1236,6 +1237,93 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return (ai.Subject + ";" + ai.Start.SafeDateTime().ToPreciseString() + ";" + ai.End.SafeDateTime().ToPreciseString()).Trim();
         }
 
+        public static void ExportToCSV(String action, String filename, List<Event> ais) {
+            if (!Settings.Instance.CreateCSVFiles) return;
+
+            log.Debug("CSV export: " + action);
+
+            String fullFilename = Path.Combine(Program.UserFilePath, filename);
+            try {
+                if (System.IO.File.Exists(fullFilename)) {
+                    String backupFilename = Path.Combine(Program.UserFilePath, Path.GetFileNameWithoutExtension(filename) + "-prev") + Path.GetExtension(filename);
+                    if (System.IO.File.Exists(backupFilename)) System.IO.File.Delete(backupFilename);
+                    System.IO.File.Move(fullFilename, backupFilename);
+                    log.Debug("Previous export renamed to " + backupFilename);
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to backup previous CSV file.");
+            }
+
+            Stream stream = null;
+            TextWriter tw = null;
+            try {
+                try {
+                    stream = new FileStream(Path.Combine(Program.UserFilePath, filename), FileMode.Create, FileAccess.Write);
+                    tw = new StreamWriter(stream, Encoding.UTF8);
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to create CSV file '" + filename + "'.", Console.Markup.error);
+                    ex.Analyse("Error opening file '" + filename + "' for writing.");
+                    return;
+                }
+                try {
+                    String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
+                    CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
+                    CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
+                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save";
+                    tw.WriteLine(CSVheader);
+                    foreach (Event ai in ais) {
+                        try {
+                            tw.WriteLine(exportToCSV(ai));
+                        } catch (System.Exception ex) {
+                            Forms.Main.Instance.Console.Update(GetEventSummary("Failed to output following Outlook appointment to CSV:-<br/>", ai, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning);
+                            Ogcs.Exception.Analyse(ex, true);
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    Forms.Main.Instance.Console.Update("Failed to output Outlook events to CSV.", Console.Markup.error);
+                    Ogcs.Exception.Analyse(ex);
+                }
+            } finally {
+                if (tw != null) tw.Close();
+                if (stream != null) stream.Close();
+            }
+            log.Fine("CSV export done.");
+        }
+        private static string exportToCSV(Event ai) {
+            StringBuilder csv = new StringBuilder();
+            
+            csv.Append(ai.Start.SafeDateTime().ToPreciseString() + ",");
+            csv.Append(ai.End.SafeDateTime().ToPreciseString() + ",");
+            csv.Append("\"" + ai.Subject + "\",");
+
+            if (ai.Location == null) csv.Append(",");
+            else csv.Append("\"" + ai.Location.DisplayName + "\",");
+
+            if (ai.Body == null) csv.Append(",");
+            else {
+                String csvBody = ai.BodyPreview.Replace("\"", "");
+                csvBody = csvBody.Replace("\r\n", " ");
+                csv.Append("\"" + csvBody.Substring(0, System.Math.Min(csvBody.Length, 100)) + "\",");
+            }
+
+            csv.Append("\"" + ai.Sensitivity?.ToString() + "\",");
+            csv.Append("\"" + ai.ShowAs?.ToString() + "\",");
+            String[] requiredAttendees = ai.Attendees?.Where(a => a.Type == AttendeeType.Required).ToList().Select(a => a.EmailAddress.Name).ToArray() ;
+            csv.Append("\"" + string.Join(";", requiredAttendees) + "\",");
+            String[] optionalAttendees = ai.Attendees?.Where(a => a.Type == AttendeeType.Optional).ToList().Select(a => a.EmailAddress.Name).ToArray();
+            csv.Append("\"" + string.Join(";", optionalAttendees) + "\",");
+            csv.Append(ai.IsReminderOn + ",");
+            csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
+            csv.Append(ai.ICalUId + ",");
+            csv.Append(ai.Id + "," + Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id + ",");
+            csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) ?? "") + ",");
+            csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
+            csv.Append(CustomProperty.GetOGCSlastModified(ai).ToString() + ",");
+            csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.forceSave) ?? ""));
+
+            return csv.ToString();
+        }
+
         /// <summary>
         /// Get the anonymised summary of an appointment item, else standard summary.
         /// </summary>
@@ -1452,12 +1540,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         Forms.Main.Instance.Console.Update(GetEventSummary(outlook[o], out String anonSummary), anonSummary, verbose: true);
                 }
                 outlook = new();
-            }/*
+            }
             if (Settings.Instance.CreateCSVFiles) {
                 ExportToCSV("Appointments for deletion in Outlook", "outlook_delete.csv", outlook);
                 Ogcs.Google.Calendar.ExportToCSV("Events for creation in Outlook", "outlook_create.csv", google);
             }
-            */
         }
 
         public static Boolean ItemIDsMatch(Microsoft.Graph.Event ai, GcalData.Event ev) {

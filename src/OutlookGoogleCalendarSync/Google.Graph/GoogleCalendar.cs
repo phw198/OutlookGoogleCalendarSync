@@ -1351,11 +1351,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 }
                 google = new List<Event>();
             }
-            /*
             if (Settings.Instance.CreateCSVFiles) {
                 Ogcs.Google.Calendar.ExportToCSV("Events for deletion in Google", "google_delete.csv", google);
                 Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
-            }*/
+            }
         }
         public static Boolean ItemIDsMatch(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
