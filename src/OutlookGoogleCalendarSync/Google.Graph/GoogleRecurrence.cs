@@ -391,8 +391,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
         }
 
-        public static void UpdateGoogleExceptions(Event aiMaster, GcalData.Event ev, Boolean dirtyCache) {
-            if (aiMaster.Type != Microsoft.Graph.EventType.SeriesMaster) return;
+        public static int UpdateGoogleExceptions(Event aiMaster, GcalData.Event ev, Boolean dirtyCache) {
+            int updatesMade = 0;
+            if (aiMaster.Type != Microsoft.Graph.EventType.SeriesMaster) return updatesMade;
 
             List<System.DateTime> cancelledDates;
             Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences.TryGetValue(aiMaster.Id, out cancelledDates);
@@ -402,7 +403,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             List<Event> aiExcps = Outlook.Graph.Recurrence.GetExceptions(aiMaster);
             log.Fine($"{aiExcps.Count} modified exceptions in range.");
             
-            if (aiExcps.Count + cancelledDates.Count == 0) return;
+            if (aiExcps.Count + cancelledDates.Count == 0) return updatesMade;
 
             log.Debug(Outlook.Graph.Calendar.GetEventSummary(aiMaster));
             log.Debug("This is a recurring appointment with " + (aiExcps.Count + cancelledDates.Count) + " exceptions that will now be iteratively compared.");
@@ -444,6 +445,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             log.Debug("Google Exception deleted for " + cancelledDate.ToString("dd/MM/yyyy"));
                             try {
                                 Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
+                                updatesMade++;
                             } catch (System.Exception ex) {
                                 Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary3, true), ex, logEntry: anonSummary3);
                                 log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gExcp));
@@ -507,6 +509,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             if (excp_itemModified > 0) {
                                 try {
                                     Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
+                                    updatesMade++;
                                 } catch (System.Exception ex) {
                                     Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
                                     log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gExcp));
@@ -527,6 +530,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ex.Analyse();
             }
             #endregion
+
+            return updatesMade;
         }
         #endregion
     }

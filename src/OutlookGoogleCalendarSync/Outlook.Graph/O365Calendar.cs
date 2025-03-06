@@ -116,7 +116,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 System.Net.Http.HttpRequestMessage httpMessage = er.GetHttpRequestMessage().AddAuthorisation();
                 System.Net.Http.HttpResponseMessage response = graphClient.HttpProvider.SendAsync(httpMessage).Result;
                 String jsonContent = response.Content.ReadAsStringAsync().Result;
-                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None } );
+                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None });
                 Newtonsoft.Json.Linq.JToken tk = Newtonsoft.Json.Linq.JObject.Parse(jsonContent).SelectToken("cancelledOccurrences");
                 foreach (String cancelledOccurrence in tk) {
                     System.DateTime cancelledDate = System.DateTime.ParseExact(cancelledOccurrence.Replace($"OID.{eventId}.", ""), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
@@ -201,7 +201,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             //ExcludedByCategory = new();
 
             profile ??= Settings.Profile.InPlay();
-            
+
             System.DateTime min = System.DateTime.MinValue;
             System.DateTime max = System.DateTime.MaxValue;
             if (!noDateFilter) {
@@ -568,7 +568,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         #region Update
         public void UpdateCalendarEntries(Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
             foreach (KeyValuePair<Microsoft.Graph.Event, GcalData.Event> compare in entriesToBeCompared) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
@@ -606,20 +605,20 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     if (ai.Type == EventType.SeriesMaster) {
                         if (!aiWasRecurring) {
                             log.Debug("Appointment has changed from single instance to recurring.");
-                            Recurrence.CreateOutlookExceptions(compare.Value, ai);
+                            entriesUpdated += Recurrence.CreateOutlookExceptions(compare.Value, ai);
                         } else {
                             log.Debug("Recurring master appointment has been updated, so now checking if exceptions need reinstating.");
-                            Recurrence.UpdateOutlookExceptions(compare.Value, ai, forceCompare: true);
+                            entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ai, forceCompare: true);
                         }
                     }
 
                 } else {
                     if (ai.Type == EventType.SeriesMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
                         log.Debug(Ogcs.Google.Calendar.GetEventSummary(compare.Value));
-                        Recurrence.UpdateOutlookExceptions(compare.Value, ai, forceCompare: false);
+                        entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ai, forceCompare: false);
 
                     } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
-                        if (ai.LastModifiedDateTime > compare.Value.Updated && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                        if (ai.LastModifiedDateTime > compare.Value.UpdatedDateTimeOffset && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
                             continue;
 
                         log.Debug("Doing a dummy update in order to update the last modified date.");

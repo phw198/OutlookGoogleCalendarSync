@@ -277,18 +277,19 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        public static void CreateOutlookExceptions(GcalData.Event ev, Event createdAi) {
-            if (ev.Recurrence == null || ev.RecurringEventId != null) return;
+        public static int CreateOutlookExceptions(GcalData.Event ev, Event createdAi) {
+            int updatesMade = 0;
+            if (ev.Recurrence == null || ev.RecurringEventId != null) return updatesMade;
 
             try {
                 List<GcalData.Event> evExceptions = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
-                if (evExceptions.Count == 0) return;
+                if (evExceptions.Count == 0) return updatesMade;
 
                 Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
 
                 log.Debug("Creating Google recurrence exceptions.");
                 List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(createdAi.Id);
-                if ((oRecurrences?.Count ?? 0) == 0) return;
+                if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 log.Debug($"Modifying {evExceptions.Count} occurrences.");
                 foreach (GcalData.Event gExcp in evExceptions) {
@@ -310,10 +311,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             Forms.Main.Instance.Console.Update(Outlook.Graph.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             oRecurrences.Remove(newAiExcp);
                             Calendar.Instance.DeleteCalendarEntry_save(newAiExcp);
+                            updatesMade++;
                         /*
                         } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
                             Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
+                            updatesMade++;
                         */
                         } else {
                             int itemModified = 0;
@@ -321,6 +324,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             if (Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch, true)) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
+                                    updatesMade++;
                                 } catch (Microsoft.Graph.ServiceException ex) {
                                     if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
@@ -341,14 +345,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ex2.Analyse("Failed to process modified Google occurrences on new Outlook series.");
             }
             Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
+            
+            return updatesMade;
         }
 
-        public static void UpdateOutlookExceptions(GcalData.Event ev, Event ai, Boolean forceCompare) {
-            if (ev.Recurrence == null || ev.RecurringEventId != null) return;
+        public static int UpdateOutlookExceptions(GcalData.Event ev, Event ai, Boolean forceCompare) {
+            int updatesMade = 0;
+            if (ev.Recurrence == null || ev.RecurringEventId != null) return updatesMade;
 
             try {
                 List<GcalData.Event> evExceptions = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
-                if (evExceptions.Count == 0) return;
+                if (evExceptions.Count == 0) return updatesMade;
 
                 log.Debug($"{evExceptions.Count} Google recurrence exceptions within sync range to be compared.");
 
@@ -357,7 +364,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Fine($"{evExceptions.Count - gCancelledExcps.Count} Google modified exceptions.");
 
                 List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id);
-                if ((oRecurrences?.Count ?? 0) == 0) return;
+                if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 foreach (GcalData.Event gExcp in evExceptions) {
                     System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
@@ -388,10 +395,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             Forms.Main.Instance.Console.Update(Outlook.Graph.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             oRecurrences.Remove(newAiExcp);
                             Calendar.Instance.DeleteCalendarEntry_save(newAiExcp);
+                            updatesMade++;
                             /*
                             } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
                                 Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                                 newAiExcp.Delete();
+                                updatesMade++;
                             */
                         } else {
                             int itemModified = 0;
@@ -401,6 +410,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             if (itemModified > 0) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
+                                    updatesMade++;
                                 } catch (Microsoft.Graph.ServiceException ex) {
                                     if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
@@ -420,6 +430,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } catch (System.Exception ex2) {
                 ex2.Analyse("Failed to process modified Google occurrences on new Outlook series.");
             }
+
+            return updatesMade;
         }
         #endregion
     }

@@ -704,7 +704,6 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
         #region Update
         public static void UpdateCalendarEntries(Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
@@ -750,7 +749,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+                entriesUpdated += Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
                 if (itemModified == 0) {
                     if (ev == null) {
