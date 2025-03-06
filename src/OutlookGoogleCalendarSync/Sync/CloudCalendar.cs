@@ -72,7 +72,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                 if (gotItems != SyncResult.OK) return gotItems;
                 if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                 #endregion
-                
+
+                console.Update("Outlook " + outlookEntries.Count + ", Google " + googleEntries.Count);
+
+                Ogcs.Google.Calendar.ExportToCSV("Outputting all Events.", "google_events.csv", googleEntries);
+                Outlook.Graph.Calendar.ExportToCSV("Outputting all Appointments.", "outlook_appointments.csv", outlookEntries);
+
                 Boolean success = true;
                 String bubbleText = "";
 

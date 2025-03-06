@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using System;
+using System.Globalization;
 
 namespace OutlookGoogleCalendarSync.Extensions {
     public class OgcsDateTime {
@@ -44,7 +45,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="dt">Date-time value</param>
         /// <returns>Formatted string</returns>
         public static String ToPreciseString(this System.DateTime dt) {
-            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
+            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new CultureInfo("en-US"));
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="dt">Date-time offset value</param>
         /// <returns>Formatted string</returns>
         public static String ToPreciseString(this System.DateTimeOffset dt) {
-            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
+            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new CultureInfo("en-US"));
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTimeOffset</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
-            return evDt.DateTimeDateTimeOffset?.ToLocalTime() ?? System.DateTimeOffset.Parse(evDt.Date);
+            return evDt.DateTimeDateTimeOffset?.ToLocalTime() ?? System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, System.Globalization.DateTimeStyles.AssumeUniversal);
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
                 if (safeDate.ToUniversalTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
                     safeDate = safeDate.Date;
                     safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Unspecified);

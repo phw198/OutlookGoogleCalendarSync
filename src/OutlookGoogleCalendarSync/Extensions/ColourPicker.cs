@@ -73,6 +73,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             foreach (Ogcs.Google.EventColour.Palette palette in Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette) {
                 Items.Add(palette);
             }
+            Rebuild();
         }
 
         public void ColourPicker_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e) {
@@ -89,13 +90,16 @@ namespace OutlookGoogleCalendarSync.Extensions {
             get { return (Ogcs.Google.EventColour.Palette)base.SelectedItem; }
             set { base.SelectedItem = value; }
         }
-        
+
         private void ColourPicker_Enter(object sender, EventArgs e) {
             if (Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(Forms.Main.Instance.ActiveCalendarProfile.UseGoogleCalendar.Id)) {
                 Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+            Rebuild();
+        }
 
+        public void Rebuild(Boolean force = false) {
             ToolTip loading = new ToolTip();
             try {
                 Ogcs.Google.EventColour.Palette currentSelection = null;
@@ -111,16 +115,18 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     
                     loading.Hide(this);
                 }
-                if (Items.Count != Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette.Count) {
-                    while (Items.Count > 0)
-                        Items.RemoveAt(0);
-                    AddPaletteColours(true);
-                }
+                if (!force && Items.Count == Ogcs.Google.Calendar.Instance.ColourPalette.ActivePalette.Count) return;
 
-                foreach (Ogcs.Google.EventColour.Palette pInfo in Items) {
-                    if (pInfo.Id == currentSelection?.Id) {
-                        SelectedItem = pInfo;
-                        break;
+                while (Items.Count > 0)
+                    Items.RemoveAt(0);
+                AddPaletteColours(true);
+
+                if (currentSelection != null) {
+                    foreach (Ogcs.Google.EventColour.Palette pInfo in Items) {
+                        if (pInfo.Id == currentSelection?.Id) {
+                            SelectedItem = pInfo;
+                            break;
+                        }
                     }
                 }
             } catch (System.Exception ex) {
