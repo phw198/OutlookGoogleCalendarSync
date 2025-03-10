@@ -31,7 +31,8 @@ github-repo: https://github.com/phw198/OutlookGoogleCalendarSync
 twitter_username: OGcalsync
 github_username:  phw198
 
-google_analytics: UA-19426033-4
+# google_analytics: UA-19426033-4
+google_analytics: G-3YRMX5K6QM
 google_ad_client: ca-pub-5710461137665920
 # google_ad_testing: "on"
 google_ad_testing: "off"
