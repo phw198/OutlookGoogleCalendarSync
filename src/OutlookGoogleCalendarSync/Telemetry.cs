@@ -136,8 +136,9 @@ namespace OutlookGoogleCalendarSync {
             /// <summary>
             /// A GA4 measurement protocol containing just the header/envelope propeties
             /// </summary>
-            public GA4Event() {
-                prepareEnvelope();
+            /// <param name="withBlankEnvelope">Only include mandatory attributes</param>
+            public GA4Event(Boolean withBlankEnvelope = false) {
+                prepareEnvelope(withBlankEnvelope);
             }
             /// <summary>
             /// A GA4 event with no parameters
@@ -156,12 +157,14 @@ namespace OutlookGoogleCalendarSync {
                 events = new List<Event> { _event };
             }
 
-            private void prepareEnvelope() {
+            private void prepareEnvelope(Boolean withBlankEnvelope = false) {
                 //https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
                 //Maximum name length: 24; value length: 36
+                non_personalized_ads = true;
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
-                non_personalized_ads = true;
+                if (withBlankEnvelope) return;
+                
                 user_properties = new Dictionary<String, Dictionary<String, String>>();
                 user_properties.Add("ogcs_version", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
                 user_properties.Add("benefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
@@ -176,8 +179,12 @@ namespace OutlookGoogleCalendarSync {
                 user_properties.Add("city", new Dictionary<String, String> { { "value", Telemetry.Instance.City } });
             }
 
-            public void Send() {
-                if (Settings.Instance.TelemetryDisabled || Program.InDeveloperMode) {
+            /// <summary>
+            /// Send the telemetry data
+            /// </summary>
+            /// <param name="async">Submit telemetry asynchronously</param>
+            public void Send(Boolean async = true) {
+                if ((Settings.InstanceInitialiased && Settings.Instance.TelemetryDisabled) || Program.InDeveloperMode) {
                     log.Debug("Telemetry is disabled.");
                     return;
                 }
@@ -187,15 +194,18 @@ namespace OutlookGoogleCalendarSync {
 
                     Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
                     wc.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    wc.UploadStringCompleted += new UploadStringCompletedEventHandler(sendTelemetry_completed);
 
-                    GA4Event payload = this;
-                    String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+                    String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(this);
                     jsonPayload = jsonPayload.Replace("\"parameters\":", "\"params\":");
 
                     log.Debug("GA4: " + jsonPayload);
-                    wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
-
+                    if (async) {
+                        wc.UploadStringCompleted += new UploadStringCompletedEventHandler(sendTelemetry_completed);
+                        wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
+                    } else {
+                        String response = wc.UploadString(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
+                        log.Debug("GA4 OK " + response);
+                    }
                 } catch (System.Exception ex) {
                     Ogcs.Exception.Analyse(ex);
                 }
@@ -243,10 +253,12 @@ namespace OutlookGoogleCalendarSync {
                 /// <summary>
                 /// When sending an event, the "envelope" is created around it before posting
                 /// </summary>
-                public void Send() {
-                    GA4Event ga4Ev = new GA4Event();
+                /// <param name="withBlankEnvelope">Minimal information included</param>
+                /// <param name="async">Submit telemetry asynchronously</param>
+                public void Send(Boolean withBlankEnvelope = false, Boolean async = true) {
+                    GA4Event ga4Ev = new GA4Event(withBlankEnvelope);
                     ga4Ev.events = new List<Event> { this };
-                    ga4Ev.Send();
+                    ga4Ev.Send(async);
                 }
             }
         }
