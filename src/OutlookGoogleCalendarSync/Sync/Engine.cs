@@ -223,13 +223,14 @@ namespace OutlookGoogleCalendarSync.Sync {
         public static Boolean CompareAttribute(String attrDesc, Direction fromTo, String googleAttr, String outlookAttr, StringBuilder sb, ref int itemModified) {
             if (googleAttr == null) googleAttr = "";
             if (outlookAttr == null) outlookAttr = "";
-            //Truncate long strings
-            String googleAttr_stub = ((googleAttr.Length > 50) ? googleAttr.Substring(0, 47) + "..." : googleAttr).Replace("\r\n", " ");
-            String outlookAttr_stub = ((outlookAttr.Length > 50) ? outlookAttr.Substring(0, 47) + "..." : outlookAttr).Replace("\r\n", " ");
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);
             log.UltraFine("Outlook attribute: " + outlookAttr);
             if (googleAttr != outlookAttr) {
+                //Truncate long strings. IsLowSurrogate() avoids splitting a multi-byte character code.
+                int maxLength = 50;
+                String googleAttr_stub = ((googleAttr.Length > maxLength) ? googleAttr.Substring(0, maxLength - 3 - (char.IsLowSurrogate(googleAttr[maxLength - 3]) ? 1 : 0)) + "..." : googleAttr).Replace("\n", " ");
+                String outlookAttr_stub = ((outlookAttr.Length > maxLength) ? outlookAttr.Substring(0, maxLength - 3 - (char.IsLowSurrogate(outlookAttr[maxLength - 3]) ? 1 : 0)) + "..." : outlookAttr).Replace("\r\n", " ");
                 if (fromTo == Direction.GoogleToOutlook) {
                     sb.AppendLine(attrDesc + ": " + outlookAttr_stub + " => " + googleAttr_stub);
                 } else {
