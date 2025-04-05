@@ -138,6 +138,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         return false;
                     } else {
                         log.Fail("msalInteractiveEx.ErrorCode: " + msalInteractiveEx.ErrorCode);
+                        log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(msalInteractiveEx));
                         throw;
                     }
                 } catch (System.Exception) {
