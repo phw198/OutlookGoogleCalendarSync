@@ -9,6 +9,13 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(EmailAddress));
 
         public static String BuildFakeEmailAddress(String recipientName, out Boolean builtFakeEmail) {
+            //Ensure recipient name doesn't contain extended characters
+            byte[] nameBytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(recipientName);
+            String asciiRecipientName = System.Text.Encoding.ASCII.GetString(nameBytes);
+            if (recipientName != asciiRecipientName) {
+                log.Debug($"Recipient name '{recipientName}' converted to '{asciiRecipientName}'");
+                recipientName = asciiRecipientName;
+            }
             String buildFakeEmail = Regex.Replace(recipientName, @"[^\w\.-]", "");
             buildFakeEmail = buildFakeEmail.Trim('.');
             buildFakeEmail += "@unknownemail.com";
