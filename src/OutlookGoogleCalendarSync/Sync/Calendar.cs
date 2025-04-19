@@ -532,7 +532,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
-                        (ex.Message.Contains("daily Calendar quota has been exhausted") || ex.InnerException.GetErrorCode() == "0x80131500")) {
+                        ex.Message.Contains("daily Calendar quota has been exhausted")) {
                         Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
                         DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
                         String tryAfter = "08:00 GMT.";
