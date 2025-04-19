@@ -1434,6 +1434,10 @@ namespace OutlookGoogleCalendarSync.Google {
                             log.Warn("Item corrupted / inaccessible due to security certificate.");
                             outlook.Remove(outlook[o]);
                         } else {
+                            if (ex is System.Runtime.InteropServices.COMException) {
+                                Forms.Main.Instance.Console.Update("Communication with Outlook is failing - sync is unable to continue.", Console.Markup.warning);
+                                throw;
+                            }
                             log.Error(ex.Message);
                         }
                     }
@@ -1506,6 +1510,10 @@ namespace OutlookGoogleCalendarSync.Google {
                                 log.Warn("Item corrupted / inaccessible due to security certificate.");
                                 outlook.Remove(outlook[o]);
                             } else {
+                                if (ex is System.Runtime.InteropServices.COMException) {
+                                    Forms.Main.Instance.Console.Update("Communication with Outlook is failing - sync is unable to continue.", Console.Markup.warning);
+                                    throw;
+                                }
                                 log.Error(ex.Message);
                             }
                         }
