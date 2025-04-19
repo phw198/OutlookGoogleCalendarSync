@@ -868,7 +868,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
+                if (Ogcs.Extensions.MessageBox.Show($"Calendar: {Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}\r\nItem: {eventSummary}", "Confirm Deletion From Outlook",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
