@@ -82,48 +82,48 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 outlookVersionFull = "1.0";
             } else {
                 Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
-            try {
-                int attempts = 1;
-                int maxAttempts = 3;
-                while (attempts <= maxAttempts) {
-                    try {
-                        log.Fine("About to access Outlook oApp.version property...");
-                        outlookVersionFull = oApp.Version;
-                        attempts = maxAttempts + 1;
-                    } catch (System.Runtime.InteropServices.COMException ex) {
-                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                        if (error == Outlook.Errors.ErrorType.PermissionFailure ||
-                            error == Outlook.Errors.ErrorType.RpcRejected || 
-                            error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                            error == Outlook.Errors.ErrorType.RpcFailed) //
-                        {
-                            log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
-                            if (attempts == maxAttempts) {
-                                String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
-                                    "Please try running OGCS again later" +
-                                    (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
+                try {
+                    int attempts = 1;
+                    int maxAttempts = 3;
+                    while (attempts <= maxAttempts) {
+                        try {
+                            log.Fine("About to access Outlook oApp.version property...");
+                            outlookVersionFull = oApp.Version;
+                            attempts = maxAttempts + 1;
+                        } catch (System.Runtime.InteropServices.COMException ex) {
+                            Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                            if (error == Outlook.Errors.ErrorType.PermissionFailure ||
+                                error == Outlook.Errors.ErrorType.RpcRejected ||
+                                error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                error == Outlook.Errors.ErrorType.RpcFailed) //
+                            {
+                                log.Warn(ex.Message + " Attempt " + attempts + "/" + maxAttempts);
+                                if (attempts == maxAttempts) {
+                                    String message = "Outlook has been unresponsive for " + maxAttempts * 10 + " seconds.\n" +
+                                        "Please try running OGCS again later" +
+                                        (Settings.Instance.StartOnStartup ? " or " + ((Settings.Instance.StartupDelay == 0) ? "set a" : "increase the") + " delay on startup." : ".");
 
-                                throw new ApplicationException(message);
-                            }
-                            System.Threading.Thread.Sleep(10000);
-                            attempts++;
-                        } else throw;
+                                    throw new ApplicationException(message);
+                                }
+                                System.Threading.Thread.Sleep(10000);
+                                attempts++;
+                            } else throw;
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    Outlook.Calendar.PoorlyOfficeInstall(ex);
+                    return;
+                } finally {
+                    if (oApp != null) {
+                        System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
+                        oApp = null;
                     }
                 }
-            } catch (System.Exception ex) {
-                Outlook.Calendar.PoorlyOfficeInstall(ex);
-                    return;
-            } finally {
-                if (oApp != null) {
-                    System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
-                    oApp = null;
-                }
-            }
 #pragma warning disable 162 //Unreachable code
                 if (testing2003) {
                     log.Info("*** 2003 TESTING ***");
                     outlookVersionFull = "11";
-        }
+                }
 #pragma warning restore 162
             }
 
