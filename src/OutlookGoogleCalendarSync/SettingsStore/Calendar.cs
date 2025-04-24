@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             _ProfileName = "Default";
 
             //Outlook
-            OutlookService = Outlook.Calendar.Service.DefaultMailbox;
+            OutlookService = Outlook.Calendar.Service.Graph;
             MailboxName = "";
             SharedCalendar = "";
             UseOutlookCalendar = new OutlookCalendarListEntry();

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
     /// <summary>
@@ -350,6 +351,7 @@ namespace OutlookGoogleCalendarSync {
                     Ogcs.Exception.Analyse(ex2);
                 }
             }
+            Settings.Instance.Proxy ??= new SettingsStore.Proxy();
         }
 
         public static void ResetFile(String XMLfile = null) {
@@ -376,6 +378,22 @@ namespace OutlookGoogleCalendarSync {
         public void Save(String XMLfile = null) {
             log.Info("Saving settings.");
             XMLManager.Export(this, XMLfile ?? ConfigFile);
+        }
+
+        public Boolean Export(String filename) {
+            SaveFileDialog exportFile = new SaveFileDialog {
+                Title = "Backup OGCS Settings to File",
+                FileName = filename,
+                Filter = "XML File|*.xml|All Files|*",
+                DefaultExt = "xml",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+            if (exportFile.ShowDialog() == DialogResult.OK) {
+                log.Info("Exporting settings to " + exportFile.FileName);
+                Settings.Instance.Save(exportFile.FileName);
+                return true;
+            } else return false;
         }
 
         public Boolean Loading() {

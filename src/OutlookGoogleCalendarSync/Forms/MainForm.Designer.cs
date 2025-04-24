@@ -99,7 +99,7 @@
             this.miCatRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.pbExpandOutlookAccount = new System.Windows.Forms.PictureBox();
             this.gbOutlook_OAccount = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gbOutlook_Online = new System.Windows.Forms.GroupBox();
             this.rbOutlookOnline = new System.Windows.Forms.RadioButton();
             this.label40 = new System.Windows.Forms.Label();
             this.bGetOutlookCalendars = new System.Windows.Forms.Button();
@@ -109,7 +109,7 @@
             this.btResetOCal = new System.Windows.Forms.Button();
             this.label38 = new System.Windows.Forms.Label();
             this.label41 = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.gbOutlook_ClassicClient = new System.Windows.Forms.GroupBox();
             this.rbOutlookDefaultMB = new System.Windows.Forms.RadioButton();
             this.ddMailboxName = new System.Windows.Forms.ComboBox();
             this.rbOutlookSharedCal = new System.Windows.Forms.RadioButton();
@@ -352,8 +352,8 @@
             this.msCategories.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).BeginInit();
             this.gbOutlook_OAccount.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.gbOutlook_Online.SuspendLayout();
+            this.gbOutlook_ClassicClient.SuspendLayout();
             this.tabGoogle.SuspendLayout();
             this.panelObscure.SuspendLayout();
             this.panelProfileLoading.SuspendLayout();
@@ -757,8 +757,8 @@
             // 
             // panelOutlook
             // 
-            this.panelOutlook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.panelOutlook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelOutlook.AutoScroll = true;
             this.panelOutlook.Controls.Add(this.pbExpandOutlookDate);
@@ -796,7 +796,7 @@
             // 
             // gbOutlook_ODate
             // 
-            this.gbOutlook_ODate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gbOutlook_ODate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbOutlook_ODate.Controls.Add(this.label32);
             this.gbOutlook_ODate.Controls.Add(this.urlDateFormats);
@@ -858,7 +858,7 @@
             // 
             // tbOutlookDateFormatResult
             // 
-            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbOutlookDateFormatResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbOutlookDateFormatResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -871,7 +871,7 @@
             // 
             // tbOutlookDateFormat
             // 
-            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
@@ -895,7 +895,7 @@
             // 
             // txtDateFormats
             // 
-            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDateFormats.BackColor = System.Drawing.SystemColors.Window;
             this.txtDateFormats.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -912,7 +912,7 @@
             // 
             // gbOutlook_OConfig
             // 
-            this.gbOutlook_OConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gbOutlook_OConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbOutlook_OConfig.Controls.Add(this.lFilterCategories);
             this.gbOutlook_OConfig.Controls.Add(this.btCustomTzMap);
@@ -1069,10 +1069,10 @@
             // 
             // gbOutlook_OAccount
             // 
-            this.gbOutlook_OAccount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gbOutlook_OAccount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbOutlook_OAccount.Controls.Add(this.groupBox1);
-            this.gbOutlook_OAccount.Controls.Add(this.groupBox3);
+            this.gbOutlook_OAccount.Controls.Add(this.gbOutlook_Online);
+            this.gbOutlook_OAccount.Controls.Add(this.gbOutlook_ClassicClient);
             this.gbOutlook_OAccount.Controls.Add(this.cbOutlookCalendars);
             this.gbOutlook_OAccount.Controls.Add(this.lOutlookCalendar);
             this.gbOutlook_OAccount.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1085,27 +1085,27 @@
             this.gbOutlook_OAccount.TabStop = false;
             this.gbOutlook_OAccount.Text = "  Account && Calendar";
             // 
-            // groupBox1
+            // gbOutlook_Online
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gbOutlook_Online.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.rbOutlookOnline);
-            this.groupBox1.Controls.Add(this.label40);
-            this.groupBox1.Controls.Add(this.bGetOutlookCalendars);
-            this.groupBox1.Controls.Add(this.tbOutlookConnectedAcc);
-            this.groupBox1.Controls.Add(this.linkLabel1);
-            this.groupBox1.Controls.Add(this.label39);
-            this.groupBox1.Controls.Add(this.btResetOCal);
-            this.groupBox1.Controls.Add(this.label38);
-            this.groupBox1.Controls.Add(this.label41);
-            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.groupBox1.Location = new System.Drawing.Point(9, 23);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(353, 211);
-            this.groupBox1.TabIndex = 53;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Outlook Online / Microsoft 365";
+            this.gbOutlook_Online.Controls.Add(this.rbOutlookOnline);
+            this.gbOutlook_Online.Controls.Add(this.label40);
+            this.gbOutlook_Online.Controls.Add(this.bGetOutlookCalendars);
+            this.gbOutlook_Online.Controls.Add(this.tbOutlookConnectedAcc);
+            this.gbOutlook_Online.Controls.Add(this.linkLabel1);
+            this.gbOutlook_Online.Controls.Add(this.label39);
+            this.gbOutlook_Online.Controls.Add(this.btResetOCal);
+            this.gbOutlook_Online.Controls.Add(this.label38);
+            this.gbOutlook_Online.Controls.Add(this.label41);
+            this.gbOutlook_Online.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbOutlook_Online.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.gbOutlook_Online.Location = new System.Drawing.Point(9, 23);
+            this.gbOutlook_Online.Name = "gbOutlook_Online";
+            this.gbOutlook_Online.Size = new System.Drawing.Size(353, 211);
+            this.gbOutlook_Online.TabIndex = 53;
+            this.gbOutlook_Online.TabStop = false;
+            this.gbOutlook_Online.Text = "Outlook Online / Microsoft 365";
             // 
             // rbOutlookOnline
             // 
@@ -1146,7 +1146,7 @@
             // 
             // tbOutlookConnectedAcc
             // 
-            this.tbOutlookConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbOutlookConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbOutlookConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbOutlookConnectedAcc.Location = new System.Drawing.Point(119, 87);
@@ -1208,7 +1208,7 @@
             // 
             // label41
             // 
-            this.label41.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label41.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label41.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label41.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -1220,22 +1220,22 @@
     "re than one account,";
             this.label41.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // groupBox3
+            // gbOutlook_ClassicClient
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gbOutlook_ClassicClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.rbOutlookDefaultMB);
-            this.groupBox3.Controls.Add(this.ddMailboxName);
-            this.groupBox3.Controls.Add(this.rbOutlookSharedCal);
-            this.groupBox3.Controls.Add(this.rbOutlookAltMB);
-            this.groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.groupBox3.Location = new System.Drawing.Point(9, 240);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(353, 90);
-            this.groupBox3.TabIndex = 52;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Office Outlook Client";
+            this.gbOutlook_ClassicClient.Controls.Add(this.rbOutlookDefaultMB);
+            this.gbOutlook_ClassicClient.Controls.Add(this.ddMailboxName);
+            this.gbOutlook_ClassicClient.Controls.Add(this.rbOutlookSharedCal);
+            this.gbOutlook_ClassicClient.Controls.Add(this.rbOutlookAltMB);
+            this.gbOutlook_ClassicClient.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gbOutlook_ClassicClient.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.gbOutlook_ClassicClient.Location = new System.Drawing.Point(9, 240);
+            this.gbOutlook_ClassicClient.Name = "gbOutlook_ClassicClient";
+            this.gbOutlook_ClassicClient.Size = new System.Drawing.Size(353, 90);
+            this.gbOutlook_ClassicClient.TabIndex = 52;
+            this.gbOutlook_ClassicClient.TabStop = false;
+            this.gbOutlook_ClassicClient.Text = "Office Outlook \'Classic\' Client";
             // 
             // rbOutlookDefaultMB
             // 
@@ -1285,7 +1285,7 @@
             // 
             // cbOutlookCalendars
             // 
-            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutlookCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1845,7 +1845,7 @@
             // 
             // tbGoogleConnectedAcc
             // 
-            this.tbGoogleConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbGoogleConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbGoogleConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbGoogleConnectedAcc.Location = new System.Drawing.Point(114, 70);
@@ -4238,10 +4238,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbExpandOutlookAccount)).EndInit();
             this.gbOutlook_OAccount.ResumeLayout(false);
             this.gbOutlook_OAccount.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.gbOutlook_Online.ResumeLayout(false);
+            this.gbOutlook_Online.PerformLayout();
+            this.gbOutlook_ClassicClient.ResumeLayout(false);
+            this.gbOutlook_ClassicClient.PerformLayout();
             this.tabGoogle.ResumeLayout(false);
             this.tabGoogle.PerformLayout();
             this.panelObscure.ResumeLayout(false);
@@ -4583,7 +4583,7 @@
         private System.Windows.Forms.Panel panelOutlook;
         private System.Windows.Forms.PictureBox pbExpandOutlookAccount;
         private System.Windows.Forms.GroupBox gbOutlook_OAccount;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox gbOutlook_ClassicClient;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label41;
         private System.Windows.Forms.Label label38;
@@ -4594,7 +4594,7 @@
         private System.Windows.Forms.PictureBox pbExpandOutlookConfig;
         private System.Windows.Forms.GroupBox gbOutlook_OConfig;
         private System.Windows.Forms.PictureBox pbExpandOutlookDate;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbOutlook_Online;
         public System.Windows.Forms.RadioButton rbOutlookOnline;
     }
 }

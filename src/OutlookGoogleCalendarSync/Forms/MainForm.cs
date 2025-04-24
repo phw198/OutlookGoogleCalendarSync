@@ -162,8 +162,32 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             #region Profile
             log.Debug("Loading profiles.");
+            gbOutlook_ClassicClient.Enabled = !Outlook.Factory.NoClient();
+            if (Outlook.Factory.NoClient()) {
+                gbOutlook_ClassicClient.Text += " - not installed";
+                gbOutlook_ClassicClient.Enabled = false;
+            }
+            List<SettingsStore.Calendar> profileRequiresClient = new();
             foreach (SettingsStore.Calendar calendar in Settings.Instance.Calendars) {
-                ddProfile.Items.Add(calendar._ProfileName);
+                if (calendar.OutlookService != Outlook.Calendar.Service.Graph && Outlook.Factory.NoClient())
+                    profileRequiresClient.Add(calendar);
+                else
+                    ddProfile.Items.Add(calendar._ProfileName);
+            }
+            if (profileRequiresClient.Count > 0 && Outlook.Factory.NoClient()) {
+                Ogcs.Extensions.MessageBox.Show("The following sync Profiles require the classic Outlook client, which is no longer installed:-\r\n" +
+                    string.Join("\r\n", profileRequiresClient.Select(p => "   - " + p._ProfileName)) + "\r\n\r\nThese Profiles will be deleted once you have made a backup of the settings.",
+                    "Setting Profile(s) require classic Outlook client", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                while (!Settings.Instance.Export("OGCS_v" + Settings.Instance.Version + "_ContainsClassicOutlookProfile.xml")) {
+                    Ogcs.Extensions.MessageBox.Show("Please ensure you make a backup of your settings before proceeding further.",
+                        "Backup required", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                }
+                Settings.Instance.Calendars = Settings.Instance.Calendars.Except(profileRequiresClient).ToList();
+                if (Settings.Instance.Calendars.Count == 0) {
+                    Settings.Instance.Calendars.Add(new SettingsStore.Calendar());
+                    ddProfile.Items.Add(Settings.Instance.Calendars[0]._ProfileName);
+                }
+                Settings.Instance.Save();
             }
             ddProfile.SelectedIndex = 0;
             #endregion
@@ -1167,18 +1191,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
         private void miExportSettings_Click(object sender, EventArgs e) {
-            SaveFileDialog exportFile = new SaveFileDialog {
-                Title = "Backup OGCS Settings to File",
-                FileName = "OGCS_v" + Settings.Instance.Version + ".xml",
-                Filter = "XML File|*.xml|All Files|*",
-                DefaultExt = "xml",
-                AddExtension = true,
-                OverwritePrompt = true
-            };
-            if (exportFile.ShowDialog() == DialogResult.OK) {
-                log.Info("Exporting settings to " + exportFile.FileName);
-                Settings.Instance.Save(exportFile.FileName);
-            }
+            Settings.Instance.Export("OGCS_v" + Settings.Instance.Version + ".xml");
         }
         private void miImportSettings_Click(object sender, EventArgs e) {
             OpenFileDialog importFile = new OpenFileDialog {
@@ -1280,7 +1293,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Outlook
-                    case "OAccount": section.Height = groupBox1.Height < 50 ? 200 : 368; break;
+                    case "OAccount": section.Height = gbOutlook_Online.Height < 50 ? 200 : 368; break;
                     case "OConfig": section.Height = 183; break;
                     case "ODate": section.Height = 160; break;
                     //Google
@@ -1358,17 +1371,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                 rbOutlookSharedCal.Checked =
                 gbOutlook_ODate.Visible =
                 pbExpandOutlookDate.Visible = false;
-                groupBox1.Height = 211;
+                gbOutlook_Online.Height = 211;
                 gbOutlook_OAccount.Height = 268;
             } else {
                 gbOutlook_ODate.Visible =
                 pbExpandOutlookDate.Visible = true;
-                groupBox1.Height = 40;
+                gbOutlook_Online.Height = 40;
                 gbOutlook_OAccount.Height = 368;
             }
-            groupBox3.Top = groupBox1.Location.Y + groupBox1.Height + Convert.ToInt16(10 * magnification);
-            lOutlookCalendar.Top = groupBox3.Location.Y + groupBox3.Height + Convert.ToInt16(9 * magnification);
-            cbOutlookCalendars.Top = groupBox3.Location.Y + groupBox3.Height + Convert.ToInt16(5 * magnification);
+            gbOutlook_ClassicClient.Top = gbOutlook_Online.Location.Y + gbOutlook_Online.Height + Convert.ToInt16(10 * magnification);
+            lOutlookCalendar.Top = gbOutlook_ClassicClient.Location.Y + gbOutlook_ClassicClient.Height + Convert.ToInt16(9 * magnification);
+            cbOutlookCalendars.Top = gbOutlook_ClassicClient.Location.Y + gbOutlook_ClassicClient.Height + Convert.ToInt16(5 * magnification);
             groupboxSizing(gbOutlook_OAccount, pbExpandOutlookAccount, true);
 
             if (!Settings.AreApplied) return;
