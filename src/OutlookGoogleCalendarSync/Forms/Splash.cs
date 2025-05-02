@@ -101,7 +101,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
             animateClick(this.pbSocialTwitterFollow);
-            Social.Twitter_follow();
+            Social.Bluesky_follow();
         }
 
         private void animateClick(Control button) {

@@ -213,9 +213,9 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap twitter {
+        internal static System.Drawing.Bitmap bluesky {
             get {
-                object obj = ResourceManager.GetObject("twitter", resourceCulture);
+                object obj = ResourceManager.GetObject("bluesky", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -223,9 +223,9 @@ namespace OutlookGoogleCalendarSync.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap twitter_follow {
+        internal static System.Drawing.Bitmap bluesky_follow {
             get {
-                object obj = ResourceManager.GetObject("twitter_follow", resourceCulture);
+                object obj = ResourceManager.GetObject("bluesky_follow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
