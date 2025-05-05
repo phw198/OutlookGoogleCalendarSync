@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.11.3-alpha</version>
+    <version>2.11.4-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,26 +12,30 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.11.3?
+# What's New In v2.11.4?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
 - Application
-    - Added a "news" service that surfaces messages, eg critical bugs and hotfixes
-    - Miscellenous logging improvements
+    - Clearer instructions upon Google access token expiry [[#2080](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2080)]
+    - Bring application to the front once loaded
+    - Switched over from Twitter to Bluesky
 - Sync Engine
-    - Further optimisation retrieving Google recurring series and its instances
+    - Abort sync if Outlook COM errors are encountered whilst identifying differences [[#2053](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2053)]
+    - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
+    - Include updated series exceptions in sync summary count
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Improvements dropdown refresh for Google default calendar colour.
+    - Manage API errors whilst getting Google settings [[#2100](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2100)]
+    - Fixed install/uninstall telemetry
 - Sync Engine
-    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
-        - Fixed logging of Google Event summary local time
-    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
-    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
-    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
+    - Retrieve Google occurrences that were originally outside the sync window [[#2081](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2081)]
+        - Handle zero occurrences of Google series
+    - Fixed never-ending sync due to calendar descriptions containing emojis [[#2090](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2090)]
+    - Handle meeting attendees with accented characters in the name [[#2097](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2097)]
+    - Specify UTC time zone for Google event retrieval (regression) [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
     </releaseNotes>
     <copyright>Copyright 2025</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
