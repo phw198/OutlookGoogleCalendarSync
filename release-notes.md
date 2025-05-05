@@ -36,6 +36,43 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.11.4.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Application
+    - Clearer instructions upon Google access token expiry [[#2080](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2080)]
+    - Bring application to the front once loaded
+    - Switched over from Twitter to Bluesky
+- Sync Engine
+    - Abort sync if Outlook COM errors are encountered whilst identifying differences [[#2053](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2053)]
+    - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
+    - Include updated series exceptions in sync summary count
+
+:beetle: **Bugfix**
+- Application
+    - Manage API errors whilst getting Google settings [[#2100](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2100)]
+    - Fixed install/uninstall telemetry
+- Sync Engine
+    - Retrieve Google occurrences that were originally outside the sync window [[#2081](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2081)]
+        - Handle zero occurrences of Google series
+    - Fixed never-ending sync due to calendar descriptions containing emojis [[#2090](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2090)]
+    - Handle meeting attendees with accented characters in the name [[#2097](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2097)]
+    - Specify UTC time zone for Google event retrieval (regression) [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.11.3.0 - Alpha
 
 :high_brightness: **Enhancements**
