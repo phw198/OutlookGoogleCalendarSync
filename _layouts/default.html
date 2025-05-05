@@ -86,16 +86,30 @@
           
           {% include downloads.html %}
           
-          <br/>
+          <br/><br/><br/>
 
-          <h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Tweets</h1>
-          <div style="display: inline-block; height: 255px;"></div>
-          
-          <span id="foobar" style="position:absolute; clip: rect(73px,220px,350px,0px); margin-top: -90px;">
-            <a class="twitter-timeline" data-width="220" data-height="350" href="https://twitter.com/OGcalsync?ref_src=twsrc%5Etfw">Tweets by OGcalsync</a>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-          </span>
-          
+          <h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Social Posts</h1>
+          <div style="text-align: center; margin-top: -17px;"><a href="https://bsky.app/profile/ogcalsync.bsky.social" target="_blank">On BlueSky</a></div>
+          <!--script src="https://cdn.jsdelivr.net/npm/bsky-embed@0.1.4/dist/bsky-embed.es.js" async=""></script-->
+          <script src="https://cdn.jsdelivr.net/npm/bsky-embed/dist/bsky-embed.es.js" async type="module"></script>
+            <bsky-embed
+            username="ogcalsync.bsky.social"
+            limit="5"
+            link-target="_blank"
+            link-image="true"
+            load-more="true"
+            disable-styles="true"
+            custom-styles="a.text-ellipsis { display: none; } 
+            span.mx-1 { display: none; } 
+            span.text-slate-500 { padding-top: 4px; display: block; } 
+            img.w-14 { width: 23px; float: inline-start; margin-right: 5px; } 
+            div.gap-2 { margin-top: 10px; } 
+            p.whitespace-pre-wrap { margin-top: 7px; }"
+            date-format='{"type":"absolute","locale":"en-GB","options":{"year":"numeric","month":"short","day":"numeric"}}'
+            >
+          </bsky-embed>
+
+          <p>&nbsp;</p>
           <hr/>
           
           <div align="center">
