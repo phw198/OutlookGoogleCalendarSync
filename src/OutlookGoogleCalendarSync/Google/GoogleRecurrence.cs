@@ -331,7 +331,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
                         ) ||
                         (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted &&
-                        oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime().Date
+                        oExcp.OriginalDate.Date == gExcp.OriginalStartTime.SafeDateTime().Date
                         )) {
                         return gExcp;
                     }
@@ -348,7 +348,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         && oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime()
                         ) ||
                         (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted &&
-                        oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime().Date
+                        oExcp.OriginalDate.Date == gInst.OriginalStartTime.SafeDateTime().Date
                         )) {
                         return gInst;
                     }
@@ -527,7 +527,9 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
 
-        public static void UpdateGoogleExceptions(AppointmentItem ai, Event ev, Boolean dirtyCache) {
+        public static int UpdateGoogleExceptions(AppointmentItem ai, Event ev, Boolean dirtyCache) {
+            int updatesMade = 0;
+
             if (ai.IsRecurring) {
                 RecurrencePattern rp = null;
                 Exceptions excps = null;
@@ -625,6 +627,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                     if (excp_itemModified > 0) {
                                         try {
                                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref gExcp);
+                                            updatesMade++;
                                         } catch (System.Exception ex) {
                                             Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated event exception failed to save.", gExcp, out String anonSummary, true), ex, logEntry: anonSummary);
                                             log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gExcp));
@@ -651,6 +654,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     rp = (RecurrencePattern)Outlook.Calendar.ReleaseObject(rp);
                 }
             }
+            return updatesMade;
         }
         #endregion
     }

@@ -64,6 +64,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             while (!Forms.Splash.BeenAndGone) {
                 System.Threading.Thread.Sleep(100);
             }
+            this.MainFormShow(true);
         }
 
         private void updateGUIsettings() {
@@ -2633,11 +2634,11 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void btSocialTweet_Click(object sender, EventArgs e) {
-            Social.Twitter_tweet();
+        private void btSocialSkeet_Click(object sender, EventArgs e) {
+            Social.Bluesky_skeet();
         }
-        private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
-            Social.Twitter_follow();
+        private void pbSocialBlueskyFollow_Click(object sender, EventArgs e) {
+            Social.Bluesky_follow();
         }
 
         private void btSocialFB_Click(object sender, EventArgs e) {

@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync.Google {
         private Boolean openedIssue1593 = false;
         public Ogcs.Google.Authenticator Authenticator;
 
-        /// <summary>Google Events excluded through user config <Event.Id, Appt.EntryId></summary>
+        /// <summary>Google Events excluded through user config <Event.Id></summary>
         public List<String> ExcludedByConfig { get; set; }
         /// <summary>Google Events excluded by colour through user config <Event.Id, Appt.EntryId></summary>
         public Dictionary<String, String> ExcludedByColour { get; set; }
@@ -330,7 +330,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 lr.TimeMinDateTimeOffset = from;
                 lr.TimeMaxDateTimeOffset = to;
-                //lr.TimeZone = "UTC";
+                lr.TimeZone = "UTC";
                 lr.PageToken = pageToken;
                 lr.ShowDeleted = false;
                 lr.SingleEvents = false;
@@ -777,7 +777,6 @@ namespace OutlookGoogleCalendarSync.Google {
 
         #region Update
         public void UpdateCalendarEntries(Dictionary<AppointmentItem, Event> entriesToBeCompared, ref int entriesUpdated) {
-            entriesUpdated = 0;
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
@@ -823,9 +822,9 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
-                Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
+                entriesUpdated += Recurrence.UpdateGoogleExceptions(compare.Key, ev ?? compare.Value, eventExceptionCacheDirty);
 
-                if (itemModified == 0) {
+                if (itemModified  == 0) {
                     if (ev == null) {
                         if (compare.Value.UpdatedDateTimeOffset < compare.Key.LastModificationTime || CustomProperty.Exists(compare.Value, CustomProperty.MetadataId.forceSave))
                             ev = compare.Value;
@@ -930,7 +929,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             if (profile.AddDescription) {
                 String outlookBody = ai.Body;
-                if (profile.SyncDirection == Sync.Direction.Bidirectional && profile.AddDescription_OnlyToGoogle &&
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && profile.AddDescription_OnlyToGoogle &&
                     string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {
                     log.Warn("Avoided loss of Google description, as none exists in Outlook.");
@@ -1211,7 +1210,7 @@ namespace OutlookGoogleCalendarSync.Google {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Google",
+                if (Ogcs.Extensions.MessageBox.Show($"Calendar: {Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}\r\nItem: {eventSummary}", "Confirm Deletion From Google",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
@@ -1435,6 +1434,10 @@ namespace OutlookGoogleCalendarSync.Google {
                             log.Warn("Item corrupted / inaccessible due to security certificate.");
                             outlook.Remove(outlook[o]);
                         } else {
+                            if (ex is System.Runtime.InteropServices.COMException) {
+                                Forms.Main.Instance.Console.Update("Communication with Outlook is failing - sync is unable to continue.", Console.Markup.warning);
+                                throw;
+                            }
                             log.Error(ex.Message);
                         }
                     }
@@ -1507,6 +1510,10 @@ namespace OutlookGoogleCalendarSync.Google {
                                 log.Warn("Item corrupted / inaccessible due to security certificate.");
                                 outlook.Remove(outlook[o]);
                             } else {
+                                if (ex is System.Runtime.InteropServices.COMException) {
+                                    Forms.Main.Instance.Console.Update("Communication with Outlook is failing - sync is unable to continue.", Console.Markup.warning);
+                                    throw;
+                                }
                                 log.Error(ex.Message);
                             }
                         }
@@ -1819,27 +1826,26 @@ namespace OutlookGoogleCalendarSync.Google {
                     getCalendarSettings();
                     break;
                 } catch (global::Google.GoogleApiException ex) {
+                    ex.Analyse("Not able to " + stage);
                     switch (HandleAPIlimits(ref ex, null)) {
                         case ApiException.throwException: throw;
                         case ApiException.freeAPIexhausted:
                             Ogcs.Exception.LogAsFail(ref ex);
-                            ex.Analyse("Not able to " + stage);
                             System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
                             Ogcs.Exception.LogAsFail(ref aex);
                             throw aex;
                         case ApiException.backoffThenRetry:
                             backoff++;
                             if (backoff == BackoffLimit) {
-                                log.Error("API limit backoff was not successful. Save failed.");
+                                log.Error("API limit backoff was not successful.");
                                 throw;
                             } else {
                                 int backoffDelay = (int)Math.Pow(2, backoff);
                                 log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
                                 System.Threading.Thread.Sleep(backoffDelay * 1000);
                             }
-                            break;
+                            continue;
                     }
-                    ex.Analyse("Not able to " + stage);
                     throw new System.ApplicationException("Unable to " + stage + ".", ex);
 
                 } catch (System.Exception ex) {
@@ -2321,12 +2327,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     return ApiException.backoffThenRetry;
 
                 } else if (ex.Error.Errors.First().Reason == "rateLimitExceeded") {
-                    if (ex.Message.Contains("limit 'Queries per minute'")) {
-                        log.Fail(ex.FriendlyMessage());
-                        Ogcs.Exception.LogAsFail(ref ex);
-                        return ApiException.backoffThenRetry;
-
-                    } else if (ex.Message.Contains("limit 'Queries per day'") || ex.Message.Contains("Daily Limit Exceeded")) {
+                    if (ex.Message.Contains("limit 'Queries per day'") || ex.Message.Contains("Daily Limit Exceeded")) {
                         log.Warn("Google's free Calendar quota has been exhausted! New quota comes into effect 08:00 GMT.");
                         Forms.Main.Instance.SyncNote(Forms.Main.SyncNotes.DailyQuotaExhaustedInfo, null);
 
@@ -2341,7 +2342,11 @@ namespace OutlookGoogleCalendarSync.Google {
                         }
                         return ApiException.freeAPIexhausted;
 
-                    } else if (ex.Message.Contains("Rate Limit Exceeded")) {
+                    } else {
+                        //Includes rate for "limit 'Queries per minute'"
+                        log.Fail(ex.FriendlyMessage());
+                        Ogcs.Exception.LogAsFail(ref ex);
+
                         if (Settings.Instance.Subscribed > System.DateTime.Now.AddYears(-1))
                             return ApiException.backoffThenRetry;
 
@@ -2355,6 +2360,8 @@ namespace OutlookGoogleCalendarSync.Google {
                             int delayMins = (int)(nextSync - utcNow).TotalMinutes;
                             profile.OgcsTimer.SetNextSync(delayMins, fromNow: true, calculateInterval: false);
                             Forms.Main.Instance.Console.Update("The next sync has been delayed by " + delayMins + " minutes to let free quota rebuild.", Console.Markup.warning);
+                        } else {
+                            Forms.Main.Instance.Console.Update("Try again after some minutes to let free quota rebuild.", Console.Markup.warning);
                         }
                         return ApiException.freeAPIexhausted;
                     }
@@ -2447,7 +2454,11 @@ namespace OutlookGoogleCalendarSync.Google {
         /// </summary>
         public void ThrowApiException() {
             global::Google.GoogleApiException ex = new global::Google.GoogleApiException("Service", "Rate Limit Exceeded");
-            global::Google.Apis.Requests.SingleError err = new global::Google.Apis.Requests.SingleError { Domain = "usageLimits", Reason = "rateLimitExceeded" };
+            global::Google.Apis.Requests.SingleError err = new global::Google.Apis.Requests.SingleError { 
+                Domain = "usageLimits", 
+                Reason = "rateLimitExceeded", 
+                Message = "Quota exceeded for quota metric 'Queries' and limit 'Queries per minute' of service 'calendar-json.googleapis.com' for consumer 'project_number:653617509806'"
+            };
             ex.Error = new global::Google.Apis.Requests.RequestError { Errors = new List<global::Google.Apis.Requests.SingleError>(), Code = 403 };
             ex.Error.Errors.Add(err);
             throw ex;

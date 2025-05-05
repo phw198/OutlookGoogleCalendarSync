@@ -339,6 +339,13 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void onInitialInstall(Version version) {
             try {
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
+                    .AddParameter(GA4.Squirrel.install,  version.ToString() + " "+ DateTime.Now.ToString("g"))
+                    .Send(withBlankEnvelope: true, async: false);
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to send telemetry 'install' event.");
+            }
+            try {
                 using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
                     log.Info("Creating shortcuts.");
                     mgr.CreateShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
@@ -347,13 +354,9 @@ namespace OutlookGoogleCalendarSync {
                     mgr.CreateUninstallerRegistryEntry().Wait();
                 }
             } catch (System.Exception ex) {
-                log.Error("Problem encountered on initiall install.");
+                log.Error("Problem encountered on initial install.");
                 Ogcs.Exception.Analyse(ex, true);
             }
-            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
-                .AddParameter(GA4.Squirrel.install, version.ToString())
-                .Send();
-            onFirstRun();
         }
         private static void onAppUpdate(Version version) {
             try {
@@ -369,38 +372,55 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void onAppUninstall(Version version) {
             try {
-                using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
-                    log.Info("Removing shortcuts.");
-                    mgr.RemoveShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
-                        Squirrel.ShortcutLocation.Desktop | Squirrel.ShortcutLocation.StartMenu);
-                    String startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Paul Woolcock");
-                    Directory.Delete(startMenuFolder);
-                    log.Debug("Removing registry uninstall keys.");
-                    mgr.RemoveUninstallerRegistryEntry();
-                }
-                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
-                squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString());
-                if (Ogcs.Extensions.MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                    log.Debug("User opted to give feedback.");
-                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, true);
-                    Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
-                } else {
-                    log.Debug("User opted not to give feedback.");
-                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, false);
-                }
-                squirrelGaEv.Send();
-                log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
+                new System.Threading.Thread(() => {
+                    try {
+                        Telemetry.GA4Event.Event feedbackGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                        if (Ogcs.Extensions.MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            log.Debug("User opted to give feedback.");
+                            feedbackGaEv.AddParameter(GA4.Squirrel.feedback, true);
+                            Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
+                        } else {
+                            log.Debug("User opted not to give feedback.");
+                            feedbackGaEv.AddParameter(GA4.Squirrel.feedback, false);
+                        }
+                        feedbackGaEv.Send(withBlankEnvelope: true, async: false);
+                    } catch (System.Exception ex) {
+                        ex.Analyse("Unable to send telemetry 'uninstall.feedback' event.");
+                    }
+                }).Start();
                 try {
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString() +" " + DateTime.Now.ToString("g"));
+                    String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Settings.ConfigFile) ?? "0";
+                    squirrelGaEv.AddParameter(GA4.General.sync_count, completedSyncs);
+                    squirrelGaEv.Send(withBlankEnvelope: true, async: false);
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to send telemetry 'uninstall' event.");
+                }
+                try {
+                    using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
+                        log.Info("Removing shortcuts.");
+                        mgr.RemoveShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
+                            Squirrel.ShortcutLocation.Desktop | Squirrel.ShortcutLocation.StartMenu);
+                        String startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Paul Woolcock");
+                        Directory.Delete(startMenuFolder);
+                        log.Debug("Removing registry uninstall keys.");
+                        mgr.RemoveUninstallerRegistryEntry();
+                    }
+                } catch (System.Exception ex) {
+                    ex.Analyse("Squirrel update manager failed to execute uninstall properly.");
+                }
+                try {
+                    log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
                     log.Logger.Repository.Shutdown();
                     log4net.LogManager.Shutdown();
                     Directory.Delete(Path.GetDirectoryName(Settings.ConfigFile), true);
                 } catch (System.Exception ex) {
-                    try { log.Error(ex.Message); } catch { }
+                    try { ex.Analyse("Logger cleanup not possible."); } catch { }
                 }
             } catch (System.Exception ex) {
-                log.Error("Problem encountered on app uninstall.");
-                Ogcs.Exception.Analyse(ex, true);
+                try { ex.Analyse("Problem encountered on app uninstall.", true); } catch { }
             }
         }
 
