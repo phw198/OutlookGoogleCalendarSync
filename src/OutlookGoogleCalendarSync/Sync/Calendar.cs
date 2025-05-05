@@ -211,8 +211,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         if (!Settings.Instance.UserIsBenefactor()) {
                             syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
                                 Settings.Instance.GaccountEmail + "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
-                            Telemetry.GA4Event donateEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate);
-                            donateEvent.events[0]
+                            Telemetry.GA4Event donateEvent = new(Telemetry.GA4Event.Event.Name.donate, out Telemetry.GA4Event.Event eventData);
+                            eventData
                                 .AddParameter("source", "console")
                                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                                 .AddParameter("account_present", true);
@@ -532,7 +532,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
-                        (ex.Message.Contains("daily Calendar quota has been exhausted") || ex.InnerException.GetErrorCode() == "0x80131500")) {
+                        ex.Message.Contains("daily Calendar quota has been exhausted")) {
                         Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
                         DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
                         String tryAfter = "08:00 GMT.";

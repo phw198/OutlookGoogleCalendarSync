@@ -238,34 +238,38 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public static void CreateOutlookExceptions(Event ev, ref AppointmentItem createdAi) {
-            processOutlookExceptions(ev, ref createdAi, forceCompare: true);
+        public static int CreateOutlookExceptions(Event ev, ref AppointmentItem createdAi) {
+            return processOutlookExceptions(ev, ref createdAi, forceCompare: true);
         }
-        public static void UpdateOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
-            processOutlookExceptions(ev, ref ai, forceCompare);
+        public static int UpdateOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
+            return processOutlookExceptions(ev, ref ai, forceCompare);
         }
 
-        private static void processOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
-            if (!Google.Recurrence.HasExceptions(ev, checkLocalCacheOnly: true)) return;
+        private static int processOutlookExceptions(Event ev, ref AppointmentItem ai, Boolean forceCompare) {
+            int updatesMade = 0;
+            if (!Google.Recurrence.HasExceptions(ev, checkLocalCacheOnly: true)) return updatesMade;
 
             List<Event> gExcps = Google.Recurrence.GoogleExceptions.Where(exp => exp.RecurringEventId == ev.Id).ToList();
-            if (gExcps.Count == 0) return;
+            if (gExcps.Count == 0) return updatesMade;
 
             log.Debug($"{gExcps.Count} Google recurrence exceptions within sync range to be compared.");
 
             //Process deleted exceptions first
             List<Event> gCancelledExcps = gExcps.Where(exp => exp.Status == "cancelled").ToList();
             log.Fine($"{gCancelledExcps.Count} Google cancelled occurrences.");
-            processOutlookExceptions(gCancelledExcps, ref ai, forceCompare, true);
+            updatesMade += processOutlookExceptions(gCancelledExcps, ref ai, forceCompare, true);
 
             //Then process everything else
             gExcps = gExcps.Except(gCancelledExcps).ToList();
             log.Fine($"{gExcps.Count} Google modified exceptions.");
-            processOutlookExceptions(gExcps, ref ai, forceCompare, false);
+            updatesMade += processOutlookExceptions(gExcps, ref ai, forceCompare, false);
+
+            return updatesMade;
         }
 
-        private static void processOutlookExceptions(List<Event> evExceptions, ref AppointmentItem ai, Boolean forceCompare, Boolean processingDeletions) {
-            if (evExceptions.Count == 0) return;
+        private static int processOutlookExceptions(List<Event> evExceptions, ref AppointmentItem ai, Boolean forceCompare, Boolean processingDeletions) {
+            int updatesMade = 0;
+            if (evExceptions.Count == 0) return updatesMade;
 
             RecurrencePattern oPattern = null;
             try {
@@ -297,10 +301,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (gExcp.Status == "cancelled") {
                             Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence deleted.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
+                            updatesMade++;
 
                         } else if (Sync.Engine.Calendar.Instance.Profile.ExcludeDeclinedInvites && gExcp.Attendees != null && gExcp.Attendees.Count(a => a.Self == true && a.ResponseStatus == "declined") == 1) {
                             Forms.Main.Instance.Console.Update(Outlook.Calendar.GetEventSummary("<br/>Occurrence declined.", newAiExcp, out String anonSummary), anonSummary, Console.Markup.calendar, verbose: true);
                             newAiExcp.Delete();
+                            updatesMade++;
 
                         } else {
                             int itemModified = 0;
@@ -309,6 +315,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             if (itemModified > 0) {
                                 try {
                                     newAiExcp.Save();
+                                    updatesMade++;
                                 } catch (System.Exception ex) {
                                     Ogcs.Exception.Analyse(ex);
                                     if (ex.Message == "Cannot save this item.") {
@@ -327,6 +334,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } finally {
                 oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
             }
+            return updatesMade;
         }
 
         private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {

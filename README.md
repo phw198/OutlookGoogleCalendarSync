@@ -13,7 +13,7 @@ If you would like to support me and further development of this tool, please [![
 If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-Problems)! :lady_beetle:  
 
 
-<a href="http://www.twitter.com/OGcalsync"><img src="docs/images/home_twitter_follow.png" align="center"></a> <a href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fabout.twitter.com%2Fresources%2Fbuttons&text=I%20just%20found%20this%20amazing%20free%20tool%20to%20sync%20Outlook%20and%20Google%20calendars&tw_p=tweetbutton&url=http%3A%2F%2Fbit.ly%2FOGcalsync&via=OGcalsync"><img src="docs/images/home_tweet.png" align="center"></a>
+<a href="https://bsky.app/profile/ogcalsync.bsky.social"><img src="docs/images/home_bluesky_follow.png" align="center"></a> <a href="https://bsky.app/intent/compose?text=I%27m%20using%20this%20Outlook-Google%20calendar%20sync%20software%20-%20completely%20%23free%20and%20feature%20loaded!%20%23recommended%20download%20from%20https://www.OutlookGoogleCalendarSync.com%20via%20%40ogcalsync.bsky.social"><img src="docs/images/home_bluesky_post.png" align="center"></a>
 
 ## Downloads & Statistics
 :gear: [See the wiki](https://github.com/phw198/OutlookGoogleCalendarSync/wiki) for install, configuration guides and more.
@@ -83,4 +83,3 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
 ![Screenshot2](docs/images/home_screen2.png)
 ![Screenshot3](docs/images/home_screen3.png)
 
-<p align="right"><i>Previous <a href="https://outlookgooglecalendarsync.codeplex.com" target="_blank">Codeplex Project</a> site.</i></p>

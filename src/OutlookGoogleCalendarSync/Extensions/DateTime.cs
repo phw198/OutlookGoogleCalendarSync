@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using System;
+using System.Globalization;
 
 namespace OutlookGoogleCalendarSync.Extensions {
     public class OgcsDateTime {
@@ -44,7 +45,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="dt">Date-time valule</param>
         /// <returns>Formatted string</returns>
         public static String ToPreciseString(this System.DateTimeOffset dt) {
-            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new System.Globalization.CultureInfo("en-US"));
+            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new CultureInfo("en-US"));
         }
 
         /// <summary>
