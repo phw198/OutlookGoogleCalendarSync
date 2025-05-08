@@ -64,7 +64,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             while (!Forms.Splash.BeenAndGone) {
                 System.Threading.Thread.Sleep(100);
             }
-            this.MainFormShow(true);
+            if (!Settings.Instance.StartInTray)
+                this.MainFormShow(true);
         }
 
         private void updateGUIsettings() {
