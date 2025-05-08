@@ -483,17 +483,21 @@ namespace OutlookGoogleCalendarSync.Extensions {
 
         void ComboboxColor_DrawItem(object sender, DrawItemEventArgs e) {
             ComboBox cbColour = sender as ComboBox;
-            int indexItem = e.Index;
-            if (indexItem < 0 || indexItem >= cbColour.Items.Count)
-                return;
+            try {
+                int indexItem = e.Index;
+                if (indexItem < 0 || indexItem >= cbColour.Items.Count)
+                    return;
 
-            KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair<Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
-            if (kvp.Key != null) {
-                // Get the colour
-                OlCategoryColor olColour = kvp.Key.OutlookCategory;
-                Brush brush = new SolidBrush(Outlook.Categories.Map.RgbColour(olColour));
+                KeyValuePair<Outlook.Categories.ColourInfo, String> kvp = (KeyValuePair<Outlook.Categories.ColourInfo, String>)cbColour.Items[indexItem];
+                if (kvp.Key != null) {
+                    // Get the colour
+                    OlCategoryColor olColour = kvp.Key.OutlookCategory;
+                    Brush brush = new SolidBrush(Outlook.Categories.Map.RgbColour(olColour));
 
-                DrawComboboxItemColour(cbColour, brush, kvp.Value, e);
+                    DrawComboboxItemColour(cbColour, brush, kvp.Value, e);
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to render colour for " + cbColour.GetType().Name);
             }
         }
     }

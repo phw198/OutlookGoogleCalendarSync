@@ -2492,8 +2492,16 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbSingleCategoryOnly.Enabled = ActiveCalendarProfile.AddColours;
         }
         private void btColourMap_Click(object sender, EventArgs e) {
-            if (ActiveCalendarProfile.UseGoogleCalendar == null || string.IsNullOrEmpty(ActiveCalendarProfile.UseGoogleCalendar.Id)) {
+            if (string.IsNullOrEmpty(ActiveCalendarProfile.UseOutlookCalendar?.Id)) {
+                Ogcs.Extensions.MessageBox.Show("You need to select an Outlook Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (string.IsNullOrEmpty(ActiveCalendarProfile.UseGoogleCalendar?.Id)) {
                 Ogcs.Extensions.MessageBox.Show("You need to select a Google Calendar first on the 'Settings' tab.", "Configuration Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (ActiveCalendarProfile.IsOutlookOnline) {
+                Extensions.MessageBox.Show("Colours are not yet supported for Outlook Online.", "Unsupported feature", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             try {

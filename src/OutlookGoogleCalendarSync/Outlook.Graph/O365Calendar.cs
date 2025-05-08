@@ -67,6 +67,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         /// <summary>Outlook Appointment excluded through user config <Appt.EntryId></summary>
         public List<String> ExcludedByConfig { get; private set; }
+        /// <summary>Outlook Appointment excluded by category through user config <Event.Id, Appt.EntryId></summary>
+        public Dictionary<String, String> ExcludedByCategory { get; private set; }
 
         private Dictionary<String, OutlookCalendarListEntry> calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
         public Dictionary<String, OutlookCalendarListEntry> CalendarFolders {

@@ -55,6 +55,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             while (oAuth.IsAlive) {
                 System.Windows.Forms.Application.DoEvents();
                 System.Threading.Thread.Sleep(100);
+                if (CancelTokenSource.IsCancellationRequested) break;
             }
         }
 
