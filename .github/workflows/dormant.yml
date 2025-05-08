@@ -23,7 +23,7 @@ jobs:
       issues: write
 
     steps:
-    - uses: actions/stale@v9
+    - uses: actions/stale@v8
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-pr-stale: -1
@@ -34,5 +34,5 @@ jobs:
         stale-issue-message: 'This issue has been marked dormant because the last update is at least 30 days ago. If no update is made with the next 7 days, the issue will be closed.'
         days-before-close: 7
         start-date: '2020-01-01T00:00:00Z' # ISO 8601 or RFC 2822
-        operations-per-run: 10        
+        operations-per-run: 20
         debug-only: ${{ (github.event.inputs.test-run == 'y') }}

@@ -596,7 +596,7 @@
       <Link>.editorconfig</Link>
     </None>
     <None Include="Resources\fb_like.png" />
-    <None Include="Resources\twitter.png" />
+    <None Include="Resources\bluesky.png" />
     <None Include="Resources\github.png" />
     <None Include="Resources\expand.png" />
     <None Include="tzdb.nzd">
@@ -607,7 +607,7 @@
     <None Include="Resources\sync.gif" />
     <None Include="Resources\cog.png" />
     <None Include="Resources\exit.gif" />
-    <None Include="Resources\twitter_follow.png" />
+    <None Include="Resources\bluesky_follow.png" />
     <None Include="Resources\google+.png" />
     <None Include="Resources\facebook.png" />
     <None Include="Resources\rssfeed.png" />

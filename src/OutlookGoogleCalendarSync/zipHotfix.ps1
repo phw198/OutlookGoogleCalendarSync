@@ -1,3 +1,5 @@
+# Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+
 [CmdletBinding()]
 param(
     [String]$BuildType,
@@ -29,7 +31,7 @@ if ($BuildType -eq "Release") {
         Write-Host "Create a file containing the PIN in $pinFile"
     }
 
-    & '..\..\..\..\src\packages\squirrel.windows.1.9.0\tools\signtool.exe' sign /a /n "Open Source Developer, Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v "$($TargetName).exe"
+    & '..\..\..\..\src\packages\squirrel.windows.1.9.0\tools\signtool.exe' sign /a /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v "$($TargetName).exe"
     
     $version = (Get-Item "$($TargetName).exe").VersionInfo.FileVersion
     if ($version -notmatch "\.0$") {

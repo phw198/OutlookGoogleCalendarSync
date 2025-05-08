@@ -30,8 +30,8 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         #region Events
         #region Spread Word
-        private void btSocialTweet_Click(object sender, EventArgs e) {
-            Twitter_tweet();
+        private void btSocialSkeet_Click(object sender, EventArgs e) {
+            Bluesky_skeet();
         }
 
         private void btSocialFB_Click(object sender, EventArgs e) {
@@ -53,7 +53,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void pbSocialTwitterFollow_Click(object sender, EventArgs e) {
-            Twitter_follow();
+            Bluesky_follow();
         }
 
         private void btSocialGitHub_Click(object sender, EventArgs e) {
@@ -62,12 +62,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         #endregion
         #endregion
 
-        public static void Twitter_tweet() {
-            string text = "I'm using this Outlook-Google calendar sync tool - completely #free and feature loaded. #recommend";
-            Helper.OpenBrowser("http://twitter.com/intent/tweet?&url=http://bit.ly/OGCalSync&text=" + urlEncode(text) + "&via=ogcalsync");
+        public static void Bluesky_skeet() {
+            string text = "I'm using this Outlook-Google calendar sync software - completely #free and feature loaded! #recommended download from https://www.OutlookGoogleCalendarSync.com via @ogcalsync.bsky.social";
+            Helper.OpenBrowser("http://bsky.app/intent/post?text=" + urlEncode(text));
         }
-        public static void Twitter_follow() {
-            Helper.OpenBrowser("https://twitter.com/OGcalsync");
+        public static void Bluesky_follow() {
+            Helper.OpenBrowser("https://bsky.app/profile/ogcalsync.bsky.social");
         }
 
         public static void Facebook_share() {

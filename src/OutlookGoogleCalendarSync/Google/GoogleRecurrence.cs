@@ -337,8 +337,9 @@ namespace OutlookGoogleCalendarSync.Google {
                     }
                 }
             }
-            log.Debug("Google exception event is not cached. Retrieving all recurring instances...");
-            List<Event> gInstances = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID, true);
+            Boolean withinSyncWindow = oExcp.OriginalDate >= Sync.Engine.Calendar.Instance.Profile.SyncStart && oExcp.OriginalDate <= Sync.Engine.Calendar.Instance.Profile.SyncEnd;
+            log.Debug("Google exception event is not cached. Retrieving " + (withinSyncWindow ? "recurring instances within sync window" : "all recurring instances") + "...");
+            List<Event> gInstances = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRecurrence(gRecurringEventID, withinSyncWindow);
             if (gInstances == null) return null;
 
             foreach (Event gInst in gInstances) {
