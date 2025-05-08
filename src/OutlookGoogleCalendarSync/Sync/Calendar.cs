@@ -328,7 +328,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Ogcs.Google.Calendar.Instance.ExcludedByConfig = new List<String>();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
-                Outlook.Calendar.Instance.EphemeralProperties.Clear();
+                if (!Ogcs.Outlook.Calendar.IsInstanceNull)
+                    Ogcs.Outlook.Calendar.Instance.EphemeralProperties.Clear();
 
                 try {
                     #region Read Outlook items

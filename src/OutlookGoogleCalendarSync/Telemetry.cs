@@ -297,7 +297,7 @@ namespace OutlookGoogleCalendarSync {
                         "\"country\": \"" + Telemetry.Instance.Country + "\", " +
                         "\"isBenefactor\": \"" + Settings.Instance.UserIsBenefactor() + "\", " +
                         "\"profiles\": \"" + Settings.Instance.Calendars.Count() + "\", " +
-                        "\"outlookOnline\": \"" + 0
+                        "\"outlookOnline\": \"" + Settings.Instance.Calendars.Count(c => c.OutlookService == Outlook.Calendar.Service.Graph)
                         + "\" }";
                     String target = "https://script.google.com/macros/s/AKfycbyWxklvELJDC6vb4b4wwgUxVgEN-utvB6ZCj6HDamKK76xyJVfVr_VgYJEWzTm9kTkVMA/exec";
 

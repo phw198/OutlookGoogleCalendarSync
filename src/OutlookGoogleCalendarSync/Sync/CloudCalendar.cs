@@ -48,6 +48,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 List<Microsoft.Graph.Event> outlookEntries = null;
                 List<GcalData.Event> googleEntries = null;
+                Ogcs.Google.Calendar.Instance.ExcludedByColour = new Dictionary<String, String>();
+                Ogcs.Google.Calendar.Instance.ExcludedByConfig = new List<String>();
                 Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences = new();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
