@@ -553,6 +553,8 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>Invoke execution of a Google App Script via a GET request</summary>
         public void CallGappScript() {
             /*
+             * To run a GAS script in development mode, the temporary cookie needs extracting from the browser and adding to the WebClient header
+             * //wc.Headers.Add(System.Net.HttpRequestHeader.Cookie, @"HSID=...");
             try {
                 Forms.Main.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/<GUID>/exec?key=value");
                 while (Forms.Main.Instance.GappBrowser.ReadyState != WebBrowserReadyState.Complete) {
