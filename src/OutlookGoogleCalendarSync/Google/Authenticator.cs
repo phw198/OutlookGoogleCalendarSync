@@ -313,6 +313,7 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         public static String GetMd5(String input, Boolean isEmailAddress = false, Boolean silent = false) {
+            if (input == null) return null;
             if (!silent) log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
