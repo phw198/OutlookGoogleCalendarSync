@@ -314,6 +314,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
         public static String GetMd5(String input, Boolean isEmailAddress = false, Boolean silent = false) {
             if (!silent) log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
+            if (string.IsNullOrEmpty(input)) return "";
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
