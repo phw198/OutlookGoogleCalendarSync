@@ -427,7 +427,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
                 Ogcs.Google.CustomProperty.AddOutlookIDs(ref ev, ai);
-                Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                try {
+                    Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                } catch (System.Exception) {
+                    log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
+                    throw;
+                }
             }
         }
         #endregion
