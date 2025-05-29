@@ -1184,6 +1184,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         global::Google.GoogleApiException gex = ex as global::Google.GoogleApiException;
                         if (gex.Error != null && gex.Error.Code == 410) { //Resource has been deleted
                             log.Fail("This event is already deleted! Ignoring failed request to delete.");
+                            log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
                             continue;
                         }
                     }
