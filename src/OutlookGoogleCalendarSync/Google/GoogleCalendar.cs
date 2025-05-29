@@ -1312,9 +1312,9 @@ namespace OutlookGoogleCalendarSync.Google {
                                         ai.Save();
                                     }
                                 } catch (System.Exception ex) {
-                                    log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
-                                    log.Debug(ex.Message);
                                     log.Debug("Event status: " + ev.Status);
+                                    log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
+                                    ex.Analyse("Failed to reclaim Event: " + GetEventSummary(ev));
                                 }
                                 break;
                             }
