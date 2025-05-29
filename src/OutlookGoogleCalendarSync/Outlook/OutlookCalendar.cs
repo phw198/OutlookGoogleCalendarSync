@@ -864,8 +864,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show($"Calendar: {Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}\r\nItem: {eventSummary}", "Confirm Deletion From Outlook",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
+                if (Ogcs.Extensions.MessageBox.Show(
+                    $"Calendar: {EmailAddress.MaskAddressWithinText(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name)}\r\nItem: {eventSummary}", "Confirm Deletion From Outlook",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No
+                ) { //
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
                         if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID))) {
