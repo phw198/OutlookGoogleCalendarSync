@@ -327,8 +327,18 @@ namespace OutlookGoogleCalendarSync {
                     restocked = DateTime.UtcNow;
 
                 } catch (System.Exception ex) {
-                    if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
-                    if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
+                    if (ex is WebException) {
+                        WebException webex = ex as WebException;
+                        log.Debug(webex.Status.ToString());
+                        if (((HttpWebResponse)webex.Response).StatusCode == HttpStatusCode.Forbidden)
+                            ex.LogAsFail();
+                    }
+                    if (ex.LoggingAsFail())
+                        restocked = DateTime.UtcNow;
+                    else {
+                        if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
+                        if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
+                    }
                     ex.Analyse("Unable to retrieve OGCS news.");
                 }
             }
