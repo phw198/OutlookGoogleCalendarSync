@@ -20,7 +20,7 @@ namespace OutlookGoogleCalendarSync {
         }
         public static void Analyse(this System.Exception ex, Boolean includeStackTrace = false) {
             log4net.Core.Level logLevel = log4net.Core.Level.Error;
-            if (LoggingAsFail(ex)) {
+            if (LoggingAsFail(ex) || Outlook.Errors.LogAsFail(ex)) {
                 if (ex is ApplicationException) return;
                 logLevel = Program.MyFailLevel;
             }
