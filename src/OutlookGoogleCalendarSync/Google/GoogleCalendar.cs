@@ -383,7 +383,16 @@ namespace OutlookGoogleCalendarSync.Google {
                 ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
                 ev.Start == null && ev.End == null && string.IsNullOrEmpty(ev.Summary)).ToList();
             if (cancelled.Count > 0) {
-                log.Debug(cancelled.Count + " Google Events are cancelled and will be excluded.");
+                log.Warn(cancelled.Count + " single instance Google Events are cancelled and will be excluded.");
+                result = result.Except(cancelled).ToList();
+            }
+            //Also remove cancelled recurring master Events - Google started returning these incorrectly on 23-May-2025. See #2123,#2124
+            //Bug logged: https://issuetracker.google.com/issues/421559834
+            cancelled = result.Where(ev =>
+                ev.Status == "cancelled" && string.IsNullOrEmpty(ev.RecurringEventId) &&
+                ev.Recurrence != null).ToList();
+            if (cancelled.Count > 0) {
+                log.Warn(cancelled.Count + " series master Google Events are cancelled and will be excluded.");
                 result = result.Except(cancelled).ToList();
             }
 
@@ -1210,8 +1219,10 @@ namespace OutlookGoogleCalendarSync.Google {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show($"Calendar: {Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}\r\nItem: {eventSummary}", "Confirm Deletion From Google",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
+                if (Ogcs.Extensions.MessageBox.Show(
+                    $"Calendar: {EmailAddress.MaskAddressWithinText(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name)}\r\nItem: {eventSummary}", "Confirm Deletion From Google",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No
+                ) { //
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
                         if (Ogcs.Outlook.Calendar.Instance.ExcludedByCategory.ContainsKey(CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId))) {
@@ -1312,9 +1323,9 @@ namespace OutlookGoogleCalendarSync.Google {
                                         ai.Save();
                                     }
                                 } catch (System.Exception ex) {
-                                    log.Error("Failed to reclaim Event: " + GetEventSummary(ev));
-                                    log.Debug(ex.Message);
                                     log.Debug("Event status: " + ev.Status);
+                                    log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(ev));
+                                    ex.Analyse("Failed to reclaim Event: " + GetEventSummary(ev));
                                 }
                                 break;
                             }
