@@ -396,11 +396,16 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
+        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
             Markup emoji = Markup.error;
             if (ex.LoggingAsFail())
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble,
+                memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
         }
 
         /// <summary>Log the output sans HTML tags.</summary>
@@ -553,6 +558,8 @@ namespace OutlookGoogleCalendarSync {
         /// <summary>Invoke execution of a Google App Script via a GET request</summary>
         public void CallGappScript() {
             /*
+             * To run a GAS script in development mode, the temporary cookie needs extracting from the browser and adding to the WebClient header
+             * //wc.Headers.Add(System.Net.HttpRequestHeader.Cookie, @"HSID=...");
             try {
                 Forms.Main.Instance.GappBrowser.Navigate("https://script.google.com/macros/s/<GUID>/exec?key=value");
                 while (Forms.Main.Instance.GappBrowser.ReadyState != WebBrowserReadyState.Complete) {
