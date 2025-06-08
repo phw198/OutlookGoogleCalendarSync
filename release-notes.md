@@ -36,6 +36,38 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.11.5.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Application
+    - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
+    - Migrated news alert service to Google CloudRun for scalability
+    - Prepared ability to receive v2 update alerts when skipping v3 releases
+- Sync Engine
+    - Miscellenous logging improvements
+
+:beetle: **Bugfix**
+- Application
+    - Fixed regression for "startup in tray" setting [[#2117](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2117)]
+- Sync Engine
+    - Workaround for Google bug that surfaced on 23-May with symptoms:
+        - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
+        - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.11.4.0 - Alpha
 
 :high_brightness: **Enhancements**
