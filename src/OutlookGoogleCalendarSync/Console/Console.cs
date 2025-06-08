@@ -396,11 +396,16 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null) {
+        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
             Markup emoji = Markup.error;
             if (ex.LoggingAsFail())
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble);
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble,
+                memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
         }
 
         /// <summary>Log the output sans HTML tags.</summary>
