@@ -236,7 +236,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static Boolean NoClient() {
-            return testingGraph || outlookVersionName <= OutlookVersionNames.None;
+            return testingGraph || (new OutlookVersionNames[] { OutlookVersionNames.None, OutlookVersionNames.Failed }.Contains(OutlookVersionName));
         }
     }
 }

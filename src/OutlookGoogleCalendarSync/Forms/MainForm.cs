@@ -579,7 +579,13 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbIntervalUnit.SelectedIndexChanged -= new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
                     cbIntervalUnit.Text = profile.SyncIntervalUnit;
                     cbIntervalUnit.SelectedIndexChanged += new System.EventHandler(this.cbIntervalUnit_SelectedIndexChanged);
-                    cbOutlookPush.Checked = profile.OutlookPush;
+                    if (profile.OutlookService == Outlook.Calendar.Service.Graph) {
+                        cbOutlookPush.Visible = cbOutlookPush.Checked = profile.OutlookPush = false;
+                        profile.DeregisterForPushSync();
+                    } else {
+                        cbOutlookPush.Visible = true;
+                        cbOutlookPush.Checked = profile.OutlookPush;
+                    }
                     this.gbSyncOptions_When.ResumeLayout();
                     #endregion
                     #region What
@@ -1304,7 +1310,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     case "GOAuth": section.Height = 174; break;
                     //Settings
                     case "How": section.Height = btCloseRegexRules.Visible ? 251 : 198; break;
-                    case "When": section.Height = 119; break;
+                    case "When": section.Height = cbOutlookPush.Visible ? 119 : 102; break;
                     case "What": section.Height = 265; break;
                     //Application Behaviour
                     case "Logging": section.Height = 125; break;
@@ -1372,12 +1378,15 @@ namespace OutlookGoogleCalendarSync.Forms {
                 rbOutlookAltMB.Checked =
                 rbOutlookSharedCal.Checked =
                 gbOutlook_ODate.Visible =
-                pbExpandOutlookDate.Visible = false;
+                pbExpandOutlookDate.Visible = 
+                cbOutlookPush.Checked =
+                cbOutlookPush.Visible = false;
                 gbOutlook_Online.Height = 211;
                 gbOutlook_OAccount.Height = 268;
             } else {
                 gbOutlook_ODate.Visible =
-                pbExpandOutlookDate.Visible = true;
+                pbExpandOutlookDate.Visible =
+                cbOutlookPush.Visible = true;
                 gbOutlook_Online.Height = 40;
                 gbOutlook_OAccount.Height = 368;
             }

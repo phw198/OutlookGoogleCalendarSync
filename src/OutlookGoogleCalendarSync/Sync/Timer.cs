@@ -227,7 +227,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Forms.Main.Instance.NextSyncVal = "Push Sync Active";
             } else if (!activate && this.Enabled) {
                 this.Stop();
-                profile.OgcsTimer.SetNextSync();
+                profile.OgcsTimer?.SetNextSync();
             }
         }
         public Boolean IsRunning { 
