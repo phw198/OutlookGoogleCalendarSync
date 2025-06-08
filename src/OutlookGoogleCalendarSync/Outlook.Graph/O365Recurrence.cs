@@ -37,7 +37,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         oPattern.Pattern.Type = RecurrencePatternType.Weekly;
                         // Need to work out dayMask from "BY" pattern
                         // Eg "BYDAY=MO,TU,WE,TH,FR"
-                        oPattern.Pattern.DaysOfWeek = getDoW(ruleBook["BYDAY"]);
+                        if (ruleBook.ContainsKey("BYDAY"))
+                            oPattern.Pattern.DaysOfWeek = getDoW(ruleBook["BYDAY"]);
+                        else
+                            oPattern.Pattern.DaysOfWeek = getDoW(ev.Start.SafeDateTime().DayOfWeek.ToString().ToUpper().Substring(0, 2));
                         break;
                     }
                 case "MONTHLY": {

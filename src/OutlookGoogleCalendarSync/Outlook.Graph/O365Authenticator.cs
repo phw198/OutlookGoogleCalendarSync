@@ -177,7 +177,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         private void getMSaccountEmail() {
             String resultText = GetHttpContentWithToken(graphBaseUrl + "/me");
-            log.Debug("Microsoft UPN: " + EmailAddress.MaskAddress(Newtonsoft.Json.Linq.JObject.Parse(resultText)["userPrincipalName"]?.ToString() ?? ""));
+            try {
+                log.Debug("Microsoft UPN: " + EmailAddress.MaskAddress(Newtonsoft.Json.Linq.JObject.Parse(resultText)["userPrincipalName"]?.ToString() ?? ""));
+            } catch (System.Exception) {
+                log.Warn("Could not determine Microsoft UPN from response: " + resultText);
+                throw;
+            }
         }
 
         public void Reset(Boolean reauthorise = true) {
