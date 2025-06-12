@@ -41,8 +41,8 @@ google_ad_testing: "off"
 show_alpha_downloads: true
 beta-version: 2.11.0
 beta-release-date: Aug-2024
-alpha-version: 2.11.4
-alpha-release-date: May-2025
+alpha-version: 2.11.5
+alpha-release-date: Jun-2025
 # Forcing build
 
 # Build settings
