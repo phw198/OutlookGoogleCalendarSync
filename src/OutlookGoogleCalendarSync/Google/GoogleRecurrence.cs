@@ -250,6 +250,9 @@ namespace OutlookGoogleCalendarSync.Google {
         public static List<Event> GoogleExceptions {
             get { return googleExceptions; }
         }
+        public static void GoogleExceptionsReset() {
+            googleExceptions = new List<Event>();
+        }
 
         public static Boolean HasExceptions(Event ev, Boolean checkLocalCacheOnly = false) {
             log.Debug($"Id:{ev.Id}; RecurrenceIsNull:{(ev.Recurrence == null).ToString()};");
@@ -273,7 +276,6 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         public static void SeparateGoogleExceptions(List<Event> allEvents) {
-            googleExceptions = new List<Event>();
             if (allEvents.Count == 0) return;
             
             log.Debug("Identifying exceptions in recurring Google events.");
