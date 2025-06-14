@@ -296,6 +296,8 @@ namespace OutlookGoogleCalendarSync {
             }
 
             private async Task requestNews() {
+                String payload = null;
+                String jsonResponse = null;
                 try {
                     if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) return;
 
@@ -304,29 +306,40 @@ namespace OutlookGoogleCalendarSync {
                     }
                     if (Program.InDeveloperMode) return;
 
-                    String payload = "{ \"usernameId\": \"" + Telemetry.Instance.uuId + "\", " +
+                    payload = "{ \"usernameId\": \"" + Telemetry.Instance.uuId + "\", " +
                         "\"version\": \"" + Program.VersionToInt(System.Windows.Forms.Application.ProductVersion) + "\", " +
                         "\"country\": \"" + Telemetry.Instance.Country + "\", " +
                         "\"isBenefactor\": \"" + Settings.Instance.UserIsBenefactor() + "\", " +
                         "\"profiles\": \"" + Settings.Instance.Calendars.Count() + "\", " +
                         "\"outlookOnline\": \"" + Settings.Instance.Calendars.Count(c => c.OutlookService == Outlook.Calendar.Service.Graph)
                         + "\" }";
-                    String target = "https://script.google.com/macros/s/AKfycbyWxklvELJDC6vb4b4wwgUxVgEN-utvB6ZCj6HDamKK76xyJVfVr_VgYJEWzTm9kTkVMA/exec";
+                    String target = "https://prod---get-ogcs-news-1005809938476.us-central1.run.app";
 
                     using (Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient()) {
                         wc.Headers.Add(System.Net.HttpRequestHeader.Accept, "application/json");
                         wc.Headers.Add(System.Net.HttpRequestHeader.ContentType, "application/json");
                         if (Program.InDeveloperMode) {
-                            target = "https://script.google.com/macros/s/AKfycbzrIYvZSgJLEtVb3y1mjtzUpUlj1768l9IvgoVgnCDF/dev";
-                            wc.Headers.Add(System.Net.HttpRequestHeader.Cookie, @"HSID=...");
+                            target = "https://dev---get-ogcs-news-1005809938476.us-central1.run.app?version=2110200";
                         }
-                        String jsonResponse = await wc.UploadStringTaskAsync(target, payload);
+                        jsonResponse = await wc.UploadStringTaskAsync(target, payload);
                         newsStand = Newtonsoft.Json.JsonConvert.DeserializeObject<NewsJson>(jsonResponse);
                     }
                     restocked = DateTime.UtcNow;
 
                 } catch (System.Exception ex) {
-                    ex.Analyse();
+                    if (ex is WebException) {
+                        WebException webex = ex as WebException;
+                        log.Debug(webex.Status.ToString());
+                        if (((HttpWebResponse)webex.Response).StatusCode == HttpStatusCode.Forbidden)
+                            ex.LogAsFail();
+                    }
+                    if (ex.LoggingAsFail())
+                        restocked = DateTime.UtcNow;
+                    else {
+                        if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
+                        if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
+                    }
+                    ex.Analyse("Unable to retrieve OGCS news.");
                 }
             }
 

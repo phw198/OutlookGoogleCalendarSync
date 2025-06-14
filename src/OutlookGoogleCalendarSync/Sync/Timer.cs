@@ -51,7 +51,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
             log.Debug("Scheduled sync triggered for profile: "+ Settings.Profile.Name(this.owningProfile));
 
-            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) {
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60 || (TimezoneDB.LastSystemSleep != null && TimezoneDB.LastSystemSleep > TimezoneDB.LastSystemResume)) {
                 log.Debug("Too soon after system resume; delaying for 60 seconds...");
                 System.Threading.Thread.Sleep(60 * 1000);
             }
@@ -175,7 +175,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private void ogcsPushTimer_Tick(object sender, EventArgs e) {
             if (Forms.ErrorReporting.Instance.Visible) return;
-            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60) return;
+            if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60 || (TimezoneDB.LastSystemSleep != null && TimezoneDB.LastSystemSleep > TimezoneDB.LastSystemResume))
+                return;
             
             log.UltraFine("Push sync triggered.");
             try {

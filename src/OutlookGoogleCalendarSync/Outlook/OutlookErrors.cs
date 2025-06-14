@@ -1,9 +1,10 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using System;
+using System.Linq;
 
 namespace OutlookGoogleCalendarSync.Outlook {
-    public class Errors {
+    public static class Errors {
         private static readonly ILog log = LogManager.GetLogger(typeof(Errors));
 
         public enum ErrorType {
@@ -58,6 +59,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
             
             return retVal;
+        }
+
+        /// <summary>Log as FAIL if it is a COM 'system' exception</summary>
+        public static Boolean LogAsFail(System.Exception ex) {
+            if (ex is not System.Runtime.InteropServices.COMException) return false;
+            return (new ErrorType[] { ErrorType.PermissionFailure, ErrorType.RpcFailed, ErrorType.RpcRejected, ErrorType.RpcServerUnavailable }.Contains(HandleComError(ex)));
         }
     }
 }

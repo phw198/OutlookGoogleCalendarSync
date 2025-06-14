@@ -30,6 +30,7 @@ namespace OutlookGoogleCalendarSync {
         }
         
         public static DateTime LastSystemResume = DateTime.Now.AddDays(-1);
+        public static DateTime? LastSystemSleep = null;
 
         private TimezoneDB() {
             try {
@@ -44,13 +45,40 @@ namespace OutlookGoogleCalendarSync {
             this.RevertKyiv = false;
 
             Microsoft.Win32.SystemEvents.TimeChanged += SystemEvents_TimeChanged;
+            Microsoft.Win32.SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
         }
 
+        #region System Event handlers
         private static void SystemEvents_TimeChanged(object sender, EventArgs e) {
             log.Info("Detected system timezone change.");
             System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
             LastSystemResume = DateTime.Now;
         }
+
+        private static void SystemEvents_PowerModeChanged(object sender, Microsoft.Win32.PowerModeChangedEventArgs e) {
+            switch (e.Mode) {
+                case Microsoft.Win32.PowerModes.Suspend: {
+                        log.Info("Detected system going to sleep (S3).");
+                        LastSystemSleep = DateTime.Now;
+                        break;
+                    }
+                case Microsoft.Win32.PowerModes.Resume: {
+                        log.Info("Detected system resuming from sleep.");
+                        LastSystemResume = DateTime.Now;
+                        break;
+                    }
+                case Microsoft.Win32.PowerModes.StatusChange: {
+                        log.Info("Detect system power state change.");
+                        break;
+                    }
+            }
+        }
+
+        public static void SystemEvents_Detach() {
+            Microsoft.Win32.SystemEvents.TimeChanged -= SystemEvents_TimeChanged;
+            Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
+        }
+        #endregion
 
         public void CheckForUpdate() {
             System.Threading.Thread updateDBthread = new System.Threading.Thread(x => checkForUpdate(source.TzdbVersion));
