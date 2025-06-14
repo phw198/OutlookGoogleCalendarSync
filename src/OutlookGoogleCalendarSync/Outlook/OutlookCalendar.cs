@@ -32,13 +32,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
             get {
                 try {
                     instance ??= new Ogcs.Outlook.Calendar();
-                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient())
+                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()) {
                         instance.IOutlook.Connect();
-                    /*if (instance.Authenticator == null *//*|| !instance.Authenticator.Authenticated*//*) {
-                        instance.Authenticator = new Ogcs.Outlook.Graph.Authenticator(); 
-                        instance.Authenticator.GetAuthenticated(noInteractiveAuth: true);
-                    }*/
-
+                    }
                 } catch (System.ApplicationException) {
                     throw;
                 } catch (System.Exception ex) {

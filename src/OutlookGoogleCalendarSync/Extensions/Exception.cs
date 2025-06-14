@@ -29,7 +29,7 @@ namespace OutlookGoogleCalendarSync {
                 Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
                 log.ErrorOrFail("Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
                 return;
-            } else                
+            } else
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
 
             String locationDetails = "<Unknown File>";

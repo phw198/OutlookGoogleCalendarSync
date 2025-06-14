@@ -20,12 +20,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static Boolean IsInstanceNull { get { return instance == null; } }
         public static Calendar Instance {
             get {
-                if (instance == null) {
-                    instance = new Ogcs.Outlook.Graph.Calendar {
-                        Authenticator = new Ogcs.Outlook.Graph.Authenticator()
-                    };
-                }
-                return instance;
+                return instance ??= new Ogcs.Outlook.Graph.Calendar {
+                    Authenticator = new Ogcs.Outlook.Graph.Authenticator()
+                };
             }
         }
         public Calendar() { }
@@ -203,7 +200,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private List<Microsoft.Graph.Event> filterCalendarEntries(SettingsStore.Calendar profile, Boolean suppressAdvisories = false) {
             List<Microsoft.Graph.Event> result = new();
             ExcludedByConfig = new();
-            //ExcludedByCategory = new();
+            ExcludedByCategory = new();
 
             profile ??= Settings.Profile.InPlay();
 
