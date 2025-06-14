@@ -19,11 +19,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static readonly String _clientId = "9db47d88-54c2-4c48-b961-0f4adb402eb5";
         private static String clientId {
             get {
-                //if (Settings.Instance.UsingPersonalAPIkeys()) { //***
-                //    return Settings.Instance.PersonalClientIdentifier;
-                //} else {
                 return _clientId;
-                //}
             }
         }
 

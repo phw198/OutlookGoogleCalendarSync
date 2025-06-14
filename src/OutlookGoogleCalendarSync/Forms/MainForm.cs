@@ -1405,17 +1405,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 //***refreshCategories();
                 this.clbCategories.Enabled = false; //***
             }
-            
-            //if (rbOutlookOnline.Checked) {
-                /*OutlookOgcs.Calendar.Instance.Reset();
-                //Update available calendars
-                if (LoadingProfileConfig)
-                    cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
-                cbOutlookCalendars.DataSource = new BindingSource(Outlook.Calendar.Instance.CalendarFolders, null);
-                if (LoadingProfileConfig)
-                    cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
-                refreshCategories();*/
-            //}
         }
 
         private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
@@ -1519,8 +1508,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 }
                 c++;
             }
-            //tbClientID.ReadOnly = true;
-            //tbClientSecret.ReadOnly = true;
         }
 
         private void btResetOCal_Click(object sender, EventArgs e) {
@@ -1535,12 +1522,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                 //Hacky workaround to reset the size of the dropdown. MS bug fixed in .NetCore 3.0
                 this.cbOutlookCalendars.Items.Add(new Dictionary<string, OutlookCalendarListEntry>());
                 this.cbOutlookCalendars.Items.Clear();
-                //this.tbClientID.ReadOnly = false;
-                //this.tbClientSecret.ReadOnly = false;
                 if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.Authenticator != null)
                     Outlook.Graph.Calendar.Instance.Authenticator.Reset(reauthorise: false);
                 else {
-                    //Settings.Instance.AssignedClientIdentifier = "";
                     Settings.Instance.MSaccountEmail = "";
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Outlook.Graph.Authenticator.TokenFile));
                 }
