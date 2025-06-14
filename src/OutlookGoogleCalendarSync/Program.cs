@@ -118,6 +118,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Shutting down application.");
                 Outlook.Calendar.Disconnect();
                 Forms.Splash.CloseMe();
+                TimezoneDB.SystemEvents_Detach();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 while (Updater != null && Updater.IsBusy) {

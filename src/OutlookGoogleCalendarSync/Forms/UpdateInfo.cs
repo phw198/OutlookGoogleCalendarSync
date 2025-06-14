@@ -49,6 +49,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     html = htmlHead + html + "</body></html>";
                     webBrowser.DocumentText = html;
                 }
+                if (html.Contains("<h2>Manual Upgrade Required</h2>")) btUpgrade.Enabled = false;
                 dr = ShowDialog();
 
             } catch (System.Exception ex) {
@@ -87,7 +88,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btSkipVersion_Click(object sender, EventArgs e) {
             log.Info("User has opted to skip upgrading to this version.");
-            Settings.Instance.SkipVersion = version;
+            if (version.StartsWith("2") && Settings.Instance.SkipVersion.StartsWith("3"))
+                Settings.Instance.SkipVersion2 = version;
+            else
+                Settings.Instance.SkipVersion = version;
             this.Close();
         }
 

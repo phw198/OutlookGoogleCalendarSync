@@ -146,28 +146,28 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         }
 
                                     } else {
-                                    Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                                    if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                                        error == Outlook.Errors.ErrorType.RpcFailed ||
-                                        error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
-                                    {
-                                        Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                        String message = "It looks like Outlook was closed during the sync.";
-                                        if (error == Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
-                                        mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
+                                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                                        if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                            error == Outlook.Errors.ErrorType.RpcFailed ||
+                                            error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
+                                        {
+                                            Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                            String message = "It looks like Outlook was closed during the sync.";
+                                            if (error == Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                            mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else if (error == Outlook.Errors.ErrorType.OperationFailed) {
-                                        mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
+                                        } else if (error == Outlook.Errors.ErrorType.OperationFailed) {
+                                            mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else {
-                                        Ogcs.Exception.Analyse(ex, true);
-                                        mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
-                                        syncResult = SyncResult.Fail;
+                                        } else {
+                                            Ogcs.Exception.Analyse(ex, true);
+                                            mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
+                                            syncResult = SyncResult.Fail;
+                                        }
                                     }
                                 }
-                            }
                             }
                         );
 
@@ -282,7 +282,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
                     }
                 }
-                Forms.Main.Instance.bSyncNow.Enabled = true;
             }
 
             private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
