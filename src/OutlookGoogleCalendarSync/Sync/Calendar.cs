@@ -516,6 +516,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update($"Scanning Google calendar '{Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}'...");
                 try {
                     Ogcs.Google.Calendar.Instance.GetSettings();
+                    Ogcs.Google.Recurrence.GoogleExceptionsReset();
                     googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
                 } catch (AggregateException agex) {
                     agex.AnalyseAggregate();
