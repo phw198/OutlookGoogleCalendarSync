@@ -78,7 +78,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             List<Microsoft.Graph.Calendar> cals = new();
 
             try {
-                Microsoft.Graph.IUserCalendarsCollectionPage calPage = GraphClient.Me.Calendars.Request().GetAsync().Result;
+                Microsoft.Graph.IUserCalendarsCollectionRequest calReq = GraphClient.Me.Calendars.Request();
+                calReq.Select("id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner");
+                Microsoft.Graph.IUserCalendarsCollectionPage calPage = calReq.GetAsync().Result;
                 cals.AddRange(calPage.CurrentPage);
                 while (calPage.NextPageRequest != null) {
                     calPage = calPage.NextPageRequest.GetAsync().Result;
