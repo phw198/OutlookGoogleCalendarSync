@@ -349,7 +349,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         rbOutlookAltMB.Enabled = false;
                         rbOutlookAltMB.Checked = false;
                     }
-                    if (Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None && !profile.IsOutlookOnline) {
+                    if (Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None) {
                         Folders theFolders = Ogcs.Outlook.Calendar.Instance.Folders;
                         Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
                         for (int fld = 1; fld <= theFolders.Count; fld++) {
