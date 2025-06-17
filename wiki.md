@@ -18,4 +18,7 @@ Why not have a look around now?
 
 ## News / Alerts
 
-* [v2.11.0 Beta &amp; Google Permissions]({{ site.baseurl }}{% post_url 2024-09-01-2-11-0-beta-google-permissions %})
+| Date Posted | Blog Title |
+|:----  |:----  |
+| 17-Jun-2025 | [v3 release candidate available]({{ site.baseurl }}{% post_url 2025-06-17-v3-release-candidate-available %}) |
+| 01-Sep-2024 | [v2.11.0 Beta &amp; Google Permissions]({{ site.baseurl }}{% post_url 2024-09-01-2-11-0-beta-google-permissions %}) |
