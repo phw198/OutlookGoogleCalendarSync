@@ -9,11 +9,10 @@ layout: page
 
 {% include carousel.html height="90" unit="px" duration="10" number="1" %}
 
-### :warning: "New Outlook" Preview
+### :eyes: The New "Outlook for Windows" Application
 <div style="background-color: #ff6a001c; border: red; border-style: dashed; border-width: thin; padding: 5px; padding-left: 10px;"><font color="darkred">
-   The "<a href="https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-windows">New Outlook</a>" preview release is for cloud-only mailboxes and does not support this software.<br/>
-   <a href="https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888" style="background-color: yellow; text-decoration: underline;">Development builds now available</a> for OGCS to no longer require the Outlook client at all.<br/>
-   It's a significant rewrite, though. Please be patient! :sweat_smile:
+   The "<a href="https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-windows">New Outlook for Windows</a>" application is not compatible with OGCS, as it no longer provides the COM interoperability that OGCS v2 was built upon.<br/>
+   <a href="blog/2025/06/17/v3-release-candidate-available.html" style="background-color: yellow; text-decoration: underline;">A new v3 release of OGCS is now available</a> that no longer requires the Outlook client at all, and connects directly to Microsoft 365 cloud accounts.
 </font></div>
 
 ## Functionality

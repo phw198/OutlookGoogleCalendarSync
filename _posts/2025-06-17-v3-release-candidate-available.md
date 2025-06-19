@@ -30,7 +30,7 @@ At present, v3 is only available as a portable ZIP release. Until the first v3 a
 
 <div class="tip">💡 Although not necessary, you may wish to create a new dedicated calendar in Outlook and/or Google for OGCS to sync with, until you are happy v3 functions well for you and has all the features you require.</div>
 
-1. [Download v3.0.0.16](https://github.com/user-attachments/files/20747523/Portable_OGCS_v3.0.0.16.zip)
+1. <a href="https://github.com/user-attachments/files/20747523/Portable_OGCS_v3.0.0.16.zip" onClick="handleClickEvent('download', 'v3 RC1'); const delay = setTimeout(googlePermissions, 1000);">Download v3.0.0.16</a>
 1. Create a new directory for the portable release, eg in Windows Command Prompt:-
 ```cmd
 mkdir c:\temp\OGCS-v3
