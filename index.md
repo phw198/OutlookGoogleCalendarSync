@@ -17,7 +17,7 @@ layout: page
 
 ## Functionality
 
-- Supports all versions of Outlook from 2003 to 2019 64-bit 
+- Supports all versions of Outlook from 2003 to 2024 64-bit 
    - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
    - For "New Outlook", [check the latest developments](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888)
 - Installable and portable options - even runs from a USB thumbdrive
