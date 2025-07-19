@@ -601,8 +601,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update(sb, Console.Markup.info, logit: true);
 
                 //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
-                if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
-                    googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
+                if (!this.Profile.DisableDelete && googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
                     if (Ogcs.Extensions.MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
@@ -711,8 +710,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update(sb, Console.Markup.info, logit: true);
 
                 //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
-                if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
-                    outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 1) {
+                if (!this.Profile.DisableDelete && outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 1) {
                     if (Ogcs.Extensions.MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
