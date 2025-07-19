@@ -562,11 +562,15 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
             } else {
                 ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToPreciseString();
-                String startTimeZone = string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone;
+                String startTimeZone = "UTC";
+                if (!string.IsNullOrEmpty(ai.OriginalStartTimeZone) && ai.OriginalStartTimeZone != "tzone://Microsoft/Custom") 
+                    startTimeZone = ai.OriginalStartTimeZone;
                 ev.Start.TimeZone = TimezoneDB.IANAtimezone(startTimeZone, startTimeZone);
 
                 ev.End.DateTimeRaw = ai.End.SafeDateTime().ToPreciseString();
-                String endTimeZone = string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone;
+                String endTimeZone = "UTC";
+                if (!string.IsNullOrEmpty(ai.OriginalEndTimeZone) && ai.OriginalEndTimeZone != "tzone://Microsoft/Custom")
+                    endTimeZone = ai.OriginalEndTimeZone;
                 ev.End.TimeZone = startTimeZone == endTimeZone ? ev.Start.TimeZone : TimezoneDB.IANAtimezone(endTimeZone, endTimeZone);
             }
             
@@ -838,7 +842,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
             //TimeZone
             if (string.IsNullOrEmpty(ev.Start.Date)) {
-                String startTimeZone = string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone;
+                String startTimeZone = "UTC";
+                if (!string.IsNullOrEmpty(ai.OriginalStartTimeZone) && ai.OriginalStartTimeZone != "tzone://Microsoft/Custom")
+                    startTimeZone = ai.OriginalStartTimeZone;
                 startTimeZone = TimezoneDB.IANAtimezone(startTimeZone, startTimeZone);
                 if (Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, ev.Start.TimeZone, startTimeZone, sb, ref itemModified))
                     ev.Start.TimeZone = startTimeZone;
@@ -847,7 +853,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                     log.Warn("Outlook recurring series has a different start and end timezone, which Google does not allow. Setting both to the start timezone.");
                     ev.End.TimeZone = ev.Start.TimeZone;
                 }
-                String endTimeZone = string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone;
+                String endTimeZone = "UTC";
+                if (!string.IsNullOrEmpty(ai.OriginalEndTimeZone) && ai.OriginalEndTimeZone != "tzone://Microsoft/Custom")
+                    endTimeZone = ai.OriginalEndTimeZone;
                 endTimeZone = TimezoneDB.IANAtimezone(endTimeZone, endTimeZone);
                 if (Sync.Engine.CompareAttribute("End Timezone", Sync.Direction.OutlookToGoogle, ev.End.TimeZone, endTimeZone, sb, ref itemModified))
                     ev.End.TimeZone = endTimeZone;
