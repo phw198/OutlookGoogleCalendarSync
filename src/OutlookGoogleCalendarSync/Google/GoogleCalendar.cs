@@ -589,12 +589,12 @@ namespace OutlookGoogleCalendarSync.Google {
                 } catch (System.Exception ex) {
                     appointments.Remove(ai);
                     if (ex is ApplicationException) {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is global::Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
