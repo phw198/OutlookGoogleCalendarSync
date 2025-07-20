@@ -580,13 +580,15 @@ namespace OutlookGoogleCalendarSync.Google {
 
         #region Create
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
-            foreach (AppointmentItem ai in appointments) {
+            for (int o = appointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
+                AppointmentItem ai = appointments[o];
                 Event newEvent = new Event();
                 try {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
+                    appointments.Remove(ai);
                     if (ex is ApplicationException) {
                         String summary = Outlook.Calendar.GetEventSummary("<br/>Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
@@ -607,6 +609,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     createdEvent = createCalendarEntry_save(newEvent, ai);
                 } catch (System.Exception ex) {
+                    appointments.RemoveAt(o);
                     if (ex.Message.Contains("You need to have writer access to this calendar")) {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;
@@ -1176,6 +1179,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     doDelete = deleteCalendarEntry(ev);
                 } catch (System.Exception ex) {
+                    events.Remove(ev);
                     Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Event deletion failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -1196,6 +1200,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             continue;
                         }
                     }
+                    events.Remove(ev);
                     if (ex is ApplicationException) {
                         String summary = GetEventSummary("<br/>Event deletion skipped.<br/>" + ex.Message, ev, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
