@@ -1,12 +1,12 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Authenticator {
@@ -90,9 +90,15 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(TokenFile, Program.UserFilePath).Build();
 
+            ServiceCollection services = new();
+            services.AddHttpClient("MyHttpClient", client => { client.DefaultRequestHeaders.Add("User-Agent", Settings.Instance.Proxy.BrowserUserAgent); });
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            IMsalHttpClientFactory httpClientFactory = serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+
             oAuthApp = PublicClientApplicationBuilder.Create(clientId)
                 .WithAuthority("https://login.microsoftonline.com/common")
                 .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .WithHttpClientFactory(httpClientFactory)
                 .Build();
 
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
