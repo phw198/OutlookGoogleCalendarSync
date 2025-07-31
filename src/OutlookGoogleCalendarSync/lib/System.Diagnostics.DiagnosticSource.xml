@@ -7,6 +7,9 @@
     <member name="T:System.Diagnostics.Activity">
       <summary>Represents an operation with context to be used for logging.</summary>
     </member>
+    <member name="E:System.Diagnostics.Activity.CurrentChanged">
+      <summary>Occurs when the <see cref="P:System.Diagnostics.Activity.Current" /> value changes.</summary>
+    </member>
     <member name="M:System.Diagnostics.Activity.#ctor(System.String)">
       <summary>Initializes a new instance of the <see cref="T:System.Diagnostics.Activity" /> class.</summary>
       <param name="operationName">The name of the operation.</param>
@@ -45,6 +48,21 @@
       <summary>When overriden by a derived type, this method releases any allocated resources.</summary>
       <param name="disposing">
         <see langword="false" /> if the method is being called from the finalizer; <see langword="true" /> if calling from user code.</param>
+    </member>
+    <member name="M:System.Diagnostics.Activity.EnumerateEvents">
+      <summary>Enumerates the <see cref="T:System.Diagnostics.ActivityEvent" /> objects attached to this Activity object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Activity.EnumerateLinks">
+      <summary>Enumerates the <see cref="T:System.Diagnostics.ActivityLink" /> objects attached to this Activity object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Activity.EnumerateTagObjects">
+      <summary>Enumerates the tags attached to this Activity object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
     </member>
     <member name="M:System.Diagnostics.Activity.GetBaggageItem(System.String)">
       <summary>Returns the value of a key-value pair added to the activity with <see cref="M:System.Diagnostics.Activity.AddBaggage(System.String,System.String)" />.</summary>
@@ -169,6 +187,9 @@
       <returns>
         <see langword="true" /> to always use the <see cref="P:System.Diagnostics.Activity.DefaultIdFormat" />; otherwise, <see langword="false" />.</returns>
     </member>
+    <member name="P:System.Diagnostics.Activity.HasRemoteParent">
+      <summary>Gets a value that indicates whether the parent context was created from remote propagation.</summary>
+    </member>
     <member name="P:System.Diagnostics.Activity.Id">
       <summary>Gets an identifier that is specific to a particular request.</summary>
       <returns>The activity ID.</returns>
@@ -181,6 +202,9 @@
       <summary>Gets or sets a value that indicates whether this activity should be populated with all the propagation information, as well as all the other properties, such as links, tags, and events.</summary>
       <returns>
         <see langword="true" /> if the activity should be populated; <see langword="false" /> otherwise.</returns>
+    </member>
+    <member name="P:System.Diagnostics.Activity.IsStopped">
+      <summary>Gets a value that indicates whether this <see cref="T:System.Diagnostics.Activity" /> object is stopped or not.</summary>
     </member>
     <member name="P:System.Diagnostics.Activity.Kind">
       <summary>Gets the relationship between the activity, its parents, and its children in a trace.</summary>
@@ -252,6 +276,32 @@
       <summary>Gets or sets the W3C <see langword="tracestate" /> header.</summary>
       <returns>The W3C <see langword="tracestate" /> header.</returns>
     </member>
+    <member name="T:System.Diagnostics.Activity.Enumerator`1">
+      <summary>Enumerates the data stored on an <see cref="T:System.Diagnostics.Activity" /> object.</summary>
+      <typeparam name="T">Type being enumerated.</typeparam>
+    </member>
+    <member name="M:System.Diagnostics.Activity.Enumerator`1.GetEnumerator">
+      <summary>Returns an enumerator that iterates through the data stored on an Activity object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Activity.Enumerator`1.MoveNext">
+      <summary>Advances the enumerator to the next element of the data.</summary>
+      <returns>
+        <see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns>
+    </member>
+    <member name="P:System.Diagnostics.Activity.Enumerator`1.Current">
+      <summary>Gets the element at the current position of the enumerator.</summary>
+    </member>
+    <member name="T:System.Diagnostics.ActivityChangedEventArgs">
+      <summary>Provides data for the <see cref="E:System.Diagnostics.Activity.CurrentChanged" /> event.</summary>
+    </member>
+    <member name="P:System.Diagnostics.ActivityChangedEventArgs.Current">
+      <summary>Gets the <see cref="T:System.Diagnostics.Activity" /> object after the event.</summary>
+    </member>
+    <member name="P:System.Diagnostics.ActivityChangedEventArgs.Previous">
+      <summary>Gets the <see cref="T:System.Diagnostics.Activity" /> object before the event.</summary>
+    </member>
     <member name="T:System.Diagnostics.ActivityContext">
       <summary>A representation that conforms to the W3C TraceContext specification. It contains two identifiers: a TraceId and a SpanId,  along with a set of common TraceFlags and system-specific TraceState values.</summary>
     </member>
@@ -299,6 +349,16 @@
       <param name="traceState">The trace state.</param>
       <exception cref="T:System.ArgumentException">The trace parent is invalid.</exception>
       <returns>The <see cref="T:System.Diagnostics.ActivityContext" /> object created from the parsing operation.</returns>
+    </member>
+    <member name="M:System.Diagnostics.ActivityContext.TryParse(System.String,System.String,System.Boolean,System.Diagnostics.ActivityContext@)">
+      <summary>Tries to parse the W3C trace context headers to the <see cref="T:System.Diagnostics.ActivityContext" /> object.</summary>
+      <param name="traceParent">The W3C trace parent header.</param>
+      <param name="traceState">The W3C trace state.</param>
+      <param name="isRemote">
+        <see langword="true" /> to propagate the context from the remote parent; otherwise, <see langword="false" />.</param>
+      <param name="context">When this method returns, contains the <see cref="T:System.Diagnostics.ActivityContext" /> object created from the parsing operation.</param>
+      <returns>
+        <see langword="true" /> if the operation succeeds; <see langword="false" /> otherwise.</returns>
     </member>
     <member name="M:System.Diagnostics.ActivityContext.TryParse(System.String,System.String,System.Diagnostics.ActivityContext@)">
       <summary>Tries to parse the W3C trace context headers to an <see cref="T:System.Diagnostics.ActivityContext" /> object.</summary>
@@ -367,6 +427,9 @@ The possible generic type parameters are <see cref="T:System.Diagnostics.Activit
       <summary>Gets the trace Id to use in the Activity object if it is decided that it should be created by <see cref="T:System.Diagnostics.ActivityListener" /> callbacks.</summary>
       <returns>The trace Id.</returns>
     </member>
+    <member name="P:System.Diagnostics.ActivityCreationOptions`1.TraceState">
+      <summary>Gets or initializes the trace state to use when creating the Activity.</summary>
+    </member>
     <member name="T:System.Diagnostics.ActivityEvent">
       <summary>Represents an event containing a name and a timestamp, as well as an optional list of tags.</summary>
     </member>
@@ -379,6 +442,11 @@ The possible generic type parameters are <see cref="T:System.Diagnostics.Activit
       <param name="name">The event name.</param>
       <param name="timestamp">The event timestamp. Timestamp must only be used for the events that happened in the past, not at the moment of this call.</param>
       <param name="tags">The event tags.</param>
+    </member>
+    <member name="M:System.Diagnostics.ActivityEvent.EnumerateTagObjects">
+      <summary>Enumerate the tags attached to this <see cref="T:System.Diagnostics.ActivityEvent" /> object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
     </member>
     <member name="P:System.Diagnostics.ActivityEvent.Name">
       <summary>Gets the activity event name.</summary>
@@ -433,6 +501,11 @@ Activity links can be used to represent batched operations where an activity was
       <summary>Constructs a new activity link, which can be linked to an activity.</summary>
       <param name="context">The trace activity context.</param>
       <param name="tags">The key-value pair list of tags associated to the activity context.</param>
+    </member>
+    <member name="M:System.Diagnostics.ActivityLink.EnumerateTagObjects">
+      <summary>Enumerate the tags attached to this <see cref="T:System.Diagnostics.ActivityLink" /> object.</summary>
+      <returns>
+        <see cref="T:System.Diagnostics.Activity.Enumerator`1" />.</returns>
     </member>
     <member name="M:System.Diagnostics.ActivityLink.Equals(System.Diagnostics.ActivityLink)">
       <summary>Indicates whether the current activity link is equal to another activity link.</summary>
@@ -777,6 +850,7 @@ This collection behaves as follows:
     </member>
     <member name="P:System.Diagnostics.ActivityTagsCollection.Count">
       <summary>Gets the number of elements contained in the collection.</summary>
+      <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
     </member>
     <member name="P:System.Diagnostics.ActivityTagsCollection.IsReadOnly">
       <summary>Gets a value indicating whether the collection is read-only. This always returns <see langword="false" />.</summary>
@@ -794,9 +868,11 @@ This collection behaves as follows:
     </member>
     <member name="P:System.Diagnostics.ActivityTagsCollection.Keys">
       <summary>Get the list of the keys of all stored tags.</summary>
+      <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
     </member>
     <member name="P:System.Diagnostics.ActivityTagsCollection.Values">
       <summary>Get the list of the values of all stored tags.</summary>
+      <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
     </member>
     <member name="T:System.Diagnostics.ActivityTagsCollection.Enumerator">
       <summary>Enumerates the elements of an <see langword="ActivityTagsCollection" />.</summary>
@@ -1090,33 +1166,33 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="fieldValue">The value corresponding to <paramref name="fieldName" />.</param>
     </member>
     <member name="T:System.Diagnostics.Metrics.Counter`1">
-      <summary>Represents an instrument that supports adding non-negative values. For example, you might call counter.Add(1) each time a request is processed to track the total number of requests. Most metric viewers display counters using a rate (requests/sec), by default, but can also display a cumulative total.</summary>
+      <summary>Represents an instrument that supports adding non-negative values. For example, you might call <c>counter.Add(1)</c> each time a request is processed to track the total number of requests. Most metric viewers display counters using a rate (requests/sec), by default, but can also display a cumulative total.</summary>
       <typeparam name="T">The type that the counter represents.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0)">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
       <param name="tag">A key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
       <param name="tag3">A third key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
       <param name="tags">A list of key-value pair tags associated with the measurement.</param>
     </member>
@@ -1126,40 +1202,38 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="tagList">The tags associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Counter`1.Add(`0,System.ReadOnlySpan{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
-      <summary>Record the increment value of the measurement.</summary>
+      <summary>Records the increment value of the measurement.</summary>
       <param name="delta">The increment measurement.</param>
       <param name="tags">A span of key-value pair tags associated with the measurement.</param>
     </member>
     <member name="T:System.Diagnostics.Metrics.Histogram`1">
-      <summary>Represents a metrics Instrument that can be used to report arbitrary values that are likely to be statistically meaningful.
-            e.g. the request duration.
-            Use <see cref="M:System.Diagnostics.Metrics.Meter.CreateHistogram``1(System.String,System.String,System.String)" /> method to create the Histogram object.</summary>
+      <summary>Represents a metrics instrument that can be used to report arbitrary values that are likely to be statistically meaningful, for example, the request duration. Call <see cref="M:System.Diagnostics.Metrics.Meter.CreateHistogram``1(System.String,System.String,System.String)" /> to create a Histogram object.</summary>
       <typeparam name="T">The type that the histogram represents.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0)">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
       <param name="tag">A key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
       <param name="tag3">A third key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
       <param name="tags">A list of key-value pair tags associated with the measurement.</param>
     </member>
@@ -1169,35 +1243,34 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="tagList">The tags associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Histogram`1.Record(`0,System.ReadOnlySpan{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
-      <summary>Record a measurement value.</summary>
+      <summary>Records a measurement value.</summary>
       <param name="value">The measurement value.</param>
       <param name="tags">A span of key-value pair tags associated with the measurement.</param>
     </member>
     <member name="T:System.Diagnostics.Metrics.Instrument">
-      <summary>Base class of all Metrics Instrument classes</summary>
+      <summary>Base class of all metrics instrument classes</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String)">
-      <summary>Protected constructor to initialize the common instrument properties like the meter, name, description, and unit.
-            All classes extending Instrument need to call this constructor when constructing object of the extended class.</summary>
+      <summary>Protected constructor to initialize the common instrument properties like the meter, name, description, and unit.</summary>
       <param name="meter">The meter that created the instrument.</param>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument.Publish">
-      <summary>Publish is activating the instrument to start recording measurements and to allow listeners to start listening to such measurements.</summary>
+      <summary>Activates the instrument to start recording measurements and to allow listeners to start listening to such measurements.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.Instrument.Description">
       <summary>Gets the instrument description.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.Instrument.Enabled">
-      <summary>Checks if there is any listeners for this instrument.</summary>
+      <summary>Gets a value that indicates if there are any listeners for this instrument.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.Instrument.IsObservable">
-      <summary>A property tells if the instrument is an observable instrument.</summary>
+      <summary>Gets a value that indicates whether the instrument is an observable instrument.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.Instrument.Meter">
-      <summary>Gets the Meter which created the instrument.</summary>
+      <summary>Gets the Meter that created the instrument.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.Instrument.Name">
       <summary>Gets the instrument name.</summary>
@@ -1210,30 +1283,29 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The type that the instrument represents.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String)">
-      <summary>Create the metrics instrument using the properties meter, name, description, and unit.
-            All classes extending Instrument{T} need to call this constructor when constructing object of the extended class.</summary>
+      <summary>Create the metrics instrument using the properties meter, name, description, and unit.</summary>
       <param name="meter">The meter that created the instrument.</param>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0)">
-      <summary>Record the measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects which listening to this instrument.</summary>
+      <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
       <param name="measurement">The measurement value.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects which listening to this instrument.</summary>
+      <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
       <param name="measurement">The measurement value.</param>
       <param name="tag">A key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects which listening to this instrument.</summary>
+      <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
       <param name="measurement">The measurement value.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
-      <summary>Record the measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects which listening to this instrument.</summary>
+      <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
       <param name="measurement">The measurement value.</param>
       <param name="tag1">A first key-value pair tag associated with the measurement.</param>
       <param name="tag2">A second key-value pair tag associated with the measurement.</param>
@@ -1245,33 +1317,32 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="tagList">The tags associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0,System.ReadOnlySpan{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
-      <summary>Record the measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects which listening to this instrument.</summary>
+      <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
       <param name="measurement">The measurement value.</param>
       <param name="tags">A span of key-value pair tags associated with the measurement.</param>
     </member>
     <member name="T:System.Diagnostics.Metrics.Measurement`1">
-      <summary>Stores one observed metrics value and its associated tags. This type is used by an Observable instrument's Observe() method when reporting current measurements.
-            with the associated tags.</summary>
+      <summary>Stores one observed metrics value and its associated tags. This type is used by an Observable instrument's Observe() method when reporting current measurements.</summary>
       <typeparam name="T">The type that the measurement represents.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.Measurement`1.#ctor(`0)">
-      <summary>Initializes a new instance of the Measurement using the value and the list of tags.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Measurement`1" /> using the specified value.</summary>
       <param name="value">The measurement value.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Measurement`1.#ctor(`0,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
-      <summary>Initializes a new instance of the Measurement using the value and the list of tags.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Measurement`1" /> using the specified value and list of tags.</summary>
       <param name="value">The measurement value.</param>
-      <param name="tags">The measurement associated tags list.</param>
+      <param name="tags">The list of tags associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Measurement`1.#ctor(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-      <summary>Initializes a new instance of the Measurement using the value and the list of tags.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Measurement`1" /> using the specified value and list of tags.</summary>
       <param name="value">The measurement value.</param>
-      <param name="tags">The measurement associated tags list.</param>
+      <param name="tags">The list of tags associated with the measurement.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Measurement`1.#ctor(`0,System.ReadOnlySpan{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
-      <summary>Initializes a new instance of the Measurement using the value and the list of tags.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Measurement`1" /> using the specified value and list of tags.</summary>
       <param name="value">The measurement value.</param>
-      <param name="tags">The measurement associated tags list.</param>
+      <param name="tags">The list of tags associated with the measurement.</param>
     </member>
     <member name="P:System.Diagnostics.Metrics.Measurement`1.Tags">
       <summary>Gets the measurement tags list.</summary>
@@ -1280,8 +1351,8 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <summary>Gets the measurement value.</summary>
     </member>
     <member name="T:System.Diagnostics.Metrics.MeasurementCallback`1">
-      <summary>A delegate to represent the Meterlistener callbacks used in measurements recording operation.</summary>
-      <param name="instrument">The <see cref="T:System.Diagnostics.Metrics.Instrument" /> that was responsible for sending the measurement.</param>
+      <summary>A delegate to represent the Meterlistener callbacks that are used when recording measurements.</summary>
+      <param name="instrument">The instrument that sent the measurement.</param>
       <param name="measurement">The measurement value.</param>
       <param name="tags">A span of key-value pair tags associated with the measurement.</param>
       <param name="state">The state object originally passed to <see cref="M:System.Diagnostics.Metrics.MeterListener.EnableMeasurementEvents(System.Diagnostics.Metrics.Instrument,System.Object)" /> method.</param>
@@ -1291,25 +1362,25 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <summary>Meter is the class responsible for creating and tracking the Instruments.</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.#ctor(System.String)">
-      <summary>Initializes a new instance of the Meter using the meter name.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Meter" /> using the specified meter name.</summary>
       <param name="name">The Meter name.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.#ctor(System.String,System.String)">
-      <summary>Initializes a new instance of the Meter using the meter name and version.</summary>
+      <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Meter" /> using the specified meter name and version.</summary>
       <param name="name">The Meter name.</param>
       <param name="version">The optional Meter version.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateCounter``1(System.String,System.String,System.String)">
       <summary>Create a metrics Counter object.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new counter.</returns>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateHistogram``1(System.String,System.String,System.String)">
-      <summary>Creates a Histogram, which is an instrument that can be used to report arbitrary values that are likely to be statistically meaningful. It is intended for statistics such as histograms, summaries, and percentile.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <summary>Creates a Histogram, which is an instrument that can be used to report arbitrary values that are likely to be statistically meaningful. It is intended for statistics such as histograms, summaries, and percentiles.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
@@ -1317,7 +1388,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{``0},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValue">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
@@ -1326,7 +1397,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValues">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
@@ -1335,7 +1406,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValue">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" /></param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
@@ -1343,8 +1414,8 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <returns>A new observable counter.</returns>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{``0},System.String,System.String)">
-      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed. An example of a non-additive value is the room temperature - it makes no sense to report the temperature value from multiple rooms and sum them up.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValue">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
@@ -1352,8 +1423,8 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <returns>A new observable gauge.</returns>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
-      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed. An example of a non-additive value is the room temperature - it makes no sense to report the temperature value from multiple rooms and sum them up.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValues">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
@@ -1361,13 +1432,48 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <returns>A new observable gauge.</returns>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
-      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed. An example of a non-additive value is the room temperature - it makes no sense to report the temperature value from multiple rooms and sum them up.</summary>
-      <param name="name">The instrument name. cannot be <see langword="null" />.</param>
+      <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="observeValue">The callback to call to get the measurements when <code>ObservableCounter{T}.Observe()</code> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable gauge.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{``0},System.String,System.String)">
+      <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
+      <param name="observeValue">The callback to call to get the measurements when the <see cref="M:System.Diagnostics.Metrics.ObservableInstrument`1.Observe" /> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
+      <param name="unit">Optional instrument unit of measurements.</param>
+      <param name="description">Optional instrument description.</param>
+      <typeparam name="T">The numerical type of the measurement.</typeparam>
+      <returns>A new observable up down counter.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
+      <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
+      <param name="observeValues">The callback to call to get the measurements when the <see cref="M:System.Diagnostics.Metrics.ObservableInstrument`1.Observe" /> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" />.</param>
+      <param name="unit">Optional instrument unit of measurements.</param>
+      <param name="description">Optional instrument description.</param>
+      <typeparam name="T">The numerical type of the measurement.</typeparam>
+      <returns>A new observable up down counter.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
+      <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
+      <param name="observeValue">The callback to call to get the measurements when the <see cref="M:System.Diagnostics.Metrics.ObservableInstrument`1.Observe" /> is called by <see cref="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments" /></param>
+      <param name="unit">Optional instrument unit of measurements.</param>
+      <param name="description">Optional instrument description.</param>
+      <typeparam name="T">The numerical type of the measurement.</typeparam>
+      <returns>A new observable up down counter.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateUpDownCounter``1(System.String,System.String,System.String)">
+      <summary>Create a metrics UpDownCounter object.</summary>
+      <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
+      <param name="unit">Optional instrument unit of measurements.</param>
+      <param name="description">Optional instrument description.</param>
+      <typeparam name="T">The numerical type of the measurement.</typeparam>
+      <returns>A new up down counter.</returns>
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.Dispose">
       <summary>Dispose the Meter which will disable all instruments created by this meter.</summary>
@@ -1381,13 +1487,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <returns>The Meter version.</returns>
     </member>
     <member name="T:System.Diagnostics.Metrics.MeterListener">
-      <summary>MeterListener is class used to listen to the metrics instrument measurements recording.</summary>
+      <summary>The MeterListener is class used to listen to the metrics instrument measurements recording.</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.#ctor">
-      <summary>Creates a MeterListener object.</summary>
+      <summary>Initializes a new instance of the <see cref="T:System.Diagnostics.Metrics.MeterListener" /> class.</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.DisableMeasurementEvents(System.Diagnostics.Metrics.Instrument)">
-      <summary>Stop listening to a specific instrument measurement recording.</summary>
+      <summary>Stops listening to a specific instrument measurement recording.</summary>
       <param name="instrument">The instrument to stop listening to.</param>
       <returns>The state object originally passed to <see cref="M:System.Diagnostics.Metrics.MeterListener.EnableMeasurementEvents(System.Diagnostics.Metrics.Instrument,System.Object)" /> method.</returns>
     </member>
@@ -1395,12 +1501,12 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <summary>Disposes the listeners which will stop it from listening to any instrument.</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.EnableMeasurementEvents(System.Diagnostics.Metrics.Instrument,System.Object)">
-      <summary>Start listening to a specific instrument measurement recording.</summary>
+      <summary>Starts listening to a specific instrument measurement recording.</summary>
       <param name="instrument">The instrument to listen to.</param>
-      <param name="state">A state object which will be passed back to the callback getting measurements events.</param>
+      <param name="state">A state object that will be passed back to the callback getting measurements events.</param>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.RecordObservableInstruments">
-      <summary>Calls all Observable instruments which the listener is listening to then calls <see cref="M:System.Diagnostics.Metrics.MeterListener.SetMeasurementEventCallback``1(System.Diagnostics.Metrics.MeasurementCallback{``0})" /> with every collected measurement.</summary>
+      <summary>Calls all Observable instruments that the listener is listening to, and calls <see cref="M:System.Diagnostics.Metrics.MeterListener.SetMeasurementEventCallback``1(System.Diagnostics.Metrics.MeasurementCallback{``0})" /> with every collected measurement.</summary>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.SetMeasurementEventCallback``1(System.Diagnostics.Metrics.MeasurementCallback{``0})">
       <summary>Sets a callback for a specific numeric type to get the measurement recording notification from all instruments which enabled listening and was created with the same specified numeric type.
@@ -1409,7 +1515,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The type of the numeric measurement.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.MeterListener.Start">
-      <summary>Enable the listener to start listening to instruments measurement recording.</summary>
+      <summary>Enables the listener to start listening to instruments measurement recording.</summary>
     </member>
     <member name="P:System.Diagnostics.Metrics.MeterListener.InstrumentPublished">
       <summary>Gets or sets the callback to get notified when an instrument is published.</summary>
@@ -1421,23 +1527,20 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <returns>The callback to get notified when the measurement is stopped on some instrument.</returns>
     </member>
     <member name="T:System.Diagnostics.Metrics.ObservableCounter`1">
-      <summary>ObservableCounter is a metrics observable Instrument which reports monotonically increasing value(s) when the instrument is being observed.
-            e.g. CPU time (for different processes, threads, user mode or kernel mode).
-            Use Meter.CreateObservableCounter methods to create the observable counter object.</summary>
+      <summary>Represents a metrics-observable instrument that reports monotonically increasing values when the instrument is being observed, for example, CPU time (for different processes, threads, user mode, or kernel mode). Call <see cref="Overload:System.Diagnostics.Metrics.Meter.CreateObservableCounter" /> to create the observable counter object.</summary>
       <typeparam name="T">The type that the observable counter represents.</typeparam>
     </member>
     <member name="T:System.Diagnostics.Metrics.ObservableGauge`1">
-      <summary>ObservableGauge is an observable Instrument that reports non-additive value(s) when the instrument is being observed.
-            e.g. the current room temperature Use Meter.CreateObservableGauge methods to create the observable counter object.</summary>
+      <summary>Represents an observable instrument that reports non-additive values when the instrument is being observed, for example, the current room temperature. Call <see cref="Overload:System.Diagnostics.Metrics.Meter.CreateObservableGauge" /> to create the observable counter object.</summary>
       <typeparam name="T" />
     </member>
     <member name="T:System.Diagnostics.Metrics.ObservableInstrument`1">
-      <summary>ObservableInstrument{T} is the base class from which all metrics observable instruments will inherit from.</summary>
+      <summary>ObservableInstrument{T} is the base class from which all metrics observable instruments will inherit.</summary>
       <typeparam name="T">The type that the observable instrument represents.</typeparam>
     </member>
     <member name="M:System.Diagnostics.Metrics.ObservableInstrument`1.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String)">
-      <summary>Create the metrics observable instrument using the properties meter, name, description, and unit.
-            All classes extending ObservableInstrument{T} need to call this constructor when constructing object of the extended class.</summary>
+      <summary>Initializes a new instance of the <see cref="T:System.Diagnostics.Metrics.ObservableInstrument`1" /> class using the specified meter, name, description, and unit.
+            All classes that extend ObservableInstrument{T} must call this constructor when constructing objects of the extended class.</summary>
       <param name="meter">The meter that created the instrument.</param>
       <param name="name">The instrument name. cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
@@ -1451,6 +1554,54 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <summary>Gets a value that indicates if the instrument is an observable instrument.</summary>
       <returns>
         <see langword="true" /> if the instrument is metrics-observable; <see langword="false" /> otherwise.</returns>
+    </member>
+    <member name="T:System.Diagnostics.Metrics.ObservableUpDownCounter`1">
+      <summary>A metrics-observable instrument that reports increasing or decreasing values when the instrument is being observed.
+Use this instrument to monitor the process heap size or the approximate number of items in a lock-free circular buffer, for example.
+To create an ObservableUpDownCounter object, use the <see cref="Overload:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter" /> methods.</summary>
+      <typeparam name="T">The type that the counter represents.</typeparam>
+    </member>
+    <member name="T:System.Diagnostics.Metrics.UpDownCounter`1">
+      <summary>An instrument that supports reporting positive or negative metric values.
+            UpDownCounter may be used in scenarios like reporting the change in active requests or queue size.</summary>
+      <typeparam name="T">The type that the UpDownCounter represents.</typeparam>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0)">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tag">A key-value pair tag associated with the measurement.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tag1">A first key-value pair tag associated with the measurement.</param>
+      <param name="tag2">A second key-value pair tag associated with the measurement.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object},System.Collections.Generic.KeyValuePair{System.String,System.Object})">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tag1">A first key-value pair tag associated with the measurement.</param>
+      <param name="tag2">A second key-value pair tag associated with the measurement.</param>
+      <param name="tag3">A third key-value pair tag associated with the measurement.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tags">A list of key-value pair tags associated with the measurement.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.Diagnostics.TagList@)">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tagList">A <see cref="T:System.Diagnostics.TagList" /> of tags associated with the measurement.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.UpDownCounter`1.Add(`0,System.ReadOnlySpan{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <summary>Records the delta value of the measurement. The delta can be positive, negative, or zero.</summary>
+      <param name="delta">The amount to be added, which can be positive, negative, or zero.</param>
+      <param name="tags">A span of key-value pair tags associated with the measurement.</param>
     </member>
     <member name="T:System.Diagnostics.SampleActivity`1">
       <summary>A delegate that defines the signature of the <see cref="T:System.Diagnostics.ActivityListener" /> callbacks used in the sampling process.</summary>
@@ -1532,15 +1683,19 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     </member>
     <member name="P:System.Diagnostics.TagList.Count">
       <summary>Gets the number of tags contained in the <see cref="T:System.Diagnostics.TagList" />.</summary>
+      <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
     </member>
     <member name="P:System.Diagnostics.TagList.IsReadOnly">
       <summary>Gets a value indicating whether the <see cref="T:System.Diagnostics.TagList" /> is read-only. This property will always return <see langword="false" />.</summary>
+      <returns>
+          Always returns <see langword="false" />.</returns>
     </member>
     <member name="P:System.Diagnostics.TagList.Item(System.Int32)">
       <summary>Gets or sets the tags at the specified index.</summary>
       <param name="index">The item index.</param>
       <exception cref="T:System.ArgumentOutOfRangeException">
         <paramref name="index" /> is not a valid index in the <see cref="T:System.Diagnostics.TagList" />.</exception>
+      <returns>The element at the specified index.</returns>
     </member>
     <member name="T:System.Diagnostics.TagList.Enumerator">
       <summary>An enumerator for traversing a tag list collection.</summary>
