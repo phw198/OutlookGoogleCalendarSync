@@ -321,7 +321,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         #region Create
         public void CreateCalendarEntries(List<Event> events) {
-            for (int g = 0; g < events.Count; g++) {
+            for (int g = events.Count -1; g >= 0; g--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
                 Event ev = events[g];
@@ -333,6 +333,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         createCalendarEntry(ev, ref newAi);
                     } catch (System.Exception ex) {
+                        events.Remove(ev);
                         if (ex.GetType() == typeof(ApplicationException)) {
                             Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary("Appointment creation skipped: " + ex.Message, ev, out String anonSummary, true), anonSummary, Console.Markup.warning);
                             continue;
@@ -350,6 +351,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         createCalendarEntry_save(newAi, ref ev);
                         events[g] = ev;
                     } catch (System.Exception ex) {
+                        events.RemoveAt(g);
                         Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("New appointment failed to save.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -852,6 +854,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         doDelete = deleteCalendarEntry(ai);
                     } catch (System.Exception ex) {
+                        oAppointments.Remove(ai);
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -864,6 +867,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (doDelete) deleteCalendarEntry_save(ai);
                         else oAppointments.Remove(ai);
                     } catch (System.Exception ex) {
+                        oAppointments.Remove(ai);
                         Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Deleted appointment failed to remove.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Deleted Outlook appointment failed to remove. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
