@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Identity.Client;
+using System;
 using System.Net;
+using System.Net.Http;
 
 namespace OutlookGoogleCalendarSync.Extensions {
 
@@ -12,6 +14,18 @@ namespace OutlookGoogleCalendarSync.Extensions {
             else
                 request.UserAgent = SettingsStore.Proxy.DefaultBrowserAgent;
             return request;
+        }
+    }
+
+    public class MsalHttpClientFactoryAdapter : IMsalHttpClientFactory {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public MsalHttpClientFactoryAdapter(IHttpClientFactory httpClientFactory) {
+            _httpClientFactory = httpClientFactory;
+        }
+
+        public HttpClient GetHttpClient() {
+            return _httpClientFactory.CreateClient("Msal");
         }
     }
 }
