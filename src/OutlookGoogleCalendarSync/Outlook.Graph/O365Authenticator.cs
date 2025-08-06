@@ -84,7 +84,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Debug("Authenticating with Microsoft Graph service...");
 
             tokenFullPath = System.IO.Path.Combine(Program.UserFilePath, TokenFile);
-            log.Debug("Microsoft credential file location: " + tokenFullPath);
+            log.Debug("Microsoft credential file location: " + Program.MaskFilePath(tokenFullPath));
             if (!tokenFileExists)
                 log.Info("No Microsoft credentials file available - need user authorisation for OGCS to manage their calendar.");
 
