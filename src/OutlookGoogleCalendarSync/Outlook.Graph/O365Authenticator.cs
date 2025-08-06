@@ -91,7 +91,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(TokenFile, Program.UserFilePath).Build();
 
             ServiceCollection services = new();
-            services.AddHttpClient("MyHttpClient", client => { client.DefaultRequestHeaders.Add("User-Agent", Settings.Instance.Proxy.BrowserUserAgent); });
+            services.AddHttpClient("Msal", client => {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(Settings.Instance.Proxy.BrowserUserAgent);
+            });
+            services.AddSingleton<IMsalHttpClientFactory, Extensions.MsalHttpClientFactoryAdapter>();
             ServiceProvider serviceProvider = services.BuildServiceProvider();
             IMsalHttpClientFactory httpClientFactory = serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
 
