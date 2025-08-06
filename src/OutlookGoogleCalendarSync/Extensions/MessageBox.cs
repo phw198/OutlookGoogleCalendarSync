@@ -98,9 +98,10 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="buttons">Buttons to display</param>
         /// <param name="icon">Icon to display</param>
         /// <param name="defaultButton">Button to focus</param>
-        public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton) {
+        /// <param name="logText">Alternative main text to log</param>
+        public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, String logText = null) {
             OutlookGoogleCalendarSync.Forms.Main mainFrm = OutlookGoogleCalendarSync.Forms.Main.Instance;
-            log.Debug(caption + ": " + text);
+            log.Debug(caption + ": " + (logText ?? text));
 
             if (mainFrm == null || mainFrm.IsDisposed)
                 dr = System.Windows.Forms.MessageBox.Show(text, caption, buttons, icon, defaultButton);
