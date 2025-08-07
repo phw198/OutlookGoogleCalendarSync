@@ -43,6 +43,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if (hResult == "0x80004002" && ex.Message.Contains("0x8001010E (RPC_E_WRONG_THREAD")) return retVal = ErrorType.WrongThread;
 
                     if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED")) return retVal = ErrorType.RpcRejected;
+                    if (hResult == "0x8001010A" && ex.Message.Contains("RPC_E_SERVERCALL_RETRYLATER")) return retVal = ErrorType.RpcServerUnavailable;
                     if (hResult == "0x80040201") return retVal = ErrorType.OperationFailed; //The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
                     if (ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)")) return retVal = ErrorType.InvokedObjectDisconnectedFromClients;
                     if (hResult == "0x800706BA") return retVal = ErrorType.RpcServerUnavailable;
