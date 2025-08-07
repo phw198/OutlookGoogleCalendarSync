@@ -100,7 +100,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             oAuthApp = PublicClientApplicationBuilder.Create(clientId)
                 .WithAuthority("https://login.microsoftonline.com/common")
-                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .WithRedirectUri("http://localhost")
                 .WithHttpClientFactory(httpClientFactory)
                 .Build();
 
@@ -125,10 +125,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     Forms.Main.Instance.Console.Update("Preparing to authenticate with Microsoft.", verbose: true);
                 }).Start();
 
+                IntPtr parentWindow = (IntPtr)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance, "Handle");
+
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
                         .WithPrompt(!tokenFileExists ? Microsoft.Identity.Client.Prompt.SelectAccount : Microsoft.Identity.Client.Prompt.Consent)
+                        .WithUseEmbeddedWebView(false)
+                        .WithParentActivityOrWindow(parentWindow)
                         .ExecuteAsync();
 
                     if (tokenFileExists)
@@ -147,8 +151,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(msalInteractiveEx));
                         throw;
                     }
-                } catch (System.Exception) {
-                    log.Fail("Error during AcquireTokenInteractive()");
+                } catch (System.Exception ex) {
+                    log.Fail("Error during AcquireTokenInteractive(): "+ ex.Message);
                     throw;
                 }
             } catch (System.Exception ex) {
