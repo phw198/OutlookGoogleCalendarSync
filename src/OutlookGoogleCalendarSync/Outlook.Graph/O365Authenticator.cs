@@ -77,10 +77,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Info("No Microsoft credentials file available - need user authorisation for OGCS to manage their calendar.");
 
             StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(TokenFile, Program.UserFilePath).Build();
-
+            
             oAuthApp = PublicClientApplicationBuilder.Create(clientId)
                 .WithAuthority("https://login.microsoftonline.com/common")
-                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .WithDefaultRedirectUri() // uses the recommended loopback URI on Windows
+                .WithHttpClientFactory(httpClientFactory)
                 .Build();
 
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
@@ -107,7 +108,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
-                        .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
+                        .WithPrompt(!tokenFileExists ? Prompt.SelectAccount : Prompt.Consent)
+                        .WithUseEmbeddedWebView(false) // <— force real browser
+                        .WithParentActivityOrWindow(() => Forms.Main.Instance.Handle) // nice-to-have: centers the OS browser handoff window
                         .ExecuteAsync();
 
                     if (tokenFileExists)
