@@ -212,7 +212,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         OlExchangeConnectionMode.olCachedDisconnected,
                         OlExchangeConnectionMode.olDisconnected,
                         OlExchangeConnectionMode.olOffline
-                    }.Contains(oNS.ExchangeConnectionMode)) permissibleDelay = 2;
+                    }.Contains(ExchangeConnectionMode())) permissibleDelay = 2;
                     if (!Forms.Main.Instance.IsHandleCreated && (System.DateTime.Now - triggerOOMsecurity).TotalSeconds > permissibleDelay) {
                         log.Warn($">{permissibleDelay}s delay possibly due to Outlook security popup.");
                         Outlook.Calendar.OOMsecurityInfo = true;
