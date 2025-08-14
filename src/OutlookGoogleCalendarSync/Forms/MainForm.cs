@@ -164,32 +164,34 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             #region Profile
             log.Debug("Loading profiles.");
+            gbOutlook_ClassicClient.Text = "Office Outlook \'Classic\' Client";
             gbOutlook_ClassicClient.Enabled = !Outlook.Factory.NoClient();
-            if (Outlook.Factory.NoClient()) {
+            if (!gbOutlook_ClassicClient.Enabled) {
                 gbOutlook_ClassicClient.Text += " - not installed";
-                gbOutlook_ClassicClient.Enabled = false;
             }
-            List<SettingsStore.Calendar> profileRequiresClient = new();
-            foreach (SettingsStore.Calendar calendar in Settings.Instance.Calendars) {
-                if (calendar.OutlookService != Outlook.Calendar.Service.Graph && Outlook.Factory.NoClient())
-                    profileRequiresClient.Add(calendar);
-                else
-                    ddProfile.Items.Add(calendar._ProfileName);
-            }
-            if (profileRequiresClient.Count > 0 && Outlook.Factory.NoClient()) {
-                Ogcs.Extensions.MessageBox.Show("The following sync Profiles require the classic Outlook client, which is no longer installed:-\r\n" +
-                    string.Join("\r\n", profileRequiresClient.Select(p => "   - " + p._ProfileName)) + "\r\n\r\nThese Profiles will be deleted once you have made a backup of the settings.",
-                    "Setting Profile(s) require classic Outlook client", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                while (!Settings.Instance.Export("OGCS_v" + Settings.Instance.Version + "_ContainsClassicOutlookProfile.xml")) {
-                    Ogcs.Extensions.MessageBox.Show("Please ensure you make a backup of your settings before proceeding further.",
-                        "Backup required", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+
+            if (Outlook.Factory.NoClient()) {
+                List<SettingsStore.Calendar> profileRequiresClient = new();
+                profileRequiresClient = Settings.Instance.Calendars.Where(p => !p.IsOutlookOnline).ToList();
+                if (profileRequiresClient.Count == 0) {
+                    ddProfile.Items.AddRange(Settings.Instance.Calendars.Select(c => c._ProfileName).ToArray());
+                } else {
+                    Ogcs.Extensions.MessageBox.Show("The following sync Profiles require the classic Outlook client, which is no longer installed:-\r\n" +
+                        string.Join("\r\n", profileRequiresClient.Select(p => "   - " + p._ProfileName)) + "\r\n\r\nThese Profiles will be deleted once you have made a backup of the settings.",
+                        "Setting Profile(s) require classic Outlook client", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    while (!Settings.Instance.Export("OGCS_v" + Settings.Instance.Version + "_ContainsClassicOutlookProfile.xml")) {
+                        Ogcs.Extensions.MessageBox.Show("Please ensure you make a backup of your settings before proceeding further.",
+                            "Backup required", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    }
+                    Settings.Instance.Calendars = Settings.Instance.Calendars.Except(profileRequiresClient).ToList();
+                    if (Settings.Instance.Calendars.Count == 0) {
+                        Settings.Instance.Calendars.Add(new SettingsStore.Calendar());
+                        ddProfile.Items.Add(Settings.Instance.Calendars[0]._ProfileName);
+                    }
+                    Settings.Instance.Save();
                 }
-                Settings.Instance.Calendars = Settings.Instance.Calendars.Except(profileRequiresClient).ToList();
-                if (Settings.Instance.Calendars.Count == 0) {
-                    Settings.Instance.Calendars.Add(new SettingsStore.Calendar());
-                    ddProfile.Items.Add(Settings.Instance.Calendars[0]._ProfileName);
-                }
-                Settings.Instance.Save();
+            } else {
+                ddProfile.Items.AddRange(Settings.Instance.Calendars.Select(c => c._ProfileName).ToArray());
             }
             ddProfile.SelectedIndex = 0;
             #endregion
@@ -309,7 +311,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #region Outlook page
                     #region Mailbox
-                    if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
+                    if (profile.IsOutlookOnline) {
+                        rbOutlookOnline.Checked = true;
+                        rbOutlookDefaultMB.Checked = false;
+                        rbOutlookAltMB.Checked = false;
+                        rbOutlookSharedCal.Checked = false;
+                    } else if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
                         rbOutlookDefaultMB.Checked = true;
                         rbOutlookAltMB.Enabled = false;
                         rbOutlookSharedCal.Enabled = false;
@@ -333,51 +340,20 @@ namespace OutlookGoogleCalendarSync.Forms {
                         } else if (profile.OutlookService == Ogcs.Outlook.Calendar.Service.DefaultMailbox) {
                             rbOutlookDefaultMB.Checked = true;
                             rbOutlookOnline.Checked = false;
-                        } else {
-                            rbOutlookOnline.Checked = true;
-                            rbOutlookDefaultMB.Checked = false;
+                        }
+                    }
+                    tbOutlookConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.MSaccountEmail) ? "Not connected" : Settings.Instance.MSaccountEmail;
+
+                    if (!profile.IsOutlookOnline) {
+                        //Mailboxes the user has access to
+                        log.Debug("Find calendar folders");
+                        if (Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None ||
+                            (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.Folders.Count == 1)) {
+                            rbOutlookAltMB.Enabled = false;
                             rbOutlookAltMB.Checked = false;
-                            rbOutlookSharedCal.Checked = false;
                         }
-                        tbOutlookConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.MSaccountEmail) ? "Not connected" : Settings.Instance.MSaccountEmail;
-                    }
-
-                    //Mailboxes the user has access to
-                    log.Debug("Find calendar folders");
-                    if (Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None || 
-                        (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.Folders.Count == 1)) {
-                        rbOutlookAltMB.Enabled = false;
-                        rbOutlookAltMB.Checked = false;
-                    }
-                    if (Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None) {
-                        Folders theFolders = Ogcs.Outlook.Calendar.Instance.Folders;
-                        Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
-                        for (int fld = 1; fld <= theFolders.Count; fld++) {
-                            MAPIFolder theFolder = theFolders[fld];
-                            try {
-                                //Create a dictionary of folder names and a list of their ID(s)
-                                if (!folderIDs.ContainsKey(theFolder.Name)) {
-                                    folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
-                                } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
-                                    folderIDs[theFolder.Name].Add(theFolder.EntryID);
-                                }
-                            } catch (System.Exception ex) {
-                                ex.LogAsFail().Analyse("Failed to get EntryID for folder: " + theFolder.Name);
-                            } finally {
-                                theFolder = (MAPIFolder)Outlook.Calendar.ReleaseObject(theFolder);
-                            }
-                        }
-                        ddMailboxName.Items.Clear();
-                        ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
-                        ddMailboxName.SelectedItem = profile.MailboxName;
-
-                        if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
-                            if (profile.OutlookService == Outlook.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
-                                log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
-
-                            ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
-                            ddMailboxName.SelectedIndex = 0;
-                            ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                        if (Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None) {
+                            getAlternateMailboxes(profile);
                         }
                     }
 
@@ -396,9 +372,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                     #endregion
                     #region Categories
-                    cbCategoryFilter.SelectedItem = profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include ?
-                    "Include" : "Exclude";
-                    if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
+                    cbCategoryFilter.SelectedItem = profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include ? "Include" : "Exclude";
+                    if (profile.IsOutlookOnline) {
+                        //***Categories still to do
+                    } else if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
                         clbCategories.Items.Clear();
                         clbCategories.Items.Add("Outlook 2003 has no categories");
                         cbCategoryFilter.Enabled = false;
@@ -534,7 +511,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbAvailable.Checked = profile.SetEntriesAvailable;
                     buildAvailabilityDropdown();
                     cbColour.Checked = profile.SetEntriesColour;
-                    ddOutlookColour.AddColourItems();
+                    if (!profile.IsOutlookOnline) // ***O365 categories
+                        ddOutlookColour.AddColourItems();
 
                     ddOutlookColour.SelectedIndexChanged -= ddOutlookColour_SelectedIndexChanged;
                     foreach (Outlook.Categories.ColourInfo cInfo in ddOutlookColour.Items) {
@@ -1398,7 +1376,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!Settings.AreApplied) return;
 
             if (rbOutlookOnline.Checked) {
-                this.rbOutlookDefaultMB.Checked = false;
                 enableOutlookSettingsUI(true);
                 ActiveCalendarProfile.OutlookService = Ogcs.Outlook.Calendar.Service.Graph;
                 cbOutlookCalendars_BuildList();
@@ -1550,6 +1527,38 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
+        private void getAlternateMailboxes(SettingsStore.Calendar profile) {
+            Folders theFolders = Ogcs.Outlook.Calendar.Instance.Folders;
+            Dictionary<String, List<String>> folderIDs = new Dictionary<String, List<String>>();
+            for (int fld = 1; fld <= theFolders.Count; fld++) {
+                MAPIFolder theFolder = theFolders[fld];
+                try {
+                    //Create a dictionary of folder names and a list of their ID(s)
+                    if (!folderIDs.ContainsKey(theFolder.Name)) {
+                        folderIDs.Add(theFolder.Name, new List<String>(new String[] { theFolder.EntryID }));
+                    } else if (!folderIDs[theFolder.Name].Contains(theFolder.EntryID)) {
+                        folderIDs[theFolder.Name].Add(theFolder.EntryID);
+                    }
+                } catch (System.Exception ex) {
+                    ex.LogAsFail().Analyse("Failed to get EntryID for folder: " + theFolder.Name);
+                } finally {
+                    theFolder = (MAPIFolder)Outlook.Calendar.ReleaseObject(theFolder);
+                }
+            }
+            ddMailboxName.Items.Clear();
+            ddMailboxName.Items.AddRange(folderIDs.Keys.ToArray());
+            ddMailboxName.SelectedItem = profile?.MailboxName;
+
+            if (ddMailboxName.SelectedIndex == -1 && ddMailboxName.Items.Count > 0) {
+                if (profile != null && profile.OutlookService == Outlook.Calendar.Service.AlternativeMailbox && string.IsNullOrEmpty(profile.MailboxName))
+                    log.Warn("Could not find mailbox '" + profile.MailboxName + "' in Alternate Mailbox dropdown. Defaulting to the first in the list.");
+
+                ddMailboxName.SelectedIndexChanged -= new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+                ddMailboxName.SelectedIndex = 0;
+                ddMailboxName.SelectedIndexChanged += new System.EventHandler(this.ddMailboxName_SelectedIndexChanged);
+            }
+        }
+
         private void rbOutlookAltMB_CheckedChanged(object sender, EventArgs e) {
             if (rbOutlookAltMB.Checked) rbOutlookOnline.Checked = false;
             if (!Settings.AreApplied) return;
@@ -1559,13 +1568,20 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.OutlookService = Outlook.Calendar.Service.AlternativeMailbox;
                 if (!LoadingProfileConfig)
                     ActiveCalendarProfile.MailboxName = ddMailboxName.Text;
+                
                 Outlook.Calendar.Instance.Reset();
+                rbOutlookAltMB.CheckedChanged -= rbOutlookAltMB_CheckedChanged;
+                rbOutlookAltMB.Checked = true;
+                rbOutlookAltMB.CheckedChanged += rbOutlookAltMB_CheckedChanged;
+
                 //Update available calendars
                 if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
                 cbOutlookCalendars.DataSource = new BindingSource(Outlook.Calendar.Instance.CalendarFolders, null);
                 if (LoadingProfileConfig)
                     cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                
+                getAlternateMailboxes(null);
                 refreshCategories();
             }
             if (!LoadingProfileConfig)
@@ -2151,7 +2167,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void ddPrivacy_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.LoadingProfileConfig) return;
 
-            ActiveCalendarProfile.PrivacyLevel = ddPrivacy.SelectedValue.ToString();
+            ActiveCalendarProfile.PrivacyLevel = ddPrivacy.SelectedValue?.ToString();
         }
 
         private void cbAvailable_CheckedChanged(object sender, EventArgs e) {
