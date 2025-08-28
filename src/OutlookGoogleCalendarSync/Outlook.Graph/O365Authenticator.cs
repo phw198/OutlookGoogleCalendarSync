@@ -93,8 +93,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             ServiceCollection services = new();
             services.AddHttpClient("Msal", client => {
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(Settings.Instance.Proxy.BrowserUserAgent);
-                client.DefaultRequestHeaders.Add("Sec-CH-UA-Platform", "Windows");
-                client.DefaultRequestHeaders.Add("Sec-CH-UA-PlatformVersion", "14.0.0");
             });
             services.AddSingleton<IMsalHttpClientFactory, Extensions.MsalHttpClientFactoryAdapter>();
             ServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -103,7 +101,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             oAuthApp = PublicClientApplicationBuilder.Create(clientId)
                 .WithAuthority("https://login.microsoftonline.com/common")
                 .WithHttpClientFactory(httpClientFactory)
-                .WithDefaultRedirectUri()
                 .WithRedirectUri("http://localhost")
                 .Build();
 
