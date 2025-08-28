@@ -100,6 +100,8 @@
             this.pbExpandOutlookAccount = new System.Windows.Forms.PictureBox();
             this.gbOutlook_OAccount = new System.Windows.Forms.GroupBox();
             this.gbOutlook_Online = new System.Windows.Forms.GroupBox();
+            this.label37 = new System.Windows.Forms.Label();
+            this.btRevokeOCal = new System.Windows.Forms.Button();
             this.rbOutlookOnline = new System.Windows.Forms.RadioButton();
             this.label40 = new System.Windows.Forms.Label();
             this.bGetOutlookCalendars = new System.Windows.Forms.Button();
@@ -778,7 +780,7 @@
             // 
             this.pbExpandOutlookDate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandOutlookDate.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandOutlookDate.Location = new System.Drawing.Point(0, 565);
+            this.pbExpandOutlookDate.Location = new System.Drawing.Point(0, 595);
             this.pbExpandOutlookDate.Name = "pbExpandOutlookDate";
             this.pbExpandOutlookDate.Size = new System.Drawing.Size(20, 20);
             this.pbExpandOutlookDate.TabIndex = 56;
@@ -789,7 +791,7 @@
             // 
             this.pbExpandOutlookConfig.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandOutlookConfig.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandOutlookConfig.Location = new System.Drawing.Point(0, 374);
+            this.pbExpandOutlookConfig.Location = new System.Drawing.Point(0, 404);
             this.pbExpandOutlookConfig.Name = "pbExpandOutlookConfig";
             this.pbExpandOutlookConfig.Size = new System.Drawing.Size(20, 20);
             this.pbExpandOutlookConfig.TabIndex = 55;
@@ -809,7 +811,7 @@
             this.gbOutlook_ODate.Controls.Add(this.txtDateFormats);
             this.gbOutlook_ODate.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbOutlook_ODate.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbOutlook_ODate.Location = new System.Drawing.Point(10, 569);
+            this.gbOutlook_ODate.Location = new System.Drawing.Point(10, 599);
             this.gbOutlook_ODate.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbOutlook_ODate.Name = "gbOutlook_ODate";
             this.gbOutlook_ODate.Size = new System.Drawing.Size(368, 160);
@@ -924,7 +926,7 @@
             this.gbOutlook_OConfig.Controls.Add(this.clbCategories);
             this.gbOutlook_OConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbOutlook_OConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbOutlook_OConfig.Location = new System.Drawing.Point(10, 377);
+            this.gbOutlook_OConfig.Location = new System.Drawing.Point(10, 407);
             this.gbOutlook_OConfig.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbOutlook_OConfig.Name = "gbOutlook_OConfig";
             this.gbOutlook_OConfig.Size = new System.Drawing.Size(368, 183);
@@ -1082,7 +1084,7 @@
             this.gbOutlook_OAccount.Location = new System.Drawing.Point(10, 2);
             this.gbOutlook_OAccount.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbOutlook_OAccount.Name = "gbOutlook_OAccount";
-            this.gbOutlook_OAccount.Size = new System.Drawing.Size(368, 368);
+            this.gbOutlook_OAccount.Size = new System.Drawing.Size(368, 398);
             this.gbOutlook_OAccount.TabIndex = 49;
             this.gbOutlook_OAccount.TabStop = false;
             this.gbOutlook_OAccount.Text = "  Account && Calendar";
@@ -1091,6 +1093,8 @@
             // 
             this.gbOutlook_Online.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbOutlook_Online.Controls.Add(this.label37);
+            this.gbOutlook_Online.Controls.Add(this.btRevokeOCal);
             this.gbOutlook_Online.Controls.Add(this.rbOutlookOnline);
             this.gbOutlook_Online.Controls.Add(this.label40);
             this.gbOutlook_Online.Controls.Add(this.bGetOutlookCalendars);
@@ -1104,10 +1108,35 @@
             this.gbOutlook_Online.ForeColor = System.Drawing.SystemColors.ControlText;
             this.gbOutlook_Online.Location = new System.Drawing.Point(9, 23);
             this.gbOutlook_Online.Name = "gbOutlook_Online";
-            this.gbOutlook_Online.Size = new System.Drawing.Size(353, 211);
+            this.gbOutlook_Online.Size = new System.Drawing.Size(353, 241);
             this.gbOutlook_Online.TabIndex = 53;
             this.gbOutlook_Online.TabStop = false;
             this.gbOutlook_Online.Text = "Outlook Online / Microsoft 365";
+            // 
+            // label37
+            // 
+            this.label37.AutoSize = true;
+            this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label37.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label37.Location = new System.Drawing.Point(142, 211);
+            this.label37.MaximumSize = new System.Drawing.Size(192, 0);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(189, 13);
+            this.label37.TabIndex = 54;
+            this.label37.Text = "Revoke permissions granted to OGCS.";
+            // 
+            // btRevokeOCal
+            // 
+            this.btRevokeOCal.BackColor = System.Drawing.Color.Transparent;
+            this.btRevokeOCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btRevokeOCal.ForeColor = System.Drawing.Color.Red;
+            this.btRevokeOCal.Location = new System.Drawing.Point(21, 206);
+            this.btRevokeOCal.Name = "btRevokeOCal";
+            this.btRevokeOCal.Size = new System.Drawing.Size(115, 23);
+            this.btRevokeOCal.TabIndex = 53;
+            this.btRevokeOCal.Text = "Revoke Access";
+            this.btRevokeOCal.UseVisualStyleBackColor = false;
+            this.btRevokeOCal.Click += new System.EventHandler(this.btRevokeOCal_Click);
             // 
             // rbOutlookOnline
             // 
@@ -1169,13 +1198,14 @@
             this.linkLabel1.TabIndex = 51;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "run multiple instances of OGCS.";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llMultipleOGCS_LinkClicked);
             // 
             // label39
             // 
             this.label39.AutoSize = true;
             this.label39.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label39.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label39.Location = new System.Drawing.Point(140, 175);
+            this.label39.Location = new System.Drawing.Point(142, 175);
             this.label39.MaximumSize = new System.Drawing.Size(192, 0);
             this.label39.Name = "label39";
             this.label39.Size = new System.Drawing.Size(192, 26);
@@ -1232,7 +1262,7 @@
             this.gbOutlook_ClassicClient.Controls.Add(this.rbOutlookAltMB);
             this.gbOutlook_ClassicClient.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbOutlook_ClassicClient.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.gbOutlook_ClassicClient.Location = new System.Drawing.Point(9, 240);
+            this.gbOutlook_ClassicClient.Location = new System.Drawing.Point(9, 270);
             this.gbOutlook_ClassicClient.Name = "gbOutlook_ClassicClient";
             this.gbOutlook_ClassicClient.Size = new System.Drawing.Size(353, 90);
             this.gbOutlook_ClassicClient.TabIndex = 52;
@@ -1292,7 +1322,7 @@
             this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutlookCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbOutlookCalendars.FormattingEnabled = true;
-            this.cbOutlookCalendars.Location = new System.Drawing.Point(96, 336);
+            this.cbOutlookCalendars.Location = new System.Drawing.Point(96, 366);
             this.cbOutlookCalendars.Name = "cbOutlookCalendars";
             this.cbOutlookCalendars.Size = new System.Drawing.Size(266, 21);
             this.cbOutlookCalendars.TabIndex = 24;
@@ -1303,7 +1333,7 @@
             this.lOutlookCalendar.AutoSize = true;
             this.lOutlookCalendar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lOutlookCalendar.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lOutlookCalendar.Location = new System.Drawing.Point(9, 340);
+            this.lOutlookCalendar.Location = new System.Drawing.Point(9, 370);
             this.lOutlookCalendar.Name = "lOutlookCalendar";
             this.lOutlookCalendar.Size = new System.Drawing.Size(81, 13);
             this.lOutlookCalendar.TabIndex = 25;
@@ -4626,6 +4656,8 @@
         private System.Windows.Forms.PictureBox pbExpandOutlookDate;
         private System.Windows.Forms.GroupBox gbOutlook_Online;
         public System.Windows.Forms.RadioButton rbOutlookOnline;
+        private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.Button btRevokeOCal;
         private System.Windows.Forms.Label label42;
         private System.Windows.Forms.Button btRevokeGCal;
     }

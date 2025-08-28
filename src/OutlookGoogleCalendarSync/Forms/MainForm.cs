@@ -338,6 +338,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             rbOutlookDefaultMB.Checked = false;
                             rbOutlookAltMB.Checked = false;
                             rbOutlookSharedCal.Checked = false;
+                            if (!this.Visible) rbOutlookOnline_CheckedChanged(null, null);
                         }
                         tbOutlookConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.MSaccountEmail) ? "Not connected" : Settings.Instance.MSaccountEmail;
                     }
@@ -1301,7 +1302,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Outlook
-                    case "OAccount": section.Height = gbOutlook_Online.Height < 50 ? 200 : 368; break;
+                    case "OAccount": section.Height = gbOutlook_Online.Height < 50 ? 200 : 398; break;
                     case "OConfig": section.Height = 183; break;
                     case "ODate": section.Height = 160; break;
                     //Google
@@ -1381,7 +1382,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 pbExpandOutlookDate.Visible = 
                 cbOutlookPush.Checked =
                 cbOutlookPush.Visible = false;
-                gbOutlook_Online.Height = 211;
+                gbOutlook_Online.Height = 241;
                 gbOutlook_OAccount.Height = 268;
             } else {
                 gbOutlook_ODate.Visible =
@@ -1529,6 +1530,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Outlook.Graph.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void btRevokeOCal_Click(object sender, EventArgs e) {
+            Helper.OpenBrowser("https://account.microsoft.com/privacy/app-access");
         }
         #endregion
 
