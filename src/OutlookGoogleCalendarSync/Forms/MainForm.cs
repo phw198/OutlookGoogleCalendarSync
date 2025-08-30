@@ -360,15 +360,21 @@ namespace OutlookGoogleCalendarSync.Forms {
                     log.Debug("List Calendar folders");
                     this.cbOutlookCalendars_BuildList();
                     if (cbOutlookCalendars.SelectedIndex == -1 && cbOutlookCalendars.Enabled) {
+                        Boolean fallbackCalendar = false;
                         if (!string.IsNullOrEmpty(profile.UseOutlookCalendar?.Id)) {
+                            String msg = ". Please select an available calendar.";
+                            fallbackCalendar = cbOutlookCalendars.Items[0] is KeyValuePair<String, OutlookCalendarListEntry>;
+                            if (fallbackCalendar)
+                                msg = " and '" + ((KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.Items[0]).Key + "' calendar has been selected instead.";
+
                             Ogcs.Extensions.MessageBox.Show("The Outlook calendar '" + profile.UseOutlookCalendar.Name + "' previously configured for syncing is no longer available.\r\n\r\n" +
-                                "'" + ((KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.Items[0]).Key + "' calendar has been selected instead and any automated syncs have been temporarily disabled.",
+                                "Any automated syncs have been temporarily disabled'" + msg,
                                 "Outlook Calendar Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             profile.SyncInterval = 0;
                             profile.OutlookPush = false;
                             Forms.Main.Instance.tabApp.SelectTab("tabPage_Settings");
                         }
-                        cbOutlookCalendars.SelectedIndex = 0;
+                        if (fallbackCalendar) cbOutlookCalendars.SelectedIndex = 0;
                     }
                     #endregion
                     #region Categories
@@ -1448,12 +1454,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                             cbOutlookCalendars.Items.Add("");
                         }
                     }
-                    cbOutlookCalendars.SelectedIndex = 0;
 
                 } else {
                     if (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count > 0) {
                         cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
-                        cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
                     } else {
                         if (ActiveCalendarProfile.UseOutlookCalendar?.Id != null) {
                             Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>() {
@@ -1465,16 +1469,16 @@ namespace OutlookGoogleCalendarSync.Forms {
                             cbOutlookCalendars.Items.Clear();
                             cbOutlookCalendars.Items.Add("");
                         }
-                        cbOutlookCalendars.SelectedIndex = 0;
                     }
                 }
             } finally {
                 cbOutlookCalendars.DisplayMember = "Key";
                 cbOutlookCalendars.ValueMember = "Value";
+                cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
                 cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
             }
 
-            if (ActiveCalendarProfile.UseOutlookCalendar?.Name == null) return;
+            if (string.IsNullOrEmpty(cbOutlookCalendars.Items[0].ToString())) return;
 
             //Select the right calendar
             int c = 0;
