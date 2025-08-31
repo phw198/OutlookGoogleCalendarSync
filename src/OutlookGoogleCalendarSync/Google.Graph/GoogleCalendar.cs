@@ -501,20 +501,22 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }*/
         #region Create
         public static void CreateCalendarEntries(List<Microsoft.Graph.Event> appointments) {
-            foreach (Microsoft.Graph.Event ai in appointments) {
+            for (int o = appointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
+                Microsoft.Graph.Event ai = appointments[o];
                 GcalData.Event newEvent = new();
                 try {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
+                    appointments.Remove(ai);
                     if (ex is ApplicationException) {
-                        String summary = Outlook.Graph.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
+                        String summary = Outlook.Graph.Calendar.GetEventSummary("<br/>Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is global::Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = Outlook.Graph.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
+                        String summary = Outlook.Graph.Calendar.GetEventSummary("<br/>Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -528,6 +530,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 try {
                     createdEvent = createCalendarEntry_save(newEvent, ai);
                 } catch (System.Exception ex) {
+                    appointments.RemoveAt(o);
                     if (ex.Message.Contains("You need to have writer access to this calendar")) {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;

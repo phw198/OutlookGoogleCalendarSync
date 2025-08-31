@@ -1,12 +1,12 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Authenticator {
@@ -84,15 +84,24 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Debug("Authenticating with Microsoft Graph service...");
 
             tokenFullPath = System.IO.Path.Combine(Program.UserFilePath, TokenFile);
-            log.Debug("Microsoft credential file location: " + tokenFullPath);
+            log.Debug("Microsoft credential file location: " + Program.MaskFilePath(tokenFullPath));
             if (!tokenFileExists)
                 log.Info("No Microsoft credentials file available - need user authorisation for OGCS to manage their calendar.");
 
             StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(TokenFile, Program.UserFilePath).Build();
 
+            ServiceCollection services = new();
+            services.AddHttpClient("Msal", client => {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(Settings.Instance.Proxy.BrowserUserAgent);
+            });
+            services.AddSingleton<IMsalHttpClientFactory, Extensions.MsalHttpClientFactoryAdapter>();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            IMsalHttpClientFactory httpClientFactory = serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+
             oAuthApp = PublicClientApplicationBuilder.Create(clientId)
                 .WithAuthority("https://login.microsoftonline.com/common")
-                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .WithRedirectUri("http://localhost")
+                .WithHttpClientFactory(httpClientFactory)
                 .Build();
 
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
@@ -116,10 +125,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     Forms.Main.Instance.Console.Update("Preparing to authenticate with Microsoft.", verbose: true);
                 }).Start();
 
+                IntPtr parentWindow = (IntPtr)Forms.Main.Instance.GetControlPropertyThreadSafe(Forms.Main.Instance, "Handle");
+
                 try {
                     authResult = await oAuthApp.AcquireTokenInteractive(scopes)
                         .WithAccount(firstAccount)
                         .WithPrompt(!tokenFileExists ? Microsoft.Identity.Client.Prompt.SelectAccount : Microsoft.Identity.Client.Prompt.Consent)
+                        .WithUseEmbeddedWebView(false)
+                        .WithParentActivityOrWindow(parentWindow)
                         .ExecuteAsync();
 
                     if (tokenFileExists)
@@ -138,8 +151,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(msalInteractiveEx));
                         throw;
                     }
-                } catch (System.Exception) {
-                    log.Fail("Error during AcquireTokenInteractive()");
+                } catch (System.Exception ex) {
+                    log.Fail("Error during AcquireTokenInteractive(): "+ ex.Message);
                     throw;
                 }
             } catch (System.Exception ex) {

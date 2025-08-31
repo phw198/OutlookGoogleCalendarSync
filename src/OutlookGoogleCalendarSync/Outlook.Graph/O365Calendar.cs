@@ -385,8 +385,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         #region Create
-            public void CreateCalendarEntries(List<GcalData.Event> events) {
-            for (int g = 0; g < events.Count; g++) {
+        public void CreateCalendarEntries(List<GcalData.Event> events) {
+            for (int g = events.Count - 1; g >= 0; g--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
                 GcalData.Event ev = events[g];
@@ -394,6 +394,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     createCalendarEntry(ev, ref newAi);
                 } catch (System.Exception ex) {
+                    events.Remove(ev);
                     if (ex.GetType() == typeof(ApplicationException)) {
                         Forms.Main.Instance.Console.Update(Ogcs.Google.Calendar.GetEventSummary("Appointment creation skipped: " + ex.Message, ev, out String anonSummary, true), anonSummary, Console.Markup.warning);
                         continue;
@@ -412,6 +413,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     createdAi = createCalendarEntry_save(newAi, ref ev);
                     events[g] = ev;
                 } catch (System.Exception ex) {
+                    events.RemoveAt(g);
                     Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("New appointment failed to save.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("New Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -998,6 +1000,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     doDelete = deleteCalendarEntry(ai);
                 } catch (System.Exception ex) {
+                    oAppointments.Remove(ai);
                     Forms.Main.Instance.Console.UpdateWithError(GetEventSummary("Appointment deletion failed.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("Outlook appointment deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -1017,6 +1020,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             continue;
                         }
                     }
+                    oAppointments.Remove(ai);
                     if (ex is ApplicationException) {
                         String summary = GetEventSummary("<br/>Appointment deletion skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
@@ -1040,8 +1044,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean doDelete = true;
 
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
-                if (Ogcs.Extensions.MessageBox.Show("Delete " + eventSummary + "?", "Confirm Deletion From Outlook",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No) {
+                if (Ogcs.Extensions.MessageBox.Show(
+                    $"Calendar: {EmailAddress.MaskAddressWithinText(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name)}\r\nItem: {eventSummary}", "Confirm Deletion From Outlook",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, anonSummary) == DialogResult.No
+                ) { //
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
                         if (Ogcs.Google.Calendar.Instance.ExcludedByColour.ContainsKey(CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID))) {

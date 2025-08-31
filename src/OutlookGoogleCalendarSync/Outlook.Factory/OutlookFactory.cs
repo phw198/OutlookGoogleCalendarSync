@@ -84,8 +84,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            if (testingGraph || !isOutlookInstalled()) {
-                outlookVersionFull = "1.0";
+            if (testingGraph || !OutlookIsInstalled) {
+                outlookVersionFull = OutlookVersionNames.None.ToString();
             } else {
                 Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
                 try {
@@ -208,7 +208,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        private static Boolean isOutlookInstalled() {
+        private static Boolean? outlookIsInstalled = null;
+        private static Boolean OutlookIsInstalled {
+            get { return outlookIsInstalled ??= checkForOutlookInstall(); }
+        }
+        private static Boolean checkForOutlookInstall() {
             Type requestType = Type.GetTypeFromProgID("Outlook.Application", false);
             if (requestType == null) {
                 RegistryKey key = null;
@@ -241,8 +245,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return (requestType != null);
         }
 
+        /// <summary>Checks if Outlook classic client installation is present, but does not connect.</summary>
         public static Boolean NoClient() {
-            return testingGraph || (new OutlookVersionNames[] { OutlookVersionNames.None, OutlookVersionNames.Failed }.Contains(OutlookVersionName));
+            return testingGraph || !OutlookIsInstalled;
         }
     }
 }

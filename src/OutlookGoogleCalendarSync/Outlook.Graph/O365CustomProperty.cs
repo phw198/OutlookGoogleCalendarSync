@@ -216,7 +216,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 Microsoft.Graph.Extension ext = ai.OgcsExtension();
                 Boolean propExists = ext?.AdditionalData.ContainsKey(searchKey) ?? false;
                 if (searchId == MetadataId.gCalendarId)
-                    return (propExists && ext.AdditionalData[searchKey].ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
+                    return (propExists && ext.AdditionalData[searchKey]?.ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
                 else
                     return (propExists && Get(ai, MetadataId.gCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
 
