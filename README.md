@@ -42,7 +42,7 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.11.5-alpha/OutlookGoogleCalendarSync-2.11.5-alpha-delta.nupkg.svg)
 
 ## Functionality
-- Supports all versions of Outlook from 2003 to 2021 64-bit! 
+- Supports all versions of Outlook from 2003 to 2024 64-bit! 
    - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
    - For "New Outlook", [check the latest developments](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888)
 - Installable and portable options - even runs from a USB thumbdrive

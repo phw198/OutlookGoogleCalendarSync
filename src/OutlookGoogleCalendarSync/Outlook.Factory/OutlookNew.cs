@@ -219,8 +219,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
                 try {
                     currentUser = oNS.CurrentUser;
-                    if (!Forms.Main.Instance.IsHandleCreated && (System.DateTime.Now - triggerOOMsecurity).TotalSeconds > 1) {
-                        log.Warn(">1s delay possibly due to Outlook security popup.");
+                    int permissibleDelay = 1;
+                    if (new OlExchangeConnectionMode[] {
+                        OlExchangeConnectionMode.olCachedOffline,
+                        OlExchangeConnectionMode.olCachedDisconnected,
+                        OlExchangeConnectionMode.olDisconnected,
+                        OlExchangeConnectionMode.olOffline
+                    }.Contains(ExchangeConnectionMode())) permissibleDelay = 2;
+                    if (!Forms.Main.Instance.IsHandleCreated && (System.DateTime.Now - triggerOOMsecurity).TotalSeconds > permissibleDelay) {
+                        log.Warn($">{permissibleDelay}s delay possibly due to Outlook security popup.");
                         Outlook.Calendar.OOMsecurityInfo = true;
                     }
                 } catch (System.Exception ex) {
