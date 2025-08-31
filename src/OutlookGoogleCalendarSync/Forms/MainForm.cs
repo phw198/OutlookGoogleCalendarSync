@@ -340,6 +340,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         } else if (profile.OutlookService == Ogcs.Outlook.Calendar.Service.DefaultMailbox) {
                             rbOutlookDefaultMB.Checked = true;
                             rbOutlookOnline.Checked = false;
+                            if (!this.Visible) rbOutlookOnline_CheckedChanged(null, null);
                         }
                     }
                     tbOutlookConnectedAcc.Text = string.IsNullOrEmpty(Settings.Instance.MSaccountEmail) ? "Not connected" : Settings.Instance.MSaccountEmail;
@@ -1285,11 +1286,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Outlook
-                    case "OAccount": section.Height = gbOutlook_Online.Height < 50 ? 200 : 368; break;
+                    case "OAccount": section.Height = gbOutlook_Online.Height < 50 ? 200 : 398; break;
                     case "OConfig": section.Height = 183; break;
                     case "ODate": section.Height = 160; break;
                     //Google
-                    case "GAccount": section.Height = 242; break;
+                    case "GAccount": section.Height = 272; break;
                     case "GConfig": section.Height = 130; break;
                     case "GOAuth": section.Height = 174; break;
                     //Settings
@@ -1365,7 +1366,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 pbExpandOutlookDate.Visible = 
                 cbOutlookPush.Checked =
                 cbOutlookPush.Visible = false;
-                gbOutlook_Online.Height = 211;
+                gbOutlook_Online.Height = 241;
                 gbOutlook_OAccount.Height = 268;
             } else {
                 gbOutlook_ODate.Visible =
@@ -1510,6 +1511,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Outlook.Graph.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void btRevokeOCal_Click(object sender, EventArgs e) {
+            Helper.OpenBrowser("https://account.microsoft.com/privacy/app-access");
         }
         #endregion
 
@@ -1865,6 +1870,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Ogcs.Google.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void btRevokeGCal_Click(object sender, EventArgs e) {
+            Helper.OpenBrowser("https://myaccount.google.com/connections");
         }
 
         private void cbListHiddenGcals_CheckedChanged(object sender, EventArgs e) {
@@ -2901,6 +2910,5 @@ namespace OutlookGoogleCalendarSync.Forms {
             Social.GitHub();
         }
         #endregion
-
     }
 }
