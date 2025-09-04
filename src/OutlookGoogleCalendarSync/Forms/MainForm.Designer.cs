@@ -2795,17 +2795,18 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbBrowserAgent.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbBrowserAgent.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tbBrowserAgent.Location = new System.Drawing.Point(111, 96);
+            this.tbBrowserAgent.Location = new System.Drawing.Point(111, 23);
             this.tbBrowserAgent.Name = "tbBrowserAgent";
             this.tbBrowserAgent.Size = new System.Drawing.Size(200, 20);
             this.tbBrowserAgent.TabIndex = 9;
+            this.tbBrowserAgent.Leave += new System.EventHandler(this.tbBrowserAgent_Leave);
             // 
             // btCheckBrowserAgent
             // 
             this.btCheckBrowserAgent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btCheckBrowserAgent.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btCheckBrowserAgent.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btCheckBrowserAgent.Location = new System.Drawing.Point(317, 94);
+            this.btCheckBrowserAgent.Location = new System.Drawing.Point(317, 21);
             this.btCheckBrowserAgent.Name = "btCheckBrowserAgent";
             this.btCheckBrowserAgent.Size = new System.Drawing.Size(51, 23);
             this.btCheckBrowserAgent.TabIndex = 44;
@@ -2818,7 +2819,7 @@
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label8.Location = new System.Drawing.Point(35, 99);
+            this.label8.Location = new System.Drawing.Point(35, 26);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(79, 13);
             this.label8.TabIndex = 10;
@@ -2829,7 +2830,7 @@
             this.rbProxyNone.AutoSize = true;
             this.rbProxyNone.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rbProxyNone.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rbProxyNone.Location = new System.Drawing.Point(20, 22);
+            this.rbProxyNone.Location = new System.Drawing.Point(20, 45);
             this.rbProxyNone.Name = "rbProxyNone";
             this.rbProxyNone.Size = new System.Drawing.Size(67, 17);
             this.rbProxyNone.TabIndex = 1;
@@ -2844,7 +2845,7 @@
             this.rbProxyIE.Checked = true;
             this.rbProxyIE.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rbProxyIE.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rbProxyIE.Location = new System.Drawing.Point(20, 39);
+            this.rbProxyIE.Location = new System.Drawing.Point(20, 63);
             this.rbProxyIE.Name = "rbProxyIE";
             this.rbProxyIE.Size = new System.Drawing.Size(157, 17);
             this.rbProxyIE.TabIndex = 2;
@@ -2859,7 +2860,7 @@
             this.rbProxyCustom.AutoSize = true;
             this.rbProxyCustom.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rbProxyCustom.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.rbProxyCustom.Location = new System.Drawing.Point(20, 56);
+            this.rbProxyCustom.Location = new System.Drawing.Point(20, 81);
             this.rbProxyCustom.Name = "rbProxyCustom";
             this.rbProxyCustom.Size = new System.Drawing.Size(102, 17);
             this.rbProxyCustom.TabIndex = 3;
@@ -2900,7 +2901,7 @@
             this.txtProxyPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtProxyPort.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.txtProxyPort.Location = new System.Drawing.Point(317, 73);
+            this.txtProxyPort.Location = new System.Drawing.Point(317, 100);
             this.txtProxyPort.Name = "txtProxyPort";
             this.txtProxyPort.Size = new System.Drawing.Size(51, 20);
             this.txtProxyPort.TabIndex = 5;
@@ -2923,7 +2924,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtProxyServer.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.txtProxyServer.Location = new System.Drawing.Point(94, 73);
+            this.txtProxyServer.Location = new System.Drawing.Point(94, 100);
             this.txtProxyServer.Name = "txtProxyServer";
             this.txtProxyServer.Size = new System.Drawing.Size(189, 20);
             this.txtProxyServer.TabIndex = 4;
@@ -2944,7 +2945,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label4.Location = new System.Drawing.Point(35, 76);
+            this.label4.Location = new System.Drawing.Point(35, 103);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(41, 13);
             this.label4.TabIndex = 0;
@@ -2967,7 +2968,7 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label5.Location = new System.Drawing.Point(291, 76);
+            this.label5.Location = new System.Drawing.Point(291, 103);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(29, 13);
             this.label5.TabIndex = 0;

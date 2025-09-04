@@ -154,6 +154,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
                 "Only for debug/diagnostic purposes.");
+            ToolTips.SetToolTip(tbBrowserAgent, "The browser that OGCS identifies as. Update if web access is blocked due to an 'old browser'.");
             ToolTips.SetToolTip(rbProxyIE,
                 "If IE settings have been changed, a restart of the Sync application may be required");
             ToolTips.SetToolTip(cbMuteClicks, "Mute any sounds when sync summary updates.");
@@ -251,8 +252,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             txtProxyServer.Enabled = rbProxyCustom.Checked;
             txtProxyPort.Enabled = rbProxyCustom.Checked;
             tbBrowserAgent.Text = Settings.Instance.Proxy.BrowserUserAgent;
-            tbBrowserAgent.Enabled = rbProxyCustom.Checked;
-            btCheckBrowserAgent.Enabled = rbProxyCustom.Checked;
 
             if (!string.IsNullOrEmpty(Settings.Instance.Proxy.UserName) &&
                 !string.IsNullOrEmpty(Settings.Instance.Proxy.Password)) {
@@ -2480,12 +2479,22 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
         }
         #region Proxy
+        private void tbBrowserAgent_Leave(object sender, EventArgs e) {
+            try {
+                new System.Net.Http.HttpClient().DefaultRequestHeaders.UserAgent.ParseAdd(tbBrowserAgent.Text);
+            } catch (System.FormatException ex) {
+                Ogcs.Extensions.MessageBox.Show(ex.Message + "\r\nThe value has been reset to the default.",
+                    "Invalid User Agent", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                tbBrowserAgent.Text = SettingsStore.Proxy.DefaultBrowserAgent;
+            } catch (System.Exception ex) {
+                ex.Analyse();
+            }
+        }
+
         private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
             bool result = rbProxyCustom.Checked;
             txtProxyServer.Enabled = result;
             txtProxyPort.Enabled = result;
-            tbBrowserAgent.Enabled = result;
-            btCheckBrowserAgent.Enabled = result;
             cbProxyAuthRequired.Enabled = result;
             if (result) {
                 result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);
