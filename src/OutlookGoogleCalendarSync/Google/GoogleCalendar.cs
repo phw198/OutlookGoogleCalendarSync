@@ -1680,7 +1680,18 @@ namespace OutlookGoogleCalendarSync.Google {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
-                                if (profile.OutlookGalBlocked || ai.Organizer != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                String aiOrganiser = "";
+                                if (!profile.OutlookGalBlocked) {
+                                    try {
+                                        aiOrganiser = ai.Organizer;
+                                    } catch (System.Runtime.InteropServices.COMException ex) {
+                                        if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
+                                            log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
+                                        } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                        profile.OutlookGalBlocked = true;
+                                    }
+                                }
+                                if (profile.OutlookGalBlocked || aiOrganiser != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
                                     if (profile.OutlookGalBlocked)
                                         log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
                                     else

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.11.5-alpha</version>
+    <version>2.11.6-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,25 +12,27 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.11.5?
+# What's New In v2.11.6?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
 - Application
-    - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
-    - Migrated news alert service to Google CloudRun for scalability
-    - Prepared ability to receive v2 update alerts when skipping v3 releases
-- Sync Engine
-    - Miscellenous logging improvements
+    - Added "Revoke" button for Google permissions
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Fixed regression for "startup in tray" setting [[#2117](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2117)]
+    - Mask Google auth token file path location
+    - Updated default UserAgent string to modern browsers
+    - Cope with "Internal Server Error" when retrieving OGCS news
+    - Handle COM error 0x8001010A with automatic retry [[#2165](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2165)]
+    - Reduce eagerness to show Outlook security settings warning [[#2163](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2163)]
 - Sync Engine
-    - Workaround for Google bug that surfaced on 23-May with symptoms:
-        - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
-        - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
+    - Exceptions to recurring events in Google wouldn't sync to Outlook [[#2135](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2135)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Handle blocked Outlook address book when accessing appointment organiser [[#2136](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2136)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Log anonymised calendar subjects for item deletions [[#2149](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2149)]
     </releaseNotes>
     <copyright>Copyright 2025</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
