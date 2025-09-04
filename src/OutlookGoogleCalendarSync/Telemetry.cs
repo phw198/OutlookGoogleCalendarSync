@@ -96,8 +96,9 @@ namespace OutlookGoogleCalendarSync {
                 if (Program.InDeveloperMode) return;
 
                 using (Extensions.OgcsWebClient wc = new()) {
-                    //https://api.country.is/
-                    String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
+                    //https://api.country.is/ - only country attribute
+                    //https://api.techniknews.net/ipgeo - blocked by human verification check 
+                    String response = await wc.DownloadStringTaskAsync(new Uri("http://ip-api.com/json/?fields=1097759"));
                     Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
                     if (ipGeoInfo.HasValues && ipGeoInfo["status"]?.ToString() == "success") {
                         Continent = ipGeoInfo["continent"]?.ToString();
@@ -106,7 +107,7 @@ namespace OutlookGoogleCalendarSync {
                         Region = ipGeoInfo["regionName"]?.ToString();
                         City = ipGeoInfo["city"]?.ToString();
                     } else {
-                        log.Warn("Could not determine IP geolocation; status=" + ipGeoInfo["status"]);
+                        log.Warn($"Could not determine IP geolocation; status={ipGeoInfo["status"]}; message={ipGeoInfo["message"]}");
                     }
                 }
             } catch (System.Exception ex) {
@@ -329,17 +330,15 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     if (ex is WebException) {
                         WebException webex = ex as WebException;
-                        log.Debug(webex.Status.ToString());
-                        if (((HttpWebResponse)webex.Response).StatusCode == HttpStatusCode.Forbidden)
+                        if (new HttpStatusCode[] { HttpStatusCode.Forbidden, HttpStatusCode.InternalServerError }.Contains(((HttpWebResponse)webex.Response).StatusCode)) {
                             ex.LogAsFail();
-                    }
-                    if (ex.LoggingAsFail())
-                        restocked = DateTime.UtcNow;
-                    else {
-                        if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
-                        if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
-                    }
+                        } else {
+                            if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
+                            if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
+                        }
+                    } 
                     ex.Analyse("Unable to retrieve OGCS news.");
+                    restocked = DateTime.UtcNow.AddHours(-21);
                 }
             }
 

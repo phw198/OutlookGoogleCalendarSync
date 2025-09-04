@@ -1,6 +1,26 @@
 | Release Notes |
 |:---|
 
+# v2.11.6.0 - Alpha
+
+**Enhancements**
+- Application
+    - Added "Revoke" button for Google permissions
+
+**Bugfix**
+- Application
+    - Mask Google auth token file path location
+    - Updated default UserAgent string to modern browsers
+    - Cope with "Internal Server Error" when retrieving OGCS news
+    - Handle COM error 0x8001010A with automatic retry [[#2165](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2165)]
+    - Reduce eagerness to show Outlook security settings warning [[#2163](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2163)]
+- Sync Engine
+    - Exceptions to recurring events in Google wouldn't sync to Outlook [[#2135](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2135)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Handle blocked Outlook address book when accessing appointment organiser [[#2136](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2136)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Log anonymised calendar subjects for item deletions [[#2149](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2149)]
+
 # v2.11.5.0 - Alpha
 
 **Enhancements**

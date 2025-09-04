@@ -1284,7 +1284,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!(expand ?? false)) sectionImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
                 switch (section.Name.ToString().Split('_').LastOrDefault()) {
                     //Google
-                    case "GAccount": section.Height = 242; break;
+                    case "GAccount": section.Height = 272; break;
                     case "GConfig": section.Height = 130; break;
                     case "GOAuth": section.Height = 174; break;
                     //Settings
@@ -1634,6 +1634,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     System.IO.File.Delete(System.IO.Path.Combine(Program.UserFilePath, Ogcs.Google.Authenticator.TokenFile));
                 }
             }
+        }
+
+        private void btRevokeGCal_Click(object sender, EventArgs e) {
+            Helper.OpenBrowser("https://myaccount.google.com/connections");
         }
 
         private void cbListHiddenGcals_CheckedChanged(object sender, EventArgs e) {

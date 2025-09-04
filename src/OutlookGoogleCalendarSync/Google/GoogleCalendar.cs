@@ -580,20 +580,22 @@ namespace OutlookGoogleCalendarSync.Google {
 
         #region Create
         public void CreateCalendarEntries(List<AppointmentItem> appointments) {
-            foreach (AppointmentItem ai in appointments) {
+            for (int o = appointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
+                AppointmentItem ai = appointments[o];
                 Event newEvent = new Event();
                 try {
                     newEvent = createCalendarEntry(ai);
                 } catch (System.Exception ex) {
+                    appointments.Remove(ai);
                     if (ex is ApplicationException) {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event creation skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         if (ex.InnerException is global::Google.GoogleApiException) break;
                         continue;
                     } else {
-                        String summary = Outlook.Calendar.GetEventSummary("Event creation failed.", ai, out String anonSummary);
+                        String summary = Outlook.Calendar.GetEventSummary("<br/>Event creation failed.", ai, out String anonSummary);
                         Forms.Main.Instance.Console.UpdateWithError(summary, ex, logEntry: anonSummary);
                         Ogcs.Exception.Analyse(ex, true);
                         if (Ogcs.Extensions.MessageBox.Show("Google event creation failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -607,6 +609,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     createdEvent = createCalendarEntry_save(newEvent, ai);
                 } catch (System.Exception ex) {
+                    appointments.RemoveAt(o);
                     if (ex.Message.Contains("You need to have writer access to this calendar")) {
                         Forms.Main.Instance.Console.Update("The Google calendar being synced with must not be read-only.<br/>Cannot continue sync.", Console.Markup.fail, newLine: false);
                         return;
@@ -1176,6 +1179,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     doDelete = deleteCalendarEntry(ev);
                 } catch (System.Exception ex) {
+                    events.Remove(ev);
                     Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Event deletion failed.", ev, out String anonSummary, true), ex, logEntry: anonSummary);
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("Google event deletion failed. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -1196,6 +1200,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             continue;
                         }
                     }
+                    events.Remove(ev);
                     if (ex is ApplicationException) {
                         String summary = GetEventSummary("<br/>Event deletion skipped.<br/>" + ex.Message, ev, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
@@ -1221,7 +1226,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (Sync.Engine.Calendar.Instance.Profile.ConfirmOnDelete) {
                 if (Ogcs.Extensions.MessageBox.Show(
                     $"Calendar: {EmailAddress.MaskAddressWithinText(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name)}\r\nItem: {eventSummary}", "Confirm Deletion From Google",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, anonSummary) == DialogResult.No
                 ) { //
                     doDelete = false;
                     if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyOutlookIDs(ev)) {
@@ -1672,7 +1677,18 @@ namespace OutlookGoogleCalendarSync.Google {
                                 log.Fine("This appointment was copied by the user. Incorrect match avoided.");
                                 return false;
                             } else {
-                                if (profile.OutlookGalBlocked || ai.Organizer != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                String aiOrganiser = "";
+                                if (!profile.OutlookGalBlocked) {
+                                    try {
+                                        aiOrganiser = ai.Organizer;
+                                    } catch (System.Runtime.InteropServices.COMException ex) {
+                                        if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
+                                            log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
+                                        } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                        profile.OutlookGalBlocked = true;
+                                    }
+                                }
+                                if (profile.OutlookGalBlocked || aiOrganiser != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
                                     if (profile.OutlookGalBlocked)
                                         log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
                                     else
