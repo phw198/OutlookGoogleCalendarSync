@@ -20,9 +20,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
         public Interface IOutlook;
 
-        /// <summary>
-        /// Whether instance of OutlookCalendar class should connect to Outlook application
-        /// </summary>
+        /// <summary>Whether instance of OutlookCalendar class should connect to Outlook application</summary>
         public static Boolean InstanceConnect { get; private set; }
 
         public static Calendar Instance {
@@ -45,6 +43,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return instance;
             }
         }
+        
+        /// <summary>Force OGCS to drop Outlook connection at the end of a sync. Useful when appointments have become inaccessible.</summary>
+        public static Boolean ForceClientReconnect = false;
+
         public static Boolean OOMsecurityInfo = false;
         private static List<String> alreadyRedirectedToWikiForComError = new List<String>();
         public const String GlobalIdPattern = "040000008200E00074C5B7101A82E008";

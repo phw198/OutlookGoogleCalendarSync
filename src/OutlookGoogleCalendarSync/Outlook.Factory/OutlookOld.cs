@@ -90,7 +90,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
-            if (Settings.Instance.DisconnectOutlookBetweenSync ||
+            if (Settings.Instance.DisconnectOutlookBetweenSync || Calendar.ForceClientReconnect ||
                 !onlyWhenNoGUI ||
                 (onlyWhenNoGUI && NoGUIexists()))
             {
@@ -112,6 +112,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
                 oApp = null;
                 GC.Collect();
+                Calendar.ForceClientReconnect = false;
             }
         }
 
