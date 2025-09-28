@@ -1196,6 +1196,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Importing settings from " + importFile.FileName);
                 Settings.Load(importFile.FileName);
                 updateGUIsettings();
+                this.ActiveCalendarProfile.InitialiseTimer();
+                Settings.Instance.Calendars.ForEach(cal => { cal.InitialiseTimer(); cal.RegisterForPushSync(); });
             }
         }
         #endregion
