@@ -1210,7 +1210,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (cal._ProfileName == ddProfile.Text) {
                     try {
                         try {
-                            if (this.tabAppSettings.SelectedTab != this.tabOutlook) {
+                            if (this.tabAppSettings.SelectedTab != null && this.tabAppSettings.SelectedTab != this.tabOutlook) {
                                 this.tabAppSettings.SelectedTab.Controls.Add(this.panelObscure);
                                 this.panelObscure.BringToFront();
                                 this.panelObscure.Dock = DockStyle.Fill;
