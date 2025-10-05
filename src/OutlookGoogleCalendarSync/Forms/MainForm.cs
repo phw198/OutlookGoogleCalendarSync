@@ -666,6 +666,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             else if (rbProxyCustom.Checked) Settings.Instance.Proxy.Type = rbProxyCustom.Tag.ToString();
             else Settings.Instance.Proxy.Type = rbProxyIE.Tag.ToString();
 
+            Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
+
             if (rbProxyCustom.Checked) {
                 if (String.IsNullOrEmpty(txtProxyServer.Text) || String.IsNullOrEmpty(txtProxyPort.Text)) {
                     Ogcs.Extensions.MessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled",
@@ -678,8 +680,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
-                Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
 
                 string userName = null;
                 string password = null;
@@ -2725,15 +2725,12 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         #region Proxy
         private void tbBrowserAgent_Leave(object sender, EventArgs e) {
-            try {
-                new System.Net.Http.HttpClient().DefaultRequestHeaders.UserAgent.ParseAdd(tbBrowserAgent.Text);
-            } catch (System.FormatException ex) {
-                Ogcs.Extensions.MessageBox.Show(ex.Message + "\r\nThe value has been reset to the default.",
+            if (!SettingsStore.Proxy.IsBrowserUserAgentValid(tbBrowserAgent.Text)) {
+                Ogcs.Extensions.MessageBox.Show($"The browser agent '{tbBrowserAgent.Text}' is invalid.\r\nIt has been reset to the default.",
                     "Invalid User Agent", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 tbBrowserAgent.Text = SettingsStore.Proxy.DefaultBrowserAgent;
-            } catch (System.Exception ex) {
-                ex.Analyse();
             }
+            Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
         }
 
         private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
