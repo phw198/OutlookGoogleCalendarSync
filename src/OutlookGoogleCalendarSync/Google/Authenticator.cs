@@ -168,8 +168,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
 
             Ogcs.Google.Calendar.Instance.Service = new CalendarService(new global::Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
-            if (Settings.Instance.Proxy.Type == "Custom")
-                Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+            Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Settings.Instance.Proxy.BrowserUserAgent);
 
             if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < System.DateTime.UtcNow.AddMinutes(1)) {
                 log.Debug("Access token needs refreshing.");
