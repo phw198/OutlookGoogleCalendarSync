@@ -132,6 +132,8 @@
             this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
             this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
             this.gbGoogle_GAccount = new System.Windows.Forms.GroupBox();
+            this.label42 = new System.Windows.Forms.Label();
+            this.btRevokeGCal = new System.Windows.Forms.Button();
             this.llMultipleOGCS = new System.Windows.Forms.LinkLabel();
             this.label14 = new System.Windows.Forms.Label();
             this.cbGoogleCalendars = new System.Windows.Forms.ComboBox();
@@ -299,10 +301,10 @@
             this.label33 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.lMilestoneBlurb = new System.Windows.Forms.Label();
-            this.btSocialTweet = new System.Windows.Forms.Button();
+            this.btSocialSkeet = new System.Windows.Forms.Button();
             this.lMilestone = new System.Windows.Forms.Label();
             this.label30 = new System.Windows.Forms.Label();
-            this.pbSocialTwitterFollow = new System.Windows.Forms.PictureBox();
+            this.pbSocialBlueSkyFollow = new System.Windows.Forms.PictureBox();
             this.btSocialLinkedin = new System.Windows.Forms.Button();
             this.btSocialRSSfeed = new System.Windows.Forms.Button();
             this.label29 = new System.Windows.Forms.Label();
@@ -371,14 +373,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbDonate)).BeginInit();
             this.tabPage_Social.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSocialBlueSkyFollow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialDonate)).BeginInit();
             this.SuspendLayout();
             // 
             // tabApp
             // 
-            this.tabApp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tabApp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabApp.Controls.Add(this.tabPage_Sync);
             this.tabApp.Controls.Add(this.tabPage_Settings);
@@ -418,7 +420,7 @@
             // 
             // lProfileVal
             // 
-            this.lProfileVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lProfileVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lProfileVal.Location = new System.Drawing.Point(109, 7);
             this.lProfileVal.Name = "lProfileVal";
@@ -449,8 +451,8 @@
             // 
             // consolePanel
             // 
-            this.consolePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.consolePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.consolePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.consolePanel.Controls.Add(this.consoleWebBrowser);
@@ -474,7 +476,7 @@
             // 
             // tbSyncNote
             // 
-            this.tbSyncNote.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.tbSyncNote.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbSyncNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.tbSyncNote.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -513,7 +515,7 @@
             // 
             // lNextSyncVal
             // 
-            this.lNextSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lNextSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lNextSyncVal.Location = new System.Drawing.Point(109, 37);
             this.lNextSyncVal.Name = "lNextSyncVal";
@@ -523,7 +525,7 @@
             // 
             // lLastSyncVal
             // 
-            this.lLastSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lLastSyncVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lLastSyncVal.Location = new System.Drawing.Point(109, 22);
             this.lLastSyncVal.Name = "lLastSyncVal";
@@ -601,8 +603,8 @@
             // 
             // tabSettingsSub
             // 
-            this.tabSettingsSub.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tabSettingsSub.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabSettingsSub.Controls.Add(this.tabSyncSettings);
             this.tabSettingsSub.Controls.Add(this.tabAppBehaviour);
@@ -642,7 +644,7 @@
             // 
             // ddProfile
             // 
-            this.ddProfile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.ddProfile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ddProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddProfile.FormattingEnabled = true;
@@ -701,8 +703,8 @@
             // tabAppSettings
             // 
             this.tabAppSettings.Alignment = System.Windows.Forms.TabAlignment.Left;
-            this.tabAppSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tabAppSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabAppSettings.Controls.Add(this.tabOutlook);
             this.tabAppSettings.Controls.Add(this.tabGoogle);
@@ -755,7 +757,7 @@
             // 
             // cbOutlookCalendars
             // 
-            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cbOutlookCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbOutlookCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutlookCalendars.FormattingEnabled = true;
@@ -789,8 +791,8 @@
             // 
             // clbCategories
             // 
-            this.clbCategories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.clbCategories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.clbCategories.CheckOnClick = true;
             this.clbCategories.ContextMenuStrip = this.msCategories;
@@ -849,7 +851,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.label32);
             this.groupBox1.Controls.Add(this.urlDateFormats);
@@ -910,7 +912,7 @@
             // 
             // tbOutlookDateFormatResult
             // 
-            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbOutlookDateFormatResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbOutlookDateFormatResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbOutlookDateFormatResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -923,7 +925,7 @@
             // 
             // tbOutlookDateFormat
             // 
-            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbOutlookDateFormat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbOutlookDateFormat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbOutlookDateFormat.Location = new System.Drawing.Point(155, 79);
@@ -947,7 +949,7 @@
             // 
             // txtDateFormats
             // 
-            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtDateFormats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDateFormats.BackColor = System.Drawing.SystemColors.Window;
             this.txtDateFormats.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -1010,7 +1012,7 @@
             // 
             // ddMailboxName
             // 
-            this.ddMailboxName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.ddMailboxName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ddMailboxName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddMailboxName.FormattingEnabled = true;
@@ -1114,8 +1116,8 @@
             // 
             // panelGoogle
             // 
-            this.panelGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.panelGoogle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelGoogle.AutoScroll = true;
             this.panelGoogle.Controls.Add(this.pbExpandGoogleOauth);
@@ -1134,7 +1136,7 @@
             // 
             this.pbExpandGoogleOauth.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandGoogleOauth.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandGoogleOauth.Location = new System.Drawing.Point(1, 402);
+            this.pbExpandGoogleOauth.Location = new System.Drawing.Point(1, 432);
             this.pbExpandGoogleOauth.Name = "pbExpandGoogleOauth";
             this.pbExpandGoogleOauth.Size = new System.Drawing.Size(20, 20);
             this.pbExpandGoogleOauth.TabIndex = 50;
@@ -1145,7 +1147,7 @@
             // cbShowDeveloperOptions
             // 
             this.cbShowDeveloperOptions.AutoSize = true;
-            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(23, 382);
+            this.cbShowDeveloperOptions.Location = new System.Drawing.Point(23, 412);
             this.cbShowDeveloperOptions.Name = "cbShowDeveloperOptions";
             this.cbShowDeveloperOptions.Size = new System.Drawing.Size(193, 17);
             this.cbShowDeveloperOptions.TabIndex = 48;
@@ -1157,7 +1159,7 @@
             // 
             this.pbExpandGoogleConfig.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbExpandGoogleConfig.Image = global::OutlookGoogleCalendarSync.Properties.Resources.expand;
-            this.pbExpandGoogleConfig.Location = new System.Drawing.Point(1, 243);
+            this.pbExpandGoogleConfig.Location = new System.Drawing.Point(1, 273);
             this.pbExpandGoogleConfig.Name = "pbExpandGoogleConfig";
             this.pbExpandGoogleConfig.Size = new System.Drawing.Size(20, 20);
             this.pbExpandGoogleConfig.TabIndex = 47;
@@ -1177,7 +1179,7 @@
             // 
             // gbGoogle_GOAuth
             // 
-            this.gbGoogle_GOAuth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbGoogle_GOAuth.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbGoogle_GOAuth.Controls.Add(this.tbClientSecret);
             this.gbGoogle_GOAuth.Controls.Add(this.tbClientID);
@@ -1188,7 +1190,7 @@
             this.gbGoogle_GOAuth.Controls.Add(this.lSecret);
             this.gbGoogle_GOAuth.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbGoogle_GOAuth.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbGoogle_GOAuth.Location = new System.Drawing.Point(10, 405);
+            this.gbGoogle_GOAuth.Location = new System.Drawing.Point(10, 435);
             this.gbGoogle_GOAuth.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbGoogle_GOAuth.Name = "gbGoogle_GOAuth";
             this.gbGoogle_GOAuth.Size = new System.Drawing.Size(368, 174);
@@ -1199,7 +1201,7 @@
             // 
             // tbClientSecret
             // 
-            this.tbClientSecret.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbClientSecret.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbClientSecret.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbClientSecret.Location = new System.Drawing.Point(54, 145);
@@ -1213,7 +1215,7 @@
             // 
             // tbClientID
             // 
-            this.tbClientID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbClientID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbClientID.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbClientID.Location = new System.Drawing.Point(54, 119);
@@ -1254,7 +1256,7 @@
             // 
             // lGoogleAPIInstructions
             // 
-            this.lGoogleAPIInstructions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lGoogleAPIInstructions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lGoogleAPIInstructions.BackColor = System.Drawing.SystemColors.Window;
             this.lGoogleAPIInstructions.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -1292,7 +1294,7 @@
             // 
             // gbGoogle_GConfig
             // 
-            this.gbGoogle_GConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbGoogle_GConfig.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbGoogle_GConfig.Controls.Add(this.cbAddGMeet);
             this.gbGoogle_GConfig.Controls.Add(this.cbDeleteWhenColourExcl);
@@ -1303,7 +1305,7 @@
             this.gbGoogle_GConfig.Controls.Add(this.cbExcludeGoals);
             this.gbGoogle_GConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbGoogle_GConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 246);
+            this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 276);
             this.gbGoogle_GConfig.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbGoogle_GConfig.Name = "gbGoogle_GConfig";
             this.gbGoogle_GConfig.Size = new System.Drawing.Size(368, 130);
@@ -1365,8 +1367,8 @@
             // 
             // clbColours
             // 
-            this.clbColours.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.clbColours.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.clbColours.CheckOnClick = true;
             this.clbColours.ContextMenuStrip = this.msColours;
@@ -1453,8 +1455,10 @@
             // 
             // gbGoogle_GAccount
             // 
-            this.gbGoogle_GAccount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbGoogle_GAccount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbGoogle_GAccount.Controls.Add(this.label42);
+            this.gbGoogle_GAccount.Controls.Add(this.btRevokeGCal);
             this.gbGoogle_GAccount.Controls.Add(this.llMultipleOGCS);
             this.gbGoogle_GAccount.Controls.Add(this.label14);
             this.gbGoogle_GAccount.Controls.Add(this.cbGoogleCalendars);
@@ -1471,10 +1475,35 @@
             this.gbGoogle_GAccount.Location = new System.Drawing.Point(10, 2);
             this.gbGoogle_GAccount.MinimumSize = new System.Drawing.Size(368, 0);
             this.gbGoogle_GAccount.Name = "gbGoogle_GAccount";
-            this.gbGoogle_GAccount.Size = new System.Drawing.Size(368, 242);
+            this.gbGoogle_GAccount.Size = new System.Drawing.Size(368, 272);
             this.gbGoogle_GAccount.TabIndex = 43;
             this.gbGoogle_GAccount.TabStop = false;
             this.gbGoogle_GAccount.Text = "  Account && Calendar";
+            // 
+            // label42
+            // 
+            this.label42.AutoSize = true;
+            this.label42.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label42.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label42.Location = new System.Drawing.Point(145, 194);
+            this.label42.MaximumSize = new System.Drawing.Size(192, 0);
+            this.label42.Name = "label42";
+            this.label42.Size = new System.Drawing.Size(189, 13);
+            this.label42.TabIndex = 56;
+            this.label42.Text = "Revoke permissions granted to OGCS.";
+            // 
+            // btRevokeGCal
+            // 
+            this.btRevokeGCal.BackColor = System.Drawing.Color.Transparent;
+            this.btRevokeGCal.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btRevokeGCal.ForeColor = System.Drawing.Color.Red;
+            this.btRevokeGCal.Location = new System.Drawing.Point(24, 189);
+            this.btRevokeGCal.Name = "btRevokeGCal";
+            this.btRevokeGCal.Size = new System.Drawing.Size(115, 23);
+            this.btRevokeGCal.TabIndex = 55;
+            this.btRevokeGCal.Text = "Revoke Access";
+            this.btRevokeGCal.UseVisualStyleBackColor = false;
+            this.btRevokeGCal.Click += new System.EventHandler(this.btRevokeGCal_Click);
             // 
             // llMultipleOGCS
             // 
@@ -1492,7 +1521,7 @@
             // 
             // label14
             // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label14.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -1506,12 +1535,12 @@
             // 
             // cbGoogleCalendars
             // 
-            this.cbGoogleCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cbGoogleCalendars.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbGoogleCalendars.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbGoogleCalendars.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbGoogleCalendars.FormattingEnabled = true;
-            this.cbGoogleCalendars.Location = new System.Drawing.Point(114, 194);
+            this.cbGoogleCalendars.Location = new System.Drawing.Point(114, 224);
             this.cbGoogleCalendars.Name = "cbGoogleCalendars";
             this.cbGoogleCalendars.Size = new System.Drawing.Size(241, 21);
             this.cbGoogleCalendars.TabIndex = 6;
@@ -1533,7 +1562,7 @@
             // 
             this.lGoogleCalendar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lGoogleCalendar.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lGoogleCalendar.Location = new System.Drawing.Point(6, 197);
+            this.lGoogleCalendar.Location = new System.Drawing.Point(6, 227);
             this.lGoogleCalendar.Name = "lGoogleCalendar";
             this.lGoogleCalendar.Size = new System.Drawing.Size(81, 14);
             this.lGoogleCalendar.TabIndex = 8;
@@ -1571,7 +1600,7 @@
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label13.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label13.Location = new System.Drawing.Point(143, 158);
+            this.label13.Location = new System.Drawing.Point(145, 158);
             this.label13.MaximumSize = new System.Drawing.Size(200, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(192, 26);
@@ -1580,7 +1609,7 @@
             // 
             // tbConnectedAcc
             // 
-            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbConnectedAcc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbConnectedAcc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbConnectedAcc.Location = new System.Drawing.Point(114, 70);
@@ -1606,7 +1635,7 @@
             this.cbListHiddenGcals.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cbListHiddenGcals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbListHiddenGcals.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbListHiddenGcals.Location = new System.Drawing.Point(280, 221);
+            this.cbListHiddenGcals.Location = new System.Drawing.Point(280, 251);
             this.cbListHiddenGcals.Name = "cbListHiddenGcals";
             this.cbListHiddenGcals.Size = new System.Drawing.Size(79, 17);
             this.cbListHiddenGcals.TabIndex = 30;
@@ -1665,8 +1694,8 @@
             // 
             // panelSyncOptions
             // 
-            this.panelSyncOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.panelSyncOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelSyncOptions.AutoScroll = true;
             this.panelSyncOptions.Controls.Add(this.pbExpandHow);
@@ -1693,7 +1722,7 @@
             // 
             // gbSyncOptions_How
             // 
-            this.gbSyncOptions_How.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbSyncOptions_How.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbSyncOptions_How.Controls.Add(this.howMorePanel);
             this.gbSyncOptions_How.Controls.Add(this.btObfuscateRules);
@@ -1716,7 +1745,7 @@
             // 
             // howMorePanel
             // 
-            this.howMorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.howMorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.howMorePanel.Controls.Add(this.ddPrivacy);
             this.howMorePanel.Controls.Add(this.ddAvailabilty);
@@ -1766,7 +1795,7 @@
             // 
             // ddGoogleColour
             // 
-            this.ddGoogleColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.ddGoogleColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ddGoogleColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ddGoogleColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1782,7 +1811,7 @@
             // 
             // ddOutlookColour
             // 
-            this.ddOutlookColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.ddOutlookColour.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ddOutlookColour.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ddOutlookColour.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1957,7 +1986,7 @@
             // 
             // howObfuscatePanel
             // 
-            this.howObfuscatePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.howObfuscatePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.howObfuscatePanel.Controls.Add(this.btCloseRegexRules);
             this.howObfuscatePanel.Controls.Add(this.cbObfuscateDirection);
@@ -2006,7 +2035,7 @@
             // 
             // dgObfuscateRegex
             // 
-            this.dgObfuscateRegex.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.dgObfuscateRegex.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgObfuscateRegex.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
             this.dgObfuscateRegex.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -2100,7 +2129,7 @@
             // 
             // gbSyncOptions_When
             // 
-            this.gbSyncOptions_When.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbSyncOptions_When.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbSyncOptions_When.Controls.Add(this.cbOutlookPush);
             this.gbSyncOptions_When.Controls.Add(this.cbIntervalUnit);
@@ -2256,7 +2285,7 @@
             // 
             // gbSyncOptions_What
             // 
-            this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbSyncOptions_What.Controls.Add(this.label36);
             this.gbSyncOptions_What.Controls.Add(this.tbExcludeSubjectText);
@@ -2308,7 +2337,7 @@
             // 
             // tbExcludeSubjectText
             // 
-            this.tbExcludeSubjectText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbExcludeSubjectText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbExcludeSubjectText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbExcludeSubjectText.Location = new System.Drawing.Point(146, 236);
@@ -2706,8 +2735,8 @@
             // 
             // panelAppBehaviour
             // 
-            this.panelAppBehaviour.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.panelAppBehaviour.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelAppBehaviour.AutoScroll = true;
             this.panelAppBehaviour.Controls.Add(this.pbExpandProxy);
@@ -2732,7 +2761,7 @@
             // 
             // gbAppBehaviour_Proxy
             // 
-            this.gbAppBehaviour_Proxy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbAppBehaviour_Proxy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbAppBehaviour_Proxy.Controls.Add(this.tbBrowserAgent);
             this.gbAppBehaviour_Proxy.Controls.Add(this.btCheckBrowserAgent);
@@ -2762,7 +2791,7 @@
             // 
             // tbBrowserAgent
             // 
-            this.tbBrowserAgent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tbBrowserAgent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbBrowserAgent.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbBrowserAgent.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -2841,7 +2870,7 @@
             // 
             // txtProxyPassword
             // 
-            this.txtProxyPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtProxyPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyPassword.Enabled = false;
             this.txtProxyPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2878,7 +2907,7 @@
             // 
             // txtProxyUser
             // 
-            this.txtProxyUser.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtProxyUser.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyUser.Enabled = false;
             this.txtProxyUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2890,7 +2919,7 @@
             // 
             // txtProxyServer
             // 
-            this.txtProxyServer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtProxyServer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtProxyServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtProxyServer.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -2957,7 +2986,7 @@
             // 
             // gbAppBehaviour_Logging
             // 
-            this.gbAppBehaviour_Logging.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gbAppBehaviour_Logging.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gbAppBehaviour_Logging.Controls.Add(this.cbAnonymiseLogs);
             this.gbAppBehaviour_Logging.Controls.Add(this.cbTelemetryDisabled);
@@ -3039,7 +3068,7 @@
             // 
             // cbLoggingLevel
             // 
-            this.cbLoggingLevel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cbLoggingLevel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbLoggingLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbLoggingLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -3318,18 +3347,19 @@
             // 
             this.label20.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label20.AutoSize = true;
-            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(74, 38);
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.ForeColor = System.Drawing.SystemColors.MenuHighlight;
+            this.label20.Location = new System.Drawing.Point(103, 37);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(349, 26);
+            this.label20.Size = new System.Drawing.Size(286, 52);
             this.label20.TabIndex = 40;
-            this.label20.Text = "All the configuration is defined on the \"Settings\" tab above.\r\nTry hovering the m" +
-    "ouse over individual settings for extra tips, or press F1.";
+            this.label20.Text = "All the configuration is defined on the \"Settings\" tab above.\r\n\r\nPress F1 to view" +
+    " the online guide, or\r\nhover the mouse over individual settings for extra tips.";
             this.label20.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8.75576F));
@@ -3342,7 +3372,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label18, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label23, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.label25, 1, 3);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(21, 82);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(21, 106);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20.58824F));
@@ -3524,7 +3554,7 @@
             this.dgAbout.AllowUserToAddRows = false;
             this.dgAbout.AllowUserToDeleteRows = false;
             this.dgAbout.AllowUserToResizeRows = false;
-            this.dgAbout.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.dgAbout.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgAbout.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgAbout.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
@@ -3610,7 +3640,7 @@
             // 
             // lAboutMain
             // 
-            this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lAboutMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lAboutMain.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lAboutMain.Location = new System.Drawing.Point(29, 207);
@@ -3675,10 +3705,10 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.lMilestoneBlurb, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btSocialTweet, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.btSocialSkeet, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.lMilestone, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.label30, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.pbSocialTwitterFollow, 1, 3);
+            this.tableLayoutPanel2.Controls.Add(this.pbSocialBlueSkyFollow, 1, 3);
             this.tableLayoutPanel2.Controls.Add(this.btSocialLinkedin, 0, 5);
             this.tableLayoutPanel2.Controls.Add(this.btSocialRSSfeed, 0, 6);
             this.tableLayoutPanel2.Controls.Add(this.label29, 1, 6);
@@ -3713,24 +3743,24 @@
             this.lMilestoneBlurb.Text = "Let others know you\'ve found this application by sharing through your favourite s" +
     "ocial media site below!";
             // 
-            // btSocialTweet
+            // btSocialSkeet
             // 
-            this.btSocialTweet.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btSocialTweet.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btSocialTweet.FlatAppearance.BorderSize = 0;
-            this.btSocialTweet.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btSocialTweet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btSocialTweet.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btSocialTweet.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btSocialTweet.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter;
-            this.btSocialTweet.Location = new System.Drawing.Point(7, 98);
-            this.btSocialTweet.Name = "btSocialTweet";
-            this.btSocialTweet.Size = new System.Drawing.Size(86, 34);
-            this.btSocialTweet.TabIndex = 0;
-            this.btSocialTweet.Text = "Twitter    ";
-            this.btSocialTweet.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btSocialTweet.UseVisualStyleBackColor = true;
-            this.btSocialTweet.Click += new System.EventHandler(this.btSocialTweet_Click);
+            this.btSocialSkeet.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btSocialSkeet.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btSocialSkeet.FlatAppearance.BorderSize = 0;
+            this.btSocialSkeet.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btSocialSkeet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btSocialSkeet.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btSocialSkeet.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.btSocialSkeet.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky;
+            this.btSocialSkeet.Location = new System.Drawing.Point(7, 98);
+            this.btSocialSkeet.Name = "btSocialSkeet";
+            this.btSocialSkeet.Size = new System.Drawing.Size(86, 34);
+            this.btSocialSkeet.TabIndex = 0;
+            this.btSocialSkeet.Text = "BlueSky   ";
+            this.btSocialSkeet.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btSocialSkeet.UseVisualStyleBackColor = true;
+            this.btSocialSkeet.Click += new System.EventHandler(this.btSocialSkeet_Click);
             // 
             // lMilestone
             // 
@@ -3758,18 +3788,18 @@
             this.label30.Text = "Share";
             this.label30.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // pbSocialTwitterFollow
+            // pbSocialBlueSkyFollow
             // 
-            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter_follow;
-            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(103, 101);
-            this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
-            this.pbSocialTwitterFollow.Size = new System.Drawing.Size(135, 27);
-            this.pbSocialTwitterFollow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbSocialTwitterFollow.TabIndex = 53;
-            this.pbSocialTwitterFollow.TabStop = false;
-            this.pbSocialTwitterFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
+            this.pbSocialBlueSkyFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pbSocialBlueSkyFollow.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbSocialBlueSkyFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky_follow;
+            this.pbSocialBlueSkyFollow.Location = new System.Drawing.Point(103, 101);
+            this.pbSocialBlueSkyFollow.Name = "pbSocialBlueSkyFollow";
+            this.pbSocialBlueSkyFollow.Size = new System.Drawing.Size(135, 27);
+            this.pbSocialBlueSkyFollow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbSocialBlueSkyFollow.TabIndex = 53;
+            this.pbSocialBlueSkyFollow.TabStop = false;
+            this.pbSocialBlueSkyFollow.Click += new System.EventHandler(this.pbSocialBlueskyFollow_Click);
             // 
             // btSocialLinkedin
             // 
@@ -4024,7 +4054,7 @@
             this.tabPage_Social.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbSocialTwitterFollow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSocialBlueSkyFollow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSocialDonate)).EndInit();
             this.ResumeLayout(false);
 
@@ -4084,7 +4114,7 @@
         private System.Windows.Forms.Button btSocialLinkedin;
         public System.Windows.Forms.ComboBox cbOutlookCalendars;
         private System.Windows.Forms.Label label30;
-        private System.Windows.Forms.PictureBox pbSocialTwitterFollow;
+        private System.Windows.Forms.PictureBox pbSocialBlueSkyFollow;
         private System.Windows.Forms.Panel WhatPostit;
         private System.Windows.Forms.RichTextBox tbWhatHelp;
         private System.Windows.Forms.GroupBox gbSyncOptions_When;
@@ -4199,7 +4229,7 @@
         private System.Windows.Forms.CheckBox cbUseOutlookDefaultReminder;
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.Button btSocialTweet;
+        private System.Windows.Forms.Button btSocialSkeet;
         private System.Windows.Forms.Button btSocialFB;
         private System.Windows.Forms.Button btSocialGitHub;
         private System.Windows.Forms.Button btFbLike;
@@ -4302,5 +4332,7 @@
         private System.Windows.Forms.CheckBox cbAddGMeet;
         private System.Windows.Forms.CheckBox cbAnonymiseLogs;
         private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.Label label42;
+        private System.Windows.Forms.Button btRevokeGCal;
     }
 }

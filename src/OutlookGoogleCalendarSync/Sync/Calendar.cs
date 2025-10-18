@@ -89,6 +89,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     Sync.Engine.SyncResult syncResult = Sync.Engine.SyncResult.Fail;
                     int failedAttempts = 0;
+                    Telemetry.NewsStand.Instance.Get();
                     Telemetry.TrackSync();
                     System.Diagnostics.Stopwatch stopwatch = new();
                     stopwatch.Start();
@@ -112,21 +113,21 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb);
-                        mainFrm.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb);
-                        mainFrm.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb);
+                        mainFrm.Console.BuildOutput("Sync version: " + System.Windows.Forms.Application.ProductVersion, ref sb, false);
+                        mainFrm.Console.BuildOutput("Profile: " + this.Profile._ProfileName, ref sb, false);
+                        mainFrm.Console.BuildOutput((Sync.Engine.Instance.ManualForceCompare ? "Full s" : "S") + "ync started at " + DateTime.Now.ToString(), ref sb, false);
                         mainFrm.Console.BuildOutput("Syncing from " + this.Profile.SyncStart.ToShortDateString() +
-                            " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb);
-                        mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb);
+                            " to " + this.Profile.SyncEnd.ToShortDateString(), ref sb, false);
+                        mainFrm.Console.BuildOutput(this.Profile.SyncDirection.Name, ref sb, false);
                         if (Sync.Engine.Calendar.Instance.Profile.OutlookGalBlocked) 
                             mainFrm.Console.BuildOutput("<div style='font-size:11px; padding-top:5px'>Corporate policy/anti-virus is restricting certain functionality. "+
-                                "This may prevent proper detection of meeting organiser time zones, resulting in incorrect local start times due to DST.</div>", ref sb);
+                                "This may prevent proper detection of meeting organiser time zones, resulting in incorrect local start times due to DST.</div>", ref sb, false);
 
                         //Make the clock emoji show the right time
                         int minsPastHour = DateTime.Now.Minute;
                         minsPastHour = (int)minsPastHour - (minsPastHour % 30);
                         sb.Insert(0, ":clock" + DateTime.Now.ToString("hh").TrimStart('0') + (minsPastHour == 00 ? "" : "30") + ":");
-                        mainFrm.Console.Update(sb);
+                        mainFrm.Console.Update(sb, logit: true);
 
                         //Kick off the sync in the background thread
                         Sync.Engine.Instance.bwSync.DoWork += new DoWorkEventHandler(
@@ -145,28 +146,28 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         }
 
                                     } else {
-                                    Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                                    if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
-                                        error == Outlook.Errors.ErrorType.RpcFailed ||
-                                        error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
-                                    {
-                                        Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                        String message = "It looks like Outlook was closed during the sync.";
-                                        if (error == Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
-                                        mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
+                                        Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                                        if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                            error == Outlook.Errors.ErrorType.RpcFailed ||
+                                            error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
+                                        {
+                                            Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                            String message = "It looks like Outlook was closed during the sync.";
+                                            if (error == Outlook.Errors.ErrorType.RpcFailed) message = "It looks like Outlook has been restarted and is not yet responsive.";
+                                            mainFrm.Console.Update(message + "<br/>Will retry syncing in a few seconds...", Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else if (error == Outlook.Errors.ErrorType.OperationFailed) {
-                                        mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
-                                        syncResult = SyncResult.ReconnectThenRetry;
+                                        } else if (error == Outlook.Errors.ErrorType.OperationFailed) {
+                                            mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
+                                            syncResult = SyncResult.ReconnectThenRetry;
 
-                                    } else {
-                                        Ogcs.Exception.Analyse(ex, true);
-                                        mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
-                                        syncResult = SyncResult.Fail;
+                                        } else {
+                                            Ogcs.Exception.Analyse(ex, true);
+                                            mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
+                                            syncResult = SyncResult.Fail;
+                                        }
                                     }
                                 }
-                            }
                             }
                         );
 
@@ -210,8 +211,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         if (!Settings.Instance.UserIsBenefactor()) {
                             syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
                                 Settings.Instance.GaccountEmail + "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
-                            Telemetry.GA4Event donateEvent = new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.donate);
-                            donateEvent.events[0]
+                            Telemetry.GA4Event donateEvent = new(Telemetry.GA4Event.Event.Name.donate, out Telemetry.GA4Event.Event eventData);
+                            eventData
                                 .AddParameter("source", "console")
                                 .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
                                 .AddParameter("account_present", true);
@@ -230,6 +231,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         this.consecutiveSyncFails += failedAttempts;
                         mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == Sync.Engine.SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
                     }
+                    Telemetry.NewsStand.Instance.Distribute();
 
                     this.setNextSync(syncResult == Sync.Engine.SyncResult.OK, updateSyncSchedule);
                     this.Profile.OgcsTimer.CalculateInterval();
@@ -280,7 +282,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                         }
                     }
                 }
-                Forms.Main.Instance.bSyncNow.Enabled = true;
             }
 
             private void skipCorruptedItem(ref List<AppointmentItem> outlookEntries, AppointmentItem cai, String errMsg) {
@@ -515,6 +516,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update($"Scanning Google calendar '{Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Name}'...");
                 try {
                     Ogcs.Google.Calendar.Instance.GetSettings();
+                    Ogcs.Google.Recurrence.GoogleExceptionsReset();
                     googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
                 } catch (AggregateException agex) {
                     agex.AnalyseAggregate();
@@ -530,7 +532,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     throw;
                 } catch (System.ApplicationException ex) {
                     if (ex.InnerException != null && ex.InnerException is global::Google.GoogleApiException &&
-                        (ex.Message.Contains("daily Calendar quota has been exhausted") || ex.InnerException.GetErrorCode() == "0x80131500")) {
+                        ex.Message.Contains("daily Calendar quota has been exhausted")) {
                         Forms.Main.Instance.Console.Update(ex.Message, Console.Markup.warning);
                         DateTime newQuota = DateTime.UtcNow.Date.AddHours(8);
                         String tryAfter = "08:00 GMT.";
@@ -599,8 +601,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update(sb, Console.Markup.info, logit: true);
 
                 //Protect against very first syncs which may trample pre-existing non-Outlook events in Google
-                if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
-                    googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
+                if (!this.Profile.DisableDelete && googleEntriesToBeDeleted.Count == googleEntries.Count && googleEntries.Count > 1) {
                     if (Ogcs.Extensions.MessageBox.Show("All Google events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + googleEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
@@ -709,8 +710,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 console.Update(sb, Console.Markup.info, logit: true);
 
                 //Protect against very first syncs which may trample pre-existing non-Google events in Outlook
-                if (!this.Profile.DisableDelete && !this.Profile.ConfirmOnDelete &&
-                    outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 1) {
+                if (!this.Profile.DisableDelete && outlookEntriesToBeDeleted.Count == outlookEntries.Count && outlookEntries.Count > 1) {
                     if (Ogcs.Extensions.MessageBox.Show("All Outlook events are going to be deleted. Do you want to allow this?" +
                         "\r\nNote, " + outlookEntriesToBeCreated.Count + " events will then be created.", "Confirm mass deletion",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {

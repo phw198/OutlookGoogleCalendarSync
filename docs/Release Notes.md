@@ -1,6 +1,86 @@
 | Release Notes |
 |:---|
 
+# v2.11.6.0 - Alpha
+
+**Enhancements**
+- Application
+    - Added "Revoke" button for Google permissions
+
+**Bugfix**
+- Application
+    - Mask Google auth token file path location
+    - Updated default UserAgent string to modern browsers
+    - Cope with "Internal Server Error" when retrieving OGCS news
+    - Handle COM error 0x8001010A with automatic retry [[#2165](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2165)]
+    - Reduce eagerness to show Outlook security settings warning [[#2163](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2163)]
+- Sync Engine
+    - Exceptions to recurring events in Google wouldn't sync to Outlook [[#2135](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2135)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Handle blocked Outlook address book when accessing appointment organiser [[#2136](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2136)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Log anonymised calendar subjects for item deletions [[#2149](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2149)]
+
+# v2.11.5.0 - Alpha
+
+**Enhancements**
+- Application
+    - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
+    - Migrated news alert service to Google CloudRun for scalability
+    - Prepared ability to receive v2 update alerts when skipping v3 releases
+- Sync Engine
+    - Miscellenous logging improvements
+
+**Bugfix**
+- Application
+    - Fixed regression for "startup in tray" setting [[#2117](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2117)]
+- Sync Engine
+    - Workaround for Google bug that surfaced on 23-May with symptoms:
+        - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
+        - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
+
+# v2.11.4.0 - Alpha
+
+**Enhancements**
+- Application
+    - Clearer instructions upon Google access token expiry [[#2080](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2080)]
+    - Bring application to the front once loaded
+    - Switched over from Twitter to Bluesky
+- Sync Engine
+    - Abort sync if Outlook COM errors are encountered whilst identifying differences [[#2053](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2053)]
+    - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
+    - Include updated series exceptions in sync summary count
+
+**Bugfix**
+- Application
+    - Manage API errors whilst getting Google settings [[#2100](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2100)]
+    - Fixed install/uninstall telemetry
+- Sync Engine
+    - Retrieve Google occurrences that were originally outside the sync window [[#2081](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2081)]
+        - Handle zero occurrences of Google series
+    - Fixed never-ending sync due to calendar descriptions containing emojis [[#2090](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2090)]
+    - Handle meeting attendees with accented characters in the name [[#2097](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2097)]
+    - Specify UTC time zone for Google event retrieval (regression) [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+
+# v2.11.3.0 - Alpha
+
+**Enhancements**
+- Application
+    - Added a "news" service that surfaces messages, eg critical bugs and hotfixes
+    - Miscellenous logging improvements
+- Sync Engine
+    - Further optimisation retrieving Google recurring series and its instances
+
+**Bugfix**
+- Application
+    - Improvements dropdown refresh for Google default calendar colour.
+- Sync Engine
+    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
+        - Fixed logging of Google Event summary local time
+    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
+    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
+    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
+
 # v2.11.2.0 - Alpha
 
 **Enhancements**

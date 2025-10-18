@@ -59,6 +59,7 @@ namespace OutlookGoogleCalendarSync {
         private Boolean alphaReleases;
         private String version;
         private String skipVersion;
+        private String skipVersion2;
         private Boolean donor;
         private DateTime subscribed;
         private bool? hideSplashScreen;
@@ -113,6 +114,7 @@ namespace OutlookGoogleCalendarSync {
 
             alphaReleases = !System.Windows.Forms.Application.ProductVersion.EndsWith("0.0");
             SkipVersion = null;
+            SkipVersion2 = null;
             subscribed = Ogcs.Google.Authenticator.SubscribedNever;
             donor = false;
             hideSplashScreen = null;
@@ -226,6 +228,7 @@ namespace OutlookGoogleCalendarSync {
                 suppressSocialPopup = value;
             }
         }
+        [DataMember] public DateTime HideNews { get; set; }
         [DataMember] public bool ShowSystemNotifications { get; set; }
         [DataMember] public bool ShowSystemNotificationsIfChange { get; set; }
         [DataMember] public bool StartOnStartup { get; set; }
@@ -310,6 +313,13 @@ namespace OutlookGoogleCalendarSync {
             set {
                 skipVersion = value;
                 if (!Loading()) XMLManager.ExportElement(this, "SkipVersion", value, ConfigFile);
+            }
+        }
+        [DataMember] public String SkipVersion2 {
+            get { return skipVersion2; }
+            set {
+                skipVersion2 = value;
+                if (!Loading()) XMLManager.ExportElement(this, "SkipVersion2", value, ConfigFile);
             }
         }
 
@@ -426,6 +436,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("ABOUT:-");
             log.Info("  Alpha Releases: " + alphaReleases);
             log.Info("  Skip Version: " + SkipVersion);
+            log.Info("  Skip Version2: " + SkipVersion2);
             log.Info("  Subscribed: " + Subscribed.ToString("dd-MMM-yyyy"));
             log.Info("  Timezone Database: " + TimezoneDB.Instance.Version);
             

@@ -122,7 +122,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 if ((Settings.Instance.AlphaReleases && updates.ReleasesToApply.Any()) ||
                     updates.ReleasesToApply.Any(r => r.Version.SpecialVersion != "alpha")) {
-
+                    
                     if (updates.CurrentlyInstalledVersion != null)
                         log.Info("Currently installed version: " + updates.CurrentlyInstalledVersion.Version.ToString());
                     log.Info("Found " + updates.ReleasesToApply.Count() + " newer releases available.");
@@ -135,10 +135,37 @@ namespace OutlookGoogleCalendarSync {
                     String releaseType = "";
                     Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
 
+                    Boolean manualV2UpgradeRequired = false;
+                    if (!this.isManualCheck) {
+                        if (updates.CurrentlyInstalledVersion?.Version.Version.Major == 2) {
+                            if (updates.ReleasesToApply.Last().Version.Version.Major == 3) {
+                                System.Collections.Generic.List<ReleaseEntry> trimmedReleasesToApply = null;
+
+                                if (Settings.Instance.SkipVersion.StartsWith("3") && Settings.Instance.SkipVersion == updates.ReleasesToApply.Last().Version.Version.ToString()) {
+                                    log.Info($"The user has previously requested to skip the latest v3 release.");
+                                    trimmedReleasesToApply = updates.ReleasesToApply.Where(r => r.Version.Version.Major != 3).ToList();
+                                    log.Debug($"Removed v3 releases which leaves {trimmedReleasesToApply.Count} v2 newer release available.");
+                                    if (trimmedReleasesToApply.Count == 0) return false;
+
+                                    manualV2UpgradeRequired = true;
+                                    releaseVersion = trimmedReleasesToApply.Last().Version.Version.ToString();
+                                    releaseType = trimmedReleasesToApply.Last().Version.SpecialVersion;
+                                }
+                                trimmedReleasesToApply ??= updates.ReleasesToApply;                               
+
+                                if (Settings.Instance.SkipVersion2 == trimmedReleasesToApply.Last().Version.Version.ToString()) {
+                                    log.Info("The user has previously requested to skip the latest v2 release.");
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
 
-                        if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion && update == updates.ReleasesToApply.Last()) {
+                        if (!this.isManualCheck && !manualV2UpgradeRequired && update.Version.Version.ToString() == Settings.Instance.SkipVersion && update == updates.ReleasesToApply.Last()) {
                             log.Info("The user has previously requested to skip this version.");
                             return false;
                         }
@@ -176,12 +203,19 @@ namespace OutlookGoogleCalendarSync {
                         }
 
                         if (string.IsNullOrEmpty(releaseNotes)) {
+                            if (manualV2UpgradeRequired && releaseVersion != update.Version.Version.ToString()) continue;
                             log.Debug("Retrieving release notes.");
                             releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
                             releaseVersion = update.Version.Version.ToString();
                             releaseType = update.Version.SpecialVersion;
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + releaseVersion;
                         }
+                    }
+                    if (manualV2UpgradeRequired) {
+                        String manualUpgradeNotes = "<p><h2>Manual Upgrade Required</h2></p>"+
+                            "<p>To continue using v2 releases, the <a href='http://www.outlookgooglecalendarsync.com'>OGCS_Setup.exe file must be manually downloaded</a>."+
+                            "<br/>Please ensure you close the OGCS application before running the setup executable.</p>";
+                        releaseNotes = releaseNotes.Replace("<![CDATA[\n", "<![CDATA[\n" + manualUpgradeNotes);
                     }
 
                     var t = new System.Threading.Thread(() => updateInfoFrm = new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
@@ -339,6 +373,13 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void onInitialInstall(Version version) {
             try {
+                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
+                    .AddParameter(GA4.Squirrel.install,  version.ToString() + " "+ DateTime.Now.ToString("g"))
+                    .Send(withBlankEnvelope: true, async: false);
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to send telemetry 'install' event.");
+            }
+            try {
                 using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
                     log.Info("Creating shortcuts.");
                     mgr.CreateShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
@@ -347,13 +388,9 @@ namespace OutlookGoogleCalendarSync {
                     mgr.CreateUninstallerRegistryEntry().Wait();
                 }
             } catch (System.Exception ex) {
-                log.Error("Problem encountered on initiall install.");
+                log.Error("Problem encountered on initial install.");
                 Ogcs.Exception.Analyse(ex, true);
             }
-            new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
-                .AddParameter(GA4.Squirrel.install, version.ToString())
-                .Send();
-            onFirstRun();
         }
         private static void onAppUpdate(Version version) {
             try {
@@ -369,38 +406,55 @@ namespace OutlookGoogleCalendarSync {
         }
         private static void onAppUninstall(Version version) {
             try {
-                using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
-                    log.Info("Removing shortcuts.");
-                    mgr.RemoveShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
-                        Squirrel.ShortcutLocation.Desktop | Squirrel.ShortcutLocation.StartMenu);
-                    String startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Paul Woolcock");
-                    Directory.Delete(startMenuFolder);
-                    log.Debug("Removing registry uninstall keys.");
-                    mgr.RemoveUninstallerRegistryEntry();
-                }
-                Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
-                squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString());
-                if (Ogcs.Extensions.MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                    log.Debug("User opted to give feedback.");
-                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, true);
-                    Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
-                } else {
-                    log.Debug("User opted not to give feedback.");
-                    squirrelGaEv.AddParameter(GA4.Squirrel.feedback, false);
-                }
-                squirrelGaEv.Send();
-                log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
+                new System.Threading.Thread(() => {
+                    try {
+                        Telemetry.GA4Event.Event feedbackGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                        if (Ogcs.Extensions.MessageBox.Show("Sorry to see you go!\nCould you spare 30 seconds for some feedback?", "Uninstalling OGCS",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                            log.Debug("User opted to give feedback.");
+                            feedbackGaEv.AddParameter(GA4.Squirrel.feedback, true);
+                            Helper.OpenBrowser("https://docs.google.com/forms/d/e/1FAIpQLSfRWYFdgyfbFJBMQ0dz14patu195KSKxdLj8lpWvLtZn-GArw/viewform?entry.1161230174=v" + Application.ProductVersion);
+                        } else {
+                            log.Debug("User opted not to give feedback.");
+                            feedbackGaEv.AddParameter(GA4.Squirrel.feedback, false);
+                        }
+                        feedbackGaEv.Send(withBlankEnvelope: true, async: false);
+                    } catch (System.Exception ex) {
+                        ex.Analyse("Unable to send telemetry 'uninstall.feedback' event.");
+                    }
+                }).Start();
                 try {
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString() +" " + DateTime.Now.ToString("g"));
+                    String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Settings.ConfigFile) ?? "0";
+                    squirrelGaEv.AddParameter(GA4.General.sync_count, completedSyncs);
+                    squirrelGaEv.Send(withBlankEnvelope: true, async: false);
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to send telemetry 'uninstall' event.");
+                }
+                try {
+                    using (var mgr = new Squirrel.UpdateManager(null, "OutlookGoogleCalendarSync")) {
+                        log.Info("Removing shortcuts.");
+                        mgr.RemoveShortcutsForExecutable(Path.GetFileName(System.Windows.Forms.Application.ExecutablePath),
+                            Squirrel.ShortcutLocation.Desktop | Squirrel.ShortcutLocation.StartMenu);
+                        String startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Paul Woolcock");
+                        Directory.Delete(startMenuFolder);
+                        log.Debug("Removing registry uninstall keys.");
+                        mgr.RemoveUninstallerRegistryEntry();
+                    }
+                } catch (System.Exception ex) {
+                    ex.Analyse("Squirrel update manager failed to execute uninstall properly.");
+                }
+                try {
+                    log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
                     log.Logger.Repository.Shutdown();
                     log4net.LogManager.Shutdown();
                     Directory.Delete(Path.GetDirectoryName(Settings.ConfigFile), true);
                 } catch (System.Exception ex) {
-                    try { log.Error(ex.Message); } catch { }
+                    try { ex.Analyse("Logger cleanup not possible."); } catch { }
                 }
             } catch (System.Exception ex) {
-                log.Error("Problem encountered on app uninstall.");
-                Ogcs.Exception.Analyse(ex, true);
+                try { ex.Analyse("Problem encountered on app uninstall.", true); } catch { }
             }
         }
 

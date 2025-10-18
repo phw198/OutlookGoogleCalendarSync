@@ -2,6 +2,7 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace OutlookGoogleCalendarSync {
 
         /// <summary>MD5 hash to identify distinct, anonymous user</summary>
         private String uuId;
+        private Boolean geoDataLoaded = false;
         public String AnonymousUniqueUserId {
             get { return uuId; }
         }
@@ -91,9 +93,12 @@ namespace OutlookGoogleCalendarSync {
                 while (!Settings.AreLoaded) {
                     System.Threading.Thread.Sleep(1000);
                 }
+                if (Program.InDeveloperMode) return;
+
                 using (Extensions.OgcsWebClient wc = new()) {
-                    //https://api.country.is/
-                    String response = await wc.DownloadStringTaskAsync(new Uri("https://api.techniknews.net/ipgeo"));
+                    //https://api.country.is/ - only country attribute
+                    //https://api.techniknews.net/ipgeo - blocked by human verification check 
+                    String response = await wc.DownloadStringTaskAsync(new Uri("http://ip-api.com/json/?fields=1097759"));
                     Newtonsoft.Json.Linq.JObject ipGeoInfo = Newtonsoft.Json.Linq.JObject.Parse(response);
                     if (ipGeoInfo.HasValues && ipGeoInfo["status"]?.ToString() == "success") {
                         Continent = ipGeoInfo["continent"]?.ToString();
@@ -102,11 +107,13 @@ namespace OutlookGoogleCalendarSync {
                         Region = ipGeoInfo["regionName"]?.ToString();
                         City = ipGeoInfo["city"]?.ToString();
                     } else {
-                        log.Warn("Could not determine IP geolocation; status=" + ipGeoInfo["status"]);
+                        log.Warn($"Could not determine IP geolocation; status={ipGeoInfo["status"]}; message={ipGeoInfo["message"]}");
                     }
                 }
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not get IP geolocation.");
+            } finally {
+                geoDataLoaded = true;
             }
             new Telemetry.GA4Event(Telemetry.GA4Event.Event.Name.application_started).Send();
         }
@@ -130,8 +137,9 @@ namespace OutlookGoogleCalendarSync {
             /// <summary>
             /// A GA4 measurement protocol containing just the header/envelope propeties
             /// </summary>
-            public GA4Event() {
-                prepareEnvelope();
+            /// <param name="withBlankEnvelope">Only include mandatory attributes</param>
+            public GA4Event(Boolean withBlankEnvelope = false) {
+                prepareEnvelope(withBlankEnvelope);
             }
             /// <summary>
             /// A GA4 event with no parameters
@@ -150,12 +158,14 @@ namespace OutlookGoogleCalendarSync {
                 events = new List<Event> { _event };
             }
 
-            private void prepareEnvelope() {
+            private void prepareEnvelope(Boolean withBlankEnvelope = false) {
                 //https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#limitations
                 //Maximum name length: 24; value length: 36
+                non_personalized_ads = true;
                 client_id = Telemetry.Instance.AnonymousUniqueUserId; //Extend this in case more than one instance of OGCS running?
                 user_id = Telemetry.Instance.AnonymousUniqueUserId;
-                non_personalized_ads = true;
+                if (withBlankEnvelope) return;
+                
                 user_properties = new Dictionary<String, Dictionary<String, String>>();
                 user_properties.Add("ogcs_version", new Dictionary<String, String> { { "value", System.Windows.Forms.Application.ProductVersion } });
                 user_properties.Add("benefactor", new Dictionary<String, String> { { "value", Settings.Instance.UserIsBenefactor().ToString() } });
@@ -170,8 +180,12 @@ namespace OutlookGoogleCalendarSync {
                 user_properties.Add("city", new Dictionary<String, String> { { "value", Telemetry.Instance.City } });
             }
 
-            public void Send() {
-                if (Settings.Instance.TelemetryDisabled || Program.InDeveloperMode) {
+            /// <summary>
+            /// Send the telemetry data
+            /// </summary>
+            /// <param name="async">Submit telemetry asynchronously</param>
+            public void Send(Boolean async = true) {
+                if ((Settings.InstanceInitialiased && Settings.Instance.TelemetryDisabled) || Program.InDeveloperMode) {
                     log.Debug("Telemetry is disabled.");
                     return;
                 }
@@ -181,15 +195,18 @@ namespace OutlookGoogleCalendarSync {
 
                     Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
                     wc.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    wc.UploadStringCompleted += new UploadStringCompletedEventHandler(sendTelemetry_completed);
 
-                    GA4Event payload = this;
-                    String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+                    String jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(this);
                     jsonPayload = jsonPayload.Replace("\"parameters\":", "\"params\":");
 
                     log.Debug("GA4: " + jsonPayload);
-                    wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
-
+                    if (async) {
+                        wc.UploadStringCompleted += new UploadStringCompletedEventHandler(sendTelemetry_completed);
+                        wc.UploadStringAsync(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
+                    } else {
+                        String response = wc.UploadString(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
+                        log.Debug("GA4 OK " + response);
+                    }
                 } catch (System.Exception ex) {
                     Ogcs.Exception.Analyse(ex);
                 }
@@ -237,10 +254,12 @@ namespace OutlookGoogleCalendarSync {
                 /// <summary>
                 /// When sending an event, the "envelope" is created around it before posting
                 /// </summary>
-                public void Send() {
-                    GA4Event ga4Ev = new GA4Event();
+                /// <param name="withBlankEnvelope">Minimal information included</param>
+                /// <param name="async">Submit telemetry asynchronously</param>
+                public void Send(Boolean withBlankEnvelope = false, Boolean async = true) {
+                    GA4Event ga4Ev = new GA4Event(withBlankEnvelope);
                     ga4Ev.events = new List<Event> { this };
-                    ga4Ev.Send();
+                    ga4Ev.Send(async);
                 }
             }
         }
@@ -258,6 +277,110 @@ namespace OutlookGoogleCalendarSync {
                         System.IO.StreamReader sr = new System.IO.StreamReader(stream);
                         log.Fail(sr.ReadToEnd());
                     }
+                }
+            }
+        }
+
+        public class NewsStand {
+            private static NewsStand instance;
+            public static NewsStand Instance {
+                get {
+                    return instance ??= new NewsStand();
+                }
+            }
+            private NewsJson newsStand;
+            private DateTime restocked = new DateTime();
+
+            public void Get() {
+                if ((DateTime.UtcNow - restocked).TotalDays < 1) return;
+                new System.Threading.Thread(() => { _ = requestNews(); }).Start();
+            }
+
+            private async Task requestNews() {
+                String payload = null;
+                String jsonResponse = null;
+                try {
+                    if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail)) return;
+
+                    while (!Telemetry.Instance.geoDataLoaded) {
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    if (Program.InDeveloperMode) return;
+
+                    payload = "{ \"usernameId\": \"" + Telemetry.Instance.uuId + "\", " +
+                        "\"version\": \"" + Program.VersionToInt(System.Windows.Forms.Application.ProductVersion) + "\", " +
+                        "\"country\": \"" + Telemetry.Instance.Country + "\", " +
+                        "\"isBenefactor\": \"" + Settings.Instance.UserIsBenefactor() + "\", " +
+                        "\"profiles\": \"" + Settings.Instance.Calendars.Count() + "\", " +
+                        "\"outlookOnline\": \"" + 0
+                        + "\" }";
+                    String target = "https://prod---get-ogcs-news-1005809938476.us-central1.run.app";
+
+                    using (Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient()) {
+                        wc.Headers.Add(System.Net.HttpRequestHeader.Accept, "application/json");
+                        wc.Headers.Add(System.Net.HttpRequestHeader.ContentType, "application/json");
+                        if (Program.InDeveloperMode) {
+                            target = "https://dev---get-ogcs-news-1005809938476.us-central1.run.app?version=2110200";
+                        }
+                        jsonResponse = await wc.UploadStringTaskAsync(target, payload);
+                        newsStand = Newtonsoft.Json.JsonConvert.DeserializeObject<NewsJson>(jsonResponse);
+                    }
+                    restocked = DateTime.UtcNow;
+
+                } catch (System.Exception ex) {
+                    if (ex is WebException) {
+                        WebException webex = ex as WebException;
+                        if (new HttpStatusCode[] { HttpStatusCode.Forbidden, HttpStatusCode.InternalServerError }.Contains(((HttpWebResponse)webex.Response).StatusCode)) {
+                            ex.LogAsFail();
+                        } else {
+                            if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
+                            if (!string.IsNullOrEmpty(jsonResponse)) log.Debug("jsonResponse: " + jsonResponse);
+                        }
+                    } 
+                    ex.Analyse("Unable to retrieve OGCS news.");
+                    restocked = DateTime.UtcNow.AddHours(-21);
+                }
+            }
+
+            public void Distribute() {
+                try {
+                    if (newsStand == null || newsStand.News.Count() == 0) return;
+
+                    Boolean showNews = newsStand.News.Exists(n => n.PublishDate > Settings.Instance.HideNews);
+
+                    System.Text.StringBuilder newsHeader = new();
+                    newsHeader.Append("<h2 class='sectionHeader'><span class='em em-newspaper'></span>News<span style='float: right; cursor: pointer; font-weight: 100; padding-top: 5px;' onClick='javascript:toggle();' id='newsToggleText'>");
+                    if (showNews)
+                        newsHeader.Append("<a href='#hidenews' class='no-decoration'>[&#8211] Hide</a>");
+                    else
+                        newsHeader.Append("<a href='#shownews' class='no-decoration'>[+] Show</a>");
+                    newsHeader.Append("</span>");
+                    Forms.Main.Instance.Console.Update(newsHeader);
+
+                    Forms.Main.Instance.Console.Update("<span id='news' style='display: " + (showNews ? "block" : "none") + "'>", newLine: false, logit: false);
+
+                    foreach (News news in newsStand.News) {
+                        Forms.Main.Instance.Console.Update(news.Publish(), newLine: false);
+                    }
+                    Forms.Main.Instance.Console.Update("</span>", newLine: false, logit: false);
+
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to distribute news.");
+                }
+            }
+
+            public class NewsJson {
+                public List<News> News { get; set; }
+            }
+            public class News {
+#pragma warning disable 0649
+                public DateTime PublishDate;
+                public String Alert;
+#pragma warning restore 0649
+
+                public String Publish() {
+                    String printedNews = ":newspaper:" + this.Alert + $"<br/><div style='font-size: 11px; color: grey; padding-top: 5px;'>{ this.PublishDate.ToString("dd-MMM-yyyy") }</div>";
+                    return printedNews;
                 }
             }
         }

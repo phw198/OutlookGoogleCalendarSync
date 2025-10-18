@@ -95,7 +95,7 @@
             // 
             this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter_follow;
+            this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky_follow;
             this.pbSocialTwitterFollow.Location = new System.Drawing.Point(168, 251);
             this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
             this.pbSocialTwitterFollow.Size = new System.Drawing.Size(135, 27);

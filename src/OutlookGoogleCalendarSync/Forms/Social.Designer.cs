@@ -41,8 +41,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pbDonate = new System.Windows.Forms.PictureBox();
             this.btSocialFB = new System.Windows.Forms.Button();
-            this.pbSocialTwitterFollow = new System.Windows.Forms.Button();
-            this.btSocialTweet = new System.Windows.Forms.Button();
+            this.pbSocialBlueskyFollow = new System.Windows.Forms.Button();
+            this.btSocialSkeet = new System.Windows.Forms.Button();
             this.btFbLike = new System.Windows.Forms.Button();
             this.btSocialRSSfeed = new System.Windows.Forms.Button();
             this.btSocialGitHub = new System.Windows.Forms.Button();
@@ -80,9 +80,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(164, 230);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(153, 13);
+            this.label2.Size = new System.Drawing.Size(158, 13);
             this.label2.TabIndex = 54;
-            this.label2.Text = "Follow @OGcalsync on Twitter";
+            this.label2.Text = "Follow @OGcalsync on Bluesky";
             // 
             // label3
             // 
@@ -103,9 +103,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(164, 71);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(150, 13);
+            this.label4.Size = new System.Drawing.Size(146, 13);
             this.label4.TabIndex = 56;
-            this.label4.Text = "Tweet about OGCS on Twitter";
+            this.label4.Text = "Post about OGCS on Bluesky";
             // 
             // label30
             // 
@@ -226,9 +226,9 @@
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.label4, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.btSocialFB, 2, 3);
-            this.tableLayoutPanel1.Controls.Add(this.pbSocialTwitterFollow, 2, 7);
+            this.tableLayoutPanel1.Controls.Add(this.pbSocialBlueskyFollow, 2, 7);
             this.tableLayoutPanel1.Controls.Add(this.lMilestone, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.btSocialTweet, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.btSocialSkeet, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.label5, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.label9, 1, 8);
             this.tableLayoutPanel1.Controls.Add(this.btFbLike, 3, 3);
@@ -283,44 +283,44 @@
             this.btSocialFB.UseVisualStyleBackColor = true;
             this.btSocialFB.Click += new System.EventHandler(this.btSocialFB_Click);
             // 
-            // pbSocialTwitterFollow
+            // pbSocialBlueskyFollow
             // 
-            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.pbSocialTwitterFollow.BackColor = System.Drawing.Color.Transparent;
-            this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pbSocialTwitterFollow.FlatAppearance.BorderSize = 0;
-            this.pbSocialTwitterFollow.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.pbSocialTwitterFollow.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.pbSocialTwitterFollow.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.pbSocialTwitterFollow.Image = ((System.Drawing.Image)(resources.GetObject("pbSocialTwitterFollow.Image")));
-            this.pbSocialTwitterFollow.Location = new System.Drawing.Point(351, 222);
-            this.pbSocialTwitterFollow.Margin = new System.Windows.Forms.Padding(2);
-            this.pbSocialTwitterFollow.Name = "pbSocialTwitterFollow";
-            this.pbSocialTwitterFollow.Size = new System.Drawing.Size(83, 29);
-            this.pbSocialTwitterFollow.TabIndex = 68;
-            this.pbSocialTwitterFollow.Text = "Follow   ";
-            this.pbSocialTwitterFollow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.pbSocialTwitterFollow.UseVisualStyleBackColor = false;
-            this.pbSocialTwitterFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
+            this.pbSocialBlueskyFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pbSocialBlueskyFollow.BackColor = System.Drawing.Color.Transparent;
+            this.pbSocialBlueskyFollow.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pbSocialBlueskyFollow.FlatAppearance.BorderSize = 0;
+            this.pbSocialBlueskyFollow.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.pbSocialBlueskyFollow.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.pbSocialBlueskyFollow.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pbSocialBlueskyFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky;
+            this.pbSocialBlueskyFollow.Location = new System.Drawing.Point(351, 222);
+            this.pbSocialBlueskyFollow.Margin = new System.Windows.Forms.Padding(2);
+            this.pbSocialBlueskyFollow.Name = "pbSocialBlueskyFollow";
+            this.pbSocialBlueskyFollow.Size = new System.Drawing.Size(83, 29);
+            this.pbSocialBlueskyFollow.TabIndex = 68;
+            this.pbSocialBlueskyFollow.Text = "Follow   ";
+            this.pbSocialBlueskyFollow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.pbSocialBlueskyFollow.UseVisualStyleBackColor = false;
+            this.pbSocialBlueskyFollow.Click += new System.EventHandler(this.pbSocialTwitterFollow_Click);
             // 
-            // btSocialTweet
+            // btSocialSkeet
             // 
-            this.btSocialTweet.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btSocialTweet.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btSocialTweet.FlatAppearance.BorderSize = 0;
-            this.btSocialTweet.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btSocialTweet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btSocialTweet.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btSocialTweet.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btSocialTweet.Image = global::OutlookGoogleCalendarSync.Properties.Resources.twitter;
-            this.btSocialTweet.Location = new System.Drawing.Point(352, 63);
-            this.btSocialTweet.Name = "btSocialTweet";
-            this.btSocialTweet.Size = new System.Drawing.Size(83, 29);
-            this.btSocialTweet.TabIndex = 0;
-            this.btSocialTweet.Text = "Twitter    ";
-            this.btSocialTweet.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btSocialTweet.UseVisualStyleBackColor = true;
-            this.btSocialTweet.Click += new System.EventHandler(this.btSocialTweet_Click);
+            this.btSocialSkeet.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.btSocialSkeet.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btSocialSkeet.FlatAppearance.BorderSize = 0;
+            this.btSocialSkeet.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btSocialSkeet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btSocialSkeet.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btSocialSkeet.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.btSocialSkeet.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky;
+            this.btSocialSkeet.Location = new System.Drawing.Point(352, 63);
+            this.btSocialSkeet.Name = "btSocialSkeet";
+            this.btSocialSkeet.Size = new System.Drawing.Size(83, 29);
+            this.btSocialSkeet.TabIndex = 0;
+            this.btSocialSkeet.Text = "Bluesky  ";
+            this.btSocialSkeet.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btSocialSkeet.UseVisualStyleBackColor = true;
+            this.btSocialSkeet.Click += new System.EventHandler(this.btSocialSkeet_Click);
             // 
             // btFbLike
             // 
@@ -416,7 +416,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button btSocialTweet;
+        private System.Windows.Forms.Button btSocialSkeet;
         private System.Windows.Forms.Button btSocialFB;
         private System.Windows.Forms.Button btSocialLinkedin;
         private System.Windows.Forms.Button btSocialRSSfeed;
@@ -436,7 +436,7 @@
         private System.Windows.Forms.Label lDonateTip;
         private System.Windows.Forms.PictureBox pbDonate;
         private System.Windows.Forms.Button btFbLike;
-        private System.Windows.Forms.Button pbSocialTwitterFollow;
+        private System.Windows.Forms.Button pbSocialBlueskyFollow;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button btSocialGitHub;
     }

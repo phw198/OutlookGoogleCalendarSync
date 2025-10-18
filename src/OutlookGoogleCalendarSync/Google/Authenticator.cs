@@ -113,7 +113,7 @@ namespace OutlookGoogleCalendarSync.Google {
             FileDataStore tokenStore = new FileDataStore(Program.UserFilePath);
             tokenFullPath = Path.Combine(tokenStore.FolderPath, TokenFile);
 
-            log.Debug("Google credential file location: " + tokenFullPath);
+            log.Debug("Google credential file location: " + Program.MaskFilePath(tokenFullPath));
             if (!tokenFileExists)
                 log.Info("No Google credentials file available - need user authorisation for OGCS to manage their calendar.");
             
@@ -130,7 +130,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     if (!SufficientPermissions) {
                         log.Warn("They have not granted permission to the calendar.");
 
-                        String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(";
+                        String noAuthGiven = "Sorry, but this application will not work if you don't allow it access to your Google Calendar :(\r\n\r\n" +
+                            "Please disconnect the Google account and retrieve the calendars again.";
                         Ogcs.Extensions.MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         throw new ApplicationException(noAuthGiven);
                     }
@@ -312,7 +313,9 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         public static String GetMd5(String input, Boolean isEmailAddress = false, Boolean silent = false) {
+            if (input == null) return null;
             if (!silent) log.Debug("Getting MD5 hash for '" + (isEmailAddress ? EmailAddress.MaskAddress(input) : input) + "'");
+            if (string.IsNullOrEmpty(input)) return "";
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();

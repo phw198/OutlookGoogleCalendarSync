@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.11.2-alpha</version>
+    <version>2.11.6-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,37 +12,40 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.11.2?
+# What's New In v2.11.6?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
-- Sync Engine
-    - Improved monthly recurrence on day >28th
-    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
-    - New emoji for recurring series exception
+- Application
+    - Added "Revoke" button for Google permissions
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Update of third-party DLL files
-        - Now requires .NET Framework 4.6.2
-    - Include all-day series master ending on sync window start date
-    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
+    - Mask Google auth token file path location
+    - Updated default UserAgent string to modern browsers
+    - Cope with "Internal Server Error" when retrieving OGCS news
+    - Handle COM error 0x8001010A with automatic retry [[#2165](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2165)]
+    - Reduce eagerness to show Outlook security settings warning [[#2163](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2163)]
 - Sync Engine
-    - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
+    - Exceptions to recurring events in Google wouldn't sync to Outlook [[#2135](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2135)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Handle blocked Outlook address book when accessing appointment organiser [[#2136](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2136)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Log anonymised calendar subjects for item deletions [[#2149](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2149)]
     </releaseNotes>
     <copyright>Copyright 2025</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>
     <!--<file src="bin\Release\*.*" target="lib\net45\" />-->
-		<file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
-		<file src="bin\Release\OutlookGoogleCalendarSync.pdb" target="lib\net45\" />
-		<file src="bin\Release\*.dll" target="lib\net45\" />
-		<file src="bin\Release\ErrorReportingTemplate.json" target="lib\net45\" />
-		<file src="bin\Release\logger.xml" target="lib\net45\" />
-		<file src="bin\Release\tzdb.nzd" target="lib\net45\" />
-		<file src="bin\Release\Console\*.*" target="lib\net45\Console\" />
-		<file src="bin\Release\Console\emoji\*.*" target="lib\net45\Console\emoji\" />
+        <file src="bin\Release\OutlookGoogleCalendarSync.e*" target="lib\net45\" />
+        <file src="bin\Release\OutlookGoogleCalendarSync.pdb" target="lib\net45\" />
+        <file src="bin\Release\*.dll" target="lib\net45\" />
+        <file src="bin\Release\ErrorReportingTemplate.json" target="lib\net45\" />
+        <file src="bin\Release\logger.xml" target="lib\net45\" />
+        <file src="bin\Release\tzdb.nzd" target="lib\net45\" />
+        <file src="bin\Release\Console\*.*" target="lib\net45\Console\" />
+        <file src="bin\Release\Console\emoji\*.*" target="lib\net45\Console\emoji\" />
   </files>
 </package>

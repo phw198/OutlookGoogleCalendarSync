@@ -9,6 +9,13 @@ namespace OutlookGoogleCalendarSync {
         private static readonly ILog log = LogManager.GetLogger(typeof(EmailAddress));
 
         public static String BuildFakeEmailAddress(String recipientName, out Boolean builtFakeEmail) {
+            //Ensure recipient name doesn't contain extended characters
+            byte[] nameBytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(recipientName);
+            String asciiRecipientName = System.Text.Encoding.ASCII.GetString(nameBytes);
+            if (recipientName != asciiRecipientName) {
+                log.Debug($"Recipient name '{recipientName}' converted to '{asciiRecipientName}'");
+                recipientName = asciiRecipientName;
+            }
             String buildFakeEmail = Regex.Replace(recipientName, @"[^\w\.-]", "");
             buildFakeEmail = buildFakeEmail.Trim('.');
             buildFakeEmail += "@unknownemail.com";
@@ -73,7 +80,9 @@ namespace OutlookGoogleCalendarSync {
                 MatchCollection matches = System.Text.RegularExpressions.Regex.Matches(sourceContainingEmailAddress, @"([\w\.]+)@");
                 if (matches.Count >= 1 && matches[0].Groups.Count >= 2) {
                     String emailAddress = matches[0].Groups[1].Value;
-                    String masked = emailAddress.Substring(0, 2) + "".PadRight(emailAddress.Length - 3, '*') + emailAddress.Substring(emailAddress.Length - 1);
+                    String masked = "".PadRight(emailAddress.Length, '*');
+                    if (emailAddress.Length > 3)
+                        masked = emailAddress.Substring(0, 2) + "".PadRight(emailAddress.Length - 3, '*') + emailAddress.Substring(emailAddress.Length - 1);
                     return sourceContainingEmailAddress.Replace(emailAddress, masked);
                 }
             } catch (System.Exception ex) {
