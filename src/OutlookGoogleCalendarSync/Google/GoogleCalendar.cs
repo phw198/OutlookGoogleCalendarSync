@@ -404,7 +404,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 Dictionary<String, String> rules = Recurrence.ExplodeRrule(ev.Recurrence);
                 if (rules.ContainsKey("UNTIL")) {
                     System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
-                    if (endDate < to)
+                    if (endDate < from)
                         historicRecurring.Add(ev);
                 }
             }
