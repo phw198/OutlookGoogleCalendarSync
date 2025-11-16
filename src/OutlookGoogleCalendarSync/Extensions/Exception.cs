@@ -27,7 +27,8 @@ namespace OutlookGoogleCalendarSync {
 
             if (ex is Microsoft.Graph.ServiceException) {
                 Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
-                log.ErrorOrFail("Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
+                log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gex.Error));
+                log.ErrorOrFail("StatusCode: " + gex.StatusCode + "; Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
                 return;
             } else
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
