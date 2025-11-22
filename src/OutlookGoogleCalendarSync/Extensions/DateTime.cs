@@ -89,11 +89,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
-                if (safeDate.ToUniversalTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
-                    safeDate = safeDate.Date;
-                    safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Unspecified);
-                }
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);                
             } else {
                 Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
                 safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
