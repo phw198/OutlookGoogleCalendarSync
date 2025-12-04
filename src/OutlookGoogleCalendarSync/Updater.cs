@@ -374,7 +374,7 @@ namespace OutlookGoogleCalendarSync {
         private static void onInitialInstall(Version version) {
             try {
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.squirrel)
-                    .AddParameter(GA4.Squirrel.install,  version.ToString() + " "+ DateTime.Now.ToString("g"))
+                    .AddParameter(GA4.Squirrel.install, version.ToString())
                     .Send(withBlankEnvelope: true, async: false);
             } catch (System.Exception ex) {
                 ex.Analyse("Unable to send telemetry 'install' event.");
