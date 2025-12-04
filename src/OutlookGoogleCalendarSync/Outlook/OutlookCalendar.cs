@@ -1300,7 +1300,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             ApplicationException v3needed = new ApplicationException("This version of OGCS requires the classic Outlook client to be installed.\r\n\r\n" +
                                 "The next major release of OGCS does not require an Outlook client - further details have opened in your browser.");
                             v3needed.Data.Add("SuppressCloudLogPrompt", true);
-                            throw v3needed;
+                            throw v3needed.LogAsFail();
                         } else
                             log.Debug("Found " + subkeys.Count() + " subkeys, but none started with 'Microsoft.OutlookForWindows_'");
                     } else {
