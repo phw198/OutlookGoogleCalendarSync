@@ -157,8 +157,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 //For backward compatibility, always default to key names with no set number appended
                 if (calendarKeys.Count == 0 ||
-                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id))
-                {
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id)) {
                     maxSet = -1;
                     return returnVal;
                 }
@@ -179,6 +178,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
+            } catch (System.Exception ex) {
+                ex.Analyse(true);
+                throw;
             } finally {
                 Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
                 Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));

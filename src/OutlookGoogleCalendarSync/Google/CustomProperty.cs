@@ -164,6 +164,9 @@ namespace OutlookGoogleCalendarSync.Google {
 
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
+            } catch (System.Exception ex) {
+                ex.Analyse(true);
+                throw;
             } finally {
                 Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, returnVal));
                 Ogcs.Google.Calendar.Instance.EphemeralProperties.Add(ev, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
