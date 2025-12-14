@@ -445,7 +445,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info("  Short Date Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             log.Info("  Short Time Format: "+ System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
             TimeZone curTimeZone = TimeZone.CurrentTimeZone;
-            log.Info("  System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now));
+            log.Info("  System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now) + "; GMT Offset=" + curTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes);
             log.Info("  Completed Syncs: "+ CompletedSyncs);
 
             foreach (SettingsStore.Calendar profile in this.Calendars) {
