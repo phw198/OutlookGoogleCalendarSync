@@ -232,7 +232,38 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                         (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
                                 } else throw;
                             }
-                            if (filtered) { ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue; }
+                            if (filtered) {
+                                try {
+                                    ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue;
+                                } catch (System.ArgumentException ex) {
+                                    if (ex.Message == "An item with the same key has already been added.") {
+                                        log.Warn("Investigating duplicate EntryID...");
+                                        try {
+                                            List<AppointmentItem> ais = new();
+                                            IOutlook.FilterItems(OutlookItems, filter).ForEach(ai => ais.Add(ai as AppointmentItem));
+                                            ExportToCSV("Appointments containing possible duplicate EntryID", "outlook_appointments_duplicateEntryID.csv", ais);
+
+                                            Dictionary<String, List<AppointmentItem>> duplicates = ais.
+                                                GroupBy(ai => ai.EntryID).
+                                                Where(group => group.Count() > 1).
+                                                ToDictionary(group => group.Key, group => group.ToList());
+                                            log.Warn($"Outlook has {duplicates.Count} duplicate EntryIDs");
+                                            if (duplicates.Count > 0) {
+                                                foreach (KeyValuePair<String, List<AppointmentItem>> duplicate in duplicates) {
+                                                    log.Debug(duplicate.Key);
+                                                    duplicate.Value.ForEach(d => {
+                                                        log.Debug("   -> " + d.GlobalAppointmentID);
+                                                        log.Debug("      " + GetEventSummary(d));
+                                                    });
+                                                }
+                                            }
+                                        } catch (System.Exception ex2) {
+                                            ex2.Analyse("Couldn't export all the Outlook appointments, in search of duplicate EntryIDs");
+                                        }
+                                    }
+                                    throw;
+                                }
+                            }
 
                             //Availability, Privacy, Subject
                             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
