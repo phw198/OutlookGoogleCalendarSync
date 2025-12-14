@@ -543,7 +543,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         throw new UserCancelledSyncException("User chose not to continue sync.");
                 }
 
-                //Recurrence.CreateGoogleExceptions(ai, ref createdEvent);
+                Recurrence.CreateGoogleExceptions(ai, ref createdEvent);
             }
         }
 
