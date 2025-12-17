@@ -157,7 +157,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 //For backward compatibility, always default to key names with no set number appended
                 if (calendarKeys.Count == 0 ||
-                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id)) {
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id)) //
+                {
                     maxSet = -1;
                     return returnVal;
                 }
@@ -179,6 +180,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
             } catch (System.Exception ex) {
+                if (ex is NullReferenceException) {
+                    log.Warn("Issue #2242");
+                    log.Debug("Sync.Engine.Calendar.Instance.Profile is null: " + (Sync.Engine.Calendar.Instance.Profile == null));
+                    log.Debug("Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar: " + Sync.Engine.Calendar.Instance.Profile?.UseGoogleCalendar);
+                    log.Debug("Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id: " + Sync.Engine.Calendar.Instance.Profile?.UseGoogleCalendar?.Id);
+                }
                 ex.Analyse(true);
                 throw;
             } finally {
