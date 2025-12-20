@@ -86,12 +86,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Parses the DateTimeTimeZone string to a local DateTime
         /// </summary>
         /// <returns>Local DateTime</returns>
-        public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
+        public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
-                if (safeDate.ToUniversalTime().TimeOfDay == new TimeSpan(0, 0, 0)) {
-                    safeDate = safeDate.Date;
+                if (isAllDay ?? false) {
+                    safeDate = safeDate.ToUniversalTime().Date;
                     safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Unspecified);
                 }
             } else {
