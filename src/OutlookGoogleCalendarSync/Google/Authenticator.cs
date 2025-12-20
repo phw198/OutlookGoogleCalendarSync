@@ -114,12 +114,13 @@ namespace OutlookGoogleCalendarSync.Google {
             tokenFullPath = Path.Combine(tokenStore.FolderPath, TokenFile);
 
             log.Debug("Google credential file location: " + Program.MaskFilePath(tokenFullPath));
-            if (!tokenFileExists)
+            Boolean newlyAuthorised = false;
+            if (newlyAuthorised = !tokenFileExists)
                 log.Info("No Google credentials file available - need user authorisation for OGCS to manage their calendar.");
             
             UserCredential credential = null;
             try {
-                if (authenticated && !SufficientPermissions) File.Delete(tokenFullPath);
+                if (newlyAuthorised = (authenticated && !SufficientPermissions)) File.Delete(tokenFullPath);
 
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, requiredScopes, "user", CancelTokenSource.Token, tokenStore);
@@ -135,6 +136,8 @@ namespace OutlookGoogleCalendarSync.Google {
                         Ogcs.Extensions.MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         throw new ApplicationException(noAuthGiven);
                     }
+                    if (newlyAuthorised)
+                        Forms.Main.Instance.Console.Update("Access authorised.", verbose: true);
                 }
 
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
