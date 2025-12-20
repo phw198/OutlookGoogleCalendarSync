@@ -139,7 +139,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         log.Info("User has provided Graph authorisation and credential file saved.");
 
                     if (authResult != null)
-                        Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
+                        Forms.Main.Instance.Console.Update("Access authorised.", verbose: true);
 
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
