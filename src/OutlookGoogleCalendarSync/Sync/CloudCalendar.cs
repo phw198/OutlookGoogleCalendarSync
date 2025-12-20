@@ -53,8 +53,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Ogcs.Outlook.Graph.Calendar.Instance.CancelledOccurrences = new();
                 if (!Ogcs.Google.Calendar.IsInstanceNull)
                     Ogcs.Google.Calendar.Instance.EphemeralProperties.Clear();
-                if (!Ogcs.Outlook.Calendar.IsInstanceNull) 
-                    Outlook.Calendar.Instance.EphemeralProperties.Clear();
                 if (!Ogcs.Outlook.Graph.Calendar.IsInstanceNull)
                     Outlook.Graph.Calendar.Instance.EphemeralProperties.Clear();
 

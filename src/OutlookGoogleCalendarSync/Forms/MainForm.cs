@@ -315,6 +315,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         rbOutlookDefaultMB.Checked = false;
                         rbOutlookAltMB.Checked = false;
                         rbOutlookSharedCal.Checked = false;
+                        if (!this.Visible) rbOutlookOnline_CheckedChanged(null, null);
                     } else if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
                         rbOutlookDefaultMB.Checked = true;
                         rbOutlookAltMB.Enabled = false;

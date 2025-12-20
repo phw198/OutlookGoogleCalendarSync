@@ -24,8 +24,6 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                     System.DateTime localEnd = (System.DateTime)utcEnd + ai.End.SafeDateTime().TimeOfDay;
                     utcEnd = localEnd.ToUniversalTime(); // TimeZoneInfo.ConvertTimeToUtc(localEnd, TimeZoneInfo.FindSystemTimeZoneById(Outlook.Calendar.Instance.IOutlook.GetEndTimeZoneID(ai)));
                 }
-            } else if (ai.Recurrence.Range.Type != Microsoft.Graph.RecurrenceRangeType.NoEnd) {
-                log.Warn($"Series range type of '{ai.Recurrence.Range.Type}' is not handled.");
             }
             gPattern.Add("RRULE:" + buildRrule(ai.Recurrence, utcEnd));
 
@@ -96,9 +94,16 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             if (oPattern.Range.Type == RecurrenceRangeType.Numbered) {
                 Google.Recurrence.addRule(rrule, "COUNT", oPattern.Range.NumberOfOccurrences.ToString());
 
-            } else if (oPattern.Range.Type == RecurrenceRangeType.EndDate && recurrenceEndUtc != null) {
-                log.Fine("Checking end date.");
-                Google.Recurrence.addRule(rrule, "UNTIL", Google.Recurrence.IANAdate((System.DateTime)recurrenceEndUtc));
+            } else if (oPattern.Range.Type == RecurrenceRangeType.EndDate) {
+                if (recurrenceEndUtc != null) {
+                    log.Fine("Checking end date.");
+                    Google.Recurrence.addRule(rrule, "UNTIL", Google.Recurrence.IANAdate((System.DateTime)recurrenceEndUtc));
+                } else {
+                    log.Error("Recurrence end date expected, but none found.");
+                }
+
+            } else if (oPattern.Range.Type != RecurrenceRangeType.NoEnd) {
+                log.Error($"Unexpected series range type '{oPattern.Range.Type}' encountered.");
             }
             #endregion
 
