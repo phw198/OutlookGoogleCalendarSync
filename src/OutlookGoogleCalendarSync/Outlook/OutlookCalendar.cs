@@ -1582,7 +1582,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 log.Info("Enhancing appointment's metadata...");
                                 AppointmentItem ai = outlook[o];
                                 CustomProperty.AddGoogleIDs(ref ai, google[g]);
-                                CustomProperty.Add(ref ai, CustomProperty.MetadataId.forceSave, "True");
+                                CustomProperty.Add(ref ai, CustomProperty.MetadataId.forceSave, true.ToString());
                                 outlook[o] = ai;
                                 metadataEnhanced++;
                             }

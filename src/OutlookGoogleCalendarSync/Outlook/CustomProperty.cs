@@ -94,7 +94,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public enum MetadataId {
             gEventID,
             gCalendarId,
-            ogcsModified,
+            ogcsModified,       //Associated with olDateTime type - deprecated due to truncation of seconds
+            ogcsModifiedText,   //Associated with olText type - format of yyyyMMddHHmmss
             forceSave,
             gMeetUrl,
             locallyCopied,
@@ -111,6 +112,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 case MetadataId.gEventID: return "googleEventID";
                 case MetadataId.gCalendarId: return "googleCalendarID";
                 case MetadataId.ogcsModified: return "OGCSmodified";
+                case MetadataId.ogcsModifiedText: return "OGCSmodifiedText";
                 case MetadataId.forceSave: return "forceSave";
                 default: return Id.ToString();
             }
@@ -278,7 +280,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
             add(ref ai, key, OlUserPropertyType.olText, value);
         }
         public static void Add(ref AppointmentItem ai, MetadataId key, DateTime value) {
-            add(ref ai, key, OlUserPropertyType.olDateTime, value);
+            if (key == MetadataId.ogcsModifiedText || key == MetadataId.ogcsModified /* Store deprecated key properly */)
+                //We can't use OlUserPropertyType.olDateTime, because the stupid OOM silently truncates it to the nearest minute!!
+                add(ref ai, MetadataId.ogcsModifiedText, OlUserPropertyType.olText, value.ToString("yyyyMMddHHmmss"));
+            else
+                //Only store in this way for date values not requiring accuracy greater than minutes
+                add(ref ai, key, OlUserPropertyType.olDateTime, value);
         }
         private static void add(ref AppointmentItem ai, MetadataId key, OlUserPropertyType keyType, object keyValue) {
             String addkeyName = metadataIdKeyName(key);
@@ -339,8 +346,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
             return retVal;
         }
-        private static DateTime get_datetime(AppointmentItem ai, MetadataId key) {
-            DateTime retVal = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        private static DateTime get_datetime(ref AppointmentItem ai, MetadataId key) {
+            DateTime minVal = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            DateTime retVal = minVal;
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
                 UserProperties ups = null;
@@ -348,22 +356,43 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 try {
                     ups = ai.UserProperties;
                     prop = ups.Find(searchKey);
-                    if (prop != null) {
-                        try {
-                            if (prop.Type != OlUserPropertyType.olDateTime) {
-                                log.Warn("Non-datetime property " + searchKey + " being retrieved as DateTime.");
-                                retVal = DateTime.Parse(prop.Value.ToString());
-                            } else
-                                retVal = (DateTime)prop.Value;
-                        } catch (System.Exception ex) {
-                            log.Error("Failed to retrieve DateTime value for property " + searchKey);
-                            Ogcs.Exception.Analyse(ex);
-                        }
+                    try {
+                        if (key == MetadataId.ogcsModifiedText && prop.Type == OlUserPropertyType.olText) {
+                            if (!DateTime.TryParseExact(prop.Value.ToString(), "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out retVal)) {
+                                retVal = minVal;
+                                throw new InvalidCastException($"Property {searchKey} with a DateTime value of '{prop.Value}' was not of the expected format yyyyMMddHHmmss");
+                            }
+
+                        } else if (key == MetadataId.ogcsModified && prop.Type == OlUserPropertyType.olDateTime) {
+                            UserProperty migrateProp = null;
+                            try {
+                                log.Info("Migrating away from deprecated olDateTime user property for ogcsModified.");
+                                migrateProp = ups.Find(searchKey);
+                                retVal = (DateTime)migrateProp.Value;
+                                Add(ref ai, MetadataId.ogcsModifiedText, retVal);
+                                migrateProp.Delete();
+                                Add(ref ai, MetadataId.forceSave, true.ToString());
+                            } finally {
+                                migrateProp = (UserProperty)Outlook.Calendar.ReleaseObject(migrateProp);
+                            }
+
+                        } else if (prop.Type != OlUserPropertyType.olDateTime) {
+                            log.Warn("Non-datetime property " + searchKey + " being retrieved as DateTime.");
+                            retVal = DateTime.Parse(prop.Value.ToString());
+
+                        } else retVal = (DateTime)prop.Value;
+
+                    } catch (System.Exception ex) {
+                        ex.Analyse("Failed to retrieve DateTime value for property " + searchKey);
                     }
+
                 } finally {
                     prop = (UserProperty)Calendar.ReleaseObject(prop);
                     ups = (UserProperties)Calendar.ReleaseObject(ups);
                 }
+
+            } else if (key == MetadataId.ogcsModifiedText && Exists(ai, MetadataId.ogcsModified)) {
+                retVal = get_datetime(ref ai, MetadataId.ogcsModified);
             }
             return retVal;
         }
@@ -374,6 +403,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Remove(ref ai, MetadataId.forceSave);
             Remove(ref ai, MetadataId.locallyCopied);
             Remove(ref ai, MetadataId.ogcsModified);
+            Remove(ref ai, MetadataId.ogcsModifiedText);
         }
         public static void Remove(ref AppointmentItem ai, MetadataId key) {
             String searchKey;
@@ -404,6 +434,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 metadataIdKeyName(MetadataId.gMeetUrl),
                 metadataIdKeyName(MetadataId.locallyCopied),
                 metadataIdKeyName(MetadataId.ogcsModified),
+                metadataIdKeyName(MetadataId.ogcsModifiedText),
                 metadataIdKeyName(MetadataId.originalStartDate)
             };
             Boolean removedProperty = false;
@@ -430,10 +461,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static DateTime GetOGCSlastModified(AppointmentItem ai) {
-            return get_datetime(ai, MetadataId.ogcsModified);
+            return get_datetime(ref ai, MetadataId.ogcsModifiedText);
         }
         public static void SetOGCSlastModified(ref AppointmentItem ai) {
-            Add(ref ai, MetadataId.ogcsModified, DateTime.Now);
+            Add(ref ai, MetadataId.ogcsModifiedText, DateTime.Now);
         }
 
         /// <summary>
