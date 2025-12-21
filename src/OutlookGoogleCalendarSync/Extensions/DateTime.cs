@@ -38,14 +38,29 @@ namespace OutlookGoogleCalendarSync.Extensions {
     }
 
     public static class DateTime {
+        /// <summary>This used to be the string format Google held date-times, eg "2012-08-20T00:00:00+02:00"</summary>
+        private static String preciseString = "yyyy-MM-ddTHH:mm:ssZ";
+
+        /// <summary>
+        /// Returns the DateTimeOffset, if parsable.
+        /// </summary>
+        /// <param name="dt">Date-time string value</param>
+        /// <returns>Parsed DateTimeOffset</returns>
+        public static DateTimeOffset GetPreciseDate(this String dt) {
+            DateTimeOffset retVal;
+            if (!DateTimeOffset.TryParseExact(dt, preciseString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out retVal)) {
+                throw new FormatException($"DateTime string value of '{dt}' was not of the expected format {preciseString}.");
+            }
+            return retVal;
+        }
+
         /// <summary>
         /// Returns the DateTime with time and GMT offset.
-        /// This used to be the string format Google held date-times, eg "2012-08-20T00:00:00+02:00"
         /// </summary>
-        /// <param name="dt">Date-time valule</param>
+        /// <param name="dt">Date-time value</param>
         /// <returns>Formatted string</returns>
         public static String ToPreciseString(this System.DateTimeOffset dt) {
-            return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", new CultureInfo("en-US"));
+            return dt.ToUniversalTime().ToString(preciseString, CultureInfo.InvariantCulture);
         }
 
         /// <summary>

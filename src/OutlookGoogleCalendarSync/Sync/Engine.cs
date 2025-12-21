@@ -111,7 +111,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
         }
 
-        /// <summary>The time the current sync started</summary>
+        /// <summary>The local time the current sync started</summary>
         public DateTime SyncStarted { get; protected set; }
 
         public AbortableBackgroundWorker bwSync { get; private set; }
