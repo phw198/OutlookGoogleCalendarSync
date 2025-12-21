@@ -2,6 +2,7 @@
 using Google.Apis.Calendar.v3.Data;
 using log4net;
 using Microsoft.Office.Interop.Outlook;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -244,8 +245,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
             add(ref ev, addkeyName, value, keySet);
         }
-        private static void Add(ref Event ev, MetadataId key, DateTime value) {
-            Add(ref ev, key, value.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture));
+        private static void Add(ref Event ev, MetadataId key, DateTimeOffset value) {
+            Add(ref ev, key, value.ToPreciseString());
         }
         private static void add(ref Event ev, String keyName, String keyValue, int? keySet) {
             if (keySet.HasValue && keySet.Value != 0) keyName += "-" + keySet.Value.ToString("D2");
@@ -308,29 +309,35 @@ namespace OutlookGoogleCalendarSync.Google {
             return removedProperty;
         }
 
-        public static DateTime GetOGCSlastModified(Event ev) {
+        public static DateTimeOffset GetOGCSlastModified(Event ev) {
             if (Exists(ev, MetadataId.ogcsModified)) {
                 String lastModded = Get(ev, MetadataId.ogcsModified);
                 try {
-                    return DateTime.ParseExact(lastModded, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    return lastModded.GetPreciseDate();
                 } catch (System.FormatException) {
-                    //Bugfix <= v2.2, 
-                    log.Fine("Date wasn't stored as invariant culture.");
-                    DateTime retDate;
-                    if (DateTime.TryParse(lastModded, out retDate)) {
-                        log.Fine("Fall back to current culture successful.");
-                        return retDate;
-                    } else {
-                        log.Debug("Fall back to current culture for date failed. Last resort: setting to a month ago.");
-                        return DateTime.Now.AddMonths(-1);
+                    try {
+                        //Deprecated format <= v2.11.6
+                        log.Fine("Date wasn't stored as precise UTC value. Trying to parse with deprecated local time.");
+                        return System.DateTime.ParseExact(lastModded, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    } catch (System.FormatException) {
+                        //Bugfix <= v2.2, 
+                        log.Fine("Date wasn't stored as invariant culture.");
+                        System.DateTime retDate;
+                        if (System.DateTime.TryParse(lastModded, out retDate)) {
+                            log.Fine("Fall back to current culture successful.");
+                            return retDate;
+                        } else {
+                            log.Fail("Fall back to current culture for date failed. Last resort: setting to a month ago.");
+                            return System.DateTime.Now.AddMonths(-1);
+                        }
                     }
                 }
             } else {
-                return new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                return new System.DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             }
         }
         public static void SetOGCSlastModified(ref Event ev) {
-            Add(ref ev, MetadataId.ogcsModified, DateTime.Now);
+            Add(ref ev, MetadataId.ogcsModified, System.DateTime.UtcNow);
         }
 
         /// <summary>
