@@ -230,10 +230,9 @@ namespace OutlookGoogleCalendarSync.Google {
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
             if (!Ogcs.Google.Calendar.IsInstanceNull) {
-                Ogcs.Google.Calendar.Instance.Authenticator = null;
+                Ogcs.Google.Calendar.Instance.Authenticator = new Authenticator();
                 Ogcs.Google.Calendar.Instance.Service = null;
                 if (reauthorise) {
-                    Ogcs.Google.Calendar.Instance.Authenticator = new Authenticator();
                     Ogcs.Google.Calendar.Instance.Authenticator.GetAuthenticated();
                 }
             }
