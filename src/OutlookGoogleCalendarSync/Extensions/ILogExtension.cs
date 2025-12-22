@@ -125,7 +125,7 @@ namespace OutlookGoogleCalendarSync {
                 }
                 //"2018-07-14 17:22:41,740 DEBUG  10 OutlookGoogleCalendarSync.XMLManager [59] -  Retrieved setting 'CloudLogging' with value 'true'"
                 //We want the logging level and the message strings
-                Regex rgx = new Regex(@"^\d{4}-\d{2}-\d{2}\s[\d:,]+\s(\w+)\s+\d+\s[\w\.]+\s\[\d+\]\s-\s+(.*?)$", RegexOptions.IgnoreCase);
+                Regex rgx = new Regex(@"^\d{4}-\d{2}-\d{2}\s[\d:,]+\s(\w+)\s+\d+\s+([\w\.]+\s\[\d+\]\s-\s+.*?)$", RegexOptions.IgnoreCase);
                 foreach (String line in lines.Skip(lines.Count - 50).ToList()) {
                     MatchCollection matches = rgx.Matches(line);
                     if (matches.Count > 0) {
@@ -134,8 +134,9 @@ namespace OutlookGoogleCalendarSync {
                             case "DEBUG": log.Debug(matches[0].Groups[2]); break;
                             case "INFO": log.Info(matches[0].Groups[2]); break;
                             case "WARN": log.Warn(matches[0].Groups[2]); break;
+                            case "FAIL": log.Warn("FAIL: " + matches[0].Groups[2]); break;
                             case "ERROR": log.Error(matches[0].Groups[2]); break;
-                            default: log.Debug(matches[0].Groups[2]); break;
+                            default: log.Debug(matches[0].Groups[1] + ": " + matches[0].Groups[2]); break;
                         }
 
                     } else log.Debug(line);
