@@ -104,6 +104,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             } else {
                                 log.Info("User opted to retry sync straight away.");
                                 mainFrm.Console.Clear();
+                                if (Outlook.Calendar.ForceClientReconnect) Outlook.Calendar.Instance.Reset();
                                 Sync.Engine.Instance.bwSync = new AbortableBackgroundWorker() {
                                     //Don't need thread to report back. The logbox is updated from the thread anyway.
                                     WorkerReportsProgress = false,
