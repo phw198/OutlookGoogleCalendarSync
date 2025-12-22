@@ -132,7 +132,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (cloudLoggingEnabled) {
                     if (cloudLogger.Threshold != log4net.Core.Level.All) {
                         cloudLogger.Threshold = log4net.Core.Level.All;
-                        log.Info("Turned error reporting ON");
+                        log.Info("Turned error reporting ON. Anonymous ID: "+ LogUuid);
                     }
                 } else {
                     if (cloudLogger.Threshold != log4net.Core.Level.Off) {
