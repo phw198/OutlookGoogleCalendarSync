@@ -280,7 +280,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v11_2003.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v11_2003\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -289,7 +289,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v12_2007.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v12_2007\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -298,7 +298,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v14_2010.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v14_2010\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
