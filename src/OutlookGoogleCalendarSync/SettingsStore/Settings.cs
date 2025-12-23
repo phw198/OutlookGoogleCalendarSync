@@ -44,8 +44,6 @@ namespace OutlookGoogleCalendarSync {
                 if (!Program.IsInstalled)
                     XMLManager.ExportElement(Settings.Instance, "Portable", true, ConfigFile);
             }
-
-            log.Info("Running OGCS from " + Program.MaskFilePath(System.Windows.Forms.Application.ExecutablePath));
         }
 
         private static Settings instance;

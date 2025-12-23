@@ -150,6 +150,7 @@ namespace OutlookGoogleCalendarSync {
             Dictionary<String, String> settingsArg = parseArgument(args, 's');
             Settings.InitialiseConfigFile(settingsArg["Filename"], settingsArg["Directory"]);
 
+            log.Info("Running OGCS from " + MaskFilePath(Application.ExecutablePath));
             log.Info("Storing user files in directory: " + MaskFilePath(UserFilePath));
 
             //Before settings have been loaded, early config of cloud logging
