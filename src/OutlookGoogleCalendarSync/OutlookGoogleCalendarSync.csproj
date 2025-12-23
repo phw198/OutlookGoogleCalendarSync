@@ -717,4 +717,8 @@
   <PropertyGroup>
     <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="ShowTargetDir" AfterTargets="Build">
+    <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
+    <Message Text="TargetDir Value: $(TargetDir)" Importance="High" />
+  </Target>
 </Project>
