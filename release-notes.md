@@ -36,6 +36,39 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.11.7.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Application
+    - Validation on browser user agent; always editable [[#2195](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2195)]
+    - Log time zone information when a change is detected [[#2233](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2233)]
+    - Workaround Google cloud logging losing data that includes FAIL events
+    - Provision for automatic upgrades to OGCS v2 releases, once v3 is available
+
+:beetle: **Bugfix**
+- Application
+    - Cleaner startup when no classic Outlook client present
+    - Fixed error when attempting to skip a release [[#2192](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2192)]
+    - Fixed error after resetting Google connection [[#2234](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2234)]
+- Sync Engine
+    - Properly initialise sync timer after Profile import [[#2177](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2177)]
+    - Force reconnect to Outlook when calendar items become unavailable [[#2185](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2185)]
+    - Improved storage of last modified timestamp [[#2238](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2238)]
+
+<br/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.11.6.0 - Alpha
 
 :high_brightness: **Enhancements**
