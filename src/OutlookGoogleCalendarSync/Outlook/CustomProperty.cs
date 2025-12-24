@@ -367,23 +367,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             }
 
                         } else if (key == MetadataId.ogcsModified && prop.Type == OlUserPropertyType.olDateTime) {
-                            UserProperty migrateProp = null;
-                            try {
-                                log.Info("Migrating away from deprecated olDateTime user property for ogcsModified.");
-                                migrateProp = ups.Find(searchKey);
-                                retVal = new System.DateTime(((System.DateTime)migrateProp.Value).Ticks, DateTimeKind.Local);
-                                Add(ref ai, MetadataId.ogcsModifiedText, retVal);
-                                migrateProp.Delete();
-                                Add(ref ai, MetadataId.forceSave, true.ToString());
-                            } finally {
-                                migrateProp = (UserProperty)Outlook.Calendar.ReleaseObject(migrateProp);
-                            }
+                            log.Info("Migrating away from deprecated olDateTime user property for ogcsModified.");
+                            retVal = new System.DateTime(((System.DateTime)prop.Value).Ticks, DateTimeKind.Local);
+                            Add(ref ai, MetadataId.ogcsModifiedText, retVal);
+                            prop.Delete();
+                            Add(ref ai, MetadataId.forceSave, true.ToString());
 
-                        } else if (prop.Type != OlUserPropertyType.olDateTime) {
-                            log.Warn("Non-datetime property " + searchKey + " being retrieved as DateTime.");
+                        } else {
+                            log.Warn($"Property '{searchKey}' of type {prop.Type.ToString()} being retrieved as DateTime.");
                             retVal = System.DateTime.Parse(prop.Value.ToString());
-
-                        } else retVal = (System.DateTime)prop.Value;
+                        }
 
                     } catch (System.Exception ex) {
                         ex.Analyse("Failed to retrieve DateTime value for property " + searchKey);
