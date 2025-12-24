@@ -155,13 +155,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void UpgradeCompleted() {
-            if (this.Visible) btUpgrade.Text = "Restart";
+            if (this.Visible) btUpgrade.Text = "Restart OGCS";
             else
                 Ogcs.Extensions.MessageBox.Show("The application has been updated and will now restart.",
                     "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public Boolean AwaitingRestart { 
-            get { return btUpgrade.Text == "Restart" && this.Visible; }
+            get { return btUpgrade.Text == "Restart OGCS" && this.Visible; }
         }
 
         private String cachedWebPage;

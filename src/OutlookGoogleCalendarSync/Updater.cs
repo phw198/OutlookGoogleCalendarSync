@@ -128,32 +128,24 @@ namespace OutlookGoogleCalendarSync {
                     log.Info("Found " + updates.ReleasesToApply.Count() + " newer releases available.");
                     log.Info("Download directory = " + updates.PackageDirectory);
 
-                    DialogResult dr = DialogResult.Cancel;
-                    String squirrelAnalyticsLabel = "";
-                    String releaseNotes = "";
-                    String releaseVersion = "";
-                    String releaseType = "";
-                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
-
-                    Boolean manualV2UpgradeRequired = false;
                     if (!this.isManualCheck) {
                         if (updates.CurrentlyInstalledVersion?.Version.Version.Major == 2) {
                             if (updates.ReleasesToApply.Last().Version.Version.Major == 3) {
-                                System.Collections.Generic.List<ReleaseEntry> trimmedReleasesToApply = null;
+                                System.Collections.Generic.List<ReleaseEntry> releasesToRemove = null;
 
-                                if (Settings.Instance.SkipVersion.StartsWith("3") && Settings.Instance.SkipVersion == updates.ReleasesToApply.Last().Version.Version.ToString()) {
+                                if ((Settings.Instance.SkipVersion?.StartsWith("3") ?? false) && Settings.Instance.SkipVersion == updates.ReleasesToApply.Last().Version.Version.ToString()) {
                                     log.Info($"The user has previously requested to skip the latest v3 release.");
-                                    trimmedReleasesToApply = updates.ReleasesToApply.Where(r => r.Version.Version.Major != 3).ToList();
-                                    log.Debug($"Removed v3 releases which leaves {trimmedReleasesToApply.Count} v2 newer release available.");
-                                    if (trimmedReleasesToApply.Count == 0) return false;
+                                    releasesToRemove = updates.ReleasesToApply.Where(r => r.Version.Version.Major == 3).ToList();
+                                    log.Debug($"Identified {releasesToRemove.Count} v3 release(s) to remove and skip.");
+                                    releasesToRemove.Reverse();
+                                    foreach (ReleaseEntry release in releasesToRemove) {
+                                        log.Debug($"Removing release {release.Version.Version.ToString()}");
+                                        updates.ReleasesToApply.Remove(release);
+                                    }
 
-                                    manualV2UpgradeRequired = true;
-                                    releaseVersion = trimmedReleasesToApply.Last().Version.Version.ToString();
-                                    releaseType = trimmedReleasesToApply.Last().Version.SpecialVersion;
+                                    if (updates.ReleasesToApply.Count == 0) return false;
                                 }
-                                trimmedReleasesToApply ??= updates.ReleasesToApply;                               
-
-                                if (Settings.Instance.SkipVersion2 == trimmedReleasesToApply.Last().Version.Version.ToString()) {
+                                if (Settings.Instance.SkipVersion2 == updates.ReleasesToApply.Last().Version.Version.ToString()) {
                                     log.Info("The user has previously requested to skip the latest v2 release.");
                                     return false;
                                 }
@@ -161,11 +153,17 @@ namespace OutlookGoogleCalendarSync {
                         }
                     }
 
+                    DialogResult dr = DialogResult.Cancel;
+                    String squirrelAnalyticsLabel = "";
+                    String releaseNotes = "";
+                    String releaseVersion = "";
+                    String releaseType = "";
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
 
                     foreach (ReleaseEntry update in updates.ReleasesToApply.OrderBy(x => x.Version).Reverse()) {
                         log.Info("New " + update.Version.SpecialVersion + " version available: " + update.Version.Version.ToString());
 
-                        if (!this.isManualCheck && !manualV2UpgradeRequired && update.Version.Version.ToString() == Settings.Instance.SkipVersion && update == updates.ReleasesToApply.Last()) {
+                        if (!this.isManualCheck && update.Version.Version.ToString() == Settings.Instance.SkipVersion && update == updates.ReleasesToApply.Last()) {
                             log.Info("The user has previously requested to skip this version.");
                             return false;
                         }
@@ -203,7 +201,6 @@ namespace OutlookGoogleCalendarSync {
                         }
 
                         if (string.IsNullOrEmpty(releaseNotes)) {
-                            if (manualV2UpgradeRequired && releaseVersion != update.Version.Version.ToString()) continue;
                             log.Debug("Retrieving release notes.");
                             releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
                             releaseVersion = update.Version.Version.ToString();
@@ -211,13 +208,14 @@ namespace OutlookGoogleCalendarSync {
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + releaseVersion;
                         }
                     }
+                    /* How to inject a message at the top of the release notes:-
                     if (manualV2UpgradeRequired) {
                         String manualUpgradeNotes = "<p><h2>Manual Upgrade Required</h2></p>"+
                             "<p>To continue using v2 releases, the <a href='http://www.outlookgooglecalendarsync.com'>OGCS_Setup.exe file must be manually downloaded</a>."+
                             "<br/>Please ensure you close the OGCS application before running the setup executable.</p>";
                         releaseNotes = releaseNotes.Replace("<![CDATA[\n", "<![CDATA[\n" + manualUpgradeNotes);
                     }
-
+                    */
                     var t = new System.Threading.Thread(() => updateInfoFrm = new Forms.UpdateInfo(releaseVersion, releaseType, releaseNotes, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
                     t.Start();
@@ -333,7 +331,7 @@ namespace OutlookGoogleCalendarSync {
             } finally {
                 isBusy = false;
                 updateInfoFrm?.Dispose();
-                updateManager.Dispose();
+                updateManager?.Dispose();
             }
             return false;
         }
