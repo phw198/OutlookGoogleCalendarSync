@@ -1607,7 +1607,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
                 for (int g = google.Count - 1; g >= 0; g--) {
                     if (!CustomProperty.Exists(google[g], CustomProperty.MetadataId.oEntryId) ||
-                        CustomProperty.GetOGCSlastModified(google[g]) > Sync.Engine.Instance.SyncStarted)
+                        google[g].UpdatedDateTimeOffset > Sync.Engine.Instance.SyncStarted)
                         google.Remove(google[g]);
                 }
             }
