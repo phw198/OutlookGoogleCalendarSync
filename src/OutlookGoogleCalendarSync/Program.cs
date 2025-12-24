@@ -82,10 +82,11 @@ namespace OutlookGoogleCalendarSync {
                     Application.Run(new Forms.Main(startingTab));
                 } catch (ApplicationException ex) {
                     String reportError = ex.Message;
-                    log.Fatal(reportError);
+                    Boolean suppressCloudLogPrompt = (ex.Data.Count > 0 && ex.Data.Contains("SuppressCloudLogPrompt"));
+                    if (suppressCloudLogPrompt) log.Fail(reportError); else log.Fatal(reportError);
                     if (ex.InnerException != null) {
                         reportError = ex.InnerException.Message;
-                        log.Fatal(reportError);
+                        if (suppressCloudLogPrompt) log.Fail(reportError); else log.Fatal(reportError);
                     }
                     MessageBox.Show(reportError, "Application terminated!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     throw new ApplicationException(ex.Message.StartsWith("COM error") ? "Suggest startup delay" : "");
