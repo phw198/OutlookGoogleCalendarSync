@@ -258,12 +258,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             if (delay == maxDelay) {
                                 if (ex2.GetErrorCode() == "0x80004004") { //E_ABORT
                                     log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                                } else ex2.Analyse();
+                                } else if (Outlook.Errors.HandleComError(ex2) == Errors.ErrorType.Unhandled)
+                                    ex2.Analyse();
                                 log.Warn("OGCS is unable to obtain CurrentUser from Outlook.");
                                 profile.OutlookGalBlocked = true;
                                 return oNS;
                             }
-                            Ogcs.Exception.Analyse(ex2);
+                            if (Outlook.Errors.HandleComError(ex2) == Errors.ErrorType.Unhandled)
+                                ex2.Analyse();
                         }
                         delay++;
                     }
