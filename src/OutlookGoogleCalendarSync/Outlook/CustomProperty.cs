@@ -369,7 +369,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         if (key == MetadataId.ogcsModifiedText && prop.Type == OlUserPropertyType.olText) {
                             try {
-                                retVal = prop.Value.ToString().GetPreciseDate();
+                                //Without explicit cast to String, follow error:-
+                                //Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'string' does not contain a definition for 'GetPreciseDate'
+                                retVal = ((String)prop.Value.ToString()).GetPreciseDate();
                             } catch (FormatException) {
                                 retVal = minVal;
                                 throw;
