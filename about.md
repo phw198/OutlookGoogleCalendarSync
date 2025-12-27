@@ -22,5 +22,5 @@ See the [history of enhancements](release-notes) and bug fixes thus far.
 
 If you would like to support this tool and its further development, your donations are very welcome...
 
-<div align="center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT46CXQDSSYWJ&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section" alt="Donate" onClick="handleClickEvent('outbound', 'Donate');"><img src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif"/></a>
+<div align="center"><a href="/donate" alt="Donate"><img src="images/donate-button.png"/></a>
 
