@@ -49,7 +49,18 @@
     </script>
     
     {% if site.google_ad_client %}
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
+    <!--script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script-->
+    <script language="JavaScript">
+      let suppressAds = getCookie("suppressAds");
+
+      if (!suppressAds && window.location.pathname != "/patreon/example") {
+        var script = document.createElement('script');
+        script.async = true;
+        script.crossorigin = "anonymous";
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+        document.head.appendChild(script);
+      }
+    </script>
     
     <script async src="https://fundingchoicesmessages.google.com/i/pub-5710461137665920?ers=1" nonce="VNz3dNeEBSaMF7EIcJpfnA"></script>
     <script nonce="VNz3dNeEBSaMF7EIcJpfnA">
