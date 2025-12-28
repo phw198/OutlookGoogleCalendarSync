@@ -5,9 +5,8 @@ title: Donate &amp; Support OGCS
 # Donate &amp; Support OGCS
 <br/>
 Thanks so much for thinking to donate :blush:  
-Please make donations via PayPal - though if this is not available in your country, try Stripe.
 
-:bulb: £10 or more to enable splash screen hiding
+<p style="margin-left: -22px">:bulb: £10 or more to enable splash screen hiding</p>
 
 <span id="gAccountSection">
   Provide the Google account you are using with OGCS to ensure splash screen hiding can be activated.<br/>
@@ -17,6 +16,8 @@ Please make donations via PayPal - though if this is not available in your count
 </span>
 
 ## With PayPal
+Please make donations via PayPal if possible.  
+No account is needed and payments can be made by card in your local currency.
 
 <p style="text-align: center">
   <a href="#" onClick="donate('paypal');">
@@ -25,14 +26,16 @@ Please make donations via PayPal - though if this is not available in your count
 </p>
 
 ## With Stripe
+An alternative to PayPal if it's not available in your country.
 
 After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted here: -<br/><img src="/images/stripe-donate-field.png"/>
 <style>
   .stripe-donate-pill {
     background-color: #635bff; /* Stripe Purple */
     color: white;
-    padding: 3px 20px;
+    padding: 5px 20px;
     text-decoration: none;
+    font-size: 14px;
     font-weight: bold;
     border-radius: 50px; 
     display: inline-block;
@@ -42,16 +45,41 @@ After clicking the donate button, on the next screen please *manually* enter you
   }
 </style>
 <p style="text-align: center">
-  <a href="#" class="stripe-donate-pill" onClick="donate('stripe');" style="a:hover.color: white">Donate Now</a>
+  <a href="https://donate.stripe.com/8wM4h4e981DtdgceUU" class="stripe-donate-pill" onClick="handleClickEvent('outbound', 'Donate');" style="a:hover.color: white">Donate with Stripe</a>
 </p>
 
 
 
 <script language="JavaScript">
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    // Encodes characters like spaces or semicolons
+    document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value || "") + expires + "; path=/; SameSite=Lax; Secure";
+  }
+  function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';'); // Split all cookies into an array
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim(); // Remove leading spaces
+      if (c.indexOf(nameEQ) === 0) {
+        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+    }
+    return null;
+  }
+
+
   function donate(platform) {
-    //handleClickEvent('outbound', 'Donate');
+    {% if site.google_ad_testing == "off" %}
+    handleClickEvent('outbound', 'Donate');
+    {% endif %}
     
-   if (platform == "paypal") {
+    if (platform == "paypal") {
       const paypalButtonId = "44DUQ7UT6WE2C";
       var donateItemName = "Outlook%20Google%20Calendar%20Sync";
       try {
@@ -68,55 +96,36 @@ After clicking the donate button, on the next screen please *manually* enter you
           }
         }
 
-        // window.alert(currencyButtons[currencyCode]);
-
       } catch {
         donateItemName += "%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section"
         window.location = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id="+ paypalButtonId +"&item_name="+ donateItemName;
       }
-    } else if (platform == "stripe") {
-      window.location = "https://donate.stripe.com/8wM4h4e981DtdgceUU";
     }
   }
   
   //Get Google account, if available, and hide the manual entry input section
   var gaccount = null;
+  var gaccountCookie = null;
   const inputField = document.getElementById("gAccountTxt");
   const stripeText = document.getElementById("stripe-email");
+  let visibility = "visible";
   try {
     gaccount = new URL(window.location.href).searchParams.get("id");
-    if (gaccount != null && gaccount != "") {
-      inputField.value = atob(gaccount);
-      stripeText.innerHTML = atob(gaccount) +" ";
-      document.getElementById("gAccountSection").style.display = "none";
+    if (gaccount != null && gaccount != "#" && gaccount.length > 0) {
+      setCookie("googleAccount", gaccount, 30);
+      visibility = "none";
+    } else {
+      gaccount = getCookie("googleAccount");
     }
+    if (visibility == "none" || gaccount.length > 0) {
+      inputField.value = atob(gaccount);
+      stripeText.innerHTML = inputField.value +" ";
+    }
+    document.getElementById("gAccountSection").style.display = visibility;
   } catch { }
-
-  //Dynamically update the Stripe prompt text from the manual input
-  const displayDiv = document.getElementById('displayArea');
 
   // Listen for the 'input' event for real-time updates
   inputField.addEventListener('input', (event) => {
       stripeText.innerHTML = event.target.value +" ";
   });
 </script>
-
-
-
-
-<!--table border="0">
-  <tr><td align="center">
-    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-
-    <stripe-buy-button
-      buy-button-id="buy_btn_1SXzwFRpmZ2dnHQ0d0z9Pixq"
-      publishable-key="pk_live_51QBaC3RpmZ2dnHQ0iaXfoLwUv1dpwUktTb3KwfXpcID37dxXVMBkAd8V32w3tmOaRAFPqxIvRKk4BrSYP5BnrfLs00V1r3tdik"
-      customer-email="foo@bar.com"
-    >
-    </stripe-buy-button>
-  </td></tr>
-</table>
-<script>
-      //data-payment-link="https://donate.stripe.com/prefilled_email=me%40awesome.com"
-      </script-->
-
