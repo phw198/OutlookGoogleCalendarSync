@@ -10,7 +10,7 @@ Thanks so much for thinking to donate :blush:
 
 <span id="gAccountSection">
   Provide the Google account you are using with OGCS to ensure splash screen hiding can be activated.<br/>
-  This can be found in `Settings` > `Google` > `Connected Account`.<br/><br/>
+  This can be found in the app under `Settings` > `Google` > `Connected Account`.<br/><br/>
   <label for="gAccountTxt">Google Account:</label>
   <input type="text" id="gAccountTxt" name="gAccountTxt" size="50"/>
 </span>
@@ -26,7 +26,7 @@ No account is needed and payments can be made by card in your local currency.
 </p>
 
 ## With Stripe
-An alternative to PayPal if it's not available in your country.
+An alternative to PayPal if that's not available in your country.
 
 After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted here: -<br/><img src="/images/stripe-donate-field.png"/>
 <style>
