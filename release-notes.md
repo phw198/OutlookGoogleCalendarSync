@@ -31,6 +31,7 @@ p {
   var gaccount = new URL(window.location.href).searchParams.get("id");
   if (gaccount != null && gaccount != "") {
     donate_item_name = "Outlook Google Calendar Sync from " + atob(gaccount);
+    setCookie("googleAccount", gaccount, 30);
   }
   var paypalUrl = document.getElementById("donateButton")
   document.getElementById("donateButton").href += donate_item_name
