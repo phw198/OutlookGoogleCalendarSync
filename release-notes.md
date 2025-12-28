@@ -57,7 +57,6 @@ p {
     - Improved storage of last modified timestamp [[#2238](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2238)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -91,7 +90,6 @@ p {
     - Log anonymised calendar subjects for item deletions [[#2149](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2149)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -123,7 +121,6 @@ p {
         - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -160,7 +157,6 @@ p {
     - Specify UTC time zone for Google event retrieval (regression) [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -193,7 +189,6 @@ p {
     - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -224,7 +219,6 @@ p {
     - Retrieve Google Event in UTC time zone [[#2026](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2026)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -259,7 +253,6 @@ p {
     - Fixed premature deletion warnings in two-way sync [[#1999](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1999)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -313,7 +306,6 @@ p {
         - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -345,7 +337,6 @@ p {
 - Miscellaneous bugfixes
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -374,7 +365,6 @@ p {
 - Exclude "Working Location" Google event type during 2-way sync [[#1843](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1843)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -403,7 +393,6 @@ p {
 - Handle connection issues to alternate mailboxes when refreshing Outlook categories [[#1823](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1823)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -433,7 +422,6 @@ p {
 - Cropped text on Google 'Retrieve Calendars' screen [[#1730](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1730)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -465,7 +453,6 @@ p {
 - Previously synced exclusion no longer deleted when reinstated [[#1686](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1686)]
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -499,7 +486,6 @@ p {
 - Better API quota management
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -533,7 +519,6 @@ p {
 - 2-way: Don't delete from Google items that were filtered out from Outlook
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -568,7 +553,6 @@ p {
 - Check a schedule is configured when enable/disable sync
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -600,7 +584,6 @@ p {
 - Improved handling of startup registry keys
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -628,7 +611,6 @@ p {
 - Handle being disconnected from Outlook when retrieving categories
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -660,7 +642,6 @@ p {
 - Improved parsing of colour maps and empty maps
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -684,7 +665,6 @@ p {
 - Remove alt-tab icon when minimised to system tray
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -709,7 +689,6 @@ p {
 - Fix "the given key was not in the dictionary"
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -735,7 +714,6 @@ p {
 - Fix end time of all day recurring items in non-GMT timezone
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -766,7 +744,6 @@ p {
 - Set Outlook organisers as having "accepted" in Google
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -799,7 +776,6 @@ p {
 - Regression bug syncs every minute after manual sync, even with no schedule
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -832,7 +808,6 @@ p {
 - Default Google reminder errors if only email notification set on event
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -867,7 +842,6 @@ p {
 - Improved support for Outlook2003
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -896,7 +870,6 @@ p {
 - Properly report Google API exception errors
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -928,7 +901,6 @@ p {
 - Fix error reporting DLL reference
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -956,7 +928,6 @@ p {
 - Error reporting DLLs updated
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
@@ -988,7 +959,6 @@ p {
 - Don't allow sync if Error Reporting window displaying
 
 <br/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ad_client }}" crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
      data-ad-layout="in-article"
