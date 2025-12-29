@@ -26,7 +26,7 @@ No account is needed and payments can be made by card in your local currency.
 </p>
 
 ## With Stripe
-An alternative to PayPal if that's not available in your country.
+An alternative to PayPal if that's not available in your country (eg Japan).
 
 After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted here: -<br/><img src="/images/stripe-donate-field.png"/>
 <style>
