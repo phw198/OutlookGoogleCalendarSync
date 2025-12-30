@@ -11,8 +11,9 @@ Thanks so much for thinking to donate :blush:
 <span id="gAccountSection">
   Provide the Google account you are using with OGCS to ensure splash screen hiding can be activated.<br/>
   This can be found in the app under `Settings` > `Google` > `Connected Account`.<br/><br/>
-  <label for="gAccountTxt">Google Account:</label>
-  <input type="text" id="gAccountTxt" name="gAccountTxt" size="50"/>
+  <label for="gAccountTxt">Google Account email address:</label>
+  <input type="email" id="gAccountTxt" name="gAccountTxt" size="50" required/>
+  <span id="invalidEmailMsg" style="color: indianred; font-size: smaller;"></span>
 </span>
 
 ## With PayPal
@@ -101,8 +102,27 @@ After clicking the donate button, on the next screen please *manually* enter you
     document.getElementById("gAccountSection").style.display = visibility;
   } catch { }
 
+  function validateEmail(email) {
+    // This pattern checks for:
+    // 1. Local part (letters, numbers, and certain special characters)
+    // 2. The '@' symbol
+    // 3. Domain part (letters, numbers, hyphens)
+    // 4. A dot followed by a TLD of at least 2 characters
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
+  const errorDisplay = document.getElementById('invalidEmailMsg');
+
   // Listen for the 'input' event for real-time updates
   inputField.addEventListener('input', (event) => {
     stripeText.innerHTML = event.target.value +" ";
+
+    if (!validateEmail(event.target.value)) {
+        errorDisplay.textContent = "The email address does not look valid.";
+        errorDisplay.style.display = "block";
+    } else {
+        errorDisplay.style.display = "none";
+    }
   });
 </script>
