@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace OutlookGoogleCalendarSync {
     public class TimezoneDB {
         private static TimezoneDB instance;
-        private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
+        private static readonly ILog log = LogManager.GetLogger(typeof(TimezoneDB));
         private TzdbDateTimeZoneSource source;
         private const String tzdbFilename = "tzdb.nzd";
         private String tzdbFile {
@@ -17,8 +17,7 @@ namespace OutlookGoogleCalendarSync {
 
         public static TimezoneDB Instance {
             get {
-                if (instance == null) instance = new TimezoneDB();
-                return instance;
+                return instance ??= new TimezoneDB();
             }
         }
 
@@ -53,6 +52,12 @@ namespace OutlookGoogleCalendarSync {
             log.Info("Detected system timezone change.");
             System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
             LastSystemResume = DateTime.Now;
+            try {
+                TimeZone curTimeZone = TimeZone.CurrentTimeZone;
+                log.Info("System Time Zone: " + curTimeZone.StandardName + "; DST=" + curTimeZone.IsDaylightSavingTime(DateTime.Now) +"; GMT Offset="+ curTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes);
+            } catch (System.Exception ex) {
+                ex.Analyse("Tried to extract current system time zone data.");
+            }
         }
 
         private static void SystemEvents_PowerModeChanged(object sender, Microsoft.Win32.PowerModeChangedEventArgs e) {

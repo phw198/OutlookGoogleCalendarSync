@@ -88,7 +88,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void btSkipVersion_Click(object sender, EventArgs e) {
             log.Info("User has opted to skip upgrading to this version.");
-            if (version.StartsWith("2") && Settings.Instance.SkipVersion.StartsWith("3"))
+            if (version.StartsWith("2") && Settings.Instance.SkipVersion != null && Settings.Instance.SkipVersion.StartsWith("3"))
                 Settings.Instance.SkipVersion2 = version;
             else
                 Settings.Instance.SkipVersion = version;
@@ -131,9 +131,9 @@ namespace OutlookGoogleCalendarSync.Forms {
             while (webBrowser.ReadyState != WebBrowserReadyState.Complete) {
                 System.Threading.Thread.Sleep(250);
                 Application.DoEvents();
-    }
+            }
             Application.DoEvents();
-}
+        }
 
         private int previousProgress = 0;
 
@@ -155,13 +155,13 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         public void UpgradeCompleted() {
-            if (this.Visible) btUpgrade.Text = "Restart";
+            if (this.Visible) btUpgrade.Text = "Restart OGCS";
             else
                 Ogcs.Extensions.MessageBox.Show("The application has been updated and will now restart.",
                     "OGCS successfully updated!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         public Boolean AwaitingRestart { 
-            get { return btUpgrade.Text == "Restart" && this.Visible; }
+            get { return btUpgrade.Text == "Restart OGCS" && this.Visible; }
         }
 
         private String cachedWebPage;

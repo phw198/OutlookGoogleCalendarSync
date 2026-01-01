@@ -154,6 +154,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "If checked, all entries found in Outlook/Google and identified for creation/deletion will be exported \n" +
                 "to CSV files in the application's directory (named \"*.csv\"). \n" +
                 "Only for debug/diagnostic purposes.");
+            ToolTips.SetToolTip(tbBrowserAgent, "The browser that OGCS identifies as. Update if web access is blocked due to an 'old browser'.");
             ToolTips.SetToolTip(rbProxyIE,
                 "If IE settings have been changed, a restart of the Sync application may be required");
             ToolTips.SetToolTip(cbMuteClicks, "Mute any sounds when sync summary updates.");
@@ -251,8 +252,6 @@ namespace OutlookGoogleCalendarSync.Forms {
             txtProxyServer.Enabled = rbProxyCustom.Checked;
             txtProxyPort.Enabled = rbProxyCustom.Checked;
             tbBrowserAgent.Text = Settings.Instance.Proxy.BrowserUserAgent;
-            tbBrowserAgent.Enabled = rbProxyCustom.Checked;
-            btCheckBrowserAgent.Enabled = rbProxyCustom.Checked;
 
             if (!string.IsNullOrEmpty(Settings.Instance.Proxy.UserName) &&
                 !string.IsNullOrEmpty(Settings.Instance.Proxy.Password)) {
@@ -654,6 +653,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             else if (rbProxyCustom.Checked) Settings.Instance.Proxy.Type = rbProxyCustom.Tag.ToString();
             else Settings.Instance.Proxy.Type = rbProxyIE.Tag.ToString();
 
+            Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
+
             if (rbProxyCustom.Checked) {
                 if (String.IsNullOrEmpty(txtProxyServer.Text) || String.IsNullOrEmpty(txtProxyPort.Text)) {
                     Ogcs.Extensions.MessageBox.Show("A proxy server name and port must be provided.", "Proxy Authentication Enabled",
@@ -666,8 +667,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
-                Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
 
                 string userName = null;
                 string password = null;
@@ -1196,6 +1195,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Importing settings from " + importFile.FileName);
                 Settings.Load(importFile.FileName);
                 updateGUIsettings();
+                this.ActiveCalendarProfile.InitialiseTimer();
+                Settings.Instance.Calendars.ForEach(cal => { cal.InitialiseTimer(); cal.RegisterForPushSync(); });
             }
         }
         #endregion
@@ -1210,7 +1211,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (cal._ProfileName == ddProfile.Text) {
                     try {
                         try {
-                            if (this.tabAppSettings.SelectedTab != this.tabOutlook) {
+                            if (this.tabAppSettings.SelectedTab != null && this.tabAppSettings.SelectedTab != this.tabOutlook) {
                                 this.tabAppSettings.SelectedTab.Controls.Add(this.panelObscure);
                                 this.panelObscure.BringToFront();
                                 this.panelObscure.Dock = DockStyle.Fill;
@@ -1620,7 +1621,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void btResetGCal_Click(object sender, EventArgs e) {
             if (Ogcs.Extensions.MessageBox.Show("This will disconnect the Google account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
-                "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+                "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) //
+            {
                 log.Info("User requested reset of Google authentication details.");
                 ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry();
                 this.cbGoogleCalendars.Items.Clear();
@@ -2480,12 +2482,19 @@ namespace OutlookGoogleCalendarSync.Forms {
             Settings.Instance.TelemetryDisabled = cbTelemetryDisabled.Checked;
         }
         #region Proxy
+        private void tbBrowserAgent_Leave(object sender, EventArgs e) {
+            if (!SettingsStore.Proxy.IsBrowserUserAgentValid(tbBrowserAgent.Text)) {
+                Ogcs.Extensions.MessageBox.Show($"The browser agent '{tbBrowserAgent.Text}' is invalid.\r\nIt has been reset to the default.",
+                    "Invalid User Agent", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                tbBrowserAgent.Text = SettingsStore.Proxy.DefaultBrowserAgent;
+            }
+            Settings.Instance.Proxy.BrowserUserAgent = tbBrowserAgent.Text;
+        }
+
         private void rbProxyCustom_CheckedChanged(object sender, EventArgs e) {
             bool result = rbProxyCustom.Checked;
             txtProxyServer.Enabled = result;
             txtProxyPort.Enabled = result;
-            tbBrowserAgent.Enabled = result;
-            btCheckBrowserAgent.Enabled = result;
             cbProxyAuthRequired.Enabled = result;
             if (result) {
                 result = !string.IsNullOrEmpty(txtProxyUser.Text) && !string.IsNullOrEmpty(txtProxyPassword.Text);

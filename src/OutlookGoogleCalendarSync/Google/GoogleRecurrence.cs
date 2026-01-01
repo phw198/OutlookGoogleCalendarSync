@@ -264,7 +264,7 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         public static Boolean HasExceptions(Event ev, Boolean checkLocalCacheOnly = false) {
-            log.Debug($"Id:{ev.Id}; RecurrenceIsNull:{(ev.Recurrence == null).ToString()};");
+            log.Fine($"Id:{ev.Id}; RecurrenceIsNull:{(ev.Recurrence == null).ToString()};");
             if (ev.Recurrence == null) return false;
 
             //There's currently no good way to know if a Google event is an exception or not.
@@ -295,7 +295,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
             log.Debug("Found " + googleExceptions.Count + " exceptions.");
-            googleExceptions.ForEach(ge => log.Debug($"RecurringEventId:{ge.RecurringEventId}; Start:{ge.Start.SafeDateTime().ToString()};"));
+            if (log.IsFineEnabled())
+                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{ge.Start.SafeDateTime().ToString()};"));
         }
 
         /// <summary>

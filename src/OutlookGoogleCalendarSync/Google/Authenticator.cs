@@ -114,12 +114,13 @@ namespace OutlookGoogleCalendarSync.Google {
             tokenFullPath = Path.Combine(tokenStore.FolderPath, TokenFile);
 
             log.Debug("Google credential file location: " + Program.MaskFilePath(tokenFullPath));
-            if (!tokenFileExists)
+            Boolean newlyAuthorised = false;
+            if (newlyAuthorised = !tokenFileExists)
                 log.Info("No Google credentials file available - need user authorisation for OGCS to manage their calendar.");
             
             UserCredential credential = null;
             try {
-                if (authenticated && !SufficientPermissions) File.Delete(tokenFullPath);
+                if (newlyAuthorised = (authenticated && !SufficientPermissions)) File.Delete(tokenFullPath);
 
                 //This will open the authorisation process in a browser, if required
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(cs, requiredScopes, "user", CancelTokenSource.Token, tokenStore);
@@ -135,6 +136,8 @@ namespace OutlookGoogleCalendarSync.Google {
                         Ogcs.Extensions.MessageBox.Show(noAuthGiven, "Authorisation not given", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         throw new ApplicationException(noAuthGiven);
                     }
+                    if (newlyAuthorised)
+                        Forms.Main.Instance.Console.Update("Access authorised.", verbose: true);
                 }
 
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
@@ -168,8 +171,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
 
             Ogcs.Google.Calendar.Instance.Service = new CalendarService(new global::Google.Apis.Services.BaseClientService.Initializer() { HttpClientInitializer = credential });
-            if (Settings.Instance.Proxy.Type == "Custom")
-                Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.Add("user-agent", Settings.Instance.Proxy.BrowserUserAgent);
+            Ogcs.Google.Calendar.Instance.Service.HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Settings.Instance.Proxy.BrowserUserAgent);
 
             if (credential.Token.IssuedUtc.AddSeconds(credential.Token.ExpiresInSeconds.Value) < System.DateTime.UtcNow.AddMinutes(1)) {
                 log.Debug("Access token needs refreshing.");
@@ -230,10 +232,9 @@ namespace OutlookGoogleCalendarSync.Google {
             authenticated = false;
             if (tokenFileExists) File.Delete(tokenFullPath);
             if (!Ogcs.Google.Calendar.IsInstanceNull) {
-                Ogcs.Google.Calendar.Instance.Authenticator = null;
+                Ogcs.Google.Calendar.Instance.Authenticator = new Authenticator();
                 Ogcs.Google.Calendar.Instance.Service = null;
                 if (reauthorise) {
-                    Ogcs.Google.Calendar.Instance.Authenticator = new Authenticator();
                     Ogcs.Google.Calendar.Instance.Authenticator.GetAuthenticated();
                 }
             }

@@ -111,7 +111,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
         public void Disconnect(Boolean onlyWhenNoGUI = false) {
-            if (Settings.Instance.DisconnectOutlookBetweenSync ||
+            if (Settings.Instance.DisconnectOutlookBetweenSync || Calendar.ForceClientReconnect ||
                 !onlyWhenNoGUI ||
                 (onlyWhenNoGUI && NoGUIexists()))
             {
@@ -135,6 +135,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (oApp != null) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(oApp);
                 oApp = null;
                 GC.Collect();
+                Calendar.ForceClientReconnect = false;
             }
         }
 
@@ -278,7 +279,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     currentUserSMTP = GetRecipientEmail(currentUser);
                     currentUserName = currentUser.Name;
                 } catch (System.Exception ex) {
-                    log.Warn("OGCS is unable to interogate CurrentUser from Outlook.");
+                    log.Warn("OGCS is unable to interrogate CurrentUser from Outlook.");
                     if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
                         log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
                     } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
@@ -507,6 +508,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if (folder.EntryID != excludeDeletedFolder && folder.Folders.Count > 0) {
                         findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
                     }
+                    Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars, "The Outlook calendar to synchonize with.");
                 } catch (System.Exception ex) {
                     if (oApp?.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ?? false ||
                         ex.GetErrorCode() == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
@@ -516,7 +518,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
                             "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
                     } else {
-                        ex.Analyse("Failed to recurse MAPI folders.");
+                        ex.Analyse($"Failed on folder '{folder.Name}' when recursing MAPI folders");
                         Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
                             "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
