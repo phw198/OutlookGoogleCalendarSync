@@ -91,10 +91,11 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Parses the DateTimeTimeZone string to a local DateTime
         /// </summary>
         /// <returns>Local DateTime</returns>
+        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
         public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);                
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
             } else {
                 Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
                 safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
@@ -103,10 +104,13 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
-        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.DateTimeTimeZone evDt) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
             System.DateTimeOffset safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
+                if (isAllDay ?? false) {
+                    safeDate = System.DateTime.SpecifyKind(safeDate.ToUniversalTime().Date, DateTimeKind.Unspecified);
+                }
             } else {
                 Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
                 safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
@@ -164,7 +168,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if ((bool)ai.IsAllDay)
                 return true;
             if (logicallyEquivalent)
-                return (ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0) && ai.End.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0));
+                return ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0) && ai.End.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0);
             else
                 return false;
         }
