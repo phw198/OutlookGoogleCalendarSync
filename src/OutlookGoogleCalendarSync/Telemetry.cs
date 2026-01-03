@@ -207,8 +207,11 @@ namespace OutlookGoogleCalendarSync {
                         String response = wc.UploadString(new Uri(baseAnalyticsUrl), "POST", jsonPayload);
                         log.Debug("GA4 OK " + response);
                     }
+                } catch (WebException ex) {
+                    if (ex.Status == WebExceptionStatus.NameResolutionFailure) log.Fail(ex.Message);
+                    else ex.Analyse();
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse(ex);
+                    ex.Analyse();
                 }
             }
 

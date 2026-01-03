@@ -1198,6 +1198,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 log.Info("Importing settings from " + importFile.FileName);
                 Settings.Load(importFile.FileName);
                 updateGUIsettings();
+                this.ActiveCalendarProfile.InitialiseTimer();
+                Settings.Instance.Calendars.ForEach(cal => { cal.InitialiseTimer(); cal.RegisterForPushSync(); });
             }
         }
         #endregion
@@ -1212,7 +1214,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (cal._ProfileName == ddProfile.Text) {
                     try {
                         try {
-                            if (this.tabAppSettings.SelectedTab != this.tabOutlook) {
+                            if (this.tabAppSettings.SelectedTab != null && this.tabAppSettings.SelectedTab != this.tabOutlook) {
                                 this.tabAppSettings.SelectedTab.Controls.Add(this.panelObscure);
                                 this.panelObscure.BringToFront();
                                 this.panelObscure.Dock = DockStyle.Fill;
@@ -1853,7 +1855,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void btResetGCal_Click(object sender, EventArgs e) {
             if (Ogcs.Extensions.MessageBox.Show("This will disconnect the Google account you are using to synchronise with.\r\n" +
                 "Useful if you want to start syncing to a different account.",
-                "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) {
+                "Disconnect Google account?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes) //
+            {
                 log.Info("User requested reset of Google authentication details.");
                 ActiveCalendarProfile.UseGoogleCalendar = new GoogleCalendarListEntry();
                 this.cbGoogleCalendars.Items.Clear();

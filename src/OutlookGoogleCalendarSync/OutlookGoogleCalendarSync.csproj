@@ -110,6 +110,30 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DEVELOP_AGAINST_2007</DefineConstants>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>Full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Release-x64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClickOnceToSquirrelMigrator, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -259,6 +283,9 @@
       <HintPath>lib\Squirrel\Squirrel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>lib\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.CodeDom, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.CodeDom.dll</HintPath>
     </Reference>
@@ -310,7 +337,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v11_2003.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v11_2003\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -319,7 +346,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v12_2007.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v12_2007\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -328,7 +355,7 @@
         <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
           <EmbedInteropTypes>False</EmbedInteropTypes>
-          <HintPath>lib\Microsoft.Office.Interop.Outlook_v14_2010.DLL</HintPath>
+          <HintPath>lib\outlook-interop\v14_2010\Microsoft.Office.Interop.Outlook.DLL</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -766,4 +793,8 @@
   <PropertyGroup>
     <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="ShowTargetDir" AfterTargets="Build">
+    <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
+    <Message Text="TargetDir Value: $(TargetDir)" Importance="High" />
+  </Target>
 </Project>

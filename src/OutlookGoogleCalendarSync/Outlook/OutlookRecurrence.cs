@@ -227,11 +227,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } catch (System.Exception ex) {
                 Ogcs.Exception.LogAsFail(ref ex);
                 String originalDate = oExcp.OriginalDate.ToString("dd/MM/yyyy");
-                if (ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") {
+                if ((ex is System.Runtime.InteropServices.COMException && ex.GetErrorCode(0x0000FFFF) == "0x00004005") ||
+                    ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") //
+                {
                     ex.Analyse("This Outlook recurrence instance on " + originalDate + " has become inaccessible, probably due to caching");
                 } else {
                     ex.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.");
                 }
+                Calendar.ForceClientReconnect = true;
                 return DeletionState.Inaccessible;
             } finally {
                 ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
@@ -371,6 +374,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 Forms.Main.Instance.Console.Update(ex.Message + "<br/>If this keeps happening, please restart OGCS.", Console.Markup.error);
                                 break;
                             }
+                        } else if (isDeleted == DeletionState.Inaccessible) {
+                            log.Warn($"The exception, originally on {oExcp.OriginalDate.Date}, is inaccessible.");
+
                         } else if (processingDeletions && isDeleted != DeletionState.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
                             log.Debug("An Outlook exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
                             return;

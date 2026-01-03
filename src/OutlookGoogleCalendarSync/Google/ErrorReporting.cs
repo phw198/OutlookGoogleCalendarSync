@@ -1,5 +1,6 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
+using log4net.Appender;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -132,7 +133,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (cloudLoggingEnabled) {
                     if (cloudLogger.Threshold != log4net.Core.Level.All) {
                         cloudLogger.Threshold = log4net.Core.Level.All;
-                        log.Info("Turned error reporting ON");
+                        log.Info("Turned error reporting ON. Anonymous ID: "+ LogUuid);
                     }
                 } else {
                     if (cloudLogger.Threshold != log4net.Core.Level.Off) {
@@ -145,6 +146,34 @@ namespace OutlookGoogleCalendarSync.Google {
             } catch (System.Exception ex) {
                 log.Error("Failed to configure error reporting appender.");
                 Ogcs.Exception.Analyse(ex);
+            }
+        }
+
+        public class LevelRewritingAppender : ForwardingAppender {
+            
+            //Map unusual levels to Google Cloud Logging native levels
+            protected Dictionary<String, log4net.Core.Level> levelMap = new Dictionary<String, log4net.Core.Level> { 
+                { "FAIL", log4net.Core.Level.Warn },
+                { "FINE", log4net.Core.Level.Debug },
+                { "ULTRA-FINE", log4net.Core.Level.Debug } //This doesn't seem to get passed, even with no filter defined
+            };
+
+            // This method is called for every event that passes the parent filters, by default up to DEBUG
+            protected override void Append(log4net.Core.LoggingEvent loggingEvent) {
+
+                if (levelMap.Keys.Contains(loggingEvent.Level.Name)) {
+                    // Create a new LoggingEvent with a standard, mapped level.
+                    log4net.Core.LoggingEventData transposedEventData = loggingEvent.GetLoggingEventData();
+                    transposedEventData.Message = loggingEvent.Level.Name + ": " + transposedEventData.Message;
+                    transposedEventData.Level = levelMap[loggingEvent.Level.Name];
+                    
+                    log4net.Core.LoggingEvent transposedEvent= new log4net.Core.LoggingEvent(transposedEventData);
+                    base.Append(transposedEvent);
+
+                } else {
+                    // For all other levels, pass the original event
+                    base.Append(loggingEvent);
+                }
             }
         }
     }
