@@ -278,7 +278,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, String value) {
             add(ref ai, key, value);
         }
-        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, System.DateTime value) {
+        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, System.DateTimeOffset value) {
             add(ref ai, key, value.ToPreciseString());
         }
         private static void add(ref Microsoft.Graph.Event ai, MetadataId key, String keyValue) {
@@ -323,11 +323,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             return retVal;
         }
-        private static System.DateTime get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
-            System.DateTime retVal = new System.DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        private static System.DateTimeOffset get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
+            System.DateTimeOffset retVal = new System.DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
-                if (!System.DateTime.TryParse(ai.OgcsExtension().AdditionalData[searchKey].ToString(), out retVal))
+                if (!System.DateTimeOffset.TryParse(ai.OgcsExtension().AdditionalData[searchKey].ToString(), out retVal))
                     log.Error("Could not parse OgcsExtension value of " + ai.OgcsExtension().AdditionalData[searchKey].ToString());
             }
             return retVal;
@@ -358,11 +358,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return true;
         }
 
-        public static System.DateTime GetOGCSlastModified(Microsoft.Graph.Event ai) {
+        public static System.DateTimeOffset GetOGCSlastModified(Microsoft.Graph.Event ai) {
             return get_datetime(ai, MetadataId.ogcsModified);
         }
         public static void SetOGCSlastModified(ref Microsoft.Graph.Event ai) {
-            Add(ref ai, MetadataId.ogcsModified, System.DateTime.Now);
+            Add(ref ai, MetadataId.ogcsModified, System.DateTimeOffset.UtcNow);
         }
 
         /// <summary>

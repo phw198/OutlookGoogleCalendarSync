@@ -1257,7 +1257,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         #region STATIC functions
         public static string Signature(Microsoft.Graph.Event ai) {
-            return (ai.Subject + ";" + ai.Start.SafeDateTime().ToPreciseString() + ";" + ai.End.SafeDateTime().ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset().ToPreciseString() + ";" + ai.End.SafeDateTimeOffset().ToPreciseString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<Event> ais) {
@@ -1315,8 +1315,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static string exportToCSV(Event ai) {
             StringBuilder csv = new StringBuilder();
             
-            csv.Append(ai.Start.SafeDateTime().ToPreciseString() + ",");
-            csv.Append(ai.End.SafeDateTime().ToPreciseString() + ",");
+            csv.Append(ai.Start.SafeDateTimeOffset().ToPreciseString() + ",");
+            csv.Append(ai.End.SafeDateTimeOffset().ToPreciseString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");
@@ -1341,7 +1341,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             csv.Append(ai.Id + "," + Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) ?? "") + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
-            csv.Append(CustomProperty.GetOGCSlastModified(ai).ToString() + ",");
+            csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.ogcsModified) ?? "") + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.forceSave) ?? ""));
 
             return csv.ToString();

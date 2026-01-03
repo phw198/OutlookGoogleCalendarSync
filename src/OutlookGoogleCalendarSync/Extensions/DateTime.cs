@@ -103,6 +103,17 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
+        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.DateTimeTimeZone evDt) {
+            System.DateTimeOffset safeDate;
+            if (evDt.TimeZone == "UTC") {
+                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
+            } else {
+                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
+                safeDate = System.DateTime.SpecifyKind(safeDate.DateTime, DateTimeKind.Utc);
+            }
+            return safeDate;
+        }
 
         /// <summary>
         /// Converts a System.DateTime to a Graph.Date

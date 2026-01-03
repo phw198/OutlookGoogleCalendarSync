@@ -564,11 +564,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Start.Date = ai.Start.SafeDateTime().ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.SafeDateTime().ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTimeRaw = ai.Start.SafeDateTime().ToPreciseString();
+                ev.Start.DateTimeRaw = ai.Start.SafeDateTimeOffset().ToPreciseString();
                 String startTimeZone = string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone;
                 ev.Start.TimeZone = TimezoneDB.IANAtimezone(startTimeZone, startTimeZone);
 
-                ev.End.DateTimeRaw = ai.End.SafeDateTime().ToPreciseString();
+                ev.End.DateTimeRaw = ai.End.SafeDateTimeOffset().ToPreciseString();
                 String endTimeZone = string.IsNullOrEmpty(ai.OriginalEndTimeZone) ? "UTC" : ai.OriginalEndTimeZone;
                 ev.End.TimeZone = startTimeZone == endTimeZone ? ev.Start.TimeZone : TimezoneDB.IANAtimezone(endTimeZone, endTimeZone);
             }
@@ -791,7 +791,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         if (ev.UpdatedDateTimeOffset > ai.LastModifiedDateTime)
                             return null;
                     } else {
-                        if (Outlook.Graph.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime?.ToLocalTime()) {
+                        if (Outlook.Graph.CustomProperty.GetOGCSlastModified(ai).AddSeconds(5) >= ai.LastModifiedDateTime) {
                             log.Fine("Outlook last modified by OGCS.");
                             return null;
                         }
@@ -829,8 +829,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             } else {
                 ev.Start.Date = null;
                 ev.End.Date = null;
-                ev.Start.DateTimeDateTimeOffset = ai.Start.SafeDateTime();
-                ev.End.DateTimeDateTimeOffset = ai.End.SafeDateTime();
+                ev.Start.DateTimeDateTimeOffset = ai.Start.SafeDateTimeOffset();
+                ev.End.DateTimeDateTimeOffset = ai.End.SafeDateTimeOffset();
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
                 Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTime(ai.Start.SafeDateTime(), false), sb, ref itemModified);
                 Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTime(ai.End.SafeDateTime(), false), sb, ref itemModified) ;
