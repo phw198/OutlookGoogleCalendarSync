@@ -340,7 +340,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
         public static void SetOGCSlastModified(ref Event ev) {
-            Add(ref ev, MetadataId.ogcsModified, System.DateTime.UtcNow);
+            Add(ref ev, MetadataId.ogcsModified, System.DateTimeOffset.UtcNow);
         }
 
         /// <summary>
