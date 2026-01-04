@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Paul Woolcock")]
 [assembly: AssemblyProduct("Outlook Google Calendar Sync")]
-[assembly: AssemblyCopyright("Copyright 2025")]
+[assembly: AssemblyCopyright("Copyright 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
