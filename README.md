@@ -9,7 +9,7 @@
 <img src="docs/images/development.png" v
  align="left" width="100px"/> 
 A lot of work has gone in to this project.  
-If you would like to support me and further development of this tool, please [![donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section)  
+If you would like to support me and further development of this tool, please [![donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://phw198.github.io/OutlookGoogleCalendarSync/donate)  
 If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Reporting-Problems)! :lady_beetle:  
 
 
