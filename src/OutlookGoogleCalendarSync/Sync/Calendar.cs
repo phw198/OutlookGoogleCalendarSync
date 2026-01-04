@@ -217,8 +217,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Info(duration);
                         String syncStats = $"<div style='color: grey; font-size: 11px'>{duration}<br/>Syncs completed: {Settings.Instance.CompletedSyncs}";
                         if (!Settings.Instance.UserIsBenefactor()) {
-                            syncStats += $"<br/><a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=Outlook Google Calendar Sync from " +
-                                Settings.Instance.GaccountEmail + "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
+                            syncStats += $"<br/><a href='{Program.OgcsWebsite}/donate?id=" + Extensions.OgcsString.ToBase64String(Settings.Instance.GaccountEmail) + 
+                                "' onClick='javascript:mp(donateEvent)' style='color: grey'>Donate</a></font>";
                             Telemetry.GA4Event donateEvent = new(Telemetry.GA4Event.Event.Name.donate, out Telemetry.GA4Event.Event eventData);
                             eventData
                                 .AddParameter("source", "console")
