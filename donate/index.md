@@ -3,13 +3,15 @@ layout: page
 title: Donate &amp; Support OGCS
 ---
 # Donate &amp; Support OGCS
-<br/>
-Thanks so much for thinking to donate :blush:  
 
-<p style="margin-left: -22px">:bulb: £10 or more to enable splash screen hiding</p>
+:blush: Thanks so much for thinking to donate - it's greatly appreciated and each one makes a huge difference
+{: style="text-indent: -25px; padding-top: 1em"}
+
+:point_right: £10 or more to enable splash screen hiding
+{: style="text-indent: -25px"}
 
 <span id="gAccountSection">
-  Provide the Google account you are using with OGCS to ensure splash screen hiding can be activated.<br/>
+  Provide the Google account email you are using with OGCS to ensure splash screen hiding can be activated.<br/>
   This can be found in the app under `Settings` > `Google` > `Connected Account`.<br/><br/>
   <label for="gAccountTxt">Google Account email address:</label>
   <input type="email" id="gAccountTxt" name="gAccountTxt" size="50" required/>
@@ -29,7 +31,7 @@ No account is needed and payments can be made by card in your local currency.
 ## With Stripe
 An alternative to PayPal if that's not available in your country (eg Japan).
 
-After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted here: -<br/><img src="/images/stripe-donate-field.png"/>
+After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted below. This is to ensure splash screen hiding can be activated for you: -<br/><img src="/images/stripe-donate-field.png"/>
 <style>
   .stripe-donate-pill {
     background-color: #635bff; /* Stripe Purple */
@@ -52,6 +54,16 @@ After clicking the donate button, on the next screen please *manually* enter you
 
 
 <script language="JavaScript">
+  function validateEmail(email) {
+    // This pattern checks for:
+    // 1. Local part (letters, numbers, and certain special characters)
+    // 2. The '@' symbol
+    // 3. Domain part (letters, numbers, hyphens)
+    // 4. A dot followed by a TLD of at least 2 characters
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
   function donate(platform) {
     {% if site.google_ad_testing == "off" %}
     handleClickEvent('outbound', 'Donate');
@@ -64,18 +76,25 @@ After clicking the donate button, on the next screen please *manually* enter you
         let gAccount = document.getElementById("gAccountTxt").value;
         
         if (gAccount != "#" && gAccount.length > 0) {
-          donateItemName += "%20from%20"+ document.getElementById("gAccountTxt").value
-          window.location = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id="+ paypalButtonId +"&item_name="+ donateItemName;
+          if (!validateEmail(gAccount)) {
+            let continueAnyway = confirm("The Google account email '"+ gAccount +"' provided is not valid.\r\n\r\nSplash screen hiding will not be available. OK to continue?")
+            if (continueAnyway) {
+              throw Error()
+            }
+          } else {
+            donateItemName += "%20from%20"+ gAccount
+            window.location = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id="+ paypalButtonId +"&item_name="+ donateItemName;
+          }
 
         } else {
           let continueAnyway = confirm("Without providing your Google account, splash screen hiding cannot be automatically enabled for you.\r\n\r\nOK to continue anyway?")
           if (continueAnyway) {
-            throw Error();
+            throw Error()
           }
         }
 
       } catch {
-        donateItemName += "%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section"
+        donateItemName += "%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section%20later"
         window.location = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id="+ paypalButtonId +"&item_name="+ donateItemName;
       }
     }
@@ -89,7 +108,7 @@ After clicking the donate button, on the next screen please *manually* enter you
   let visibility = "visible";
   try {
     gaccount = new URL(window.location.href).searchParams.get("id");
-    if (gaccount != null && gaccount != "#" && gaccount.length > 0) {
+    if (gaccount != null && gaccount != "#" && gaccount.length > 0 && validateEmail(atob(gaccount)) ) {
       setCookie("googleAccount", gaccount, 30);
       visibility = "none";
     } else {
@@ -101,16 +120,6 @@ After clicking the donate button, on the next screen please *manually* enter you
     }
     document.getElementById("gAccountSection").style.display = visibility;
   } catch { }
-
-  function validateEmail(email) {
-    // This pattern checks for:
-    // 1. Local part (letters, numbers, and certain special characters)
-    // 2. The '@' symbol
-    // 3. Domain part (letters, numbers, hyphens)
-    // 4. A dot followed by a TLD of at least 2 characters
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  }
 
   const errorDisplay = document.getElementById('invalidEmailMsg');
 
