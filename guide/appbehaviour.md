@@ -44,14 +44,14 @@ next-url: help
 
 ## Proxy Settings
 
+**Browser Agent:** How the application identifies itself to proxies. Some proxies may block certain agents, or older browser versions - in this situation, click `Check` and then `Copy agent text` with the detected browser information back into the OGCS settings.
+
 **No Proxy:** When there is a direct connection to the internet, for example, using home broadband.  
 
 **Inherit from Internet Explorer:** Use the same settings as configured in Internet Explorer. Normally the best option if connecting 
 through a corporate proxy, or use a PAC file etc.  
 
 **Custom Settings:** Manually enter the proxy server and port, plus your proxy credentials if required.
-
-**Browser Agent:** How the application identifies itself to proxies. Some proxies may block certain agents, or older browser versions - in this situation, click `Check` and then `Copy agent text` with the detected browser information back into the OGCS settings.
 
 
 <p>&nbsp;</p>
