@@ -63,6 +63,11 @@ header table, header td, table.download, .download td {
   border-top: 0px;
 }
 
+ul.indent-list {
+  padding-left: revert;
+  margin-top: -1em;
+}
+
 #main-content ul li {
   list-style: none;
   text-indent: -20px;
@@ -76,10 +81,6 @@ header table, header td, table.download, .download td {
   top: 2px;
   padding-right: 7px;
   position: relative;
-}
-
-#main-content ul {
-  margin-bottom: 4px;
 }
 
 img.emoji {
