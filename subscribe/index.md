@@ -72,7 +72,7 @@ It is never used for any other purpose. Please see the full [privacy policy](/pr
   }
   try {
     let subscription = atob(new URL(window.location.href).searchParams.get("id"));
-    const regex = /^OGCS\sPremium\s(for|renewal from)\s/;
+    const regex = /^OGCS\sPremium\s(for|renewal)\s/;
     if (subscription != null && regex.test(subscription) && validateEmail(subscription)) {
       document.getElementById("subscribeButton").style.display = "visible";
       document.getElementById("subscribeButtonLink").href = `https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=${subscription}`;
