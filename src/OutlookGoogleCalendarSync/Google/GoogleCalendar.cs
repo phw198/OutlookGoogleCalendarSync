@@ -106,8 +106,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                     invite += ".";
                 else {
-                    String url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=" + "OGCS Premium for " + Settings.Instance.GaccountEmail;
-                    invite += " or <a href='" + url + "' target='_blank'>get guaranteed quota</a> for just £1/month.";
+                    String url = Program.OgcsWebsite + "/subscribe?id=" + OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
+                    invite += $" or <a href='{url}' target='_blank'>get guaranteed quota</a> for just £1/month.";
                 }
                 return invite;
             }
