@@ -11,7 +11,7 @@ If so, this message relates to the limited free quota offered by Google for prog
 
 For £12 per year, it is possible to be assigned into a different quota that won't be exhausted. Synchronisation features are not affected, it is simply about quota usage which developers outside of Google have limited control over. 
 
-<span id="subscribeButton" align="center" style="display: block;">[![Subscribe Button](/images/subscribe-button.png)](#){: target="_blank" #subscribeButtonLink}</span>
+<span id="subscribeButton" align="center" style="display: block;">[![Subscribe Button](/images/subscribe-button.png)](#){: #subscribeButtonLink}</span>
 <p id="cannotSubscribe" class="tip" align="center">:warning:The option to subscribe will only become available to those who have been affected by the quota being exhausted.<br/>You need to click the notification from within the app when it displays.</p>
 
 :question:Already previously subscribed? Don't double up!<br/>
@@ -72,7 +72,7 @@ It is never used for any other purpose. Please see the full [privacy policy](/pr
   }
   try {
     let subscription = atob(new URL(window.location.href).searchParams.get("id"));
-    const regex = /^OGCS\sPremium\sfor/;
+    const regex = /^OGCS\sPremium\s(for|renewal from)\s/;
     if (subscription != null && regex.test(subscription) && validateEmail(subscription)) {
       document.getElementById("subscribeButton").style.display = "visible";
       document.getElementById("subscribeButtonLink").href = `https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=${subscription}`;
