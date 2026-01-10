@@ -96,11 +96,19 @@ If you have any concerns about this we suggest you do not click on any adverts, 
 # Application Privacy Policy
 
 ## Authentication with third-party calendar services
-In order to synchronise calendars, the application connects to your cloud account(s) for Google and, optionally, Microsoft. It does this by authenticating using the industry standard [OAuth2 protocol](https://oauth.net/2/){: target="_blank"}, which **never exposes your username or password** to us or any other third-party. During this process, you will also be required to approve the permission set required by OGCS in order to function properly; namely calendar read and write access. 
+In order to synchronise calendars, the application connects to your cloud account(s) for Google and, optionally, Microsoft. It does this by authenticating using the industry standard [OAuth2 protocol](https://oauth.net/2/){: target="_blank"}, which **never exposes your username or password** to us or any other third-party. 
+
+I, as the developer of OGCS, have been formally vetted and approved by both Google and Microsoft for OGCS to authenticate via OAuth2, as evidenced during the authentication process.
+
+During the authentication process, you will also be required to approve the permission set required by OGCS in order to function properly; namely calendar read and write access. 
 
 OGCS access can be revoked at any time by you, the user, from your [Google](https://myaccount.google.com/connections){: target="_blank"} and [Microsoft](https://account.microsoft.com/privacy/app-access){: target="_blank"} accounts. This facility is also available within OGCS through the `Revoke Access` buttons.
 
-I, as the developer of OGCS, have been formally vetted and approved by both Google and Microsoft for OGCS to authenticate via OAuth2, as evidenced during the authentication process.
+### Corporate M356 Accounts
+A Microsoft Entra tenant administrator may wish to control which applications have received user consent to access data within their organisation. They can also choose to grant [tenant-wide admin consent](https://learn.microsoft.com/en-gb/entra/identity/enterprise-apps/grant-admin-consent?pivots=portal){: target="_blank"} for OGCS or even [individual user consent](https://learn.microsoft.com/en-gb/entra/identity/enterprise-apps/grant-consent-single-user){: target="_blank"} on their behalf.
+
+[Permissions can be reviewed and revoked](https://learn.microsoft.com/en-gb/entra/identity/enterprise-apps/manage-application-permissions?pivots=portal){: target="_blank"} from applications, including OGCS, at any time by an administrator via [Microsoft Entra admin center](https://portal.azure.com/#view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/AppAppsPreview/menuId~/null){: target="_blank"}.
+
 
 ## Calendar data
 OGCS sychronises calendar data between Google and Microsoft. The data is never accessed, viewed or stored without your consent, and never commoditised. Options within the application provide the ability to [log](#logging) synchronisaton activity, store calendar data into CSV files, automatically [report errors](#error-reporting) to me and control [telemetry](#telemetry). These features assist in troubleshooting application problems you may encounter.
