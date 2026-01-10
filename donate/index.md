@@ -4,10 +4,10 @@ title: Donate &amp; Support OGCS
 ---
 # Donate &amp; Support OGCS
 
-:blush: Thanks so much for thinking to donate - it's greatly appreciated and each one makes a huge difference
+:blush: Thanks so much for thinking to donate and support this Open Source Software - it's greatly appreciated and each one makes a huge difference!
 {: style="text-indent: -25px; padding-top: 1em"}
 
-:point_right: £10 or more to enable splash screen hiding
+:point_right: In return and as a thank you, <mark style="background:#ffffb0">for donations of £10 or more, the ability to hide the splash screen is provided</mark> as well as the option to suppress occasional prompts to help spread the word about OGCS on social media. Functionality for synchronising calendars remains unchanged.
 {: style="text-indent: -25px"}
 
 <span id="gAccountSection">
@@ -51,6 +51,11 @@ After clicking the donate button, on the next screen please *manually* enter you
   <a href="https://donate.stripe.com/8wM4h4e981DtdgceUU" class="stripe-donate-pill" onClick="handleClickEvent('outbound', 'Donate');" style="a:hover.color: white">Donate with Stripe</a>
 </p>
 
+### Privacy Policy
+
+Your email address will be encrypted and stored, such that the OGCS application can automatically enable value-added benefits within the application; namely the ability to hide the splash screen.
+
+It is never used for any other purpose. Please see the full [privacy policy](/privacy-policy) for futher information.
 
 
 <script language="JavaScript">
