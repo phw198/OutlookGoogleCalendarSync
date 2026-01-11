@@ -50,8 +50,12 @@ namespace OutlookGoogleCalendarSync {
         }
         public static Updater Updater;
 
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
+
         [STAThread]
         private static void Main(string[] args) {
+            SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
 
