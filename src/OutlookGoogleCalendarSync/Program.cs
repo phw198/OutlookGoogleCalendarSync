@@ -57,6 +57,9 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 setSecurityProtocols();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
                 Ogcs.Google.ErrorReporting.Initialise();
 
                 RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
