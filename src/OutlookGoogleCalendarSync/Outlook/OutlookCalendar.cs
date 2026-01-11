@@ -236,7 +236,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             }
                             if (filtered) {
                                 try {
-                                    ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID)); continue;
+                                    ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID, profile)); continue;
                                 } catch (System.ArgumentException ex) {
                                     if (ex.Message == "An item with the same key has already been added.") {
                                         log.Warn("Investigating issue #2233 and duplicate EntryID...");
@@ -302,10 +302,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                     responseFiltered++;
                             }
                         } finally {
-                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai)) {
+                            if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai, profile)) {
                                 log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
                                 //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
-                                CustomProperty.RemoveGoogleIDs(ref ai);
+                                CustomProperty.RemoveGoogleIDs(ref ai, profile);
                                 ai.Save();
                             }
                         }

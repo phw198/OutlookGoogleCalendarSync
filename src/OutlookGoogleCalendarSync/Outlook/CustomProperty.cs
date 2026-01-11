@@ -124,10 +124,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// </summary>
         /// <param name="maxSet">The set number of the last contiguous run of ID sets (to aid defragmentation).</param>
         /// <returns>The set number, if it exists</returns>
-        private static int? getKeySet(AppointmentItem ai, out int maxSet) {
+        private static int? getKeySet(AppointmentItem ai, out int maxSet, SettingsStore.Calendar profile = null) {
             String returnSet = "";
             int? returnVal = null;
             maxSet = 0;
+            profile ??= Sync.Engine.Calendar.Instance.Profile;
 
             if (Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.KeySet) &&
                 Calendar.Instance.EphemeralProperties.PropertyExists(ai, EphemeralProperty.PropertyName.MaxSet))
@@ -160,7 +161,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 //For backward compatibility, always default to key names with no set number appended
                 if (calendarKeys.Count == 0 ||
-                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id)) //
+                    (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == profile.UseGoogleCalendar.Id)) //
                 {
                     maxSet = -1;
                     return returnVal;
@@ -175,7 +176,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (matches[0].Groups[1].Value != "")
                             appendedNos = Convert.ToInt16(matches[0].Groups[1].Value);
                         if (appendedNos - maxSet == 1) maxSet = appendedNos;
-                        if (kvp.Value == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id)
+                        if (kvp.Value == profile.UseGoogleCalendar.Id)
                             returnSet = (matches[0].Groups[1].Value == "") ? "0" : matches[0].Groups[1].Value;
                     }
                 }
@@ -183,12 +184,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!string.IsNullOrEmpty(returnSet)) returnVal = Convert.ToInt16(returnSet);
 
             } catch (System.Exception ex) {
-                if (ex is NullReferenceException) {
-                    log.Warn("Issue #2242");
-                    log.Debug("Sync.Engine.Calendar.Instance.Profile is null: " + (Sync.Engine.Calendar.Instance.Profile == null));
-                    log.Debug("Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar: " + Sync.Engine.Calendar.Instance.Profile?.UseGoogleCalendar);
-                    log.Debug("Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id: " + Sync.Engine.Calendar.Instance.Profile?.UseGoogleCalendar?.Id);
-                }
                 ex.Analyse(true);
                 throw;
             } finally {
@@ -208,15 +203,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return !string.IsNullOrEmpty(missingIds);
         }
 
-        public static Boolean Exists(AppointmentItem ai, MetadataId searchId) {
+        public static Boolean Exists(AppointmentItem ai, MetadataId searchId, SettingsStore.Calendar profile = null) {
             String throwAway;
-            return Exists(ai, searchId, out throwAway);
+            return Exists(ai, searchId, out throwAway, profile);
         }
-        public static Boolean Exists(AppointmentItem ai, MetadataId searchId, out String searchKey) {
+        public static Boolean Exists(AppointmentItem ai, MetadataId searchId, out String searchKey, SettingsStore.Calendar profile = null) {
+            profile ??= Sync.Engine.Calendar.Instance.Profile;
             searchKey = metadataIdKeyName(searchId);
 
             int maxSet;
-            int? keySet = getKeySet(ai, out maxSet);
+            int? keySet = getKeySet(ai, out maxSet, profile);
             if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
 
             UserProperties ups = null;
@@ -225,9 +221,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 ups = ai.UserProperties;
                 prop = ups.Find(searchKey);
                 if (searchId == MetadataId.gCalendarId)
-                    return (prop != null && prop.Value.ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
+                    return (prop != null && prop.Value.ToString() == profile.UseGoogleCalendar.Id);
                 else {
-                    return (prop != null && Get(ai, MetadataId.gCalendarId) == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
+                    return (prop != null && Get(ai, MetadataId.gCalendarId, profile) == profile.UseGoogleCalendar.Id);
                 }
             } catch {
                 return false;
@@ -237,9 +233,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public static Boolean ExistAnyGoogleIDs(AppointmentItem ai) {
-            if (Exists(ai, MetadataId.gEventID)) return true;
-            if (Exists(ai, MetadataId.gCalendarId)) return true;
+        public static Boolean ExistAnyGoogleIDs(AppointmentItem ai, SettingsStore.Calendar profile = null) {
+            if (Exists(ai, MetadataId.gEventID, profile)) return true;
+            if (Exists(ai, MetadataId.gCalendarId, profile)) return true;
             return false;
         }
 
@@ -281,9 +277,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// <summary>
         /// Remove the Google event IDs from an Outlook appointment.
         /// </summary>
-        public static void RemoveGoogleIDs(ref AppointmentItem ai) {
-            Remove(ref ai, MetadataId.gEventID);
-            Remove(ref ai, MetadataId.gCalendarId);
+        public static void RemoveGoogleIDs(ref AppointmentItem ai, SettingsStore.Calendar profile = null) {
+            Remove(ref ai, MetadataId.gEventID, profile);
+            Remove(ref ai, MetadataId.gCalendarId, profile);
         }
 
         public static void Add(ref AppointmentItem ai, MetadataId key, String value) {
@@ -336,10 +332,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public static String Get(AppointmentItem ai, MetadataId key) {
+        public static String Get(AppointmentItem ai, MetadataId key, SettingsStore.Calendar profile = null) {
             String retVal = null;
             String searchKey;
-            if (Exists(ai, key, out searchKey)) {
+            if (Exists(ai, key, out searchKey, profile)) {
                 UserProperties ups = null;
                 UserProperty prop = null;
                 try {
@@ -412,9 +408,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Remove(ref ai, MetadataId.ogcsModified);
             Remove(ref ai, MetadataId.ogcsModifiedText);
         }
-        public static void Remove(ref AppointmentItem ai, MetadataId key) {
+        public static void Remove(ref AppointmentItem ai, MetadataId key, SettingsStore.Calendar profile = null) {
             String searchKey;
-            if (Exists(ai, key, out searchKey)) {
+            if (Exists(ai, key, out searchKey, profile)) {
                 UserProperties ups = null;
                 UserProperty prop = null;
                 try {
