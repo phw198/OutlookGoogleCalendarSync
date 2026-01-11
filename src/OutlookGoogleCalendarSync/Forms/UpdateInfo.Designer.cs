@@ -10,11 +10,11 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
-            if (this.optionChosen == System.Windows.Forms.DialogResult.Yes && !this.AwaitingRestart) {
-                this.Visible = true;
-                disposing = false;
-            }
             try {
+                if (this.optionChosen == System.Windows.Forms.DialogResult.Yes && !this.AwaitingRestart) {
+                    this.Visible = true;
+                    disposing = false;
+                }
                 if (disposing && (components != null)) {
                     components.Dispose();
                 }

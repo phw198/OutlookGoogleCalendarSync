@@ -36,7 +36,7 @@ namespace OutlookGoogleCalendarSync {
             bt = updateButton;
             log.Debug((isManualCheck ? "Manual" : "Automatic") + " update check requested.");
             if (isManualCheck) updateButton.Text = "Checking...";
-            
+
             try {
                 if (!string.IsNullOrEmpty(nonGitHubReleaseUri) || Program.IsInstalled) {
                     try {
@@ -515,25 +515,39 @@ namespace OutlookGoogleCalendarSync {
                     log.Warn("Failed to retrieve data (no network?): " + ex.Message);
                 else
                     ex.Analyse("Failed to retrieve data");
+                errorDetails = ex.Message;
             } catch (System.Exception ex) {
                 ex.Analyse("Failed to retrieve data: ");
+                errorDetails = ex.Message;
             }
 
-            if (!string.IsNullOrEmpty(html)) {
-                log.Debug("Finding Beta release...");
-                MatchCollection release = getRelease(html, @"\*\*Beta\*\*: \[v([\d\.]+)\]\((.*?)\)");
-                if (release.Count > 0) {
-                    releaseType = "Beta";
-                    releaseURL = release[0].Result("$2");
-                    releaseVersion = release[0].Result("$1");
-                }
-                if (Settings.Instance.AlphaReleases) {
-                    log.Debug("Finding Alpha release...");
-                    release = getRelease(html, @"\*\*Alpha\*\*: \[v([\d\.]+)\]\((.*?)\)");
-                    if (release.Count > 0 && Program.VersionToInt(release[0].Result("$1")) > myReleaseNum) {
-                        releaseType = "Alpha";
-                        releaseURL = release[0].Result("$2");
-                        releaseVersion = release[0].Result("$1");
+            if (string.IsNullOrEmpty(html)) {
+                log.Info("Did not find ZIP release.");
+                if (isManualCheck) Ogcs.Extensions.MessageBox.Show("Failed to check for ZIP release." + (string.IsNullOrEmpty(errorDetails) ? "" : "\r\n" + errorDetails),
+                    "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            parseRelease(html, ref releaseType, ref releaseURL, ref releaseVersion);
+            if (isManualCheck &&
+                !string.IsNullOrEmpty(releaseVersion) &&
+                !string.IsNullOrEmpty(Settings.Instance.SkipVersion) &&
+                Program.VersionToInt(releaseVersion) <= Program.VersionToInt(Settings.Instance.SkipVersion)) //
+            {
+                if (releaseVersion.StartsWith("2") && Settings.Instance.SkipVersion.StartsWith("2")) {
+                    log.Info("User has opted to skip v" + releaseVersion);
+                    releaseVersion = null;
+
+                } else if (releaseVersion.StartsWith("3") && Settings.Instance.SkipVersion.StartsWith("3")) {
+                    log.Info("User has opted to skip v" + releaseVersion);
+                    parseRelease(html, ref releaseType, ref releaseURL, ref releaseVersion, maxVersion: "2");
+
+                    if (!string.IsNullOrEmpty(releaseVersion) && releaseVersion.StartsWith("2") &&
+                        !string.IsNullOrEmpty(Settings.Instance.SkipVersion2) &&
+                        Program.VersionToInt(releaseVersion) <= Program.VersionToInt(Settings.Instance.SkipVersion2)) //
+                    {
+                        log.Info("User has also opted to skip v" + releaseVersion);
+                        releaseVersion = null;
                     }
                 }
             }
@@ -542,10 +556,31 @@ namespace OutlookGoogleCalendarSync {
                 Int32 releaseNum = Program.VersionToInt(releaseVersion);
                 if (releaseNum > myReleaseNum) {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
-                    DialogResult dr = Ogcs.Extensions.MessageBox.Show("A new " + releaseType + " release is available for OGCS. Would you like to upgrade to v" + releaseVersion + "?", "New OGCS Release Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (dr == DialogResult.Yes) {
+                    
+                    DialogResult dr = DialogResult.Cancel;
+                    var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, null, out dr));
+                    t.SetApartmentState(System.Threading.ApartmentState.STA);
+                    t.Start();
+                    t.Join();
+
+                    Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade pending");
+                    squirrelGaEv.AddParameter(GA4.Squirrel.target_version, releaseVersion);
+                    squirrelGaEv.AddParameter(GA4.Squirrel.target_type, releaseType);
+
+                    if (dr == DialogResult.No || dr == DialogResult.Cancel) {
+                        log.Info("User chose not to upgrade right now.");
+                        squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Deferred");
+
+                    } else if (dr == DialogResult.Ignore) {
+                        squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Skipped");
+
+                    } else if (dr == DialogResult.Yes) {
+                        squirrelGaEv.AddParameter(GA4.Squirrel.action_taken, "Upgrade");
                         Helper.OpenBrowser(releaseURL);
                     }
+                    squirrelGaEv.Send();
+
                 } else {
                     log.Info("Already on latest ZIP release.");
                     if (isManualCheck) {
@@ -554,21 +589,37 @@ namespace OutlookGoogleCalendarSync {
                         Ogcs.Extensions.MessageBox.Show($"You are already on the latest {beta}release", "No Update Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
-            } else {
-                log.Info("Did not find ZIP release.");
-                if (isManualCheck) Ogcs.Extensions.MessageBox.Show("Failed to check for ZIP release." + (string.IsNullOrEmpty(errorDetails) ? "" : "\r\n" + errorDetails),
-                    "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void checkForZip_completed(object sender, RunWorkerCompletedEventArgs e) {
             if (isManualCheck)
                 Forms.Main.Instance.btCheckForUpdate.Text = "Check For Update";
-        }
+        }        
 
-        private static MatchCollection getRelease(string source, string pattern) {
-            Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
-            return rgx.Matches(source);
+        private static void parseRelease(string source, ref string releaseType, ref string releaseURL, ref string releaseVersion, string maxVersion = null) {
+            log.Debug("Finding " + (maxVersion == null ? "" : $"v{maxVersion} ") + "Beta release...");
+            Regex rgx = new Regex(@$"\*\*(Beta)\*\*: \[v({maxVersion}[\d\.]+)\]\((.*?)\)", RegexOptions.IgnoreCase);
+            MatchCollection release = rgx.Matches(source);
+            if (release.Count > 0) {
+                releaseType = release[0].Result("$1");
+                releaseURL = release[0].Result("$3");
+                releaseVersion = release[0].Result("$2");
+            }
+
+            if (Settings.Instance.AlphaReleases) {
+                log.Debug("Finding " + (maxVersion == null ? "" : $"v{maxVersion} ") + "Alpha release...");
+                rgx = new Regex(@$"\*\*(Alpha)\*\*: \[v({maxVersion}[\d\.]+)\]\((.*?)\)", RegexOptions.IgnoreCase);
+                release = rgx.Matches(source);
+                if (Program.VersionToInt(release[0].Result("$2")) > Program.VersionToInt(releaseVersion)) {
+                    releaseType = release[0].Result("$1");
+                    releaseURL = release[0].Result("$3");
+                    releaseVersion = release[0].Result("$2");
+                }
+            }
+
+            if (string.IsNullOrEmpty(releaseVersion)) 
+                log.Error("Could you not identify any ZIP release details.");
         }
         #endregion
     }
