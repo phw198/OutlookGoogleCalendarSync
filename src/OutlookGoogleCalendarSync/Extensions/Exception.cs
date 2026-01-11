@@ -24,7 +24,7 @@ namespace OutlookGoogleCalendarSync {
                 if (ex is ApplicationException) return;
                 logLevel = Program.MyFailLevel;
             }
-           
+
             log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
             String locationDetails = "<Unknown File>";
             try {
@@ -38,7 +38,7 @@ namespace OutlookGoogleCalendarSync {
             } catch {
                 log.Error("Unable to parse exception stack.");
             }
-            String errorLocation = "; Location: " + ex.TargetSite?.Name + "() in "+ locationDetails;
+            String errorLocation = "; Location: " + ex.TargetSite?.Name + "() in " + locationDetails;
             int errorCode = getErrorCode(ex);
             log.ErrorOrFail("Code: 0x" + errorCode.ToString("X8") + "," + errorCode.ToString() + errorLocation, logLevel);
 
@@ -46,7 +46,11 @@ namespace OutlookGoogleCalendarSync {
                 log.ErrorOrFail("InnerException:-", logLevel);
                 Analyse(ex.InnerException, false);
             }
-            if (includeStackTrace) log.ErrorOrFail(ex.StackTrace, logLevel);
+            if (includeStackTrace) {
+                log.ErrorOrFail("Exception stack trace " + ex.StackTrace.TrimStart(), logLevel);
+                string[] envStack = Environment.StackTrace.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                log.ErrorOrFail("Environment stack trace " + string.Join("\r\n", envStack.Skip(3)).TrimStart(), logLevel);
+            }
         }
 
         public static String GetErrorCode(this System.Exception ex, UInt32 mask = 0xFFFFFFFF) {
