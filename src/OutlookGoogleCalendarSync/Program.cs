@@ -53,7 +53,7 @@ namespace OutlookGoogleCalendarSync {
         [STAThread]
         private static void Main(string[] args) {
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetCompatibleTextRenderingDefault(true);
 
             try {
                 setSecurityProtocols();
