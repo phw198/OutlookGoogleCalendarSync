@@ -57,7 +57,7 @@ namespace OutlookGoogleCalendarSync {
         private static void Main(string[] args) {
             SetProcessDPIAware();
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(true);
+            Application.SetCompatibleTextRenderingDefault(false);
 
             try {
                 setSecurityProtocols();
