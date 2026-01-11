@@ -245,6 +245,15 @@ namespace OutlookGoogleCalendarSync.Google {
             return dt.ToString("yyyyMMddTHHmmssZ");
         }
 
+        public static System.DateTime EndDate(String rruleUntil, String endTimeZone) {
+            if (rruleUntil.Length == 8 && !rruleUntil.EndsWith("Z"))
+                return System.DateTime.ParseExact(rruleUntil, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            else {
+                System.DateTime endDate = System.DateTime.ParseExact(rruleUntil, "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
+                return endDate.AddHours(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
+            }
+        }
+
         #region Exceptions
         private static List<Event> googleExceptions;
         public static List<Event> GoogleExceptions {

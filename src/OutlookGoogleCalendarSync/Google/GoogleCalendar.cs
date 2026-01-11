@@ -399,6 +399,23 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(cancelled).ToList();
             }
 
+            //When a series is changed for "this and future events", the future events form a new series that starts from the first changed occurrence "<guid>_yyyyMMddThhmmss"
+            //However, even if it finished before the sync window, Google still returns the original recurring series "<guid>"
+            List<Event> historicRecurring = new();
+            foreach (Event ev in result) {
+                if ((ev.Recurrence?.Count() ?? 0) == 0) continue;
+                Dictionary<String, String> rules = Recurrence.ExplodeRrule(ev.Recurrence);
+                if (rules.ContainsKey("UNTIL")) {
+                    System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
+                    if (endDate < from)
+                        historicRecurring.Add(ev);
+                }
+            }
+            if (historicRecurring.Count > 0) {
+                log.Debug(historicRecurring.Count + " Google Events are historic series and will be excluded.");
+                result = result.Except(historicRecurring).ToList();
+            }
+
             List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from && ev.Recurrence == null)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");

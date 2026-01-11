@@ -104,13 +104,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
                     oPattern.NoEndDate = true;
                 } else {
-                    System.DateTime endDate;
-                    if (ruleBook["UNTIL"].Length == 8 && !ruleBook["UNTIL"].EndsWith("Z"))
-                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                    else {
-                        endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                        endDate = endDate.AddHours(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
-                    }
+                    System.DateTime endDate = Google.Recurrence.EndDate(ruleBook["UNTIL"], ev.End.TimeZone);
                     if (endDate < oPattern.PatternStartDate) {
                         log.Debug("PatternStartDate: " + oPattern.PatternStartDate.ToString("yyyyMMddHHmmss"));
                         log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
