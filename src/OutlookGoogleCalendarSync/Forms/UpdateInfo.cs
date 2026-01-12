@@ -48,8 +48,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     html = html.TrimEnd("]]>".ToCharArray());
                     html = htmlHead + html + "</body></html>";
                     webBrowser.DocumentText = html;
+
+                    if (html.Contains("<h2>Manual Upgrade Required</h2>")) btUpgrade.Enabled = false;
                 }
-                if (html.Contains("<h2>Manual Upgrade Required</h2>")) btUpgrade.Enabled = false;
                 dr = ShowDialog();
 
             } catch (System.Exception ex) {
