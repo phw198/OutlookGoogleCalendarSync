@@ -760,7 +760,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             String note = "";
             String url = "";
-            String urlStub = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=";
+            String urlStub = Program.OgcsWebsite + "/subscribe";
             String cr = "\r\n";
 
             if (syncNote == SyncNotes.DailyQuotaExhaustedInfo && !show && this.tbSyncNote.Text.Contains("quota is exhausted")) {
@@ -777,7 +777,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "  Google's daily free calendar quota is exhausted!" + cr +
                             "     Either wait for new quota at 08:00GMT or     " + cr +
                             "  get yourself guaranteed quota for just £1/month.";
-                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
                     break;
 
                 case SyncNotes.DailyQuotaExhaustedPreviously:
@@ -798,7 +798,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "Google's daily free calendar quota was exhausted!" + cr +
                             "    Previous successful sync was " + delay + " ago." + cr +
                             " Get yourself guaranteed quota for just £1/month.";
-                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
 
                     if (!show && existingNote.Contains("free calendar quota was exhausted")) {
                         log.Debug("Removing quota exhausted advisory notice.");
@@ -830,7 +830,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "  Google's free calendar quota is being exceeded! " + cr +
                             "     Either wait for new quota or get yourself    " + cr +
                             "         guaranteed quota for just £1/month.      ";
-                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
                     break;
 
                 case SyncNotes.QuotaExceededPreviously:
@@ -842,7 +842,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "    Google's free calendar quota was exceeded!    " + cr +
                             "      Previous successful sync was " + delay + " ago." + cr +
                             " Get yourself guaranteed quota for just £1/month.";
-                    url = urlStub + "OGCS Premium for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
 
                     if (!show && existingNote.Contains("free calendar quota was exceeded")) {
                         log.Debug("Removing quota exceeded advisory notice.");
@@ -881,8 +881,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "  Your annual subscription for guaranteed quota   " + cr +
                             "  for Google calendar usage is expiring on " + expiration.ToString("dd-MMM") + "." + cr +
                             "         Click to renew for just £1/month.        ";
-                    url = urlStub + "OGCS Premium renewal from " + expiration.ToString("dd-MMM-yy", new System.Globalization.CultureInfo("en-US")) +
-                        " for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + 
+                        Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium renewal from " + 
+                        expiration.ToString("dd-MMM-yy", new System.Globalization.CultureInfo("en-US")) +
+                        " for " + Settings.Instance.GaccountEmail);
                     break;
 
                 case SyncNotes.SubscriptionExpired:
@@ -890,7 +892,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     note = "  Your annual subscription for guaranteed quota   " + cr +
                             "    for Google calendar usage expired on " + expiration.ToString("dd-MMM") + "." + cr +
                             "         Click to renew for just £1/month.        ";
-                    url = urlStub + "OGCS Premium renewal for " + Settings.Instance.GaccountEmail;
+                    url = urlStub + "?id=" + Ogcs.Extensions.OgcsString.ToBase64String("OGCS Premium renewal for " + Settings.Instance.GaccountEmail);
                     break;
 
                 case SyncNotes.NotLogFile:

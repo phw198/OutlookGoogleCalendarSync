@@ -106,8 +106,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (string.IsNullOrEmpty(Settings.Instance.GaccountEmail))
                     invite += ".";
                 else {
-                    String url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E595EQ7SNDBHA&item_name=" + "OGCS Premium for " + Settings.Instance.GaccountEmail;
-                    invite += " or <a href='" + url + "' target='_blank'>get guaranteed quota</a> for just £1/month.";
+                    String url = Program.OgcsWebsite + "/subscribe?id=" + OgcsString.ToBase64String("OGCS Premium for " + Settings.Instance.GaccountEmail);
+                    invite += $" or <a href='{url}' target='_blank'>get guaranteed quota</a> for just £1/month.";
                 }
                 return invite;
             }
@@ -2103,8 +2103,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTimeOffset().ToPreciseString())); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTimeOffset().ToPreciseString())); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -2183,8 +2183,8 @@ namespace OutlookGoogleCalendarSync.Google {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTime().ToString()) + ",");
-            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTime().ToString()) + ",");
+            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTimeOffset().ToPreciseString()) + ",");
+            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTimeOffset().ToPreciseString()) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");

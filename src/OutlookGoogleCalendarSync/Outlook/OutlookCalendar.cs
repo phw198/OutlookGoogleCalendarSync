@@ -1504,7 +1504,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             csv.Append(ai.EntryID + "," + Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) ?? "") + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
-            csv.Append(CustomProperty.GetOGCSlastModified(ai).ToString() + ",");
+            csv.Append(CustomProperty.GetOGCSlastModified(ai).ToPreciseString() + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.forceSave) ?? "") + ",");
             csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.locallyCopied) ?? "");
 

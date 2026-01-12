@@ -291,7 +291,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 add(ref ai, MetadataId.ogcsModifiedText, OlUserPropertyType.olText, value.ToPreciseString());
             else
                 //Only store in this way for date values not requiring accuracy greater than minutes
-                add(ref ai, key, OlUserPropertyType.olDateTime, value);
+                add(ref ai, key, OlUserPropertyType.olDateTime, value.UtcDateTime);
         }
         private static void add(ref AppointmentItem ai, MetadataId key, OlUserPropertyType keyType, object keyValue) {
             String addkeyName = metadataIdKeyName(key);
@@ -467,7 +467,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return get_datetime(ref ai, MetadataId.ogcsModifiedText);
         }
         public static void SetOGCSlastModified(ref AppointmentItem ai) {
-            Add(ref ai, MetadataId.ogcsModifiedText, System.DateTime.UtcNow);
+            Add(ref ai, MetadataId.ogcsModifiedText, System.DateTimeOffset.UtcNow);
         }
 
         /// <summary>

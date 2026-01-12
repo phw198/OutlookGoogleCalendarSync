@@ -17,5 +17,10 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static String RemoveNBSP(this String input) {
             return System.Text.RegularExpressions.Regex.Replace(input ?? "", @"[\u00A0]", " ");
         }
+
+        public static String ToBase64String(this String input) {
+            byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(input);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
     }
 }
