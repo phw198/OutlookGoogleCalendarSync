@@ -23,10 +23,10 @@ namespace OutlookGoogleCalendarSync.Forms {
 
             if (Settings.Instance.UserIsBenefactor()) {
                 panelDonationNote.Visible = false;
-                this.Height = 185;
+                this.Height = Convert.ToInt32(185 * Program.Magnification);
             } else {
                 panelDonationNote.Visible = true;
-                this.Height = 310;
+                this.Height = Convert.ToInt32(310 * Program.Magnification);
             }
         }
 

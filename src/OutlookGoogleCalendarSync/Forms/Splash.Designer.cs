@@ -43,6 +43,8 @@
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.White;
             this.panel1.Controls.Add(this.pHideTwitterBt);
             this.panel1.Controls.Add(this.cbHideSplash);
@@ -61,6 +63,7 @@
             // 
             // pHideTwitterBt
             // 
+            this.pHideTwitterBt.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pHideTwitterBt.Location = new System.Drawing.Point(162, 277);
             this.pHideTwitterBt.Name = "pHideTwitterBt";
             this.pHideTwitterBt.Size = new System.Drawing.Size(147, 26);
@@ -93,7 +96,7 @@
             // 
             // pbSocialTwitterFollow
             // 
-            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pbSocialTwitterFollow.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pbSocialTwitterFollow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbSocialTwitterFollow.Image = global::OutlookGoogleCalendarSync.Properties.Resources.bluesky_follow;
             this.pbSocialTwitterFollow.Location = new System.Drawing.Point(168, 251);
@@ -116,6 +119,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Arial Black", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.DimGray;
@@ -128,15 +132,18 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pictureBox1.Image = global::OutlookGoogleCalendarSync.Properties.Resources.ogcs128x128_animated;
             this.pictureBox1.Location = new System.Drawing.Point(170, 39);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(130, 130);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 9;
             this.pictureBox1.TabStop = false;
             // 
             // label2
             // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Arial Black", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.DimGray;
@@ -149,6 +156,7 @@
             // 
             // pHideDonateBt
             // 
+            this.pHideDonateBt.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pHideDonateBt.Location = new System.Drawing.Point(180, 242);
             this.pHideDonateBt.Name = "pHideDonateBt";
             this.pHideDonateBt.Size = new System.Drawing.Size(110, 35);

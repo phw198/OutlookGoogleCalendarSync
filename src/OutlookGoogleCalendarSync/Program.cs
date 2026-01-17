@@ -22,6 +22,7 @@ namespace OutlookGoogleCalendarSync {
         //log4net.Core.Level.Fine == log4net.Core.Level.Debug (30000), so manually changing its value
         public static log4net.Core.Level MyFineLevel = new log4net.Core.Level(25000, "FINE");
         public static log4net.Core.Level MyUltraFineLevel = new log4net.Core.Level(24000, "ULTRA-FINE"); //Logs email addresses
+        public static float Magnification = 1;
 
         public static Boolean StartedWithFileArgs = false;
         public static String Title { get; private set; }
@@ -57,8 +58,6 @@ namespace OutlookGoogleCalendarSync {
 
             try {
                 setSecurityProtocols();
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
 
                 Ogcs.Google.ErrorReporting.Initialise();
 

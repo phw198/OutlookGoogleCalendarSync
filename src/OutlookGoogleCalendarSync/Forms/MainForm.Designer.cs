@@ -192,6 +192,7 @@
             this.lDaysInPast = new System.Windows.Forms.Label();
             this.lDateRange = new System.Windows.Forms.Label();
             this.gbSyncOptions_What = new System.Windows.Forms.GroupBox();
+            this.lWhatInfo = new System.Windows.Forms.Label();
             this.label36 = new System.Windows.Forms.Label();
             this.tbExcludeSubjectText = new System.Windows.Forms.TextBox();
             this.cbExcludeSubject = new System.Windows.Forms.CheckBox();
@@ -214,7 +215,6 @@
             this.cbAddDescription = new System.Windows.Forms.CheckBox();
             this.cbReminderDND = new System.Windows.Forms.CheckBox();
             this.cbUseGoogleDefaultReminder = new System.Windows.Forms.CheckBox();
-            this.lWhatInfo = new System.Windows.Forms.Label();
             this.cbLocation = new System.Windows.Forms.CheckBox();
             this.cbAddColours = new System.Windows.Forms.CheckBox();
             this.cbUseOutlookDefaultReminder = new System.Windows.Forms.CheckBox();
@@ -1511,7 +1511,7 @@
             this.llMultipleOGCS.AutoSize = true;
             this.llMultipleOGCS.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.llMultipleOGCS.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.llMultipleOGCS.Location = new System.Drawing.Point(104, 47);
+            this.llMultipleOGCS.Location = new System.Drawing.Point(104, 48);
             this.llMultipleOGCS.Name = "llMultipleOGCS";
             this.llMultipleOGCS.Size = new System.Drawing.Size(156, 13);
             this.llMultipleOGCS.TabIndex = 51;
@@ -1525,7 +1525,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label14.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.label14.Location = new System.Drawing.Point(9, 21);
+            this.label14.Location = new System.Drawing.Point(9, 22);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(346, 33);
             this.label14.TabIndex = 50;
@@ -1942,7 +1942,7 @@
             this.syncDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.syncDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.syncDirection.FormattingEnabled = true;
-            this.syncDirection.Location = new System.Drawing.Point(53, 22);
+            this.syncDirection.Location = new System.Drawing.Point(53, 23);
             this.syncDirection.Name = "syncDirection";
             this.syncDirection.Size = new System.Drawing.Size(288, 21);
             this.syncDirection.TabIndex = 37;
@@ -2097,7 +2097,7 @@
             // 
             this.lDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDirection.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDirection.Location = new System.Drawing.Point(1, 25);
+            this.lDirection.Location = new System.Drawing.Point(1, 26);
             this.lDirection.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.lDirection.Name = "lDirection";
             this.lDirection.Size = new System.Drawing.Size(55, 14);
@@ -2155,7 +2155,7 @@
             this.cbOutlookPush.AutoSize = true;
             this.cbOutlookPush.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbOutlookPush.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbOutlookPush.Location = new System.Drawing.Point(75, 95);
+            this.cbOutlookPush.Location = new System.Drawing.Point(75, 96);
             this.cbOutlookPush.Name = "cbOutlookPush";
             this.cbOutlookPush.Size = new System.Drawing.Size(191, 17);
             this.cbOutlookPush.TabIndex = 42;
@@ -2172,7 +2172,7 @@
             this.cbIntervalUnit.Items.AddRange(new object[] {
             "Minutes",
             "Hours"});
-            this.cbIntervalUnit.Location = new System.Drawing.Point(143, 69);
+            this.cbIntervalUnit.Location = new System.Drawing.Point(143, 70);
             this.cbIntervalUnit.Name = "cbIntervalUnit";
             this.cbIntervalUnit.Size = new System.Drawing.Size(84, 21);
             this.cbIntervalUnit.TabIndex = 41;
@@ -2182,7 +2182,7 @@
             // 
             this.tbInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbInterval.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tbInterval.Location = new System.Drawing.Point(94, 70);
+            this.tbInterval.Location = new System.Drawing.Point(94, 71);
             this.tbInterval.Maximum = new decimal(new int[] {
             181,
             0,
@@ -2203,7 +2203,7 @@
             // 
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label1.Location = new System.Drawing.Point(10, 72);
+            this.label1.Location = new System.Drawing.Point(10, 73);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(86, 14);
             this.label1.TabIndex = 39;
@@ -2214,7 +2214,7 @@
             // 
             this.tbDaysInTheFuture.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbDaysInTheFuture.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tbDaysInTheFuture.Location = new System.Drawing.Point(94, 46);
+            this.tbDaysInTheFuture.Location = new System.Drawing.Point(94, 47);
             this.tbDaysInTheFuture.Maximum = new decimal(new int[] {
             365,
             0,
@@ -2235,7 +2235,7 @@
             // 
             this.tbDaysInThePast.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbDaysInThePast.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tbDaysInThePast.Location = new System.Drawing.Point(94, 22);
+            this.tbDaysInThePast.Location = new System.Drawing.Point(94, 23);
             this.tbDaysInThePast.Maximum = new decimal(new int[] {
             365,
             0,
@@ -2256,7 +2256,7 @@
             // 
             this.lDaysInFuture.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDaysInFuture.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDaysInFuture.Location = new System.Drawing.Point(140, 48);
+            this.lDaysInFuture.Location = new System.Drawing.Point(140, 49);
             this.lDaysInFuture.Name = "lDaysInFuture";
             this.lDaysInFuture.Size = new System.Drawing.Size(104, 20);
             this.lDaysInFuture.TabIndex = 34;
@@ -2266,7 +2266,7 @@
             // 
             this.lDaysInPast.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDaysInPast.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDaysInPast.Location = new System.Drawing.Point(140, 24);
+            this.lDaysInPast.Location = new System.Drawing.Point(140, 25);
             this.lDaysInPast.Name = "lDaysInPast";
             this.lDaysInPast.Size = new System.Drawing.Size(87, 18);
             this.lDaysInPast.TabIndex = 35;
@@ -2276,7 +2276,7 @@
             // 
             this.lDateRange.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lDateRange.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lDateRange.Location = new System.Drawing.Point(30, 24);
+            this.lDateRange.Location = new System.Drawing.Point(30, 25);
             this.lDateRange.Name = "lDateRange";
             this.lDateRange.Size = new System.Drawing.Size(66, 14);
             this.lDateRange.TabIndex = 37;
@@ -2287,6 +2287,7 @@
             // 
             this.gbSyncOptions_What.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbSyncOptions_What.Controls.Add(this.lWhatInfo);
             this.gbSyncOptions_What.Controls.Add(this.label36);
             this.gbSyncOptions_What.Controls.Add(this.tbExcludeSubjectText);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeSubject);
@@ -2309,7 +2310,6 @@
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription);
             this.gbSyncOptions_What.Controls.Add(this.cbReminderDND);
             this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
-            this.gbSyncOptions_What.Controls.Add(this.lWhatInfo);
             this.gbSyncOptions_What.Controls.Add(this.cbLocation);
             this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
             this.gbSyncOptions_What.Controls.Add(this.cbUseOutlookDefaultReminder);
@@ -2557,9 +2557,9 @@
             this.lAttributes.ForeColor = System.Drawing.SystemColors.ControlText;
             this.lAttributes.Location = new System.Drawing.Point(6, 25);
             this.lAttributes.Name = "lAttributes";
-            this.lAttributes.Size = new System.Drawing.Size(233, 14);
+            this.lAttributes.Size = new System.Drawing.Size(274, 14);
             this.lAttributes.TabIndex = 33;
-            this.lAttributes.Text = "Attributes to include. Affects newly synced items ";
+            this.lAttributes.Text = "Attributes to include. Affects newly synced items:-";
             // 
             // cbAddAttendees
             // 
@@ -2613,9 +2613,9 @@
             // 
             this.lWhatInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
             this.lWhatInfo.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lWhatInfo.Location = new System.Drawing.Point(234, 21);
+            this.lWhatInfo.Location = new System.Drawing.Point(241, 22);
             this.lWhatInfo.Name = "lWhatInfo";
-            this.lWhatInfo.Size = new System.Drawing.Size(23, 23);
+            this.lWhatInfo.Size = new System.Drawing.Size(23, 20);
             this.lWhatInfo.TabIndex = 42;
             this.lWhatInfo.Text = "i";
             this.lWhatInfo.MouseLeave += new System.EventHandler(this.lWhatInfo_MouseLeave);
@@ -2661,7 +2661,7 @@
             // 
             this.lWhatExcludeInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
             this.lWhatExcludeInfo.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lWhatExcludeInfo.Location = new System.Drawing.Point(228, 149);
+            this.lWhatExcludeInfo.Location = new System.Drawing.Point(245, 149);
             this.lWhatExcludeInfo.Name = "lWhatExcludeInfo";
             this.lWhatExcludeInfo.Size = new System.Drawing.Size(23, 23);
             this.lWhatExcludeInfo.TabIndex = 56;
@@ -2675,9 +2675,9 @@
             this.lExcludeItems.ForeColor = System.Drawing.SystemColors.ControlText;
             this.lExcludeItems.Location = new System.Drawing.Point(6, 153);
             this.lExcludeItems.Name = "lExcludeItems";
-            this.lExcludeItems.Size = new System.Drawing.Size(237, 14);
+            this.lExcludeItems.Size = new System.Drawing.Size(248, 14);
             this.lExcludeItems.TabIndex = 52;
-            this.lExcludeItems.Text = "Exclude items. Affects those previously synced";
+            this.lExcludeItems.Text = "Exclude items. Affects those previously synced:-";
             // 
             // tabAppBehaviour
             // 
@@ -2806,9 +2806,9 @@
             this.btCheckBrowserAgent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btCheckBrowserAgent.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btCheckBrowserAgent.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btCheckBrowserAgent.Location = new System.Drawing.Point(317, 21);
+            this.btCheckBrowserAgent.Location = new System.Drawing.Point(317, 22);
             this.btCheckBrowserAgent.Name = "btCheckBrowserAgent";
-            this.btCheckBrowserAgent.Size = new System.Drawing.Size(51, 23);
+            this.btCheckBrowserAgent.Size = new System.Drawing.Size(51, 21);
             this.btCheckBrowserAgent.TabIndex = 44;
             this.btCheckBrowserAgent.Text = "Check";
             this.btCheckBrowserAgent.UseVisualStyleBackColor = true;

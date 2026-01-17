@@ -39,6 +39,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (splash == null || splash.IsDisposed)
                     splash = new Splash();
 
+                Program.Magnification = splash.CreateGraphics().DpiX / 96f; //Windows Display Magnifier (96DPI = 100%)
+
                 splash.lVersion.Text = "v" + Application.ProductVersion;
                 String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Settings.ConfigFile) ?? "0";
                 if (completedSyncs == "0")
