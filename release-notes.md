@@ -37,6 +37,51 @@ p {
   document.getElementById("donateButton").href += donate_item_name
 </script>
 
+## v2.12.0.0 - Beta
+
+:high_brightness: **Enhancements** rolled in from Alpha releases
+
+- Application
+    - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
+    - Include updated series exceptions in sync summary count
+    - Added "Revoke" button for Google permissions
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
+    - Handle insufficient Google calendar permissions better [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Open default system browser for OGCS links
+    - Remember choice to skip release upgrade [[#1951](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1951)]
+    - Cleaner startup when no classic Outlook client present
+- Sync Engine
+    - Workaround for Google bug that surfaced on 23-May with symptoms:
+        - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
+        - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
+    - Improved monthly recurrence on day >28th
+    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - Optimise exclusion of Outlook categories [[#1929](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1929)]
+
+:beetle: **Bugfix**
+- See previous alpha releases for full list
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
+----
+
 ## v2.11.7.0 - Alpha
 
 :high_brightness: **Enhancements**
@@ -267,7 +312,7 @@ p {
 
 ## v2.11.0.0 - Beta
 
-:high_brightness: **Enhancements**
+:high_brightness: **Enhancements** rolled in from Alpha releases
 - New option to:
     - Exclude Google items based on colour [[#1553](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1553)]
     - Exclude items based on title/subject [[#1688](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1688)]
@@ -304,6 +349,9 @@ p {
     - Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
     - OGCS logo updated with modernised "G"
         - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+
+:beetle: **Bugfix**
+- See previous alpha releases for full list
 
 <br/>
 <ins class="adsbygoogle"
