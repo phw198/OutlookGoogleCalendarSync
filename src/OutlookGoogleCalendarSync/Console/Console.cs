@@ -237,6 +237,7 @@ namespace OutlookGoogleCalendarSync {
             wb.DocumentCompleted += console_DocumentCompleted;
             wb.Navigated += console_Navigated;
             wb.Navigating += console_Navigating;
+            wb.NewWindow += console_NewWindow;
 
             awaitRefresh();
             disableClickSounds();
@@ -274,6 +275,13 @@ namespace OutlookGoogleCalendarSync {
 
             navigationStatus = NavigationStatus.navigated;
             log.UltraFine("Console finished navigating");
+        }
+
+        /// <summary>Intercept target=_blank hyperlinks, ensure they open in default browser</summary>
+        private void console_NewWindow(object sender, System.ComponentModel.CancelEventArgs e) {
+            e.Cancel = true;
+            String targetURL = this.wb.Document.ActiveElement.GetAttribute("href");
+            Helper.OpenBrowser(targetURL);
         }
 
         private void awaitRefresh() {

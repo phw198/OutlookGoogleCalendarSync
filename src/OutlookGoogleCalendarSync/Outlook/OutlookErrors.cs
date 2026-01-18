@@ -44,11 +44,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED")) return retVal = ErrorType.RpcRejected;
                     if (hResult == "0x8001010A" && ex.Message.Contains("RPC_E_SERVERCALL_RETRYLATER")) return retVal = ErrorType.RpcServerUnavailable;
-                    if (hResult == "0x80040201") return retVal = ErrorType.OperationFailed; //The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
                     if (ex.Message.Contains("0x80010108(RPC_E_DISCONNECTED)")) return retVal = ErrorType.InvokedObjectDisconnectedFromClients;
                     if (hResult == "0x800706BA") return retVal = ErrorType.RpcServerUnavailable;
                     if (hResult == "0x800706BE") return retVal = ErrorType.RpcFailed;
                     if (hResult == "0x80080005" && ex.Message.Contains("CO_E_SERVER_EXEC_FAILURE")) return retVal = ErrorType.PermissionFailure;
+
+                    if (ex.GetErrorCode(0x000FFFFF) == "0x00040201") { //The operation failed.
+                        return retVal = ErrorType.OperationFailed; //The messaging interfaces have returned an unknown error. If the problem persists, restart Outlook.
+                    }
                 }
 
                 if (ex is System.Runtime.InteropServices.InvalidComObjectException) {
@@ -65,7 +68,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// <summary>Log as FAIL if it is a COM 'system' exception</summary>
         public static Boolean LogAsFail(System.Exception ex) {
             if (ex is not System.Runtime.InteropServices.COMException) return false;
-            return (new ErrorType[] { ErrorType.PermissionFailure, ErrorType.RpcFailed, ErrorType.RpcRejected, ErrorType.RpcServerUnavailable }.Contains(HandleComError(ex)));
+            return (new ErrorType[] { 
+                ErrorType.OperationFailed,
+                ErrorType.PermissionFailure, 
+                ErrorType.RpcFailed, 
+                ErrorType.RpcRejected, 
+                ErrorType.RpcServerUnavailable 
+            }.Contains(HandleComError(ex)));
         }
     }
 }

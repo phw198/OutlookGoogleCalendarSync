@@ -165,7 +165,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             foreach (SettingsStore.Calendar calendar in Settings.Instance.Calendars) {
                 ddProfile.Items.Add(calendar._ProfileName);
             }
-            ddProfile.SelectedIndex = 0;
+            ddProfile.SelectedIndex = ddProfile.Items.Count == 0 ? -1 : 0;
             #endregion
 
             #region Sync
