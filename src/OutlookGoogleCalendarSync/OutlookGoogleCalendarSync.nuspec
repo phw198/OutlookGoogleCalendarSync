@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.11.7-alpha</version>
+    <version>2.12.0-beta</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,28 +12,38 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.11.7?
+# What's New In v2.12.0?
 
-&lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
+&lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements** rolled in from Alpha releases  
 
 - Application
-    - Validation on browser user agent; always editable [[#2195](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2195)]
-    - Log time zone information when a change is detected [[#2233](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2233)]
-    - Workaround Google cloud logging losing data that includes FAIL events
-    - Provision for automatic upgrades to OGCS v2 releases, once v3 is available
+    - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
+    - Include updated series exceptions in sync summary count
+    - Added "Revoke" button for Google permissions
+    - Update of third-party DLL files
+        - Now requires .NET Framework 4.6.2
+    - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
+    - Handle insufficient Google calendar permissions better [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
+    - Open default system browser for OGCS links
+    - Remember choice to skip release upgrade [[#1951](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1951)]
+    - Cleaner startup when no classic Outlook client present
+- Sync Engine
+    - Workaround for Google bug that surfaced on 23-May with symptoms:
+        - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
+        - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
+    - Improved monthly recurrence on day >28th
+    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+    - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
+    - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
+    - Optimise exclusion of Outlook categories [[#1929](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1929)]
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
-- Application
-    - Cleaner startup when no classic Outlook client present
-    - Fixed error when attempting to skip a release [[#2192](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2192)]
-    - Fixed error after resetting Google connection [[#2234](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2234)]
-- Sync Engine
-    - Properly initialise sync timer after Profile import [[#2177](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2177)]
-    - Force reconnect to Outlook when calendar items become unavailable [[#2185](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2185)]
-    - Improved storage of last modified timestamp [[#2238](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2238)]
+- See [release notes](https://www.outlookgooglecalendarsync.com/release-notes) for full list
     </releaseNotes>
-    <copyright>Copyright 2025</copyright>
+    <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
   </metadata>
   <files>
