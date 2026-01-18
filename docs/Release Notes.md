@@ -10,44 +10,25 @@
     - Added "Revoke" button for Google permissions
     - Update of third-party DLL files
         - Now requires .NET Framework 4.6.2
-- Sync Engine
-    - Improved monthly recurrence on day >28th
-    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
-    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
-        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
-
-**Bugfix**
-- Application
     - Include calendar name in deletion dialogue box [[#2098](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2098)]
-    - Abort sync if Outlook COM errors are encountered whilst identifying differences [[#2053](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2053)]
-    - Manage API errors whilst getting Google settings [[#2100](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2100)]
-    - Handle COM error 0x8001010A with automatic retry [[#2165](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2165)]
-    - Include all-day series master ending on sync window start date
-    - Clearer notification message for Outlook security [[#2040](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2040)]
     - Handle insufficient Google calendar permissions better [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
-    - Properly disconnect from Google account [[#1937](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1937)]
-    - Default obfuscation to subject property; handle null in settings [[#1997](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1997)]
     - Open default system browser for OGCS links
     - Remember choice to skip release upgrade [[#1951](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1951)]
+    - Cleaner startup when no classic Outlook client present
 - Sync Engine
     - Workaround for Google bug that surfaced on 23-May with symptoms:
         - New Outlook appointment from "ghost" Google event fails to save [[#2123](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2123)]
         - Repeated failure to delete "ghost" Google event(s) [[#2124](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2124)]
-    - Exceptions to recurring events in Google wouldn't sync to Outlook [[#2135](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2135)]
+    - Improved monthly recurrence on day >28th
+    - Improved warning messages when colours/categories excluded [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
+        - Improved two-way sync behaviour when deletion prompt declined [[#1989](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1989)]
     - Show "mass deletion" warning regardless of deletion prompt setting [[#2137](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2137)]
-    - Handle blocked Outlook address book when accessing appointment organiser [[#2136](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2136)]
     - Sync summary counts no longer include failed items [[#2150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2150)]
-    - Retrieve Google occurrences that were originally outside the sync window [[#2081](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2081)]
-        - Handle zero occurrences of Google series
-    - Fixed never-ending sync due to calendar descriptions containing emojis [[#2090](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2090)]
-    - Handle meeting attendees with accented characters in the name [[#2097](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2097)]
-    - Falsely detecting start/end time changed (by number of hours offset from UTC) [[#2047](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2047)]
-    - Fixed UTC offset must be between year 0 and 10000 [[#2055](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2055)]
-    - Fix O->G "last weekday of month" recurrence [[#2068](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2068)]
-    - Handle inability to resolve Outlook GAL recipient [[#1998](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1998)]
+    - Optimised retrieval of Google recurring series and its instances [[#2034](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2034)]
     - Optimise exclusion of Outlook categories [[#1929](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1929)]
-    - Handle empty appointment bodies when obfuscating [[#1959](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1959)]
-    - Fixed premature deletion warnings in two-way sync [[#1999](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1999)]
+
+**Bugfix**
+- See previous alpha releases for full list
 
 ----
 
@@ -227,6 +208,9 @@
     - Clearer user interface for sync interval Fair Usage Policy [[#1699](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1699)]
     - OGCS logo updated with modernised "G"
         - Animated logo in notification tray during sync [[#1602](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1602)]
+
+**Bugfix**
+- See previous alpha releases for full list
 
 ----
 
