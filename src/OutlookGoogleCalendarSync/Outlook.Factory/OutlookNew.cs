@@ -491,35 +491,38 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Forms.Main.Instance.lOutlookCalendar.Location.Y + Forms.Main.Instance.lOutlookCalendar.Size.Height + 3);
             double stepSize = Forms.Main.Instance.lOutlookCalendar.Size.Width / folders.Count;
 
-            int fldCnt = 0;
-            foreach (MAPIFolder folder in folders) {
-                fldCnt++;
-                System.Drawing.Point endPoint = new System.Drawing.Point(Forms.Main.Instance.lOutlookCalendar.Location.X + Convert.ToInt16(fldCnt * stepSize),
-                    Forms.Main.Instance.lOutlookCalendar.Location.Y + Forms.Main.Instance.lOutlookCalendar.Size.Height + 3);
-                try { g.DrawLine(p, startPoint, endPoint); } catch { /*May get GDI+ error if g has been repainted*/ }
-                System.Windows.Forms.Application.DoEvents();
+            for (int fldCnt = 1; fldCnt <= folders.Count; fldCnt++) {
                 try {
-                    OlItemType defaultItemType = folder.DefaultItemType;
-                    if (defaultItemType == OlItemType.olAppointmentItem) {
-                        if (defaultCalendar == null || (folder.EntryID != defaultCalendar.EntryID))
-                            calendarFolderAdd(folder.Name, folder);
-                    }
-                    if (folder.EntryID != excludeDeletedFolder && folder.Folders.Count > 0) {
-                        findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
+                    MAPIFolder folder = folders[fldCnt];
+                    System.Drawing.Point endPoint = new System.Drawing.Point(Forms.Main.Instance.lOutlookCalendar.Location.X + Convert.ToInt16(fldCnt * stepSize),
+                        Forms.Main.Instance.lOutlookCalendar.Location.Y + Forms.Main.Instance.lOutlookCalendar.Size.Height + 3);
+                    try { g.DrawLine(p, startPoint, endPoint); } catch { /*May get GDI+ error if g has been repainted*/ }
+                    System.Windows.Forms.Application.DoEvents();
+                    try {
+                        OlItemType defaultItemType = folder.DefaultItemType;
+                        if (defaultItemType == OlItemType.olAppointmentItem) {
+                            if (defaultCalendar == null || (folder.EntryID != defaultCalendar.EntryID))
+                                calendarFolderAdd(folder.Name, folder);
+                        }
+                        if (folder.EntryID != excludeDeletedFolder && folder.Folders.Count > 0) {
+                            findCalendars(folder.Folders, calendarFolders, excludeDeletedFolder, defaultCalendar);
+                        }
+                    } catch (System.Exception ex) {
+                        if (oApp?.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ?? false ||
+                            ex.GetErrorCode() == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
+                            ex.GetErrorCode(0x000FFFFF) == "0x00040115") {
+                            log.Warn(ex.Message);
+                            log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
+                            Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
+                                "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
+                        } else {
+                            ex.Analyse("Failed to recurse MAPI folders.");
+                            Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
+                                "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
                     }
                 } catch (System.Exception ex) {
-                    if (oApp?.Session.ExchangeConnectionMode.ToString().Contains("Disconnected") ?? false ||
-                        ex.GetErrorCode() == "0xC204011D" || ex.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.") ||
-                        ex.GetErrorCode(0x000FFFFF) == "0x00040115") {
-                        log.Warn(ex.Message);
-                        log.Info("Currently disconnected from Exchange - unable to retrieve MAPI folders.");
-                        Forms.Main.Instance.ToolTips.SetToolTip(Forms.Main.Instance.cbOutlookCalendars,
-                            "The Outlook calendar to synchonize with.\nSome may not be listed as you are currently disconnected.");
-                    } else {
-                        ex.Analyse("Failed to recurse MAPI folders.");
-                        Ogcs.Extensions.MessageBox.Show("A problem was encountered when searching for Outlook calendar folders.\r\n" + ex.Message,
-                            "Calendar Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    ex.Analyse($"Unabled to enumerate folder #{fldCnt} of {folders.Count}");
                 }
             }
             p.Dispose();
