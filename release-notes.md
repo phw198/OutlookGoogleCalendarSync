@@ -7,7 +7,21 @@ title: Release Notes
 p {
   margin-bottom: -13px;
 }
+h2 {
+  scroll-margin-top: 170px;
+}
+div#sticky ::before {
+     position: absolute;
+     top: 0px;
+     bottom: 25px;
+     right: 0px;
+     left: 0px;
+     background: #fafafa;
+     z-index: -1;
+}
 </style>
+
+<div style="position: sticky; top: 0; z-index: 1000;" id="sticky" markdown="1">
 
 # Release Notes
 
@@ -16,26 +30,27 @@ p {
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap" rel="stylesheet">
 
 <div style="font-family: 'Kalam', cursive; font-size: 19px; text-indent: -24px; color: royalblue;">
-<p>:bulb: Fun fact: Simply clicking an advert helps support OGCS!</p>
-<br style="padding-top: 1px">
-<p>:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
-  <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
-    <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
-  </a></nobr>
-</p>
+     <p>:bulb: Fun fact: Simply clicking an advert helps support OGCS!</p>
+     <br style="padding-top: 1px">
+     <p>:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
+     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
+     <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
+     </a></nobr>
+     </p>
 </div>
 <br/>&nbsp;<br/>
 
 <script>
-  var donate_item_name = "Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section";
-  var gaccount = new URL(window.location.href).searchParams.get("id");
-  if (gaccount != null && gaccount != "") {
-    donate_item_name = "Outlook Google Calendar Sync from " + atob(gaccount);
-    setCookie("googleAccount", gaccount, 30);
-  }
-  var paypalUrl = document.getElementById("donateButton")
-  document.getElementById("donateButton").href += donate_item_name
+     var donate_item_name = "Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section";
+     var gaccount = new URL(window.location.href).searchParams.get("id");
+     if (gaccount != null && gaccount != "") {
+          donate_item_name = "Outlook Google Calendar Sync from " + atob(gaccount);
+          setCookie("googleAccount", gaccount, 30);
+     }
+     var paypalUrl = document.getElementById("donateButton")
+     document.getElementById("donateButton").href += donate_item_name
 </script>
+</div>
 
 ## v2.12.0.0 - Beta
 
@@ -78,7 +93,6 @@ p {
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<br/>
 
 ----
 
@@ -364,7 +378,6 @@ p {
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<br/>
 
 ----
 
@@ -577,7 +590,6 @@ p {
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<br/>
 
 ----
 
@@ -802,7 +814,6 @@ p {
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<br/>
 
 ----
 
