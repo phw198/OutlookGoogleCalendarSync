@@ -18,7 +18,7 @@ title: Donate &amp; Support OGCS
   <span id="invalidEmailMsg" style="color: indianred; font-size: smaller;"></span>
 </span>
 
-## With PayPal
+## With PayPal![Paypal icon](https://cdn.simpleicons.org/paypal){: style="width: 28px; float: inline-end;" }
 Please make donations via PayPal if possible.  
 No account is needed and payments can be made by card in your local currency.
 
@@ -28,13 +28,21 @@ No account is needed and payments can be made by card in your local currency.
   </a>
 </p>
 
-## With Stripe
+## With Stripe![Stripe icon](https://cdn.simpleicons.org/stripe){: style="width: 28px; float: inline-end;" }
 An alternative to PayPal if that's not available in your country (eg Japan).
 
 After clicking the donate button, on the next screen please *manually* enter your Google account <b><span id="stripe-email"></span></b>into the field as depicted below. This is to ensure splash screen hiding can be activated for you: -<br/><img src="/images/stripe-donate-field.png"/>
 <style>
-  .stripe-donate-pill {
-    background-color: #635bff; /* Stripe Purple */
+  #main-content h2, #main-content h3 {
+    margin-top: 50px;
+  }
+  .stripe {
+    background-color: #635bff;
+  }
+  .bitcoin {
+    background-color: #f7931a;
+  }
+  .donate-pill {
     color: white;
     padding: 5px 20px;
     text-decoration: none;
@@ -43,13 +51,25 @@ After clicking the donate button, on the next screen please *manually* enter you
     border-radius: 50px; 
     display: inline-block;
   }
-  .stripe-donate-pill:hover {
+  .donate-pill:hover {
     color: #ffffff;
   }
 </style>
 <p style="text-align: center">
-  <a href="https://donate.stripe.com/8wM4h4e981DtdgceUU" class="stripe-donate-pill" onClick="handleClickEvent('outbound', 'Donate');" style="a:hover.color: white">Donate with Stripe</a>
+  <a href="https://donate.stripe.com/8wM4h4e981DtdgceUU" class="stripe donate-pill" onClick="handleClickEvent('outbound', 'Donate')">Donate with Stripe</a>
 </p>
+
+## With Bitcoin![Bitcoin icon](https://cdn.simpleicons.org/bitcoin){: style="width: 28px; float: inline-end;" }
+And finally a crypto option. If you wish to hide the splash screen you'll need to:-
+- contact me separately with your Google email address
+- check [current exchange rates](https://www.xe.com/currencyconverter/convert/?Amount=10&From=GBP&To=BTC){: target="_blank" } to make sure you donate enough
+
+<div style="text-align: center">
+  <a href="bitcoin:bc1qhrwsjvq4a0t9c4gakzpa75w8hukx7ctqq0d943?message=Outlook%20Google%20Calendar%20Sync" class="bitcoin donate-pill" onClick="copyAddress(); handleClickEvent('outbound', 'Donate');">Donate with Bitcoin</a>
+  <br/><br/>
+  <img src="bitcoin-qr.png" alt="Bitcoin QR Code" style="width: 100px;"><br/>
+  <span markdown="1">`bc1qhrwsjvq4a0t9c4gakzpa75w8hukx7ctqq0d943`</span>
+</div>
 
 ### Privacy Policy
 
