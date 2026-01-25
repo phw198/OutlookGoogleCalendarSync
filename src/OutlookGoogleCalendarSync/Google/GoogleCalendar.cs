@@ -784,6 +784,10 @@ namespace OutlookGoogleCalendarSync.Google {
                 Outlook.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
+            if (Outlook.CustomProperty.Exists(ai, Outlook.CustomProperty.MetadataId.locallyCopied)) {
+                Outlook.CustomProperty.Remove(ref ai, Outlook.CustomProperty.MetadataId.locallyCopied);
+                ai.Save();
+            }
 
             if (profile.AddGMeet && Outlook.GMeet.BodyHasGmeetUrl(ai)) {
                 log.Info("Adding GMeet conference details.");
@@ -1723,7 +1727,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
 
                         } else {
-                            log.Fine("EntryID has changed - invite accepted?");
+                            log.Warn("EntryID has changed - invite accepted?");
                             if (SignaturesMatch(signature(ev), Outlook.Calendar.signature(ai))) {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");

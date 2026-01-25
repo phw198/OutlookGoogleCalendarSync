@@ -955,8 +955,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
-                        //Find entries with no Google ID
-                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
+                        //Find entries with no Google ID (that haven't been locally copied)
+                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID) && !CustomProperty.Exists(ai, CustomProperty.MetadataId.locallyCopied)) {
                             String sigAi = signature(ai);
                             unclaimedAi.Add(ai);
 

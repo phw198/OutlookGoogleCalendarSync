@@ -222,6 +222,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 prop = ups.Find(searchKey);
                 if (searchId == MetadataId.gCalendarId)
                     return (prop != null && prop.Value.ToString() == profile.UseGoogleCalendar.Id);
+                else if (searchId == MetadataId.locallyCopied)
+                    return (prop != null);
                 else {
                     return (prop != null && Get(ai, MetadataId.gCalendarId, profile) == profile.UseGoogleCalendar.Id);
                 }
