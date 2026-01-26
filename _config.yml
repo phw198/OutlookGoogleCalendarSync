@@ -38,9 +38,9 @@ google_ad_client: ca-pub-5710461137665920
 google_ad_testing: "off"
 
 # Current software releases
-show_alpha_downloads: true
-beta-version: 2.11.0
-beta-release-date: Aug-2024
+show_alpha_downloads: false
+beta-version: 2.12.0
+beta-release-date: Jan-2026
 alpha-version: 2.11.7
 alpha-release-date: Dec-2025
 # Forcing build
