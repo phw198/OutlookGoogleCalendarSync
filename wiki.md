@@ -20,5 +20,6 @@ Why not have a look around now?
 
 | Date Posted | Blog Title |
 |:----  |:----  |
+| 29-Jan-2026 | [Download Blocked by Microsoft Defender SmartScreen?]({{ site.baseurl }}{% post_url 2026-01-29-download-blocked-by-ms-defender %}) |
 | 17-Jun-2025 | [v3 release candidate available]({{ site.baseurl }}{% post_url 2025-06-17-v3-release-candidate-available %}) |
 | 01-Sep-2024 | [v2.11.0 Beta &amp; Google Permissions]({{ site.baseurl }}{% post_url 2024-09-01-2-11-0-beta-google-permissions %}) |

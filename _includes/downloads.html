@@ -15,14 +15,6 @@
   </div>
 </div>
 
-<script>
-function googlePermissions() {
-  if ("{{ site.beta-version }}" == "2.11.0") {
-    window.location = '{{ site.baseurl }}{% post_url 2024-09-01-2-11-0-beta-google-permissions %}';
-  }
-}
-</script>
-
 <h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Downloads</h1>
 
 <div style="margin-top: -18px; margin-bottom: 10px; text-align: center;">
@@ -38,8 +30,8 @@ function googlePermissions() {
   </tr>
   <tr>
     <td colspan="2" style="text-align:left">
-      <b>Stable version:</b> {{ site.beta-release-date }}
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe"" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe'); const delay = setTimeout(googlePermissions, 1000);">
+      <b>Stable version:</b> <span id="beta-release-date"></span>
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/OGCS_Setup.exe"" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Beta Exe'); const delay = setTimeout(() => defenderSmartScreen('beta'), 1000);">
         <small>Download Install File</small>
         Setup.exe
       </a>
@@ -47,7 +39,7 @@ function googlePermissions() {
   </tr>
    <tr>
     <td colspan="2">
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.beta-version }}-beta/Portable_OGCS_v{{ site.beta-version }}.zip" class="button" onClick="handleClickEvent('download', 'Beta Zip'); const delay = setTimeout(googlePermissions, 1000);">
+      <a href="#" class="button" onClick="handleClickEvent('download', 'Beta Zip'); const delay = setTimeout(() => defenderSmartScreen('beta'), 1000);">
         <small>Download File</small>
         Portable Zip
       </a>
@@ -66,8 +58,8 @@ function googlePermissions() {
   </tr>
   <tr>
     <td colspan="2" style="text-align:left">  
-      <b>Latest version:</b> {{ site.alpha-release-date }}
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Alpha Exe');">
+      <b>Latest version:</b> <span id="alpha-release-date"></span>
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Alpha Exe'); const delay = setTimeout(() => defenderSmartScreen('alpha'), 1000);">
         <small>Download Install File</small>
         Setup.Exe
       </a>
@@ -75,7 +67,7 @@ function googlePermissions() {
   </tr>
   <tr>
     <td colspan="2">
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/Portable_OGCS_v{{ site.alpha-version }}.zip" class="button" onClick="handleClickEvent('download', 'Alpha Zip');">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/Portable_OGCS_v{{ site.alpha-version }}.zip" class="button" onClick="handleClickEvent('download', 'Alpha Zip'); const delay = setTimeout(() => defenderSmartScreen('alpha'), 1000);">
         <small>Download File</small>
         Portable Zip
       </a>
@@ -83,3 +75,47 @@ function googlePermissions() {
   </tr>
 </table>
 {% endif %}
+
+<script>
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  let releaseDateStrBeta = "{{ site.beta-release-date }}";
+  const betaYear = parseInt(releaseDateStrBeta.substring(0, 4));
+  const betaMonth = parseInt(releaseDateStrBeta.substring(4, 6)) - 1;
+  document.getElementById("beta-release-date").textContent = months[betaMonth] +"-"+ betaYear;
+
+  let releaseDateStrAlpha = "{{ site.alpha-release-date }}";
+  const alphaYear = parseInt(releaseDateStrAlpha.substring(0, 4));
+  const alphaMonth = parseInt(releaseDateStrAlpha.substring(4, 6)) - 1;
+  document.getElementById("alpha-release-date").textContent = months[alphaMonth] +"-"+ alphaYear;
+
+  function diffInDays(releaseType) {
+    //window.alert(releaseType);
+    
+    const year = betaYear;
+    const month = betaMonth;
+    const day = parseInt(releaseDateStrBeta.substring(6, 8));
+    if (releaseType == "alpha") {
+      let year = alphaYear;
+      let month = alphaMonth;
+      let day = parseInt(releaseDateStrAlpha.substring(6, 8));
+    }
+    const releaseDate = new Date(year, month, day);
+
+    const today = new Date();
+    // Reset "today" to midnight for an accurate day-to-day comparison
+    today.setHours(0, 0, 0, 0);
+    // Calculate difference in milliseconds
+    const diffInMs = today - releaseDate;
+    
+    // Convert ms to days (1000ms * 60s * 60m * 24h)
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    //window.alert(diffInDays);
+    return diffInDays;
+  }
+  function defenderSmartScreen(releaseType) {
+    if (diffInDays(releaseType) < {{ site.release-date-recency }} ) {
+      window.location = '{{ site.baseurl }}{% post_url 2026-01-29-download-blocked-by-ms-defender %}';
+    }
+  }
+</script>
