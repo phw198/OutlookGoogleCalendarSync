@@ -220,13 +220,17 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return DeletionState.NotDeleted;
             } catch (System.Exception ex) {
                 Ogcs.Exception.LogAsFail(ref ex);
-                String originalDate = oExcp.OriginalDate.ToString("dd/MM/yyyy");
-                if ((ex is System.Runtime.InteropServices.COMException && ex.GetErrorCode(0x0000FFFF) == "0x00004005") ||
-                    ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") //
-                {
-                    ex.Analyse("This Outlook recurrence instance on " + originalDate + " has become inaccessible, probably due to caching");
-                } else {
-                    ex.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.");
+                try {
+                    String originalDate = oExcp.OriginalDate.ToString("dd/MM/yyyy");
+                    if ((ex is System.Runtime.InteropServices.COMException && ex.GetErrorCode(0x0000FFFF) == "0x00004005") ||
+                        ex.Message == "You changed one of the recurrences of this item, and this instance no longer exists. Close any open items and try again.") //
+                    {
+                        ex.Analyse("This Outlook recurrence instance on " + originalDate + " has become inaccessible, probably due to caching");
+                    } else {
+                        ex.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.");
+                    }
+                } catch (System.Exception ex2) {
+                    ex2.LogAsFail().Analyse("Unable to even access the originalDate attribute for a recurrence.");
                 }
                 Calendar.ForceClientReconnect = true;
                 return DeletionState.Inaccessible;
