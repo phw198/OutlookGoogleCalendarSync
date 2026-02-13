@@ -38,7 +38,7 @@ google_ad_client: ca-pub-5710461137665920
 google_ad_testing: "off"
 
 # Current software releases
-release-date-recency: 21  #Number of days to redirect to the MS Defender SmartScreen blog
+release-date-recency: 40  #Number of days to redirect to the MS Defender SmartScreen blog
 show_alpha_downloads: false
 beta-version: 2.12.0
 beta-release-date: 20260118
