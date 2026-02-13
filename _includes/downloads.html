@@ -84,11 +84,13 @@
   const betaMonth = parseInt(releaseDateStrBeta.substring(4, 6)) - 1;
   document.getElementById("beta-release-date").textContent = months[betaMonth] +"-"+ betaYear;
 
+{% if site.show_alpha_downloads == true %}
   let releaseDateStrAlpha = "{{ site.alpha-release-date }}";
   const alphaYear = parseInt(releaseDateStrAlpha.substring(0, 4));
   const alphaMonth = parseInt(releaseDateStrAlpha.substring(4, 6)) - 1;
   document.getElementById("alpha-release-date").textContent = months[alphaMonth] +"-"+ alphaYear;
-
+{% endif %}
+  
   function diffInDays(releaseType) {
     //window.alert(releaseType);
     
