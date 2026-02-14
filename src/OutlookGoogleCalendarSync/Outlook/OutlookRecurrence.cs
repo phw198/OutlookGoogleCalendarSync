@@ -230,9 +230,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         ex.Analyse("Error when determining if Outlook recurrence on " + originalDate + " is deleted or not.");
                     }
                 } catch (System.Exception ex2) {
-                    ex2.LogAsFail().Analyse("Unable to even access the originalDate attribute for a recurrence.");
+                    throw new System.AccessViolationException("Unable to even access the originalDate attribute for this recurrence.", ex2.LogAsFail());
+                } finally {
+                    Calendar.ForceClientReconnect = true;
                 }
-                Calendar.ForceClientReconnect = true;
                 return DeletionState.Inaccessible;
             } finally {
                 ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
@@ -350,8 +351,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = oExcps[e];
-                        DeletionState isDeleted = ExceptionIsDeleted(oExcp);
-
+                        DeletionState isDeleted;
+                        try {
+                            isDeleted = ExceptionIsDeleted(oExcp);
+                        } catch (System.AccessViolationException ex) {
+                            ex.LogAsFail().Analyse("Skipping check of this occurrence");
+                            continue;
+                        }
                         if (oExcp.OriginalDate.Date == instanceOrigDate.Date) {
                             log.Debug("Found Outlook exception for original date " + instanceOrigDate);
 

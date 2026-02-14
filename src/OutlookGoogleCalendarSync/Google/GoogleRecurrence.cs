@@ -317,7 +317,13 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <param name="dirtyCache">Don't used cached items; retrieve them from the cloud</param>
         /// <returns></returns>
         private static Event getGoogleInstance(Microsoft.Office.Interop.Outlook.Exception oExcp, String gRecurringEventID, Boolean dirtyCache) {
-            Outlook.Recurrence.DeletionState oIsDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
+            Outlook.Recurrence.DeletionState oIsDeleted;
+            try {
+                oIsDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
+            } catch (System.AccessViolationException ex) {
+                ex.LogAsFail().Analyse();
+                oIsDeleted = Outlook.Recurrence.DeletionState.Inaccessible;
+            }
             if (oIsDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
                 log.Warn("Abandoning fetch of Google instance for inaccessible Outlook exception.");
                 return null;
@@ -456,14 +462,20 @@ namespace OutlookGoogleCalendarSync.Google {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = excps[e];
+                        Outlook.Recurrence.DeletionState isDeleted;
+                        try {
+                            isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
+                        } catch (System.AccessViolationException ex) {
+                            ex.LogAsFail().Analyse();
+                            isDeleted = Outlook.Recurrence.DeletionState.Inaccessible;
+                        }
+                        if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
+                            log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
+                            continue;
+                        }
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
                             System.DateTime gDate = ev.OriginalStartTime.SafeDateTime();
-                            Outlook.Recurrence.DeletionState isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
-                            if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
-                                log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
-                                return;
-                            }
                             if (isDeleted == Outlook.Recurrence.DeletionState.Deleted && !ai.AllDayEvent) { //Deleted items get truncated?!
                                 gDate = gDate.Date;
                             }
@@ -528,6 +540,8 @@ namespace OutlookGoogleCalendarSync.Google {
                                 break;
                             }
                         }
+                    } catch (System.AccessViolationException ex) {
+                        ex.LogAsFail().Analyse("Abandoning creation of this exception.");
                     } finally {
                         oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);
                     }
@@ -657,6 +671,8 @@ namespace OutlookGoogleCalendarSync.Google {
                                     log.Warn("No matching Google Event recurrence found.");
                                     if (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted) log.Debug("The Outlook appointment is deleted, so not a problem.");
                                 }
+                            } catch (System.AccessViolationException ex) {
+                                ex.LogAsFail().Analyse("Abandoning comparison to this Outlook exception.");
                             } finally {
                                 aiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(aiExcp);
                                 oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);
