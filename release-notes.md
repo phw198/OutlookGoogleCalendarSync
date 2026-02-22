@@ -46,7 +46,7 @@ img.emoji {
      <p>:bulb: Fun fact: Simply clicking an advert helps support OGCS!</p>
      <br style="padding-top: 1px">
      <p>:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
-     <a href="/donate" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
+     <a href="/donate" onClick="handleClickEvent('donate', 'release-notes');" id="donateButton">
      <img src="{{ site.baseurl }}/images/donate-button.png" alt="Donate to support OGCS" border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
      </a></nobr>
      </p>
