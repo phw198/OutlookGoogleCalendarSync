@@ -52,10 +52,52 @@ div#sticky ::before {
 </script>
 </div>
 
+## v3.0.1.0 - Alpha
+
+:loudspeaker: Major new release: supports Outlook Online!
+* v3 no longer requires an Outlook client (either _Classic_ or _New_ editions)
+* New features will only appear in v3, though you may choose to remain on v2.
+* v2 of OGCS has entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
+
+:high_brightness: **Enhancements**
+- Application
+    - No Outlook client required!
+    - Display any news on start up
+    - Better presentation on 4k high resolution displays [[#2245](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2245)]
+- Sync Engine
+    - Don't delete newly created Outlook items during 2-way sync  [[#2268](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2268)]
+    - Don't sync attendee changes to Google mastered Event organised by another [[#2264](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2264)]
+    - Improvements for 2-way overrides (privacy, availability, colours) [[#2003](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2003)]
+
+:beetle: **Bugfix**
+- Application
+    - Prevent making installed application portable, when importing settings.
+    - Stop upgrade notifications when the same as running version [[#2276](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2276)]
+    - Fix failed updates, when current install 'corrupted' [[#2272](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2272)]
+- Sync Engine
+    - Handle no valid RRULE in recurring Google series. [[#2284](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2284)]
+    - Fix incorrect syncing when copying an Outlook appointment [[#2091](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2091)]
+    - Fatal crash for scheduled sync when no system tray OGCS icon. [[#2270](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2270)]
+    - Stop Outlook breaking encoded HTML in Google descriptions. [[#2269](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2269)]
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.12.0.0 - Beta
 
-:high_brightness: **Enhancements** rolled in from Alpha releases
+:loudspeaker: v2 of OGCS is now entering [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
 
+:high_brightness: **Enhancements** rolled in from Alpha releases
 - Application
     - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]
     - Include updated series exceptions in sync summary count
