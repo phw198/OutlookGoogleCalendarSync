@@ -5,10 +5,13 @@ title: Release Notes
 
 <style type="text/css">
 p {
-  margin-bottom: -13px;
+     margin-bottom: -13px;
 }
 h2 {
-  scroll-margin-top: 170px;
+     scroll-margin-top: 170px;
+}
+ul {
+     padding-left: 30px;
 }
 div#sticky ::before {
      position: absolute;
@@ -18,6 +21,16 @@ div#sticky ::before {
      left: 0px;
      background: #fafafa;
      z-index: -1;
+}
+div#sticky img {
+     margin-top: 0px;
+}
+img.emoji {
+     margin-top: 10px;
+}
+.tip{
+     padding-top: 0px;
+     margin-top: 0px;
 }
 </style>
 
@@ -33,31 +46,32 @@ div#sticky ::before {
      <p>:bulb: Fun fact: Simply clicking an advert helps support OGCS!</p>
      <br style="padding-top: 1px">
      <p>:sparkling_heart: Enjoying the new features and improvements? <nobr>Show your love and 
-     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=44DUQ7UT6WE2C&item_name=" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
-     <img src="{{ site.baseurl }}/images/paypal_donate_button.png" alt="PayPal - The safer, easier way to pay online." border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
+     <a href="/donate" onClick="handleClickEvent('outbound', 'Donate');" id="donateButton">
+     <img src="{{ site.baseurl }}/images/donate-button.png" alt="Donate to support OGCS" border="0" style="position: relative; top: -3px; vertical-align: text-top;"/>
      </a></nobr>
      </p>
 </div>
 <br/>&nbsp;<br/>
 
 <script>
-     var donate_item_name = "Outlook%20Google%20Calendar%20Sync%20donation.%20For%20splash%20screen%20hiding,%20enter%20your%20Gmail%20address%20in%20comment%20section";
      var gaccount = new URL(window.location.href).searchParams.get("id");
      if (gaccount != null && gaccount != "") {
-          donate_item_name = "Outlook Google Calendar Sync from " + atob(gaccount);
+          donate_url_id = "?id=" + gaccount;
           setCookie("googleAccount", gaccount, 30);
      }
      var paypalUrl = document.getElementById("donateButton")
-     document.getElementById("donateButton").href += donate_item_name
+     document.getElementById("donateButton").href += donate_url_id
 </script>
 </div>
 
 ## v3.0.1.0 - Alpha
 
+<div class="tip" markdown="1">
 :loudspeaker: Major new release: supports Outlook Online!
 * v3 no longer requires an Outlook client (either _Classic_ or _New_ editions)
 * New features will only appear in v3, though you may choose to remain on v2.
 * v2 of OGCS has entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
+</div>
 
 :high_brightness: **Enhancements**
 - Application
@@ -96,7 +110,7 @@ div#sticky ::before {
 ## v2.12.0.0 - Beta
 
 :loudspeaker: v2 of OGCS is now entering [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
-
+<br/>
 :high_brightness: **Enhancements** rolled in from Alpha releases
 - Application
     - Better detection of system wake from sleep [[#2132](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2132)]

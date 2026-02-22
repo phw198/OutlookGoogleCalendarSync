@@ -62,8 +62,8 @@ After clicking the donate button, on the next screen please *manually* enter you
 ## With Bitcoin![Bitcoin icon](https://cdn.simpleicons.org/bitcoin){: style="width: 28px; float: inline-end;" }
 And finally a crypto option. If you wish to hide the splash screen you'll need to:-
 - contact me separately with your Google email address
-- check [current exchange rates](https://www.xe.com/currencyconverter/convert/?Amount=10&From=GBP&To=BTC){: target="_blank" } to make sure you donate enough
-
+- check [current exchange rates](https://www.xe.com/currencyconverter/convert/?Amount=10&From=GBP&To=BTC){: target="_blank" } to make sure you donate enough  
+<br/>
 <div style="text-align: center">
   <a href="bitcoin:bc1qhrwsjvq4a0t9c4gakzpa75w8hukx7ctqq0d943?message=Outlook%20Google%20Calendar%20Sync" class="bitcoin donate-pill" onClick="copyAddress(); handleClickEvent('outbound', 'Donate');">Donate with Bitcoin</a>
   <br/><br/>

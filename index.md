@@ -18,9 +18,9 @@ layout: page
 ## Functionality
 
 <style> ul { margin-bottom: 2px; } </style>
-- Supports all versions of Outlook from 2003 to 2024 64-bit 
+- Supports **all versions of Outlook** from Outlook Online to Classic clients 2003 all through to 2024 64-bit!
    - Including Microsoft365 releases from the [General Availability](https://learn.microsoft.com/en-us/windows/deployment/update/get-started-updates-channels-tools#general-availability-channel) channel
-   - For "New Outlook", [check the latest developments](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1888)
+   - For "New Outlook", OGCS v3 must be used
 - Installable and portable options - even runs from a USB thumbdrive
 - Synchronises items in any calendar folder, including those shared with you, from
    - Outlook :arrow_right: Google
@@ -52,7 +52,7 @@ layout: page
 
 ## Minimal Requirements
 - Any version of Windows with .Net Framework 4.5 installed*
-- Outlook 2003 to 2019/Microsoft 365, 32 or 64-bit
+- v2 OGCS: Outlook 2003 to 2019/Microsoft 365, 32 or 64-bit
 
 \* Installed by OGCS Setup.exe if necessary.
 
