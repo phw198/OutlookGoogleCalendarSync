@@ -33,7 +33,8 @@ If the classic Outlook desktop application is still installed, the previous opti
 ## 📦 Setup Recommendations
 At present, v3 is only available as a portable ZIP release. Until the first v3 alpha release, it is recommended to run v3 separately to any v2 installation. 
 
-<div class="tip">💡 Although not necessary, you may wish to create a new dedicated calendar in Outlook and/or Google for OGCS to sync with, until you are happy v3 functions well for you and has all the features you require.</div>
+:bulb: Although not necessary, you may wish to create a new dedicated calendar in Outlook and/or Google for OGCS to sync with, until you are happy v3 functions well for you and has all the features you require.
+{: .tip}
 
 1. <a href="https://github.com/user-attachments/files/24422248/Portable_OGCS_v3.0.0.35.zip" onClick="handleClickEvent('download', 'v3 RC3'); const delay = setTimeout(googlePermissions, 1000);">Download v3.0.0.35</a>
 1. Create a new directory for the portable release, eg in Windows Command Prompt:-

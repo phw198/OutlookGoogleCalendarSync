@@ -16,3 +16,7 @@
     7.2. Select the attributes to sync (eg the Description)  
 1. Click `Save`
 1. On the `Sync` tab, click the `Start Sync` button
+
+## In-depth Guide
+
+* [How to sync calendars from Outlook to Google]({{ site.baseurl }}{% post_url 2021-08-08-how-to-sync-calendars-from-outlook-to-google %})

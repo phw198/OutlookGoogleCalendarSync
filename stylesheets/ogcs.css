@@ -68,6 +68,10 @@ ul.indent-list, ol.indent-list {
   margin-top: -1em;
 }
 
+#main-content ul {
+  margin-bottom: 0px;
+}
+
 #main-content ul li {
   list-style: none;
   text-indent: -20px;
@@ -86,6 +90,7 @@ ul.indent-list, ol.indent-list {
 img.emoji {
   top: 3px;
   position: relative;
+  box-shadow: none;
 }
 
 aside#sidebar table.download a.button {

@@ -19,7 +19,9 @@ next-url: syncoptions-when
 These next configuration items help you manage what should happen with items that OGCS wants to remove.
 
 **Merge with existing entries:** It is recommended the target calendar is either empty or a new calendar created specifically for OGCS to sync with. This will make it easier for you to identify what has been synced etc. However, if you need to sync into a calendar that contains items not present in the source calendar and <font style="color:red">you want to keep those items</font>, check this option. 
-<div class="tip" style="margin-bottom:7px">:bulb: Such a situation may arise if you wish to sync your work Outlook calendar in to the default Google calendar, in order that Alexa or Google Home can announce your schedule for the day.</div>
+
+:bulb: Such a situation may arise if you wish to sync your work Outlook calendar in to the default Google calendar, in order that Alexa or Google Home can announce your schedule for the day.
+{: .tip}
 
 **Disable deletions:** This option is mostly a safeguard to be used by new users of OGCS. Once you have confidence the tool is working as expected, it should most likely be switched off.  
 
@@ -57,8 +59,8 @@ The target column indicates which attribute(s) the regular expression should be 
 
 To apply to all attributes, for example, enter `SLD`. The default is `S` to obfuscate the subject text only.
 
-<div class="tip">:memo: If two-way sync is configured, the obfuscation can only work in one direction - choose which from the drop down menu.</div>
-<br/>
+:memo: If two-way sync is configured, the obfuscation can only work in one direction - choose which from the drop down menu.
+{: .tip}
 
 <p>&nbsp;</p>
 {% include navigation-buttons.html %}

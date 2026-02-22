@@ -25,7 +25,9 @@ When turning sync **off** data already synced will not be removed - this will ne
 <p style="margin-left:40px; margin-top:-20px"><b>One-way to Google:</b> If two-way sync is configured, optionally only sync the description to Google. Because Google has a maximum of 8kb held in plain text, it may cause information or formatting to be lost if subsequently synced back from Google.</p>
 
 **Attendees:** Sync the meeting attendees, using their email address as their unique identifier. A default maximum of 200 attendees can be synced, or specify a lower limit.
-<div class="tip">:warning:This option is likely to trigger the Outlook security popup. If you cannot prevent this through <a href="{{ site.github-repo }}/wiki/FAQs---Outlook-Security#how-can-i-stop-it-happening">standard settings</a>, it may be best to stop syncing attendees.</div>
+
+:warning: This option is likely to trigger the Outlook security popup. If you cannot prevent this through <a href="{{ site.github-repo }}/wiki/FAQs---Outlook-Security#how-can-i-stop-it-happening">standard settings</a>, it may be best to stop syncing attendees.
+{: .tip}
 
 <p style="margin-left:40px;"><b>Cloak email in Google:</b> Google has been known to <a href="{{ site.github-repo }}/wiki/FAQs#why-are-my-meeting-attendees-getting-notified-of-updates-to-events-in-google">send out unsolicited notification emails</a> to attendees. To prevent this, the default is to “cloak” the attendee’s email address by appending <code class="highlighter-rouge">.ogcs</code>, thus making any such emails undeliverable.</p>
 

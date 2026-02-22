@@ -12,10 +12,13 @@ If so, this message relates to the limited free quota offered by Google for prog
 For £12 per year, it is possible to be assigned into a different quota that won't be exhausted. Synchronisation features are not affected, it is simply about quota usage which developers outside of Google have limited control over. 
 
 <span id="subscribeButton" align="center" style="display: block;">[![Subscribe Button](/images/subscribe-button.png)](#){: #subscribeButtonLink}</span>
-<p id="cannotSubscribe" class="tip" align="center">:warning:The option to subscribe will only become available to those who have been affected by the quota being exhausted.<br/>You need to click the notification from within the app when it displays.</p>
 
+<div id="cannotSubscribe" class="tip">
+:warning: The option to subscribe will only become available to those who have been affected by the quota being exhausted.<br/>You need to click the notification from within the app when it displays.
+</div>
+  
 :question:Already previously subscribed? Don't double up!<br/>
-{: style="margin-bottom:0px; text-indent: -25px"}
+{: style="margin-bottom:0px; margin-top: 1em; text-indent: -25px"}
 - [Manage existing subscriptions](https://www.paypal.com/myaccount/autopay){: target="_blank"} in PayPal  
 - &nbsp;Check for [previous payments for OGCS](https://www.paypal.com/myaccount/activities/?free_text_search=Paul+Woolcock&&type=PAYMENT_SENT){: target="_blank" #search-paypal-url}
 {: style="padding-left:40px; margin-top:0px" }

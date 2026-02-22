@@ -20,8 +20,8 @@ _Specify when to run a sync._
 
 If a recurring appointment spans the date range specified, then it will also be synced, although only _exceptions_ to the series that fall within the date range will be updated. A minor divergence to this are annual recurrence patterns - these will only sync if the month of the appointment falls into a month within the sync date range.
 
-<div class="tip" style="padding-bottom:8px">:bulb: To optimise the sync speed, the smaller the date range the better. Try to avoid a large date range combined with a frequent sync interval.</div>
-<br/>
+:bulb: To optimise the sync speed, the smaller the date range the better. Try to avoid a large date range combined with a frequent sync interval.
+{: .tip}
 
 **Schedule:** The number of hours or minutes between automated syncs. 
 Setting it to zero turns off automated syncs, relying upon on-demand manual synchronisations.  

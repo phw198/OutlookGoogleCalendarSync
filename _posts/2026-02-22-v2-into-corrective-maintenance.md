@@ -19,7 +19,7 @@ This means OGCS v2 will continue to receive bug fixes that aim to eradicate exis
 
 Focus will switch to OGCS v3, which will receive new features from now onwards. Bugs that affect both v2 and v3 will be released into both products, but v2 is now essentially static in terms of feature set. 
 
-It is therefore adviseable to upgrade to v3 in the near future, to continue benefiting from the continued development going into the product.
+:bulb: It is therefore adviseable to upgrade to v3 in the near future, to continue benefiting from the continued development going into the product.
 {: .tip}
 
 ### Continued Usage of v2
