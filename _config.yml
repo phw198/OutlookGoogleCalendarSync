@@ -39,11 +39,17 @@ google_ad_testing: "off"
 
 # Current software releases
 release-date-recency: 40  #Number of days to redirect to the MS Defender SmartScreen blog
-show_alpha_downloads: false
+
+show_alpha_downloads: true
+alpha-version: 3.0.1
+alpha-release-date: 20260222
+
+show_v2_alpha_downloads: false
 beta-version: 2.12.0
 beta-release-date: 20260118
-alpha-version: 2.11.7
-alpha-release-date: 20251224
+v2-alpha-version: 2.11.7
+v2-alpha-release-date: 20251224
+
 # Forcing build
 
 # Build settings

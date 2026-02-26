@@ -5,14 +5,16 @@ date:   2025-06-17
 categories: blog
 ---
 
-<p style="margin-bottom:-16px; position:relative; top:-22px;"><sup>[Edited on 4-Jan-26 for RC3; 31-Aug-25 for RC2]</sup></p>
+<p style="margin-bottom:-16px; position:relative; top:-22px;"><sup>[Edited on 22-Feb-26 for GA; 4-Jan-26 for RC3; 31-Aug-25 for RC2]</sup></p>
 
 For over a year, and since Microsoft have started rolling out the New Outlook client application, I have been developing a version of OGCS that does not depend on any Outlook desktop application at all. Instead, OGCS will connect to your Outlook Online calendar in much the same way as it does for Google, using OAuth to authorise OGCS to manage your Outlook calendar.
 
-🎉  I'm pleased to announce it is now available as<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;v3.0.0.35; the 3<sup>rd</sup> and final release candidate for alpha v3.0.1!<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;~~v3.0.0.30; the 2<sup>nd</sup> release candidate for alpha v3.0.1!~~<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;~~v3.0.0.16; the 1<sup>st</sup> release candidate for alpha v3.0.1!~~
+🎉  I'm pleased to announce it is now available as:-
+* a standard release - install or portable :+1:
+* ~~v3.0.0.35; the 3<sup>rd</sup> and final release candidate for alpha v3.0.1!~~
+* ~~v3.0.0.30; the 2<sup>nd</sup> release candidate for alpha v3.0.1!~~
+* ~~v3.0.0.16; the 1<sup>st</sup> release candidate for alpha v3.0.1!~~
+{: .indent-list}
 
 ## What's a Release Candidate?
 

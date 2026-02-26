@@ -17,10 +17,63 @@
 
 <h1 style="margin-top:0px; text-align:center; font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;">Downloads</h1>
 
-<div style="margin-top: -18px; margin-bottom: 10px; text-align: center;">
+<div style="margin-top: -18px; text-align: center;">
   <a href="{{site.url}}{{site.baseurl}}/guide/install">Which version?</a><br/>
   <a href="{{site.github-repo}}/releases">Release back catalog</a>
 </div>
+
+<style>
+  .hr-shadow {
+    display: inline-block;
+    vertical-align: middle;
+    width: 30%;
+    border-top: 1px solid #d3d2d2;
+    box-shadow: 0px 2px 4px 1px #d9d9d9;
+}
+</style>
+
+<div style="text-align:center; margin-bottom: -10px;">
+  <span class="hr-shadow"></span>
+  <span style="display:inline-block; vertical-align:middle;"><h2>&nbsp; v3 &nbsp;</h2></span>
+  <span class="hr-shadow"></span>
+</div>
+
+{% if site.show_alpha_downloads == true %}
+<table class="download">
+  <tr>
+    <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Alpha</h2></td>
+    <td style="text-align:right">
+      <img src="https://img.shields.io/badge/release-v{{ site.alpha-version }}--alpha-orange.svg" />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:left">
+      <b>Latest version:</b> <span id="alpha-release-date"></span>
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Alpha Exe'); const delay = setTimeout(function() { defenderSmartScreen('alpha'); }, 1000);">
+        <small>Download Install File</small>
+        Setup.exe
+      </a>
+    </td>
+  </tr>
+   <tr>
+    <td colspan="2">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-beta/Portable_OGCS_v{{ site.alpha-version }}.zip" class="button" onClick="handleClickEvent('download', 'Alpha Zip'); const delay = setTimeout(function() { defenderSmartScreen('alpha'); }, 1000);">
+        <small>Download File</small>
+        Portable Zip
+      </a>
+    </td>
+  </tr>
+</table>
+<br/>
+{% endif %}
+
+<div style="text-align:center; margin-bottom: -5px;">
+  <span class="hr-shadow"></span>
+  <span style="display:inline-block; vertical-align:middle;"><h2>&nbsp; v2 &nbsp;</h2></span>
+  <span class="hr-shadow"></span>
+  <span style="margin-top: -19px; display: block;">Requires Classic Outlook Client</span><br/>
+</div>
+
 <table class="download">
   <tr>
     <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Beta</h2></td>
@@ -47,19 +100,19 @@
   </tr>
 </table>
 
-{% if site.show_alpha_downloads == true %}
+{% if site.show_v2_alpha_downloads == true %}
 <br/>
 <table class="download">
   <tr>
     <td align="left" width="100%"><h2 style="margin:0px; text-align:left">Alpha</h2></td>
     <td  style="text-align:right">
-      <img src="https://img.shields.io/badge/release-v{{ site.alpha-version }}--alpha-orange.svg" />
+      <img src="https://img.shields.io/badge/release-v{{ site.v2-alpha-version }}--alpha-orange.svg" />
     </td>
   </tr>
   <tr>
     <td colspan="2" style="text-align:left">  
-      <b>Latest version:</b> <span id="alpha-release-date"></span>
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'Alpha Exe'); const delay = setTimeout(function() { defenderSmartScreen('alpha'); }, 1000);">
+      <b>Latest version:</b> <span id="v2-alpha-release-date"></span>
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.v2-alpha-version }}-alpha/OGCS_Setup.exe" class="button" style="margin-bottom:5px" onClick="handleClickEvent('download', 'V2 Alpha Exe'); const delay = setTimeout(function() { defenderSmartScreen('v2-alpha'); }, 1000);">
         <small>Download Install File</small>
         Setup.Exe
       </a>
@@ -67,7 +120,7 @@
   </tr>
   <tr>
     <td colspan="2">
-      <a href="{{ site.github-repo }}/releases/download/v{{ site.alpha-version }}-alpha/Portable_OGCS_v{{ site.alpha-version }}.zip" class="button" onClick="handleClickEvent('download', 'Alpha Zip'); const delay = setTimeout(function() { defenderSmartScreen('alpha'); }, 1000);">
+      <a href="{{ site.github-repo }}/releases/download/v{{ site.v2-alpha-version }}-alpha/Portable_OGCS_v{{ site.v2-alpha-version }}.zip" class="button" onClick="handleClickEvent('download', 'V2 Alpha Zip'); const delay = setTimeout(function() { defenderSmartScreen('v2-alpha'); }, 1000);">
         <small>Download File</small>
         Portable Zip
       </a>
@@ -87,20 +140,30 @@
   let releaseDateStrAlpha = "{{ site.alpha-release-date }}";
   const alphaYear = parseInt(releaseDateStrAlpha.substring(0, 4));
   const alphaMonth = parseInt(releaseDateStrAlpha.substring(4, 6)) - 1;
+  let releaseDateStrV2Alpha = "{{ site.v2-alpha-release-date }}";
+  const v2AlphaYear = parseInt(releaseDateStrV2Alpha.substring(0, 4));
+  const v2AlphaMonth = parseInt(releaseDateStrV2Alpha.substring(4, 6)) - 1;
 {% if site.show_alpha_downloads == true %}
   document.getElementById("alpha-release-date").textContent = months[alphaMonth] +"-"+ alphaYear;
+  document.getElementById("v2-alpha-release-date").textContent = months[v2AlphaMonth] +"-"+ v2AlphaYear;
 {% endif %}
   
   function diffInDays(releaseType) {
     //window.alert(releaseType);
     
-    const year = betaYear;
-    const month = betaMonth;
-    const day = parseInt(releaseDateStrBeta.substring(6, 8));
+    let year = betaYear;
+    let month = betaMonth;
+    let day = parseInt(releaseDateStrBeta.substring(6, 8));
+
     if (releaseType == "alpha") {
-      let year = alphaYear;
-      let month = alphaMonth;
-      let day = parseInt(releaseDateStrAlpha.substring(6, 8));
+      year = alphaYear;
+      month = alphaMonth;
+      day = parseInt(releaseDateStrAlpha.substring(6, 8));
+
+    } else if (releaseType == "v2-alpha") {
+      year = v2AlphaYear;
+      month = v2AlphaMonth;
+      day = parseInt(releaseDateStrV2Alpha.substring(6, 8));
     }
     const releaseDate = new Date(year, month, day);
 

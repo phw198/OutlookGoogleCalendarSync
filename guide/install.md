@@ -3,9 +3,20 @@ layout: page
 title: Application Versions
 ---
 
-## Release Types
 
 Because the software is open source and has no formal support, OGCS is released as alphas and betas to indicate it might not be as polished a product as one that is being sold and has telephone support! __However__, having been available for several years and constantly being improved, it _is_ a stable product - the naming is now simply more to do with the frequency of releases.
+
+## Application Versions
+
+### v3
+The latest version that no longer requires the classic Outlook application to be installed - it can work directly from Outlook Online. The Outlook application can still be accessed locally if required and installed, as previously with v2. 
+
+This version is under active development for new features and improvements.
+
+### v2
+The now legacy version, which does not provide direct Outlook Online connectivity and requires the classic Outlook application to be installed. This version is in [corrective maintenance mode]({{ site.baseurl }}{% post_url 2026-02-22-v2-into-corrective-maintenance %}) only.
+
+## Release Types
 
 ### Alpha
 The most recent version of the applicaton, with more regular updates than the beta. If you want to see the latest functionality, or see if a possible bug has already been fixed, you should use the alpha release.
@@ -13,7 +24,7 @@ The most recent version of the applicaton, with more regular updates than the be
 ### Beta
 After several alphas have been released, the new features and improvements will be "rolled up" into a new beta release. If you don't need new features and prefer to work on an application that doesn't require frequent updates, then the beta is probably for you.
 
-## Application Versions
+## Deployment Type
 
 Both release types of the software can either be installed or run as a "portable" application. The installed version will suffice for the majority of people. 
 
