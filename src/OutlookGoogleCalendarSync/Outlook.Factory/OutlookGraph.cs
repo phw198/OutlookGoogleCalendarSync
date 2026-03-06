@@ -646,14 +646,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                     ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
                 }
-                if (!onlyTZattribute) ai.Start = ev.Start.SafeDateTime();
+                if (!onlyTZattribute) ai.Start = ev.Start.SafeDateTimeOffset().DateTime;
             }
             if ("Both,End".Contains(attr)) {
                 if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
                     log.Fine("Has ending timezone: " + ev.End.TimeZone);
                     ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
                 }
-                if (!onlyTZattribute) ai.End = ev.End.SafeDateTime();
+                if (!onlyTZattribute) ai.End = ev.End.SafeDateTimeOffset().DateTime;
             }
             return ai;
         }

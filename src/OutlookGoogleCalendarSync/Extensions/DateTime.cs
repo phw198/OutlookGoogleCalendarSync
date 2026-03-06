@@ -119,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Returns the DateTime for a Graph Date
         /// </summary>
         /// <returns>DateTime</returns>
-        public static System.DateTime SafeDateTime(this Microsoft.Graph.Date graphDate) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.Date graphDate) {
             return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day);
         }
 
@@ -159,7 +159,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Converts a System.DateTime to a Graph.Date
         /// </summary>
         /// <returns>Graph.Date</returns>
-        public static Microsoft.Graph.Date ToGraphDate(this System.DateTime dt) {
+        public static Microsoft.Graph.Date ToGraphDate(this System.DateTimeOffset dt) {
             return new Microsoft.Graph.Date(dt.Year, dt.Month, dt.Day);
         }
 
