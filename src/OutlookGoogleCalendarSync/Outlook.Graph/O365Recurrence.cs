@@ -370,9 +370,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 foreach (GcalData.Event gExcp in evExceptions) {
-                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
-                    log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : ""));
+                    System.DateTimeOffset gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTimeOffset();
+                    System.DateTimeOffset gExcpCurrDate = gExcp.Start.SafeDateTimeOffset();
+                    log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.DateTime.ToShortDateString() : ""));
 
                     try {
                         Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
@@ -409,7 +409,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             int itemModified = 0;
                             Event aiPatch = new();
                             Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch,
-                                forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.SafeDateTime().Date);
+                                forceCompare || gExcp.Start.SafeDateTimeOffset().Date != newAiExcp.Start.SafeDateTimeOffset().Date);
                             if (itemModified > 0) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
