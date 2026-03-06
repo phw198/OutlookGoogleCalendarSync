@@ -258,22 +258,6 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             return false;
         }
-        public static Boolean CompareAttribute(String attrDesc, Direction fromTo, Extensions.OgcsDateTime googleAttr, Extensions.OgcsDateTime outlookAttr, StringBuilder sb, ref int itemModified) {
-            log.Fine("Comparing " + attrDesc);
-            log.UltraFine("Google  attribute: " + googleAttr);
-            log.UltraFine("Outlook attribute: " + outlookAttr);
-            if (!googleAttr.Equals(outlookAttr)) {
-                if (fromTo == Direction.GoogleToOutlook) {
-                    sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
-                } else {
-                    sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
-                }
-                itemModified++;
-                log.Fine("Attributes differ.");
-                return true;
-            }
-            return false;
-        }
         public static Boolean CompareAttribute(String attrDesc, Direction fromTo, Extensions.OgcsDateTimeOffset googleAttr, Extensions.OgcsDateTimeOffset outlookAttr, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing " + attrDesc);
             log.UltraFine("Google  attribute: " + googleAttr);

@@ -609,16 +609,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #region Start/End & Recurrence
             Boolean startChange = false;
             Boolean endChange = false;
-            OgcsDateTime aiStart = new(ai.Start, aiAllDay);
-            OgcsDateTime aiEnd = new(ai.End, aiAllDay);
-            System.DateTime evStartParsedDate = ev.Start.SafeDateTime();
-            System.DateTime evEndParsedDate = ev.End.SafeDateTime();
+            OgcsDateTimeOffset aiStart = new(ai.Start, aiAllDay);
+            OgcsDateTimeOffset aiEnd = new(ai.End, aiAllDay);
+            System.DateTimeOffset evStartParsedDate = ev.Start.SafeDateTimeOffset();
+            System.DateTimeOffset evEndParsedDate = ev.End.SafeDateTimeOffset();
             if (ev.AllDayEvent()) {
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evStartParsedDate, true), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evEndParsedDate, true), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, true), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, true), aiEnd, sb, ref itemModified);
             } else {
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evStartParsedDate, false), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(evEndParsedDate, false), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, false), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, false), aiEnd, sb, ref itemModified);
             }
             RecurrencePattern oPattern = null;
             try {
@@ -634,12 +634,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
                             if (startChange) {
-                                oPattern.PatternStartDate = evStartParsedDate;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                oPattern.PatternStartDate = evStartParsedDate.DateTime;
+                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate.DateTime, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
                             }
                             if (endChange) {
-                                oPattern.PatternEndDate = evEndParsedDate;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                                oPattern.PatternEndDate = evEndParsedDate.DateTime;
+                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate.DateTime, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
                             }
                         }
                     } else {
