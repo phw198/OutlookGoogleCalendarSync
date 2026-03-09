@@ -107,6 +107,48 @@ img.emoji {
 </script>
 <br/>
 
+----
+
+## v2.12.1.0 - Alpha
+
+:high_brightness: **Enhancements**
+- v2 of OGCS has entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
+- New features will only appear in v3, though you may choose to remain on v2.
+
+:hammer_and_wrench: **Maintenance**
+- Application
+    - Display any news on start up
+    - Option to consider skipped releases when checking for updates
+    - Better presentation on 4k high resolution displays [[#2245](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2245)]
+    - Re-download corrupt upgrade files [[#2272](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2272)]
+- Sync Engine
+    - Behaviour improvements for 2-way overrides (privacy, availability, colours) [[#2003](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2003)]
+
+:beetle: **Bugfix**
+- Application
+    - Fix fatal crash from task tray icon animation [[#2270](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2270)]
+    - Incorrect notification of "update" to same v2.12.0 release [[#2276](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2276)]
+- Sync Engine
+    - Don't delete newly created Outlook items during 2-way sync [[#2268](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2268)]
+    - Don't sync attendee changes to Google mastered Event organised by another [[#2264](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2264)]
+    - Copy-paste of Outlook appointment may cause deletion of original [[#2091](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2091)]
+    - Enumerate Outlook Exchange folders more robustly [[#2256](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2256)]
+    - Handle recurring Google series not compatible with Outlook [[#2284](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2284)]
+    - Fix faux HTML description "changes" [[#2269](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2269)]
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.12.0.0 - Beta
 
 :loudspeaker: v2 of OGCS is now entering [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
