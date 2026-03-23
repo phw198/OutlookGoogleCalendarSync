@@ -411,6 +411,13 @@ namespace OutlookGoogleCalendarSync.Google {
                         ev, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning
                     );
                 } else if (rules.ContainsKey("UNTIL")) {
+                    if (string.IsNullOrEmpty(ev.End.TimeZone)) {
+                        log.Warn("No end time zone found for recurring series: " + GetEventSummary(ev));
+                        ev.Recurrence.ToList().ForEach(r => log.Debug(r));
+                        log.Debug($"ev.End.TimeZone: {ev.End.TimeZone}");
+                        log.Debug($"ev.Start.TimeZone: {ev.Start.TimeZone}");
+                        log.Debug($"ev.AllDayEvent: {ev.AllDayEvent()}; Logically equivalent: {ev.AllDayEvent(true)}");
+                    }
                     System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
                     if (endDate < from)
                         historicRecurring.Add(ev);
