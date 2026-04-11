@@ -117,7 +117,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
                     else {
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                        endDate = endDate.AddHours(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
+                        endDate = endDate.AddMinutes(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
                     }
                     System.DateTime patternStart = oPattern.Range.StartDate?.SafeDateTime() ?? ev.Start.SafeDateTime();
                     if (endDate < patternStart) {
