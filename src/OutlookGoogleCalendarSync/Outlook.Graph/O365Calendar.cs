@@ -435,34 +435,30 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            Int16 offset = 0;
             ai.Start = new DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.Start.TimeZone)) {
                 log.Fine("Has no starting timezone.");
                 ai.Start.TimeZone = "UTC";
             } else {
-                offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
                 log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                 ai.Start.TimeZone = ev.Start.TimeZone;
             }
 
-            offset = 0;
             ai.End = new DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.End.TimeZone)) {
                 log.Fine("Has no ending timezone.");
                 ai.End.TimeZone = "UTC";
             } else {
-                offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
                 log.Fine("Has ending timezone: " + ev.End.TimeZone);
                 ai.End.TimeZone = ev.End.TimeZone;
             }
 
             if ((bool)(ai.IsAllDay = ev.AllDayEvent())) {
-                ai.Start.DateTime = ev.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                ai.End.DateTime = ev.End.SafeDateTime().ToString("yyyy-MM-dd");
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
             } else {
-                ai.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
-                ai.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
             }
 
             ai.Recurrence = Recurrence.BuildOutlookPattern(ev);
@@ -671,16 +667,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean startChange = false;
             Boolean endChange = false;
             Boolean aiAllDay = ai.AllDayEvent();
-            OgcsDateTime aiStart = new(ai.Start.SafeDateTime(), aiAllDay);
-            OgcsDateTime aiEnd = new(ai.End.SafeDateTime(), aiAllDay);
+            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(), aiAllDay);
+            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(), aiAllDay);
             if (ev.AllDayEvent()) {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true, aiAllDay, sb, ref itemModified);
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), true), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), true), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), true), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.End.SafeDateTimeOffset(), true), aiEnd, sb, ref itemModified);
             } else {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, false, aiAllDay, sb, ref itemModified);
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), false), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), false), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), false), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.End.SafeDateTimeOffset(), false), aiEnd, sb, ref itemModified);
             }
             Boolean startTzChange = Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.GoogleToOutlook,
                 string.IsNullOrEmpty(ev.Start.TimeZone) ? "UTC" : ev.Start.TimeZone, string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone, sb, ref itemModified);
@@ -689,18 +685,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             if (startChange || startTzChange || endChange || endTzChange) {
                 aiPatch.IsAllDay = ev.AllDayEvent();
-                Int16 offset = 0;
-
                 aiPatch.Start = ai.Start;
                 aiPatch.End = ai.End;
                 if ((bool)aiPatch.IsAllDay) {
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                    aiPatch.End.DateTime = ev.End.SafeDateTime().ToString("yyyy-MM-dd");
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 } else {
-                    offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
-                    offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
-                    aiPatch.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
                 }
                 aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? aiPatch.Start.TimeZone : ev.Start.TimeZone;
                 aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? aiPatch.End.TimeZone : ev.End.TimeZone;
