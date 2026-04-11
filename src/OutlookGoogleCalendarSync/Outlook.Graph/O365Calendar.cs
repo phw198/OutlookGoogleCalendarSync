@@ -421,26 +421,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         continue;
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
-                }
+                }                
 
-                try {
-                    //Add the Google event IDs into Outlook appointment.
-                    //This needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
-                    Event aiPatch = new Event() { 
-                        Id = createdAi.Id, 
-                        Start = createdAi.Start,
-                        Subject = createdAi.Subject,
-                        SeriesMasterId = createdAi.SeriesMasterId, 
-                        Recurrence = createdAi.Recurrence 
-                    };
-                    CustomProperty.AddGoogleIDs(ref aiPatch, ev);
-                    UpdateCalendarEntry_save(ref aiPatch);
-                } catch (System.Exception ex) {
-                    ex.Analyse("Unable to save Extension data to newly created appointment.");
-                    log.Warn("This should result in a 'reclaim' during the next sync.");
-                }
-
-                Recurrence.CreateOutlookExceptions(ev, createdAi);
+                if (createdAi != null)
+                    Recurrence.CreateOutlookExceptions(ev, createdAi);
             }
         }
 
@@ -549,11 +533,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         private Event createCalendarEntry_save(Microsoft.Graph.Event ai, ref GcalData.Event ev) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                log.Debug("Saving timestamp when OGCS updated appointment.");
-                CustomProperty.SetOGCSlastModified(ref ai);
-            }
-
             Event createdAi = null;
             try {
                 System.Threading.Tasks.Task<Event> createThread =  GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request().AddAsync(ai);
@@ -569,12 +548,31 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //*** Need API handling
             }
 
-            if (createdAi != null && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev))) {
-                log.Debug("Storing the Outlook appointment IDs in Google event.");
-                Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, createdAi);
-                Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
-            }
+            //Storing Extension data needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
+            if (createdAi != null) {
+                try {
+                    //Add the Google event IDs into Outlook appointment.
+                    Event aiPatch = new Event() {
+                        Id = createdAi.Id,
+                        Start = createdAi.Start,
+                        Subject = createdAi.Subject,
+                        SeriesMasterId = createdAi.SeriesMasterId,
+                        Recurrence = createdAi.Recurrence
+                    };
+                    CustomProperty.AddGoogleIDs(ref aiPatch, ev);
+                    UpdateCalendarEntry_save(ref aiPatch);
 
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to save Extension data to newly created appointment.");
+                    log.Warn("This should result in a 'reclaim' during the next sync.");
+                }
+
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
+                    log.Debug("Storing the Outlook appointment IDs in Google event.");
+                    Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, createdAi);
+                    Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                }
+            }
             return createdAi;
         }
         #endregion

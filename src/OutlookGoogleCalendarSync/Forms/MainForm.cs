@@ -1931,6 +1931,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             clbColours_SelectedIndexChanged(null, null);
         }
         private void miColourSelectInvert_Click(object sender, EventArgs e) {
+            if (clbColours.Items.Count == 0) refreshColours();
+
             for (int i = 0; i < clbColours.Items.Count; i++) {
                 clbColours.SetItemChecked(i, !clbColours.CheckedIndices.Contains(i));
             }
