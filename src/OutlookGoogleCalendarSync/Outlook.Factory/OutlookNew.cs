@@ -386,14 +386,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
                                 else {
                                     profile.SharedCalendar = sharedURI;
-                                    defaultCalendar = sharedCalendar;
+                                    return new OutlookCalendarListEntry(sharedCalendar);
                                 }
                             }
                         } finally {
                             snd = null;
                         }
                     } else {
-                        defaultCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        MAPIFolder sharedCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        return new OutlookCalendarListEntry(sharedCalendar);
                     }
 
                 } else {
