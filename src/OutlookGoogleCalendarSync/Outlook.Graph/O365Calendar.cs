@@ -226,8 +226,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //2. Get distinct list of series IDs for which there is no master series
                 //3. Get the specific missing master event(s)
                 List<QueryOption> queryOptions = new List<QueryOption>() {
-                    new QueryOption("startDateTime", min.ToString("yyyy-MM-dd")),
-                    new QueryOption("endDateTime", max.ToString("yyyy-MM-dd"))
+                    new QueryOption("startDateTime", min.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")),
+                    new QueryOption("endDateTime", max.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"))
                 };
                 ICalendarCalendarViewCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView.Request(queryOptions);
 
