@@ -386,21 +386,22 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
                                 else {
                                     profile.SharedCalendar = sharedURI;
-                                    defaultCalendar = sharedCalendar;
+                                    return new OutlookCalendarListEntry(sharedCalendar);
                                 }
                             }
                         } finally {
                             snd = null;
                         }
                     } else {
-                        defaultCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        MAPIFolder sharedCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        return new OutlookCalendarListEntry(sharedCalendar);
                     }
 
                 } else {
                     getDefaultCalendar(oNS, ref defaultCalendar);
                 }
                 log.Debug("Default Calendar folder: " + defaultCalendar.Name);
-                log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
+                log.Debug("Folder type: " + defaultCalendar.Store?.ExchangeStoreType.ToString() ?? "Store not initialised for this shared calendar.");
                 return new OutlookCalendarListEntry(defaultCalendar);
             } finally {
                 defaultCalendar = (MAPIFolder)Ogcs.Outlook.Calendar.ReleaseObject(defaultCalendar);
