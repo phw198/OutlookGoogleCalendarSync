@@ -753,11 +753,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Extensions.OutlookColourPicker outlookColours = new Extensions.OutlookColourPicker();
             outlookColours.AddColourItems();
 
-            if (Settings.Profile.InPlay().Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
-                Forms.Main.Instance.ddOutlookColour = outlookColours;
-                foreach (Outlook.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
-                    if (cInfo.OutlookCategory.ToString() == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourValue &&
-                        cInfo.Text == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourName) {
+            if (profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) && outlookColours.Items.Count > 0) {                
+                Forms.Main.Instance.ddOutlookColour.Items.Clear();
+                foreach (Outlook.Categories.ColourInfo cInfo in outlookColours.Items) {
+                    Forms.Main.Instance.ddOutlookColour.Items.Add(cInfo);
+                    if (cInfo.OutlookCategory.ToString() == profile.SetEntriesColourValue && cInfo.Text == profile.SetEntriesColourName) {
                         Forms.Main.Instance.ddOutlookColour.SelectedItem = cInfo;
                     }
                 }

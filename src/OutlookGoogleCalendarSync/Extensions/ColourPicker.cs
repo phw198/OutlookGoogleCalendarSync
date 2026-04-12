@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
                     loading.SetToolTip(this, "Retrieving colours from Google...");
                     loading.ShowAlways = true;
                     loading.InitialDelay = 0;
-                    loading.Show("Retrieving colours from Google...", this, this.FindForm().PointToClient(this.Parent.PointToScreen(this.Location)));
+                    loading.Show("Retrieving colours from Google...", this.FindForm(), this.FindForm().PointToClient(this.Parent.PointToScreen(this.Location)));
 
                     Ogcs.Google.Calendar.Instance.ColourPalette.Get();
                     currentSelection = (Ogcs.Google.EventColour.Palette)SelectedItem;
