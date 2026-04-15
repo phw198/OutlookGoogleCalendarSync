@@ -1385,10 +1385,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     if (ai.IsAllDay ?? false) {
                         log.Fine("GetSummary - all day event");
-                        eventSummary += ai.Start.SafeDateTime().Date.ToShortDateString();
+                        eventSummary += ai.Start.SafeDateTimeOffset(true).Date.ToShortDateString();
                     } else {
                         log.Fine("GetSummary - not all day event");
-                        eventSummary += ai.Start.SafeDateTime().ToShortDateString() + " " + ai.Start.SafeDateTime().ToShortTimeString();
+                        eventSummary += ai.Start.SafeDateTimeOffset().DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset().DateTime.ToShortTimeString();
                     }
                     eventSummary += " " + (ai.Recurrence != null ? "(R) " : (!string.IsNullOrEmpty(ai.SeriesMasterId) ? "(R1) " : "")) + "=> ";
 
