@@ -708,7 +708,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
                     if (startChange) {
-                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTime().ToGraphDate();
+                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset().ToGraphDate();
                     }
                 }
             }
