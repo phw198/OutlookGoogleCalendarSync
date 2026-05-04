@@ -191,7 +191,22 @@ namespace OutlookGoogleCalendarSync.Sync {
                 log.Fine("Push sync triggered for profile: " + Settings.Profile.Name(profile));
                 System.Collections.Generic.List<Microsoft.Office.Interop.Outlook.AppointmentItem> items = Outlook.Calendar.Instance.GetCalendarEntriesInRange(profile, true);
 
-                if (items.Count < this.lastRunItemCount || items.FindAll(x => x.LastModificationTime > this.lastRunTime).Count > 0) {
+
+                Boolean changeFound = false;
+                if (items.Count < this.lastRunItemCount) changeFound = true;
+                else {
+                    Microsoft.Office.Interop.Outlook.AppointmentItem ai = null;
+                    for (int i = items.Count - 1; i >= 0; i--) {
+                        try {
+                            ai = items[i];
+                            if (ai.LastModificationTime <= this.lastRunTime) items.Remove(ai);
+                        } finally {
+                            ai = (Microsoft.Office.Interop.Outlook.AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
+                        }
+                    }
+                    if (items.Count > 0) changeFound = true;
+                }
+                if (changeFound) {
                     log.Debug("Changes found for Push sync.");
                     Forms.Main.Instance.Sync_Click(sender, null);
                 } else {
