@@ -296,7 +296,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             log.Debug("Found " + googleExceptions.Count + " exceptions.");
             if (log.IsFineEnabled())
-                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{ge.Start.SafeDateTime().ToString()};"));
+                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{(ge.Start == null ? "null" : ge.Start.SafeDateTimeOffset().ToString())};"));
         }
 
         /// <summary>
