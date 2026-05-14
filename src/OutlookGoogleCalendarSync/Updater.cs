@@ -189,20 +189,25 @@ namespace OutlookGoogleCalendarSync {
                             return false;
                         }
 
-                        String localFile = updates.PackageDirectory + "\\" + update.Filename;
+                        String updateFilename = update.Filename;
+                        if (updates.CurrentlyInstalledVersion?.Version.Version.Major == 2 && update.Version.Version.Major == 3 && update.IsDelta) {
+                            log.Info("Forcing full download instead of delta " + update.Version);
+                            updateFilename = update.Filename.Replace("delta.nupkg", "full.nupkg");
+                        }
+                        String localFile = updates.PackageDirectory + "\\" + updateFilename;
                         if (updateManager.CheckIfAlreadyDownloaded(update, localFile)) {
                             log.Debug("This file has already been downloaded: "+ Program.MaskFilePath(localFile));
                         } else {
                             squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade downloading");
-                            squirrelGaEv.AddParameter(GA4.Squirrel.file, update.Filename);
+                            squirrelGaEv.AddParameter(GA4.Squirrel.file, updateFilename);
                             try {
                                 //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
                                 if (string.IsNullOrEmpty(nonGitHubReleaseUri)) {
-                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + updateFilename;
                                     log.Debug("Downloading " + nupkgUrl);
                                     new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
                                 } else {
-                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + update.Filename;
+                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + updateFilename;
                                     log.Debug("Downloading " + nupkgUrl);
                                     new System.Net.WebClient().DownloadFile(nupkgUrl, localFile);
                                 }
@@ -213,8 +218,8 @@ namespace OutlookGoogleCalendarSync {
                             } catch (System.Exception ex) {
                                 squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                                 squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
-                                ex.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version);
-                                ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
+                                ex.Analyse("Failed downloading release file " + updateFilename + " for " + update.Version);
+                                ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + updateFilename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             } finally {
                                 squirrelGaEv.Send();
