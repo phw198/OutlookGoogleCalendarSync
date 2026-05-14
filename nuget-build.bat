@@ -10,14 +10,14 @@ del Releases\OutlookGoogleCalendarSync-%RELEASE%-delta.nupkg
 cd ..
 
 REM Sign the stand-alone OGCS executable
-REM src\packages\squirrel.windows.1.9.0\tools\signtool.exe sign /a /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v src\OutlookGoogleCalendarSync\bin\%RELEASEDIR%\OutlookGoogleCalendarSync.exe
+REM "c:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe" sign /as /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v src\OutlookGoogleCalendarSync\bin\%RELEASEDIR%\OutlookGoogleCalendarSync.exe
 
 REM In VS Package Manager
 REM PM> Install-Package squirrel.windows -Version 1.9.0
 REM PM> packages\squirrel.windows.1.9.0\tools\Squirrel --releasify OutlookGoogleCalendarSync.2.12.1-alpha.nupkg --no-msi --loadingGif=..\docs\images\ogcs128x128-animated.gif
 
 REM Sign the Squirrel install executable
-REM src\packages\squirrel.windows.1.9.0\tools\signtool.exe sign /a /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v src\Releases\Setup.exe
+REM "c:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe" sign /as /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v src\Releases\Setup.exe
 
 REM Build ZIP
 PAUSE
