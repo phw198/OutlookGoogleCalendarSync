@@ -4,6 +4,20 @@
         <name>Grpc.Net.Common</name>
     </assembly>
     <members>
+        <member name="T:Grpc.Core.AsyncStreamReaderExtensions">
+            <summary>
+            Extension methods for <see cref="T:Grpc.Core.IAsyncStreamReader`1"/>.
+            </summary>
+        </member>
+        <member name="M:Grpc.Core.AsyncStreamReaderExtensions.ReadAllAsync``1(Grpc.Core.IAsyncStreamReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Creates an <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> that enables reading all of the data from the stream reader.
+            </summary>
+            <typeparam name="T">The message type.</typeparam>
+            <param name="streamReader">The stream reader.</param>
+            <param name="cancellationToken">The cancellation token to use to cancel the enumeration.</param>
+            <returns>The created async enumerable.</returns>
+        </member>
         <member name="T:Grpc.Net.Compression.GzipCompressionProvider">
             <summary>
             GZIP compression provider.
