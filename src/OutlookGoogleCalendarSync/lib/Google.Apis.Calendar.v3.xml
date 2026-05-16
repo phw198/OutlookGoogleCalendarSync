@@ -46,11 +46,52 @@
             See, edit, share, and permanently delete all the calendars you can access using Google Calendar
             </summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarAcls">
+            <summary>See and change the sharing permissions of Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarAclsReadonly">
+            <summary>See the sharing permissions of Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarAppCreated">
+            <summary>Make secondary Google calendars, and see, create, change, and delete events on them</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarCalendarlist">
+            <summary>See, add, and remove Google calendars you’re subscribed to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarCalendarlistReadonly">
+            <summary>See the list of Google calendars you’re subscribed to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarCalendars">
+            <summary>
+            See and change the properties of Google calendars you have access to, and create secondary calendars
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarCalendarsReadonly">
+            <summary>
+            See the title, description, default time zone, and other properties of Google calendars you have access
+            to
+            </summary>
+        </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEvents">
             <summary>View and edit events on all your calendars</summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsFreebusy">
+            <summary>See the availability on Google calendars you have access to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsOwned">
+            <summary>See, create, change, and delete events on Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsOwnedReadonly">
+            <summary>See the events on Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsPublicReadonly">
+            <summary>See the events on public calendars</summary>
+        </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarEventsReadonly">
             <summary>View events on all your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarFreebusy">
+            <summary>View your availability in your calendars</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.Scope.CalendarReadonly">
             <summary>See and download any calendar you can access using your Google Calendar</summary>
@@ -66,11 +107,52 @@
             See, edit, share, and permanently delete all the calendars you can access using Google Calendar
             </summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarAcls">
+            <summary>See and change the sharing permissions of Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarAclsReadonly">
+            <summary>See the sharing permissions of Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarAppCreated">
+            <summary>Make secondary Google calendars, and see, create, change, and delete events on them</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarCalendarlist">
+            <summary>See, add, and remove Google calendars you’re subscribed to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarCalendarlistReadonly">
+            <summary>See the list of Google calendars you’re subscribed to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarCalendars">
+            <summary>
+            See and change the properties of Google calendars you have access to, and create secondary calendars
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarCalendarsReadonly">
+            <summary>
+            See the title, description, default time zone, and other properties of Google calendars you have access
+            to
+            </summary>
+        </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEvents">
             <summary>View and edit events on all your calendars</summary>
         </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsFreebusy">
+            <summary>See the availability on Google calendars you have access to</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsOwned">
+            <summary>See, create, change, and delete events on Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsOwnedReadonly">
+            <summary>See the events on Google calendars you own</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsPublicReadonly">
+            <summary>See the events on public calendars</summary>
+        </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarEventsReadonly">
             <summary>View events on all your calendars</summary>
+        </member>
+        <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarFreebusy">
+            <summary>View your availability in your calendars</summary>
         </member>
         <member name="F:Google.Apis.Calendar.v3.CalendarService.ScopeConstants.CalendarReadonly">
             <summary>See and download any calendar you can access using your Google Calendar</summary>
@@ -946,11 +1028,25 @@
             <summary>Initializes Get parameter list.</summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarsResource.Insert(Google.Apis.Calendar.v3.Data.Calendar)">
-            <summary>Creates a secondary calendar.</summary>
+            <summary>
+            Creates a secondary calendar. The authenticated user for the request is made the data owner of the new
+            calendar.  Note: We recommend to authenticate as the intended data owner of the calendar. You can use
+            domain-wide delegation of authority to allow applications to act on behalf of a specific user. Don't use a
+            service account for authentication. If you use a service account for authentication, the service account is
+            the data owner, which can lead to unexpected behavior. For example, if a service account is the data owner,
+            data ownership cannot be transferred.
+            </summary>
             <param name="body">The body of the request.</param>
         </member>
         <member name="T:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest">
-            <summary>Creates a secondary calendar.</summary>
+            <summary>
+            Creates a secondary calendar. The authenticated user for the request is made the data owner of the new
+            calendar.  Note: We recommend to authenticate as the intended data owner of the calendar. You can use
+            domain-wide delegation of authority to allow applications to act on behalf of a specific user. Don't use a
+            service account for authentication. If you use a service account for authentication, the service account is
+            the data owner, which can lead to unexpected behavior. For example, if a service account is the data owner,
+            data ownership cannot be transferred.
+            </summary>
         </member>
         <member name="M:Google.Apis.Calendar.v3.CalendarsResource.InsertRequest.#ctor(Google.Apis.Services.IClientService,Google.Apis.Calendar.v3.Data.Calendar)">
             <summary>Constructs a new Insert request.</summary>
@@ -2490,8 +2586,10 @@
             Provides read access to free/busy information.  - "reader" - Provides read access to the calendar. Private
             events will appear to users with reader access, but event details will be hidden.  - "writer" - Provides
             read and write access to the calendar. Private events will appear to users with writer access, and event
-            details will be visible.  - "owner" - Provides ownership of the calendar. This role has all of the
-            permissions of the writer role with the additional ability to see and manipulate ACLs.
+            details will be visible. Provides read access to the calendar's ACLs.  - "owner" - Provides manager access
+            to the calendar. This role has all of the permissions of the writer role with the additional ability to
+            modify access levels of other users. Important: the owner role is different from the calendar's data owner.
+            A calendar has a single data owner, but can have multiple users with owner role.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.AclRule.Scope">
@@ -2514,10 +2612,18 @@
             type "default".
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.AutoAcceptInvitations">
+            <summary>
+            Whether this calendar automatically accepts invitations. Only valid for resource calendars.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Calendar.ConferenceProperties">
             <summary>
             Conferencing properties for this calendar, for example what types of conferences are allowed.
             </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Calendar.DataOwner">
+            <summary>The email of the owner of the calendar. Set only for secondary calendars. Read-only.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Calendar.Description">
             <summary>Description of the calendar. Optional.</summary>
@@ -2570,8 +2676,15 @@
             - "freeBusyReader" - Provides read access to free/busy information.  - "reader" - Provides read access to
             the calendar. Private events will appear to users with reader access, but event details will be hidden.  -
             "writer" - Provides read and write access to the calendar. Private events will appear to users with writer
-            access, and event details will be visible.  - "owner" - Provides ownership of the calendar. This role has
-            all of the permissions of the writer role with the additional ability to see and manipulate ACLs.
+            access, and event details will be visible.  - "owner" - Provides manager access to the calendar. This role
+            has all of the permissions of the writer role with the additional ability to see and modify access levels of
+            other users. Important: the owner role is different from the calendar's data owner. A calendar has a single
+            data owner, but can have multiple users with owner role.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.AutoAcceptInvitations">
+            <summary>
+            Whether this calendar automatically accepts invitations. Only valid for resource calendars. Read-only.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.BackgroundColor">
@@ -2592,6 +2705,9 @@
             <summary>
             Conferencing properties for this calendar, for example what types of conferences are allowed.
             </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.DataOwner">
+            <summary>The email of the owner of the calendar. Set only for secondary calendars. Read-only.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.CalendarListEntry.DefaultReminders">
             <summary>The default reminders that the authenticated user has for this calendar.</summary>
@@ -2993,6 +3109,9 @@
             used to only update the participant's response. Optional. The default is False.
             </summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.Event.BirthdayProperties">
+            <summary>Birthday or special event data. Used if eventType is "birthday". Immutable.</summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.ColorId">
             <summary>
             The color of the event. This is an ID referring to an entry in the event section of the colors definition
@@ -3003,7 +3122,9 @@
             <summary>
             The conference-related information, such as details of a Google Meet conference. To create new conference
             details use the createRequest field. To persist your changes, remember to set the conferenceDataVersion
-            request parameter to 1 for all event modification requests.
+            request parameter to 1 for all event modification requests. Warning: Reusing Google Meet conference data
+            across different events can cause access issues and expose meeting details to unintended users. To help
+            ensure meeting privacy, always generate a unique conference for each event by using the createRequest field.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Event.CreatedRaw">
@@ -3406,8 +3527,9 @@
             "tentative" - The attendee has tentatively accepted the invitation.  - "accepted" - The attendee has
             accepted the invitation.  Warning: If you add an event using the values declined, tentative, or accepted,
             attendees with the "Add invitations to my calendar" setting set to "When I respond to invitation in email"
-            won't see an event on their calendar unless they choose to change their invitation response in the event
-            invitation email.
+            or "Only if the sender is known" might have their response reset to needsAction and won't see an event in
+            their calendar unless they change their response in the event invitation email. Furthermore, if more than
+            200 guests are invited to the event, response status is not propagated to the guests.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Self">
@@ -3417,6 +3539,31 @@
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventBirthdayProperties.Contact">
+            <summary>
+            Resource name of the contact this birthday event is linked to. This can be used to fetch contact details
+            from People API. Format: "people/c12345". Read-only.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventBirthdayProperties.CustomTypeName">
+            <summary>
+            Custom type label specified for this event. This is populated if birthdayProperties.type is set to "custom".
+            Read-only.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventBirthdayProperties.Type">
+            <summary>
+            Type of birthday or special event. Possible values are:   - "anniversary" - An anniversary other than
+            birthday. Always has a contact.  - "birthday" - A birthday event. This is the default value.  - "custom" - A
+            special date whose label is further specified in the customTypeName field. Always has a contact.  - "other"
+            - A special date which does not fall into the other categories, and does not have a custom label. Always has
+            a contact.  - "self" - Calendar owner's own birthday. Cannot have a contact.  The Calendar API only supports
+            creating events with the type "birthday". The type cannot be changed after the event is created.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventBirthdayProperties.ETag">
             <summary>The ETag of the item.</summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventDateTime.Date">
@@ -3555,9 +3702,10 @@
             access.  - "freeBusyReader" - The user has read access to free/busy information.  - "reader" - The user has
             read access to the calendar. Private events will appear to users with reader access, but event details will
             be hidden.  - "writer" - The user has read and write access to the calendar. Private events will appear to
-            users with writer access, and event details will be visible.  - "owner" - The user has ownership of the
+            users with writer access, and event details will be visible.  - "owner" - The user has manager access to the
             calendar. This role has all of the permissions of the writer role with the additional ability to see and
-            manipulate ACLs.
+            modify access levels of other users. Important: the owner role is different from the calendar's data owner.
+            A calendar has a single data owner, but can have multiple users with owner role.
             </summary>
         </member>
         <member name="P:Google.Apis.Calendar.v3.Data.Events.DefaultReminders">

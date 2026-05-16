@@ -162,6 +162,16 @@
             </summary>
             <typeparam name="TCategoryName">The type whose name is used for the logger category name.</typeparam>
         </member>
+        <member name="T:Microsoft.Extensions.Logging.ILoggingBuilder">
+            <summary>
+            An interface for configuring logging providers.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Logging.ILoggingBuilder.Services">
+            <summary>
+            Gets the <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> where Logging services are configured.
+            </summary>
+        </member>
         <member name="T:Microsoft.Extensions.Logging.ISupportExternalScope">
             <summary>
             Represents a <see cref="T:Microsoft.Extensions.Logging.ILoggerProvider"/> that is able to consume external scope information.
@@ -237,6 +247,11 @@
         <member name="P:Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance">
             <summary>
             Returns the shared instance of <see cref="T:Microsoft.Extensions.Logging.Abstractions.NullLogger"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.Abstractions.NullLogger.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.Abstractions.NullLogger"/> class.
             </summary>
         </member>
         <member name="M:Microsoft.Extensions.Logging.Abstractions.NullLogger.BeginScope``1(``0)">
@@ -652,7 +667,7 @@
             </summary>
             <param name="factory">The factory.</param>
             <param name="type">The type.</param>
-            <return>The <see cref="T:Microsoft.Extensions.Logging.ILogger"/> that was created.</return>
+            <returns>The <see cref="T:Microsoft.Extensions.Logging.ILogger"/> that was created.</returns>
         </member>
         <member name="T:Microsoft.Extensions.Logging.LoggerMessage">
             <summary>
@@ -944,6 +959,28 @@
             <param name="level">The log level.</param>
             <param name="message">Format string of the log message.</param>
         </member>
+        <member name="M:Microsoft.Extensions.Logging.LoggerMessageAttribute.#ctor(Microsoft.Extensions.Logging.LogLevel,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.LoggerMessageAttribute"/> class
+            which is used to guide the production of a strongly-typed logging method.
+            </summary>
+            <param name="level">The log level.</param>
+            <param name="message">Format string of the log message.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.LoggerMessageAttribute.#ctor(Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.LoggerMessageAttribute"/> class
+            which is used to guide the production of a strongly-typed logging method.
+            </summary>
+            <param name="level">The log level.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.Logging.LoggerMessageAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.LoggerMessageAttribute"/> class
+            which is used to guide the production of a strongly-typed logging method.
+            </summary>
+            <param name="message">Format string of the log message.</param>
+        </member>
         <member name="P:Microsoft.Extensions.Logging.LoggerMessageAttribute.EventId">
             <summary>
             Gets the logging event id for the logging method.
@@ -1111,6 +1148,91 @@
             <param name="additionalCapacityBeyondPos">
             Number of chars requested beyond current position.
             </param>
+        </member>
+        <member name="M:System.ThrowHelper.ThrowIfNull(System.Object,System.String)">
+            <summary>Throws an <see cref="T:System.ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
+            <param name="argument">The reference type argument to validate as non-null.</param>
+            <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        </member>
+        <member name="M:System.ThrowHelper.IfNullOrWhitespace(System.String,System.String)">
+            <summary>
+            Throws either an <see cref="T:System.ArgumentNullException"/> or an <see cref="T:System.ArgumentException"/>
+            if the specified string is <see langword="null"/> or whitespace respectively.
+            </summary>
+            <param name="argument">String to be checked for <see langword="null"/> or whitespace.</param>
+            <param name="paramName">The name of the parameter being checked.</param>
+            <returns>The original value of <paramref name="argument"/>.</returns>
+        </member>
+        <member name="T:System.Runtime.InteropServices.LibraryImportAttribute">
+            <summary>
+            Attribute used to indicate a source generator should create a function for marshalling
+            arguments instead of relying on the runtime to generate an equivalent marshalling function at run-time.
+            </summary>
+            <remarks>
+            This attribute is meaningless if the source generator associated with it is not enabled.
+            The current built-in source generator only supports C# and only supplies an implementation when
+            applied to static, partial, non-generic methods.
+            </remarks>
+        </member>
+        <member name="M:System.Runtime.InteropServices.LibraryImportAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.InteropServices.LibraryImportAttribute"/>.
+            </summary>
+            <param name="libraryName">Name of the library containing the import.</param>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.LibraryName">
+            <summary>
+            Gets the name of the library containing the import.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.EntryPoint">
+            <summary>
+            Gets or sets the name of the entry point to be called.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshalling">
+            <summary>
+            Gets or sets how to marshal string arguments to the method.
+            </summary>
+            <remarks>
+            If this field is set to a value other than <see cref="F:System.Runtime.InteropServices.StringMarshalling.Custom" />,
+            <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType" /> must not be specified.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType">
+            <summary>
+            Gets or sets the <see cref="T:System.Type"/> used to control how string arguments to the method are marshalled.
+            </summary>
+            <remarks>
+            If this field is specified, <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshalling" /> must not be specified
+            or must be set to <see cref="F:System.Runtime.InteropServices.StringMarshalling.Custom" />.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.SetLastError">
+            <summary>
+            Gets or sets whether the callee sets an error (SetLastError on Windows or errno
+            on other platforms) before returning from the attributed method.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.InteropServices.StringMarshalling">
+            <summary>
+            Specifies how strings should be marshalled for generated p/invokes
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Custom">
+            <summary>
+            Indicates the user is suppling a specific marshaller in <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType"/>.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Utf8">
+            <summary>
+            Use the platform-provided UTF-8 marshaller.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Utf16">
+            <summary>
+            Use the platform-provided UTF-16 marshaller.
+            </summary>
         </member>
         <member name="P:System.SR.UnexpectedNumberOfNamedParameters">
             <summary>The format string '{0}' does not have the expected number of named parameters. Expected {1} parameter(s) but found {2} parameter(s).</summary>
