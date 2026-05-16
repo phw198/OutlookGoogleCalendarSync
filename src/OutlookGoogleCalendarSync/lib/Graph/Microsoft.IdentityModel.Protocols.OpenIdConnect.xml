@@ -1,0 +1,1675 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.IdentityModel.Protocols.OpenIdConnect</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.ActiveDirectoryOpenIdConnectEndpoints">
+            <summary>
+            Well-known endpoints for Microsoft Entra ID.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration">
+            <summary>
+            Contains OpenIdConnect configuration that can be populated from a json string.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.Create(System.String)">
+            <summary>
+            Deserializes the json string into an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> object.
+            </summary>
+            <param name="json">json string representing the configuration.</param>
+            <returns><see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> object representing the configuration.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="json"/> is null or empty.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if <paramref name="json"/> fails to deserialize.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.Write(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration)">
+            <summary>
+            Serializes the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> object to a json string.
+            </summary>
+            <param name="configuration"><see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> object to serialize.</param>
+            <returns>json string representing the configuration object.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="configuration"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.Write(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration,System.IO.Stream)">
+            <summary>
+            Writes an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> as JSON to the <paramref name="stream"/>.
+            </summary>
+            <param name="configuration">The <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> to serialize.</param>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to write to.</param>
+            <remarks>Because a <see cref="T:System.IO.Stream"/> is provided, this method does not return a value.</remarks>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="configuration"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.#ctor">
+            <summary>
+            Initializes an new instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.#ctor(System.String)">
+            <summary>
+            Initializes an new instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> from a json string.
+            </summary>
+            <param name="json">a json string containing the metadata</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="json"/> is null or empty.</exception>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AdditionalData">
+            <summary>
+            When deserializing from JSON any properties that are not defined will be placed here.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AcrValuesSupported">
+            <summary>
+            Gets the collection of 'acr_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationDetailsTypesSupported">
+            <summary>
+            Gets the collection of 'authorization_details_types_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationEndpoint">
+            <summary>
+            Gets or sets the 'authorization_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationEncryptionAlgValuesSupported">
+            <summary>
+            Gets the collection of 'authorization_encryption_alg_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationEncryptionEncValuesSupported">
+            <summary>
+            Gets the collection of 'authorization_encryption_enc_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationResponseIssParameterSupported">
+            <summary>
+            Gets or sets the 'authorization_response_iss_parameter_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.AuthorizationSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'authorization_signing_alg_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.BackchannelAuthenticationEndpoint">
+            <summary>
+            Gets or sets the 'backchannel_authentication_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.BackchannelAuthenticationRequestSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'backchannel_authentication_request_signing_alg_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.BackchannelTokenDeliveryModesSupported">
+            <summary>
+            Gets the collection of 'backchannel_token_delivery_modes_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.BackchannelUserCodeParameterSupported">
+            <summary>
+            Gets or sets the 'backchannel_user_code_parameter_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.CheckSessionIframe">
+            <summary>
+            Gets or sets the 'check_session_iframe'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ClaimsSupported">
+            <summary>
+            Gets the collection of 'claims_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ClaimsLocalesSupported">
+            <summary>
+            Gets the collection of 'claims_locales_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ClaimsParameterSupported">
+            <summary>
+            Gets or sets the 'claims_parameter_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ClaimTypesSupported">
+            <summary>
+            Gets the collection of 'claim_types_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.CodeChallengeMethodsSupported">
+            <summary>
+            Gets the collection of 'code_challenge_methods_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.DeviceAuthorizationEndpoint">
+            <summary>
+            Gets or sets the 'device_authorization_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.DisplayValuesSupported">
+            <summary>
+            Gets the collection of 'display_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.DPoPSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'dpop_signing_alg_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.EndSessionEndpoint">
+            <summary>
+            Gets or sets the 'end_session_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.FrontchannelLogoutSessionSupported">
+            <summary>
+            Gets or sets the 'frontchannel_logout_session_supported'.
+            </summary>
+            <remarks>Would be breaking to change, in 6x it was string, spec says bool.
+            TODO - add another property, obsolete and drop in 8x?
+            see: https://openid.net/specs/openid-connect-frontchannel-1_0.html
+            </remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.FrontchannelLogoutSupported">
+            <summary>
+            Gets or sets the 'frontchannel_logout_supported'.
+            </summary>
+            <remarks>Would be breaking to change, in 6x it was string, spec says bool.
+            TODO - add another property, obsolete and drop in 8x?
+            see: https://openid.net/specs/openid-connect-frontchannel-1_0.html
+            </remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.GrantTypesSupported">
+            <summary>
+            Gets the collection of 'grant_types_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.HttpLogoutSupported">
+            <summary>
+            Boolean value specifying whether the OP supports HTTP-based logout. Default is false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IdTokenEncryptionAlgValuesSupported">
+            <summary>
+            Gets the collection of 'id_token_encryption_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IdTokenEncryptionEncValuesSupported">
+            <summary>
+            Gets the collection of 'id_token_encryption_enc_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IdTokenSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'id_token_signing_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpoint">
+            <summary>
+            Gets or sets the 'introspection_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpointAuthMethodsSupported">
+            <summary>
+            Gets the collection of 'introspection_endpoint_auth_methods_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.IntrospectionEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'introspection_endpoint_auth_signing_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.Issuer">
+            <summary>
+            Gets or sets the 'issuer'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.JwksUri">
+            <summary>
+            Gets or sets the 'jwks_uri'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.JsonWebKeySet">
+            <summary>
+            Gets or sets the <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.JsonWebKeySet"/>
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.LogoutSessionSupported">
+            <summary>
+            Boolean value specifying whether the OP can pass a sid (session ID) query parameter to identify the RP session at the OP when the logout_uri is used. Dafault Value is false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.OpPolicyUri">
+            <summary>
+            Gets or sets the 'op_policy_uri'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.OpTosUri">
+            <summary>
+            Gets or sets the 'op_tos_uri'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.PromptValuesSupported">
+            <summary>
+            Gets the collection of 'prompt_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.PushedAuthorizationRequestEndpoint">
+            <summary>
+            Gets or sets the 'pushed_authorization_request_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RegistrationEndpoint">
+            <summary>
+            Gets or sets the 'registration_endpoint'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequestObjectEncryptionAlgValuesSupported">
+            <summary>
+            Gets the collection of 'request_object_encryption_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequestObjectEncryptionEncValuesSupported">
+            <summary>
+            Gets the collection of 'request_object_encryption_enc_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequestObjectSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'request_object_signing_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequestParameterSupported">
+            <summary>
+            Gets or sets the 'request_parameter_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequestUriParameterSupported">
+            <summary>
+            Gets or sets the 'request_uri_parameter_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequirePushedAuthorizationRequests">
+            <summary>
+            Gets or sets the 'require_pushed_authorization_requests'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RequireRequestUriRegistration">
+            <summary>
+            Gets or sets the 'require_request_uri_registration'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ResponseModesSupported">
+            <summary>
+            Gets the collection of 'response_modes_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ResponseTypesSupported">
+            <summary>
+            Gets the collection of 'response_types_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RevocationEndpoint">
+            <summary>
+            Gets or sets the 'revocation_endpoint'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RevocationEndpointAuthMethodsSupported">
+            <summary>
+            Gets the collection of 'revocation_endpoint_auth_methods_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.RevocationEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'revocation_endpoint_auth_signing_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ServiceDocumentation">
+            <summary>
+            Gets or sets the 'service_documentation'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ScopesSupported">
+            <summary>
+            Gets the collection of 'scopes_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.SigningKeys">
+            <summary>
+            Gets the <see cref="T:System.Collections.Generic.ICollection`1"/> that the IdentityProvider indicates are to be used signing tokens.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.SubjectTypesSupported">
+            <summary>
+            Gets the collection of 'subject_types_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.TokenEndpoint">
+            <summary>
+            Gets or sets the 'token_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ActiveTokenEndpoint">
+            <summary>
+            This base class property is not used in OpenIdConnect.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.TokenEndpointAuthMethodsSupported">
+            <summary>
+            Gets the collection of 'token_endpoint_auth_methods_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.TokenEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'token_endpoint_auth_signing_alg_values_supported'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.TlsClientCertificateBoundAccessTokens">
+            <summary>
+            Gets or sets the 'tls_client_certificate_bound_access_tokens'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.UILocalesSupported">
+            <summary>
+            Gets the collection of 'ui_locales_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.UserInfoEndpoint">
+            <summary>
+            Gets or sets the 'user_info_endpoint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.UserInfoEndpointEncryptionAlgValuesSupported">
+            <summary>
+            Gets the collection of 'userinfo_encryption_alg_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.UserInfoEndpointEncryptionEncValuesSupported">
+            <summary>
+            Gets the collection of 'userinfo_encryption_enc_values_supported'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.UserInfoEndpointSigningAlgValuesSupported">
+            <summary>
+            Gets the collection of 'userinfo_signing_alg_values_supported'
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeAcrValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'acr_values_supported' (AcrValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'acr_values_supported' (AcrValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeAuthorizationDetailsTypesSupported">
+            <summary>
+            Gets a bool that determines if the 'authorization_details_types_supported' (AuthorizationDetailsTypesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'authorization_details_types_supported' (AuthorizationDetailsTypesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeAuthorizationEncryptionAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'authorization_encryption_alg_values_supported' (AuthorizationEncryptionAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'authorization_encryption_alg_values_supported' (AuthorizationEncryptionAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeAuthorizationEncryptionEncValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'authorization_encryption_enc_values_supported' (AuthorizationEncryptionEncValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'authorization_encryption_enc_values_supported' (AuthorizationEncryptionEncValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeAuthorizationSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'authorization_signing_alg_values_supported' (AuthorizationSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'authorization_signing_alg_values_supported' (AuthorizationSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeBackchannelTokenDeliveryModesSupported">
+            <summary>
+            Gets a bool that determines if the 'backchannel_token_delivery_modes_supported' (BackchannelTokenDeliveryModesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'backchannel_token_delivery_modes_supported' (BackchannelTokenDeliveryModesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeBackchannelAuthenticationRequestSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'backchannel_authentication_request_signing_alg_values_supported' (BackchannelAuthenticationRequestSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'backchannel_authentication_request_signing_alg_values_supported' (BackchannelAuthenticationRequestSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeClaimsSupported">
+            <summary>
+            Gets a bool that determines if the 'claims_supported' (ClaimsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'claims_supported' (ClaimsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeClaimsLocalesSupported">
+            <summary>
+            Gets a bool that determines if the 'claims_locales_supported' (ClaimsLocalesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'claims_locales_supported' (ClaimsLocalesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeClaimTypesSupported">
+            <summary>
+            Gets a bool that determines if the 'claim_types_supported' (ClaimTypesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'claim_types_supported' (ClaimTypesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeCodeChallengeMethodsSupported">
+            <summary>
+            Gets a bool that determines if the 'code_challenge_methods_supported' (CodeChallengeMethodsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'code_challenge_methods_supported' (CodeChallengeMethodsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeDisplayValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'display_values_supported' (DisplayValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'display_values_supported' (DisplayValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeDPoPSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'dpop_signing_alg_values_supported' (DPoPSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'dpop_signing_alg_values_supported' (DPoPSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeGrantTypesSupported">
+            <summary>
+            Gets a bool that determines if the 'grant_types_supported' (GrantTypesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'grant_types_supported' (GrantTypesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIdTokenEncryptionAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'id_token_encryption_alg_values_supported' (IdTokenEncryptionAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'id_token_encryption_alg_values_supported' (IdTokenEncryptionAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIdTokenEncryptionEncValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'id_token_encryption_enc_values_supported' (IdTokenEncryptionEncValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'id_token_encryption_enc_values_supported' (IdTokenEncryptionEncValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIdTokenSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'id_token_signing_alg_values_supported' (IdTokenSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'id_token_signing_alg_values_supported' (IdTokenSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIntrospectionEndpointAuthMethodsSupported">
+            <summary>
+            Gets a bool that determines if the 'introspection_endpoint_auth_methods_supported' (IntrospectionEndpointAuthMethodsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'introspection_endpoint_auth_methods_supported' (IntrospectionEndpointAuthMethodsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeIntrospectionEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'introspection_endpoint_auth_signing_alg_values_supported' (IntrospectionEndpointAuthSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'introspection_endpoint_auth_signing_alg_values_supported' (IntrospectionEndpointAuthSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializePromptValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'prompt_values_supported' (PromptValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'prompt_values_supported' (PromptValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRequestObjectEncryptionAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'request_object_encryption_alg_values_supported' (RequestObjectEncryptionAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'request_object_encryption_alg_values_supported' (RequestObjectEncryptionAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRequestObjectEncryptionEncValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'request_object_encryption_enc_values_supported' (RequestObjectEncryptionEncValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'request_object_encryption_enc_values_supported' (RequestObjectEncryptionEncValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRequestObjectSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'request_object_signing_alg_values_supported' (RequestObjectSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'request_object_signing_alg_values_supported' (RequestObjectSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeResponseModesSupported">
+            <summary>
+            Gets a bool that determines if the 'response_modes_supported' (ResponseModesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'response_modes_supported' (ResponseModesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeResponseTypesSupported">
+            <summary>
+            Gets a bool that determines if the 'response_types_supported' (ResponseTypesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'response_types_supported' (ResponseTypesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRevocationEndpointAuthMethodsSupported">
+            <summary>
+            Gets a bool that determines if the 'revocation_endpoint_auth_methods_supported' (RevocationEndpointAuthMethodsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'revocation_endpoint_auth_methods_supported' (RevocationEndpointAuthMethodsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeRevocationEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'revocation_endpoint_auth_signing_alg_values_supported' (RevocationEndpointAuthSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'revocation_endpoint_auth_signing_alg_values_supported' (RevocationEndpointAuthSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeSigningKeys">
+            <summary>
+            Gets a bool that determines if the 'SigningKeys' property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>This method always returns false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeScopesSupported">
+            <summary>
+            Gets a bool that determines if the 'scopes_supported' (ScopesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'scopes_supported' (ScopesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeSubjectTypesSupported">
+            <summary>
+            Gets a bool that determines if the 'subject_types_supported' (SubjectTypesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'subject_types_supported' (SubjectTypesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeTokenEndpointAuthMethodsSupported">
+            <summary>
+            Gets a bool that determines if the 'token_endpoint_auth_methods_supported' (TokenEndpointAuthMethodsSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'token_endpoint_auth_methods_supported' (TokenEndpointAuthMethodsSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeTokenEndpointAuthSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'token_endpoint_auth_signing_alg_values_supported' (TokenEndpointAuthSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'token_endpoint_auth_signing_alg_values_supported' (TokenEndpointAuthSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeUILocalesSupported">
+            <summary>
+            Gets a bool that determines if the 'ui_locales_supported' (UILocalesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'ui_locales_supported' (UILocalesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeUserInfoEndpointEncryptionAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'userinfo_encryption_alg_values_supported' (UserInfoEndpointEncryptionAlgValuesSupported ) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'userinfo_encryption_alg_values_supported' (UserInfoEndpointEncryptionAlgValuesSupported ) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeUserInfoEndpointEncryptionEncValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'userinfo_encryption_enc_values_supported' (UserInfoEndpointEncryptionEncValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'userinfo_encryption_enc_values_supported' (UserInfoEndpointEncryptionEncValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration.ShouldSerializeUserInfoEndpointSigningAlgValuesSupported">
+            <summary>
+            Gets a bool that determines if the 'userinfo_signing_alg_values_supported' (UserInfoEndpointSigningAlgValuesSupported) property should be serialized.
+            This is used by Json.NET in order to conditionally serialize properties.
+            </summary>
+            <return>true if 'userinfo_signing_alg_values_supported' (UserInfoEndpointSigningAlgValuesSupported) is not empty; otherwise, false.</return>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever">
+            <summary>
+            Retrieves a populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> given an address.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever.GetAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> given an address.
+            </summary>
+            <param name="address">address of the discovery document.</param>
+            <param name="cancel"><see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>A populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> instance.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever.GetAsync(System.String,System.Net.Http.HttpClient,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> given an address and an <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+            <param name="address">address of the discovery document.</param>
+            <param name="httpClient">the <see cref="T:System.Net.Http.HttpClient"/> to use to read the discovery document.</param>
+            <param name="cancel"><see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>A populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> instance.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationRetriever.GetAsync(System.String,Microsoft.IdentityModel.Protocols.IDocumentRetriever,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> given an address and an <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/>.
+            </summary>
+            <param name="address">address of the discovery document.</param>
+            <param name="retriever">the <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/> to use to read the discovery document</param>
+            <param name="cancel"><see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>A populated <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/> instance.</returns>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator">
+            <summary>
+            Defines a class for validating the OpenIdConnectConfiguration by using default policy.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.DefaultMinimumNumberOfKeys">
+            <summary>
+            1 is the default minimum number of keys.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.Validate(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration)">
+            <summary>
+            Validates a OpenIdConnectConfiguration by using current policy.
+            </summary>
+            <param name="openIdConnectConfiguration">The OpenIdConnectConfiguration to validate.</param>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Protocols.ConfigurationValidationResult"/> that contains validation result.</returns>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration.OpenIdConnectConfigurationValidator.MinimumNumberOfKeys">
+            <summary>
+            The minimum number of keys.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">
+            <summary>
+            This exception is thrown when an OpenIdConnect protocol handler encounters a protocol error.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">An <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException">
+            <summary>
+            This exception is thrown when an OpenIdConnect protocol handler encounters an invalid at_hash.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException">
+            <summary>
+            This exception is thrown when an OpenIdConnect protocol handler encounters an invalid chash.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">An <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException">
+            <summary>
+            This exception is thrown when an OpenIdConnect protocol handler encounters an invalid nonce.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">An <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException">
+            <summary>
+            This exception is thrown when an OpenIdConnect protocol handler encounters an invalid state.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException"/> class.
+            </summary>
+            <param name="message">Additional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">An <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfigurationSerializer.Read(System.Text.Json.Utf8JsonReader@,Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration)">
+            <summary>
+            Reads config. see: https://openid.net/specs/openid-connect-discovery-1_0.html
+            </summary>
+            <param name="reader">a <see cref="T:System.Text.Json.Utf8JsonReader"/> pointing at a StartObject.</param>
+            <param name="config"></param>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration"/>.</returns>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.LogMessages">
+            <summary>
+            Log messages and codes
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes">
+            <summary>
+            Defines grant types for token requests. See: <see href="https://datatracker.ietf.org/doc/html/rfc6749"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.AuthorizationCode">
+            <summary>
+            Indicates the 'authorization_code' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.1"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.RefreshToken">
+            <summary>
+            Indicates the 'refresh_token' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc6749#section-6"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.Password">
+            <summary>
+            Indicates the 'password' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.3"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.ClientCredentials">
+            <summary>
+            Indicates the 'client_credentials' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.4"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.Saml2Bearer">
+            <summary>
+            Indicates the 'saml2-bearer' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc7522"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.JwtBearer">
+            <summary>
+            Indicates the 'jwt-bearer' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc7523"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.DeviceCode">
+            <summary>
+            Indicates the 'device_code' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc8628"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.TokenExchange">
+            <summary>
+            Indicates the 'token-exchange' grant type. See: <see href="https://datatracker.ietf.org/doc/html/rfc8693"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectGrantTypes.Ciba">
+            <summary>
+            Indicates the 'ciba' grant type. See: <see href="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage">
+            <summary>
+            Provides access to common OpenID Connect parameters.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> class with a json string.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.#ctor(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> class.
+            </summary>
+            <param name="other"> an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> to copy.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="other"/> is null.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.#ctor(System.Collections.Specialized.NameValueCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> class.
+            </summary>
+            <param name="nameValueCollection">Collection of key value pairs.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String[]}})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> class.
+            </summary>
+            <param name="parameters">Enumeration of key value pairs.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Clone">
+            <summary>
+            Returns a new instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> with values copied from this object.
+            </summary>
+            <returns>A new <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> object copied from this object</returns>
+            <remarks>This is a shallow Clone.</remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.CreateAuthenticationRequestUrl">
+            <summary>
+            Creates an OpenIdConnect message using the current contents of this <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </summary>
+            <returns>The uri to use for a redirect.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.CreateLogoutRequestUrl">
+            <summary>
+            Creates a query string using the current contents of this <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </summary>
+            <returns>The uri to use for a redirect.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.EnsureTelemetryValues(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage)">
+            <summary>
+            Adds telemetry values to the message parameters.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.AuthorizationEndpoint">
+            <summary>
+            Gets or sets the value for the AuthorizationEndpoint
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.AccessToken">
+            <summary>
+            Gets or sets 'access_Token'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.AcrValues">
+            <summary>
+            Gets or sets 'acr_values'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ClaimsLocales">
+            <summary>
+            Gets or sets 'claims_Locales'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ClientAssertion">
+            <summary>
+            Gets or sets 'client_assertion'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ClientAssertionType">
+            <summary>
+            Gets or sets 'client_assertion_type'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ClientId">
+            <summary>
+            Gets or sets 'client_id'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ClientSecret">
+            <summary>
+            Gets or sets 'client_secret'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Code">
+            <summary>
+            Gets or sets 'code'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Display">
+            <summary>
+            Gets or sets 'display'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.DomainHint">
+            <summary>
+            Gets or sets 'domain_hint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.EnableTelemetryParameters">
+            <summary>
+            Gets or sets whether parameters for the library and version are sent on the query string for this <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> instance. 
+            This value is set to the value of EnableTelemetryParametersByDefault at message creation time.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.EnableTelemetryParametersByDefault">
+            <summary>
+            Gets or sets whether parameters for the library and version are sent on the query string for all instances of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Error">
+            <summary>
+            Gets or sets 'error'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ErrorDescription">
+            <summary>
+            Gets or sets 'error_description'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ErrorUri">
+            <summary>
+            Gets or sets 'error_uri'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ExpiresIn">
+            <summary>
+            Gets or sets 'expires_in'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.GrantType">
+            <summary>
+            Gets or sets 'grant_type'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.IdToken">
+            <summary>
+            Gets or sets 'id_token'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.IdTokenHint">
+            <summary>
+            Gets or sets 'id_token_hint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.IdentityProvider">
+            <summary>
+            Gets or sets 'identity_provider'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Iss">
+            <summary>
+            Gets or sets 'iss'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.LoginHint">
+            <summary>
+            Gets or sets 'login_hint'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.MaxAge">
+            <summary>
+            Gets or sets 'max_age'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Nonce">
+            <summary>
+            Gets or sets 'nonce'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Password">
+            <summary>
+            Gets or sets 'password'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.PostLogoutRedirectUri">
+            <summary>
+            Gets or sets 'post_logout_redirect_uri'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Prompt">
+            <summary>
+            Gets or sets 'prompt'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.RedirectUri">
+            <summary>
+            Gets or sets 'redirect_uri'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.RefreshToken">
+            <summary>
+            Gets or sets 'refresh_token'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.RequestType">
+            <summary>
+            Gets or set the request type for this message
+            </summary>
+            <remarks>This is helpful when sending different messages through a common routine, when extra parameters need to be set or checked.</remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.RequestUri">
+            <summary>
+            Gets or sets 'request_uri'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ResponseMode">
+            <summary>
+            Gets or sets 'response_mode'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.ResponseType">
+            <summary>
+            Gets or sets 'response_type'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Resource">
+            <summary>
+            Gets or sets 'resource'
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Scope">
+            <summary>
+            Gets or sets 'scope'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.SessionState">
+            <summary>
+            Gets or sets 'session_state'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Sid">
+            <summary>
+            Gets or sets 'sid'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.SkuTelemetryValue">
+            <summary>
+            Gets the string that is sent as telemetry data in an OpenIdConnectMessage.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.State">
+            <summary>
+            Gets or sets 'state'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.TargetLinkUri">
+            <summary>
+            Gets or sets 'target_link_uri'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.TokenEndpoint">
+            <summary>
+            Gets or sets the value for the token endpoint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.TokenType">
+            <summary>
+            Gets or sets 'token_type'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.UiLocales">
+            <summary>
+            Gets or sets 'ui_locales'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.UserId">
+            <summary>
+            Gets or sets 'user_id'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage.Username">
+            <summary>
+            Gets or sets 'username'.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectParameterNames">
+            <summary>
+            Parameter names for OpenID Connect Request/Response messages.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectParameterUtf8Bytes">
+            <summary>
+            Parameter names for OpenIdConnect Request/Response messages as UTF8 bytes.
+            Used by UTF8JsonReader/Writer for performance gains.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt">
+            <summary>
+            Defines prompt types for OpenID Connect.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt.None">
+            <summary>
+            Indicates the 'none' prompt type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt.Create">
+            <summary>
+            Indicates the 'create' prompt type. See: <see href="https://openid.net/specs/openid-connect-prompt-create-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt.Login">
+            <summary>
+            Indicates the 'login' prompt type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt.Consent">
+            <summary>
+            Indicates the 'consent' prompt type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectPrompt.SelectAccount">
+            <summary>
+            Indicates the 'select_account' prompt type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext">
+            <summary>
+            A context that is used by a <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator"/> when validating an OpenIdConnect Response
+            to ensure it's compliant with <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.#ctor">
+            <summary>
+            Creates an instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/>
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ClientId">
+            <summary>
+            Gets or sets the 'client_id'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.Nonce">
+            <summary>
+            Gets or sets the 'nonce' that was sent with the 'Request'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ProtocolMessage">
+            <summary>
+            Gets or sets the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> that represents the 'Response'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.State">
+            <summary>
+            Gets or sets the state that was sent with the 'Request'.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.UserInfoEndpointResponse">
+            <summary>
+            Gets or sets the response received from userinfo_endpoint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ValidatedIdToken">
+            <summary>
+            This id_token is assumed to have audience, issuer, lifetime and signature validated.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.IdTokenValidator">
+            <summary>
+            Delegate for validating additional claims in 'id_token'.
+            </summary>
+            <param name="idToken">The <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> to validate.</param>
+            <param name="context">The <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> used for validation.</param>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator">
+            <summary>
+            <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator"/> is used to ensure that an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>
+            obtained using OpenID Connect is compliant with <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.DefaultNonceLifetime">
+            <summary>
+            Default for the how long the nonce is valid.
+            </summary>
+            <remarks>The default is 1 hour.</remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator"/>,
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.GenerateNonce">
+            <summary>
+            Generates a value suitable to use as a nonce.
+            </summary>
+            <returns>A nonce</returns>
+            <remarks>If <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce"/> is true then the 'nonce' will contain the Epoch time as the prefix, seperated by a '.'.
+            <para>For example: 635410359229176103.MjQxMzU0ODUtMTdiNi00NzAwLWE4MjYtNTE4NGExYmMxNTNlZmRkOGU4NjctZjQ5OS00MWIyLTljNTEtMjg3NmM0NzI4ZTc5</para></remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.HashAlgorithmMap">
+            <summary>
+            Gets the algorithm mapping between OpenIdConnect and .Net for Hash algorithms.
+            a <see cref="T:System.Collections.Generic.IDictionary`2"/> that contains mappings from the JWT namespace <see href="https://datatracker.ietf.org/doc/html/rfc7518"/> to .NET.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.NonceLifetime">
+            <summary>
+            Gets or set the <see cref="T:System.TimeSpan"/> defining how long a nonce is valid.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if 'value' is less than or equal to 'TimeSpan.Zero'.</exception>
+            <remarks>If <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce"/> is true, then the nonce timestamp is bound by DateTime.UtcNow + NonceLifetime.</remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireAcr">
+            <summary>
+            Gets or sets a value indicating if an 'acr' claim is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireAmr">
+            <summary>
+            Gets or sets a value indicating if an 'amr' claim is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireAuthTime">
+            <summary>
+            Gets or sets a value indicating if an 'auth_time' claim is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireAzp">
+            <summary>
+            Gets or sets a value indicating if an 'azp' claim is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireNonce">
+            <summary>
+            Get or sets if a nonce is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireState">
+            <summary>
+            Gets or sets a value indicating if a 'state' is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireStateValidation">
+            <summary>
+            Gets or sets a value indicating if validation of 'state' is turned on or off.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireSub">
+            <summary>
+            Gets or sets a value indicating if a 'sub' claim is required.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireSubByDefault">
+            <summary>
+            Gets or sets a value for default RequreSub.
+            </summary>
+            <remarks>default: true.</remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce">
+            <summary>
+            Gets or set logic to control if a nonce is prefixed with a timestamp.
+            </summary>
+            <remarks>if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce"/> is true then:
+            <para><see cref="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.GenerateNonce"/> will return a 'nonce' with the Epoch time as the prefix, delimited with a '.'.</para>
+            <para><see cref="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateNonce(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)"/> will require that the 'nonce' has a valid time as the prefix.</para>
+            </remarks>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.IdTokenValidator">
+            <summary>
+            Gets or sets the delegate for validating 'id_token'.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateAuthenticationResponse(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates that an OpenID Connect response from 'authorization_endpoint" is valid as per <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="validationContext">the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains expected values.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">Thrown if the response is not spec compliant.</exception>
+            <remarks>It is assumed that the IdToken had ('aud', 'iss', 'signature', 'lifetime') validated.</remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateTokenResponse(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates that an OpenID Connect response from "token_endpoint" is valid as per <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="validationContext">the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains expected values.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">Thrown if the response is not spec compliant.</exception>
+            <remarks>It is assumed that the IdToken had ('aud', 'iss', 'signature', 'lifetime') validated.</remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateUserInfoResponse(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates that an OpenIdConnect response from "userinfo_endpoint" is valid as per <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="validationContext">the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains expected values.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">Thrown if the response is not spec compliant.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateIdToken(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates the claims in the 'id_token' as per <see href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation"/>.
+            </summary>
+            <param name="validationContext">the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains expected values.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.GetHashAlgorithm(System.String)">
+            <summary>
+            Returns a <see cref="T:System.Security.Cryptography.HashAlgorithm"/> corresponding to string 'algorithm' after translation using <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.HashAlgorithmMap"/>.
+            </summary>
+            <param name="algorithm">string representing the hash algorithm</param>
+            <returns>A <see cref="T:System.Security.Cryptography.HashAlgorithm"/>.</returns>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.CryptoProviderFactory">
+            <summary>
+            Gets or sets the <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.CryptoProviderFactory"/> that will be used for crypto operations.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateHash(System.String,System.String,System.String)">
+            <summary>
+            Validates the 'token' or 'code'. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="expectedValue">The expected value of the hash. normally the c_hash or at_hash claim.</param>
+            <param name="hashItem">Item to be hashed per oidc spec.</param>
+            <param name="algorithm">Algorithm for computing hash over hashItem.</param>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolException">Thrown if the expected value does not equal the hashed value.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateCHash(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates the 'code' according to <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="validationContext">A <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains the protocol message to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ValidatedIdToken"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException">Thrown if <paramref name="validationContext"/> contains a 'code' and there is no 'c_hash' claim in the 'id_token'.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException">Thrown if <paramref name="validationContext"/> contains a 'code' and the 'c_hash' claim is not a string in the 'id_token'.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidCHashException">Thrown if the 'c_hash' claim in the 'id_token' does not correspond to the 'code' in the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> response.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateAtHash(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates the 'token' according to <see href="https://openid.net/specs/openid-connect-core-1_0.html"/>.
+            </summary>
+            <param name="validationContext">A <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains the protocol message to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ValidatedIdToken"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException">Thrown if the <paramref name="validationContext"/> contains a 'token' and there is no 'at_hash' claim in the id_token.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException">Thrown if the <paramref name="validationContext"/> contains a 'token' and the 'at_hash' claim is not a string in the 'id_token'.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidAtHashException">Thrown if the 'at_hash' claim in the 'id_token' does not correspond to the 'access_token' in the <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/> response.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateNonce(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates that the <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> contains the nonce.
+            </summary>
+            <param name="validationContext">A <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains the 'nonce' to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ValidatedIdToken"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.Nonce"/> is null and RequireNonce is true.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException">Thrown if the 'nonce' found in the 'id_token' does not match <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.Nonce"/>.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidNonceException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce"/> is true and a timestamp is not: found, well formed, negatire or expired.</exception>
+            <remarks>The timestamp is only validated if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.RequireTimeStampInNonce"/> is true.
+            <para>If <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.Nonce"/> is not-null, then a matching 'nonce' must exist in the 'id_token'.</para></remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidator.ValidateState(Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext)">
+            <summary>
+            Validates that the 'state' in message is valid.
+            </summary>
+            <param name="validationContext">A <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext"/> that contains the 'state' to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="validationContext"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ProtocolMessage"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException">Thrown if <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.State"/> is present in <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.State"/> but either <see cref="P:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolValidationContext.ProtocolMessage"/> or its state property is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectProtocolInvalidStateException">Thrown if 'state' in the context does not match the state in the message.</exception>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectRequestType">
+            <summary>
+            Defines request types for OpenID Connect.
+            </summary>
+            <remarks>
+            Can be used to determine the message type in an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectRequestType.Authentication">
+            <summary>
+            Indicates an Authentication Request. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectRequestType.Logout">
+            <summary>
+            Indicates a Logout Request. See: <see href="https://openid.net/specs/openid-connect-frontchannel-1_0.html#RPLogout"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectRequestType.Token">
+            <summary>
+            Indicates a Token Request. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseMode">
+            <summary>
+            Defines response modes for OpenID Connect.
+            </summary>
+            <remarks>
+            Can be used to determine the response mode in an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseMode.Query">
+            <summary>
+            Indicates a Query Response. See: <see href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseMode.FormPost">
+            <summary>
+            Indicates a Form Post Response. See: <see href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseMode.Fragment">
+            <summary>
+            Indicates a Fragment Response. See: <see href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType">
+            <summary>
+            Defines response types for OpenID Connect.
+            </summary>
+            <remarks>
+            Can be used to determine the message type in an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.Code">
+            <summary>
+            Indicates the 'code' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#codeExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.CodeIdToken">
+            <summary>
+            Indicates the 'code id_token' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#HybridAuthRequest"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#code-id_tokenExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.CodeIdTokenToken">
+            <summary>
+            Indicates the 'code id_token token' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#HybridAuthRequest"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#code-id_token-tokenExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.CodeToken">
+            <summary>
+            Indicates the 'code token' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#HybridAuthRequest"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#code-tokenExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.IdToken">
+            <summary>
+            Indicates the 'id_token' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#HybridAuthRequest"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#id_tokenExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.IdTokenToken">
+            <summary>
+            Indicates the 'id_token token' response type. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ImplicitFlowAuth"/>.
+            For example: <see href="https://openid.net/specs/openid-connect-core-1_0.html#id_token-tokenExample"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.None">
+            <summary>
+            Defined in the OAuth v2 Multiple Response Types 1.0 spec for completeness.
+            See: <see href="https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#OAuthResponseTypesReg"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectResponseType.Token">
+            <summary>
+            Defined in the OAuth 2.0 spec for completeness.
+            See: <see href="https://datatracker.ietf.org/doc/html/rfc6749#section-11.3.2"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope">
+            <summary>
+            Defines scopes for OpenID Connect. For details, See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+            <remarks>
+            Can be used to determine the scope in an <see cref="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage"/>.
+            </remarks>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Address">
+            <summary>
+            Indicates the <c>address</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Email">
+            <summary>
+            Indicates the <c>email</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OfflineAccess">
+            <summary>
+            Indicates the <c>offline_access</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OpenId">
+            <summary>
+            Indicates the <c>openid</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.OpenIdProfile">
+            <summary>
+            Indicates both <c>openid</c> and <c>profile</c> scopes. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Phone">
+            <summary>
+            Indicates the <c>phone</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.Profile">
+            <summary>
+            Indicates the <c>profile</c> scope. See: <see href="https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectScope.UserImpersonation">
+            <summary>
+            Indicates the <c>user_impersonation</c> scope for Microsoft Entra ID.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectSessionProperties">
+            <summary>
+            Defines a set of properties names.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectSessionProperties.CheckSessionIFrame">
+            <summary>
+            Property defined for 'check_session_iframe'.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectSessionProperties.RedirectUri">
+            <summary>
+            Property defined for 'redirect_uri' set in the request for a 'code'
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectSessionProperties.SessionState">
+            <summary>
+            Property defined for 'session state'
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdProviderMetadataNames">
+            <summary>
+            OpenID Provider Metadata parameter names
+            <see href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdProviderMetadataUtf8Bytes">
+            <summary>
+            OpenId Provider Metadata parameter names as UTF8Bytes
+            Used by UTF8JsonReader/Writer for performance gains.
+            http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
+            </summary>
+        </member>
+    </members>
+</doc>

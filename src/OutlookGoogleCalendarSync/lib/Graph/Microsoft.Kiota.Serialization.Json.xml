@@ -1,0 +1,536 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Serialization.Json</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Serialization.Json.JsonParseNode">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> implementation for the json content type
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.#ctor(System.Text.Json.JsonElement)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonParseNode"/> constructor.
+            </summary>
+            <param name="node">The JsonElement to initialize the node with</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.#ctor(System.Text.Json.JsonElement,Microsoft.Kiota.Serialization.Json.KiotaJsonSerializationContext)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonParseNode"/> constructor.
+            </summary>
+            <param name="node">The JsonElement to initialize the node with</param>
+            <param name="jsonSerializerContext">The JsonSerializerContext to utilize.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetStringValue">
+            <summary>
+            Get the string value from the json node
+            </summary>
+            <returns>A string value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetBoolValue">
+            <summary>
+            Get the boolean value from the json node
+            </summary>
+            <returns>A boolean value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetByteValue">
+            <summary>
+            Get the byte value from the json node
+            </summary>
+            <returns>A byte value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetSbyteValue">
+            <summary>
+            Get the sbyte value from the json node
+            </summary>
+            <returns>A sbyte value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetIntValue">
+            <summary>
+            Get the int value from the json node
+            </summary>
+            <returns>A int value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetFloatValue">
+            <summary>
+            Get the float value from the json node
+            </summary>
+            <returns>A float value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetLongValue">
+            <summary>
+            Get the Long value from the json node
+            </summary>
+            <returns>A Long value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetDoubleValue">
+            <summary>
+            Get the double value from the json node
+            </summary>
+            <returns>A double value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetDecimalValue">
+            <summary>
+            Get the decimal value from the json node
+            </summary>
+            <returns>A decimal value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetGuidValue">
+            <summary>
+            Get the guid value from the json node
+            </summary>
+            <returns>A guid value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetDateTimeOffsetValue">
+            <summary>
+            Get the <see cref="T:System.DateTimeOffset"/> value from the json node
+            </summary>
+            <returns>A <see cref="T:System.DateTimeOffset"/> value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetTimeSpanValue">
+            <summary>
+            Get the <see cref="T:System.TimeSpan"/> value from the json node
+            </summary>
+            <returns>A <see cref="T:System.TimeSpan"/> value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetDateValue">
+            <summary>
+            Get the <see cref="T:Microsoft.Kiota.Abstractions.Date"/> value from the json node
+            </summary>
+            <returns>A <see cref="T:Microsoft.Kiota.Abstractions.Date"/> value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetTimeValue">
+            <summary>
+            Get the <see cref="T:Microsoft.Kiota.Abstractions.Time"/> value from the json node
+            </summary>
+            <returns>A <see cref="T:Microsoft.Kiota.Abstractions.Time"/> value</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetEnumValue``1">
+            <summary>
+            Get the enumeration value of type <typeparam name="T"/>from the json node
+            </summary>
+            <returns>An enumeration value or null</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetCollectionOfObjectValues``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Get the collection of type <typeparam name="T"/>from the json node
+            </summary>
+            <param name="factory">The factory to use to create the model object.</param>
+            <returns>A collection of objects</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetCollectionOfEnumValues``1">
+            <summary>
+            Gets the collection of enum values of the node.
+            </summary>
+            <returns>The collection of enum values.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetByteArrayValue">
+            <summary>
+            Gets the byte array value of the node.
+            </summary>
+            <returns>The byte array value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetUntypedValue">
+            <summary>
+            Gets the untyped value of the node
+            </summary>
+            <returns>The untyped value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetCollectionOfPrimitiveValues``1">
+            <summary>
+            Get the collection of primitives of type <typeparam name="T"/>from the json node
+            </summary>
+            <returns>A collection of objects</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetCollectionOfUntypedValues(System.Text.Json.JsonElement)">
+            <summary>
+            Gets the collection of untyped values of the node.
+            </summary>
+            <returns>The collection of untyped values.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetPropertiesOfUntypedObject(System.Text.Json.JsonElement)">
+            <summary>
+            Gets the collection of properties in the untyped object.
+            </summary>
+            <returns>The collection of properties in the untyped object.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonParseNode.OnBeforeAssignFieldValues">
+            <summary>
+            The action to perform before assigning field values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonParseNode.OnAfterAssignFieldValues">
+            <summary>
+            The action to perform after assigning field values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetObjectValue``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Get the object of type <typeparam name="T"/>from the json node
+            </summary>
+            <param name="factory">The factory to use to create the model object.</param>
+            <returns>A object of the specified type</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNode.GetChildNode(System.String)">
+            <summary>
+            Get the child node of the specified identifier
+            </summary>
+            <param name="identifier">The identifier of the child node</param>
+            <returns>An instance of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory"/> implementation for json content types
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory.#ctor">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory"/> constructor.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory.#ctor(Microsoft.Kiota.Serialization.Json.KiotaJsonSerializationContext)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory"/> constructor. 
+            </summary>
+            <param name="jsonJsonSerializationContext">The KiotaSerializationContext to utilize.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory.ValidContentType">
+            <summary>
+            The valid content type for json
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory.GetRootParseNode(System.String,System.IO.Stream)">
+            <summary>
+            Gets the root <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> of the json to be read.
+            </summary>
+            <param name="contentType">The content type of the stream to be parsed</param>
+            <param name="content">The <see cref="T:System.IO.Stream"/> containing json to parse.</param>
+            <returns>An instance of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> for json manipulation</returns> 
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously gets the root <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> of the json to be read.
+            </summary>
+            <param name="contentType">The content type of the stream to be parsed</param>
+            <param name="content">The <see cref="T:System.IO.Stream"/> containing json to parse.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns>An instance of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> for json manipulation</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> implementation for json content types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.writer">
+            <summary>
+            The <see cref="T:System.Text.Json.Utf8JsonWriter"/> instance for writing json content
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.#ctor">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter"/> constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.#ctor(Microsoft.Kiota.Serialization.Json.KiotaJsonSerializationContext)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter"/> constructor
+            </summary>
+            <param name="kiotaJsonSerializationContext">The KiotaJsonSerializationContext to use.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.OnBeforeObjectSerialization">
+            <summary>
+            The action to perform before object serialization
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.OnAfterObjectSerialization">
+            <summary>
+            The action to perform after object serialization
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.OnStartObjectSerialization">
+            <summary>
+            The action to perform on the start of object serialization
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.GetSerializedContent">
+            <summary>
+            Get the stream of the serialized content
+            </summary>
+            <returns>The <see cref="T:System.IO.Stream"/> of the serialized content</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteStringValue(System.String,System.String)">
+            <summary>
+            Write the string value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The string value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteBoolValue(System.String,System.Nullable{System.Boolean})">
+            <summary>
+            Write the boolean value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The boolean value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteByteValue(System.String,System.Nullable{System.Byte})">
+            <summary>
+            Write the byte value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The byte value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteSbyteValue(System.String,System.Nullable{System.SByte})">
+            <summary>
+            Write the sbyte value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The sbyte value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteIntValue(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Write the int value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The int value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteFloatValue(System.String,System.Nullable{System.Single})">
+            <summary>
+            Write the float value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The float value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteLongValue(System.String,System.Nullable{System.Int64})">
+            <summary>
+            Write the long value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The long value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteDoubleValue(System.String,System.Nullable{System.Double})">
+            <summary>
+            Write the double value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The double value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteDecimalValue(System.String,System.Nullable{System.Decimal})">
+            <summary>
+            Write the decimal value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The decimal value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteGuidValue(System.String,System.Nullable{System.Guid})">
+            <summary>
+            Write the Guid value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The Guid value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteDateTimeOffsetValue(System.String,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Write the DateTimeOffset value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The DateTimeOffset value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteTimeSpanValue(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Write the TimeSpan(An ISO8601 duration.For example, PT1M is "period time of 1 minute") value.
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The TimeSpan value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteDateValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Date})">
+            <summary>
+            Write the Date value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The Date value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteTimeValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Time})">
+            <summary>
+            Write the Time value
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The Time value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteNullValue(System.String)">
+            <summary>
+            Write the null value
+            </summary>
+            <param name="key">The key of the json node</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteEnumValue``1(System.String,System.Nullable{``0})">
+            <summary>
+            Write the enumeration value of type  <typeparam name="T"/>
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The enumeration value</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteCollectionOfPrimitiveValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Write the collection of primitives of type  <typeparam name="T"/>
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="values">The primitive collection</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteCollectionOfObjectValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Write the collection of objects of type  <typeparam name="T"/>
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="values">The object collection</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteCollectionOfEnumValues``1(System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <summary>
+            Writes the specified collection of enum values to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="values">The enum values to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteDictionaryValue``1(System.String,``0)">
+            <summary>
+            Writes the specified dictionary to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="values">The dictionary of values to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteByteArrayValue(System.String,System.Byte[])">
+            <summary>
+            Writes the specified byte array as a base64 string to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The byte array to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteObjectValue``1(System.String,``0,Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <summary>
+            Write the object of type <typeparam name="T"/>
+            </summary>
+            <param name="key">The key of the json node</param>
+            <param name="value">The object instance to write</param>
+            <param name="additionalValuesToMerge">The additional values to merge to the main value when serializing an intersection wrapper.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteAdditionalData(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Write the additional data property bag
+            </summary>
+            <param name="value">The additional data dictionary</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteUntypedValue(System.String,Microsoft.Kiota.Abstractions.Serialization.UntypedNode)">
+            <summary>
+            Writes a untyped value for the specified key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The untyped node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteUntypedObject(System.String,Microsoft.Kiota.Abstractions.Serialization.UntypedObject)">
+            <summary>
+            Write a untyped object for the specified key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The untyped object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriter.WriteUntypedArray(System.String,Microsoft.Kiota.Abstractions.Serialization.UntypedArray)">
+            <summary>
+            Writes the specified collection of untyped values.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="array">The collection of untyped values.</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory"/> implementation for the json content type
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory.#ctor">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory"/> constructor.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory.#ctor(Microsoft.Kiota.Serialization.Json.KiotaJsonSerializationContext)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory"/> constructor.
+            </summary>
+            <param name="kiotaJsonSerializationContext">The KiotaJsonSerializationContext to use.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory.ValidContentType">
+            <summary>
+            The valid content type for json
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory.GetSerializationWriter(System.String)">
+            <summary>
+            Get a valid <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> for the content type
+            </summary>
+            <param name="contentType">The content type to search for</param>
+            <returns>A <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> instance for json writing</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Json.KiotaJsonSerializationContext">
+            <summary>
+            Json serialization context for Kiota.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.ParsableJsonExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParsable"/> instances specifically for JSON.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStream``1(``0,System.Boolean)">
+            <summary>
+            Serializes the given object into a json stream
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStringAsync``1(``0,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a json string.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStream``1(System.Collections.Generic.IEnumerable{``0},System.Boolean)">
+            <summary>
+            Serializes the given collection into a json stream.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStringAsync``1(System.Collections.Generic.IEnumerable{``0},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given collection into a json string.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStream``1(``0[],System.Boolean)">
+            <summary>
+            Serializes the given collection into a json stream.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableJsonExtensions.SerializeAsJsonStringAsync``1(``0[],System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given collection into a json string.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+    </members>
+</doc>

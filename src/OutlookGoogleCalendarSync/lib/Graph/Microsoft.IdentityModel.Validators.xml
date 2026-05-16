@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.IdentityModel.Validators</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.IdentityModel.Validators.AadIssuerValidator">
+            <summary>
+            Generic class that validates the issuer for either JsonWebTokens or JwtSecurityTokens issued from the Microsoft identity platform (AAD).
+            </summary>
+            <summary>
+            Generic class that validates the issuer for either JsonWebTokens or JwtSecurityTokens issued from the Microsoft identity platform (AAD).
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validate the issuer for single and multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
+            Personal accounts) and the various clouds.
+            </summary>
+            <param name="issuer">Issuer to validate (will be tenanted).</param>
+            <param name="securityToken">Received security token.</param>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> to be used for validating the token.</param>
+            <example><code>
+            AadIssuerValidator aadIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority, httpClient);
+            TokenValidationParameters.IssuerValidator = aadIssuerValidator.Validate;
+            </code></example>
+            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+            authority from the configuration file, has a tenant ID, and optionally v2.0 (if this web API
+            accepts both V1 and V2 tokens).</remarks>
+            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer is invalid or if there is a network issue. </exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.ValidateAsync(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validate the issuer for single and multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
+            Personal accounts) and the various clouds.
+            </summary>
+            <param name="issuer">Issuer to validate (will be tenanted).</param>
+            <param name="securityToken">Received security token.</param>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> to be used for validating the token.</param>
+            <example><code>
+            AadIssuerValidator aadIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority, httpClient);
+            TokenValidationParameters.IssuerValidator = aadIssuerValidator.Validate;
+            </code></example>
+            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+            authority from the configuration file, has a tenant ID, and optionally v2.0 (if this web API
+            accepts both V1 and V2 tokens).</remarks>
+            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer is invalid or if there is a network issue. </exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.GetAadIssuerValidator(System.String,System.Net.Http.HttpClient)">
+            <summary>
+            Gets an <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for an Azure Active Directory (AAD) authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+            <param name="httpClient">Optional HttpClient to use to retrieve the endpoint metadata (can be null).</param>
+            <example><code>
+            AadIssuerValidator aadIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority, httpClient);
+            TokenValidationParameters.IssuerValidator = aadIssuerValidator.Validate;
+            </code></example>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.GetAadIssuerValidator(System.String)">
+            <summary>
+            Gets an <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for an Azure Active Directory (AAD) authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+            <example><code>
+            AadIssuerValidator aadIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority);
+            TokenValidationParameters.IssuerValidator = aadIssuerValidator.Validate;
+            </code></example>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.GetAadIssuerValidator(System.String,System.Net.Http.HttpClient,System.Func{System.String,Microsoft.IdentityModel.Tokens.BaseConfigurationManager})">
+            <summary>
+            Gets an <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for an Azure Active Directory (AAD) authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+            <param name="httpClient">Optional HttpClient to use to retrieve the endpoint metadata (can be null).</param>
+            <param name="configurationManagerProvider">Configuration manager provider. Injection point for metadata managed outside of the class.</param>
+            <example><code>
+            AadIssuerValidator aadIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority, configurationManagerProvider);
+            TokenValidationParameters.IssuerValidator = aadIssuerValidator.Validate;
+            </code></example>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
+            <summary>Gets the tenant ID from a token.</summary>
+            <param name="securityToken">A JWT token.</param>
+            <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
+            <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadIssuerValidator.ValidateIssuerAsync(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.ValidationParameters,Microsoft.IdentityModel.Tokens.CallContext,System.Threading.CancellationToken)">
+            <summary>
+            Validate the issuer for single and multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
+            Personal accounts) and the various clouds.
+            </summary>
+            <param name="issuer">Issuer to validate (will be tenanted).</param>
+            <param name="securityToken">Received security token.</param>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.ValidationParameters"/> to be used for validating the token.</param>
+            <param name="callContext">The call context used for logging.</param>
+            <param name="cancellationToken">CancellationToken used to cancel call.</param>
+            <returns>An <see cref="T:Microsoft.IdentityModel.Tokens.ValidationResult`1"/> that contains either the issuer that was validated or an error.</returns>
+            <remarks>An EXACT match is required.</remarks>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.AadIssuerValidatorConstants">
+            <summary>
+            General constants for AAD Issuer Validator.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.AadIssuerValidatorConstants.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.AadIssuerValidatorConstants.Tid">
+            <summary>
+            New Tenant Id claim: "tid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.AadIssuerValidatorConstants.Tfp">
+            <summary>
+            Tfp claim: "tfp".
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.IssuerLastKnownGood">
+            <summary>
+            Class representing the last known good for issuer.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Validators.IssuerLastKnownGood.Issuer">
+            <summary>
+            Gets or sets the issuer value.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Validators.IssuerLastKnownGood.LastKnownGoodLifetime">
+            <summary>
+            Gets or sets the last known good lifetime.
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Validators.IssuerLastKnownGood.IsValid">
+            <summary>
+            Gets an indicator whether the value is still within its lifetime and is valid.
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.ProtocolVersion">
+            <summary>
+            AAD protocol version.
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.ProtocolVersion.V1">
+            <summary>
+            Protocol version 1.0
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.ProtocolVersion.V11">
+            <summary>
+            Protocol version 1.1
+            </summary>
+        </member>
+        <member name="F:Microsoft.IdentityModel.Validators.ProtocolVersion.V2">
+            <summary>
+            Protocol version 2.0
+            </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension">
+            <summary>
+            A generic class for additional validation checks on <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/> issued by the Microsoft identity platform (AAD).
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension.EnableEntraIdSigningKeyCloudInstanceValidation(Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Enables validation of the cloud instance of the Microsoft Entra ID token signing keys.
+            </summary>
+            <param name="tokenValidationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> that are used to validate the token.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension.EnableAadSigningKeyIssuerValidation(Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Enables the validation of the issuer of the signing keys used by the Microsoft identity platform (AAD) against the issuer of the token.
+            </summary>
+            <param name="tokenValidationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> that are used to validate the token.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension.ValidateIssuerSigningKey(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.BaseConfiguration)">
+            <summary>
+            Validates the issuer signing key.
+            </summary>
+            <param name="securityKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that signed the <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/>.</param>
+            <param name="securityToken">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/> being validated, could be a JwtSecurityToken or JsonWebToken.</param>
+            <param name="configuration">The <see cref="T:Microsoft.IdentityModel.Tokens.BaseConfiguration"/> provided.</param>
+            <returns><c>true</c> if the issuer of the signing key is valid; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension.ValidateSigningKeyCloudInstance(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.BaseConfiguration)">
+            <summary>
+            Validates the cloud instance of the signing key.
+            </summary>
+            <param name="securityKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that signed the <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/>.</param>
+            <param name="configuration">The <see cref="T:Microsoft.IdentityModel.Tokens.BaseConfiguration"/> provided.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadTokenValidationParametersExtension.ValidateIssuerSigningKeyCertificate(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validates the issuer signing key certificate.
+            </summary>
+            <param name="securityKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that signed the <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/>.</param>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> that are used to validate the token.</param>
+            <returns><c>true</c> if the issuer signing key certificate is valid; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.AadValidationParametersExtension">
+            <summary>
+            A generic class for additional validation checks on <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/> issued by the Microsoft identity platform (AAD).
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadValidationParametersExtension.EnableEntraIdSigningKeyCloudInstanceValidation(Microsoft.IdentityModel.Tokens.ValidationParameters)">
+            <summary>
+            Enables validation of the cloud instance of the Microsoft Entra ID token signing keys.
+            </summary>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> that are used to validate the token.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadValidationParametersExtension.EnableAadSigningKeyIssuerValidation(Microsoft.IdentityModel.Tokens.ValidationParameters)">
+            <summary>
+            Enables the validation of the issuer of the signing keys used by the Microsoft identity platform (AAD) against the issuer of the token.
+            </summary>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.TokenValidationParameters"/> that are used to validate the token.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadValidationParametersExtension.ValidateSigningKeyCloudInstance(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.BaseConfiguration)">
+            <summary>
+            Validates the cloud instance of the signing key.
+            </summary>
+            <param name="securityKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that signed the <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/>.</param>
+            <param name="configuration">The <see cref="T:Microsoft.IdentityModel.Tokens.BaseConfiguration"/> provided.</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Validators.AadValidationParametersExtension.ValidateIssuerSigningKeyCertificate(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.ValidationParameters)">
+            <summary>
+            Validates the issuer signing key certificate.
+            </summary>
+            <param name="securityKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that signed the <see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/>.</param>
+            <param name="validationParameters">The <see cref="T:Microsoft.IdentityModel.Tokens.ValidationParameters"/> that are used to validate the token.</param>
+            <returns><c>true</c> if the issuer signing key certificate is valid; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Validators.LogMessages">
+            <summary>
+            Log messages and codes
+            </summary>
+        </member>
+    </members>
+</doc>

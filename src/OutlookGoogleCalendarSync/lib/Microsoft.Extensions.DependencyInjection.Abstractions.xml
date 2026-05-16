@@ -1441,33 +1441,57 @@
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationType">
             <summary>
-            Gets the <see cref="T:System.Type"/> that implements the service.
+            Gets the <see cref="T:System.Type"/> that implements the service,
+            or returns <see langword="null"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationType"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationType">
             <summary>
-            Gets the <see cref="T:System.Type"/> that implements the service.
+            Gets the <see cref="T:System.Type"/> that implements the service,
+            or throws <see cref="T:System.InvalidOperationException"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationType"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationInstance">
             <summary>
-            Gets the instance that implements the service.
+            Gets the instance that implements the service,
+            or returns <see langword="null"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationInstance"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationInstance">
             <summary>
-            Gets the instance that implements the service.
+            Gets the instance that implements the service,
+            or throws <see cref="T:System.InvalidOperationException"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationInstance"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationFactory">
             <summary>
-            Gets the factory used for creating service instances.
+            Gets the factory used for creating service instance,
+            or returns <see langword="null"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="true"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationFactory"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.KeyedImplementationFactory">
             <summary>
-            Gets the factory used for creating Keyed service instances.
+            Gets the factory used for creating Keyed service instances,
+            or throws <see cref="T:System.InvalidOperationException"/> if <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>.
             </summary>
+            <remarks>
+            If <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService"/> is <see langword="false"/>, <see cref="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.ImplementationFactory"/> should be called instead.
+            </remarks>
         </member>
         <member name="P:Microsoft.Extensions.DependencyInjection.ServiceDescriptor.IsKeyedService">
             <summary>
@@ -2504,9 +2528,6 @@
         </member>
         <member name="P:System.SR.KeyedServicesNotSupported">
             <summary>This service provider doesn't support keyed services.</summary>
-        </member>
-        <member name="P:System.SR.KeyedDescriptorMisuse">
-            <summary>This service descriptor is keyed. Your service provider may not support keyed services.</summary>
         </member>
         <member name="P:System.SR.NonKeyedDescriptorMisuse">
             <summary>This service descriptor is not keyed.</summary>
