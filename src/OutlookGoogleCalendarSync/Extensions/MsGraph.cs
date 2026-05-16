@@ -7,7 +7,7 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
 
     public static class Extensions {
 
-        public static Microsoft.Graph.Extension OgcsExtension(this Microsoft.Graph.Event ai) {
+        public static Microsoft.Graph.Extension OgcsExtension(this Microsoft.Graph.Models.Event ai) {
             if (ai.Extensions == null) return null;
 
             foreach (Microsoft.Graph.Extension ext in ai.Extensions) {
@@ -19,7 +19,7 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return null;
         }
 
-        public static Microsoft.Graph.Event UpdateOgcsExtension(this Microsoft.Graph.Event ai, Microsoft.Graph.Extension updatedExt) {
+        public static Microsoft.Graph.Models.Event UpdateOgcsExtension(this Microsoft.Graph.Models.Event ai, Microsoft.Graph.Extension updatedExt) {
             if (ai.Extensions == null) {
                 ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
             } else {

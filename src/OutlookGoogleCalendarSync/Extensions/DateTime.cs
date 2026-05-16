@@ -200,7 +200,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="ai">The Graph Event to check</param>
         /// <param name="logicallyEquivalent">Midnight to midnight Events treated as all day</param>
         /// <returns></returns>
-        public static Boolean AllDayEvent(this Microsoft.Graph.Event ai, Boolean logicallyEquivalent = false) {
+        public static Boolean AllDayEvent(this Microsoft.Graph.Models.Event ai, Boolean logicallyEquivalent = false) {
             if ((bool)ai.IsAllDay)
                 return true;
             if (logicallyEquivalent)

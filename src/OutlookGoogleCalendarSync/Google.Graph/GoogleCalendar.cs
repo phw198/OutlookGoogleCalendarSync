@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using log4net;
-//using Microsoft.Office.Interop.Outlook;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
@@ -12,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GcalData = Google.Apis.Calendar.v3.Data;
+using MsGraph = Microsoft.Graph.Models;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Google.Graph {
@@ -500,11 +500,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return null;
         }*/
         #region Create
-        public static void CreateCalendarEntries(List<Microsoft.Graph.Event> appointments) {
+        public static void CreateCalendarEntries(List<MsGraph.Event> appointments) {
             for (int o = appointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                Microsoft.Graph.Event ai = appointments[o];
+                MsGraph.Event ai = appointments[o];
                 GcalData.Event newEvent = new();
                 try {
                     newEvent = createCalendarEntry(ai);
@@ -547,7 +547,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
         }
 
-        private static GcalData.Event createCalendarEntry(Microsoft.Graph.Event ai) {
+        private static GcalData.Event createCalendarEntry(MsGraph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             string itemSummary = Outlook.Graph.Calendar.GetEventSummary(ai, out String anonSummary);
@@ -645,7 +645,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return ev;
         }
 
-        private static Event createCalendarEntry_save(Event ev, Microsoft.Graph.Event ai) {
+        private static Event createCalendarEntry_save(Event ev, MsGraph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
@@ -697,7 +697,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 Outlook.Graph.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 Outlook.Graph.CustomProperty.SetOGCSlastModified(ref ai);
-                Microsoft.Graph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                MsGraph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                 Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                 ai = aiPatch;
             }
@@ -725,11 +725,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         #endregion
 
         #region Update
-        public static void UpdateCalendarEntries(Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
+        public static void UpdateCalendarEntries(Dictionary<MsGraph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                KeyValuePair<Microsoft.Graph.Event, Event> compare = entriesToBeCompared.ElementAt(i);
+                KeyValuePair<MsGraph.Event, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
                 Boolean eventExceptionCacheDirty = false;
                 Event ev = new Event();
@@ -799,7 +799,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
         }
 
-        public static Event UpdateCalendarEntry(Microsoft.Graph.Event ai, GcalData.Event ev, ref int itemModified, Boolean forceCompare = false) {
+        public static Event UpdateCalendarEntry(MsGraph.Event ai, GcalData.Event ev, ref int itemModified, Boolean forceCompare = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (!Settings.Instance.APIlimit_inEffect && Google.CustomProperty.Exists(ev, Google.CustomProperty.MetadataId.apiLimitHit)) {
@@ -1048,7 +1048,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
         #endregion
 
-        public static void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<Microsoft.Graph.Event> oAppointments, Boolean neverDelete = false) {
+        public static void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<MsGraph.Event> oAppointments, Boolean neverDelete = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
@@ -1078,7 +1078,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
                         unclaimedEvents.Add(ev);
                         for (int o = oAppointments.Count - 1; o >= 0; o--) {
-                            Microsoft.Graph.Event ai = oAppointments[o];
+                            MsGraph.Event ai = oAppointments[o];
                             if (Google.Calendar.SignaturesMatch(sigEv, Outlook.Graph.Calendar.Signature(ai))) {
                                 try {
                                     Event originalEv = ev;
@@ -1092,7 +1092,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                     if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.Graph.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
                                         Outlook.Graph.CustomProperty.AddGoogleIDs(ref ai, ev);
-                                        Microsoft.Graph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                                        MsGraph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                                         Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                         ai = aiPatch;
                                     }
@@ -1231,9 +1231,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         */
         public static void IdentifyEventDifferences_IDs(
             SettingsStore.Calendar profile,
-            ref List<Microsoft.Graph.Event> outlook,  //need creating
+            ref List<MsGraph.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare)
+            ref Dictionary<MsGraph.Event, GcalData.Event> compare)
         {
             Forms.Main.Instance.Console.Update("Matching calendar items...");
 
@@ -1310,9 +1310,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         //      4.  Items remaining in Google list need to be deleted
         //</summary>
         public static void IdentifyEventDifferences(
-            ref List<Microsoft.Graph.Event> outlook,  //need creating
+            ref List<MsGraph.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare) //
+            ref Dictionary<MsGraph.Event, GcalData.Event> compare) //
         {
             log.Debug("Comparing Outlook items to Google events...");
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
@@ -1382,7 +1382,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
             }
         }
-        public static Boolean ItemIDsMatch(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
+        public static Boolean ItemIDsMatch(ref GcalData.Event ev, MsGraph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             //First match on the Global Appointment ID
@@ -1475,7 +1475,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return false;
         }
 
-        public static Boolean CompareRecipientsToAttendees(Microsoft.Graph.Event ai, GcalData.Event ev, StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareRecipientsToAttendees(MsGraph.Event ai, GcalData.Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
             List<Microsoft.Graph.Attendee> recipients = ai.Attendees.ToList();
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.

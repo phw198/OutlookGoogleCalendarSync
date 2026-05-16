@@ -1,26 +1,27 @@
-﻿using Google.Apis.Calendar.v3.Data;
-using log4net;
+﻿using log4net;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using GcalData = Google.Apis.Calendar.v3.Data;
+using MsGraph = Microsoft.Graph.Models;
 
 namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class EphemeralProperties {
 
-        private Dictionary<Microsoft.Graph.Event, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
+        private Dictionary<MsGraph.Event, Dictionary<EphemeralProperty.PropertyName, Object>> ephemeralProperties;
 
         public EphemeralProperties() {
-            ephemeralProperties = new Dictionary<Microsoft.Graph.Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
+            ephemeralProperties = new Dictionary<MsGraph.Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
         }
 
         public void Clear() {
-            ephemeralProperties = new Dictionary<Microsoft.Graph.Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
+            ephemeralProperties = new Dictionary<MsGraph.Event, Dictionary<EphemeralProperty.PropertyName, Object>>();
         }
 
-        public void Add(Microsoft.Graph.Event ai, EphemeralProperty property) {
+        public void Add(MsGraph.Event ai, EphemeralProperty property) {
             if (!ExistAny(ai)) {
                 ephemeralProperties.Add(ai, new Dictionary<EphemeralProperty.PropertyName, object> { { property.Name, property.Value } });
             } else {
@@ -33,7 +34,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// Is the Graph Event already registered with any ephemeral properties?
         /// </summary>
         /// <param name="ai">The Graph Event to check</param>
-        public Boolean ExistAny(Microsoft.Graph.Event ai) {
+        public Boolean ExistAny(MsGraph.Event ai) {
             return ephemeralProperties.ContainsKey(ai);
         }
         /// <summary>
@@ -41,12 +42,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="ai">The Graph Event to check</param>
         /// <param name="propertyName">The property to check</param>
-        public Boolean PropertyExists(Microsoft.Graph.Event ai, EphemeralProperty.PropertyName propertyName) {
+        public Boolean PropertyExists(MsGraph.Event ai, EphemeralProperty.PropertyName propertyName) {
             if (!ExistAny(ai)) return false;
             return ephemeralProperties[ai].ContainsKey(propertyName);
         }
 
-        public Object GetProperty(Microsoft.Graph.Event ai, EphemeralProperty.PropertyName propertyName) {
+        public Object GetProperty(MsGraph.Event ai, EphemeralProperty.PropertyName propertyName) {
             if (this.ExistAny(ai)) {
                 if (PropertyExists(ai, propertyName)) {
                     Object ep = ephemeralProperties[ai][propertyName];
@@ -128,7 +129,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="maxSet">The set number of the last contiguous run of ID sets (to aid defragmentation).</param>
         /// <returns>The set number, if it exists</returns>
-        private static int? getKeySet(Microsoft.Graph.Event ai, out int maxSet) {
+        private static int? getKeySet(MsGraph.Event ai, out int maxSet) {
             String returnSet = "";
             int? returnVal = null;
             maxSet = 0;
@@ -191,7 +192,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return returnVal;
         }
 
-        public static Boolean GoogleIdMissing(Microsoft.Graph.Event ai) {
+        public static Boolean GoogleIdMissing(MsGraph.Event ai) {
             //Make sure Outlook appointment has all Google IDs stored
             String missingIds = "";
             if (!Exists(ai, MetadataId.gEventID)) missingIds += metadataIdKeyName(MetadataId.gEventID) + "|";
@@ -201,11 +202,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return !string.IsNullOrEmpty(missingIds);
         }
 
-        public static Boolean Exists(Microsoft.Graph.Event ai, MetadataId searchId) {
+        public static Boolean Exists(MsGraph.Event ai, MetadataId searchId) {
             String throwAway;
             return Exists(ai, searchId, out throwAway);
         }
-        public static Boolean Exists(Microsoft.Graph.Event ai, MetadataId searchId, out String searchKey) {
+        public static Boolean Exists(MsGraph.Event ai, MetadataId searchId, out String searchKey) {
             searchKey = metadataIdKeyName(searchId);
 
             int maxSet;
@@ -226,7 +227,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        public static Boolean ExistAnyGoogleIDs(Microsoft.Graph.Event ai) {
+        public static Boolean ExistAnyGoogleIDs(MsGraph.Event ai) {
             if (Exists(ai, MetadataId.gEventID)) return true;
             if (Exists(ai, MetadataId.gCalendarId)) return true;
             return false;
@@ -235,7 +236,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <summary>
         /// Are there any properties that start with key name (irrespective of key set value)
         /// </summary>
-        public static Boolean AnyStartsWith(Microsoft.Graph.Event ai, MetadataId key) {
+        public static Boolean AnyStartsWith(MsGraph.Event ai, MetadataId key) {
             String keyName = metadataIdKeyName(key);
 
             /*UserProperties ups = null;
@@ -261,7 +262,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <summary>
         /// Add the Google Event IDs into Outlook Event.
         /// </summary>
-        public static void AddGoogleIDs(ref Microsoft.Graph.Event ai, Event ev) {
+        public static void AddGoogleIDs(ref MsGraph.Event ai, GcalData.Event ev) {
             Add(ref ai, MetadataId.gCalendarId, Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
             Add(ref ai, MetadataId.gEventID, ev.Id);
             LogProperties(ai, log4net.Core.Level.Debug);
@@ -270,18 +271,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <summary>
         /// Remove the Google Event IDs from an Outlook Event.
         /// </summary>
-        public static void RemoveGoogleIDs(ref Microsoft.Graph.Event ai) {
+        public static void RemoveGoogleIDs(ref MsGraph.Event ai) {
             Remove(ref ai, MetadataId.gEventID);
             Remove(ref ai, MetadataId.gCalendarId);
         }
 
-        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, String value) {
+        public static void Add(ref MsGraph.Event ai, MetadataId key, String value) {
             add(ref ai, key, value);
         }
-        public static void Add(ref Microsoft.Graph.Event ai, MetadataId key, System.DateTimeOffset value) {
+        public static void Add(ref MsGraph.Event ai, MetadataId key, System.DateTimeOffset value) {
             add(ref ai, key, value.ToPreciseString());
         }
-        private static void add(ref Microsoft.Graph.Event ai, MetadataId key, String keyValue) {
+        private static void add(ref MsGraph.Event ai, MetadataId key, String keyValue) {
             String addkeyName = metadataIdKeyName(key);
 
             int maxSet;
@@ -298,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } else
                 addkeyName = currentKeyName; //Might be suffixed with "-01"
 
-            ai.Extensions ??= new Microsoft.Graph.EventExtensionsCollectionPage();
+            ai.Extensions ??= new Microsoft.MsGraph.EventExtensionsCollectionPage();
 
             if (ai.Extensions.Count == 0)
                 ai.Extensions.Add(new Microsoft.Graph.OpenTypeExtension {
@@ -315,7 +316,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             ai.OgcsExtension().AdditionalData[metadataIdKeyName(MetadataId.requiresPatch)] = "true";
         }
 
-        public static String Get(Microsoft.Graph.Event ai, MetadataId key) {
+        public static String Get(MsGraph.Event ai, MetadataId key) {
             String retVal = null;
             String searchKey;
             if (Exists(ai, key, out searchKey))
@@ -323,7 +324,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             return retVal;
         }
-        private static System.DateTimeOffset get_datetime(Microsoft.Graph.Event ai, MetadataId key) {
+        private static System.DateTimeOffset get_datetime(MsGraph.Event ai, MetadataId key) {
             System.DateTimeOffset retVal = new System.DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             String searchKey;
             if (Exists(ai, key, out searchKey)) {
@@ -333,14 +334,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return retVal;
         }
 
-        public static void RemoveAll(ref Microsoft.Graph.Event ai) {
+        public static void RemoveAll(ref MsGraph.Event ai) {
             Remove(ref ai, MetadataId.gEventID);
             Remove(ref ai, MetadataId.gCalendarId);
             Remove(ref ai, MetadataId.forceSave);
             Remove(ref ai, MetadataId.ogcsModified);
             Remove(ref ai, MetadataId.requiresPatch);
         }
-        public static void Remove(ref Microsoft.Graph.Event ai, MetadataId key) {
+        public static void Remove(ref MsGraph.Event ai, MetadataId key) {
             String searchKey;
             if (Exists(ai, key, out searchKey))
                 ai.OgcsExtension().AdditionalData[searchKey] = null;
@@ -350,7 +351,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="ai">The Graph Event to strip attributes from</param>
         /// <returns>Whether any properties were removed</returns>
-        public static Boolean Extirpate(ref Microsoft.Graph.Event ai) {
+        public static Boolean Extirpate(ref MsGraph.Event ai) {
             Microsoft.Graph.Extension ogcsExt = ai.OgcsExtension();
             if (ogcsExt == null) return false;
 
@@ -358,10 +359,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return true;
         }
 
-        public static System.DateTimeOffset GetOGCSlastModified(Microsoft.Graph.Event ai) {
+        public static System.DateTimeOffset GetOGCSlastModified(MsGraph.Event ai) {
             return get_datetime(ai, MetadataId.ogcsModified);
         }
-        public static void SetOGCSlastModified(ref Microsoft.Graph.Event ai) {
+        public static void SetOGCSlastModified(ref MsGraph.Event ai) {
             Add(ref ai, MetadataId.ogcsModified, System.DateTimeOffset.UtcNow);
         }
 
@@ -370,7 +371,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="ai">The Graph Event item.</param>
         /// <param name="thresholdLevel">Only log if logging configured at this level or higher.</param>
-        public static void LogProperties(Microsoft.Graph.Event ai, log4net.Core.Level thresholdLevel) {
+        public static void LogProperties(MsGraph.Event ai, log4net.Core.Level thresholdLevel) {
             if (((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level.Value > thresholdLevel.Value) return;
 
             try {

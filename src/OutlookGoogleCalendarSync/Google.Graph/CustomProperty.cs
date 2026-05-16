@@ -9,7 +9,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         /// <summary>
         /// Add the Outlook Graph Event IDs into Google event.
         /// </summary>
-        public static void AddOutlookIDs(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
+        public static void AddOutlookIDs(ref GcalData.Event ev, Microsoft.Graph.Models.Event ai) {
             Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oCalendarId, Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id);
             Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oEntryId, ai.Id);
             Ogcs.Google.CustomProperty.Add(ref ev, Ogcs.Google.CustomProperty.MetadataId.oGlobalApptId, ai.ICalUId);

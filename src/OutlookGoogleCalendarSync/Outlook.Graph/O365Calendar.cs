@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GcalData = Google.Apis.Calendar.v3.Data;
+using MsGraph = Microsoft.Graph.Models;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Outlook.Graph {
@@ -109,8 +110,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="eventId">Event ID to retrieve</param>
         /// <returns>The Graph Event</returns>
-        public Event GetCalendarEntry(String eventId) {
-            Event ai = null;
+        public MsGraph.Event GetCalendarEntry(String eventId) {
+            MsGraph.Event ai = null;
             try {
                 log.Debug("Retrieving specific Graph Event with ID " + eventId);
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
@@ -121,7 +122,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 System.Net.Http.HttpRequestMessage httpMessage = er.GetHttpRequestMessage().AddAuthorisation();
                 System.Net.Http.HttpResponseMessage response = graphClient.HttpProvider.SendAsync(httpMessage).Result;
                 String jsonContent = response.Content.ReadAsStringAsync().Result;
-                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None });
+                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<MsGraph.Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None });
                 Newtonsoft.Json.Linq.JToken tk = Newtonsoft.Json.Linq.JObject.Parse(jsonContent).SelectToken("cancelledOccurrences");
                 foreach (String cancelledOccurrence in tk) {
                     System.DateTime cancelledDate = System.DateTime.ParseExact(cancelledOccurrence.Replace($"OID.{eventId}.", ""), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
@@ -148,8 +149,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         /// <summary>Retrieve all the occurences in a series, excluding those that have been cancelled</summary>
         /// <param name="seriesId">Series master ID</param>
-        public List<Microsoft.Graph.Event> GetCalendarEntriesInRecurrence(String seriesId) {
-            List<Microsoft.Graph.Event> occurrences = new();
+        public List<MsGraph.Event> GetCalendarEntriesInRecurrence(String seriesId) {
+            List<MsGraph.Event> occurrences = new();
             try {
                 log.Debug("Retrieving occurrences for recurring master Graph Event with ID " + seriesId);
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
@@ -187,8 +188,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
         /// <returns></returns>
-        public List<Microsoft.Graph.Event> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories) {
-            List<Microsoft.Graph.Event> filtered;
+        public List<MsGraph.Event> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories) {
+            List<MsGraph.Event> filtered;
             try {
                 filtered = filterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
             } catch (System.Exception) {
@@ -199,8 +200,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return filtered;
         }
 
-        private List<Microsoft.Graph.Event> filterCalendarEntries(SettingsStore.Calendar profile, Boolean suppressAdvisories = false) {
-            List<Microsoft.Graph.Event> result = new();
+        private List<MsGraph.Event> filterCalendarEntries(SettingsStore.Calendar profile, Boolean suppressAdvisories = false) {
+            List<MsGraph.Event> result = new();
             ExcludedByConfig = new();
             ExcludedByCategory = new();
 
@@ -255,18 +256,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Fine(result.Count + " calendar items exist.");
 
             Recurrence.GetOutlookMasterEvent(result);
-            List<Event> seriesOccurrences = result.Where(ai => ai.Type == EventType.Occurrence).ToList();
+            List<MsGraph.Event> seriesOccurrences = result.Where(ai => ai.Type == EventType.Occurrence).ToList();
             result = result.Except(seriesOccurrences).ToList();
             result.Sort((x, y) => x.Start.SafeDateTime().CompareTo(y.Start.SafeDateTime()));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTime() == min && ai.Type != EventType.SeriesMaster)).ToList();
+            List<MsGraph.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTime() == min && ai.Type != EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
             }
 
-            List<Event> allExcluded = applyExclusions(ref result, profile);
+            List<MsGraph.Event> allExcluded = applyExclusions(ref result, profile);
 
             if (allExcluded.Count > 0) {
                 if (!suppressAdvisories) {
@@ -290,7 +291,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                     for (int o = 0; o < allExcluded.Count; o++) {
-                        Event ai = allExcluded[o];
+                        MsGraph.Event ai = allExcluded[o];
                         if (CustomProperty.ExistAnyGoogleIDs(ai)) {
                             log.Debug("Previously synced Outlook item is now excluded. Removing Google metadata.");
                             //We don't want them getting automatically deleted if brought back in scope; better to create possible duplicate
@@ -305,12 +306,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return result;
         }
 
-        private List<Event> applyExclusions(ref List<Event> result, SettingsStore.Calendar profile) {
-            List<Event> allDays = new();
-            List<Event> availability = new();
-            List<Event> privacy = new();
-            List<Event> subject = new();
-            List<Event> response = new();
+        private List<MsGraph.Event> applyExclusions(ref List<MsGraph.Event> result, SettingsStore.Calendar profile) {
+            List<MsGraph.Event> allDays = new();
+            List<MsGraph.Event> availability = new();
+            List<MsGraph.Event> privacy = new();
+            List<MsGraph.Event> subject = new();
+            List<MsGraph.Event> response = new();
 
             /*              
                 //Categories
@@ -334,7 +335,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             */
             //Availability, Privacy, Subject
             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
-                List<Event> filterable = result.Where(ai => (ai.Type == EventType.SingleInstance || ai.Type == EventType.SeriesMaster)).ToList();
+                List<MsGraph.Event> filterable = result.Where(ai => (ai.Type == EventType.SingleInstance || ai.Type == EventType.SeriesMaster)).ToList();
 
                 if (profile.ExcludeFree || profile.ExcludeTentative) {
                     availability = filterable.Where(ai => ai.ShowAs == FreeBusyStatus.Free || ai.ShowAs == FreeBusyStatus.Tentative).ToList();
@@ -376,8 +377,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Debug(response.Count + " Outlook items are invites not yet responded to.");
             }            
             
-            List<Event> allExcluded = /*colour.Concat*/(availability).Concat(allDays).Concat(privacy).Concat(subject).ToList();
-            foreach (Event ev in allExcluded) {
+            List<MsGraph.Event> allExcluded = /*colour.Concat*/(availability).Concat(allDays).Concat(privacy).Concat(subject).ToList();
+            foreach (MsGraph.Event ev in allExcluded) {
                 if (!ExcludedByConfig.Contains(ev.Id))
                     ExcludedByConfig.Add(ev.Id);
             }
@@ -390,7 +391,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
                 GcalData.Event ev = events[g];
-                Microsoft.Graph.Event newAi = new();
+                MsGraph.Event newAi = new();
                 try {
                     createCalendarEntry(ev, ref newAi);
                 } catch (System.Exception ex) {
@@ -408,7 +409,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 }
 
-                Event createdAi = new Event();
+                MsGraph.Event createdAi = new MsGraph.Event();
                 try {
                     createdAi = createCalendarEntry_save(newAi, ref ev);
                     events[g] = ev;
@@ -426,7 +427,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     //Add the Google event IDs into Outlook appointment.
                     //This needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
-                    Event aiPatch = new Event() { 
+                    MsGraph.Event aiPatch = new MsGraph.Event() { 
                         Id = createdAi.Id, 
                         Start = createdAi.Start,
                         Subject = createdAi.Subject,
@@ -444,7 +445,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        private void createCalendarEntry(GcalData.Event ev, ref Microsoft.Graph.Event ai) {
+        private void createCalendarEntry(GcalData.Event ev, ref MsGraph.Event ai) {
             string itemSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonItemSummary);
             log.Debug("Processing >> " + (anonItemSummary ?? itemSummary));
             Forms.Main.Instance.Console.Update(itemSummary, anonItemSummary, Console.Markup.calendar, verbose: true);
@@ -547,16 +548,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return attendee;
         }
 
-        private Event createCalendarEntry_save(Microsoft.Graph.Event ai, ref GcalData.Event ev) {
+        private MsGraph.Event createCalendarEntry_save(MsGraph.Event ai, ref GcalData.Event ev) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
             }
 
-            Event createdAi = null;
+            MsGraph.Event createdAi = null;
             try {
-                System.Threading.Tasks.Task<Event> createThread =  GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request().AddAsync(ai);
+                System.Threading.Tasks.Task<MsGraph.Event> createThread =  GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request().AddAsync(ai);
                 createdAi = createThread.Result;
             } catch (System.AggregateException ex) {
                 if (ex.InnerException is Microsoft.Graph.ServiceException) {
@@ -580,16 +581,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         #endregion
 
         #region Update
-        public void UpdateCalendarEntries(Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
-            foreach (KeyValuePair<Microsoft.Graph.Event, GcalData.Event> compare in entriesToBeCompared) {
+        public void UpdateCalendarEntries(Dictionary<MsGraph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
+            foreach (KeyValuePair<MsGraph.Event, GcalData.Event> compare in entriesToBeCompared) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
                 int itemModified = 0;
-                Microsoft.Graph.Event ai = compare.Key;
+                MsGraph.Event ai = compare.Key;
 
                 Boolean aiWasRecurring = ai.Type == EventType.SeriesMaster;
                 Boolean needsUpdating = false;
-                Event aiPatch = new();
+                MsGraph.Event aiPatch = new();
                 try {
                     Boolean forceCompare = !aiWasRecurring && compare.Value.Recurrence != null;
                     needsUpdating = UpdateCalendarEntry(ref ai, compare.Value, ref itemModified, out aiPatch, forceCompare);
@@ -642,9 +643,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        public Boolean UpdateCalendarEntry(ref Microsoft.Graph.Event ai, GcalData.Event ev, ref int itemModified, out Event aiPatch, Boolean forceCompare = false) {
+        public Boolean UpdateCalendarEntry(ref MsGraph.Event ai, GcalData.Event ev, ref int itemModified, out MsGraph.Event aiPatch, Boolean forceCompare = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            aiPatch = new Event() { Id = ai.Id };
+            aiPatch = new MsGraph.Event() { Id = ai.Id };
 
             if (!(Sync.Engine.Instance.ManualForceCompare || forceCompare)) { //Needed if the exception has just been created, but now needs updating
                 if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
@@ -969,7 +970,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return true;
         }
 
-        public void UpdateCalendarEntry_save(ref Microsoft.Graph.Event ai) {
+        public void UpdateCalendarEntry_save(ref MsGraph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
@@ -1007,11 +1008,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         #endregion
 
         #region Delete
-        public void DeleteCalendarEntries(List<Microsoft.Graph.Event> oAppointments) {
+        public void DeleteCalendarEntries(List<MsGraph.Event> oAppointments) {
             for (int o = oAppointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                Microsoft.Graph.Event ai = oAppointments[o];
+                MsGraph.Event ai = oAppointments[o];
                 Boolean doDelete = false;
                 try {
                     doDelete = deleteCalendarEntry(ai);
@@ -1055,7 +1056,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        private Boolean deleteCalendarEntry(Microsoft.Graph.Event ai) {
+        private Boolean deleteCalendarEntry(MsGraph.Event ai) {
             String eventSummary = GetEventSummary(ai, out String anonSummary);
             Boolean doDelete = true;
 
@@ -1083,7 +1084,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return doDelete;
         }
 
-        public void DeleteCalendarEntry_save(Microsoft.Graph.Event ai) {
+        public void DeleteCalendarEntry_save(MsGraph.Event ai) {
             try {
                 GraphClient.Me.Events[ai.Id].Request().DeleteAsync().Wait();
             } catch (System.AggregateException ex) {
@@ -1093,7 +1094,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
         #endregion
 
-        public static void ReclaimOrphanCalendarEntries(ref List<Microsoft.Graph.Event> oAppointments, ref List<GcalData.Event> gEvents) {
+        public static void ReclaimOrphanCalendarEntries(ref List<MsGraph.Event> oAppointments, ref List<GcalData.Event> gEvents) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id) return;
@@ -1106,11 +1107,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 String consoleTitle = "Reclaiming Outlook calendar entries";
 
                 //This is needed for people migrating from other tools, which do not have our GoogleID extendedProperty
-                List<Microsoft.Graph.Event> unclaimedAi = new();
+                List<MsGraph.Event> unclaimedAi = new();
 
                 for (int o = oAppointments.Count - 1; o >= 0; o--) {
                     if (Sync.Engine.Instance.CancellationPending) return;
-                    Microsoft.Graph.Event ai = oAppointments[o];
+                    MsGraph.Event ai = oAppointments[o];
                     try {
                         CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
@@ -1129,7 +1130,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                                 if (Ogcs.Google.Calendar.SignaturesMatch(sigEv, sigAi)) {
                                     CustomProperty.AddGoogleIDs(ref ai, ev);
-                                    Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                                    MsGraph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                                     Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     unclaimedAi.Remove(ai);
                                     if (consoleTitle != "") Forms.Main.Instance.Console.Update("<span class='em em-reclaim'></span>" + consoleTitle, Console.Markup.h2, newLine: false, verbose: true);
@@ -1170,7 +1171,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             "Delete unmatched Outlook items?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 
                             log.Info("User has requested to keep them.");
-                            foreach (Event ai in unclaimedAi) {
+                            foreach (MsGraph.Event ai in unclaimedAi) {
                                 oAppointments.Remove(ai);
                             }
                         } else {
@@ -1257,11 +1258,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
 
         #region STATIC functions
-        public static string Signature(Microsoft.Graph.Event ai) {
+        public static string Signature(MsGraph.Event ai) {
             return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset().ToPreciseString() + ";" + ai.End.SafeDateTimeOffset().ToPreciseString()).Trim();
         }
 
-        public static void ExportToCSV(String action, String filename, List<Event> ais) {
+        public static void ExportToCSV(String action, String filename, List<MsGraph.Event> ais) {
             if (!Settings.Instance.CreateCSVFiles) return;
 
             log.Debug("CSV export: " + action);
@@ -1295,7 +1296,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
                     CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save";
                     tw.WriteLine(CSVheader);
-                    foreach (Event ai in ais) {
+                    foreach (MsGraph.Event ai in ais) {
                         try {
                             tw.WriteLine(exportToCSV(ai));
                         } catch (System.Exception ex) {
@@ -1313,7 +1314,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
             log.Fine("CSV export done.");
         }
-        private static string exportToCSV(Event ai) {
+        private static string exportToCSV(MsGraph.Event ai) {
             StringBuilder csv = new StringBuilder();
             
             csv.Append(ai.Start.SafeDateTimeOffset().ToPreciseString() + ",");
@@ -1353,7 +1354,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         /// <param name="ai">The Graph Event item.</param>
         /// <returns>The summary, anonymised if settings dictate.</returns>
-        public static String GetEventSummary(Microsoft.Graph.Event ai) {
+        public static String GetEventSummary(MsGraph.Event ai) {
             String eventSummary = GetEventSummary(ai, out String anonymisedSummary, false);
             return anonymisedSummary ?? eventSummary;
         }
@@ -1367,7 +1368,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
         /// <param name="appendContext">If the context should be before or after.</param>
         /// <returns>The standard summary.</returns>
-        public static string GetEventSummary(String context, Microsoft.Graph.Event ai, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false, Boolean appendContext = true) {
+        public static string GetEventSummary(String context, MsGraph.Event ai, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false, Boolean appendContext = true) {
             String eventSummary = GetEventSummary(ai, out String anonymisedSummary, onlyIfNotVerbose);
             if (appendContext) {
                 eventSummary = eventSummary + context;
@@ -1386,7 +1387,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="eventSummaryAnonymised">Anonymised version of the returned summary string value.</param>
         /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
         /// <returns>The standard summary.</returns>
-        public static string GetEventSummary(Microsoft.Graph.Event ai, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false) {
+        public static string GetEventSummary(MsGraph.Event ai, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false) {
             String eventSummary = "";
             eventSummaryAnonymised = null;
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
@@ -1461,8 +1462,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public static void IdentifyEventDifferences(
             ref List<GcalData.Event> google,          //need creating
-            ref List<Microsoft.Graph.Event> outlook,  //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare) //
+            ref List<MsGraph.Event> outlook,          //need deleting
+            ref Dictionary<MsGraph.Event, GcalData.Event> compare) //
         {
             log.Debug("Comparing Google events to Outlook items...");
             Forms.Main.Instance.Console.Update("Matching calendar items...", verbose: true);
@@ -1490,7 +1491,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             googleIDmissing ??= CustomProperty.GoogleIdMissing(outlook[o]);
                             if ((Boolean)googleIDmissing) {
                                 log.Info("Enhancing appointment's metadata...");
-                                Microsoft.Graph.Event ai = outlook[o];
+                                MsGraph.Event ai = outlook[o];
                                 CustomProperty.AddGoogleIDs(ref ai, google[g]);
                                 CustomProperty.Add(ref ai, CustomProperty.MetadataId.forceSave, "True");
                                 outlook[o] = ai;
@@ -1518,7 +1519,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             
             if (profile.OnlyRespondedInvites) {
                 //Check if items to be deleted have invitations not responded to
-                List<Event> responseFiltered = new();
+                List<MsGraph.Event> responseFiltered = new();
                 responseFiltered = outlook.Where(ai => ai.ResponseStatus.Response == ResponseType.NotResponded).ToList();
                 if (responseFiltered.Count > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
                 outlook = outlook.Except(responseFiltered).ToList();
@@ -1571,7 +1572,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        public static Boolean ItemIDsMatch(Microsoft.Graph.Event ai, GcalData.Event ev) {
+        public static Boolean ItemIDsMatch(MsGraph.Event ai, GcalData.Event ev) {
             log.Fine("Comparing Google Event ID");
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) == ev.Id) {
@@ -1591,7 +1592,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return false;
         }
 
-        public Boolean IsOKtoSyncReminder(Microsoft.Graph.Event ai) {
+        public Boolean IsOKtoSyncReminder(MsGraph.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.ReminderDND) {
