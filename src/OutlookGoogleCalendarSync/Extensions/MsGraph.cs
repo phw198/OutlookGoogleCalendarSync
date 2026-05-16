@@ -1,16 +1,17 @@
 ﻿using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Text.RegularExpressions;
+using MsGraph = Microsoft.Graph.Models;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.GraphExtension {
 
     public static class Extensions {
 
-        public static Microsoft.Graph.Extension OgcsExtension(this Microsoft.Graph.Models.Event ai) {
+        public static MsGraph.Extension OgcsExtension(this MsGraph.Event ai) {
             if (ai.Extensions == null) return null;
 
-            foreach (Microsoft.Graph.Extension ext in ai.Extensions) {
+            foreach (MsGraph.Extension ext in ai.Extensions) {
                 if (ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName()
                  || ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName(prefixWithMsType: true)
                 )
@@ -19,11 +20,11 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return null;
         }
 
-        public static Microsoft.Graph.Models.Event UpdateOgcsExtension(this Microsoft.Graph.Models.Event ai, Microsoft.Graph.Extension updatedExt) {
+        public static MsGraph.Event UpdateOgcsExtension(this MsGraph.Event ai, MsGraph.Extension updatedExt) {
             if (ai.Extensions == null) {
                 ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
             } else {
-                Microsoft.Graph.Extension staleExt = ai.OgcsExtension();
+                MsGraph.Extension staleExt = ai.OgcsExtension();
                 ai.Extensions.Remove(staleExt);
             }
             ai.Extensions.Add(updatedExt);
@@ -35,7 +36,7 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
         }
 
         /// <summary>Just the HTML within the <body> tags</summary>
-        public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
+        public static String BodyInnerHtml(this MsGraph.ItemBody body) {
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
             String bodyInnerHtml = htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
             if (bodyInnerHtml == "<div></div>") return "";

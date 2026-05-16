@@ -76,7 +76,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <summary>Retrieve calendar list from the cloud.</summary>
         public Dictionary<String, OutlookCalendarListEntry> GetCalendars() {
             calendarFolders = new();
-            List<Microsoft.Graph.Calendar> cals = new();
+            List<MsGraph.Calendar > cals = new();
 
             try {
                 Microsoft.Graph.IUserCalendarsCollectionRequest calReq = GraphClient.Me.Calendars.Request();
@@ -95,7 +95,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 throw;
             }
 
-            foreach (Microsoft.Graph.Calendar cal in cals) {
+            foreach (MsGraph.Calendar cal in cals) {
                 if (cal.AdditionalData.ContainsKey("isDefaultCalendar") && (Boolean)cal.AdditionalData["isDefaultCalendar"])
                     cal.Name = "Default " + cal.Name;
                 log.Debug(cal.Name);
@@ -453,7 +453,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             Int16 offset = 0;
-            ai.Start = new DateTimeTimeZone();
+            ai.Start = new MsGraph.DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.Start.TimeZone)) {
                 log.Fine("Has no starting timezone.");
                 ai.Start.TimeZone = "UTC";
@@ -464,7 +464,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
 
             offset = 0;
-            ai.End = new DateTimeTimeZone();
+            ai.End = new MsGraph.DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.End.TimeZone)) {
                 log.Fine("Has no ending timezone.");
                 ai.End.TimeZone = "UTC";
@@ -486,10 +486,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             ai.Subject = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, null, Sync.Direction.GoogleToOutlook);
             if (profile.AddDescription && ev.Description != null) {
-                ai.Body = new ItemBody() { ContentType = BodyType.Html };
+                ai.Body = new MsGraph.ItemBody() { ContentType = MsGraph.BodyType.Html };
                 ai.Body.Content = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, null, Sync.Direction.GoogleToOutlook);
             }
-            if (profile.AddLocation) ai.Location = new Location { DisplayName = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ev.Location, null, Sync.Direction.GoogleToOutlook) };
+            if (profile.AddLocation) ai.Location = new MsGraph.Location { DisplayName = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ev.Location, null, Sync.Direction.GoogleToOutlook) };
             ai.Sensitivity = getPrivacy(ev.Visibility, null);
             ai.ShowAs = getAvailability(ev.Transparency, null);
             //ai.Categories = getColour(ev.ColorId, null);
@@ -535,7 +535,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         private MsGraph.Attendee createRecipient(GcalData.EventAttendee ea) {
             MsGraph.Attendee attendee = new MsGraph.Attendee() {
-                EmailAddress = new Microsoft.Graph.EmailAddress() { Name = ea.DisplayName, Address = ea.Email },
+                EmailAddress = new MsGraph.EmailAddress() { Name = ea.DisplayName, Address = ea.Email },
                 Type = (ea.Optional ?? false ? MsGraph.AttendeeType.Optional : MsGraph.AttendeeType.Required),
                 Status = new MsGraph.ResponseStatus() { Response = MsGraph.ResponseType.None, Time = System.DateTime.UtcNow }
             };
@@ -774,7 +774,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         //Although there is a body type "Text" - MS automatically converts it to HTML!
                         //So the real way of detecting it is looking in the converted HTML...
                         Match plainText = Regex.Match(ai.Body.Content.RemoveLineBreaks(), @"<!-- converted from text -->.*</head><body>.*?<div class=\""PlainText\"">");
-                        if (ai.Body.ContentType == BodyType.Text || plainText.Success) {
+                        if (ai.Body.ContentType == MsGraph.BodyType.Text || plainText.Success) {
                             aiBodyForCompare = ai.BodyPreview;
                             aiTagsStripped = Regex.Replace(ai.BodyPreview, "<.*?>", String.Empty);
                         }
@@ -979,7 +979,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
 
             try {
-                Extension ogcsExtension = ai.OgcsExtension();
+                MsGraph.Extension ogcsExtension = ai.OgcsExtension();
                 if (ogcsExtension != null) {
                     Boolean patchExtension = false;
                     if (patchExtension = CustomProperty.Exists(ai, CustomProperty.MetadataId.requiresPatch)) {

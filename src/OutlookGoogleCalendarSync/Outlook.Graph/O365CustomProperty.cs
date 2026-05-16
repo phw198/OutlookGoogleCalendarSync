@@ -214,7 +214,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (keySet.HasValue && keySet.Value != 0) searchKey += "-" + keySet.Value.ToString("D2");
 
             try {
-                Microsoft.Graph.Extension ext = ai.OgcsExtension();
+                MsGraph.Extension ext = ai.OgcsExtension();
                 Boolean propExists = ext?.AdditionalData.ContainsKey(searchKey) ?? false;
                 if (searchId == MetadataId.gCalendarId)
                     return (propExists && ext.AdditionalData[searchKey]?.ToString() == Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id);
@@ -299,10 +299,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } else
                 addkeyName = currentKeyName; //Might be suffixed with "-01"
 
-            ai.Extensions ??= new Microsoft.MsGraph.EventExtensionsCollectionPage();
+            ai.Extensions ??= new Microsoft.Graph.EventExtensionsCollectionPage();
 
             if (ai.Extensions.Count == 0)
-                ai.Extensions.Add(new Microsoft.Graph.OpenTypeExtension {
+                ai.Extensions.Add(new MsGraph.OpenTypeExtension {
                     ExtensionName = extensionName,
                     Id = extensionName,
                     AdditionalData = new Dictionary<String, Object>()
@@ -352,7 +352,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="ai">The Graph Event to strip attributes from</param>
         /// <returns>Whether any properties were removed</returns>
         public static Boolean Extirpate(ref MsGraph.Event ai) {
-            Microsoft.Graph.Extension ogcsExt = ai.OgcsExtension();
+            MsGraph.Extension ogcsExt = ai.OgcsExtension();
             if (ogcsExt == null) return false;
 
             Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().DeleteAsync().Wait();
@@ -376,7 +376,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             try {
                 log.Debug(Calendar.GetEventSummary(ai));
-                Microsoft.Graph.Extension ext = ai.OgcsExtension();
+                MsGraph.Extension ext = ai.OgcsExtension();
                 if (ext == null) return;
 
                 foreach (KeyValuePair<String, Object> prop in ext.AdditionalData) {
