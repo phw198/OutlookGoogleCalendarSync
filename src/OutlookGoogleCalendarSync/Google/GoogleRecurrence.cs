@@ -250,7 +250,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 return System.DateTime.ParseExact(rruleUntil, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
             else {
                 System.DateTime endDate = System.DateTime.ParseExact(rruleUntil, "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                return endDate.AddHours(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
+                return endDate.AddMinutes(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
             }
         }
 
@@ -372,7 +372,7 @@ namespace OutlookGoogleCalendarSync.Google {
         }
 
         public static Event GetGoogleMasterEvent(AppointmentItem ai) {
-            log.Fine("Found a master Outlook recurring item outside sync date range: " + Outlook.Calendar.GetEventSummary(ai));
+            log.Debug("Found a master Outlook recurring item outside sync date range: " + Outlook.Calendar.GetEventSummary(ai));
             List<Event> events = new List<Event>();
             Boolean haveMatchingEv = false;
             if (Outlook.CustomProperty.Exists(ai, Outlook.CustomProperty.MetadataId.gEventID)) {
@@ -456,14 +456,14 @@ namespace OutlookGoogleCalendarSync.Google {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = excps[e];
+                        Outlook.Recurrence.DeletionState isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
+                        if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
+                            log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
+                            continue;
+                        }
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
                             System.DateTime gDate = ev.OriginalStartTime.SafeDateTime();
-                            Outlook.Recurrence.DeletionState isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
-                            if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
-                                log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
-                                return;
-                            }
                             if (isDeleted == Outlook.Recurrence.DeletionState.Deleted && !ai.AllDayEvent) { //Deleted items get truncated?!
                                 gDate = gDate.Date;
                             }

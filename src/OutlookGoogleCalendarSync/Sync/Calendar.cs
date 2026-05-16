@@ -349,7 +349,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #region Normalise recurring items in sync window
                     console.Update("Total inc. recurring items spanning sync date range...");
                     //Outlook returns recurring items that span the sync date range, Google doesn't
-                    //So check for master Outlook items occurring before sync date range, and retrieve Google equivalent
+                    log.Debug("Checking for master Outlook items occurring before sync date range, and retrieving Google equivalent.");
                     for (int o = outlookEntries.Count - 1; o >= 0; o--) {
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
 

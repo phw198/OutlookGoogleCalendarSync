@@ -23,14 +23,26 @@ If you find a bug, [help squash it](https://github.com/phw198/OutlookGoogleCalen
 ### Latest Beta Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/total.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/latest)
 
 :floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/OGCS_Setup.exe)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OGCS_Setup.exe.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/OGCS_Setup.exe)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OGCS_Setup.exe.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/OGCS_Setup.exe)
  
 :package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/Portable_OGCS_v2.12.0.zip)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/Portable_OGCS_v2.12.0.zip.svg)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/Portable_OGCS_v2.12.0.zip)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/Portable_OGCS_v2.12.0.zip.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.0-beta/Portable_OGCS_v2.12.0.zip)
 
 :information_source: Upgrades to this release  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OutlookGoogleCalendarSync-2.12.0-beta-full.nupkg.svg)  
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OutlookGoogleCalendarSync-2.12.0-beta-delta.nupkg.svg)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OutlookGoogleCalendarSync-2.12.0-beta-full.nupkg.svg?cacheSeconds=3600)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.0-beta/OutlookGoogleCalendarSync-2.12.0-beta-delta.nupkg.svg?cacheSeconds=3600)
+
+### Latest Alpha Release: [![Latest Release](https://img.shields.io/github/release/phw198/OutlookGoogleCalendarSync/all.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/tag/v2.12.1-alpha) [![Latest Release downloads](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.1-alpha/total.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/v2.12.1-alpha)
+
+:floppy_disk: [Installer](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.1-alpha/OGCS_Setup.exe)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.1-alpha/OGCS_Setup.exe.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.1-alpha/OGCS_Setup.exe)
+
+:package: [Portable ZIP](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.1-alpha/Portable_OGCS_v2.12.1.zip)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.1-alpha/Portable_OGCS_v2.12.1.zip.svg?cacheSeconds=3600)](https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.12.1-alpha/Portable_OGCS_v2.12.1.zip)
+
+:information_source: Upgrades to this release  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.1-alpha/OutlookGoogleCalendarSync-2.12.1-alpha-full.nupkg.svg?cacheSeconds=3600)  
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![](https://img.shields.io/github/downloads/phw198/outlookgooglecalendarsync/v2.12.1-alpha/OutlookGoogleCalendarSync-2.12.1-alpha-delta.nupkg.svg?cacheSeconds=3600)
 
 ## v3
 

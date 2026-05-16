@@ -37,6 +37,41 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
     }
 
+    public class OgcsDateTimeOffset {
+        private System.DateTimeOffset baseDateTime;
+        private Boolean dateOnly;
+
+        /// <summary>
+        /// Extends System.DateTime with date/time precision.
+        /// Helps to differentiate a date vs a midnight time.
+        /// </summary>
+        /// <param name="baseDateTime">The System.DateTime</param>
+        /// <param name="dateOnly">Whether the time element should be ignored</param>
+        public OgcsDateTimeOffset(System.DateTimeOffset baseDateTime, Boolean dateOnly = false) {
+            this.baseDateTime = baseDateTime;
+            this.dateOnly = dateOnly;
+        }
+
+        public override string ToString() {
+            if (this.dateOnly)
+                return this.baseDateTime.Date.ToShortDateString();
+            else
+                return this.baseDateTime.ToString("g");
+        }
+
+        public override bool Equals(Object obj) {
+            if (obj is OgcsDateTimeOffset)
+                return this.baseDateTime == (obj as OgcsDateTimeOffset).baseDateTime;
+            else
+                return false;
+        }
+
+        public override int GetHashCode() {
+            return this.baseDateTime.GetHashCode() + this.dateOnly.GetHashCode();
+        }
+    }
+
+
     public static class DateTime {
         /// <summary>This used to be the string format Google held date-times, eg "2012-08-20T00:00:00+02:00"</summary>
         private static String preciseString = "yyyy-MM-ddTHH:mm:ssZ";

@@ -440,18 +440,29 @@
         </member>
         <member name="T:Google.Apis.Http.ExponentialBackOffPolicy">
             <summary>
-            Indicates if exponential back-off is used automatically on exceptions in a service requests and \ or when 503 
-            responses is returned form the server.
+            Indicates which of exceptions and / or HTTP status codes are automatically retried using exponential backoff.
             </summary>
         </member>
         <member name="F:Google.Apis.Http.ExponentialBackOffPolicy.None">
-            <summary>Exponential back-off is disabled.</summary>
+            <summary>
+            No automatic retries.
+            </summary>
         </member>
         <member name="F:Google.Apis.Http.ExponentialBackOffPolicy.Exception">
-            <summary>Exponential back-off is enabled only for exceptions.</summary>
+            <summary>
+            Exceptions are retried.
+            </summary>
         </member>
         <member name="F:Google.Apis.Http.ExponentialBackOffPolicy.UnsuccessfulResponse503">
-            <summary>Exponential back-off is enabled only for 503 HTTP Status code.</summary>
+            <summary>
+            HTTP Status Code 503 is retried.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Http.ExponentialBackOffPolicy.RecommendedOrDefault">
+            <summary>
+            Retries will be executed as recommended for each service.
+            For services with no recommendations, a default policy will be applied.
+            </summary>
         </member>
         <member name="T:Google.Apis.Http.ExponentialBackOffInitializer">
             <summary>
@@ -468,6 +479,8 @@
         <member name="M:Google.Apis.Http.ExponentialBackOffInitializer.#ctor(Google.Apis.Http.ExponentialBackOffPolicy,System.Func{Google.Apis.Http.BackOffHandler})">
             <summary>
             Constructs a new back-off initializer with the given policy and back-off handler create function.
+            If <paramref name="policy"/> has the <see cref="F:Google.Apis.Http.ExponentialBackOffPolicy.RecommendedOrDefault"/> flag set,
+            the <see cref="T:Google.Apis.Http.BackOffHandler"/> will be set for handling both exceptions and HTTP Status codes.
             </summary>
         </member>
         <member name="M:Google.Apis.Http.ExponentialBackOffInitializer.Initialize(Google.Apis.Http.ConfigurableHttpClient)">
@@ -1591,25 +1604,48 @@
         <member name="F:Google.Apis.Util.ExponentialBackOff.MaxAllowedNumRetries">
             <summary>The maximum allowed number of retries.</summary>
         </member>
+        <member name="F:Google.Apis.Util.ExponentialBackOff.s_random">
+            <summary>The random instance which generates a random number to add the to next back-off.</summary>
+        </member>
         <member name="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOff">
             <summary>
-            Gets the delta time span used to generate a random milliseconds to add to the next back-off.
+            Time span used to bound the back-off jitter.
             If the value is <see cref="F:System.TimeSpan.Zero"/> then the generated back-off will be exactly 1, 2, 4,
             8, 16, etc. seconds. A valid value is between zero and one second. The default value is 250ms, which means
-            that the generated back-off will be [0.75-1.25]sec, [1.75-2.25]sec, [3.75-4.25]sec, and so on.
+            that the generated back-off will be between 0.75sec and 1.25sec, 1.75sec and 2.25sec, 3.75sec and 4.25sec, and so on.
+            Only one of <see cref="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOff"/> and <see cref="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOffPercent"/> may be specified. Both may be zero,
+            in which case no jitter will be applied.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOffPercent">
+            <summary>
+            Percent of the current unjittered back-off used to bound the jitter.
+            If the value is set to 10, and the current back-off is 1000ms, then the jitter will be generated
+            from -100ms to 100ms and the jittered back-off will be from 900ms to 1100ms.
+            Only one of <see cref="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOff"/> and <see cref="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOffPercent"/> may be specified. Both may be zero,
+            in which case no jitter will be applied.
             </summary>
         </member>
         <member name="P:Google.Apis.Util.ExponentialBackOff.MaxNumOfRetries">
-            <summary>Gets the maximum number of retries. Default value is <c>10</c>.</summary>
-        </member>
-        <member name="F:Google.Apis.Util.ExponentialBackOff.random">
-            <summary>The random instance which generates a random number to add the to next back-off.</summary>
+            <summary>The maximum number of retries. Default value is <c>10</c>.</summary>
         </member>
         <member name="M:Google.Apis.Util.ExponentialBackOff.#ctor">
-            <summary>Constructs a new exponential back-off with default values.</summary>
+            <summary>
+            Constructs a new exponential back-off with <see cref="P:Google.Apis.Util.ExponentialBackOff.DeltaBackOff"/> set to 250ms
+            and <see cref="P:Google.Apis.Util.ExponentialBackOff.MaxNumOfRetries"/> set to 10.
+            </summary>
         </member>
         <member name="M:Google.Apis.Util.ExponentialBackOff.#ctor(System.TimeSpan,System.Int32)">
-            <summary>Constructs a new exponential back-off with the given delta and maximum retries.</summary>
+            <summary>
+            Constructs a new exponential back-off with the given delta and maximum retries.
+            If unspecified, <paramref name="maximumNumOfRetries"/> is set to 10.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.ExponentialBackOff.FromDeltaBackOffPercent(System.Int16,System.Int32)">
+            <summary>
+            Constructs a new exponential back-off with the given delta percent and maximum retries.
+            If unspecified, <paramref name="maximumNumOfRetries"/> is set to 10.
+            </summary>
         </member>
         <member name="M:Google.Apis.Util.ExponentialBackOff.GetNextBackOff(System.Int32)">
             <inheritdoc/>
@@ -1961,6 +1997,30 @@
             This method exist mostly to handle the fact that HttpRequestMessage.Options are only available
             from .NET 5 and up.
             </remarks>
+        </member>
+        <member name="T:Google.Apis.Core.HttpTimeoutInitializer">
+            <summary>
+            Used for specifying a custom timeout for a <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Core.HttpTimeoutInitializer.HttpClientTimeout">
+            <summary>
+            The timeout to set on <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> instances on which this initializer is applied.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Core.HttpTimeoutInitializer.#ctor(System.TimeSpan)">
+            <summary>
+            Creates a new instance with the given timeout.
+            </summary>
+            <remarks>
+            This initializer relies on <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> for validation.
+            That means that <paramref name="httpClientTimeout"/> is not validated in this constructor.
+            It's when this initializer is applied to a <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/>
+            that the value will be validated and an exception possibly thrown.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Core.HttpTimeoutInitializer.Initialize(Google.Apis.Http.ConfigurableHttpClient)">
+            <inheritdoc/>
         </member>
         <member name="T:Google.GoogleApiException">
             <summary>Represents an exception thrown by an API Service.</summary>
