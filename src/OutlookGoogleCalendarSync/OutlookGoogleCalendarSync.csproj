@@ -792,7 +792,6 @@
     <Error Condition="!Exists('lib\Grpc.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Grpc.Core.targets'))" />
     <Error Condition="!Exists('lib\Google.Api.CommonProtos.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Google.Api.CommonProtos.targets'))" />
     <Error Condition="!Exists('lib\Microsoft.Extensions.Logging.Abstractions.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Microsoft.Extensions.Logging.Abstractions.targets'))" />
-    <Error Condition="!Exists('..\packages\Google.Api.CommonProtos.2.17.0\build\Google.Api.CommonProtos.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Google.Api.CommonProtos.2.17.0\build\Google.Api.CommonProtos.targets'))" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
@@ -801,5 +800,4 @@
     <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
     <Message Text="TargetDir Value: $(TargetDir)" Importance="High" />
   </Target>
-  <Import Project="..\packages\Google.Api.CommonProtos.2.17.0\build\Google.Api.CommonProtos.targets" Condition="Exists('..\packages\Google.Api.CommonProtos.2.17.0\build\Google.Api.CommonProtos.targets')" />
 </Project>
