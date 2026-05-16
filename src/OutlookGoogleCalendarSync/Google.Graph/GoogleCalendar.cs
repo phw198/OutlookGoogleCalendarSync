@@ -610,7 +610,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             "more than 200, which Google does not allow.", Console.Markup.warning);
                     }
                 } else {
-                    foreach (Microsoft.Graph.Attendee recipient in ai.Attendees) {
+                    foreach (MsGraph.Attendee recipient in ai.Attendees) {
                         if (Settings.Instance.GaccountEmail.ToLower() == recipient.EmailAddress.Address) continue;
 
                         GcalData.EventAttendee ea = CreateAttendee(recipient, ai.Organizer.EmailAddress == recipient.EmailAddress);
@@ -1328,7 +1328,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 //Check if Outlook items to be created in Google have invitations not yet responded to
                 int responseFiltered = 0;
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (outlook[o].ResponseStatus.Response == Microsoft.Graph.ResponseType.NotResponded) {
+                    if (outlook[o].ResponseStatus.Response == MsGraph.ResponseType.NotResponded) {
                         outlook.Remove(outlook[o]);
                         responseFiltered++;
                     }
@@ -1477,7 +1477,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
         public static Boolean CompareRecipientsToAttendees(MsGraph.Event ai, GcalData.Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
-            List<Microsoft.Graph.Attendee> recipients = ai.Attendees.ToList();
+            List<MsGraph.Attendee > recipients = ai.Attendees.ToList();
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
             List<GcalData.EventAttendee> removeAttendee = new();
             foreach (GcalData.EventAttendee ea in ev.Attendees ?? Enumerable.Empty<GcalData.EventAttendee>()) {
@@ -1485,7 +1485,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
             for (int o = recipients.Count() - 1; o >= 0; o--) {
                 bool foundAttendee = false;
-                Microsoft.Graph.Attendee recipient = recipients[o];
+                MsGraph.Attendee recipient = recipients[o];
                 log.Fine("Comparing Outlook recipient: " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address));
                 //String recipientSMTP = Outlook.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
                 foreach (GcalData.EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<GcalData.EventAttendee>()) {
@@ -1500,7 +1500,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         }
 
                         //Optional attendee
-                        bool oOptional = (recipient.Type == Microsoft.Graph.AttendeeType.Optional);
+                        bool oOptional = (recipient.Type == MsGraph.AttendeeType.Optional);
                         bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
                         String attendeeIdentifier = attendee.DisplayName ?? ogcsAttendee.Email;
                         if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Optional Check",
@@ -1524,11 +1524,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
                         String oResponse = null;
                         switch (recipient.Status.Response) {
-                            case Microsoft.Graph.ResponseType.None: oResponse = "needsAction"; break;
-                            case Microsoft.Graph.ResponseType.NotResponded: oResponse = "needsAction"; break;
-                            case Microsoft.Graph.ResponseType.Accepted: oResponse = "accepted"; break;
-                            case Microsoft.Graph.ResponseType.Declined: oResponse = "declined"; break;
-                            case Microsoft.Graph.ResponseType.TentativelyAccepted: oResponse = "tentative"; break;
+                            case MsGraph.ResponseType.None: oResponse = "needsAction"; break;
+                            case MsGraph.ResponseType.NotResponded: oResponse = "needsAction"; break;
+                            case MsGraph.ResponseType.Accepted: oResponse = "accepted"; break;
+                            case MsGraph.ResponseType.Declined: oResponse = "declined"; break;
+                            case MsGraph.ResponseType.TentativelyAccepted: oResponse = "tentative"; break;
                         }
                         if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                             Sync.Direction.OutlookToGoogle, attendee.ResponseStatus, oResponse, sb, ref itemModified)) //
@@ -1706,23 +1706,23 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
         */
 
-        public static GcalData.EventAttendee CreateAttendee(Microsoft.Graph.Attendee recipient, Boolean isOrganiser) {
+        public static GcalData.EventAttendee CreateAttendee(MsGraph.Attendee recipient, Boolean isOrganiser) {
             Ogcs.Google.EventAttendee ea = new Ogcs.Google.EventAttendee();
             log.Fine("Creating attendee " + (string.IsNullOrEmpty(recipient.EmailAddress.Name) ? recipient.EmailAddress.Address : recipient.EmailAddress.Name));
             ea.DisplayName = (recipient.EmailAddress.Name != recipient.EmailAddress.Address ? recipient.EmailAddress.Name : null);
             ea.Email = recipient.EmailAddress.Address;
-            ea.Optional = recipient.Type == Microsoft.Graph.AttendeeType.Optional;
+            ea.Optional = recipient.Type == MsGraph.AttendeeType.Optional;
             if (isOrganiser) {
                 //ea.Organizer = true; This is read-only. The best we can do is force them to have accepted the "invite"
                 ea.ResponseStatus = "accepted";
                 return ea;
             }
             switch (recipient.Status.Response) {
-                case Microsoft.Graph.ResponseType.NotResponded: ea.ResponseStatus = "needsAction"; break;
-                case Microsoft.Graph.ResponseType.None: ea.ResponseStatus = "needsAction"; break;
-                case Microsoft.Graph.ResponseType.Accepted: ea.ResponseStatus = "accepted"; break;
-                case Microsoft.Graph.ResponseType.Declined: ea.ResponseStatus = "declined"; break;
-                case Microsoft.Graph.ResponseType.TentativelyAccepted: ea.ResponseStatus = "tentative"; break;
+                case MsGraph.ResponseType.NotResponded: ea.ResponseStatus = "needsAction"; break;
+                case MsGraph.ResponseType.None: ea.ResponseStatus = "needsAction"; break;
+                case MsGraph.ResponseType.Accepted: ea.ResponseStatus = "accepted"; break;
+                case MsGraph.ResponseType.Declined: ea.ResponseStatus = "declined"; break;
+                case MsGraph.ResponseType.TentativelyAccepted: ea.ResponseStatus = "tentative"; break;
             }
             return ea;
         }

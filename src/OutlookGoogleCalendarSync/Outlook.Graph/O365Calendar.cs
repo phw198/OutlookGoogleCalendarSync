@@ -256,12 +256,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Fine(result.Count + " calendar items exist.");
 
             Recurrence.GetOutlookMasterEvent(result);
-            List<MsGraph.Event> seriesOccurrences = result.Where(ai => ai.Type == EventType.Occurrence).ToList();
+            List<MsGraph.Event> seriesOccurrences = result.Where(ai => ai.Type == MsGraph.EventType.Occurrence).ToList();
             result = result.Except(seriesOccurrences).ToList();
             result.Sort((x, y) => x.Start.SafeDateTime().CompareTo(y.Start.SafeDateTime()));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTime() == min && ai.Type != EventType.SeriesMaster)).ToList();
+            List<MsGraph.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTime() == min && ai.Type != MsGraph.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -335,7 +335,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             */
             //Availability, Privacy, Subject
             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
-                List<MsGraph.Event> filterable = result.Where(ai => (ai.Type == EventType.SingleInstance || ai.Type == EventType.SeriesMaster)).ToList();
+                List<MsGraph.Event> filterable = result.Where(ai => (ai.Type == MsGraph.EventType.SingleInstance || ai.Type == MsGraph.EventType.SeriesMaster)).ToList();
 
                 if (profile.ExcludeFree || profile.ExcludeTentative) {
                     availability = filterable.Where(ai => ai.ShowAs == FreeBusyStatus.Free || ai.ShowAs == FreeBusyStatus.Tentative).ToList();
@@ -372,7 +372,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             //Invitation
             if (profile.OnlyRespondedInvites) {
                 //These are actually filtered out later on when identifying differences
-                response = result.Where(ai => ai.ResponseStatus.Response == ResponseType.NotResponded).ToList();
+                response = result.Where(ai => ai.ResponseStatus.Response == MsGraph.ResponseType.NotResponded).ToList();
                 if (response.Count > 0) 
                     log.Debug(response.Count + " Outlook items are invites not yet responded to.");
             }            
@@ -498,7 +498,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if (ev.Attendees != null && ev.Attendees.Count > profile.MaxAttendees) {
                     log.Warn("This Google event has " + ev.Attendees.Count + " attendees, more than the user configured maximum.");
                 } else {
-                    List<Attendee> attendees = new List<Attendee>();
+                    List<MsGraph.Attendee> attendees = new List<MsGraph.Attendee>();
                     foreach (GcalData.EventAttendee ea in ev.Attendees) {
                         if (Settings.Instance.MSaccountEmail.ToLower() == ea.Email) continue;
 
@@ -533,17 +533,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             */
         }
 
-        private Microsoft.Graph.Attendee createRecipient(GcalData.EventAttendee ea) {
-            Attendee attendee = new Attendee() {
+        private MsGraph.Attendee createRecipient(GcalData.EventAttendee ea) {
+            MsGraph.Attendee attendee = new MsGraph.Attendee() {
                 EmailAddress = new Microsoft.Graph.EmailAddress() { Name = ea.DisplayName, Address = ea.Email },
-                Type = (ea.Optional ?? false ? AttendeeType.Optional : AttendeeType.Required),
-                Status = new ResponseStatus() { Response = ResponseType.None, Time = System.DateTime.UtcNow }
+                Type = (ea.Optional ?? false ? MsGraph.AttendeeType.Optional : MsGraph.AttendeeType.Required),
+                Status = new MsGraph.ResponseStatus() { Response = MsGraph.ResponseType.None, Time = System.DateTime.UtcNow }
             };
             switch (ea.ResponseStatus) {
-                case "needsAction": attendee.Status.Response = ResponseType.NotResponded; break;
-                case "declined": attendee.Status.Response = ResponseType.Declined; break;
-                case "tentative": attendee.Status.Response = ResponseType.TentativelyAccepted; break;
-                case "accepted": attendee.Status.Response = ResponseType.Accepted; break;
+                case "needsAction": attendee.Status.Response = MsGraph.ResponseType.NotResponded; break;
+                case "declined": attendee.Status.Response = MsGraph.ResponseType.Declined; break;
+                case "tentative": attendee.Status.Response = MsGraph.ResponseType.TentativelyAccepted; break;
+                case "accepted": attendee.Status.Response = MsGraph.ResponseType.Accepted; break;
             }
             return attendee;
         }
@@ -588,7 +588,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 int itemModified = 0;
                 MsGraph.Event ai = compare.Key;
 
-                Boolean aiWasRecurring = ai.Type == EventType.SeriesMaster;
+                Boolean aiWasRecurring = ai.Type == MsGraph.EventType.SeriesMaster;
                 Boolean needsUpdating = false;
                 MsGraph.Event aiPatch = new();
                 try {
@@ -616,7 +616,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
-                    if (ai.Type == EventType.SeriesMaster) {
+                    if (ai.Type == MsGraph.EventType.SeriesMaster) {
                         if (!aiWasRecurring) {
                             log.Debug("Appointment has changed from single instance to recurring.");
                             entriesUpdated += Recurrence.CreateOutlookExceptions(compare.Value, ai);
@@ -627,7 +627,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
 
                 } else {
-                    if (ai.Type == EventType.SeriesMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
+                    if (ai.Type == MsGraph.EventType.SeriesMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
                         log.Debug(Ogcs.Google.Calendar.GetEventSummary(compare.Value));
                         entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ai, forceCompare: false);
 
@@ -714,7 +714,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             aiPatch.Recurrence = ai.Recurrence;
 
             if (startChange || startTzChange || endTzChange) {
-                if (ai.Type == EventType.SeriesMaster) {
+                if (ai.Type == MsGraph.EventType.SeriesMaster) {
                     if (startTzChange || endTzChange) {
                         aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
@@ -724,7 +724,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 }
             }
 
-            if (ai.Type == EventType.SeriesMaster) {
+            if (ai.Type == MsGraph.EventType.SeriesMaster) {
                 if (ev.Recurrence == null || ev.RecurringEventId != null) {
                     log.Debug("Converting to non-recurring appointment.");
                     aiPatch.AdditionalData = new Dictionary<String, Object>();
@@ -734,7 +734,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 } else {
                     aiPatch.Recurrence = Recurrence.CompareOutlookPattern(ev, ai.Recurrence, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
                 }
-            } else if (ai.Type == EventType.SingleInstance) {
+            } else if (ai.Type == MsGraph.EventType.SingleInstance) {
                 if (ev.Recurrence != null && ev.RecurringEventId == null) {
                     log.Debug("Converting to recurring appointment.");
                     aiPatch.Recurrence = Recurrence.BuildOutlookPattern(ev);
@@ -820,7 +820,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 }
             }
-            if (ai.Recurrence == null || ai.Type == EventType.SeriesMaster) {
+            if (ai.Recurrence == null || ai.Type == MsGraph.EventType.SeriesMaster) {
                 Sensitivity gPrivacy = getPrivacy(ev.Visibility, ai.Sensitivity);
                 if (Sync.Engine.CompareAttribute("Privacy", Sync.Direction.GoogleToOutlook, gPrivacy.ToString(), ai.Sensitivity.ToString(), sb, ref itemModified)) {
                     aiPatch.Sensitivity = gPrivacy;
@@ -865,7 +865,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Warn("This Outlook appointment has " + ai.Attendees.Count() + " attendees, more than the user configured maximum. They can't safely be compared.");
                 } else {
                     log.Fine("Comparing meeting attendees");
-                    List<Attendee> recipients = ai.Attendees.ToList();
+                    List<MsGraph.Attendee> recipients = ai.Attendees.ToList();
                     List<GcalData.EventAttendee> addAttendees = new List<GcalData.EventAttendee>();
 
                     //Build a list of Google attendees. Any remaining at the end of the diff must be added.
@@ -874,7 +874,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                     for (int o = recipients.Count() - 1; o >= 0; o--) {
                         Boolean foundAttendee = false;
-                        Attendee recipient = recipients[o];
+                        MsGraph.Attendee recipient = recipients[o];
 
                         if (recipient.EmailAddress.Address == ai.Organizer.EmailAddress.Address) continue;
 
@@ -884,14 +884,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 foundAttendee = true;
 
                                 //Optional attendee
-                                bool oOptional = (recipient.Type ?? AttendeeType.Required) == AttendeeType.Optional;
+                                bool oOptional = (recipient.Type ?? MsGraph.AttendeeType.Required) == MsGraph.AttendeeType.Optional;
                                 bool gOptional = attendee.Optional ?? false;
                                 if (Sync.Engine.CompareAttribute("Attendee " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address) + " - Optional Check",
                                     Sync.Direction.GoogleToOutlook, gOptional, oOptional, sb, ref itemModified)) {
-                                    recipient.Type = gOptional ? AttendeeType.Optional : AttendeeType.Required;
+                                    recipient.Type = gOptional ? MsGraph.AttendeeType.Optional : MsGraph.AttendeeType.Required;
                                 }
                                 //Response status
-                                Attendee compareRecipient = createRecipient(attendee);
+                                MsGraph.Attendee compareRecipient = createRecipient(attendee);
                                 if (Sync.Engine.CompareAttribute("Attendee " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address) + " - Response Status",
                                     Sync.Direction.GoogleToOutlook, compareRecipient.Status.Response.Value.ToString(), recipient.Status.Response.Value.ToString(), sb, ref itemModified)) {
                                     recipient.Status = compareRecipient.Status;
@@ -1333,9 +1333,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             csv.Append("\"" + ai.Sensitivity?.ToString() + "\",");
             csv.Append("\"" + ai.ShowAs?.ToString() + "\",");
-            String[] requiredAttendees = ai.Attendees?.Where(a => a.Type == AttendeeType.Required).ToList().Select(a => a.EmailAddress.Name).ToArray() ;
+            String[] requiredAttendees = ai.Attendees?.Where(a => a.Type == MsGraph.AttendeeType.Required).ToList().Select(a => a.EmailAddress.Name).ToArray() ;
             csv.Append("\"" + string.Join(";", requiredAttendees) + "\",");
-            String[] optionalAttendees = ai.Attendees?.Where(a => a.Type == AttendeeType.Optional).ToList().Select(a => a.EmailAddress.Name).ToArray();
+            String[] optionalAttendees = ai.Attendees?.Where(a => a.Type == MsGraph.AttendeeType.Optional).ToList().Select(a => a.EmailAddress.Name).ToArray();
             csv.Append("\"" + string.Join(";", optionalAttendees) + "\",");
             csv.Append(ai.IsReminderOn + ",");
             csv.Append(ai.ReminderMinutesBeforeStart.ToString() + ",");
@@ -1520,7 +1520,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (profile.OnlyRespondedInvites) {
                 //Check if items to be deleted have invitations not responded to
                 List<MsGraph.Event> responseFiltered = new();
-                responseFiltered = outlook.Where(ai => ai.ResponseStatus.Response == ResponseType.NotResponded).ToList();
+                responseFiltered = outlook.Where(ai => ai.ResponseStatus.Response == MsGraph.ResponseType.NotResponded).ToList();
                 if (responseFiltered.Count > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
                 outlook = outlook.Except(responseFiltered).ToList();
             }
