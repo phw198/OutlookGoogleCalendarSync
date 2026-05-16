@@ -673,16 +673,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean startChange = false;
             Boolean endChange = false;
             Boolean aiAllDay = ai.AllDayEvent();
-            OgcsDateTime aiStart = new(ai.Start.SafeDateTime(), aiAllDay);
-            OgcsDateTime aiEnd = new(ai.End.SafeDateTime(), aiAllDay);
+            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(), aiAllDay);
+            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(), aiAllDay);
             if (ev.AllDayEvent()) {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true, aiAllDay, sb, ref itemModified);
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), true), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), true), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), true), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.End.SafeDateTimeOffset(), true), aiEnd, sb, ref itemModified);
             } else {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, false, aiAllDay, sb, ref itemModified);
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.Start.SafeDateTime(), false), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTime(ev.End.SafeDateTime(), false), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), false), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.End.SafeDateTimeOffset(), false), aiEnd, sb, ref itemModified);
             }
             Boolean startTzChange = Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.GoogleToOutlook,
                 string.IsNullOrEmpty(ev.Start.TimeZone) ? "UTC" : ev.Start.TimeZone, string.IsNullOrEmpty(ai.OriginalStartTimeZone) ? "UTC" : ai.OriginalStartTimeZone, sb, ref itemModified);
