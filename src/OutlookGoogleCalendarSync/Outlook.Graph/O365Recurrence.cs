@@ -1,5 +1,6 @@
 ﻿using log4net;
-using Microsoft.Graph;
+using Microsoft.Graph.Models;
+using Microsoft.Kiota.Abstractions;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
@@ -148,7 +149,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             log.Fine("Comparing Google recurrence to Outlook equivalent");
             #region Recurrence Pattern
             //Set defaults to avoid false changes
-            evOpattern.Pattern.FirstDayOfWeek ??= Microsoft.Graph.DayOfWeek.Sunday;
+            evOpattern.Pattern.FirstDayOfWeek ??= DayOfWeekObject.Sunday;
             evOpattern.Pattern.Index ??= WeekIndex.First;
 
             if (Sync.Engine.CompareAttribute("Recurrence Type", syncDirection,
@@ -164,8 +165,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 aiOpattern.Pattern.Index = evOpattern.Pattern.Index;
             }
             if (Sync.Engine.CompareAttribute("Recurrence DoW", syncDirection,
-                string.Join(",", evOpattern.Pattern.DaysOfWeek ?? new List<Microsoft.Graph.DayOfWeek>()),
-                string.Join(",", aiOpattern.Pattern.DaysOfWeek ?? new List<Microsoft.Graph.DayOfWeek>()), sb, ref itemModified)) {
+                string.Join(",", evOpattern.Pattern.DaysOfWeek ?? new List<DayOfWeekObject?>()),
+                string.Join(",", aiOpattern.Pattern.DaysOfWeek ?? new List<DayOfWeekObject?>()), sb, ref itemModified)) {
                 aiOpattern.Pattern.DaysOfWeek = evOpattern.Pattern.DaysOfWeek;
 
             }
@@ -184,7 +185,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             #endregion
             #region Range
             if (Sync.Engine.CompareAttribute("Recurrence EndDate", syncDirection,
-                convertEquivalenceToNull(evOpattern.Range.EndDate, new(1, 1, 1))?.ToString(), convertEquivalenceToNull(aiOpattern.Range.EndDate, new Date(1, 1, 1))?.ToString(), sb, ref itemModified)) {
+                convertEquivalenceToNull(evOpattern.Range.EndDate, new Date(1, 1, 1))?.ToString(), convertEquivalenceToNull(aiOpattern.Range.EndDate, new Date(1, 1, 1))?.ToString(), sb, ref itemModified)) {
                 aiOpattern.Range.EndDate = evOpattern.Range.EndDate ?? new(1, 1, 1);
                 aiOpattern.Range.Type = evOpattern.Range.Type;
             }
@@ -198,16 +199,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return aiOpattern;
         }
 
-        private static List<Microsoft.Graph.DayOfWeek> getDoW(String byDay) {
-            List<Microsoft.Graph.DayOfWeek> daysOfWeek = new();
+        private static List<DayOfWeekObject?> getDoW(String byDay) {
+            List<DayOfWeekObject?> daysOfWeek = new();
             if (!string.IsNullOrEmpty(byDay)) {
-                if (byDay.Contains("MO")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Monday);
-                if (byDay.Contains("TU")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Tuesday);
-                if (byDay.Contains("WE")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Wednesday);
-                if (byDay.Contains("TH")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Thursday);
-                if (byDay.Contains("FR")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Friday);
-                if (byDay.Contains("SA")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Saturday);
-                if (byDay.Contains("SU")) daysOfWeek.Add(Microsoft.Graph.DayOfWeek.Sunday);
+                if (byDay.Contains("MO")) daysOfWeek.Add(DayOfWeekObject.Monday);
+                if (byDay.Contains("TU")) daysOfWeek.Add(DayOfWeekObject.Tuesday);
+                if (byDay.Contains("WE")) daysOfWeek.Add(DayOfWeekObject.Wednesday);
+                if (byDay.Contains("TH")) daysOfWeek.Add(DayOfWeekObject.Thursday);
+                if (byDay.Contains("FR")) daysOfWeek.Add(DayOfWeekObject.Friday);
+                if (byDay.Contains("SA")) daysOfWeek.Add(DayOfWeekObject.Saturday);
+                if (byDay.Contains("SU")) daysOfWeek.Add(DayOfWeekObject.Sunday);
             }
             return daysOfWeek;
         }
@@ -229,11 +230,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return ((value ?? nullValue) == nullValue ? null : value);
         }
         /// <summary>Return null if the two parameter Date values are equivalent</summary>
-        #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         private static Date? convertEquivalenceToNull(Date? value, Date nullValue) {
             return ((value ?? nullValue).Compare(nullValue) ? null : value);
         }
-        #pragma warning restore CS8632
         #endregion
 
         #region Exceptions

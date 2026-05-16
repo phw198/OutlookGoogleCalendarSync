@@ -119,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Returns the DateTime for a Graph Date
         /// </summary>
         /// <returns>DateTime</returns>
-        public static System.DateTime SafeDateTime(this Microsoft.Graph.Date graphDate) {
+        public static System.DateTime SafeDateTime(this Microsoft.Kiota.Abstractions.Date graphDate) {
             return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day);
         }
 
@@ -128,7 +128,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>Local DateTime</returns>
         [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this Microsoft.Graph.DateTimeTimeZone evDt) {
+        public static System.DateTime SafeDateTime(this Microsoft.Graph.Models.DateTimeTimeZone evDt) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
-        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.Models.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
             System.DateTimeOffset safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
@@ -159,8 +159,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Converts a System.DateTime to a Graph.Date
         /// </summary>
         /// <returns>Graph.Date</returns>
-        public static Microsoft.Graph.Date ToGraphDate(this System.DateTime dt) {
-            return new Microsoft.Graph.Date(dt.Year, dt.Month, dt.Day);
+        public static Microsoft.Kiota.Abstractions.Date ToGraphDate(this System.DateTime dt) {
+            return new Microsoft.Kiota.Abstractions.Date(dt.Year, dt.Month, dt.Day);
         }
 
         /// <summary>

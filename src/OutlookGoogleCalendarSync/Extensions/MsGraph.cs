@@ -30,7 +30,7 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return ai;
         }
 
-        public static Boolean Compare(this Microsoft.Graph.Date date, Microsoft.Graph.Date otherDate) {
+        public static Boolean Compare(this Microsoft.Kiota.Abstractions.Date date, Microsoft.Kiota.Abstractions.Date otherDate) {
             return (date.Day == otherDate.Day && date.Month == otherDate.Month && date.Year == otherDate.Year);
         }
 

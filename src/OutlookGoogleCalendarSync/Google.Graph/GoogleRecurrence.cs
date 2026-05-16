@@ -1,12 +1,12 @@
 ﻿using GcalData = Google.Apis.Calendar.v3.Data;
 using log4net;
+using Microsoft.Graph.Models;
 using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Ogcs = OutlookGoogleCalendarSync;
-using Microsoft.Graph;
 
 namespace OutlookGoogleCalendarSync.Google.Graph {
     public class Recurrence {
@@ -18,7 +18,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             log.Debug("Creating Google iCalendar definition for recurring event.");
             List<String> gPattern = new List<String>();
             System.DateTime? utcEnd = null;
-            if (ai.Recurrence.Range.Type == Microsoft.Graph.RecurrenceRangeType.EndDate) {
+            if (ai.Recurrence.Range.Type == RecurrenceRangeType.EndDate) {
                 utcEnd = System.DateTime.Parse(ai.Recurrence.Range.EndDate.ToString());
                 if (!(ai.IsAllDay ?? false)) {
                     System.DateTime localEnd = (System.DateTime)utcEnd + ai.End.SafeDateTime().TimeOfDay;
@@ -49,7 +49,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         Google.Recurrence.setInterval(rrule, oPattern.Pattern.Interval ?? 0);
                         // Need to work out "BY" pattern
                         // Eg "BYDAY=MO,TU,WE,TH,FR"
-                        Google.Recurrence.addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.Pattern.DaysOfWeek.ToList())));
+                        Google.Recurrence.addRule(rrule, "BYDAY", string.Join(",", getByDay(oPattern.Pattern.DaysOfWeek)));
                         break;
                     }
 
@@ -59,9 +59,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         //Outlook and Google interpret days of month that don't alway exist, eg 31st, differently - though it's not explicitly defined
                         //Outlook: Picks last day of month (SKIP=BACKWARD); Google: Skips that month (SKIP=OMIT)
                         //We'll adopt Outlook's definition
-                        if (oPattern.Range.StartDate.Day > 28) {
+                        if (oPattern.Range.StartDate.HasValue && oPattern.Range.StartDate.Value.Day > 28) {
                             Google.Recurrence.addRule(rrule, "RSCALE", "GREGORIAN");
-                            Google.Recurrence.addRule(rrule, "BYMONTHDAY", oPattern.Range.StartDate.Day.ToString());
+                            Google.Recurrence.addRule(rrule, "BYMONTHDAY", oPattern.Range.StartDate.Value.Day.ToString());
                             Google.Recurrence.addRule(rrule, "SKIP", "BACKWARD");
                         }
                         break;
@@ -142,15 +142,15 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
 
         */
-        private static List<String> getByDay(List<Microsoft.Graph.DayOfWeek> dow) {
+        private static List<String> getByDay(List<DayOfWeekObject?> dow) {
             log.Fine("DayOfWeekList = " + string.Join(",", dow));
             List<String> byDay = new List<String>();
-            foreach (Microsoft.Graph.DayOfWeek day in dow) {
+            foreach (DayOfWeekObject day in dow) {
                 byDay.Add(day.ToString().Substring(0, 2).ToUpper());
             }
             return byDay;
         }
-        private static String getByDayRelative(Dictionary<String, String> rrule, Microsoft.Graph.RecurrencePattern oPattern) {
+        private static String getByDayRelative(Dictionary<String, String> rrule, Microsoft.Graph.Models.RecurrencePattern oPattern) {
             String byDayRel = "";
             switch (oPattern.Index) {
                 case WeekIndex.First: byDayRel = "1"; break;
@@ -159,7 +159,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 case WeekIndex.Fourth: byDayRel = "4"; break;
                 case WeekIndex.Last: byDayRel = "-1"; break;
             }
-            List<String> byDay = getByDay(oPattern.DaysOfWeek.ToList());
+            List<String> byDay = getByDay(oPattern.DaysOfWeek);
             if (byDay.Count == 1) {
                 byDayRel += string.Join(",", byDay);
             } else {
